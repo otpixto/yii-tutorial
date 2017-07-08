@@ -1,0 +1,144 @@
+@extends( 'template' )
+
+@section( 'breadcrumbs' )
+    {!! \App\Classes\Breadcrumbs::render([
+        [ 'Главная', '/' ],
+        [ 'Администрирование' ],
+        [ 'Пользователи' ]
+    ]) !!}
+@endsection
+
+@section( 'content' )
+
+    <div class="row margin-bottom-15">
+        <div class="col-xs-12">
+            <a href="{{ route( 'users.create' ) }}" class="btn btn-success">
+                <i class="fa fa-plus"></i>
+                Создать пользователя
+            </a>
+        </div>
+    </div>
+
+    @if ( $users->count() )
+
+        {{ $users->render() }}
+
+        <div class="todo-ui">
+            <div class="todo-sidebar">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" style="height: auto;">
+                        <div class="todo-project-list">
+                            {!! Form::open( [ 'method' => 'get' ] ) !!}
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-xs-12">
+                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
+                                </div>
+                            </div>
+                            {!! Form::close() !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                            <span class="caption-subject font-green-sharp bold uppercase">РОЛИ</span>
+                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" style="height: auto;">
+                        <div class="todo-project-list">
+                            <ul class="nav nav-stacked">
+                                @foreach ( $roles as $role )
+                                    <li>
+                                        <a href="?role={{ $role->id }}">
+                                            {{ $role->name }}
+                                            <span class="badge badge-info pull-right">
+                                                {{ $role->users->count() }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END TODO SIDEBAR -->
+
+            <!-- BEGIN TODO CONTENT -->
+            <div class="todo-content">
+                <div class="portlet light ">
+                    <div class="portlet-body">
+
+                        <table class="table table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th>
+                                    ID
+                                </th>
+                                <th>
+                                    E-mail
+                                </th>
+                                <th>
+                                    ФИО
+                                </th>
+                                <th>
+                                    Телефон
+                                </th>
+                                <th class="text-right">
+                                    &nbsp;
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ( $users as $user )
+                                <tr>
+                                    <td>
+                                        {{ $user->id }}
+                                    </td>
+                                    <td>
+                                        {{ $user->email }}
+                                    </td>
+                                    <td>
+                                        {{ $user->getName() }}
+                                    </td>
+                                    <td>
+                                        {{ $user->phone }}
+                                    </td>
+                                    <td class="text-right">
+                                        <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-xs btn-info">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- END TODO CONTENT -->
+        </div>
+
+        {{ $users->render() }}
+
+    @else
+        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+    @endif
+
+@endsection
+
+@section( 'css' )
+    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+@endsection
