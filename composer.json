@@ -1,4 +1,10 @@
 {
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://satis.ip-home.net"
+        }
+    ],
     "name": "laravel/laravel",
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
@@ -6,10 +12,11 @@
     "type": "project",
     "require": {
         "php": ">=5.6.4",
+        "iphome/laravel-permission": "dev-master",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "~5.0",
-        "spatie/laravel-permission": "^2.2"
+        "maatwebsite/excel": "^2.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -48,6 +55,7 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "secure-http": false
     }
 }

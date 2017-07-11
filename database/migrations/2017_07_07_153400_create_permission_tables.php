@@ -16,149 +16,154 @@ class CreatePermissionTables extends Migration
         $tableNames = config('permission.table_names');
         $foreignKeys = config('permission.foreign_keys');
 
-        Schema::create($tableNames['permissions'], function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('category_name');
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->string('guard_name');
-            $table->timestamps();
-        });
+        try
+        {
 
-        Schema::create($tableNames['roles'], function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->string('guard_name');
-            $table->timestamps();
-        });
+            Schema::create($tableNames['permissions'], function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('code')->unique();
+                $table->string('name');
+                $table->string('guard_name');
+                $table->timestamps();
+                $table->softDeletes();
+            });
 
-        Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) use ($tableNames, $foreignKeys) {
-            $table->integer('permission_id')->unsigned();
-            $table->morphs('model');
+            Schema::create($tableNames['roles'], function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('code')->unique();
+                $table->string('name');
+                $table->string('guard_name');
+                $table->timestamps();
+                $table->softDeletes();
+            });
 
-            $table->foreign('permission_id')
-                ->references('id')
-                ->on($tableNames['permissions'])
-                ->onDelete('cascade');
+            Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) use ($tableNames, $foreignKeys) {
+                $table->integer('permission_id')->unsigned();
+                $table->morphs('model');
 
-            $table->primary(['permission_id', 'model_id', 'model_type']);
-        });
+                $table->foreign('permission_id')
+                    ->references('id')
+                    ->on($tableNames['permissions'])
+                    ->onDelete('cascade');
 
-        Schema::create($tableNames['model_has_roles'], function (Blueprint $table) use ($tableNames, $foreignKeys) {
-            $table->integer('role_id')->unsigned();
-            $table->morphs('model');
+                $table->primary(['permission_id', 'model_id', 'model_type']);
+            });
 
-            $table->foreign('role_id')
-                ->references('id')
-                ->on($tableNames['roles'])
-                ->onDelete('cascade');
+            Schema::create($tableNames['model_has_roles'], function (Blueprint $table) use ($tableNames, $foreignKeys) {
+                $table->integer('role_id')->unsigned();
+                $table->morphs('model');
 
-            $table->primary(['role_id', 'model_id', 'model_type']);
-        });
+                $table->foreign('role_id')
+                    ->references('id')
+                    ->on($tableNames['roles'])
+                    ->onDelete('cascade');
 
-        Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($tableNames) {
-            $table->integer('permission_id')->unsigned();
-            $table->integer('role_id')->unsigned();
+                $table->primary(['role_id', 'model_id', 'model_type']);
+            });
 
-            $table->foreign('permission_id')
-                ->references('id')
-                ->on($tableNames['permissions'])
-                ->onDelete('cascade');
+            Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($tableNames) {
+                $table->integer('permission_id')->unsigned();
+                $table->integer('role_id')->unsigned();
 
-            $table->foreign('role_id')
-                ->references('id')
-                ->on($tableNames['roles'])
-                ->onDelete('cascade');
+                $table->foreign('permission_id')
+                    ->references('id')
+                    ->on($tableNames['permissions'])
+                    ->onDelete('cascade');
 
-            $table->primary(['permission_id', 'role_id']);
-        });
+                $table->foreign('role_id')
+                    ->references('id')
+                    ->on($tableNames['roles'])
+                    ->onDelete('cascade');
 
-        \Spatie\Permission\Models\Role::create([
-            'name'          => 'Администратор',
-            'code'          => 'admin',
-        ]);
+                $table->primary(['permission_id', 'role_id']);
+            });
 
-        \Spatie\Permission\Models\Role::create([
-            'name'      => 'Оператор',
-            'code'      => 'operator',
-        ]);
+            \Iphome\Permission\Models\Role::create([
+                'name'          => 'Администратор',
+                'code'          => 'admin',
+            ]);
 
-        \Spatie\Permission\Models\Role::create([
-            'name'      => 'Исполнитель',
-            'code'      => 'executor',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Администрирование',
+                'code'          => 'admin',
+            ]);
 
-        \Spatie\Permission\Models\Role::create([
-            'name'      => 'Контроль',
-            'code'      => 'control',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Пользователи',
+                'code'          => 'admin.users',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Обращения',
-            'name'          => 'Создание',
-            'code'          => 'tickets.create',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Создание пользователей',
+                'code'          => 'admin.users.create',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Обращения',
-            'name'          => 'Удаление',
-            'code'          => 'tickets.delete',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Редактирование пользователей',
+                'code'          => 'admin.users.edit',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Пользователи',
-            'name'          => 'Создание',
-            'code'          => 'users.create',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Удаление пользователей',
+                'code'          => 'admin.users.delete',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Пользователи',
-            'name'          => 'Редактирование',
-            'code'          => 'users.edit',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Роли',
+                'code'          => 'admin.roles',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Пользователи',
-            'name'          => 'Удаление',
-            'code'          => 'users.delete',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Создание ролей',
+                'code'          => 'admin.roles.create',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Роли',
-            'name'          => 'Создание',
-            'code'          => 'roles.create',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Редактирование ролей',
+                'code'          => 'admin.roles.edit',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Роли',
-            'name'          => 'Редактирование',
-            'code'          => 'roles.edit',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Удаление ролей',
+                'code'          => 'admin.roles.delete',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Роли',
-            'name'          => 'Удаление',
-            'code'          => 'roles.delete',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Права',
+                'code'          => 'admin.perms',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Права доступа',
-            'name'          => 'Создание',
-            'code'          => 'perms.create',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Создание прав',
+                'code'          => 'admin.perms.create',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Права доступа',
-            'name'          => 'Редактирование',
-            'code'          => 'perms.edit',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Редактирование прав',
+                'code'          => 'admin.perms.edit',
+            ]);
 
-        \Spatie\Permission\Models\Permission::create([
-            'category_name' => 'Права доступа',
-            'name'          => 'Удаление',
-            'code'          => 'perms.delete',
-        ]);
+            \Iphome\Permission\Models\Permission::create([
+                'name'          => 'Удаление прав',
+                'code'          => 'admin.perms.delete',
+            ]);
+
+        }
+        catch ( PDOException $e )
+        {
+            $this->down();
+            throw $e;
+        }
+        catch ( \Illuminate\Database\QueryException $e )
+        {
+            $this->down();
+            throw $e;
+        }
+        catch ( Exception $e )
+        {
+            $this->down();
+            throw $e;
+        }
 
     }
 
@@ -170,10 +175,10 @@ class CreatePermissionTables extends Migration
     public function down()
     {
         $tableNames = config('permission.table_names');
-        Schema::drop($tableNames['model_has_roles']);
-        Schema::drop($tableNames['model_has_permissions']);
-        Schema::drop($tableNames['role_has_permissions']);
-        Schema::drop($tableNames['roles']);
-        Schema::drop($tableNames['permissions']);
+        Schema::dropIfExists($tableNames['model_has_roles']);
+        Schema::dropIfExists($tableNames['model_has_permissions']);
+        Schema::dropIfExists($tableNames['role_has_permissions']);
+        Schema::dropIfExists($tableNames['roles']);
+        Schema::dropIfExists($tableNames['permissions']);
     }
 }

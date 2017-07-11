@@ -21,8 +21,6 @@
 
     @if ( $roles->count() )
 
-        {{ $roles->render() }}
-
         <div class="todo-ui">
             <div class="todo-sidebar">
                 <div class="portlet light ">
@@ -60,10 +58,13 @@
                             <thead>
                             <tr>
                                 <th>
-                                    ID
+                                    Наименование
                                 </th>
                                 <th>
-                                    Наименование
+                                    Код
+                                </th>
+                                <th>
+                                    Guard
                                 </th>
                                 <th class="text-right">
                                     &nbsp;
@@ -74,10 +75,13 @@
                             @foreach ( $roles as $role )
                                 <tr>
                                     <td>
-                                        {{ $role->id }}
+                                        {{ $role->name }}
                                     </td>
                                     <td>
-                                        {{ $role->name }}
+                                        {{ $role->code }}
+                                    </td>
+                                    <td>
+                                        {{ $role->guard_name }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-xs btn-info">
@@ -94,8 +98,6 @@
             </div>
             <!-- END TODO CONTENT -->
         </div>
-
-        {{ $roles->render() }}
 
     @else
         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

@@ -10,12 +10,12 @@
             </a>
             <ul class="dropdown-menu pull-left">
                 <li aria-haspopup="true" class=" ">
-                    <a href="" class="nav-link">
+                    <a href="{{ route( 'tickets.create' ) }}" class="nav-link">
                         Создать обращение
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="" class="nav-link">
+                    <a href="{{ route( 'tickets.index' ) }}" class="nav-link">
                         Мои обращения
                         <span class="badge badge-success">1</span>
                     </a>
@@ -80,12 +80,12 @@
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="" class="nav-link">
+                    <a href="{{ route( 'categories.index' ) }}" class="nav-link">
                         Категории обращений
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="" class="nav-link">
+                    <a href="{{ route( 'types.index' ) }}" class="nav-link">
                         Типы обращений
                     </a>
                 </li>

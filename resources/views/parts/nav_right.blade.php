@@ -5,13 +5,13 @@
     </a>
     <ul>
         <li>
-            <a href="" class="active">
+            <a href="{{ route( 'tickets.create' ) }}" class="active">
                 <span>Создать обращение</span>
                 <i class="icon-plus"></i>
             </a>
         </li>
         <li>
-            <a href="">
+            <a href="{{ route( 'tickets.index' ) }}">
                 <span>Мои обращения</span>
                 <i class="icon-list"></i>
             </a>

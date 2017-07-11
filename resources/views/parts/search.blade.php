@@ -1,12 +1,12 @@
 <!-- BEGIN HEADER SEARCH BOX -->
-<form class="search-form" action="" method="GET">
+{!! Form::open( [ 'url' => route( 'tickets.index' ), 'method' => 'get', 'class' => 'search-form' ] ) !!}
     <div class="input-group">
-        <input type="text" class="form-control" placeholder="Поиск" name="query">
+        {!! Form::text( 'search', null, [ 'class' => 'form-control', 'placeholder' => 'Поиск' ] ) !!}
         <span class="input-group-btn">
-            <a href="javascript:;" class="btn submit">
+            <button type="submit" class="btn submit">
                 <i class="icon-magnifier"></i>
-            </a>
+            </button>
         </span>
     </div>
-</form>
+{!! Form::close() !!}
 <!-- END HEADER SEARCH BOX -->

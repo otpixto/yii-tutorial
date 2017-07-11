@@ -32,7 +32,7 @@
                     </div>
                 </div>
 
-                {!! Form::open() !!}
+                {!! Form::open( [ 'url' => route( 'users.store' ) ] ) !!}
 
                 <!-- PERSONAL INFO TAB -->
                 <div class="steps" id="step1">
@@ -88,10 +88,10 @@
                     </div>
 
                     <div class="mt-checkbox-list">
-                        @foreach ( $roles as $role )
+                        @foreach ( $roles as $_role )
                             <label class="mt-checkbox mt-checkbox-outline">
-                                {{ $role->name }}
-                                {!! Form::checkbox( 'roles[]', $role->id ) !!}
+                                {{ $_role->name }}
+                                {!! Form::checkbox( 'roles[]', $_role->id ) !!}
                                 <span></span>
                             </label>
                         @endforeach
@@ -102,15 +102,15 @@
                         <span class="caption-subject font-blue-madison bold uppercase">Выберите права</span>
                     </div>
 
-                    <div class="mt-checkbox-list">
-                        @foreach ( $perms as $perm )
-                            <label class="mt-checkbox mt-checkbox-outline">
-                                {{ $perm->name }}
-                                {!! Form::checkbox( 'perms[]', $perm->id ) !!}
-                                <span></span>
-                            </label>
-                        @endforeach
-                    </div>
+                    @if ( $perms_tree )
+                        <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-busy="false" aria-selected="false">
+                            <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
+                                @include( 'admin.perms.tree', [ 'tree' => $perms_tree ] )
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div id="perms-results"></div>
 
                     <!--end profile-settings-->
                     <div class="margin-top-10">
@@ -130,13 +130,52 @@
 
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
 
+    <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
+
+            .ready( function ()
+            {
+
+                @if ( $perms_tree )
+
+                    $( '#tree' )
+
+                    .on( 'changed.jstree', function ( e, data )
+                    {
+                        $( '#perms-results' ).empty();
+                        $.each( data.selected, function ( i, code )
+                        {
+                            $( '#perms-results' ).append(
+                                $( '<input type="hidden" name="perms[]">' ).val( code )
+                            );
+                        });
+                    })
+
+                    .jstree(
+                        {
+                            'plugins': [
+                                'wholerow',
+                                'checkbox'
+                            ],
+                            "core": {
+                                "themes":
+                                    {
+                                        "icons":false
+                                    }
+                            }
+                        });
+
+                @endif
+
+            })
+
             .on( 'click', '[data-step]', function ()
             {
                 var step = $( this ).attr( 'data-step' );

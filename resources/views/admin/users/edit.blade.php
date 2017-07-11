@@ -93,7 +93,7 @@
                         @foreach ( $roles as $role )
                             <label class="mt-checkbox mt-checkbox-outline">
                                 {{ $role->name }}
-                                {!! Form::checkbox( 'roles[]', $role->id, $user->assignRole( $role->name ) ) !!}
+                                {!! Form::checkbox( 'roles[]', $role->code, $user->hasRole( $role->code ) ) !!}
                                 <span></span>
                             </label>
                         @endforeach
@@ -107,8 +107,14 @@
                     <div class="mt-checkbox-list">
                         @foreach ( $perms as $perm )
                             <label class="mt-checkbox mt-checkbox-outline">
+                                {!! Form::checkbox( 'perms[]', $perm->code, $user->can( $perm->code ) ) !!}
+                            @if ( $perm->getBranch() == 0 )
+                                <strong class="info">
+                                    {{ $perm->name }}
+                                </strong>
+                            @else
                                 {{ $perm->name }}
-                                {!! Form::checkbox( 'perms[]', $perm->id, $user->can( $perm->id ) ) !!}
+                            @endif
                                 <span></span>
                             </label>
                         @endforeach

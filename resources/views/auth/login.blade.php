@@ -29,7 +29,11 @@
                 <input type="checkbox" name="remember" value="1" />Запомнить
                 <span></span>
             </label>
-            <a href="/forgot" class="forget-password">Забыли пароль?</a>
+        </div>
+        <div class="forgot-password">
+            <p>
+                <a href="/forgot" class="forget-password">Забыли пароль?</a>
+            </p>
         </div>
         <div class="create-account">
             <p>

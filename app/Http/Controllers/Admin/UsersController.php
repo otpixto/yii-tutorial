@@ -6,8 +6,8 @@ use App\Classes\Title;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Iphome\Permission\Models\Permission;
+use Iphome\Permission\Models\Role;
 
 class UsersController extends BaseController
 {
@@ -20,7 +20,32 @@ class UsersController extends BaseController
         $search = trim( \Input::get( 'search', '' ) );
         $role = trim( \Input::get( 'role', '' ) );
 
-        $users = User::paginate( 30 );
+        if ( !empty( $role ) )
+        {
+            $users = User::role( $role )->orderBy( 'id', 'desc' );
+        }
+        else
+        {
+            $users = User::orderBy( 'id', 'desc' );
+        }
+
+        if ( !empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $users
+                ->where( function ( $q ) use ( $s )
+                {
+                    return $q
+                        ->where( 'firstname', 'like', $s )
+                        ->orWhere( 'middlename', 'like', $s )
+                        ->orWhere( 'lastname', 'like', $s )
+                        ->orWhere( 'email', 'like', $s )
+                        ->orWhere( 'phone', 'like', $s );
+                });
+        }
+
+        $users = $users->paginate( 30 );
+
         $roles = Role::orderBy( 'name' )->get();
 
         return view('admin.users.index' )
@@ -37,10 +62,10 @@ class UsersController extends BaseController
         Title::add( 'Создать пользователя' );
 
         $roles = Role::orderBy( 'name' )->get();
-        $perms = Permission::orderBy( 'name' )->get();
+        $perms_tree = Permission::getTree();
 
         return view('admin.users.create' )
-            ->with( 'perms', $perms )
+            ->with( 'perms_tree', $perms_tree )
             ->with( 'roles', $roles );
 
     }
@@ -79,7 +104,7 @@ class UsersController extends BaseController
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
 
-        switch ( \Input::get( 'action' ) )
+        switch ( $request->get( 'action' ) )
         {
             case 'edit_personal':
                 $res = $user->edit( \Input::all() );
@@ -97,13 +122,16 @@ class UsersController extends BaseController
                 break;
             case 'edit_access':
 
+                $user->syncRoles( $request->get( 'roles', [] ) );
+                $user->syncPermissions( $request->get( 'perms', [] ) );
+
                 break;
             default:
                 return redirect()->back()->withInput()->withErrors( [ 'Некорректное действие' ] );
                 break;
         }
 
-        return redirect()->route( 'users.index' )
+        return redirect()->route( 'users.edit', $user->id )
             ->with( 'success', 'Пользователь успешно отредактирован' );
 
     }

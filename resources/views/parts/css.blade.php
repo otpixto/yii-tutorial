@@ -10,7 +10,7 @@
 <link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
-<link href="/assets/layouts/layout3/css/layout.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/layouts/layout3/css/layout.css" rel="stylesheet" type="text/css" />
 <link href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css" id="style_color" />
 <link href="/assets/layouts/layout3/css/custom.min.css" rel="stylesheet" type="text/css" />
 <!-- END THEME LAYOUT STYLES -->

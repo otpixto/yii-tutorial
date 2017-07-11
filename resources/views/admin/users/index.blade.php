@@ -19,66 +19,66 @@
         </div>
     </div>
 
-    @if ( $users->count() )
-
-        {{ $users->render() }}
-
-        <div class="todo-ui">
-            <div class="todo-sidebar">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                        </div>
-                    </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
-                        <div class="todo-project-list">
-                            {!! Form::open( [ 'method' => 'get' ] ) !!}
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
-                                </div>
-                            </div>
-                            <div class="row margin-top-10">
-                                <div class="col-xs-12">
-                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                                </div>
-                            </div>
-                            {!! Form::close() !!}
-                        </div>
+    <div class="todo-ui">
+        <div class="todo-sidebar">
+            <div class="portlet light ">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
                 </div>
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                            <span class="caption-subject font-green-sharp bold uppercase">РОЛИ</span>
-                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                    <div class="todo-project-list">
+                        {!! Form::open( [ 'method' => 'get' ] ) !!}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
+                            </div>
                         </div>
-                    </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
-                        <div class="todo-project-list">
-                            <ul class="nav nav-stacked">
-                                @foreach ( $roles as $role )
-                                    <li>
-                                        <a href="?role={{ $role->id }}">
-                                            {{ $role->name }}
-                                            <span class="badge badge-info pull-right">
-                                                {{ $role->users->count() }}
-                                            </span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
+                        <div class="row margin-top-10">
+                            <div class="col-xs-12">
+                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
+                            </div>
                         </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
-            <!-- END TODO SIDEBAR -->
+            <div class="portlet light ">
+                <div class="portlet-title">
+                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                        <span class="caption-subject font-green-sharp bold uppercase">РОЛИ</span>
+                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                    </div>
+                </div>
+                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                    <div class="todo-project-list">
+                        <ul class="nav nav-stacked">
+                            @foreach ( $roles as $role )
+                                <li>
+                                    <a href="?role={{ $role->code }}">
+                                        {{ $role->name }}
+                                        <span class="badge badge-info pull-right">
+                                            {{ $role->users->count() }}
+                                        </span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END TODO SIDEBAR -->
 
-            <!-- BEGIN TODO CONTENT -->
-            <div class="todo-content">
-                <div class="portlet light ">
-                    <div class="portlet-body">
+        <!-- BEGIN TODO CONTENT -->
+        <div class="todo-content">
+            <div class="portlet light ">
+                <div class="portlet-body">
+
+                    @if ( $users->count() )
+
+                        {{ $users->render() }}
 
                         <table class="table table-hover table-striped">
                             <thead>
@@ -125,17 +125,18 @@
                             </tbody>
                         </table>
 
-                    </div>
+                        {{ $users->render() }}
+
+                    @else
+                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                    @endif
+
                 </div>
             </div>
-            <!-- END TODO CONTENT -->
         </div>
+        <!-- END TODO CONTENT -->
 
-        {{ $users->render() }}
-
-    @else
-        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-    @endif
+    </div>
 
 @endsection
 

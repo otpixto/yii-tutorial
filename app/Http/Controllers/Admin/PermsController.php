@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Iphome\Permission\Models\Permission;
+use Iphome\Permission\Models\Role;
 
 class PermsController extends BaseController
 {
@@ -16,10 +15,31 @@ class PermsController extends BaseController
 
         Title::add( 'Права' );
 
-        $perms = Permission::paginate( 30 );
+        $search = trim( \Input::get( 'search', '' ) );
+
+        if ( !empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $perms = Permission
+                ::where( function ( $q ) use ( $s )
+                {
+                    return $q
+                        ->where( 'code', 'like', $s )
+                        ->orWhere( 'name', 'like', $s )
+                        ->orWhere( 'guard_name', 'like', $s );
+                })
+                ->orderBy( 'code' )
+                ->orderBy( 'name' )
+                ->paginate( 30 );
+        }
+        else
+        {
+            $perms_tree = Permission::getTree();
+        }
 
         return view('admin.perms.index' )
-            ->with( 'perms', $perms );
+            ->with( 'perms', $perms ?? null )
+            ->with( 'perms_tree', $perms_tree ?? null );
 
     }
 
@@ -28,10 +48,13 @@ class PermsController extends BaseController
 
         Title::add( 'Создать права' );
 
-        $roles = Role::orderBy( 'name' )->get();
+        $roles = Role
+            ::orderBy( 'name' )
+            ->get();
 
         return view('admin.perms.create' )
-            ->with( 'roles', $roles );
+            ->with( 'roles', $roles )
+            ->with( 'guards', $this->getGuards() );
 
     }
 
@@ -49,7 +72,8 @@ class PermsController extends BaseController
         }
 
         return view('admin.perms.edit' )
-            ->with( 'perm', $perm );
+            ->with( 'perm', $perm )
+            ->with( 'guards', $this->getGuards() );
 
     }
 
@@ -70,16 +94,9 @@ class PermsController extends BaseController
                 ->withErrors( [ 'Права не найдены' ] );
         }
 
-        $this->validate( $request, [
-                'name' => [
-                    'required',
-                    'max:50',
-                    Rule::unique( 'permissions' )->ignore( $perm->id )
-                ]
-            ]
-        );
+        $this->validate( $request, Permission::getRules( $perm->code ) );
 
-        $perm->fill( \Input::all() );
+        $perm->fill( $request->all() );
         $perm->save();
 
         return redirect()->route( 'perms.edit', $perm->id )
@@ -90,24 +107,16 @@ class PermsController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, [
-                'name' => [
-                    'required',
-                    'max:50',
-                    Rule::unique( 'permissions' )
-                ],
-                'roles' => 'array',
-            ]
-        );
+        $this->validate( $request, Permission::getRules() );
 
-        $perm = Permission::create( \Input::all() );
+        $perm = Permission::create( $request->all() );
 
         if ( !empty( $request['roles'] ) )
         {
-            foreach ( $request['roles'] as $role_name )
+            foreach ( $request['roles'] as $code )
             {
-                $role = Role::findByName( $role_name );
-                $role->givePermissionTo( $perm->name );
+                $role = Role::findByCode( $code );
+                $role->givePermissionTo( $perm->code );
             }
         }
 

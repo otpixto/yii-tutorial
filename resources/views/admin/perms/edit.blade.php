@@ -18,8 +18,18 @@
                 {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ] ] ) !!}
 
                 <div class="form-group">
+                    <label class="control-label">Код</label>
+                    {!! Form::text( 'code', \Input::old( 'code', $perm->code ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
+                </div>
+
+                <div class="form-group">
                     <label class="control-label">Наименование</label>
                     {!! Form::text( 'name', \Input::old( 'name', $perm->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Guard</label>
+                    {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', $perm->guard_name ), [ 'class' => 'form-control' ] ) !!}
                 </div>
 
                 <div class="margin-top-10">

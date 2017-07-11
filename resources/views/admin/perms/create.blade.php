@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
-        [ 'Роли', route( 'perms.index' ) ],
+        [ 'Права', route( 'perms.index' ) ],
         [ 'Создать права' ]
     ]) !!}
 @endsection
@@ -18,8 +18,18 @@
                 {!! Form::open( [ 'url' => route( 'perms.store' ) ] ) !!}
 
                 <div class="form-group">
+                    <label class="control-label">Код</label>
+                    {!! Form::text( 'code', \Input::old( 'code' ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
+                </div>
+
+                <div class="form-group">
                     <label class="control-label">Наименование</label>
                     {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Guard</label>
+                    {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', config( 'defaults.guard' ) ), [ 'class' => 'form-control' ] ) !!}
                 </div>
 
                 <div class="caption caption-md">
@@ -31,7 +41,7 @@
                     @foreach ( $roles as $role )
                         <label class="mt-checkbox mt-checkbox-outline">
                             {{ $role->name }}
-                            {!! Form::checkbox( 'roles[]', $role->name ) !!}
+                            {!! Form::checkbox( 'roles[]', $role->code ) !!}
                             <span></span>
                         </label>
                     @endforeach
