@@ -76,7 +76,7 @@
             <ul class="dropdown-menu pull-left">
                 <li aria-haspopup="true" class=" ">
                     <a href="" class="nav-link">
-                        Здания
+                        Управляющие компании
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
@@ -95,8 +95,8 @@
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="" class="nav-link">
-                        Управляющие компании
+                    <a href="{{ route( 'addresses.index' ) }}" class="nav-link">
+                        Адреса
                     </a>
                 </li>
             </ul>
@@ -113,13 +113,13 @@
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="/admin/roles" class="nav-link">
-                        Роли
+                    <a href="/admin/perms" class="nav-link">
+                        Права
                     </a>
                 </li>
                 <li aria-haspopup="true" class=" ">
-                    <a href="/admin/perms" class="nav-link">
-                        Права
+                    <a href="/admin/roles" class="nav-link">
+                        Роли
                     </a>
                 </li>
             </ul>

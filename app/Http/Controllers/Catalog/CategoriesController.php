@@ -15,7 +15,23 @@ class CategoriesController extends BaseController
     public function index()
     {
 
-        $categories = Category::orderBy( 'name' )->get();
+        $search = trim( \Input::get( 'search', '' ) );
+
+        $categories = Category
+            ::orderBy( 'name' );
+
+        if ( !empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $categories
+                ->where( function ( $q ) use ( $s )
+                {
+                    return $q
+                        ->where( 'name', 'like', $s );
+                });
+        }
+
+        $categories = $categories->paginate( 30 );
 
         return view( 'catalog.categories.index' )
             ->with( 'categories', $categories );

@@ -18,7 +18,7 @@ class TicketsController extends BaseController
 
         $tickets = Ticket
             ::mine()
-            ->get();
+            ->paginate( 30 );
 
         return view( 'operator.tickets.index' )
             ->with( 'tickets', $tickets );
@@ -33,9 +33,15 @@ class TicketsController extends BaseController
     public function create()
     {
 
-        $types = Type
+        $res = Type
             ::orderBy( 'name' )
-            ->pluck( 'name', 'id' );
+            ->get();
+
+        $types = [];
+        foreach ( $res as $r )
+        {
+            $types[ $r->category->name ][ $r->id ] = $r->name;
+        }
 
         return view( 'operator.tickets.create' )
             ->with( 'types', $types );
@@ -52,7 +58,7 @@ class TicketsController extends BaseController
 
         $this->validate( $request, Ticket::$rules );
 
-        //$ticket = Ticket::create( $request->all() );
+        $ticket = Ticket::create( $request->all() );
 
         return redirect()->route( 'tickets.index' )
             ->with( 'success', 'Обращение успешно добавлено' );

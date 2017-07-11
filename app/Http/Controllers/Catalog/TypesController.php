@@ -16,10 +16,43 @@ class TypesController extends BaseController
     public function index()
     {
 
-        $types = Type::orderBy( 'name' )->get();
+        $search = trim( \Input::get( 'search', '' ) );
+        $category = trim( \Input::get( 'category', '' ) );
+
+        $types = Type
+            ::select(
+                'types.*',
+                'categories.name AS category_name'
+            )
+            ->join( 'categories', 'categories.id', '=', 'types.category_id' )
+            ->orderBy( 'categories.name' )
+            ->orderBy( 'types.name' );
+
+        if ( !empty( $category ) )
+        {
+            $types
+                ->where( 'types.category_id', '=', $category );
+        }
+
+        if ( !empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $types
+                ->where( function ( $q ) use ( $s )
+                {
+                    return $q
+                        ->where( 'types.name', 'like', $s )
+                        ->orWhere( 'categories.name', 'like', $s );
+                });
+        }
+
+        $types = $types->paginate( 30 );
+
+        $categories = Category::orderBy( 'name' )->get();
 
         return view( 'catalog.types.index' )
-            ->with( 'types', $types );
+            ->with( 'types', $types )
+            ->with( 'categories', $categories );
 
     }
 
@@ -30,7 +63,11 @@ class TypesController extends BaseController
      */
     public function create()
     {
-        return view( 'catalog.types.create' );
+
+        $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
+
+        return view( 'catalog.types.create' )
+            ->with( 'categories', $categories );
     }
 
     /**
@@ -42,7 +79,7 @@ class TypesController extends BaseController
     public function store(Request $request)
     {
 
-        $this->validate( $request, Category::$rules );
+        $this->validate( $request, Type::getRules() );
 
         $type = Type::create( $request->all() );
 
@@ -79,8 +116,11 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Тип не найдена' ] );
         }
 
+        $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
+
         return view( 'catalog.types.edit' )
-            ->with( 'type', $type );
+            ->with( 'type', $type )
+            ->with( 'categories', $categories );
 
     }
 
@@ -94,7 +134,7 @@ class TypesController extends BaseController
     public function update(Request $request, $id)
     {
 
-        $type = Category::find( $id );
+        $type = Type::find( $id );
 
         if ( !$type )
         {
@@ -102,9 +142,10 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Тип не найдена' ] );
         }
 
-        $this->validate( $request, Type::$rules );
+        $this->validate( $request, Type::getRules( $type->id ) );
 
         $type->fill( $request->all() );
+        $type->need_act = (int) $request->get( 'need_act', 0 );
         $type->save();
 
         return redirect()->route( 'types.edit', $type->id )

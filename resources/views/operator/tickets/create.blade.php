@@ -24,14 +24,14 @@
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Телефон-1</label>
+                        {!! Form::label( 'phone1', 'Телефон-1', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'phone1', \Input::old( 'phone1' ), [ 'class' => 'form-control', 'placeholder' => 'Телефон-1', 'required' ] ) !!}
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Телефон-2</label>
+                        {!! Form::label( 'phone2', 'Телефон-2', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'phone2', \Input::old( 'phone2' ), [ 'class' => 'form-control', 'placeholder' => 'Телефон-2' ] ) !!}
                     </div>
                 </div>
@@ -42,21 +42,21 @@
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Фамилия</label>
+                        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Имя</label>
+                        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Отчество</label>
+                        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
                     </div>
                 </div>
@@ -69,15 +69,15 @@
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Тип обращения</label>
+                        {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'type_id', $types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
                     </div>
                 </div>
 
                 <div class="col-md-8">
                     <div class="form-group">
-                        <label class="control-label">Адрес</label>
-                        {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес', 'required' ] ) !!}
+                        {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес', 'required', 'id' => 'address' ] ) !!}
                     </div>
                 </div>
 
@@ -95,7 +95,7 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label">Наименование УК</label>
+                                    {!! Form::label( null, 'Наименование УК', [ 'class' => 'control-label' ] ) !!}
                                     <span class="form-control" id="management_name">
                                     </span>
                                 </div>
@@ -103,7 +103,7 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="control-label">Телефон УК</label>
+                                    {!! Form::label( null, 'Телефон УК', [ 'class' => 'control-label' ] ) !!}
                                     <span class="form-control" id="management_phone">
                                     </span>
                                 </div>
@@ -111,7 +111,7 @@
 
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="control-label">Адрес УК</label>
+                                    {!! Form::label( null, 'Адрес УК', [ 'class' => 'control-label' ] ) !!}
                                     <span class="form-control" id="management_address">
                                     </span>
                                 </div>
@@ -131,7 +131,7 @@
 
                 <div class="col-md-12">
                     <div class="form-group">
-                        <label class="control-label">Текст обращения</label>
+                        {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::textarea( 'text', \Input::old( 'text' ), [ 'class' => 'form-control', 'placeholder' => 'Текст обращения', 'required' ] ) !!}
                     </div>
                 </div>
@@ -153,10 +153,24 @@
 
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
+        $( document )
+            .ready(function()
+            {
 
+                $( '.select2' ).select2();
 
+                //$( '#address' ).
+
+            });
+
+    </script>
 @endsection

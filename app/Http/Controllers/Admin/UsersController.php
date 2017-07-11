@@ -84,11 +84,11 @@ class UsersController extends BaseController
         }
 
         $roles = Role::orderBy( 'name' )->get();
-        $perms = Permission::orderBy( 'name' )->get();
+        $perms_tree = Permission::getTree();
 
         return view('admin.users.edit' )
             ->with( 'user', $user )
-            ->with( 'perms', $perms )
+            ->with( 'perms_tree', $perms_tree )
             ->with( 'roles', $roles );
 
     }

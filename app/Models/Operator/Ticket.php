@@ -21,10 +21,8 @@ class Ticket extends Model
         'middlename'        => 'required|string|max:100',
         'lastname'          => 'required|string|max:100',
         'phone1'            => 'required|string|max:11',
-        'phone2'            => 'string|max:11',
+        'phone2'            => 'max:11',
         'text'              => 'required|string|max:255',
-        'management_id'     => 'integer',
-        'address_id'        => 'integer',
         'address'           => 'string|max:255'
     ];
 
@@ -72,6 +70,24 @@ class Ticket extends Model
         $new->author_id = Auth::user()->id;
         $new->save();
         return $new;
+    }
+
+    public function getName ()
+    {
+        $name = [];
+        if ( !empty( $this->lastname ) )
+        {
+            $name[] = $this->lastname;
+        }
+        if ( !empty( $this->firstname ) )
+        {
+            $name[] = $this->firstname;
+        }
+        if ( !empty( $this->middlename ) )
+        {
+            $name[] = $this->middlename;
+        }
+        return implode( ' ', $name );
     }
 
 }

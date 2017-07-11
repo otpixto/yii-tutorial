@@ -21,14 +21,14 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                            <label class="control-label">Наименование</label>
                             {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
+                            <label class="control-label">Категория обращений</label>
                             {!! Form::select( 'category_id', $categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
                         </div>
                     </div>
@@ -39,14 +39,14 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
+                            <label class="control-label">Период на принятие заявки в работу, час</label>
                             {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance' ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
+                            <label class="control-label">Период на исполнение, час</label>
                             {!! Form::number( 'period_execution', \Input::old( 'period_execution' ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
                         </div>
                     </div>
@@ -57,15 +57,15 @@
 
                     <div class="col-md-8">
                         <div class="form-group">
-                            {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
+                            <label class="control-label">Сезонность устранения</label>
                             {!! Form::text( 'season', \Input::old( 'season' ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
                         </div>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act' ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                            <label class="control-label">Необходим акт</label>
+                            {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act' ), [ 'class' => 'form-control', 'placeholder' => 'Необходим акт' ] ) !!}
                         </div>
                     </div>
 

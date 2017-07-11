@@ -11,6 +11,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::prefix( 'catalog' )->group( function ()
     {
 
+        Route::resource( 'addresses', 'Catalog\AddressesController' );
         Route::resource( 'categories', 'Catalog\CategoriesController' );
         Route::resource( 'types', 'Catalog\TypesController' );
 

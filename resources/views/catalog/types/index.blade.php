@@ -12,7 +12,7 @@
 
     <div class="row margin-bottom-15">
         <div class="col-xs-12">
-            <a href="{{ route( 'categories.create' ) }}" class="btn btn-success">
+            <a href="{{ route( 'types.create' ) }}" class="btn btn-success">
                 <i class="fa fa-plus"></i>
                 Добавить тип
             </a>
@@ -44,6 +44,30 @@
                     </div>
                 </div>
             </div>
+            <div class="portlet light ">
+                <div class="portlet-title">
+                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                        <span class="caption-subject font-green-sharp bold uppercase">КАТЕГОРИИ</span>
+                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                    </div>
+                </div>
+                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                    <div class="todo-project-list">
+                        <ul class="nav nav-stacked">
+                            @foreach ( $categories as $category )
+                                <li @if ( \Input::get( 'category' ) == $category->id ) class="active" @endif>
+                                    <a href="?category={{ $category->id }}">
+                                        {{ $category->name }}
+                                        <span class="badge badge-info pull-right">
+                                            {{ $category->types->count() }}
+                                        </span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- END TODO SIDEBAR -->
 
@@ -58,6 +82,9 @@
                             <thead>
                             <tr>
                                 <th>
+                                    Категория
+                                </th>
+                                <th>
                                     Наименование
                                 </th>
                                 <th class="text-right">
@@ -68,6 +95,9 @@
                             <tbody>
                             @foreach ( $types as $type )
                                 <tr>
+                                    <td>
+                                        {{ $type->category_name }}
+                                    </td>
                                     <td>
                                         {{ $type->name }}
                                     </td>
@@ -94,5 +124,5 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
 @endsection

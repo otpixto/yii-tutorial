@@ -18,66 +18,92 @@
         </div>
     </div>
 
-    <div class="todo-ui">
-        <div class="todo-sidebar">
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
+    <div class="search-page search-content-4">
+        <div class="search-bar bordered">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Найти...">
+                        <span class="input-group-btn">
+                            <button class="btn green-soft uppercase bold" type="button">Поиск</button>
+                        </span>
                     </div>
                 </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
-                    <div class="todo-project-list">
-                        {!! Form::open( [ 'method' => 'get' ] ) !!}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
-                            </div>
-                        </div>
-                        <div class="row margin-top-10">
-                            <div class="col-xs-12">
-                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
-                    </div>
+                <div class="col-lg-4 extra-buttons">
+                    <button class="btn grey-steel uppercase bold" type="button">Сбросить</button>
+                    <button class="btn grey-cararra font-blue" type="button">Расширенный поиск</button>
                 </div>
             </div>
         </div>
-        <!-- END TODO SIDEBAR -->
+        <div class="search-table table-responsive">
 
-        <!-- BEGIN TODO CONTENT -->
-        <div class="todo-content">
-            <div class="portlet light ">
-                <div class="portlet-body">
+            @if ( $tickets->count() )
 
-                    @if ( $tickets->count() )
+                {{ $tickets->render() }}
 
-                        {{ $tickets->render() }}
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead class="bg-blue">
+                    <tr>
+                        <th width="50">
+                            <a href="javascript:;">Статус</a>
+                        </th>
+                        <th>
+                            <a href="javascript:;">Дата</a>
+                        </th>
+                        <th>
+                            <a href="javascript:;">Адрес и заявитель</a>
+                        </th>
+                        <th>
+                            <a href="javascript:;">Описание</a>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ( $tickets as $ticket )
+                        <tr>
+                            <td class="table-status">
+                                <a href="javascript:;">
+                                    <i class="icon-arrow-right font-blue"></i>
+                                </a>
+                            </td>
+                            <td class="table-date font-blue">
+                                <a href="javascript:;">
+                                    {{ $ticket->created_at }}
+                                </a>
+                            </td>
+                            <td class="table-title">
+                                <h3>
+                                    <a href="javascript:;">
+                                        {{ $ticket->address }}
+                                    </a>
+                                </h3>
+                                <p>
+                                    <a href="javascript:;">
+                                        {{ $ticket->getName() }}
+                                    </a> -
+                                    <span class="font-grey-cascade">25 mins ago</span>
+                                </p>
+                            </td>
+                            <td class="table-desc">
+                                {{ $ticket->text }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
 
-                        <div class="col-xs-12">
-                            <div class="mt-element-ribbon bg-grey-steel">
-                                <div class="ribbon ribbon-border-hor ribbon-clip ribbon-color-danger uppercase">
-                                    <div class="ribbon-sub ribbon-clip"></div> Clipped Ribbon </div>
-                                <p class="ribbon-content">Duis mollis, est non commodo luctus, nisi erat porttitor ligula</p>
-                            </div>
-                        </div>
+                {{ $tickets->render() }}
 
-                        {{ $users->render() }}
+            @else
+                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+            @endif
 
-                    @else
-                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                    @endif
-
-                </div>
-            </div>
         </div>
-        <!-- END TODO CONTENT -->
-
     </div>
 
 @endsection
 
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/pages/css/search.min.css" rel="stylesheet" type="text/css" />
 @endsection

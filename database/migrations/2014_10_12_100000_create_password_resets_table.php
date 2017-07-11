@@ -13,12 +13,34 @@ class CreatePasswordResetsTable extends Migration
      */
     public function up ()
     {
-        Schema::create( 'password_resets', function ( Blueprint $table )
+
+        try
         {
-            $table->string('email' )->index();
-            $table->string('token' );
-            $table->timestamp('created_at' )->nullable();
-        });
+
+            Schema::create( 'password_resets', function ( Blueprint $table )
+            {
+                $table->string('email' )->index();
+                $table->string('token' );
+                $table->timestamp('created_at' )->nullable();
+            });
+
+        }
+        catch ( PDOException $e )
+        {
+            $this->down();
+            throw $e;
+        }
+        catch ( \Illuminate\Database\QueryException $e )
+        {
+            $this->down();
+            throw $e;
+        }
+        catch ( Exception $e )
+        {
+            $this->down();
+            throw $e;
+        }
+
     }
 
     /**
