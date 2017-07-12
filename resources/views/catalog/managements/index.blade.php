@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Категории обращений' ]
+        [ 'УК' ]
     ]) !!}
 @endsection
 
@@ -12,9 +12,9 @@
 
     <div class="row margin-bottom-15">
         <div class="col-xs-12">
-            <a href="{{ route( 'categories.create' ) }}" class="btn btn-success">
+            <a href="{{ route( 'managements.create' ) }}" class="btn btn-success">
                 <i class="fa fa-plus"></i>
-                Добавить категорию
+                Добавить УК
             </a>
         </div>
     </div>
@@ -26,14 +26,14 @@
                     <div class="caption">
                         <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
-                    <a href="{{ route( 'categories.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                    <a href="{{ route( 'managements.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                 </div>
                 <div class="portlet-body todo-project-list-content" style="height: auto;">
                     <div class="todo-project-list">
                         {!! Form::open( [ 'method' => 'get' ] ) !!}
                         <div class="row">
                             <div class="col-xs-12">
-                                {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
+                                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
                             </div>
                         </div>
                         <div class="row margin-top-10">
@@ -53,7 +53,7 @@
             <div class="portlet light ">
                 <div class="portlet-body">
 
-                    @if ( $categories->count() )
+                    @if ( $managements->count() )
 
                         <table class="table table-hover table-striped">
                             <thead>
@@ -61,19 +61,31 @@
                                 <th>
                                     Наименование
                                 </th>
+                                <th>
+                                    Адрес
+                                </th>
+                                <th>
+                                    Телефон
+                                </th>
                                 <th class="text-right">
                                     &nbsp;
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach ( $categories as $category )
+                            @foreach ( $managements as $management )
                                 <tr>
                                     <td>
-                                        {{ $category->name }}
+                                        {{ $management->name }}
+                                    </td>
+                                    <td>
+                                        {{ $management->address }}
+                                    </td>
+                                    <td>
+                                        {{ $management->phone }}
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'categories.edit', $category->id ) }}" class="btn btn-xs btn-info">
+                                        <a href="{{ route( 'managements.edit', $management->id ) }}" class="btn btn-xs btn-info">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>

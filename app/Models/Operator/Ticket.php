@@ -12,18 +12,19 @@ class Ticket extends Model
 
     protected $nullable = [
         'management_id',
-        'phone2'
+        'address_id',
+        'customer_id'
     ];
 
     public static $rules = [
         'type_id'           => 'required|integer',
-        'firstname'         => 'required|string|max:100',
-        'middlename'        => 'required|string|max:100',
-        'lastname'          => 'required|string|max:100',
-        'phone1'            => 'required|string|max:11',
-        'phone2'            => 'max:11',
-        'text'              => 'required|string|max:255',
-        'address'           => 'string|max:255'
+        'firstname'         => 'required|max:191',
+        'middlename'        => 'nullable|max:191',
+        'lastname'          => 'nullable|max:191',
+        'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'phone2'            => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'text'              => 'required|max:191',
+        'address'           => 'max:191'
     ];
 
     protected $fillable = [
@@ -31,11 +32,9 @@ class Ticket extends Model
         'firstname',
         'middlename',
         'lastname',
-        'phone1',
+        'phone',
         'phone2',
         'text',
-        'management_id',
-        'address_id',
         'address'
     ];
 
@@ -54,6 +53,11 @@ class Ticket extends Model
         return $this->belongsTo( 'App\User' );
     }
 
+    public function type ()
+    {
+        return $this->belongsTo( 'App\Models\Operator\Type' );
+    }
+
     public function scopeMine ( $query )
     {
         return $query
@@ -66,10 +70,28 @@ class Ticket extends Model
 
     public static function create ( array $attributes = [] )
     {
-        $new = new Ticket( $attributes );
-        $new->author_id = Auth::user()->id;
-        $new->save();
-        return $new;
+
+        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        if ( !empty( $attributes['phone2'] ) )
+        {
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+        }
+
+        $ticket = new Ticket( $attributes );
+        $ticket->author_id = Auth::user()->id;
+
+        $address = Address
+            ::where( 'name', '=', trim( $ticket->address ) )
+            ->first();
+        if ( $address )
+        {
+            $ticket->address_id = $address->id;
+            $ticket->management_id = $address->management_id;
+        }
+
+        $ticket->save();
+        return $ticket;
+
     }
 
     public function getName ()
@@ -88,6 +110,33 @@ class Ticket extends Model
             $name[] = $this->middlename;
         }
         return implode( ' ', $name );
+    }
+
+    public function getPhones ( $html = false )
+    {
+        $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+        if ( $html )
+        {
+            $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+        }
+        else
+        {
+            $phones = $phone;
+        }
+        if ( !empty( $this->phone2 ) )
+        {
+            $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
+            $phones .= '; ';
+            if ( $html )
+            {
+                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone2 . '</a';
+            }
+            else
+            {
+                $phones .= $phone2;
+            }
+        }
+        return $phones;
     }
 
 }

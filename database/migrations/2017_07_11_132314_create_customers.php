@@ -19,10 +19,10 @@ class CreateCustomers extends Migration
             {
                 $table->increments('id' );
                 $table->string('firstname' );
-                $table->string('middlename' );
-                $table->string('lastname' );
-                $table->string('phone1' );
-                $table->string('phone2' );
+                $table->string('middlename' )->nullable();
+                $table->string('lastname' )->nullable();
+                $table->string('phone' );
+                $table->string('phone2' )->nullable();
                 $table->timestamps();
                 $table->softDeletes();
             });

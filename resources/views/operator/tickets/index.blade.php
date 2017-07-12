@@ -19,22 +19,21 @@
     </div>
 
     <div class="search-page search-content-4">
+        {!! Form::open( [ 'method' => 'get' ] ) !!}
         <div class="search-bar bordered">
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-md-12">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Найти...">
+                        {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control', 'placeholder' => 'Найти...' ] ) !!}
                         <span class="input-group-btn">
-                            <button class="btn green-soft uppercase bold" type="button">Поиск</button>
+                            {!! Form::submit( 'Поиск', [ 'class' => 'btn green-soft uppercase bold' ] ) !!}
                         </span>
                     </div>
                 </div>
-                <div class="col-lg-4 extra-buttons">
-                    <button class="btn grey-steel uppercase bold" type="button">Сбросить</button>
-                    <button class="btn grey-cararra font-blue" type="button">Расширенный поиск</button>
-                </div>
             </div>
         </div>
+        {!! Form::close() !!}
+
         <div class="search-table table-responsive">
 
             @if ( $tickets->count() )
@@ -45,16 +44,16 @@
                     <thead class="bg-blue">
                     <tr>
                         <th width="50">
-                            <a href="javascript:;">Статус</a>
+                            <a href="">Статус</a>
                         </th>
                         <th>
-                            <a href="javascript:;">Дата</a>
+                            <a href="">Дата</a>
                         </th>
                         <th>
-                            <a href="javascript:;">Адрес и заявитель</a>
+                            <a href="">Адрес и заявитель</a>
                         </th>
                         <th>
-                            <a href="javascript:;">Описание</a>
+                            <a href="">Описание</a>
                         </th>
                     </tr>
                     </thead>
@@ -62,30 +61,39 @@
                     @foreach ( $tickets as $ticket )
                         <tr>
                             <td class="table-status">
-                                <a href="javascript:;">
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}">
                                     <i class="icon-arrow-right font-blue"></i>
                                 </a>
                             </td>
                             <td class="table-date font-blue">
-                                <a href="javascript:;">
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}">
                                     {{ $ticket->created_at }}
                                 </a>
                             </td>
                             <td class="table-title">
                                 <h3>
-                                    <a href="javascript:;">
+                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}">
                                         {{ $ticket->address }}
                                     </a>
                                 </h3>
                                 <p>
-                                    <a href="javascript:;">
+                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}">
                                         {{ $ticket->getName() }}
-                                    </a> -
-                                    <span class="font-grey-cascade">25 mins ago</span>
+                                    </a>
+                                </p>
+                                <p>
+                                    <span class="font-grey-cascade">
+                                        {!! $ticket->getPhones( true ) !!}
+                                    </span>
                                 </p>
                             </td>
                             <td class="table-desc">
-                                {{ $ticket->text }}
+                                <h3>
+                                    {{ $ticket->type->name }}
+                                </h3>
+                                <p>
+                                    {{ $ticket->text }}
+                                </p>
                             </td>
                         </tr>
                     @endforeach

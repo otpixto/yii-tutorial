@@ -28,6 +28,7 @@
                         <div class="caption">
                             <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                         </div>
+                        <a href="{{ route( 'roles.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                     </div>
                     <div class="portlet-body todo-project-list-content" style="height: auto;">
                         <div class="todo-project-list">
@@ -106,5 +107,5 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
 @endsection

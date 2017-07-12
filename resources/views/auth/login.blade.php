@@ -30,11 +30,6 @@
                 <span></span>
             </label>
         </div>
-        <div class="forgot-password">
-            <p>
-                <a href="/forgot" class="forget-password">Забыли пароль?</a>
-            </p>
-        </div>
         <div class="create-account">
             <p>
                 <a href="/register" id="register-btn" class="uppercase">Зарегистрироваться</a>

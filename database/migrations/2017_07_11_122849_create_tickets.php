@@ -21,11 +21,13 @@ class CreateTickets extends Migration
                 $table->integer('author_id' )->unsigned();
                 $table->integer('type_id' )->unsigned();
                 $table->integer('management_id' )->unsigned();
+                $table->integer('address_id' )->unsigned();
+                $table->integer('customer_id' )->unsigned();
                 $table->string('firstname' );
-                $table->string('middlename' );
-                $table->string('lastname' );
-                $table->string('phone1' );
-                $table->string('phone2' );
+                $table->string('middlename' )->nullable();
+                $table->string('lastname' )->nullable();
+                $table->string('phone' );
+                $table->string('phone2' )->nullable();
                 $table->string('text' );
                 $table->timestamps();
                 $table->softDeletes();

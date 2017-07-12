@@ -167,12 +167,19 @@ class AddressesController extends BaseController
     public function search ( Request $request )
     {
 
-        $q = '%' . str_replace( ' ', '%', trim( $request->get( 'query' ) ) ) . '%';
+        $q = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
 
         $addresses = Address
-            ::where( 'name', 'like', $q )
-            ->orderBy( 'name' )
-            ->paginate( 30 );
+            ::select(
+                'addresses.*',
+                'managements.name AS management_name',
+                'managements.address AS management_address',
+                'managements.phone AS management_phone'
+            )
+            ->join( 'managements', 'managements.id', '=', 'addresses.management_id' )
+            ->where( 'addresses.name', 'like', $q )
+            ->orderBy( 'addresses.name' )
+            ->get();
 
         return $addresses;
 

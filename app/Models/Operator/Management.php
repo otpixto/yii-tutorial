@@ -15,6 +15,8 @@ class Management extends Model
 
     protected $fillable = [
         'name',
+        'address',
+        'phone'
     ];
 
     public function addresses ()

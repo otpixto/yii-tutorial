@@ -8,6 +8,7 @@
 <!-- BEGIN THEME GLOBAL STYLES -->
 <link href="/assets/global/css/components-rounded.css" rel="stylesheet" id="style_components" type="text/css" />
 <link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/global/css/common.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
 <link href="/assets/layouts/layout3/css/layout.css" rel="stylesheet" type="text/css" />

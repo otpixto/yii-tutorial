@@ -84,6 +84,18 @@
                 <div class="tab-pane" id="access">
                     {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
                     {!! Form::hidden( 'action', 'edit_access' ) !!}
+
+                    <div class="caption caption-md">
+                        <i class="icon-globe theme-font hide"></i>
+                        <span class="caption-subject font-blue-madison bold uppercase">Состояние учетной записи</span>
+                    </div>
+
+                    <div class="row margin-top-15 margin-bottom-15">
+                        <div class="col-md-12">
+                            {!! Form::checkbox( 'active', 1, $user->active, [ 'class' => 'make-switch', 'data-on-color' => 'success', 'data-off-color' => 'danger' ] ) !!}
+                        </div>
+                    </div>
+
                     <div class="caption caption-md">
                         <i class="icon-globe theme-font hide"></i>
                         <span class="caption-subject font-blue-madison bold uppercase">Выберите роли</span>

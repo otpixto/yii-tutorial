@@ -26,6 +26,7 @@
                     <div class="caption">
                         <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
+                    <a href="{{ route( 'types.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                 </div>
                 <div class="portlet-body todo-project-list-content" style="height: auto;">
                     <div class="todo-project-list">

@@ -125,6 +125,9 @@ class UsersController extends BaseController
                 $user->syncRoles( $request->get( 'roles', [] ) );
                 $user->syncPermissions( $request->get( 'perms', [] ) );
 
+                $user->active = $request->get( 'active', 0 );
+                $user->save();
+
                 break;
             default:
                 return redirect()->back()->withInput()->withErrors( [ 'Некорректное действие' ] );
