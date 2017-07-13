@@ -7,5 +7,7 @@
 @endsection
 
 @section( 'content' )
-    Главная страница и здесь нет нихуя
+
+    <div id="calendar" class="has-toolbar"> </div>
+
 @endsection

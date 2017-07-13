@@ -29,6 +29,7 @@ class CreateTickets extends Migration
                 $table->string('phone' );
                 $table->string('phone2' )->nullable();
                 $table->string('text' );
+                $table->enum( 'status', [ 'new', 'accepted', 'execution', 'done', 'closed_success', 'closed_fail', 'cancel' ] )->default( 'new' );
                 $table->timestamps();
                 $table->softDeletes();
             });
