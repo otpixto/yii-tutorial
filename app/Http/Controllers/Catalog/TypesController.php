@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Models\Operator\Category;
-use App\Models\Operator\Type;
+use App\Models\Category;
+use App\Models\Type;
 use Illuminate\Http\Request;
 
 class TypesController extends BaseController

@@ -55,6 +55,8 @@
 
                     @if ( $categories->count() )
 
+                        {{ $categories->render() }}
+
                         <table class="table table-hover table-striped">
                             <thead>
                             <tr>
@@ -81,6 +83,8 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        {{ $categories->render() }}
 
                     @else
                         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

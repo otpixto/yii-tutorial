@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Models\Operator\Address;
-use App\Models\Operator\Management;
+use App\Models\Address;
+use App\Models\Management;
 use Illuminate\Http\Request;
 
 class AddressesController extends BaseController
@@ -20,12 +20,7 @@ class AddressesController extends BaseController
         $management = trim( \Input::get( 'management', '' ) );
 
         $addresses = Address
-            ::select(
-                'addresses.*',
-                'managements.name AS management_name'
-            )
-            ->join( 'managements', 'managements.id', '=', 'addresses.management_id' )
-            ->orderBy( 'addresses.name' );
+            ::orderBy( 'addresses.name' );
 
         if ( !empty( $management ) )
         {
@@ -171,12 +166,8 @@ class AddressesController extends BaseController
 
         $addresses = Address
             ::select(
-                'addresses.*',
-                'managements.name AS management_name',
-                'managements.address AS management_address',
-                'managements.phone AS management_phone'
+                'addresses.*'
             )
-            ->join( 'managements', 'managements.id', '=', 'addresses.management_id' )
             ->where( 'addresses.name', 'like', $q )
             ->orderBy( 'addresses.name' )
             ->get();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Operator;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +25,11 @@ class Customer extends Model
         'phone2'
     ];
 
+    public function tickets ()
+    {
+        return $this->hasMany( 'App\Models\Ticket' );
+    }
+
     public static function create ( array $attributes = [] )
     {
 
@@ -38,6 +43,22 @@ class Customer extends Model
         $customer->save();
 
         return $customer;
+
+    }
+	
+	public function edit ( array $attributes = [] )
+    {
+
+        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        if ( !empty( $attributes['phone2'] ) )
+        {
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+        }
+
+        $this->fill( $attributes );
+        $this->save();
+
+        return $this;
 
     }
 
@@ -57,6 +78,33 @@ class Customer extends Model
             $name[] = $this->middlename;
         }
         return implode( ' ', $name );
+    }
+	
+	public function getPhones ( $html = false )
+    {
+        $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+        if ( $html )
+        {
+            $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+        }
+        else
+        {
+            $phones = $phone;
+        }
+        if ( !empty( $this->phone2 ) )
+        {
+            $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
+            $phones .= '; ';
+            if ( $html )
+            {
+                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone2 . '</a';
+            }
+            else
+            {
+                $phones .= $phone2;
+            }
+        }
+        return $phones;
     }
 
 }

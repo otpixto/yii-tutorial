@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Operator;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -9,11 +9,72 @@ class Ticket extends Model
 {
 
     protected $table = 'tickets';
+	
+	public static $statuses = [
+		'draft'					    => 'Черновик',
+        'accepted_operator'         => 'Принято оператором ЕДС',
+        'accepted_management'       => 'Принято к исполнению УК',
+        'done'				    	=> 'Выполнено с актом',
+        'done_without_act'          => 'Выполнено без акта ',
+        'closed_success'		    => 'Закрыто с оценкой',
+        'closed_without_confirm'	=> 'Закрыто без подтверждения',
+        'not_confirmed'             => 'Проблема не потверждена',
+        'not_done'                  => 'Не выполнено',
+        'cancel'				    => 'Отмена',
+        'failure'                   => 'Отказ',
+	];
+	
+	public static $workflow = [
+		'draft' => [ 
+			'accepted_operator',
+		],
+		'accepted_operator' => [
+			'accepted_management',
+			'cancel',
+            'failure',
+		],
+		'accepted_management' => [
+			'done',
+			'done_without_act',
+            'not_confirmed',
+            'not_done',
+            'cancel',
+		],
+		'done' => [
+			'closed_success',
+			'closed_without_confirm',
+            'not_done',
+		],
+        'done_without_act' => [
+            'closed_success',
+            'closed_without_confirm',
+            'not_done',
+        ],
+        'not_confirmed' => [
+
+        ],
+        'not_done' => [
+
+        ],
+		'closed_success' => [ 
+		
+		],
+		'closed_without_confirm' => [
+
+		],
+		'cancel' => [ 
+
+		],
+        'failure' => [
+
+        ],
+	];
 
     protected $nullable = [
         'management_id',
         'address_id',
-        'customer_id'
+        'customer_id',
+        'phone2'
     ];
 
     public static $rules = [
@@ -40,12 +101,12 @@ class Ticket extends Model
 
     public function management ()
     {
-        return $this->belongsTo( 'App\Models\Operator\Management' );
+        return $this->belongsTo( 'App\Models\Management' );
     }
 
     public function address ()
     {
-        return $this->belongsTo( 'App\Models\Operator\Address' );
+        return $this->belongsTo( 'App\Models\Address' );
     }
 
     public function author ()
@@ -55,7 +116,23 @@ class Ticket extends Model
 
     public function type ()
     {
-        return $this->belongsTo( 'App\Models\Operator\Type' );
+        return $this->belongsTo( 'App\Models\Type' );
+    }
+
+    public function comments ()
+    {
+        return $this->hasMany( 'App\Models\Comment', 'model_id' )
+			->where( 'model_name', '=', get_class( $this ) );
+    }
+
+    public function group ()
+    {
+        return $this->hasMany( 'App\Models\Ticket', 'group_uuid', 'group_uuid' );
+    }
+	
+	public function tags ()
+    {
+        return $this->hasMany( 'App\Models\Tag' );
     }
 
     public function scopeMine ( $query )
@@ -66,6 +143,12 @@ class Ticket extends Model
                 return $q
                     ->where( 'author_id', '=', Auth::user()->id );
             });
+    }
+
+    public function scopeGroupped ( $query )
+    {
+        return $query
+            ->groupBy( 'group_uuid' );
     }
 
     public static function create ( array $attributes = [] )
@@ -137,6 +220,48 @@ class Ticket extends Model
             }
         }
         return $phones;
+    }
+	
+	public function getAvailableStatuses ()
+	{
+		$workflow = self::$workflow[ $this->status ];
+		$statuses = [];
+		foreach ( $workflow as $wf )
+		{
+			$statuses[ $wf ] = self::$statuses[ $wf ];
+		}
+		return $statuses;
+	}
+	
+	public function getStatusName ()
+	{
+		return self::$statuses[ $this->status ];
+	}
+
+    public function addComment ( $text )
+    {
+
+        $comment = Comment::create([
+            'model_id'     	=> $this->id,
+			'model_name'	=> get_class( $this ),
+            'text'          => $text
+        ]);
+
+        return $comment;
+
+    }
+	
+	public function addTag ( $text )
+    {
+
+        $tag = Tag::create([
+            'model_id'     	=> $this->id,
+			'model_name'	=> get_class( $this ),
+            'text'          => $text
+        ]);
+
+        return $tag;
+
     }
 
 }

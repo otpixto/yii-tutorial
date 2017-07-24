@@ -104,41 +104,11 @@
 
             </div>
 
-            <div class="row hidden" id="management">
+            <div class="row">
 
-                <div class="col-md-12">
+                <div class="col-md-12 hidden" id="management">
 
-                    <div class="alert alert-info">
 
-                        <div class="row">
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {!! Form::label( null, 'Наименование УК', [ 'class' => 'control-label' ] ) !!}
-                                    <span class="form-control" id="management_name">
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {!! Form::label( null, 'Телефон УК', [ 'class' => 'control-label' ] ) !!}
-                                    <span class="form-control" id="management_phone">
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    {!! Form::label( null, 'Адрес УК', [ 'class' => 'control-label' ] ) !!}
-                                    <span class="form-control" id="management_address">
-                                    </span>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
 
                 </div>
 
@@ -159,12 +129,25 @@
                 </div>
 
             </div>
+			
+			<div class="row">
+			
+				<div class="col-md-12">
+                    <div class="form-group">
+                        {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
+						{!! Form::text( 'tags', null, [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
+                    </div>
+                </div>
+			
+			</div>
 
             <div class="row margiv-top-10">
                 <div class="col-md-12">
                     {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
                 </div>
             </div>
+
+            {!! Form::hidden( 'address_id', null, [ 'id' => 'address_id' ] ) !!}
 
             {!! Form::close() !!}
 
@@ -178,6 +161,7 @@
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
@@ -189,10 +173,17 @@
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+	<script src="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" type="text/javascript"></script>
     <script src="https://webasr.yandex.net/jsapi/v1/webspeechkit.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         var streamer = new ya.speechkit.SpeechRecognition();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
         function SearchCustomers ( phone )
         {
@@ -201,7 +192,7 @@
 
             $( '#customers-list .list-group' ).empty();
 
-            $.get( '{{ route( 'customer.search' ) }}', {
+            $.get( '{{ route( 'customers.search' ) }}', {
                 phone: phone
             }, function ( response )
             {
@@ -216,6 +207,8 @@
                                 .attr( 'data-firstname', customer.firstname )
                                 .attr( 'data-middlename', customer.middlename )
                                 .attr( 'data-lastname', customer.lastname )
+                                .attr( 'data-phone', customer.phone )
+                                .attr( 'data-phone2', customer.phone2 )
                                 .text( customer.full_name )
                                 .append(
                                     $( '<i class="fa fa-arrow-circle-down pull-right text-success"></i>' )
@@ -326,6 +319,14 @@
 
         };
 
+        function formattedPhone ( phone )
+        {
+
+            var res = '+7 (' + phone.substr( 0, 3 ) + ') ' + phone.substr( 3, 3 ) + '-' + phone.substr( 6, 2 ) + '-' + phone.substr( 8, 2 );
+            return res;
+
+        };
+
         $( document )
 
             .ready( function ()
@@ -343,7 +344,7 @@
                     datumTokenizer: function(d) { return d.tokens; },
                     queryTokenizer: Bloodhound.tokenizers.whitespace,
                     remote: {
-                        url: '{{ route( 'address.search' ) }}?q=%QUERY',
+                        url: '{{ route( 'addresses.search' ) }}?q=%QUERY',
                         wildcard: '%QUERY'
                     }
                 });
@@ -363,7 +364,7 @@
                             'Ничего не найдено по вашему запросу',
                             '</div>'
                         ].join('\n'),
-                        suggestion: Handlebars.compile('<div><strong>\{\{name\}\}</strong> - <i class="small">\{\{management_name\}\}</i></div>')
+                        suggestion: Handlebars.compile('<div><strong>\{\{name\}\}</strong></div>')
                     }
                 });
 
@@ -381,6 +382,18 @@
                 $( '#firstname' ).val( $( this ).attr( 'data-firstname' ) ).attr( 'readonly', 'readonly' );
                 $( '#middlename' ).val( $( this ).attr( 'data-middlename' ) ).attr( 'readonly', 'readonly' );
                 $( '#lastname' ).val( $( this ).attr( 'data-lastname' ) ).attr( 'readonly', 'readonly' );
+                if ( $( '#phone2' ).val() == '' )
+                {
+                    if ( $( '#phone' ).val().replace( /\D/g, '' ).substr( -10 ) == $( this ).attr( 'data-phone2' ) )
+                    {
+                        $( '#phone2' ).val( $( this ).attr( 'data-phone' ) );
+                    }
+                    else
+                    {
+                        $( '#phone2' ).val( $( this ).attr( 'data-phone2' ) );
+                    }
+                }
+                $( '#phone, #phone2' ).attr( 'readonly', 'readonly' );
                 $( '#customers-list .alert' ).toggleClass( 'hidden' );
             })
 
@@ -388,6 +401,7 @@
             {
                 e.preventDefault();
                 $( '#firstname, #middlename, #lastname' ).val( '' ).removeAttr( 'readonly' );
+                $( '#phone, #phone2' ).removeAttr( 'readonly' );
                 $( '#customers-list .alert' ).toggleClass( 'hidden' );
             })
 
@@ -399,16 +413,30 @@
 
             .on( 'typeahead:asyncrequest', '#address', function ( e, data )
             {
-                $( '#management' ).addClass( 'hidden' );
-                $( '#management_name, #management_address, #management_phone' ).text( '' );
+                $( '#address_id' ).val( '' ).trigger( 'change' );
             })
 
             .on( 'typeahead:select', '#address', function ( e, data )
             {
-                $( '#management' ).removeClass( 'hidden' );
-                $( '#management_name' ).text( data.management_name || '' );
-                $( '#management_address' ).text( data.management_address || '' );
-                $( '#management_phone' ).text( data.management_phone || '' );
+                $( '#address_id' ).val( data.id ).trigger( 'change' );
+            })
+
+            .on( 'change', '#address_id, #type_id', function ( e )
+            {
+                var address_id = $( '#address_id' ).val();
+                var type_id = $( '#type_id' ).val();
+                if ( !address_id || !type_id )
+                {
+                    $( '#management' ).addClass( 'hidden' );
+                    return;
+                };
+                $.post( '{{ route( 'managements.search' ) }}', {
+                    address_id: address_id,
+                    type_id: type_id
+                }, function ( response )
+                {
+                    $( '#management' ).removeClass( 'hidden' ).html( response );
+                });
             });
 
     </script>

@@ -138,7 +138,7 @@ class User extends Authenticatable
 
     public function getName ()
     {
-        $name = $this->firstname . ' ' . $this->lastname;
+        $name = $this->lastname . ' ' . $this->firstname . ' ' . $this->middlename;
         return $name;
     }
 

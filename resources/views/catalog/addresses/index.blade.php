@@ -23,12 +23,12 @@
         <div class="todo-sidebar">
             <div class="portlet light ">
                 <div class="portlet-title">
-                    <div class="caption">
+                    <div class="caption" data-toggle="collapse" data-target="#search">
                         <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
                     <a href="{{ route( 'addresses.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                 </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
                     <div class="todo-project-list">
                         {!! Form::open( [ 'method' => 'get' ] ) !!}
                         <div class="row">
@@ -48,12 +48,12 @@
             </div>
             <div class="portlet light ">
                 <div class="portlet-title">
-                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                    <div class="caption" data-toggle="collapse" data-target="#filter">
                         <span class="caption-subject font-green-sharp bold uppercase">УК</span>
                         <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
                     </div>
                 </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                <div class="portlet-body todo-project-list-content" id="filter" style="height: auto;">
                     <div class="todo-project-list">
                         <ul class="nav nav-stacked">
                             @foreach ( $managements as $management )
@@ -88,9 +88,6 @@
                                 <th>
                                     Наименование
                                 </th>
-                                <th>
-                                    УК
-                                </th>
                                 <th class="text-right">
                                     &nbsp;
                                 </th>
@@ -101,9 +98,6 @@
                                 <tr>
                                     <td>
                                         {{ $address->name }}
-                                    </td>
-                                    <td>
-                                        {{ $address->management_name }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-xs btn-info">

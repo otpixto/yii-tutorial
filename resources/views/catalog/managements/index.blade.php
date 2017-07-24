@@ -55,6 +55,8 @@
 
                     @if ( $managements->count() )
 
+                        {{ $managements->render() }}
+
                         <table class="table table-hover table-striped">
                             <thead>
                             <tr>
@@ -93,6 +95,8 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        {{ $managements->render() }}
 
                     @else
                         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

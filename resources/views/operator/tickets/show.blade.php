@@ -23,8 +23,52 @@
                         <div class="blog-single-head-date">
                             <i class="icon-calendar font-blue"></i>
                             <a href="javascript:;">
-                                {{ $ticket->created_at->format( 'd.m.Y' ) }}
+                                {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
                             </a>
+                        </div>
+                    </div>
+					
+					<div class="panel panel-primary">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Статус обращения
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {!! Form::label( null, 'Текущий статус', [ 'class' => 'control-label' ] ) !!}
+                                        <span class="form-control">
+                                            {{ $ticket->getStatusName() }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+							
+							<div class="row margin-top-10">
+							
+								<div class="form-group">
+									<div class="col-md-12">
+										{!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="col-md-8"> 
+										{!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                    </div>
+									<div class="col-md-4">
+										{!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+									</div>
+                                </div>
+			
+                            </div>
+
                         </div>
                     </div>
 
@@ -211,72 +255,47 @@
                                 </div>
 
                             </div>
+							
+							@if ( ! $ticket->management->hasContract )
+								<div class="row">
+									<div class="col-md-12">
+										<div class="alert alert-danger">
+											Отсутствует договор с УК
+										</div>
+									</div>
+								</div>
+							@endif
 
                         </div>
                     </div>
 
                     @endif
-
-                    <div class="blog-comments">
-                        <h3 class="sbold blog-comments-title">Comments(30)</h3>
-                        <div class="c-comment-list">
-                            <div class="media">
-                                <div class="media-left">
-                                    <a href="#">
-                                        <img class="media-object" alt="" src="../assets/pages/img/avatars/team1.jpg"> </a>
-                                </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">
-                                        <a href="#">Sean</a> on
-                                        <span class="c-date">23 May 2015, 10:40AM</span>
-                                    </h4> Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. </div>
-                            </div>
-                            <div class="media">
-                                <div class="media-left">
-                                    <a href="#">
-                                        <img class="media-object" alt="" src="../assets/pages/img/avatars/team3.jpg"> </a>
-                                </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">
-                                        <a href="#">Strong Strong</a> on
-                                        <span class="c-date">21 May 2015, 11:40AM</span>
-                                    </h4> Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <a href="#">
-                                                <img class="media-object" alt="" src="../assets/pages/img/avatars/team4.jpg"> </a>
-                                        </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">
-                                                <a href="#">Emma Stone</a> on
-                                                <span class="c-date">30 May 2015, 9:40PM</span>
-                                            </h4> Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="media">
-                                <div class="media-left">
-                                    <a href="#">
-                                        <img class="media-object" alt="" src="../assets/pages/img/avatars/team7.jpg"> </a>
-                                </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">
-                                        <a href="#">Nick Nilson</a> on
-                                        <span class="c-date">30 May 2015, 9:40PM</span>
-                                    </h4> Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. </div>
-                            </div>
-                        </div>
-                        <h3 class="sbold blog-comments-title">Добавить комментарий</h3>
-                        <form action="#">
-                            <div class="form-group">
-                                <textarea rows="8" name="message" placeholder="Комментарий ..." class="form-control c-square"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn blue uppercase btn-md sbold btn-block">Добавить комментарий</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+	
+					<div class="blog-comments">
+						<h3 class="sbold blog-comments-title">Комментарии</h3>
+							<div class="c-comment-list">
+							@if ( $ticket->comments->count() )
+								@include( 'parts.comments', [ 'comments' => $ticket->comments ] )
+							@else
+								<div class="media">
+									<div class="media-body">
+										<div class="alert alert-danger">Еще не добавлено ни одного комментария</div>
+									</div>
+								</div>
+							@endif
+						</div>
+						<h3 class="sbold blog-comments-title">Добавить комментарий</h3>
+						{!! Form::open( [ 'url' => route( 'tickets.comment', $ticket->id ) ] ) !!}
+							<div class="form-group">
+								{!! Form::textarea( 'text', null, [ 'class' => 'form-control c-square', 'placeholder' => 'Комментарий ...' ] ) !!}
+							</div>
+							<div class="form-group">
+								{!! Form::submit( 'Добавить комментарий', [ 'class' => 'btn blue uppercase btn-md sbold btn-block' ] ) !!}
+							</div>
+						{!! Form::close() !!}
+					</div>
+					
+				</div>
 
             </div>
         </div>

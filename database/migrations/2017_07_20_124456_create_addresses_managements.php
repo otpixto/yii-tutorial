@@ -4,22 +4,23 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAddresses extends Migration
+class CreateAddressesManagements extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up ()
+    public function up()
     {
         try
         {
-            Schema::create( 'addresses', function ( Blueprint $table )
+            Schema::create( 'addresses_managements', function ( Blueprint $table )
             {
                 $table->increments('id' );
-                $table->string('name' )->unique();
-                $table->integer('management_id' )->unsigned()->nullable();
+                $table->integer('address_id' )->unsigned();
+                $table->integer('type_id' )->unsigned()->nullable();
+                $table->integer('management_id' )->unsigned();
                 $table->timestamps();
                 $table->softDeletes();
             });
@@ -46,8 +47,8 @@ class CreateAddresses extends Migration
      *
      * @return void
      */
-    public function down ()
+    public function down()
     {
-        Schema::dropIfExists( 'addresses' );
+        Schema::dropIfExists( 'addresses_managements' );
     }
 }

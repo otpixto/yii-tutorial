@@ -21,6 +21,7 @@ class CreateManagements extends Migration
                 $table->string('name' )->unique();
                 $table->string('address' )->nullable();
                 $table->string('phone' )->nullable();
+                $table->boolean( 'has_contract' )->default( 0 );
                 $table->timestamps();
                 $table->softDeletes();
             });

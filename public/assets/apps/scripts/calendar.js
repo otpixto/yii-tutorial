@@ -69,30 +69,9 @@ var AppCalendar = function() {
                 });
             };
 
-            var addEvent = function(title) {
-                title = title.length === 0 ? "Untitled Event" : title;
-                var html = $('<div class="external-event label label-default">' + title + '</div>');
-                jQuery('#event_box').append(html);
-                initDrag(html);
-            };
-
             $('#external-events div.external-event').each(function() {
                 initDrag($(this));
             });
-
-            $('#event_add').unbind('click').click(function() {
-                var title = $('#event_title').val();
-                addEvent(title);
-            });
-
-            //predefined events
-            $('#event_box').html("");
-            addEvent("My Event 1");
-            addEvent("My Event 2");
-            addEvent("My Event 3");
-            addEvent("My Event 4");
-            addEvent("My Event 5");
-            addEvent("My Event 6");
 
             $('#calendar').fullCalendar('destroy'); // destroy the calendar
             $('#calendar').fullCalendar({ //re-initialize the calendar
@@ -123,7 +102,7 @@ var AppCalendar = function() {
                         $(this).remove();
                     }
                 },
-                events: [{
+                events: [/*{
                     title: 'All Day Event',
                     start: new Date(y, m, 1),
                     backgroundColor: App.getBrandColor('yellow')
@@ -164,7 +143,7 @@ var AppCalendar = function() {
                     end: new Date(y, m, 29),
                     backgroundColor: App.getBrandColor('yellow'),
                     url: 'http://google.com/',
-                }]
+                }*/]
             });
 
         }

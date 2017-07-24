@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Справочники' ],
         [ 'Заявители', route( 'customers.index' ) ],
-        [ 'Редактировать "' . $customer->name . '"' ]
+        [ 'Редактировать "' . $customer->getName() . '"' ]
     ]) !!}
 @endsection
 
@@ -58,6 +58,10 @@
                         </div>
                     </div>
 
+                </div>
+				
+				<div class="margin-top-10">
+                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                 </div>
 
                 {!! Form::close() !!}

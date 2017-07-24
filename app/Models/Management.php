@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Operator;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +21,7 @@ class Management extends Model
 
     public function addresses ()
     {
-        return $this->hasMany( 'App\Models\Operator\Address' );
+        return $this->hasMany( 'App\Models\Address' );
     }
 
     public static function create ( array $attributes = [] )

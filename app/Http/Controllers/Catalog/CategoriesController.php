@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Models\Operator\Category;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoriesController extends BaseController

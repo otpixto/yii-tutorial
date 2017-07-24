@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Operator;
 
-use App\Models\Operator\Customer;
-use App\Models\Operator\Ticket;
-use App\Models\Operator\Type;
+use App\Models\Customer;
+use App\Models\Ticket;
+use App\Models\Type;
 use Illuminate\Http\Request;
 
 class TicketsController extends BaseController
@@ -77,6 +77,8 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, Ticket::$rules );
+		
+		\DB::beginTransaction();
 
         $ticket = Ticket::create( $request->all() );
 
@@ -94,6 +96,17 @@ class TicketsController extends BaseController
             $ticket->customer_id = $customer->id;
             $ticket->save();
         }
+		
+		if ( !empty( $request->get( 'tags' ) ) )
+		{
+			$tags = explode( ',', $request->get( 'tags' ) );
+			foreach ( $tags as $tag )
+			{
+				$ticket->addTag( $tag );
+			}
+		}
+		
+		\DB::commit();
 
         return redirect()->route( 'tickets.index' )
             ->with( 'success', 'Обращение успешно добавлено' );
@@ -155,4 +168,21 @@ class TicketsController extends BaseController
     {
         //
     }
+	
+	public function comment( Request $request, $id )
+    {
+        
+		$ticket = Ticket::find( $id );
+		if ( !$ticket )
+		{
+			return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+		}
+		
+		$ticket->addComment( $request->get( 'text' ) );
+		
+		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+		
+    }
+	
 }

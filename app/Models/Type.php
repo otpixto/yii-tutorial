@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Operator;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
@@ -20,12 +20,12 @@ class Type extends Model
 
     public function tickets ()
     {
-        return $this->hasMany( 'App\Models\Operator\Ticket' );
+        return $this->hasMany( 'App\Models\Ticket' );
     }
 
     public function category ()
     {
-        return $this->belongsTo( 'App\Models\Operator\Category' );
+        return $this->belongsTo( 'App\Models\Category' );
     }
 
     public static function create ( array $attributes = [] )

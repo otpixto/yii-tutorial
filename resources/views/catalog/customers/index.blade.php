@@ -55,6 +55,8 @@
 
                     @if ( $customers->count() )
 
+                        {{ $customers->render() }}
+
                         <table class="table table-hover table-striped">
                             <thead>
                             <tr>
@@ -62,10 +64,7 @@
                                     ФИО
                                 </th>
                                 <th>
-                                    Телефон
-                                </th>
-                                <th>
-                                    Доп. телефон
+                                    Телефон(ы)
                                 </th>
                                 <th class="text-right">
                                     &nbsp;
@@ -79,10 +78,7 @@
                                         {{ $customer->getName() }}
                                     </td>
                                     <td>
-                                        {{ $customer->phone }}
-                                    </td>
-                                    <td>
-                                        {{ $customer->phone2 }}
+                                        {{ $customer->getPhones() }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-xs btn-info">
@@ -93,6 +89,8 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        {{ $customers->render() }}
 
                     @else
                         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

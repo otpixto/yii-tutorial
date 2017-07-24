@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Models\Operator\Category;
-use App\Models\Operator\Management;
+use App\Models\AddressManagement;
+use App\Models\Category;
+use App\Models\Management;
 use Illuminate\Http\Request;
 
 class ManagementsController extends BaseController
@@ -139,6 +140,30 @@ class ManagementsController extends BaseController
     public function destroy($id)
     {
         //
+    }
+
+    public function search ( Request $request )
+    {
+
+        $res = AddressManagement
+            ::select( 'management_id' )
+            ->where( 'type_id', '=', $request->get( 'type_id' ) )
+            ->where( 'address_id', '=', $request->get( 'address_id' ) )
+            ->get();
+
+        if ( ! $res->count() )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'УК не найдены по заданным критериям' );
+        }
+
+        $managements = Management
+            ::whereIn( 'id', $res->pluck( 'management_id' ) )
+            ->get();
+
+        return view( 'catalog.managements.select' )
+            ->with( 'managements', $managements );
+
     }
 
 }

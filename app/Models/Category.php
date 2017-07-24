@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Operator;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +19,7 @@ class Category extends Model
 
     public function types ()
     {
-        return $this->hasMany( 'App\Models\Operator\Type' );
+        return $this->hasMany( 'App\Models\Type' );
     }
 
     public static function create ( array $attributes = [] )

@@ -15,7 +15,7 @@
         <div class="portlet-body">
             <div class="tab-content">
 
-                {!! Form::open( [ 'url' => route( 'types.store' ) ] ) !!}
+                {!! Form::open( [ 'url' => route( 'addresses.store' ) ] ) !!}
 
                 <div class="row">
 

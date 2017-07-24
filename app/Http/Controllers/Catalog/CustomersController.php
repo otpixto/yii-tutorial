@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Models\Operator\Category;
-use App\Models\Operator\Customer;
-use App\Models\Operator\Management;
+use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Management;
 use Illuminate\Http\Request;
 
 class CustomersController extends BaseController
@@ -126,9 +126,8 @@ class CustomersController extends BaseController
         }
 
         $this->validate( $request, Customer::$rules );
-
-        $customer->fill( $request->all() );
-        $customer->save();
+		
+		$customer->edit( $request->all() );
 
         return redirect()->route( 'customers.edit', $customer->id )
             ->with( 'success', 'Заявитель успешно отредактирован' );
@@ -152,7 +151,12 @@ class CustomersController extends BaseController
         $phone = mb_substr( preg_replace( '/[^0-9]/', '', $request->get( 'phone' ) ), -10 );
 
         $customers = Customer
-            ::where( 'phone', '=', $phone )
+            ::where( function ( $q ) use ( $phone )
+            {
+                return $q
+                    ->where( 'phone', '=', $phone )
+                    ->orWhere( 'phone2', '=', $phone );
+            })
             ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
             ->orderBy( 'middlename' )

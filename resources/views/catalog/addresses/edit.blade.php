@@ -19,17 +19,10 @@
 
                 <div class="row">
 
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group">
                             {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::text( 'name', \Input::old( 'name', $address->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            {!! Form::label( 'management_id', 'УК', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'management_id', $managements, \Input::old( 'management_id', $address->management_id ), [ 'class' => 'form-control select2', 'placeholder' => 'УК' ] ) !!}
                         </div>
                     </div>
 
