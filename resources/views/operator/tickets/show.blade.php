@@ -50,8 +50,10 @@
 
                             </div>
 							
-							<div class="row margin-top-10">
-							
+							<div class="row">
+
+                                {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
+
 								<div class="form-group">
 									<div class="col-md-12">
 										{!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
@@ -66,6 +68,8 @@
 										{!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
 									</div>
                                 </div>
+
+                                {!! Form::close() !!}
 			
                             </div>
 
@@ -210,64 +214,68 @@
                         </div>
                     </div>
 
-                    @if ( $ticket->management )
+                    @if ( $ticket->managements->count() )
 
-                    <div class="panel panel-info">
-                        <!-- Default panel contents -->
-                        <div class="panel-heading">
-                            <h3 class="panel-title">
-                                Управляющая компания
-                            </h3>
-                        </div>
-                        <div class="panel-body">
+                        @foreach ( $ticket->managements as $i => $management )
 
-                            <div class="row">
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {!! Form::label( null, 'Управляющая компания', [ 'class' => 'control-label' ] ) !!}
-                                        <span class="form-control">
-                                            {{ $ticket->management->name }}
-                                        </span>
-                                    </div>
+                            <div class="panel panel-info">
+                                <!-- Default panel contents -->
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">
+                                        Исполнитель #{{ ( $i + 1 ) }}
+                                    </h3>
                                 </div>
+                                <div class="panel-body">
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {!! Form::label( null, 'Телефон УК', [ 'class' => 'control-label' ] ) !!}
-                                        <span class="form-control">
-                                            {{ $ticket->management->phone }}
-                                        </span>
+                                    <div class="row">
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                {!! Form::label( null, 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                                                <span class="form-control">
+                                                    {{ $management->name }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                {!! Form::label( null, 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                                                <span class="form-control">
+                                                    {{ $management->phone }}
+                                                </span>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                </div>
 
+                                    <div class="row">
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                {!! Form::label( null, 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                                                <span class="form-control">
+                                                    {{ $management->address }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    @if ( ! $management->hasContract )
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-danger">
+                                                    Отсутствует договор
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                </div>
                             </div>
 
-                            <div class="row">
-
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        {!! Form::label( null, 'Адрес УК', [ 'class' => 'control-label' ] ) !!}
-                                        <span class="form-control">
-                                            {{ $ticket->management->address }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div>
-							
-							@if ( ! $ticket->management->hasContract )
-								<div class="row">
-									<div class="col-md-12">
-										<div class="alert alert-danger">
-											Отсутствует договор с УК
-										</div>
-									</div>
-								</div>
-							@endif
-
-                        </div>
-                    </div>
+                        @endforeach
 
                     @endif
 	

@@ -23,9 +23,10 @@ class Address extends Model
         'management_id'
     ];
 
-    public function management ()
+    public function managements ()
     {
-        return $this->hasOne( 'App\Models\Management' );
+        return $this->belongsToMany( 'App\Models\Management', 'addresses_managements' )
+            ->withPivot( [ 'type_id' ] );
     }
 
     public static function create ( array $attributes = [] )

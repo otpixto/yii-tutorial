@@ -91,6 +91,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function management ()
+    {
+        return $this->belongsTo( 'App\Models\Management' );
+    }
+
     public static function add ( array $input )
     {
 

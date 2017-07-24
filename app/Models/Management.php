@@ -21,7 +21,8 @@ class Management extends Model
 
     public function addresses ()
     {
-        return $this->hasMany( 'App\Models\Address' );
+        return $this->belongsToMany( 'App\Models\Address', 'addresses_managements' )
+            ->withPivot( [ 'type_id' ] );
     }
 
     public static function create ( array $attributes = [] )

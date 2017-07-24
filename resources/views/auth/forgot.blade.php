@@ -7,14 +7,16 @@
     <h3 class="font-green">Забыли пароль?</h3>
 
     @include( 'parts.errors' )
+    @include( 'parts.success' )
 
     <p>Введите свой e-mail для сброса пароля</p>
 
     <div class="form-group">
-        <input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="E-mail" name="email" /> </div>
+        {!! Form::email( 'email', null, [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'E-mail', 'autocomplete' => 'off' ] ) !!}
+    </div>
     <div class="form-actions">
         <a href="/login" class="btn green btn-outline">Назад</a>
-        <button type="submit" class="btn btn-success uppercase pull-right">Сбросить</button>
+        {!! Form::submit( 'Сбросить', [ 'class' => 'btn btn-success uppercase pull-right' ] ) !!}
     </div>
     {!! Form::close() !!}
     <!-- END FORGOT PASSWORD FORM -->

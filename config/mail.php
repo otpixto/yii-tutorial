@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+    'host' => env('MAIL_HOST', 'main.ip-home.net'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,8 +56,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'eds@ip-home.net'),
+        'name' => env('MAIL_FROM_NAME', 'ЕДС "Жуковский"'),
     ],
 
     /*
@@ -84,9 +84,9 @@ return [
     |
     */
 
-    'username' => env('MAIL_USERNAME'),
+    'username' => env('eds@ip-home.net'),
 
-    'password' => env('MAIL_PASSWORD'),
+    'password' => env('kai7kaV4'),
 
     /*
     |--------------------------------------------------------------------------

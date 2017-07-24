@@ -30,6 +30,11 @@
                 <span></span>
             </label>
         </div>
+        <div class="form-group">
+            <p class="text-right">
+                <a href="{{ route( 'forgot' ) }}" id="register-btn" class="uppercase">Забыли пароль?</a>
+            </p>
+        </div>
         <div class="create-account">
             <p>
                 <a href="/register" id="register-btn" class="uppercase">Зарегистрироваться</a>

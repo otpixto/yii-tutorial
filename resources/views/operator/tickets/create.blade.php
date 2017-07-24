@@ -105,13 +105,10 @@
             </div>
 
             <div class="row">
-
-                <div class="col-md-12 hidden" id="management">
-
-
-
+                <div class="col-md-12">
+                    <div class="alert alert-info hidden" id="management">
+                    </div>
                 </div>
-
             </div>
 
             <hr />

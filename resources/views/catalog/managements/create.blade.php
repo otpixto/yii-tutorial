@@ -4,8 +4,8 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'УК', route( 'managements.index' ) ],
-        [ 'Добавить УК' ]
+        [ 'Исполнители', route( 'managements.index' ) ],
+        [ 'Добавить Исполнителя' ]
     ]) !!}
 @endsection
 

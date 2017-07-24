@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'УК', route( 'managements.index' ) ],
+        [ 'Исполнители', route( 'managements.index' ) ],
         [ 'Редактировать "' . $management->name . '"' ]
     ]) !!}
 @endsection

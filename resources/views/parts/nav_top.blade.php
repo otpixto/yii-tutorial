@@ -21,7 +21,9 @@
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'tickets.index' ) }}" class="nav-link">
                                 Мои обращения
-                                <span class="badge badge-success">1</span>
+                                <span class="badge badge-success">
+                                    {{ \Session::get( 'tickets_count' ) }}
+                                </span>
                             </a>
                         </li>
                     @endcan
@@ -91,7 +93,7 @@
                     @can ( 'catalog.managements.show' )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'managements.index' ) }}" class="nav-link">
-                                Управляющие компании
+                                Исполнители
                             </a>
                         </li>
                     @endcan

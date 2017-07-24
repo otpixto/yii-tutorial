@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 
 class Ticket extends Model
 {
@@ -14,8 +15,7 @@ class Ticket extends Model
 		'draft'					    => 'Черновик',
         'accepted_operator'         => 'Принято оператором ЕДС',
         'accepted_management'       => 'Принято к исполнению УК',
-        'done'				    	=> 'Выполнено с актом',
-        'done_without_act'          => 'Выполнено без акта ',
+        'done'				    	=> 'Выполнено',
         'closed_success'		    => 'Закрыто с оценкой',
         'closed_without_confirm'	=> 'Закрыто без подтверждения',
         'not_confirmed'             => 'Проблема не потверждена',
@@ -99,9 +99,9 @@ class Ticket extends Model
         'address'
     ];
 
-    public function management ()
+    public function managements ()
     {
-        return $this->belongsTo( 'App\Models\Management' );
+        return $this->belongsToMany( 'App\Models\Management', 'tickets_managements' );
     }
 
     public function address ()
@@ -132,14 +132,26 @@ class Ticket extends Model
 	
 	public function tags ()
     {
-        return $this->hasMany( 'App\Models\Tag' );
+        return $this->hasMany( 'App\Models\Tag', 'model_id' )
+            ->where( 'model_name', '=', get_class( $this ) );
     }
 
     public function scopeMine ( $query )
     {
+        $user = Auth::user();
         return $query
-            ->where( function ( $q )
+            ->where( function ( $q ) use ( $user )
             {
+                if ( $user->can( 'tickets.all' ) ) return true;
+                if ( $user->can( 'tickets.executor' ) && $user->management )
+                {
+                    return $q
+                        ->whereHas( 'managements', function ( $q2 ) use ( $user )
+                        {
+                            return $q2
+                                ->where( 'managements.id', '=', $user->management->id );
+                        });
+                }
                 return $q
                     ->where( 'author_id', '=', Auth::user()->id );
             });
@@ -261,6 +273,24 @@ class Ticket extends Model
         ]);
 
         return $tag;
+
+    }
+
+    public function changeStatus ( $status )
+    {
+
+        if ( ! isset( self::$statuses[ $status ] ) )
+        {
+            return new MessageBag([ 'Некорректный статус' ]);
+        }
+
+        if ( ! in_array( $status, self::$workflow[ $this->status ] ) )
+        {
+            return new MessageBag([ 'Невозможно сменить статус!' ]);
+        }
+
+        $this->status = $status;
+        $this->save();
 
     }
 

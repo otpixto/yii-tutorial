@@ -9,14 +9,16 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
-        <div class="col-xs-12">
-            <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-                Добавить обращение
-            </a>
+    @can( 'tickets.create' )
+        <div class="row margin-bottom-15">
+            <div class="col-xs-12">
+                <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Добавить обращение
+                </a>
+            </div>
         </div>
-    </div>
+    @endcan
 
     <div class="search-page search-content-4">
         {!! Form::open( [ 'method' => 'get' ] ) !!}
@@ -62,7 +64,8 @@
                         <tr>
                             <td class="table-status">
                                 <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                    <i class="icon-arrow-right font-blue"></i>
+                                    <i class="icon-arrow-right font-blue hidden"></i>
+                                    {{ $ticket->getStatusName() }}
                                 </a>
                             </td>
                             <td class="table-date font-blue">

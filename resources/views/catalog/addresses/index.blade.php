@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="portlet light ">
+            <div class="portlet light hidden">
                 <div class="portlet-title">
                     <div class="caption" data-toggle="collapse" data-target="#filter">
                         <span class="caption-subject font-green-sharp bold uppercase">УК</span>

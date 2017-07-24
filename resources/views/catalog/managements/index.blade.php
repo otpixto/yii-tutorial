@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'УК' ]
+        [ 'Исполнители' ]
     ]) !!}
 @endsection
 
@@ -14,7 +14,7 @@
         <div class="col-xs-12">
             <a href="{{ route( 'managements.create' ) }}" class="btn btn-success">
                 <i class="fa fa-plus"></i>
-                Добавить УК
+                Добавить Исполнителя
             </a>
         </div>
     </div>

@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class TicketsController extends BaseController
 {
@@ -77,7 +78,7 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, Ticket::$rules );
-		
+
 		\DB::beginTransaction();
 
         $ticket = Ticket::create( $request->all() );
@@ -96,7 +97,12 @@ class TicketsController extends BaseController
             $ticket->customer_id = $customer->id;
             $ticket->save();
         }
-		
+
+        if ( !empty( $request->get( 'managements' ) ) )
+        {
+            $ticket->managements()->attach( $request->get( 'managements' ) );
+        }
+
 		if ( !empty( $request->get( 'tags' ) ) )
 		{
 			$tags = explode( ',', $request->get( 'tags' ) );
@@ -105,7 +111,15 @@ class TicketsController extends BaseController
 				$ticket->addTag( $tag );
 			}
 		}
-		
+
+		$res = $ticket->changeStatus( 'accepted_operator' );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $res );
+        }
+
 		\DB::commit();
 
         return redirect()->route( 'tickets.index' )
@@ -169,7 +183,7 @@ class TicketsController extends BaseController
         //
     }
 	
-	public function comment( Request $request, $id )
+	public function comment ( Request $request, $id )
     {
         
 		$ticket = Ticket::find( $id );
@@ -183,6 +197,27 @@ class TicketsController extends BaseController
 		
 		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
 		
+    }
+
+    public function changeStatus ( Request $request, $id )
+    {
+
+        $ticket = Ticket::find( $id );
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+
+        $res = $ticket->changeStatus( $request->get( 'status' ) );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+
     }
 	
 }
