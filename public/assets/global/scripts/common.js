@@ -150,4 +150,13 @@ $( document )
 		
 		$( '#modals [data-id="' + $( this ).attr( 'data-modal-submit' ) + '"] form' ).submit();
 	
-	});
+	})
+
+    .on ( 'click', '[data-toggle]', function ( e )
+    {
+
+        e.preventDefault();
+
+        $( $( this ).attr( 'data-toggle' ) ).toggle();
+
+    });

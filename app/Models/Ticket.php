@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
@@ -35,7 +36,6 @@ class Ticket extends Model
 		],
 		'accepted_management' => [
 			'done',
-			'done_without_act',
             'not_confirmed',
             'not_done',
             'cancel',
@@ -125,6 +125,16 @@ class Ticket extends Model
 			->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function parent ()
+    {
+        return $this->belongsTo( 'App\Models\Ticket', 'parent_id' );
+    }
+
+    public function childs ()
+    {
+        return $this->hasMany( 'App\Models\Ticket', 'parent_id' );
+    }
+
     public function group ()
     {
         return $this->hasMany( 'App\Models\Ticket', 'group_uuid', 'group_uuid' );
@@ -160,7 +170,14 @@ class Ticket extends Model
     public function scopeGroupped ( $query )
     {
         return $query
-            ->groupBy( 'group_uuid' );
+            ->addSelect( \DB::raw( 'DISTINCT group_uuid' ) )
+            ->addSelect( '*' );
+    }
+
+    public function scopeParentsOnly ( $query )
+    {
+        return $query
+            ->whereNull( 'parent_id' );
     }
 
     public static function create ( array $attributes = [] )
@@ -250,6 +267,47 @@ class Ticket extends Model
 		return self::$statuses[ $this->status ];
 	}
 
+	public function getColor ()
+    {
+
+        $now = Carbon::now();
+
+        switch ( $this->status )
+        {
+
+            case 'accepted_operator':
+
+                if ( $this->type->period_acceptance )
+                {
+
+                    $dt = Carbon::parse( $this->created_at );
+                    $dt->addSeconds( $this->type->period_acceptance * 60 * 60 );
+
+                    if ( $now->timestamp > $dt->timestamp )
+                    {
+                        return 'color-red';
+                    }
+
+                }
+
+                break;
+
+            case 'not_done':
+
+                return 'color-red';
+
+                break;
+
+            case 'accepted_management':
+
+                return 'color-green';
+
+                break;
+
+        }
+
+    }
+
     public function addComment ( $text )
     {
 
@@ -284,7 +342,7 @@ class Ticket extends Model
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! in_array( $status, self::$workflow[ $this->status ] ) )
+        if ( ! in_array( $status, self::$workflow[ $this->status ?? 'draft' ] ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }

@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use Ramsey\Uuid\Uuid;
 
 class TicketsController extends BaseController
 {
@@ -19,9 +20,11 @@ class TicketsController extends BaseController
     {
 
         $search = trim( \Input::get( 'search', '' ) );
+        $group = trim( \Input::get( 'group', '' ) );
 
         $tickets = Ticket
-            ::mine();
+            ::mine()
+            ->parentsOnly();
 
         if ( !empty( $search ) )
         {
@@ -37,6 +40,12 @@ class TicketsController extends BaseController
                         ->orWhere( 'phone2', 'like', $s )
                         ->orWhere( 'text', 'like', $s );
                 });
+        }
+
+        if ( !empty( $group ) )
+        {
+            $tickets
+                ->where( 'group_uuid', '=', $group );
         }
 
         $tickets = $tickets->paginate( 30 );
@@ -84,7 +93,12 @@ class TicketsController extends BaseController
         $ticket = Ticket::create( $request->all() );
 
         $customer = Customer
-            ::where( 'phone', '=', $ticket->phone )
+            ::where( function ( $q ) use ( $ticket )
+            {
+                return $q
+                    ->where( 'phone', '=', $ticket->phone )
+                    ->orWhere( 'phone2', '=', $ticket->phone2 );
+            })
             ->where( 'lastname', '=', trim( $ticket->lastname ) )
             ->where( 'middlename', '=', trim( $ticket->middlename ) )
             ->where( 'firstname', '=', trim( $ticket->firstname ) )
@@ -92,18 +106,18 @@ class TicketsController extends BaseController
 
         if ( !$customer )
         {
-            $this->validate( $request->all(), Customer::$rules );
+            $this->validate( $request, Customer::$rules );
             $customer = Customer::create( $request->all() );
             $ticket->customer_id = $customer->id;
             $ticket->save();
         }
 
-        if ( !empty( $request->get( 'managements' ) ) )
+        if ( count( $request->get( 'managements', [] ) ) )
         {
             $ticket->managements()->attach( $request->get( 'managements' ) );
         }
 
-		if ( !empty( $request->get( 'tags' ) ) )
+		if ( count( $request->get( 'tags', [] ) ) )
 		{
 			$tags = explode( ',', $request->get( 'tags' ) );
 			foreach ( $tags as $tag )
@@ -113,6 +127,7 @@ class TicketsController extends BaseController
 		}
 
 		$res = $ticket->changeStatus( 'accepted_operator' );
+
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
@@ -217,6 +232,57 @@ class TicketsController extends BaseController
         }
 
         return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+
+    }
+
+    public function action ( Request $request )
+    {
+
+        if ( count( $request->get( 'tickets', [] ) ) != 0 )
+        {
+
+            switch ( $request->get( 'action' ) )
+            {
+                case 'group':
+                    $uuid = Uuid::uuid4()->toString();
+                    $tickets = Ticket
+                        ::whereIn( 'id', $request->get( 'tickets' ) )
+                        ->get();
+                    $parent = null;
+                    foreach ( $tickets as $ticket )
+                    {
+                        $ticket->group_uuid = $uuid;
+                        if ( is_null( $parent ) )
+                        {
+                            $ticket->parent_id = null;
+                            $parent = $ticket;
+                        }
+                        else
+                        {
+                            $ticket->parent_id = $parent->id;
+                        }
+                        $ticket->save();
+                    }
+                    break;
+                case 'ungroup':
+                    $tickets = Ticket
+                        ::whereIn( 'id', $request->get( 'tickets' ) )
+                        ->get();
+                    foreach ( $tickets as $ticket )
+                    {
+                        $ticket->group_uuid = null;
+                        $ticket->parent_id = null;
+                        $ticket->save();
+                    }
+                    break;
+                default:
+                    return redirect()->back()->withErrors( [ 'Некорректное действие' ] );
+                    break;
+            }
+
+        }
+
+        return redirect()->back()->with( 'success', 'Готово' );
 
     }
 	

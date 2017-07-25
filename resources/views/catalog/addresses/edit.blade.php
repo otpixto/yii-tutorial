@@ -53,25 +53,22 @@
                             @foreach ( $addressManagements as $management_id => $arr )
                                 <tr>
                                     <td class="text-right">
-                                        {{ $arr[0]->name }}
+                                        <a href="{{ route( 'managements.edit', $management_id ) }}">
+                                            {{ $arr[0]->name }}
+                                        </a>
                                     </td>
                                     <td>
-                                        @if ( $arr[1]->count() )
-                                            <ul class="list-group">
-                                            @foreach ( $arr[1] as $type )
-                                                <li href="{{ route( 'types.edit', $type->id ) }}" class="list-group-item">
-                                                    {{ $type->name }}
-                                                    <a href="#" class="badge badge-danger pull-right" data-action="address-type-delete" data-type="{{ $type->id }}" data-managment="{{ $management_id }}" data-address="{{ $address->id }}">
-                                                        <i class="fa fa-remove"></i>
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                            </ul>
-                                        @else
-                                            <div class="alert alert-warning">
-                                                Типы не назначены
-                                            </div>
-                                        @endif
+                                        <a href="#" data-toggle="#types-{{ $management_id }}">Скрыть\Показать ({{ $arr[1]->count() }})</a>
+                                        <ul class="list-group" style="display: none;" id="types-{{ $management_id }}">
+                                        @foreach ( $arr[1] as $type )
+                                            <li href="{{ route( 'types.edit', $type->id ) }}" class="list-group-item">
+                                                {{ $type->name }}
+                                                <a href="#" class="badge badge-danger pull-right" data-action="address-type-delete" data-type="{{ $type->id }}" data-managment="{{ $management_id }}" data-address="{{ $address->id }}">
+                                                    <i class="fa fa-remove"></i>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        </ul>
                                         {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ) ] ) !!}
                                         {!! Form::hidden( 'management_id', $management_id ) !!}
                                         {!! Form::hidden( 'address_id', $address->id ) !!}

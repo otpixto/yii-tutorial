@@ -262,7 +262,7 @@
 
                                     </div>
 
-                                    @if ( ! $management->hasContract )
+                                    @if ( ! $management->has_contract )
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="alert alert-danger">

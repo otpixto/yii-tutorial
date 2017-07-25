@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Models\Address;
 use App\Models\AddressManagement;
 use App\Models\Category;
 use App\Models\Management;
+use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class ManagementsController extends BaseController
 {
@@ -98,8 +101,44 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УК не найдена' ] );
         }
 
+        $addresses = Address
+            ::orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $allowedAddresses = $addresses->toArray();
+
+        $addressManagements = [];
+
+        $res = AddressManagement
+            ::where( 'management_id', '=', $management->id )
+            ->with( 'address', 'type' )
+            ->get();
+
+        foreach ( $res as $r )
+        {
+            if ( !isset( $addressManagements[ $r->address_id ] ) )
+            {
+                $addressManagements[ $r->address_id ] = [ $r->address, new Collection() ];
+                unset( $allowedAddresses[ $r->address_id ] );
+            }
+            if ( $r->type_id )
+            {
+                $addressManagements[ $r->address_id ][ 1 ]->push( $r->type );
+            }
+        }
+
+        foreach ( $addressManagements as $address_id => & $arr )
+        {
+            $allowedTypes = Type
+                ::whereNotIn( 'id', $arr[1]->pluck( 'id' ) )
+                ->get();
+            $arr[2] = $allowedTypes;
+        }
+
         return view( 'catalog.managements.edit' )
-            ->with( 'management', $management );
+            ->with( 'management', $management )
+            ->with( 'addressManagements', $addressManagements )
+            ->with( 'allowedAddresses', $allowedAddresses );
 
     }
 
@@ -123,8 +162,7 @@ class ManagementsController extends BaseController
 
         $this->validate( $request, Management::$rules );
 
-        $management->fill( $request->all() );
-        $management->save();
+        $management->edit( $request->all() );
 
         return redirect()->route( 'managements.edit', $management->id )
             ->with( 'success', 'УК успешно отредактирована' );
@@ -163,6 +201,47 @@ class ManagementsController extends BaseController
 
         return view( 'catalog.managements.select' )
             ->with( 'managements', $managements );
+
+    }
+
+    public function addAddresses ( Request $request )
+    {
+
+        $management = Management::find( $request->get( 'management_id' ) );
+        $management->addresses()->attach( $request->get( 'addresses' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно добавлены' );
+
+    }
+
+    public function addTypes ( Request $request )
+    {
+
+        $address = Address::find( $request->get( 'address_id' ) );
+        $management = Management::find( $request->get( 'management_id' ) );
+
+        \DB::beginTransaction();
+
+        foreach ( $request->get( 'types' ) as $type_id )
+        {
+            $addressManagement = AddressManagement
+                ::create([
+                    'address_id'        => $address->id,
+                    'management_id'     => $management->id,
+                    'type_id'           => $type_id
+                ]);
+            if ( $addressManagement instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withErrors( $addressManagement );
+            }
+        }
+
+        \DB::commit();
+
+        return redirect()->back()
+            ->with( 'success', 'Типы успешно назначены' );
 
     }
 

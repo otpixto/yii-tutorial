@@ -42,10 +42,15 @@
 
                 {{ $tickets->render() }}
 
+                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
+
                 <table class="table table-bordered table-striped table-condensed">
                     <thead class="bg-blue">
                     <tr>
-                        <th width="50">
+                        <th>
+                            &nbsp;
+                        </th>
+                        <th>
                             <a href="">Статус</a>
                         </th>
                         <th>
@@ -61,47 +66,32 @@
                     </thead>
                     <tbody>
                     @foreach ( $tickets as $ticket )
-                        <tr>
-                            <td class="table-status">
-                                <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                    <i class="icon-arrow-right font-blue hidden"></i>
-                                    {{ $ticket->getStatusName() }}
-                                </a>
-                            </td>
-                            <td class="table-date font-blue">
-                                <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                    {{ $ticket->created_at }}
-                                </a>
-                            </td>
-                            <td class="table-title">
-                                <h3>
-                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                        {{ $ticket->address }}
-                                    </a>
-                                </h3>
-                                <p>
-                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                        {{ $ticket->getName() }}
-                                    </a>
-                                </p>
-                                <p>
-                                    <span class="font-grey-cascade">
-                                        {!! $ticket->getPhones( true ) !!}
-                                    </span>
-                                </p>
-                            </td>
-                            <td class="table-desc">
-                                <h3>
-                                    {{ $ticket->type->name }}
-                                </h3>
-                                <p>
-                                    {{ $ticket->text }}
-                                </p>
-                            </td>
-                        </tr>
+                        @include( 'parts.ticket', [ 'ticket' => $ticket ] )
+                        @if ( $ticket->childs->count() )
+                            @foreach ( $ticket->childs as $child )
+                                @include( 'parts.ticket', [ 'ticket' => $child ] )
+                            @endforeach
+                        @endif
                     @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-right">
+                                Действия с выделенными
+                            </th>
+                            <td colspan="2">
+                                <button type="submit" name="action" value="group" class="btn btn-default">
+                                    Группировать
+                                </button>
+                                <button type="submit" name="action" value="ungroup" class="btn btn-default">
+                                    Разгруппировать
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
+
+                {!! Form::close() !!}
 
                 {{ $tickets->render() }}
 
@@ -117,4 +107,5 @@
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/pages/css/search.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/css/colors.css" rel="stylesheet" type="text/css" />
 @endsection

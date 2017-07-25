@@ -28,8 +28,18 @@ class Management extends Model
     public static function create ( array $attributes = [] )
     {
         $new = new Management( $attributes );
+        $new->has_contract = !empty( $attributes['has_contract'] ) ? 1 : 0;
         $new->save();
         return $new;
+    }
+
+    public function edit ( array $attributes = [] )
+    {
+
+        $this->fill( $attributes );
+        $this->has_contract = !empty( $attributes['has_contract'] ) ? 1 : 0;
+        $this->save();
+
     }
 
 }
