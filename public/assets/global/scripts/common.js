@@ -43,7 +43,7 @@ var Modal = {
 			var _modal = $( html ).attr( 'data-id', id );
 			_modal.appendTo( '#modals' );
 		}
-		
+
 		_modal.modal( 'show' );
 		
 	},
@@ -64,8 +64,6 @@ var Modal = {
 		{
 			Modal.setBody( body, id, true );
 		}
-		
-		_modal.modal( 'show' );
 		
 	},
 	
@@ -132,10 +130,12 @@ $( document )
 		
 		var model_id = $( this ).attr( 'data-model-id' );
 		var model_name = $( this ).attr( 'data-model-name' );
-		
+		var with_file = $( this ).attr( 'data-file' ) || 0;
+
 		$.get( '/comment', {
 			model_name: model_name,
-			model_id: model_id
+			model_id: model_id,
+            with_file: with_file
 		}, function ( response )
 		{
 			Modal.createSimple( 'Добавить комментарий', response, 'comment' );

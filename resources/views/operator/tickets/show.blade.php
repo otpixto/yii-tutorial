@@ -16,6 +16,7 @@
             <div class="blog-page blog-content-2">
 
                 <div class="blog-single-content bordered blog-container">
+
                     <div class="blog-single-head">
                         <h1 class="blog-single-head-title">
                             Обращение #{{ $ticket->id }}
@@ -43,35 +44,39 @@
                                     <div class="form-group">
                                         {!! Form::label( null, 'Текущий статус', [ 'class' => 'control-label' ] ) !!}
                                         <span class="form-control">
-                                            {{ $ticket->getStatusName() }}
+                                            {{ $ticket->status_name }}
                                         </span>
                                     </div>
                                 </div>
 
                             </div>
+
+                            @if ( \Auth::user()->can( 'tickets.status' ) && count( $ticket->getAvailableStatuses() ) )
 							
-							<div class="row">
+                                <div class="row">
 
-                                {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
+                                    {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
 
-								<div class="form-group">
-									<div class="col-md-12">
-										{!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
-									</div>
-								</div>
-
-								<div class="form-group">
-									<div class="col-md-8"> 
-										{!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                        </div>
                                     </div>
-									<div class="col-md-4">
-										{!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
-									</div>
+
+                                    <div class="form-group">
+                                        <div class="col-xs-10">
+                                            {!! Form::select( 'status', $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                        </div>
+                                        <div class="col-xs-2">
+                                            {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+                                        </div>
+                                    </div>
+
+                                    {!! Form::close() !!}
+
                                 </div>
 
-                                {!! Form::close() !!}
-			
-                            </div>
+                            @endif
 
                         </div>
                     </div>
@@ -121,21 +126,34 @@
 
                             <div class="row">
 
-                                <div class="col-md-7">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        {!! Form::label( null, 'Адрес обращения', [ 'class' => 'control-label' ] ) !!}
+                                        {!! Form::label( null, 'Категория обращения', [ 'class' => 'control-label' ] ) !!}
                                         <span class="form-control">
-                                            {{ $ticket->address }}
+                                            {{ $ticket->type->category->name }}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         {!! Form::label( null, 'Тип обращения', [ 'class' => 'control-label' ] ) !!}
                                         <span class="form-control">
                                             {{ $ticket->type->name }}
                                         </span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {!! Form::label( null, 'Адрес обращения', [ 'class' => 'control-label' ] ) !!}
+                                        <span class="form-control">
+                                                {{ $ticket->address }}
+                                            </span>
                                     </div>
                                 </div>
 
@@ -216,7 +234,7 @@
 
                     @if ( $ticket->managements->count() )
 
-                        @foreach ( $ticket->managements as $i => $management )
+                        @foreach ( $ticket->managements as $i => $ticketManagement )
 
                             <div class="panel panel-info">
                                 <!-- Default panel contents -->
@@ -233,7 +251,7 @@
                                             <div class="form-group">
                                                 {!! Form::label( null, 'Наименование', [ 'class' => 'control-label' ] ) !!}
                                                 <span class="form-control">
-                                                    {{ $management->name }}
+                                                    {{ $ticketManagement->management->name }}
                                                 </span>
                                             </div>
                                         </div>
@@ -242,7 +260,7 @@
                                             <div class="form-group">
                                                 {!! Form::label( null, 'Телефон', [ 'class' => 'control-label' ] ) !!}
                                                 <span class="form-control">
-                                                    {{ $management->phone }}
+                                                    {{ $ticketManagement->management->phone }}
                                                 </span>
                                             </div>
                                         </div>
@@ -255,14 +273,54 @@
                                             <div class="form-group">
                                                 {!! Form::label( null, 'Адрес', [ 'class' => 'control-label' ] ) !!}
                                                 <span class="form-control">
-                                                    {{ $management->address }}
+                                                    {{ $ticketManagement->management->address }}
                                                 </span>
                                             </div>
                                         </div>
 
                                     </div>
 
-                                    @if ( ! $management->has_contract )
+                                    <div class="row">
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                {!! Form::label( null, 'Текущий статус', [ 'class' => 'control-label' ] ) !!}
+                                                <span class="form-control">
+                                                    {{ $ticketManagement->status_name }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    @if ( /*$ticketManagement->management_id == \Auth::user()->management_id && */\Auth::user()->can( 'tickets.management_status' ) && count( $ticketManagement->getAvailableStatuses() ) )
+
+                                        <div class="row">
+
+                                            {!! Form::open( [ 'url' => route( 'tickets.managements.status', $ticketManagement->id ) ] ) !!}
+
+                                            <div class="form-group">
+                                                <div class="col-md-12">
+                                                    {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="col-xs-10">
+                                                    {!! Form::select( 'status', $ticketManagement->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+                                                </div>
+                                            </div>
+
+                                            {!! Form::close() !!}
+
+                                        </div>
+
+                                    @endif
+
+                                    @if ( ! $ticketManagement->management->has_contract )
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="alert alert-danger">
@@ -271,6 +329,13 @@
                                             </div>
                                         </div>
                                     @endif
+
+                                    <p class="text-right hidden">
+                                        <button class="btn btn-danger">
+                                            <i class="fa fa-remove"></i>
+                                            Удалить исполнителя
+                                        </button>
+                                    </p>
 
                                 </div>
                             </div>
@@ -292,17 +357,22 @@
 								</div>
 							@endif
 						</div>
-						<h3 class="sbold blog-comments-title">Добавить комментарий</h3>
-						{!! Form::open( [ 'url' => route( 'tickets.comment', $ticket->id ) ] ) !!}
+						<h3 class="sbold blog-comments-title">
+                            Добавить комментарий
+                        </h3>
+						{!! Form::open( [ 'url' => route( 'tickets.comment', $ticket->id ), 'files' => true ] ) !!}
 							<div class="form-group">
 								{!! Form::textarea( 'text', null, [ 'class' => 'form-control c-square', 'placeholder' => 'Комментарий ...' ] ) !!}
 							</div>
+                            <div class="form-group">
+                                {!! Form::file( 'file', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл' ] ) !!}
+                            </div>
 							<div class="form-group">
 								{!! Form::submit( 'Добавить комментарий', [ 'class' => 'btn blue uppercase btn-md sbold btn-block' ] ) !!}
 							</div>
 						{!! Form::close() !!}
 					</div>
-					
+
 				</div>
 
             </div>

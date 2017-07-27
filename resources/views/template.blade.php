@@ -9,9 +9,11 @@
                 <div class="page-header-top">
                     <div class="container">
                         <!-- BEGIN LOGO -->
-                        <div class="page-logo">
+                        <div class="page-logo" style="width: auto;">
                             <a href="/">
-                                <img src="/images/logo_eds.png" alt="logo" class="logo-default">
+                                <h1>
+                                    {{ Config::get( 'app.name' ) }}
+                                </h1>
                             </a>
                         </div>
                         <!-- END LOGO -->
@@ -93,6 +95,7 @@
                             <div class="page-content-inner">
 
                                 @include( 'parts.errors' )
+                                @include( 'parts.success' )
                                 @yield( 'content' )
 
                             </div>

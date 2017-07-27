@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Models\Customer;
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -24,7 +25,8 @@ class TicketsController extends BaseController
 
         $tickets = Ticket
             ::mine()
-            ->parentsOnly();
+            ->parentsOnly()
+            ->orderBy( 'id', 'desc' );
 
         if ( !empty( $search ) )
         {
@@ -38,6 +40,7 @@ class TicketsController extends BaseController
                         ->orWhere( 'lastname', 'like', $s )
                         ->orWhere( 'phone', 'like', $s )
                         ->orWhere( 'phone2', 'like', $s )
+                        ->orWhere( 'address', 'like', $s )
                         ->orWhere( 'text', 'like', $s );
                 });
         }
@@ -97,6 +100,8 @@ class TicketsController extends BaseController
             {
                 return $q
                     ->where( 'phone', '=', $ticket->phone )
+                    ->orWhere( 'phone', '=', $ticket->phone2 )
+                    ->orWhere( 'phone2', '=', $ticket->phone )
                     ->orWhere( 'phone2', '=', $ticket->phone2 );
             })
             ->where( 'lastname', '=', trim( $ticket->lastname ) )
@@ -112,9 +117,31 @@ class TicketsController extends BaseController
             $ticket->save();
         }
 
-        if ( count( $request->get( 'managements', [] ) ) )
+        $status_code = 'no_contract';
+
+        foreach ( $request->get( 'managements', [] ) as $manament_id )
         {
-            $ticket->managements()->attach( $request->get( 'managements' ) );
+
+            $ticketManagement = TicketManagement::create([
+                'ticket_id'         => $ticket->id,
+                'management_id'     => $manament_id,
+            ]);
+
+            if ( $ticketManagement->management->has_contract )
+            {
+                $status_code = 'accepted_operator';
+            }
+            else
+            {
+                $res = $ticketManagement->changeStatus( 'no_contract' );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors( $res );
+                }
+            }
+
         }
 
 		if ( count( $request->get( 'tags', [] ) ) )
@@ -126,7 +153,7 @@ class TicketsController extends BaseController
 			}
 		}
 
-		$res = $ticket->changeStatus( 'accepted_operator' );
+		$res = $ticket->changeStatus( $status_code );
 
         if ( $res instanceof MessageBag )
         {
@@ -137,7 +164,7 @@ class TicketsController extends BaseController
 
 		\DB::commit();
 
-        return redirect()->route( 'tickets.index' )
+        return redirect()->route( 'tickets.show', $ticket->id )
             ->with( 'success', 'Обращение успешно добавлено' );
 
     }
@@ -172,7 +199,9 @@ class TicketsController extends BaseController
      */
     public function edit($id)
     {
-        //
+
+        return redirect()->route( 'tickets.show', $id );
+
     }
 
     /**
@@ -231,7 +260,28 @@ class TicketsController extends BaseController
                 ->withErrors( $res );
         }
 
-        return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+        return redirect()->back()->with( 'success', 'Статус изменен' );
+
+    }
+
+    public function changeManagementStatus ( Request $request, $id )
+    {
+
+        $ticketManagement = TicketManagement::find( $id );
+        if ( !$ticketManagement )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Исполнитель по данному обращнию не найден' ] );
+        }
+
+        $res = $ticketManagement->changeStatus( $request->get( 'status' ) );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        return redirect()->back()->with( 'success', 'Статус изменен' );
 
     }
 
@@ -241,13 +291,15 @@ class TicketsController extends BaseController
         if ( count( $request->get( 'tickets', [] ) ) != 0 )
         {
 
+            $tickets = Ticket
+                ::whereIn( 'id', $request->get( 'tickets' ) )
+                ->get();
+
             switch ( $request->get( 'action' ) )
             {
+
                 case 'group':
                     $uuid = Uuid::uuid4()->toString();
-                    $tickets = Ticket
-                        ::whereIn( 'id', $request->get( 'tickets' ) )
-                        ->get();
                     $parent = null;
                     foreach ( $tickets as $ticket )
                     {
@@ -264,10 +316,8 @@ class TicketsController extends BaseController
                         $ticket->save();
                     }
                     break;
+
                 case 'ungroup':
-                    $tickets = Ticket
-                        ::whereIn( 'id', $request->get( 'tickets' ) )
-                        ->get();
                     foreach ( $tickets as $ticket )
                     {
                         $ticket->group_uuid = null;
@@ -275,9 +325,19 @@ class TicketsController extends BaseController
                         $ticket->save();
                     }
                     break;
+
+                case 'delete':
+
+                    foreach ( $tickets as $ticket )
+                    {
+                        $ticket->delete();
+                    }
+                    break;
+
                 default:
                     return redirect()->back()->withErrors( [ 'Некорректное действие' ] );
                     break;
+
             }
 
         }

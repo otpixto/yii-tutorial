@@ -28,7 +28,7 @@ class CreateTickets extends Migration
                 $table->string('phone' );
                 $table->string('phone2' )->nullable();
                 $table->string('text' );
-                $table->enum( 'status', [ 'draft','accepted_operator','accepted_management','done','done_without_act','closed_success','closed_without_confirm','not_confirmed','not_done','cancel','failure' ] )->default( 'draft' );
+                $table->enum( 'status', [ 'draft','accepted_operator','perform','accepted_management','done','done_without_act','closed_success','closed_without_confirm','not_confirmed','not_done','cancel','failure' ] )->default( 'draft' );
                 $table->string('group_uuid' )->nullable();
                 $table->timestamps();
                 $table->softDeletes();

@@ -12,7 +12,10 @@
         </li>
         <li>
             <a href="{{ route( 'tickets.index' ) }}">
-                <span>Мои обращения</span>
+                <span>
+                    Реестр заявок
+                    ({{ \Session::get( 'tickets_count' ) }})
+                </span>
                 <i class="icon-list"></i>
             </a>
         </li>

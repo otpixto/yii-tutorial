@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\Models\Management;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -46,6 +47,10 @@ class UsersController extends BaseController
 
         $users = $users->paginate( 30 );
 
+        //$user = $users->first();
+        //$perms = $user->getAllPermissions();
+        //dd( $user, $perms );
+
         $roles = Role::orderBy( 'name' )->get();
 
         return view('admin.users.index' )
@@ -86,10 +91,13 @@ class UsersController extends BaseController
         $roles = Role::orderBy( 'name' )->get();
         $perms_tree = Permission::getTree();
 
+        $managements = Management::orderBy( 'name' )->get()->pluck( 'name', 'id' );
+
         return view('admin.users.edit' )
             ->with( 'user', $user )
             ->with( 'perms_tree', $perms_tree )
-            ->with( 'roles', $roles );
+            ->with( 'roles', $roles )
+            ->with( 'managements', $managements );
 
     }
 

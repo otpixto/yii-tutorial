@@ -23,6 +23,9 @@
                     <a href="#personal" data-toggle="tab" aria-expanded="true">Персональная информация</a>
                 </li>
                 <li>
+                    <a href="#binds" data-toggle="tab">Привязки</a>
+                </li>
+                <li>
                     <a href="#password" data-toggle="tab">Сменить пароль</a>
                 </li>
                 <li>
@@ -34,24 +37,24 @@
         <div class="portlet-body">
             <div class="tab-content">
 
-            <!-- PERSONAL INFO TAB -->
+                <!-- PERSONAL INFO TAB -->
                 <div class="tab-pane active" id="personal">
                     {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
                     {!! Form::hidden( 'action', 'edit_personal' ) !!}
                     <div class="form-group">
-                        <label class="control-label">Фамилия</label>
+                        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'lastname', \Input::old( 'lastname', $user->lastname ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Имя</label>
+                        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'firstname', \Input::old( 'firstname', $user->firstname ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Отчество</label>
+                        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'middlename', \Input::old( 'middlename', $user->middlename ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Телефон</label>
+                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'phone', \Input::old( 'phone', $user->phone ), [ 'class' => 'form-control', 'placeholder' => 'Телефон' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
@@ -60,6 +63,21 @@
                     {!! Form::close() !!}
                 </div>
                 <!-- END PERSONAL INFO TAB -->
+
+                <!-- BINDS TAB -->
+                <div class="tab-pane" id="binds">
+                    {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
+                    {!! Form::hidden( 'action', 'edit_binds' ) !!}
+                    <div class="form-group">
+                        {!! Form::label( 'management_id', 'Исполнитель', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'management_id', [ null => ' -- не присвоен -- ' ] + $managements->toArray(), $user->management_id, [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель' ] ) !!}
+                    </div>
+                    <div class="margiv-top-10">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+                <!-- END BINDS TAB -->
 
                 <!-- PASSWORD TAB -->
                 <div class="tab-pane" id="password">
@@ -143,16 +161,22 @@
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
     <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
 
             .ready( function ()
             {
+
+                $( '.select2' ).select2();
 
                 @if ( $perms_tree )
 

@@ -28,6 +28,11 @@
                 <label for="management-{{ $management->id }}" class="bold">
                     {{ $management->name }}
                 </label>
+                @if ( ! $management->has_contract )
+                    <div class="alert alert-danger">
+                        Отсутствует договор!
+                    </div>
+                @endif
             </td>
             <td>
                 {{ $management->address }}

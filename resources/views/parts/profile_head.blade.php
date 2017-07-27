@@ -7,15 +7,14 @@
     <ul class="dropdown-menu dropdown-menu-default">
         <li>
             <a href="">
-                <i class="icon-user"></i> Мой профиль</a>
+                <i class="icon-user"></i>
+                Мой профиль
+            </a>
         </li>
         <li>
             <a href="">
-                <i class="icon-calendar"></i> Мои заявки</a>
-        </li>
-        <li>
-            <a href="">
-                <i class="icon-envelope-open"></i> Мои сообщения
+                <i class="icon-envelope-open"></i>
+                Мои сообщения
                 <span class="badge badge-danger"> 3 </span>
             </a>
         </li>

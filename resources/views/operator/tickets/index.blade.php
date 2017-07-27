@@ -80,12 +80,19 @@
                                 Действия с выделенными
                             </th>
                             <td colspan="2">
-                                <button type="submit" name="action" value="group" class="btn btn-default">
-                                    Группировать
-                                </button>
-                                <button type="submit" name="action" value="ungroup" class="btn btn-default">
-                                    Разгруппировать
-                                </button>
+                                @can ( 'tickets.group' )
+                                    <button type="submit" name="action" value="group" class="btn btn-default">
+                                        Группировать
+                                    </button>
+                                    <button type="submit" name="action" value="ungroup" class="btn btn-default">
+                                        Разгруппировать
+                                    </button>
+                                @endcan
+                                @can ( 'tickets.delete' )
+                                    <button type="submit" name="action" value="delete" class="btn btn-danger">
+                                        Удалить
+                                    </button>
+                                @endcan
                             </td>
                         </tr>
                     </tfoot>

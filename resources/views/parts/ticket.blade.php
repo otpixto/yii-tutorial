@@ -5,7 +5,7 @@
     <td class="table-status">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}">
             <i class="icon-arrow-right font-blue hidden"></i>
-            {{ $ticket->getStatusName() }}
+            {{ $ticket->status_name }}
         </a>
     </td>
     <td class="table-date font-blue">
@@ -31,9 +31,12 @@
         </p>
     </td>
     <td class="table-desc">
-        <h3>
+        <h4>
+            <div class="small bold margin-bottom-5">
+                {{ $ticket->type->category->name }}
+            </div>
             {{ $ticket->type->name }}
-        </h3>
+        </h4>
         <p>
             {{ $ticket->text }}
         </p>

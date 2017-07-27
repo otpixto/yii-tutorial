@@ -20,7 +20,7 @@
                     @can ( 'tickets.show' )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'tickets.index' ) }}" class="nav-link">
-                                Мои обращения
+                                Реестр заявок
                                 <span class="badge badge-success">
                                     {{ \Session::get( 'tickets_count' ) }}
                                 </span>

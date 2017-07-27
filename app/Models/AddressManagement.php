@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\MessageBag;
 
-class AddressManagement extends Model
+class AddressManagement extends BaseModel
 {
 
     protected $table = 'addresses_managements';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,11 @@ class HomeController extends Controller
      */
     public function getIndex ()
     {
+
+        /*$file = File::first();
+        $path = storage_path( $file->path );
+        return response()->download( $path );*/
+
         return view('home' )
             ->with( 'title', 'Главная' );
     }

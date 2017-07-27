@@ -10,6 +10,8 @@ class User extends Authenticatable
 {
     use Notifiable, HasRoles;
 
+    public $availableStatuses = null;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -145,6 +147,27 @@ class User extends Authenticatable
     {
         $name = $this->lastname . ' ' . $this->firstname . ' ' . $this->middlename;
         return $name;
+    }
+
+    public function getAvailableStatuses ( $flush = false )
+    {
+
+        if ( $flush || is_null( $this->availableStatuses ) )
+        {
+            $perms = $this->getAllPermissions();
+            $statuses = [];
+            foreach ( $perms as $perm )
+            {
+                if ( str_is( 'tickets.statuses.*', $perm->code ) )
+                {
+                    $statuses[] = str_replace( 'tickets.statuses.', '', $perm->code );
+                }
+            }
+            $this->availableStatuses = $statuses;
+        }
+
+        return $this->availableStatuses;
+
     }
 
 }

@@ -2,11 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
-
-class Tag extends Model
+class Tag extends BaseModel
 {
 
     protected $table = 'tags';

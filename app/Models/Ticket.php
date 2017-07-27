@@ -3,72 +3,109 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
-class Ticket extends Model
+class Ticket extends BaseModel
 {
 
     protected $table = 'tickets';
-	
-	public static $statuses = [
-		'draft'					    => 'Черновик',
+
+    public static $statuses = [
+        null                        => 'Статус не назначен',
+        'draft'					    => 'Черновик',
         'accepted_operator'         => 'Принято оператором ЕДС',
+        'transferred_management'    => 'Передано Исполнителю',
         'accepted_management'       => 'Принято к исполнению УК',
-        'done'				    	=> 'Выполнено',
-        'closed_success'		    => 'Закрыто с оценкой',
+        'completed_with_act'		=> 'Выполнено с актом',
+        'completed_without_act'		=> 'Выполнено без акта',
+        'closed_with_confirm'		=> 'Закрыто с подтверждением',
         'closed_without_confirm'	=> 'Закрыто без подтверждения',
-        'not_confirmed'             => 'Проблема не потверждена',
-        'not_done'                  => 'Не выполнено',
+        'not_verified'              => 'Проблема не потверждена',
+        'not_completed'             => 'Не выполнено',
         'cancel'				    => 'Отмена',
-        'failure'                   => 'Отказ',
+        'no_contract'               => 'Отказ (отсутствует договор)',
+    ];
+
+    public static $workflow = [
+        null => [
+            'draft',
+            'accepted_operator',
+            'no_contract',
+        ],
+        'draft' => [
+            'accepted_operator',
+            'no_contract',
+        ],
+        'accepted_operator' => [
+            'transferred_management',
+            'cancel',
+            'no_contract',
+        ],
+        'transferred_management' => [
+            'accepted_management',
+            'cancel',
+        ],
+        'accepted_management' => [
+            'completed_with_act',
+            'completed_without_act',
+            'not_verified',
+            'not_completed',
+            'cancel',
+        ],
+        'completed_with_act' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'not_completed',
+        ],
+        'completed_without_act' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'not_completed',
+        ],
+    ];
+	
+	/*public static $statuses = [
+		'draft'					    => 'Черновик',
+        'accepted'                  => 'Принято оператором ЕДС',
+        'transferred'               => 'Передано Исполнителю',
+        'closed_with_confirm'		=> 'Закрыто с подтверждением',
+        'closed_without_confirm'	=> 'Закрыто без подтверждения',
+        'transferred_again'         => 'Передано Исполнителю повторно',
+        'cancel'				    => 'Отмена',
+        'no_contract'               => 'Договор отсутствует',
 	];
 	
 	public static $workflow = [
 		'draft' => [ 
-			'accepted_operator',
+			'accepted',
+            'no_contract',
+            'cancel'
 		],
-		'accepted_operator' => [
-			'accepted_management',
+		'accepted' => [
+            'transferred',
 			'cancel',
-            'failure',
 		],
-		'accepted_management' => [
-			'done',
-            'not_confirmed',
-            'not_done',
+        'transferred' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'cancel'
+        ],
+		'closed_with_confirm' => [
+			'transferred_again',
             'cancel',
 		],
-		'done' => [
-			'closed_success',
-			'closed_without_confirm',
-            'not_done',
-		],
-        'done_without_act' => [
-            'closed_success',
-            'closed_without_confirm',
-            'not_done',
+        'closed_without_confirm' => [
+            'transferred_again',
+            'cancel',
         ],
-        'not_confirmed' => [
-
-        ],
-        'not_done' => [
-
-        ],
-		'closed_success' => [ 
-		
-		],
-		'closed_without_confirm' => [
-
-		],
 		'cancel' => [ 
 
 		],
-        'failure' => [
+        'no_contract' => [
 
         ],
-	];
+	];*/
 
     protected $nullable = [
         'management_id',
@@ -101,7 +138,12 @@ class Ticket extends Model
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'tickets_managements' );
+        $q = $this->hasMany( 'App\Models\TicketManagement' );
+        if ( Auth::user()->management_id && ! Auth::user()->can( 'tickets.managements_all' ) )
+        {
+            $q->where( 'management_id', '=', Auth::user()->management_id );
+        }
+        return $q;
     }
 
     public function address ()
@@ -132,7 +174,8 @@ class Ticket extends Model
 
     public function childs ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'parent_id' );
+        return $this->hasMany( 'App\Models\Ticket', 'parent_id' )
+            ->orderBy( 'id', 'desc' );
     }
 
     public function group ()
@@ -146,24 +189,42 @@ class Ticket extends Model
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function statuses ()
+    {
+        return $this->hasMany( 'App\Models\Status', 'model_id' )
+            ->where( 'model_name', '=', get_class( $this ) );
+    }
+
+    public function statusesHistory ()
+    {
+        return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
+            ->where( 'model_name', '=', get_class( $this ) );
+    }
+
     public function scopeMine ( $query )
     {
         $user = Auth::user();
         return $query
             ->where( function ( $q ) use ( $user )
             {
-                if ( $user->can( 'tickets.all' ) ) return true;
+                if ( $user->can( 'tickets.all' ) ) return;
+                $q
+                    ->whereIn( 'status', $user->getAvailableStatuses() );
                 if ( $user->can( 'tickets.executor' ) && $user->management )
                 {
-                    return $q
+                    $q
                         ->whereHas( 'managements', function ( $q2 ) use ( $user )
                         {
                             return $q2
                                 ->where( 'managements.id', '=', $user->management->id );
                         });
                 }
-                return $q
-                    ->where( 'author_id', '=', Auth::user()->id );
+                else
+                {
+                    $q
+                        ->where( 'author_id', '=', Auth::user()->id );
+                }
+                return $q;
             });
     }
 
@@ -195,10 +256,11 @@ class Ticket extends Model
         $address = Address
             ::where( 'name', '=', trim( $ticket->address ) )
             ->first();
+
         if ( $address )
         {
             $ticket->address_id = $address->id;
-            $ticket->management_id = $address->management_id;
+            //$ticket->management_id = $address->management_id;
         }
 
         $ticket->save();
@@ -253,18 +315,19 @@ class Ticket extends Model
 	
 	public function getAvailableStatuses ()
 	{
-		$workflow = self::$workflow[ $this->status ];
-		$statuses = [];
-		foreach ( $workflow as $wf )
+	    $user_statuses = Auth::user()->getAvailableStatuses();
+		$workflow = self::$workflow[ $this->status_code ] ?? [];
+        $statuses = [
+            null => ' -- выберите из списка -- '
+        ];
+		foreach ( $workflow as $status_code )
 		{
-			$statuses[ $wf ] = self::$statuses[ $wf ];
+		    if ( in_array( $status_code, $user_statuses ) )
+            {
+                $statuses[ $status_code ] = self::$statuses[ $status_code ];
+            }
 		}
-		return $statuses;
-	}
-	
-	public function getStatusName ()
-	{
-		return self::$statuses[ $this->status ];
+		return count( $statuses ) > 1 ? $statuses : [];
 	}
 
 	public function getColor ()
@@ -272,7 +335,7 @@ class Ticket extends Model
 
         $now = Carbon::now();
 
-        switch ( $this->status )
+        switch ( $this->status_code )
         {
 
             case 'accepted_operator':
@@ -292,16 +355,19 @@ class Ticket extends Model
 
                 break;
 
-            case 'not_done':
-
+            case 'not_completed':
+            case 'not_verified':
+            case 'cancel':
+            case 'no_contract':
                 return 'color-red';
-
                 break;
 
             case 'accepted_management':
-
                 return 'color-green';
+                break;
 
+            case 'transferred_management':
+                return 'color-yellow';
                 break;
 
         }
@@ -334,21 +400,99 @@ class Ticket extends Model
 
     }
 
-    public function changeStatus ( $status )
+    public function changeStatus ( $status_code )
     {
 
-        if ( ! isset( self::$statuses[ $status ] ) )
+        if ( ! isset( self::$statuses[ $status_code ] ) )
         {
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! in_array( $status, self::$workflow[ $this->status ?? 'draft' ] ) )
+        if ( ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
 
-        $this->status = $status;
-        $this->save();
+        \DB::beginTransaction();
+
+        if ( $this->group_uuid )
+        {
+            foreach ( $this->group as $ticket )
+            {
+
+                $ticket->status_code = $status_code;
+                $ticket->status_name = self::$statuses[ $status_code ];
+                $ticket->save();
+
+                $res = StatusHistory::create([
+                    'model_id'          => $ticket->id,
+                    'model_name'        => get_class( $ticket ),
+                    'status_code'       => $status_code,
+                    'status_name'       => self::$statuses[ $status_code ],
+                ]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                $res = $ticket->processStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+            }
+        }
+        else
+        {
+
+            $this->status_code = $status_code;
+            $this->status_name = self::$statuses[ $status_code ];
+            $this->save();
+
+            $res = StatusHistory::create([
+                'model_id'          => $this->id,
+                'model_name'        => get_class( $this ),
+                'status_code'       => $status_code,
+                'status_name'       => self::$statuses[ $status_code ],
+            ]);
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+
+            $res = $this->processStatus();
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+
+        }
+
+        \DB::commit();
+
+    }
+
+    public function processStatus ()
+    {
+
+        switch ( $this->status_code )
+        {
+
+            case 'transferred_management':
+
+                foreach ( $this->managements as $management )
+                {
+                    $res = $management->changeStatus( 'transferred' );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return $res;
+                    }
+                }
+
+                break;
+
+        }
 
     }
 

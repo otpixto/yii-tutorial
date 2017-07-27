@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
 
-class Type extends Model
+class Type extends BaseModel
 {
 
     protected $table = 'types';
