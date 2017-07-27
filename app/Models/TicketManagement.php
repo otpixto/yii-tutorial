@@ -10,15 +10,16 @@ class TicketManagement extends BaseModel
     protected $table = 'tickets_managements';
 
     public static $statuses = [
-        null                        => 'Статус не назначен',
-        'transferred_management'	=> 'Передано Исполнителю',
-        'accepted'                  => 'Принята к исполнению',
-        'assigned'                  => 'Назначен ответственный',
-        'completed_with_act'        => 'Выполнено с актом',
-        'completed_without_act'		=> 'Выполнено без акта',
-        'not_verified'		        => 'Проблема не подтверждена',
-        'waiting'	                => 'Отложено',
-        'no_contract'	            => 'Отказ (отсутствует договор)',
+        null                                => 'Статус не назначен',
+        'transferred_management'	        => 'Передано Исполнителю',
+        'transferred_management_again'	    => 'Передано Исполнителю Повторно',
+        'accepted'                          => 'Принята к исполнению',
+        'assigned'                          => 'Назначен ответственный',
+        'completed_with_act'                => 'Выполнено с актом',
+        'completed_without_act'		        => 'Выполнено без акта',
+        'not_verified'		                => 'Проблема не подтверждена',
+        'waiting'	                        => 'Отложено',
+        'no_contract'	                    => 'Отказ (отсутствует договор)',
     ];
 
     public static $workflow = [
@@ -27,6 +28,11 @@ class TicketManagement extends BaseModel
             'no_contract',
         ],
         'transferred_management' => [
+            'accepted',
+            'assigned',
+            'waiting'
+        ],
+        'transferred_management_again' => [
             'accepted',
             'assigned',
             'waiting'
@@ -150,7 +156,8 @@ class TicketManagement extends BaseModel
 
     }
 
-    public function changeStatus ( $status_code )
+    # force - принудительно
+    public function changeStatus ( $status_code, $force = false )
     {
 
         if ( ! isset( self::$statuses[ $status_code ] ) )
@@ -158,7 +165,7 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
+        if ( ! $force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
@@ -196,7 +203,7 @@ class TicketManagement extends BaseModel
             case 'assigned':
 
                 $ticket = $this->ticket;
-                if ( $ticket->managements->count() == 1 || $ticket->managements()->whereNotIn( 'status_code', [ 'accepted', 'assigned' ] )->count() == 0 )
+                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->whereNotIn( 'status_code', [ 'accepted', 'assigned' ] )->count() == 0 ) )
                 {
                     $res = $ticket->changeStatus( 'accepted_management' );
                     if ( $res instanceof MessageBag )

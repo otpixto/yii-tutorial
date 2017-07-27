@@ -12,19 +12,20 @@ class Ticket extends BaseModel
     protected $table = 'tickets';
 
     public static $statuses = [
-        null                        => 'Статус не назначен',
-        'draft'					    => 'Черновик',
-        'accepted_operator'         => 'Принято оператором ЕДС',
-        'transferred_management'    => 'Передано Исполнителю',
-        'accepted_management'       => 'Принято к исполнению',
-        'completed_with_act'		=> 'Выполнено с актом',
-        'completed_without_act'		=> 'Выполнено без акта',
-        'closed_with_confirm'		=> 'Закрыто с подтверждением',
-        'closed_without_confirm'	=> 'Закрыто без подтверждения',
-        'not_verified'              => 'Проблема не потверждена',
-        'not_completed'             => 'Не выполнено',
-        'cancel'				    => 'Отмена',
-        'no_contract'               => 'Отказ (отсутствует договор)',
+        null                                => 'Статус не назначен',
+        'draft'					            => 'Черновик',
+        'accepted_operator'                 => 'Принято оператором ЕДС',
+        'transferred_management'            => 'Передано Исполнителю',
+        'transferred_management_again'      => 'Передано Исполнителю Повторно',
+        'accepted_management'               => 'Принято к исполнению',
+        'completed_with_act'		        => 'Выполнено с актом',
+        'completed_without_act'		        => 'Выполнено без акта',
+        'closed_with_confirm'		        => 'Закрыто с подтверждением',
+        'closed_without_confirm'	        => 'Закрыто без подтверждения',
+        'not_verified'                      => 'Проблема не потверждена',
+        'not_completed'                     => 'Не выполнено',
+        'cancel'				            => 'Отмена',
+        'no_contract'                       => 'Отказ (отсутствует договор)',
     ];
 
     public static $final_statuses = [
@@ -51,6 +52,10 @@ class Ticket extends BaseModel
             'accepted_management',
             'cancel',
         ],
+        'transferred_management_again' => [
+            'accepted_management',
+            'cancel',
+        ],
         'accepted_management' => [
             'completed_with_act',
             'completed_without_act',
@@ -62,11 +67,13 @@ class Ticket extends BaseModel
             'closed_with_confirm',
             'closed_without_confirm',
             'not_completed',
+            'transferred_management_again',
         ],
         'completed_without_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
             'not_completed',
+            'transferred_management_again',
         ],
     ];
 	
@@ -373,6 +380,7 @@ class Ticket extends BaseModel
                 break;
 
             case 'transferred_management':
+            case 'transferred_management_again':
                 return 'color-yellow';
                 break;
 
@@ -486,10 +494,11 @@ class Ticket extends BaseModel
         {
 
             case 'transferred_management':
+            case 'transferred_management_again':
 
                 foreach ( $this->managements as $management )
                 {
-                    $res = $management->changeStatus( 'transferred_management' );
+                    $res = $management->changeStatus( 'transferred_management_again', true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;
