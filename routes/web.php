@@ -16,6 +16,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
 	Route::post( 'comment', 'CommentsController@store' )->name( 'comments.store' );
 
     Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
+    Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
 
     Route::get( 'addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
 

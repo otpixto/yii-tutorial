@@ -164,4 +164,16 @@ class TypesController extends BaseController
         //
     }
 
+    public function search ( Request $request )
+    {
+
+        $type = Type
+            ::where( 'id', $request->get( 'type_id' ) )
+            ->first();
+
+        return view( 'catalog.types.info' )
+            ->with( 'type', $type );
+
+    }
+
 }

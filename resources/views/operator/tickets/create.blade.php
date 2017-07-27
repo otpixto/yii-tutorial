@@ -106,6 +106,13 @@
 
             <div class="row">
                 <div class="col-md-12">
+                    <div class="alert alert-info hidden" id="type_info">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
                     <div class="alert alert-info hidden" id="management">
                     </div>
                 </div>
@@ -416,6 +423,22 @@
             .on( 'typeahead:select', '#address', function ( e, data )
             {
                 $( '#address_id' ).val( data.id ).trigger( 'change' );
+            })
+
+            .on( 'change', '#type_id', function ( e )
+            {
+                var type_id = $( '#type_id' ).val();
+                if ( !type_id )
+                {
+                    $( '#type_info' ).addClass( 'hidden' );
+                    return;
+                };
+                $.post( '{{ route( 'types.search' ) }}', {
+                    type_id: type_id
+                }, function ( response )
+                {
+                    $( '#type_info' ).removeClass( 'hidden' ).html( response );
+                });
             })
 
             .on( 'change', '#address_id, #type_id', function ( e )
