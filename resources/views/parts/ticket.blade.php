@@ -9,8 +9,13 @@
         </a>
     </td>
     <td class="table-date font-blue">
+        <h3>
+            <a href="{{ route( 'tickets.show', $ticket->id ) }}">
+                #{{ $ticket->id }}
+            </a>
+        </h3>
         <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-            {{ $ticket->created_at }}
+            {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
         </a>
     </td>
     <td class="table-title">

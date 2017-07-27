@@ -345,5 +345,32 @@ class TicketsController extends BaseController
         return redirect()->back()->with( 'success', 'Готово' );
 
     }
+
+    public function rate ( Request $request, $id )
+    {
+
+        $ticket = Ticket::find( $id );
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+
+        $ticket->rate = $request->get( 'rate' );
+        $ticket->save();
+
+        return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
+
+    }
+
+    public function act ( $id )
+    {
+
+        $ticketManagement = TicketManagement::find( $id );
+
+        return view( 'operator.tickets.act' )
+            ->with( 'ticketManagement', $ticketManagement );
+
+    }
 	
 }

@@ -5,6 +5,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
 
     Route::get( '/', 'HomeController@getIndex' )->name( 'home' );
     Route::resource( 'tickets', 'Operator\TicketsController' );
+    Route::get( 'tickets/{id}/act', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+    Route::post( 'tickets/{id}/rate', 'Operator\TicketsController@rate' )->name( 'tickets.rate' );
     Route::post( 'tickets/{id}/change-status', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
     Route::post( 'tickets/managements/{id}/change-status', 'Operator\TicketsController@changeManagementStatus' )->name( 'tickets.managements.status' );
 	Route::post( 'tickets/{id}/comment', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );

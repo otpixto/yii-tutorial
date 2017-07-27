@@ -10,7 +10,7 @@
     <title>{{ \App\Classes\Title::render() }}</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <meta content="Preview page of Metronic Admin Theme #3 for " name="description" />
+    <meta content="{{ \Config::get( 'app.name' ) }} - Авторизация" name="description" />
     <meta content="" name="author" />
     @include( 'auth.parts.css' )
 </head>

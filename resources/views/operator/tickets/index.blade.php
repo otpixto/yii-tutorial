@@ -50,14 +50,14 @@
                         <th>
                             &nbsp;
                         </th>
-                        <th>
+                        <th class="text-center">
                             <a href="">Статус</a>
                         </th>
                         <th>
-                            <a href="">Дата</a>
+                            <a href="">Дата, Номер</a>
                         </th>
                         <th>
-                            <a href="">Адрес и заявитель</a>
+                            <a href="">Адрес и Заявитель</a>
                         </th>
                         <th>
                             <a href="">Описание</a>

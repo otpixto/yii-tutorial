@@ -75,6 +75,11 @@ class UsersController extends BaseController
 
     }
 
+    public function store ( Request $request )
+    {
+        dd( $request->all() );
+    }
+
     public function edit ( $id )
     {
 
@@ -120,6 +125,10 @@ class UsersController extends BaseController
                 {
                     return redirect()->back()->withInput()->withErrors( $res );
                 }
+                break;
+            case 'edit_binds':
+                $user->management_id = $request->get( 'management_id' ) ?? null;
+                $user->save();
                 break;
             case 'change_password':
                 $res = $user->changePass( \Input::all() );

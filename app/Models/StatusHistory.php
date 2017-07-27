@@ -30,6 +30,11 @@ class StatusHistory extends BaseModel
         return $this->belongsTo( $this->model_name, 'model_id' );
     }
 
+    public function author ()
+    {
+        return $this->belongsTo( 'App\User' );
+    }
+
     public static function create ( array $attributes = [] )
     {
         $new = new StatusHistory( $attributes );

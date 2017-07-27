@@ -16,7 +16,7 @@ class Ticket extends BaseModel
         'draft'					    => 'Черновик',
         'accepted_operator'         => 'Принято оператором ЕДС',
         'transferred_management'    => 'Передано Исполнителю',
-        'accepted_management'       => 'Принято к исполнению УК',
+        'accepted_management'       => 'Принято к исполнению',
         'completed_with_act'		=> 'Выполнено с актом',
         'completed_without_act'		=> 'Выполнено без акта',
         'closed_with_confirm'		=> 'Закрыто с подтверждением',
@@ -25,6 +25,11 @@ class Ticket extends BaseModel
         'not_completed'             => 'Не выполнено',
         'cancel'				    => 'Отмена',
         'no_contract'               => 'Отказ (отсутствует договор)',
+    ];
+
+    public static $final_statuses = [
+        'closed_with_confirm',
+        'closed_without_confirm',
     ];
 
     public static $workflow = [
@@ -209,14 +214,14 @@ class Ticket extends BaseModel
             {
                 if ( $user->can( 'tickets.all' ) ) return;
                 $q
-                    ->whereIn( 'status', $user->getAvailableStatuses() );
+                    ->whereIn( 'status_code', $user->getAvailableStatuses() );
                 if ( $user->can( 'tickets.executor' ) && $user->management )
                 {
                     $q
                         ->whereHas( 'managements', function ( $q2 ) use ( $user )
                         {
                             return $q2
-                                ->where( 'managements.id', '=', $user->management->id );
+                                ->where( 'management_id', '=', $user->management->id );
                         });
                 }
                 else
@@ -264,6 +269,7 @@ class Ticket extends BaseModel
         }
 
         $ticket->save();
+
         return $ticket;
 
     }
@@ -483,7 +489,7 @@ class Ticket extends BaseModel
 
                 foreach ( $this->managements as $management )
                 {
-                    $res = $management->changeStatus( 'transferred' );
+                    $res = $management->changeStatus( 'transferred_management' );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;

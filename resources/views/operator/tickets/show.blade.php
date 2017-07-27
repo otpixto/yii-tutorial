@@ -28,6 +28,77 @@
                             </a>
                         </div>
                     </div>
+
+                    @if ( in_array( $ticket->status_code, \App\Models\Ticket::$final_statuses ) && ! $ticket->rate && \Auth::user()->can( 'tickets.rate' ) )
+
+                        <div class="panel panel-warning">
+                            <!-- Default panel contents -->
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Оцените работу исполнителя
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+
+                                {!! Form::open( [ 'url' => route( 'tickets.rate', $ticket->id ), 'class' => 'form-horizontal' ] ) !!}
+                                <div class="row">
+                                    <div class="col-md-12 text-center">
+                                        <div class="form-group">
+                                           <button class="btn btn-danger btn-lg" name="rate" value="1">
+                                               1
+                                           </button>
+                                            <button class="btn btn-danger btn-lg" name="rate" value="2">
+                                                2
+                                            </button>
+                                            <button class="btn btn-danger btn-lg" name="rate" value="3">
+                                                3
+                                            </button>
+                                            <button class="btn btn-success btn-lg" name="rate" value="4">
+                                                4
+                                            </button>
+                                            <button class="btn btn-success btn-lg" name="rate" value="5">
+                                                5
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {!! Form::close() !!}
+
+                                @if ( \Auth::user()->can( 'tickets.status' ) && count( $ticket->getAvailableStatuses() ) )
+
+                                    <div class="alert alert-warning">
+
+                                        <div class="row">
+
+                                            {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
+
+                                            <div class="form-group">
+                                                <div class="col-md-12">
+                                                    {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="col-xs-10">
+                                                    {!! Form::select( 'status', $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+                                                </div>
+                                            </div>
+
+                                            {!! Form::close() !!}
+
+                                        </div>
+
+                                    </div>
+
+                                @endif
+
+                            </div>
+                        </div>
+
+                    @endif
 					
 					<div class="panel panel-primary">
                         <!-- Default panel contents -->
@@ -52,27 +123,31 @@
                             </div>
 
                             @if ( \Auth::user()->can( 'tickets.status' ) && count( $ticket->getAvailableStatuses() ) )
-							
-                                <div class="row">
 
-                                    {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
+                                <div class="alert alert-warning">
 
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                    <div class="row">
+
+                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ) ] ) !!}
+
+                                        <div class="form-group">
+                                            <div class="col-md-12">
+                                                {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                            </div>
                                         </div>
+
+                                        <div class="form-group">
+                                            <div class="col-xs-10">
+                                                {!! Form::select( 'status', $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                            </div>
+                                            <div class="col-xs-2">
+                                                {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+                                            </div>
+                                        </div>
+
+                                        {!! Form::close() !!}
+
                                     </div>
-
-                                    <div class="form-group">
-                                        <div class="col-xs-10">
-                                            {!! Form::select( 'status', $ticket->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
-                                        </div>
-                                        <div class="col-xs-2">
-                                            {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
-                                        </div>
-                                    </div>
-
-                                    {!! Form::close() !!}
 
                                 </div>
 
@@ -280,41 +355,49 @@
 
                                     </div>
 
-                                    <div class="row">
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                {!! Form::label( null, 'Текущий статус', [ 'class' => 'control-label' ] ) !!}
-                                                <span class="form-control">
-                                                    {{ $ticketManagement->status_name }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    @if ( /*$ticketManagement->management_id == \Auth::user()->management_id && */\Auth::user()->can( 'tickets.management_status' ) && count( $ticketManagement->getAvailableStatuses() ) )
+                                    @if ( $ticketManagement->status_name )
 
                                         <div class="row">
 
-                                            {!! Form::open( [ 'url' => route( 'tickets.managements.status', $ticketManagement->id ) ] ) !!}
-
-                                            <div class="form-group">
-                                                <div class="col-md-12">
-                                                    {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    {!! Form::label( null, 'Текущий статус', [ 'class' => 'control-label' ] ) !!}
+                                                    <span class="form-control">
+                                                        {{ $ticketManagement->status_name }}
+                                                    </span>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group">
-                                                <div class="col-xs-10">
-                                                    {!! Form::select( 'status', $ticketManagement->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
-                                                </div>
-                                                <div class="col-xs-2">
-                                                    {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
-                                                </div>
-                                            </div>
+                                        </div>
 
-                                            {!! Form::close() !!}
+                                    @endif
+
+                                    @if ( $ticketManagement->management_id == \Auth::user()->management_id && \Auth::user()->can( 'tickets.management_status' ) && count( $ticketManagement->getAvailableStatuses() ) )
+
+                                        <div class="alert alert-warning">
+
+                                            <div class="row">
+
+                                                {!! Form::open( [ 'url' => route( 'tickets.managements.status', $ticketManagement->id ) ] ) !!}
+
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        {!! Form::label( 'status', 'Сменить статус', [ 'class' => 'control-label' ] ) !!}
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <div class="col-xs-10">
+                                                        {!! Form::select( 'status', $ticketManagement->getAvailableStatuses(), null, [ 'class' => 'form-control' ] ) !!}
+                                                    </div>
+                                                    <div class="col-xs-2">
+                                                        {!! Form::submit( 'Сменить', [ 'class' => 'btn btn-success' ] ) !!}
+                                                    </div>
+                                                </div>
+
+                                                {!! Form::close() !!}
+
+                                            </div>
 
                                         </div>
 
@@ -329,6 +412,15 @@
                                             </div>
                                         </div>
                                     @endif
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+                                                <i class="glyphicon glyphicon-print"></i>
+                                                Скачать Акт
+                                            </a>
+                                        </div>
+                                    </div>
 
                                     <p class="text-right hidden">
                                         <button class="btn btn-danger">

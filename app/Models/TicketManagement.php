@@ -84,6 +84,12 @@ class TicketManagement extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function statusesHistory ()
+    {
+        return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
+            ->where( 'model_name', '=', get_class( $this ) );
+    }
+
     public function files ()
     {
         return $this->hasMany( 'App\Models\File', 'model_id' )
@@ -185,6 +191,21 @@ class TicketManagement extends BaseModel
 
         switch ( $this->status_code )
         {
+
+            case 'accepted':
+            case 'assigned':
+
+                $ticket = $this->ticket;
+                if ( $ticket->managements->count() == 1 || $ticket->managements()->whereNotIn( 'status_code', [ 'accepted', 'assigned' ] )->count() == 0 )
+                {
+                    $res = $ticket->changeStatus( 'accepted_management' );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return $res;
+                    }
+                }
+
+                break;
 
             case 'completed_with_act':
 
