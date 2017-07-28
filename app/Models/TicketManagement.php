@@ -20,6 +20,7 @@ class TicketManagement extends BaseModel
         'not_verified'		                => 'Проблема не подтверждена',
         'waiting'	                        => 'Отложено',
         'no_contract'	                    => 'Отказ (отсутствует договор)',
+		'cancel'				            => 'Отмена',
     ];
 
     public static $workflow = [
@@ -200,12 +201,25 @@ class TicketManagement extends BaseModel
         {
 
             case 'accepted':
-            case 'assigned':
 
                 $ticket = $this->ticket;
-                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->whereNotIn( 'status_code', [ 'accepted', 'assigned' ] )->count() == 0 ) )
+                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'accepted' )->count() == 0 ) )
                 {
-                    $res = $ticket->changeStatus( 'accepted_management' );
+                    $res = $ticket->changeStatus( 'accepted_management', true );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return $res;
+                    }
+                }
+
+                break;
+				
+			case 'assigned':
+
+                $ticket = $this->ticket;
+                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'assigned' )->count() == 0 ) )
+                {
+                    $res = $ticket->changeStatus( 'accepted_management', true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;
@@ -217,9 +231,9 @@ class TicketManagement extends BaseModel
             case 'completed_with_act':
 
                 $ticket = $this->ticket;
-                if ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_with_act' )->count() == 0 )
+                if ( $ticket->status_code != 'completed_with_act' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_with_act' )->count() == 0 )
                 {
-                    $res = $ticket->changeStatus( 'completed_with_act' );
+                    $res = $ticket->changeStatus( 'completed_with_act', true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;
@@ -231,9 +245,9 @@ class TicketManagement extends BaseModel
             case 'completed_without_act':
 
                 $ticket = $this->ticket;
-                if ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_without_act' )->count() == 0 )
+                if ( $ticket->status_code != 'completed_without_act' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_without_act' )->count() == 0 )
                 {
-                    $res = $ticket->changeStatus( 'completed_without_act' );
+                    $res = $ticket->changeStatus( 'completed_without_act', true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;
@@ -245,9 +259,9 @@ class TicketManagement extends BaseModel
             case 'not_verified':
 
                 $ticket = $this->ticket;
-                if ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'not_verified' )->count() == 0 )
+                if ( $ticket->status_code != 'not_verified' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'not_verified' )->count() == 0 )
                 {
-                    $res = $ticket->changeStatus( 'not_verified' );
+                    $res = $ticket->changeStatus( 'not_verified', true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;

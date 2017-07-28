@@ -23,7 +23,6 @@ class Ticket extends BaseModel
         'closed_with_confirm'		        => 'Закрыто с подтверждением',
         'closed_without_confirm'	        => 'Закрыто без подтверждения',
         'not_verified'                      => 'Проблема не потверждена',
-        'not_completed'                     => 'Не выполнено',
         'cancel'				            => 'Отмена',
         'no_contract'                       => 'Отказ (отсутствует договор)',
     ];
@@ -49,32 +48,28 @@ class Ticket extends BaseModel
             'no_contract',
         ],
         'transferred_management' => [
-            'accepted_management',
             'cancel',
         ],
         'transferred_management_again' => [
-            'accepted_management',
             'cancel',
         ],
         'accepted_management' => [
-            'completed_with_act',
-            'completed_without_act',
-            'not_verified',
-            'not_completed',
             'cancel',
         ],
         'completed_with_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
-            'not_completed',
             'transferred_management_again',
         ],
         'completed_without_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
-            'not_completed',
             'transferred_management_again',
         ],
+		'not_verified' => [
+			'transferred_management_again',
+			'cancel',
+		],
     ];
 	
 	/*public static $statuses = [
@@ -368,7 +363,6 @@ class Ticket extends BaseModel
 
                 break;
 
-            case 'not_completed':
             case 'not_verified':
             case 'cancel':
             case 'no_contract':
@@ -414,7 +408,7 @@ class Ticket extends BaseModel
 
     }
 
-    public function changeStatus ( $status_code )
+    public function changeStatus ( $status_code, $force = false )
     {
 
         if ( ! isset( self::$statuses[ $status_code ] ) )
@@ -422,7 +416,7 @@ class Ticket extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
+        if ( !$force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
@@ -494,15 +488,49 @@ class Ticket extends BaseModel
         {
 
             case 'transferred_management':
-            case 'transferred_management_again':
 
                 foreach ( $this->managements as $management )
                 {
-                    $res = $management->changeStatus( 'transferred_management_again', true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
+					if ( $management->status_code != 'transferred_management' )
+					{
+						$res = $management->changeStatus( $this->status_code, true );
+						if ( $res instanceof MessageBag )
+						{
+							return $res;
+						}
+					}
+                }
+
+                break;
+				
+			case 'transferred_management_again':
+
+                foreach ( $this->managements as $management )
+                {
+					if ( $management->status_code != 'transferred_management_again' )
+					{
+						$res = $management->changeStatus( $this->status_code, true );
+						if ( $res instanceof MessageBag )
+						{
+							return $res;
+						}
+					}
+                }
+
+                break;
+				
+            case 'cancel':
+
+                foreach ( $this->managements as $management )
+                {
+					if ( $management->status_code != 'cancel' )
+					{
+						$res = $management->changeStatus( $this->status_code, true );
+						if ( $res instanceof MessageBag )
+						{
+							return $res;
+						}
+					}
                 }
 
                 break;

@@ -252,7 +252,7 @@
                         </div>
                     </div>
 
-                    <div class="panel panel-info">
+                    <div class="panel panel-primary">
                         <!-- Default panel contents -->
                         <div class="panel-heading">
                             <h3 class="panel-title">
@@ -306,6 +306,13 @@
 
                         </div>
                     </div>
+					
+					@if ( $ticket->type->need_act )
+						<div class="alert alert-warning">
+							<i class="glyphicon glyphicon-exclamation-sign"></i>
+							Требуется Акт выполненных работ
+						</div>
+					@endif
 
                     @if ( $ticket->managements->count() )
 
@@ -413,14 +420,16 @@
                                         </div>
                                     @endif
 
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
-                                                <i class="glyphicon glyphicon-print"></i>
-                                                Скачать Акт
-                                            </a>
-                                        </div>
-                                    </div>
+									@if ( $ticket->type->need_act )
+										<div class="row">
+											<div class="col-md-12">
+												<a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+													<i class="glyphicon glyphicon-print"></i>
+													Скачать Акт выполненных работ
+												</a>
+											</div>
+										</div>
+									@endif
 
                                     <p class="text-right hidden">
                                         <button class="btn btn-danger">
