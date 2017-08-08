@@ -42,7 +42,8 @@ class CustomersController extends BaseController
         $customers = $customers->paginate( 30 );
 
         return view( 'catalog.customers.index' )
-            ->with( 'customers', $customers );
+            ->with( 'customers', $customers )
+            ->with( 'title', 'Заявители' );
 
     }
 
@@ -103,7 +104,8 @@ class CustomersController extends BaseController
         }
 
         return view( 'catalog.customers.edit' )
-            ->with( 'customer', $customer );
+            ->with( 'customer', $customer )
+            ->with( 'title', 'Редактировать заявителя' );
 
     }
 
@@ -162,12 +164,11 @@ class CustomersController extends BaseController
             ->orderBy( 'middlename' )
             ->get();
 
-        foreach ( $customers as $customer )
+        if ( $customers->count() )
         {
-            $customer->full_name = $customer->getName();
+            return view( 'catalog.customers.select' )
+                ->with( 'customers', $customers );
         }
-
-        return $customers;
 
     }
 

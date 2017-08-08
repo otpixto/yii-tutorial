@@ -171,8 +171,9 @@ class TypesController extends BaseController
             ::where( 'id', $request->get( 'type_id' ) )
             ->first();
 
-        return view( 'catalog.types.info' )
-            ->with( 'type', $type );
+        $type->category_name = $type->category->name;
+
+        return $type;
 
     }
 

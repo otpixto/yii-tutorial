@@ -11,6 +11,14 @@ class Ticket extends BaseModel
 
     protected $table = 'tickets';
 
+    public static $places = [
+        'Помещение',
+        'МОП',
+        'Двор',
+        'Дорога',
+        'Сквер',
+    ];
+
     public static $statuses = [
         null                                => 'Статус не назначен',
         'draft'					            => 'Черновик',
@@ -129,7 +137,10 @@ class Ticket extends BaseModel
         'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'phone2'            => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'text'              => 'required|max:191',
-        'address'           => 'max:191'
+        'address'           => 'max:191',
+        'emergency'         => 'boolean',
+        'urgently'          => 'boolean',
+        'dobrodel'          => 'boolean',
     ];
 
     protected $fillable = [
@@ -140,7 +151,10 @@ class Ticket extends BaseModel
         'phone',
         'phone2',
         'text',
-        'address'
+        'address',
+        'emergency',
+        'urgently',
+        'dobrodel',
     ];
 
     public function managements ()

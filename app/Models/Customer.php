@@ -28,6 +28,11 @@ class Customer extends BaseModel
         return $this->hasMany( 'App\Models\Ticket' );
     }
 
+    public function address ()
+    {
+        return $this->belongsTo( 'App\Models\Address' );
+    }
+
     public static function create ( array $attributes = [] )
     {
 

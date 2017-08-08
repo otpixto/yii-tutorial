@@ -1,10 +1,8 @@
 <!-- BEGIN FOOTER -->
-<div class="page-footer">
-    <div class="container">
-        {{ date( 'Y' ) }} &copy; {{ \Config::get( 'app.name' ) }}
-    </div>
-</div>
-<div class="scroll-to-top">
+<p class="copyright">
+    {{ date( 'Y' ) }} &copy; {{ \Config::get( 'app.name' ) }}
+</p>
+<a href="#index" class="go2top">
     <i class="icon-arrow-up"></i>
-</div>
+</a>
 <!-- END FOOTER -->

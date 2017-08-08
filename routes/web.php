@@ -19,9 +19,13 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
 
     Route::get( 'addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
+    Route::get( 'binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
 
     Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
     Route::get( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
+
+    Route::resource( 'works', 'Operator\WorksController' );
+    Route::resource( 'schedule', 'Operator\ScheduleController' );
 
     Route::prefix( 'catalog' )->group( function ()
     {

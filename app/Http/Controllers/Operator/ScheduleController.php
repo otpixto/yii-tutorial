@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 
-class TicketsController extends BaseController
+class ScheduleController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -54,8 +54,7 @@ class TicketsController extends BaseController
         $tickets = $tickets->paginate( 30 );
 
         return view( 'operator.tickets.index' )
-            ->with( 'tickets', $tickets )
-            ->with( 'title', 'Реестр обращений' );
+            ->with( 'tickets', $tickets );
 
     }
 
@@ -78,9 +77,7 @@ class TicketsController extends BaseController
         }
 
         return view( 'operator.tickets.create' )
-            ->with( 'types', $types )
-            ->with( 'places', Ticket::$places )
-            ->with( 'title', 'Добавить обращение' );
+            ->with( 'types', $types );
     }
 
     /**
@@ -94,7 +91,7 @@ class TicketsController extends BaseController
 
         $this->validate( $request, Ticket::$rules );
 
-		\DB::beginTransaction();
+        \DB::beginTransaction();
 
         $ticket = Ticket::create( $request->all() );
 
@@ -147,16 +144,16 @@ class TicketsController extends BaseController
 
         }
 
-		if ( count( $request->get( 'tags', [] ) ) )
-		{
-			$tags = explode( ',', $request->get( 'tags' ) );
-			foreach ( $tags as $tag )
-			{
-				$ticket->addTag( $tag );
-			}
-		}
+        if ( count( $request->get( 'tags', [] ) ) )
+        {
+            $tags = explode( ',', $request->get( 'tags' ) );
+            foreach ( $tags as $tag )
+            {
+                $ticket->addTag( $tag );
+            }
+        }
 
-		$res = $ticket->changeStatus( $status_code );
+        $res = $ticket->changeStatus( $status_code );
 
         if ( $res instanceof MessageBag )
         {
@@ -165,7 +162,7 @@ class TicketsController extends BaseController
                 ->withErrors( $res );
         }
 
-		\DB::commit();
+        \DB::commit();
 
         return redirect()->route( 'tickets.show', $ticket->id )
             ->with( 'success', 'Обращение успешно добавлено' );
@@ -229,21 +226,21 @@ class TicketsController extends BaseController
     {
         //
     }
-	
-	public function comment ( Request $request, $id )
+
+    public function comment ( Request $request, $id )
     {
-        
-		$ticket = Ticket::find( $id );
-		if ( !$ticket )
-		{
-			return redirect()->route( 'tickets.index' )
+
+        $ticket = Ticket::find( $id );
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
                 ->withErrors( [ 'Обращение не найдено' ] );
-		}
-		
-		$ticket->addComment( $request->get( 'text' ) );
-		
-		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
-		
+        }
+
+        $ticket->addComment( $request->get( 'text' ) );
+
+        return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+
     }
 
     public function changeStatus ( Request $request, $id )
@@ -375,5 +372,5 @@ class TicketsController extends BaseController
             ->with( 'ticketManagement', $ticketManagement );
 
     }
-	
+
 }

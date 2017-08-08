@@ -10,153 +10,187 @@
 
 @section( 'content' )
 
-    <div class="portlet light ">
-        <td class="portlet-body">
+    {!! Form::open( [ 'url' => route( 'tickets.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-            <h1 class="margin-top-10 margin-bottom-30">
-                <i class="fa fa-plus-square text-success"></i>
-                Регистрация обращения
-            </h1>
+    <div class="row">
 
-            {!! Form::open( [ 'url' => route( 'tickets.store' ) ] ) !!}
+        <div class="col-lg-7 col-md-6">
 
-            <div class="row">
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone', \Input::old( 'phone', \Input::get( 'phone' ) ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone2', \Input::old( 'phone2' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="row hidden" id="customers-list">
-                <div class="col-md-12">
-                    <div class="alert alert-info hidden">
-                        <a href="#" data-action="customer-cancel" class="text-danger">
-                            <i class="fa fa-remove"></i>
-                            отменить выбор заявителя
-                        </a>
-                    </div>
-                    <div class="alert alert-info">
-                        <h4 class="block">
-                            Возможно это:
-                            <a href="#" class="btn btn-danger btn-xs pull-right" data-action="customer-close">
-                                Нет
-                            </a>
-                        </h4>
-                        <div class="list-group" style="margin-bottom: 0px;">
-                        </div>
-                    </div>
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-lg-3' ] ) !!}
+                <div class="col-lg-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
                 </div>
             </div>
 
-            <div class="row">
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
-                    </div>
-                </div>
-
-            </div>
-
-            <hr />
-
-            <div class="row">
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'type_id', $types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
-                    </div>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="form-group">
-                        {!! Form::label( 'address', 'Адрес обращения', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес', 'required', 'id' => 'address' ] ) !!}
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-info hidden" id="type_info">
-                    </div>
+            <div class="form-group">
+                {!! Form::label( 'address', 'Адрес обращения', [ 'class' => 'control-label col-lg-3' ] ) !!}
+                <div class="col-lg-9">
+                    {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control address', 'placeholder' => 'Адрес', 'required', 'id' => 'address' ] ) !!}
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-info hidden" id="management">
-                    </div>
+            <div class="form-group">
+                {!! Form::label( 'place', 'Проблемное место', [ 'class' => 'control-label col-lg-3' ] ) !!}
+                <div class="col-lg-9">
+                    {!! Form::select( 'place', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place' ), [ 'class' => 'form-control', 'placeholder' => 'Проблемное место', 'required', 'id' => 'address' ] ) !!}
                 </div>
             </div>
 
-            <hr />
-
-            <div class="row">
-
-                <div class="col-md-12">
-                    <div class="form-group">
-                        {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
-                        <button type="button" class="btn btn-xs btn-default pull-right" id="microphone" data-state="off">
-                            <i class="fa fa-microphone-slash"></i>
+            <div class="form-group">
+                {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-md-2 col-lg-3' ] ) !!}
+                <div class="pull-right">
+                    <div class="col-md-2 col-lg-1">
+                        <button type="button" class="btn btn-default" disabled="disabled" id="customers-select">
+                            <i class="fa fa-user"></i>
                         </button>
-                        {!! Form::textarea( 'text', \Input::old( 'text' ), [ 'class' => 'form-control autosizeme', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5 ] ) !!}
                     </div>
                 </div>
-
-            </div>
-			
-			<div class="row">
-			
-				<div class="col-md-12">
-                    <div class="form-group">
-                        {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-						{!! Form::text( 'tags', null, [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
-                    </div>
+                <div class="col-md-4">
+                    {!! Form::text( 'phone', \Input::old( 'phone', \Input::get( 'phone' ) ), [ 'id' => 'phone', 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
                 </div>
-			
-			</div>
-
-            <div class="row margiv-top-10">
-                <div class="col-md-12">
-                    {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+                <div class="col-md-4">
+                    {!! Form::text( 'phone2', \Input::old( 'phone2' ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон', 'required' ] ) !!}
                 </div>
             </div>
 
-            {!! Form::hidden( 'address_id', null, [ 'id' => 'address_id' ] ) !!}
+            <div class="form-group">
+                {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-lg-3' ] ) !!}
+                <div class="col-lg-3">
+                    {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'id' => 'lastname', 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' ] ) !!}
+                </div>
+                <div class="col-lg-3">
+                    {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'id' => 'firstname', 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
+                </div>
+                <div class="col-lg-3">
+                    {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'id' => 'middlename', 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
+                </div>
+            </div>
 
-            {!! Form::close() !!}
+            <div class="form-group">
+                {!! Form::label( 'customer_address', 'Адрес проживания', [ 'class' => 'control-label col-lg-3' ] ) !!}
+                <div class="col-lg-9">
+                    {!! Form::text( 'customer_address', \Input::old( 'customer_address' ), [ 'class' => 'form-control address', 'placeholder' => 'Адрес', 'required', 'id' => 'customer_address' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-offset-3 col-xs-3">
+                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                        <input type="checkbox" name="emergency" value="1" />
+                        <span></span>
+                        Авария
+                    </label>
+                </div>
+                <div class="col-xs-3">
+                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                        <input type="checkbox" name="urgently" value="1" />
+                        <span></span>
+                        Срочно
+                    </label>
+                </div>
+                <div class="col-xs-3">
+                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                        <input type="checkbox" name="dobrodel" value="1" />
+                        <span></span>
+                        Добродел
+                    </label>
+                </div>
+            </div>
 
         </div>
+
+        <div class="col-lg-5 col-md-6">
+
+            <div class="form-group">
+                <label class="control-label col-lg-3">
+                    Категория
+                </label>
+                <div class="col-lg-9">
+                    <span class="form-control" id="category"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Сезонность устранения', [ 'class' => 'control-label col-lg-5' ] ) !!}
+                <div class="col-lg-7">
+                    <span class="form-control" id="season"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Период на принятие заявки в работу, час', [ 'class' => 'control-label col-lg-7' ] ) !!}
+                <div class="col-lg-5">
+                    <span class="form-control" id="period_acceptance"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Период на исполнение, час', [ 'class' => 'control-label col-lg-7' ] ) !!}
+                <div class="col-lg-5">
+                    <span class="form-control" id="period_execution"></span>
+                </div>
+            </div>
+
+            <div id="managements"></div>
+
+        </div>
+
     </div>
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <button type="button" class="btn btn-default margin-bottom-5" id="microphone" data-state="off">
+                <i class="fa fa-microphone-slash"></i>
+            </button>
+            {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::textarea( 'text', \Input::old( 'text' ), [ 'class' => 'form-control autosizeme', 'placeholder' => 'Текст обращения', 'required', 'rows' => 3 ] ) !!}
+
+        </div>
+
+    </div>
+
+    <div class="row margin-top-10">
+
+        <div class="col-xs-7">
+
+            {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'tags', \Input::old( 'tags' ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
+
+        </div>
+
+        <div class="col-xs-5">
+            {!! Form::submit( 'Добавить', [ 'class' => 'btn green btn-block btn-lg' ] ) !!}
+        </div>
+
+    </div>
+
+    {!! Form::hidden( 'address_id', null, [ 'id' => 'address_id' ] ) !!}
+    {!! Form::hidden( 'customer_address_id', null, [ 'id' => 'customer_address_id' ] ) !!}
+
+    {!! Form::close() !!}
+
+    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="customers-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Выберите заявителя</h4>
+                </div>
+                <div class="modal-body" id="customers">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
 
 @endsection
 
@@ -166,6 +200,11 @@
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
+    <style>
+        .mt-checkbox, .mt-radio {
+            margin-bottom: 0;
+        }
+    </style>
 @endsection
 
 @section( 'js' )
@@ -200,29 +239,15 @@
                 phone: phone
             }, function ( response )
             {
-                if ( response.length )
+                if ( response )
                 {
-                    $( '#customers-list' ).removeClass( 'hidden' );
-                    $.each( response, function ( i, customer )
-                    {
-                        $( '#customers-list .list-group' ).append(
-                            $( '<a href="#" class="list-group-item" data-action="set-customer"></a>' )
-                                .attr( 'data-id', customer.id )
-                                .attr( 'data-firstname', customer.firstname )
-                                .attr( 'data-middlename', customer.middlename )
-                                .attr( 'data-lastname', customer.lastname )
-                                .attr( 'data-phone', customer.phone )
-                                .attr( 'data-phone2', customer.phone2 )
-                                .text( customer.full_name )
-                                .append(
-                                    $( '<i class="fa fa-arrow-circle-down pull-right text-success"></i>' )
-                                )
-                        );
-                    });
+                    $( '#customers' ).html( response );
+                    $( '#customers-select' ).removeAttr( 'disabled' ).attr( 'class', 'btn btn-warning' );
                 }
                 else
                 {
-                    $( '#customers-list' ).addClass( 'hidden' );
+                    $( '#customers' ).empty();
+                    $( '#customers-select' ).attr( 'disabled', 'disabled' ).attr( 'class', 'btn btn-default' );
                 }
             });
 
@@ -355,7 +380,7 @@
 
                 addresses.initialize();
 
-                $( '#address' ).typeahead( null, {
+                $( '.address' ).typeahead( null, {
                     name: 'address',
                     displayKey: 'name',
                     hint: ( App.isRTL() ? false : true ),
@@ -374,18 +399,45 @@
 
                 $( '#phone' ).on( 'keyup', function ( e )
                 {
-                    if ( /_/.test( $( this ).val() ) ) return;
+                    if ( /_/.test( $( this ).val() ) )
+                    {
+                        $( '#customers' ).empty();
+                        $( '#customers-select' ).attr( 'disabled', 'disabled' ).attr( 'class', 'btn btn-default' );
+                        return;
+                    }
                     SearchCustomers( $( this ).val() );
                 });
 
             })
 
-            .on( 'click', '[data-action="set-customer"]', function ( e )
+            .on( 'click', '#customers-select', function ( e )
             {
                 e.preventDefault();
-                $( '#firstname' ).val( $( this ).attr( 'data-firstname' ) ).attr( 'readonly', 'readonly' );
-                $( '#middlename' ).val( $( this ).attr( 'data-middlename' ) ).attr( 'readonly', 'readonly' );
-                $( '#lastname' ).val( $( this ).attr( 'data-lastname' ) ).attr( 'readonly', 'readonly' );
+                $( '#customers-modal' ).modal( 'show' );
+            })
+
+            .on( 'click', '#customers-clear', function ( e )
+            {
+                e.preventDefault();
+                if ( ! confirm( 'Очистить поля заявителя?' ) ) return;
+                $( '#firstname, #middlename, #lastname, #customer_address, #customer_address_id, #phone2' ).val( '' );
+                $( this ).attr( 'id', 'customers-select' ).attr( 'class', 'btn btn-warning' );
+            })
+
+            .on( 'click', '[data-action="customers-select"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                if ( ! confirm( 'Заполнить поля заявителя выбранными данными?' ) ) return;
+
+                $( '#customers-modal' ).modal( 'hide' );
+
+                $( '#firstname' ).val( $( this ).attr( 'data-firstname' ) );
+                $( '#middlename' ).val( $( this ).attr( 'data-middlename' ) );
+                $( '#lastname' ).val( $( this ).attr( 'data-lastname' ) );
+                $( '#customer_address' ).val( $( this ).attr( 'data-address' ) );
+
                 if ( $( '#phone2' ).val() == '' )
                 {
                     if ( $( '#phone' ).val().replace( /\D/g, '' ).substr( -10 ) == $( this ).attr( 'data-phone2' ) )
@@ -397,22 +449,11 @@
                         $( '#phone2' ).val( $( this ).attr( 'data-phone2' ) );
                     }
                 }
-                $( '#phone, #phone2' ).attr( 'readonly', 'readonly' );
-                $( '#customers-list .alert' ).toggleClass( 'hidden' );
-            })
 
-            .on( 'click', '[data-action="customer-cancel"]', function ( e )
-            {
-                e.preventDefault();
-                $( '#firstname, #middlename, #lastname' ).val( '' ).removeAttr( 'readonly' );
-                $( '#phone, #phone2' ).removeAttr( 'readonly' );
-                $( '#customers-list .alert' ).toggleClass( 'hidden' );
-            })
+                $( '#customer_address_id' ).val( $( this ).attr( 'data-address-id' ) );
 
-            .on( 'click', '[data-action="customer-close"]', function ( e )
-            {
-                e.preventDefault();
-                $( '#customers-list' ).addClass( 'hidden' );
+                $( '#customers-select' ).attr( 'class', 'btn btn-danger' ).attr( 'id', 'customers-clear' );
+
             })
 
             .on( 'typeahead:asyncrequest', '#address', function ( e, data )
@@ -423,6 +464,16 @@
             .on( 'typeahead:select', '#address', function ( e, data )
             {
                 $( '#address_id' ).val( data.id ).trigger( 'change' );
+            })
+
+            .on( 'typeahead:asyncrequest', '#customer_address', function ( e, data )
+            {
+                $( '#customer_address_id' ).val( '' );
+            })
+
+            .on( 'typeahead:select', '#customer_address', function ( e, data )
+            {
+                $( '#customer_address_id' ).val( data.id );
             })
 
             .on( 'change', '#type_id', function ( e )
@@ -437,7 +488,10 @@
                     type_id: type_id
                 }, function ( response )
                 {
-                    $( '#type_info' ).removeClass( 'hidden' ).html( response );
+                    $( '#period_acceptance' ).text( response.period_acceptance );
+                    $( '#period_execution' ).text( response.period_execution );
+                    $( '#season' ).text( response.season );
+                    $( '#category' ).text( response.category_name );
                 });
             })
 
@@ -455,7 +509,7 @@
                     type_id: type_id
                 }, function ( response )
                 {
-                    $( '#management' ).removeClass( 'hidden' ).html( response );
+                    $( '#managements' ).html( response );
                 });
             });
 

@@ -90,7 +90,7 @@
                                                     <i class="glyphicon glyphicon-ok"></i>
                                                     Добавить Типы
                                                 </button>
-                                                <button id="del-management" class="btn btn-danger" data-managment="{{ $management->id }}" data-address="{{ $address_id }}">
+                                                <button type="button" id="address-type-delete" class="btn btn-danger" data-managment="{{ $management->id }}" data-address="{{ $address_id }}">
                                                     <i class="fa fa-remove"></i>
                                                     Удалить Адрес
                                                 </button>
@@ -145,6 +145,40 @@
             {
 
                 $( '.select2' ).select2();
+
+                $( '[data-action="address-type-delete"]' ).click( function ( e )
+                {
+
+                    e.preventDefault();
+                    if ( !confirm( 'Уверены, что хотите удалить?' ) ) return;
+
+                    var data = {};
+
+                    var management_id = $( this ).attr( 'data-management' );
+                    var address_id = $( this ).attr( 'data-address' );
+                    var type_id = $( this ).attr( 'data-type' );
+
+                    if ( management_id )
+                    {
+                        data.management_id = management_id;
+                    }
+
+                    if ( address_id )
+                    {
+                        data.address_id = address_id;
+                    }
+
+                    if ( type_id )
+                    {
+                        data.type_id = type_id;
+                    }
+
+                    $.post( '{{ route( 'binds.delete' ) }}', data, function ( response )
+                    {
+                        console.log( response );
+                    });
+
+                });
 
             });
 

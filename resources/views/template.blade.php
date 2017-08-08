@@ -1,127 +1,98 @@
 @include( 'parts.head' )
-<body class="page-container-bg-solid page-header-menu-fixed">
-<div class="page-wrapper">
-    <div class="page-wrapper-row">
-        <div class="page-wrapper-top">
-            <!-- BEGIN HEADER -->
-            <div class="page-header">
-                <!-- BEGIN HEADER TOP -->
-                <div class="page-header-top">
-                    <div class="container">
-                        <!-- BEGIN LOGO -->
-                        <div class="page-logo" style="width: auto;">
-                            <a href="/">
-                                <h1>
-                                    {{ Config::get( 'app.name' ) }}
-                                </h1>
-                            </a>
-                        </div>
-                        <!-- END LOGO -->
-                        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
-                        <a href="javascript:;" class="menu-toggler"></a>
-                        <!-- END RESPONSIVE MENU TOGGLER -->
-                        <!-- BEGIN TOP NAVIGATION MENU -->
-                        <div class="top-menu">
 
-                            <ul class="nav navbar-nav pull-right">
+<body class="page-header-fixed page-sidebar-closed-hide-logo">
 
-                                @include( 'parts.notification_head' )
+<!-- BEGIN CONTAINER -->
+<div class="wrapper">
 
-                                <li class="droddown dropdown-separator">
-                                    <span class="separator"></span>
-                                </li>
+    <!-- BEGIN HEADER -->
+    <header class="page-header">
+        <nav class="navbar mega-menu" role="navigation">
+            <div class="container-fluid">
+                <div class="clearfix navbar-fixed-top">
 
-                                @include( 'parts.inbox_head' )
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="toggle-icon">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </span>
+                    </button>
+                    <!-- End Toggle Button -->
 
-                                @include( 'parts.profile_head' )
+                    <!-- BEGIN LOGO -->
+                    <a id="index" class="page-logo hidden" href="/">
+                        <h3>
+                            {{ \Config::get( 'app.name' ) }}
+                        </h3>
+                    </a>
+                    <!-- END LOGO -->
 
-                                <!-- BEGIN QUICK SIDEBAR TOGGLER -->
-                                <li class="dropdown dropdown-extended quick-sidebar-toggler">
-                                    <span class="sr-only">Быстрая панель</span>
-                                    <i class="icon-logout"></i>
-                                </li>
-                                <!-- END QUICK SIDEBAR TOGGLER -->
+                    <!-- BEGIN SEARCH -->
+                    {!! Form::open( [ 'method' => 'get', 'class' => 'search' ] ) !!}
+                        <input type="name" class="form-control" name="query" placeholder="Поиск...">
+                        <a href="javascript:;" class="btn submit md-skip">
+                            <i class="fa fa-search"></i>
+                        </a>
+                    {!! Form::close() !!}
+                    <!-- END SEARCH -->
 
-                            </ul>
-                        </div>
-                        <!-- END TOP NAVIGATION MENU -->
+                    <!-- BEGIN TOPBAR ACTIONS -->
+                    <div class="topbar-actions">
+
+                        @include( 'parts.notification' )
+                        @include( 'parts.user_profile' )
+
                     </div>
+                    <!-- END TOPBAR ACTIONS -->
                 </div>
-                <!-- END HEADER TOP -->
-                <!-- BEGIN HEADER MENU -->
-                <div class="page-header-menu">
-                    <div class="container">
 
-                        @include( 'parts.search' )
-
-                        @include( 'parts.nav_top' )
-
-                    </div>
-                </div>
-                <!-- END HEADER MENU -->
-            </div>
-            <!-- END HEADER -->
-        </div>
-    </div>
-    <div class="page-wrapper-row full-height">
-        <div class="page-wrapper-middle">
-            <!-- BEGIN CONTAINER -->
-            <div class="page-container">
-                <!-- BEGIN CONTENT -->
-                <div class="page-content-wrapper">
-                    <!-- BEGIN CONTENT BODY -->
-                    <!-- BEGIN PAGE HEAD-->
-                    <div class="page-head">
-                        <div class="container">
-
-                            <!-- BEGIN PAGE TITLE -->
-                            <div class="page-title">
-                                <h1>{{ $title ?? '&nbsp;' }}</h1>
-                            </div>
-                            <!-- END PAGE TITLE -->
-
-                            @include( 'parts.toolbar' )
-
-                        </div>
-                    </div>
-                    <!-- END PAGE HEAD-->
-                    <!-- BEGIN PAGE CONTENT BODY -->
-                    <div class="page-content">
-                        <div class="container">
-
-                            @yield( 'breadcrumbs' )
-
-                            <!-- BEGIN PAGE CONTENT INNER -->
-                            <div class="page-content-inner">
-
-                                @include( 'parts.errors' )
-                                @include( 'parts.success' )
-                                @yield( 'content' )
-
-                            </div>
-                            <!-- END PAGE CONTENT INNER -->
-                        </div>
-                    </div>
-                    <!-- END PAGE CONTENT BODY -->
-                    <!-- END CONTENT BODY -->
-                </div>
-                <!-- END CONTENT -->
-
-                @include( 'parts.sidebar' )
+                @include( 'parts.header_menu' )
 
             </div>
-            <!-- END CONTAINER -->
+            <!--/container-->
+        </nav>
+    </header>
+    <!-- END HEADER -->
+    <div class="container-fluid">
+        <div class="page-content">
+
+            <!-- BEGIN BREADCRUMBS -->
+            <div class="breadcrumbs">
+
+                @if ( !empty( $title ) )
+                    <h1>{{ $title }}</h1>
+                @endif
+
+                @yield( 'breadcrumbs' )
+
+            </div>
+            <!-- END BREADCRUMBS -->
+
+            <!-- BEGIN SIDEBAR CONTENT LAYOUT -->
+            <div class="page-content-container">
+                <div class="page-content-row">
+                    <div class="page-content-col">
+
+                        <!-- BEGIN PAGE BASE CONTENT -->
+                        @yield( 'content' )
+                        <!-- END PAGE BASE CONTENT -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- END SIDEBAR CONTENT LAYOUT -->
         </div>
-    </div>
-    <div class="page-wrapper-row">
-        <div class="page-wrapper-bottom">
-            @include( 'parts.footer' )
-        </div>
+
+        @include( 'parts.footer' )
+
     </div>
 </div>
-
-@include( 'parts.nav_right' )
+<!-- END CONTAINER -->
 
 @include( 'parts.js' )
+
 </body>
 </html>
