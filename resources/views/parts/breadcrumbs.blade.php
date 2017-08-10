@@ -1,5 +1,5 @@
 <!-- BEGIN PAGE BREADCRUMBS -->
-<ol class="breadcrumb">
+<ol class="breadcrumb hidden-print">
         @foreach ( $breadcrumbs as $i => $breadcrumb )
                 <li>
                         @if ( count( $breadcrumb ) == 1 )

@@ -19,10 +19,21 @@ class Counter
     {
 
         $user = $request->user();
+
         if ( $user )
         {
-            $tickets_count = Ticket::mine()->count();
-            \Session::put( 'tickets_count', $tickets_count );
+
+            if ( $user->hasRole( 'operator' ) )
+            {
+                $tickets_count = Ticket::mine()->count();
+                \Session::put( 'tickets_count', $tickets_count );
+            }
+            else if ( $user->hasRole( 'management' ) && $user->management )
+            {
+                $tickets_count = $user->management->tickets()->mine()->count();
+                \Session::put( 'tickets_count', $tickets_count );
+            }
+
         }
 
         return $next( $request );

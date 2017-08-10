@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Support\MessageBag;
 
 class TicketManagement extends BaseModel
@@ -9,40 +10,31 @@ class TicketManagement extends BaseModel
 
     protected $table = 'tickets_managements';
 
+    private $history = [];
+
     public static $statuses = [
         null                                => 'Статус не назначен',
-        'transferred_management'	        => 'Передано Исполнителю',
-        'transferred_management_again'	    => 'Передано Исполнителю Повторно',
-        'accepted'                          => 'Принята к исполнению',
-        'assigned'                          => 'Назначен ответственный',
+        'transferred'	                    => 'Передано в ЭО',
+        'transferred_again'	                => 'Передано в ЭО повторно',
+        'accepted'                          => 'Принято к исполнению',
+        'assigned'                          => 'Назначен исполнитель',
         'completed_with_act'                => 'Выполнено с актом',
         'completed_without_act'		        => 'Выполнено без акта',
         'not_verified'		                => 'Проблема не подтверждена',
         'waiting'	                        => 'Отложено',
-        'no_contract'	                    => 'Отказ (отсутствует договор)',
+        'no_contract'	                    => 'Отказ (нет договора с ЭО)',
 		'cancel'				            => 'Отмена',
     ];
 
     public static $workflow = [
-        null => [
-            'transferred_management',
-            'no_contract',
-        ],
-        'transferred_management' => [
+        'transferred' => [
             'accepted',
-            'assigned',
-            'waiting'
         ],
-        'transferred_management_again' => [
+        'transferred_again' => [
             'accepted',
-            'assigned',
-            'waiting'
         ],
         'accepted' => [
             'assigned',
-            'completed_with_act',
-            'completed_without_act',
-            'not_verified',
             'waiting'
         ],
         'assigned' => [
@@ -109,6 +101,12 @@ class TicketManagement extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
+    }
+
     public static function create ( array $attributes = [] )
     {
 
@@ -121,14 +119,12 @@ class TicketManagement extends BaseModel
     public function getAvailableStatuses ()
     {
         $workflow = self::$workflow[ $this->status_code ] ?? [];
-        $statuses = [
-            null => ' -- выберите из списка -- '
-        ];
+        $statuses = [];
         foreach ( $workflow as $status_code )
         {
             $statuses[ $status_code ] = self::$statuses[ $status_code ];
         }
-        return count( $statuses ) > 1 ? $statuses : [];
+        return $statuses;
     }
 
     public function addComment ( $text )
@@ -154,6 +150,47 @@ class TicketManagement extends BaseModel
         ]);
 
         return $tag;
+
+    }
+
+    public function getStatusHistory ( $status_code )
+    {
+        if ( ! isset( $this->history[ $status_code ] ) )
+        {
+            $history = $this->statusesHistory()->where( 'status_code', '=', $status_code )->orderBy( 'id', 'desc' )->first();
+            if ( ! $history )
+            {
+                return null;
+            }
+            $this->history[ $status_code ] = $history;
+        }
+        return $this->history[ $status_code ];
+    }
+
+    public function getClass ()
+    {
+
+        switch ( $this->status_code )
+        {
+
+            case 'not_verified':
+            case 'cancel':
+            case 'no_contract':
+                return 'danger';
+                break;
+
+            case 'accepted':
+            case 'assigned':
+                return 'success';
+                break;
+
+            case 'transferred_again':
+                return 'warning';
+                break;
+
+        }
+
+        return '';
 
     }
 
@@ -201,67 +238,15 @@ class TicketManagement extends BaseModel
         {
 
             case 'accepted':
-
-                $ticket = $this->ticket;
-                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'accepted' )->count() == 0 ) )
-                {
-                    $res = $ticket->changeStatus( 'accepted_management', true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
-                }
-
-                break;
-				
-			case 'assigned':
-
-                $ticket = $this->ticket;
-                if ( $ticket->status_code != 'accepted_management' && ( $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'assigned' )->count() == 0 ) )
-                {
-                    $res = $ticket->changeStatus( 'accepted_management', true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
-                }
-
-                break;
-
+            case 'assigned':
             case 'completed_with_act':
-
-                $ticket = $this->ticket;
-                if ( $ticket->status_code != 'completed_with_act' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_with_act' )->count() == 0 )
-                {
-                    $res = $ticket->changeStatus( 'completed_with_act', true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
-                }
-
-                break;
-
             case 'completed_without_act':
-
-                $ticket = $this->ticket;
-                if ( $ticket->status_code != 'completed_without_act' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'completed_without_act' )->count() == 0 )
-                {
-                    $res = $ticket->changeStatus( 'completed_without_act', true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
-                }
-
-                break;
-
             case 'not_verified':
+            case 'waiting':
 
-                $ticket = $this->ticket;
-                if ( $ticket->status_code != 'not_verified' && $ticket->managements->count() == 1 || $ticket->managements()->where( 'status_code', '!=', 'not_verified' )->count() == 0 )
+                if ( $this->ticket->status_code != $this->status_code )
                 {
-                    $res = $ticket->changeStatus( 'not_verified', true );
+                    $res = $this->ticket->changeStatus( $this->status_code, true );
                     if ( $res instanceof MessageBag )
                     {
                         return $res;

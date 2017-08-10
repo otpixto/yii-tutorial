@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
@@ -23,39 +24,77 @@ class TicketsController extends BaseController
         $search = trim( \Input::get( 'search', '' ) );
         $group = trim( \Input::get( 'group', '' ) );
 
-        $tickets = Ticket
-            ::mine()
-            ->parentsOnly()
-            ->orderBy( 'id', 'desc' );
-
-        if ( !empty( $search ) )
+        if ( \Auth::user()->hasRole( 'operator' ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-            $tickets
-                ->where( function ( $q ) use ( $s )
-                {
-                    return $q
-                        ->where( 'firstname', 'like', $s )
-                        ->orWhere( 'middlename', 'like', $s )
-                        ->orWhere( 'lastname', 'like', $s )
-                        ->orWhere( 'phone', 'like', $s )
-                        ->orWhere( 'phone2', 'like', $s )
-                        ->orWhere( 'address', 'like', $s )
-                        ->orWhere( 'text', 'like', $s );
-                });
-        }
+            $view = 'tickets.operator.index';
+            $tickets = Ticket
+                ::mine()
+                ->parentsOnly()
+                ->orderBy( 'id', 'desc' );
+            if ( !empty( $search ) )
+            {
+                $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+                $tickets
+                    ->where( function ( $q ) use ( $s )
+                    {
+                        return $q
+                            ->where( 'firstname', 'like', $s )
+                            ->orWhere( 'middlename', 'like', $s )
+                            ->orWhere( 'lastname', 'like', $s )
+                            ->orWhere( 'phone', 'like', $s )
+                            ->orWhere( 'phone2', 'like', $s )
+                            ->orWhere( 'address', 'like', $s )
+                            ->orWhere( 'text', 'like', $s );
+                    });
+            }
+            if ( !empty( $group ) )
+            {
+                $tickets
+                    ->where( 'group_uuid', '=', $group );
+            }
 
-        if ( !empty( $group ) )
+            $tickets = $tickets->paginate( 30 );
+
+            return view( 'tickets.operator.index' )
+                ->with( 'tickets', $tickets )
+                ->with( 'title', 'Реестр обращений' );
+
+        }
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
         {
-            $tickets
-                ->where( 'group_uuid', '=', $group );
+
+            $ticketManagements = \Auth::user()->management->tickets()->mine()->orderBy( 'id', 'desc' );
+
+            if ( !empty( $search ) )
+            {
+                $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+                $ticketManagements
+                    ->whereHas( 'ticket', function ( $q ) use ( $s )
+                    {
+                        return $q
+                            ->where( 'firstname', 'like', $s )
+                            ->orWhere( 'middlename', 'like', $s )
+                            ->orWhere( 'lastname', 'like', $s )
+                            ->orWhere( 'phone', 'like', $s )
+                            ->orWhere( 'phone2', 'like', $s )
+                            ->orWhere( 'address', 'like', $s )
+                            ->orWhere( 'text', 'like', $s );
+                    });
+            }
+
+            $ticketManagements = $ticketManagements->paginate( 30 );
+
+            return view( 'tickets.management.index' )
+                ->with( 'ticketManagements', $ticketManagements )
+                ->with( 'title', 'Реестр обращений' );
+
         }
-
-        $tickets = $tickets->paginate( 30 );
-
-        return view( 'operator.tickets.index' )
-            ->with( 'tickets', $tickets )
-            ->with( 'title', 'Реестр обращений' );
+        else
+        {
+            return view( 'blank' )
+                ->with( 'error', 'Доступ запрещен' )
+                ->with( 'title', 'Доступ запрещен' );
+        }
 
     }
 
@@ -77,7 +116,7 @@ class TicketsController extends BaseController
             $types[ $r->category->name ][ $r->id ] = $r->name;
         }
 
-        return view( 'operator.tickets.create' )
+        return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'places', Ticket::$places )
             ->with( 'title', 'Добавить обращение' );
@@ -93,6 +132,11 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, Ticket::$rules );
+
+        if ( ! isset( Ticket::$places[ $request->get( 'place' ) ] ) )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
+        }
 
 		\DB::beginTransaction();
 
@@ -132,11 +176,11 @@ class TicketsController extends BaseController
 
             if ( $ticketManagement->management->has_contract )
             {
-                $status_code = 'accepted_operator';
+                $status_code = 'created';
             }
             else
             {
-                $res = $ticketManagement->changeStatus( 'no_contract' );
+                $res = $ticketManagement->changeStatus( 'no_contract', true );
                 if ( $res instanceof MessageBag )
                 {
                     return redirect()->back()
@@ -156,7 +200,7 @@ class TicketsController extends BaseController
 			}
 		}
 
-		$res = $ticket->changeStatus( $status_code );
+		$res = $ticket->changeStatus( $status_code, true );
 
         if ( $res instanceof MessageBag )
         {
@@ -181,16 +225,93 @@ class TicketsController extends BaseController
     public function show ( $id )
     {
 
-        $ticket = Ticket::find( $id );
-
-        if ( !$ticket )
+        if ( \Auth::user()->hasRole( 'operator' ) )
         {
-            return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+
+            $view = 'tickets.operator.show';
+
+            $ticket = Ticket::find( $id );
+
+            if ( !$ticket )
+            {
+                return redirect()->route( 'tickets.index' )
+                    ->withErrors( [ 'Обращение не найдено' ] );
+            }
+
+            $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+            $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+            $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+
+        }
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+        {
+
+            $view = 'tickets.management.show';
+
+            $ticketManagement = TicketManagement
+                ::where( 'ticket_id', '=', $id )
+                ->where( 'management_id', '=', \Auth::user()->management->id )
+                ->mine()
+                ->first();
+
+            if ( !$ticketManagement )
+            {
+                return redirect()->route( 'tickets.index' )
+                    ->withErrors( [ 'Обращение не найдено' ] );
+            }
+
+            $ticket = $ticketManagement->ticket;
+
+            if ( !$ticket )
+            {
+                return redirect()->route( 'tickets.index' )
+                    ->withErrors( [ 'Обращение не найдено' ] );
+            }
+
+            $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+            $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
+            $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+
+        }
+        else
+        {
+            return view( 'blank' )
+                ->with( 'error', 'Доступ запрещен' )
+                ->with( 'title', 'Доступ запрещен' );
         }
 
-        return view( 'operator.tickets.show' )
-            ->with( 'ticket', $ticket );
+        $title = 'Обращение #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' );
+
+        $dt_now = Carbon::now();
+
+        if ( $status_transferred )
+        {
+
+            $dt_acceptance_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 );
+            $dt_execution_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 );
+
+            $dt_transferred = $status_transferred->created_at ?? null;
+            $dt_accepted = $status_accepted->created_at ?? null;
+            $dt_completed = $status_completed->created_at ?? null;
+
+            if ( $dt_completed )
+            {
+                $execution_hours = number_format( $dt_completed->diffInMinutes( $dt_transferred ) / 60, 2, '.', '' );
+            }
+
+        }
+
+        return view( $view )
+            ->with( 'ticket', $ticket )
+            ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
+            ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
+            ->with( 'dt_transferred', $dt_transferred ?? null )
+            ->with( 'dt_accepted', $dt_accepted ?? null )
+            ->with( 'dt_completed', $dt_completed ?? null )
+            ->with( 'dt_now', $dt_now )
+            ->with( 'execution_hours', $execution_hours ?? null )
+            ->with( 'title', $title );
 
     }
 
@@ -256,7 +377,7 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Обращение не найдено' ] );
         }
 
-        $res = $ticket->changeStatus( $request->get( 'status' ) );
+        $res = $ticket->changeStatus( $request->get( 'status_code' ) );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
@@ -277,7 +398,7 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Исполнитель по данному обращнию не найден' ] );
         }
 
-        $res = $ticketManagement->changeStatus( $request->get( 'status' ) );
+        $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
@@ -302,6 +423,10 @@ class TicketsController extends BaseController
             {
 
                 case 'group':
+                    if ( $tickets->count() < 2 )
+                    {
+                        return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
+                    }
                     $uuid = Uuid::uuid4()->toString();
                     $parent = null;
                     foreach ( $tickets as $ticket )
@@ -353,6 +478,7 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket::find( $id );
+
         if ( !$ticket )
         {
             return redirect()->route( 'tickets.index' )
@@ -360,6 +486,7 @@ class TicketsController extends BaseController
         }
 
         $ticket->rate = $request->get( 'rate' );
+        $ticket->rate_comment = $request->get( 'comment', null );
         $ticket->save();
 
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
@@ -371,7 +498,7 @@ class TicketsController extends BaseController
 
         $ticketManagement = TicketManagement::find( $id );
 
-        return view( 'operator.tickets.act' )
+        return view( 'tickets.act' )
             ->with( 'ticketManagement', $ticketManagement );
 
     }

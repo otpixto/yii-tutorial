@@ -2,7 +2,7 @@
 <div class="btn-group-img btn-group">
     <button type="button" class="btn btn-sm md-skip dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span>{{ \Auth::user()->getName() }}</span>
-        <img src="/assets/layouts/layout5/img/avatar1.jpg" alt=""> </button>
+    </button>
     <ul class="dropdown-menu-v2" role="menu">
         <li>
             <a href="">

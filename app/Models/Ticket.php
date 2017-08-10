@@ -11,6 +11,8 @@ class Ticket extends BaseModel
 
     protected $table = 'tickets';
 
+    private $can_edit = null;
+
     public static $places = [
         'Помещение',
         'МОП',
@@ -22,17 +24,19 @@ class Ticket extends BaseModel
     public static $statuses = [
         null                                => 'Статус не назначен',
         'draft'					            => 'Черновик',
-        'accepted_operator'                 => 'Принято оператором ЕДС',
-        'transferred_management'            => 'Передано Исполнителю',
-        'transferred_management_again'      => 'Передано Исполнителю Повторно',
-        'accepted_management'               => 'Принято к исполнению',
+        'created'                           => 'Принято оператором ЕДС',
+        'transferred'                       => 'Передано в ЭО',
+        'transferred_again'                 => 'Передано в ЭО повторно',
+        'accepted'                          => 'Принято к исполнению',
+        'assigned'                          => 'Назначен исполнитель',
         'completed_with_act'		        => 'Выполнено с актом',
         'completed_without_act'		        => 'Выполнено без акта',
         'closed_with_confirm'		        => 'Закрыто с подтверждением',
         'closed_without_confirm'	        => 'Закрыто без подтверждения',
         'not_verified'                      => 'Проблема не потверждена',
+        'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отмена',
-        'no_contract'                       => 'Отказ (отсутствует договор)',
+        'no_contract'                       => 'Отказ (нет договора с ЭО)',
     ];
 
     public static $final_statuses = [
@@ -41,86 +45,39 @@ class Ticket extends BaseModel
     ];
 
     public static $workflow = [
-        null => [
-            'draft',
-            'accepted_operator',
-            'no_contract',
-        ],
         'draft' => [
-            'accepted_operator',
+            'created',
             'no_contract',
         ],
-        'accepted_operator' => [
-            'transferred_management',
+        'created' => [
+            'transferred',
             'cancel',
             'no_contract',
         ],
-        'transferred_management' => [
+        'transferred' => [
             'cancel',
         ],
-        'transferred_management_again' => [
+        'transferred_again' => [
             'cancel',
         ],
-        'accepted_management' => [
+        'accepted' => [
             'cancel',
         ],
         'completed_with_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
-            'transferred_management_again',
+            'transferred_again',
         ],
         'completed_without_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
-            'transferred_management_again',
+            'transferred_again',
         ],
 		'not_verified' => [
-			'transferred_management_again',
+			'transferred_again',
 			'cancel',
 		],
     ];
-	
-	/*public static $statuses = [
-		'draft'					    => 'Черновик',
-        'accepted'                  => 'Принято оператором ЕДС',
-        'transferred'               => 'Передано Исполнителю',
-        'closed_with_confirm'		=> 'Закрыто с подтверждением',
-        'closed_without_confirm'	=> 'Закрыто без подтверждения',
-        'transferred_again'         => 'Передано Исполнителю повторно',
-        'cancel'				    => 'Отмена',
-        'no_contract'               => 'Договор отсутствует',
-	];
-	
-	public static $workflow = [
-		'draft' => [ 
-			'accepted',
-            'no_contract',
-            'cancel'
-		],
-		'accepted' => [
-            'transferred',
-			'cancel',
-		],
-        'transferred' => [
-            'closed_with_confirm',
-            'closed_without_confirm',
-            'cancel'
-        ],
-		'closed_with_confirm' => [
-			'transferred_again',
-            'cancel',
-		],
-        'closed_without_confirm' => [
-            'transferred_again',
-            'cancel',
-        ],
-		'cancel' => [ 
-
-		],
-        'no_contract' => [
-
-        ],
-	];*/
 
     protected $nullable = [
         'management_id',
@@ -141,6 +98,8 @@ class Ticket extends BaseModel
         'emergency'         => 'boolean',
         'urgently'          => 'boolean',
         'dobrodel'          => 'boolean',
+        'place'             => 'required|integer',
+        'managements'       => 'required|array',
     ];
 
     protected $fillable = [
@@ -158,6 +117,11 @@ class Ticket extends BaseModel
     ];
 
     public function managements ()
+    {
+        return $this->hasMany( 'App\Models\TicketManagement' );
+    }
+
+    public function allowedManagements ()
     {
         $q = $this->hasMany( 'App\Models\TicketManagement' );
         if ( Auth::user()->management_id && ! Auth::user()->can( 'tickets.managements_all' ) )
@@ -234,7 +198,7 @@ class Ticket extends BaseModel
                 if ( $user->can( 'tickets.executor' ) && $user->management )
                 {
                     $q
-                        ->whereHas( 'managements', function ( $q2 ) use ( $user )
+                        ->whereHas( 'allowedManagements', function ( $q2 ) use ( $user )
                         {
                             return $q2
                                 ->where( 'management_id', '=', $user->management->id );
@@ -273,6 +237,7 @@ class Ticket extends BaseModel
 
         $ticket = new Ticket( $attributes );
         $ticket->author_id = Auth::user()->id;
+        $ticket->place = self::$places[ $attributes['place'] ];
 
         $address = Address
             ::where( 'name', '=', trim( $ticket->address ) )
@@ -339,9 +304,7 @@ class Ticket extends BaseModel
 	{
 	    $user_statuses = Auth::user()->getAvailableStatuses();
 		$workflow = self::$workflow[ $this->status_code ] ?? [];
-        $statuses = [
-            null => ' -- выберите из списка -- '
-        ];
+		$statuses = [];
 		foreach ( $workflow as $status_code )
 		{
 		    if ( in_array( $status_code, $user_statuses ) )
@@ -349,7 +312,7 @@ class Ticket extends BaseModel
                 $statuses[ $status_code ] = self::$statuses[ $status_code ];
             }
 		}
-		return count( $statuses ) > 1 ? $statuses : [];
+		return $statuses;
 	}
 
 	public function getColor ()
@@ -360,7 +323,7 @@ class Ticket extends BaseModel
         switch ( $this->status_code )
         {
 
-            case 'accepted_operator':
+            case 'accepted':
 
                 if ( $this->type->period_acceptance )
                 {
@@ -375,6 +338,8 @@ class Ticket extends BaseModel
 
                 }
 
+                return 'color-green';
+
                 break;
 
             case 'not_verified':
@@ -383,17 +348,72 @@ class Ticket extends BaseModel
                 return 'color-red';
                 break;
 
-            case 'accepted_management':
-                return 'color-green';
-                break;
-
-            case 'transferred_management':
-            case 'transferred_management_again':
+            case 'transferred':
+            case 'transferred_again':
                 return 'color-yellow';
                 break;
 
         }
 
+    }
+
+    public function getClass ()
+    {
+
+        $now = Carbon::now();
+
+        switch ( $this->status_code )
+        {
+
+            case 'transferred_management':
+
+                if ( $this->type->period_acceptance )
+                {
+
+                    $dt = Carbon::parse( $this->created_at );
+                    $dt->addSeconds( $this->type->period_acceptance * 60 * 60 );
+
+                    if ( $now->timestamp > $dt->timestamp )
+                    {
+                        return 'danger';
+                    }
+
+                }
+
+                return 'warning';
+
+                break;
+
+            case 'not_verified':
+            case 'cancel':
+            case 'no_contract':
+                return 'danger';
+                break;
+
+            case 'accepted_management':
+                return 'success';
+                break;
+
+            case 'transferred_management_again':
+                return 'warning';
+                break;
+
+        }
+
+        return '';
+
+    }
+
+    public function getStatus ( $html = false )
+    {
+        if ( $html )
+        {
+            return '<div class="' . $this->getClass() . '">' . $this->status_name . '</div>';
+        }
+        else
+        {
+            return $this->status_name;
+        }
     }
 
     public function addComment ( $text )
@@ -420,6 +440,28 @@ class Ticket extends BaseModel
 
         return $tag;
 
+    }
+
+    public function canEdit ()
+    {
+        if ( is_null( $this->can_edit ) )
+        {
+            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
+            {
+                $this->can_edit = true;
+            }
+            else
+            {
+                $this->can_edit = false;
+            }
+        }
+        return $this->can_edit;
+    }
+
+    public function getStatusHistory ( $status_code )
+    {
+        if ( ! is_array( $status_code ) ) $status_code = [ $status_code ];
+        $this->statusesHistory()->whereIn( 'status_code', $status_code )->orderBy( 'id', 'desc' )->first();
     }
 
     public function changeStatus ( $status_code, $force = false )
@@ -501,43 +543,12 @@ class Ticket extends BaseModel
         switch ( $this->status_code )
         {
 
-            case 'transferred_management':
-
-                foreach ( $this->managements as $management )
-                {
-					if ( $management->status_code != 'transferred_management' )
-					{
-						$res = $management->changeStatus( $this->status_code, true );
-						if ( $res instanceof MessageBag )
-						{
-							return $res;
-						}
-					}
-                }
-
-                break;
-				
-			case 'transferred_management_again':
-
-                foreach ( $this->managements as $management )
-                {
-					if ( $management->status_code != 'transferred_management_again' )
-					{
-						$res = $management->changeStatus( $this->status_code, true );
-						if ( $res instanceof MessageBag )
-						{
-							return $res;
-						}
-					}
-                }
-
-                break;
-				
             case 'cancel':
+            case 'no_contract':
 
                 foreach ( $this->managements as $management )
                 {
-					if ( $management->status_code != 'cancel' )
+					if ( $management->status_code != $this->status_code )
 					{
 						$res = $management->changeStatus( $this->status_code, true );
 						if ( $res instanceof MessageBag )
@@ -545,6 +556,23 @@ class Ticket extends BaseModel
 							return $res;
 						}
 					}
+                }
+
+                break;
+
+            case 'transferred':
+            case 'transferred_again':
+
+                foreach ( $this->managements as $management )
+                {
+                    if ( $management->status_code != 'transferred' && $management->status_code != 'transferred_again' )
+                    {
+                        $res = $management->changeStatus( $this->status_code, true );
+                        if ( $res instanceof MessageBag )
+                        {
+                            return $res;
+                        }
+                    }
                 }
 
                 break;

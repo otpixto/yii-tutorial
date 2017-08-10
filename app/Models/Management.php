@@ -23,6 +23,11 @@ class Management extends BaseModel
             ->withPivot( [ 'type_id' ] );
     }
 
+    public function tickets ()
+    {
+        return $this->hasMany( 'App\Models\TicketManagement' );
+    }
+
     public static function create ( array $attributes = [] )
     {
         $new = new Management( $attributes );

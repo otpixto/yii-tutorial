@@ -8,10 +8,14 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="/">О компании</a>
+                    <a href="/">
+                        О компании
+                    </a>
                 </li>
                 <li>
-                    <a href="{{ route( 'schedule.index' ) }}">График работы операторов</a>
+                    <a href="{{ route( 'schedule.index' ) }}">
+                        График работы операторов
+                    </a>
                 </li>
             </ul>
         </li>
@@ -25,12 +29,19 @@
                 <ul class="dropdown-menu">
                     @can ( 'tickets.create' )
                         <li>
-                            <a href="{{ route( 'tickets.create' ) }}">Создать обращение</a>
+                            <a href="{{ route( 'tickets.create' ) }}">
+                                Создать обращение
+                            </a>
                         </li>
                     @endcan
                     @can ( 'tickets.show' )
                         <li>
-                            <a href="{{ route( 'tickets.index' ) }}">Реестр Обращений</a>
+                            <a href="{{ route( 'tickets.index' ) }}">
+                                Реестр Обращений
+                                <span class="badge badge-info">
+                                    {{ \Session::get( 'tickets_count' ) }}
+                                </span>
+                            </a>
                         </li>
                     @endcan
                 </ul>
@@ -46,12 +57,16 @@
                 <ul class="dropdown-menu">
                     @can ( 'works.create' )
                         <li>
-                            <a href="{{ route( 'works.create' ) }}">Создать сообщение</a>
+                            <a href="{{ route( 'works.create' ) }}">
+                                Создать сообщение
+                            </a>
                         </li>
                     @endcan
                     @can ( 'works.show' )
                         <li>
-                            <a href="{{ route( 'works.index' ) }}">Реестр работ на сетях</a>
+                            <a href="{{ route( 'works.index' ) }}">
+                                Реестр работ на сетях
+                            </a>
                         </li>
                     @endcan
                 </ul>

@@ -1,3 +1,4 @@
+<hr />
 <div class="row">
     <div class="col-md-12">
         <label class="control-label">
@@ -10,7 +11,7 @@
     <div class="row">
         <div class="col-md-12">
             <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline col-md-12" style="margin-bottom: 0;">
-                <input type="checkbox" value="1" checked="checked" />
+                <input type="checkbox" name="managements[]" value="{{ $management->id }}" @if ( is_null( $selected ) || in_array( $management->id, $selected ) ) checked="checked" @endif />
                 <span></span>
                 <div class="col-md-4">
                     {{ $management->name }}

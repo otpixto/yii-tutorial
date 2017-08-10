@@ -1,6 +1,7 @@
 var Modal = {
 	
 	defaultID: 'modal',
+	lastID: null,
 	
 	init: function ()
 	{
@@ -12,10 +13,12 @@ var Modal = {
 		
 	},
 	
-	create: function ( id )
+	create: function ( id, callback )
 	{
 		
 		var id = id || Modal.defaultID;
+
+        Modal.lastID = id;
 		
 		Modal.init();
 		
@@ -42,6 +45,7 @@ var Modal = {
 			'</div>';
 			var _modal = $( html ).attr( 'data-id', id );
 			_modal.appendTo( '#modals' );
+			callback.call( Modal, _modal );
 		}
 
 		_modal.modal( 'show' );
@@ -52,25 +56,29 @@ var Modal = {
 	{
 		
 		var id = id || Modal.defaultID;
+
+		Modal.lastID = id;
 		
-		Modal.create( id );
-		
-		if ( title )
+		Modal.create( id, function ()
 		{
-			Modal.setTitle( title, id );
-		}
-		
-		if ( body )
-		{
-			Modal.setBody( body, id, true );
-		}
+            if ( title )
+            {
+                Modal.setTitle( title, id );
+            }
+            if ( body )
+            {
+                Modal.setBody( body, id, true );
+            }
+		});
 		
 	},
 	
 	setTitle: function ( title, id )
 	{
 		
-		var id = id || Modal.defaultID;
+		var id = id || Modal.lastID || Modal.defaultID;
+
+        Modal.lastID = id;
 		
 		if ( ! $( '#modals [data-id="' + id + '"]' ).length )
 		{
@@ -84,7 +92,9 @@ var Modal = {
 	setBody: function ( body, id, simple )
 	{
 		
-		var id = id || Modal.defaultID;
+		var id = id || Modal.lastID || Modal.defaultID;
+
+        Modal.lastID = id;
 		
 		if ( ! $( '#modals [data-id="' + id + '"]' ).length )
 		{
@@ -103,8 +113,10 @@ var Modal = {
 	addSubmit: function ( value, id )
 	{
 		
-		var id = id || Modal.defaultID;
-		
+		var id = id || Modal.lastID || Modal.defaultID;
+
+        Modal.lastID = id;
+
 		if ( ! $( '#modals [data-id="' + id + '"]' ).length )
 		{
 			return;
@@ -131,6 +143,8 @@ $( document )
 		var model_id = $( this ).attr( 'data-model-id' );
 		var model_name = $( this ).attr( 'data-model-name' );
 		var with_file = $( this ).attr( 'data-file' ) || 0;
+
+		if ( ! model_name || ! model_id ) return;
 
 		$.get( '/comment', {
 			model_name: model_name,

@@ -10,7 +10,7 @@
     <title>{{ \App\Classes\Title::render() }}</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="{{ \App\Classes\Title::render() }}" name="description" />
-    <meta content="dima" name="author" />
+    <meta content="Dmitry Skabelin" name="author" />
     <link rel="shortcut icon" href="favicon.ico" />
     @include( 'parts.css' )
 </head>

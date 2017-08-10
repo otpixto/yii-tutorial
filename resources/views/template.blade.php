@@ -76,6 +76,9 @@
                 <div class="page-content-row">
                     <div class="page-content-col">
 
+                        @include( 'parts.errors' )
+                        @include( 'parts.success' )
+
                         <!-- BEGIN PAGE BASE CONTENT -->
                         @yield( 'content' )
                         <!-- END PAGE BASE CONTENT -->

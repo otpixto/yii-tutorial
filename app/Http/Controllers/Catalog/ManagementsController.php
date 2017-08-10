@@ -199,8 +199,18 @@ class ManagementsController extends BaseController
             ::whereIn( 'id', $res->pluck( 'management_id' ) )
             ->get();
 
+        if ( ! empty( $request->get( 'selected' ) ) )
+        {
+            $selected = explode( ',', $request->get( 'selected' ) );
+        }
+        else
+        {
+            $selected = null;
+        }
+
         return view( 'catalog.managements.select' )
-            ->with( 'managements', $managements );
+            ->with( 'managements', $managements )
+            ->with( 'selected', $selected );
 
     }
 
