@@ -2,13 +2,13 @@
 <div class="nav-collapse collapse navbar-collapse navbar-responsive-collapse">
     <ul class="nav navbar-nav">
         <li class="dropdown more-dropdown @if ( Request::is( '/' ) || Request::is( 'schedule*' ) ) selected @endif">
-            <a href="javascript:;" class="text-uppercase">
+            <a href="{{ route( 'home' ) }}" class="text-uppercase">
                 <i class="fa fa-home"></i>
                 Главная
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="/">
+                    <a href="{{ route( 'home' ) }}">
                         О компании
                     </a>
                 </li>
@@ -20,11 +20,16 @@
             </ul>
         </li>
 
-        @can ( 'works.show', 'works.create' )
+        @can ( 'tickets.show', 'tickets.create' )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
-                <a href="javascript:;" class="text-uppercase">
+                <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
                     Обращения
+                    @if ( \Session::get( 'tickets_count' ) > 0 )
+                        <span class="badge badge-success bold">
+                            {{ \Session::get( 'tickets_count' ) }}
+                        </span>
+                    @endif
                 </a>
                 <ul class="dropdown-menu">
                     @can ( 'tickets.create' )
@@ -34,38 +39,26 @@
                             </a>
                         </li>
                     @endcan
-                    @can ( 'tickets.show' )
-                        <li>
-                            <a href="{{ route( 'tickets.index' ) }}">
-                                Реестр Обращений
-                                <span class="badge badge-info">
-                                    {{ \Session::get( 'tickets_count' ) }}
-                                </span>
-                            </a>
-                        </li>
-                    @endcan
                 </ul>
             </li>
         @endcan
 
         @can ( 'works.show', 'works.create' )
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
-                <a href="javascript:;" class="text-uppercase">
+                <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
                     Работы на сетях
+                    @if ( \Session::get( 'works_count' ) > 0 )
+                        <span class="badge badge-danger bold">
+                            {{ \Session::get( 'works_count' ) }}
+                        </span>
+                    @endif
                 </a>
                 <ul class="dropdown-menu">
                     @can ( 'works.create' )
                         <li>
                             <a href="{{ route( 'works.create' ) }}">
                                 Создать сообщение
-                            </a>
-                        </li>
-                    @endcan
-                    @can ( 'works.show' )
-                        <li>
-                            <a href="{{ route( 'works.index' ) }}">
-                                Реестр работ на сетях
                             </a>
                         </li>
                     @endcan

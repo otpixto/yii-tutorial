@@ -168,6 +168,12 @@
                                         Добродел
                                     </span>
                                 @endif
+                                @if ( $ticket->group_uuid )
+                                    <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
+                                        Сгруппировано
+                                    </a>
+                                    &nbsp;
+                                @endif
                                 &nbsp;
                             </dd>
                         </dl>
@@ -346,6 +352,22 @@
                 </div>
             @endif
 
+            @if ( $ticket->rate )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            <b>Оценка работы ЭО: </b>
+                            @include( 'parts.rate', [ 'ticket' => $ticket ] )
+                            @if ( $ticket->rate_comment )
+                                <p>
+                                    {{ $ticket->rate_comment }}
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
         <div class="col-lg-6">
 
@@ -446,21 +468,24 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-                        <h4>Проделанная работа</h4>
+                        <h4>Комментарии</h4>
                         @if ( $ticket->comments->count() )
-                            @include( 'parts.comments', [ 'comments' => $ticket->comments ] )
+                            @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                         @endif
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}">
-                        Добавить запись о проделанной работе
-                    </button>
+            @if ( $ticket->canComment() )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
+                            <i class="fa fa-commenting"></i>
+                            Добавить комментарий
+                        </button>
+                    </div>
                 </div>
-            </div>
+            @endif
 
         </div>
     </div>

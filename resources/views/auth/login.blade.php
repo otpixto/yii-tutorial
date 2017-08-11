@@ -7,6 +7,7 @@
         <h3 class="form-title font-green">Авторизация</h3>
 
         @include( 'parts.errors' )
+        @include( 'parts.success' )
 
         <div class="alert alert-danger display-hide" role="alert">
             <button class="close" data-close="alert"></button>

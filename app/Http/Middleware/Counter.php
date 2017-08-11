@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Ticket;
+use App\Models\Work;
 use Closure;
 
 class Counter
@@ -27,6 +28,10 @@ class Counter
             {
                 $tickets_count = Ticket::mine()->count();
                 \Session::put( 'tickets_count', $tickets_count );
+                $tickets_call_count = Ticket::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->count();
+                \Session::put( 'tickets_call_count', $tickets_call_count );
+                $works_count = Work::count();
+                \Session::put( 'works_count', $works_count );
             }
             else if ( $user->hasRole( 'management' ) && $user->management )
             {

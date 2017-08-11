@@ -10,7 +10,11 @@
         </div>
         <div class="clearfix"></div>
         #{{ $ticket->id }}
-        @include( 'parts.rate' )
+        @if ( $ticket->rate )
+            <span class="pull-right">
+                @include( 'parts.rate', [ 'ticket' => $ticket ] )
+            </span>
+        @endif
     </td>
     <td>
         {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
@@ -27,7 +31,7 @@
         </div>
     </td>
     <td class="text-right">
-        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary">
+        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
             <i class="fa fa-chevron-right"></i>
         </a>
     </td>

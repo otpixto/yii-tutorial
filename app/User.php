@@ -21,8 +21,8 @@ class User extends Authenticatable
         'firstname',
         'middlename',
         'lastname',
-        'email',
         'phone',
+        'email',
         'password',
     ];
 
@@ -41,7 +41,8 @@ class User extends Authenticatable
         ],
         'phone' => [
             'required',
-            'max:255',
+            'max:18',
+            'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         ],
         'email' => [
             'required',
@@ -106,6 +107,8 @@ class User extends Authenticatable
         $validator = \Validator::make( $input, $rules );
         if ( $validator->fails() ) return $validator->messages();
 
+        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $input['phone'] ), -10 );
+
         $user = new User( $input );
         $user->save();
 
@@ -120,6 +123,8 @@ class User extends Authenticatable
 
         $validator = \Validator::make( $input, $rules );
         if ( $validator->fails() ) return $validator->messages();
+
+        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $input['phone'] ), -10 );
 
         $this->fill( $input );
         $this->save();
@@ -146,6 +151,12 @@ class User extends Authenticatable
     public function getName ()
     {
         $name = $this->lastname . ' ' . $this->firstname . ' ' . $this->middlename;
+        return $name;
+    }
+
+    public function getShortName ()
+    {
+        $name = $this->lastname . ' ' . mb_substr( $this->firstname, 0, 1 ) . '. ' . mb_substr( $this->middlename, 0, 1 ) . '.';
         return $name;
     }
 

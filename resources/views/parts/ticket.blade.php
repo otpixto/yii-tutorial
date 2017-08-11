@@ -1,5 +1,16 @@
 <tr>
-    <td>
+    @if ( $ticket->group_uuid )
+        @if ( ! $ticket->parent_id )
+            <td colspan="2" class="border-left">
+        @else
+            <td width="30" class="border-left text-center">
+                &nbsp;
+            </td>
+            <td>
+        @endif
+    @else
+        <td colspan="2">
+    @endif
         <div class="mt-element-ribbon">
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticket->getClass() }}">
                 <div class="ribbon-sub ribbon-clip ribbon-round"></div>
@@ -9,18 +20,26 @@
             </div>
         </div>
         <div class="clearfix"></div>
-        <label class="mt-checkbox">
-            <input type="checkbox" name="tickets[]" value="{{ $ticket->id }}" />
-            <span></span>
+        @if ( $ticket->canGroup() )
+            <label class="mt-checkbox">
+                <input type="checkbox" name="tickets[]" value="{{ $ticket->id }}" />
+                <span></span>
+                #{{ $ticket->id }}
+            </label>
+        @else
             #{{ $ticket->id }}
-        </label>
-        @include( 'parts.rate' )
+        @endif
+        @if ( $ticket->rate )
+            <span class="pull-right">
+                @include( 'parts.rate', [ 'ticket' => $ticket ] )
+            </span>
+        @endif
     </td>
     <td>
         {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
     </td>
     <td>
-        {{ $ticket->author->getName() }}
+        {{ $ticket->author->getShortName() }}
     </td>
     <td>
         @foreach ( $ticket->managements as $ticketManagement )
@@ -39,16 +58,9 @@
     </td>
     <td>
         {{ $ticket->address }}
-        @if ( $ticket->group_uuid )
-            <p>
-                <a href="?group={{ $ticket->group_uuid }}" class="badge badge-info">
-                    Группа: {{ $ticket->group_uuid }}
-                </a>
-            </p>
-        @endif
     </td>
     <td class="text-right">
-        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary">
+        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
             <i class="fa fa-chevron-right"></i>
         </a>
     </td>

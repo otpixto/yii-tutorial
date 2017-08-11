@@ -2,6 +2,9 @@
 
 @section( 'content' )
 
+    @include( 'parts.errors' )
+    @include( 'parts.success' )
+
     <!-- BEGIN REGISTRATION FORM -->
     {!! Form::open( [ 'class' => 'register-form' ] ) !!}
     <h3 class="font-green">Регистрация</h3>
@@ -11,38 +14,35 @@
     <p class="hint">Введите свои персональные данные</p>
 
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Фамилия</label>
-        <input class="form-control placeholder-no-fix" type="text" placeholder="Фамилия" name="lastname" value="{{ \Input::old( 'lastname' ) }}" />
+        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Фамилия', 'required' ] ) !!}
     </div>
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Имя</label>
-        <input class="form-control placeholder-no-fix" type="text" placeholder="Имя" name="firstname" value="{{ \Input::old( 'firstname' ) }}" />
+        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Имя', 'required' ] ) !!}
     </div>
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Отчество</label>
-        <input class="form-control placeholder-no-fix" type="text" placeholder="Отчество" name="middlename" value="{{ \Input::old( 'middlename' ) }}" />
+        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Отчество', 'required' ] ) !!}
     </div>
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Телефон</label>
-        <input class="form-control placeholder-no-fix" type="text" placeholder="Телефон" name="phone" value="{{ \Input::old( 'phone' ) }}" />
+        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control placeholder-no-fix mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
     </div>
 
     <p class="hint">Введите данные для авторизации</p>
 
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">E-mail</label>
-        <input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="E-mail" name="email" value="{{ \Input::old( 'email' ) }}" />
+        {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'E-mail', 'required' ] ) !!}
     </div>
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Пароль</label>
-        <input class="form-control placeholder-no-fix" type="password" autocomplete="off" id="register_password" placeholder="Пароль" name="password" />
+        {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::password( 'password', [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Пароль', 'autocomplete' => 'off', 'required' ] ) !!}
     </div>
     <div class="form-group">
-        <label class="control-label visible-ie8 visible-ie9">Повторите пароль</label>
-        <input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="Повторите пароль" name="password_confirmation" />
-    </div>
-    <div class="form-group margin-top-20 margin-bottom-20">
-        <div id="register_tnc_error"> </div>
+        {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Повторите пароль', 'autocomplete' => 'off', 'required' ] ) !!}
     </div>
     <div class="form-actions">
         <a href="/login" class="btn green btn-outline">Назад</a>
@@ -51,4 +51,19 @@
     {!! Form::close() !!}
     <!-- END REGISTRATION FORM -->
 
+@endsection
+
+@section( 'js' )
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        $( document )
+            .ready( function ()
+            {
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
+            });
+
+    </script>
 @endsection

@@ -9,6 +9,7 @@ use App\Models\Type;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use function PHPSTORM_META\elementType;
 use Ramsey\Uuid\Uuid;
 
 class TicketsController extends BaseController
@@ -225,6 +226,10 @@ class TicketsController extends BaseController
     public function show ( $id )
     {
 
+        $status_transferred = null;
+        $status_accepted = null;
+        $status_completed = null;
+
         if ( \Auth::user()->hasRole( 'operator' ) )
         {
 
@@ -238,9 +243,12 @@ class TicketsController extends BaseController
                     ->withErrors( [ 'Обращение не найдено' ] );
             }
 
-            $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-            $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-            $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
+            {
+                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
 
         }
         else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
@@ -268,9 +276,12 @@ class TicketsController extends BaseController
                     ->withErrors( [ 'Обращение не найдено' ] );
             }
 
-            $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-            $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
-            $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            if ( $ticketManagement->status_code != 'cancel' && $ticketManagement->status_code != 'no_contract' )
+            {
+                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
 
         }
         else
@@ -355,14 +366,29 @@ class TicketsController extends BaseController
     {
         
 		$ticket = Ticket::find( $id );
+
 		if ( !$ticket )
 		{
 			return redirect()->route( 'tickets.index' )
                 ->withErrors( [ 'Обращение не найдено' ] );
 		}
-		
-		$ticket->addComment( $request->get( 'text' ) );
-		
+
+		\DB::beginTransaction();
+
+        $ticket->addComment( $request->get( 'text' ) );
+
+        $group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
+
+		if ( $group->count() )
+        {
+            foreach ( $group as $row )
+            {
+                $row->addComment( $request->get( 'text' ) );
+            }
+        }
+
+        \DB::commit();
+
 		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
 		
     }
@@ -371,6 +397,7 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket::find( $id );
+
         if ( !$ticket )
         {
             return redirect()->route( 'tickets.index' )
@@ -378,6 +405,7 @@ class TicketsController extends BaseController
         }
 
         $res = $ticket->changeStatus( $request->get( 'status_code' ) );
+
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
@@ -412,61 +440,92 @@ class TicketsController extends BaseController
     public function action ( Request $request )
     {
 
-        if ( count( $request->get( 'tickets', [] ) ) != 0 )
+        if ( count( $request->get( 'tickets', [] ) ) < 2 )
+        {
+            return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
+        }
+
+        $tickets = Ticket
+            ::whereIn( 'id', $request->get( 'tickets' ) )
+            //->orderBy( 'id', 'desc' )
+            ->get();
+
+        switch ( $request->get( 'action' ) )
         {
 
-            $tickets = Ticket
-                ::whereIn( 'id', $request->get( 'tickets' ) )
-                ->get();
-
-            switch ( $request->get( 'action' ) )
-            {
-
-                case 'group':
-                    if ( $tickets->count() < 2 )
+            case 'group':
+                if ( $tickets->count() != count( $request->get( 'tickets' ) ) )
+                {
+                    return redirect()->back()->withErrors( [ 'Количество выбранных обращений не совпадает с количество найденных!' ] );
+                }
+                $uuid = Uuid::uuid4()->toString();
+                $parent = null;
+                \DB::beginTransaction();
+                foreach ( $tickets as $ticket )
+                {
+                    $ticket->group_uuid = $uuid;
+                    if ( is_null( $parent ) )
                     {
-                        return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
-                    }
-                    $uuid = Uuid::uuid4()->toString();
-                    $parent = null;
-                    foreach ( $tickets as $ticket )
-                    {
-                        $ticket->group_uuid = $uuid;
-                        if ( is_null( $parent ) )
-                        {
-                            $ticket->parent_id = null;
-                            $parent = $ticket;
-                        }
-                        else
-                        {
-                            $ticket->parent_id = $parent->id;
-                        }
-                        $ticket->save();
-                    }
-                    break;
-
-                case 'ungroup':
-                    foreach ( $tickets as $ticket )
-                    {
-                        $ticket->group_uuid = null;
                         $ticket->parent_id = null;
-                        $ticket->save();
+                        $parent = $ticket;
                     }
-                    break;
-
-                case 'delete':
-
-                    foreach ( $tickets as $ticket )
+                    else
                     {
-                        $ticket->delete();
+                        $ticket->parent_id = $parent->id;
                     }
-                    break;
+                    $ticket->save();
+                }
+                \DB::commit();
+                break;
 
-                default:
-                    return redirect()->back()->withErrors( [ 'Некорректное действие' ] );
-                    break;
+            case 'ungroup':
+                \DB::beginTransaction();
+                foreach ( $tickets as $ticket )
+                {
+                    $group = $ticket->group()
+                        ->whereNotIn( 'id', $tickets->pluck( 'id' )->toArray() )
+                        ->get();
+                    if ( $group->count() == 1 )
+                    {
+                        $group[0]->group_uuid = null;
+                        $group[0]->parent_id = null;
+                        $group[0]->save();
+                    }
+                    else if ( ! $ticket->parent_id )
+                    {
+                        $parent = null;
+                        foreach ( $group as $row )
+                        {
+                            if ( is_null( $parent ) )
+                            {
+                                $row->parent_id = null;
+                                $parent = $row;
+                            }
+                            else
+                            {
+                                $row->parent_id = $parent->id;
+                            }
+                            $row->save();
+                        }
+                    }
+                    $ticket->group_uuid = null;
+                    $ticket->parent_id = null;
+                    $ticket->save();
+                }
+                \DB::commit();
+                break;
 
-            }
+            case 'delete':
+
+                foreach ( $tickets as $ticket )
+                {
+                    $ticket->delete();
+                }
+                break;
+
+            default:
+                return redirect()->back()->withErrors( [ 'Некорректное действие' ] );
+                break;
 
         }
 
@@ -488,6 +547,18 @@ class TicketsController extends BaseController
         $ticket->rate = $request->get( 'rate' );
         $ticket->rate_comment = $request->get( 'comment', null );
         $ticket->save();
+
+        $group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
+
+        if ( $group->count() )
+        {
+            foreach ( $group as $row )
+            {
+                $row->rate = $ticket->rate;
+                $row->rate_comment = $ticket->rate_comment;
+                $row->save();
+            }
+        }
 
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
 

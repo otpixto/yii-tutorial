@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use App\Models\Work;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
@@ -20,7 +21,11 @@ class WorksController extends BaseController
     public function index()
     {
 
+        $works = Work::orderBy( 'id', 'desc' )->get();
 
+        return view( 'works.index' )
+            ->with( 'works', $works )
+            ->with( 'title', 'Работа на сетях' );
 
     }
 

@@ -13,7 +13,7 @@
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-                        <span class="sr-only">Toggle navigation</span>
+                        <span class="sr-only">Навигация</span>
                         <span class="toggle-icon">
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
@@ -23,16 +23,14 @@
                     <!-- End Toggle Button -->
 
                     <!-- BEGIN LOGO -->
-                    <a id="index" class="page-logo hidden" href="/">
-                        <h3>
-                            {{ \Config::get( 'app.name' ) }}
-                        </h3>
+                    <a id="index" class="page-logo" href="/">
+                        <img src="/images/logo2.png" alt="{{ \Config::get( 'app.name' ) }}" />
                     </a>
                     <!-- END LOGO -->
 
                     <!-- BEGIN SEARCH -->
                     {!! Form::open( [ 'method' => 'get', 'class' => 'search' ] ) !!}
-                        <input type="name" class="form-control" name="query" placeholder="Поиск...">
+                    {!! Form::text( 'search', null, [ 'class' => 'form-control', 'placeholder' => 'Поиск...' ] ) !!}
                         <a href="javascript:;" class="btn submit md-skip">
                             <i class="fa fa-search"></i>
                         </a>

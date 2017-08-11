@@ -31,15 +31,15 @@
             {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
             <table class="table table-striped table-bordered table-hover">
                 <thead>
-                    <tr>
+                    <tr class="info">
                         <th>
                              Статус \ Номер обращения \ Оценка
                         </th>
-                        <th>
+                        <th width="250">
                             Дата и время создания
                         </th>
                         <th>
-                            Адрес проблемы \ группа
+                            Адрес проблемы
                         </th>
                         <th>
                             Категория и тип обращения
@@ -48,7 +48,7 @@
                             &nbsp;
                         </th>
                     </tr>
-                    <tr>
+                    <tr class="info">
                         <td>
                             {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
                         </td>
@@ -65,8 +65,10 @@
                         <td>
                             {!! Form::text( 'type_id', \Input::old( 'type_id' ), [ 'class' => 'form-control', 'placeholder' => 'Тип обращения' ] ) !!}
                         </td>
-                        <td>
-                            &nbsp;
+                        <td class="text-right">
+                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                <i class="fa fa-filter"></i>
+                            </button>
                         </td>
                     </tr>
                 </thead>

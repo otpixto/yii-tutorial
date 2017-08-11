@@ -2,6 +2,9 @@
 
 @section( 'content' )
 
+    @include( 'parts.errors' )
+    @include( 'parts.success' )
+
     <!-- BEGIN RESET PASSWORD FORM -->
     {!! Form::open( [ 'url' => '/reset', 'class' => 'forget-form' ] ) !!}
     <h3 class="font-green">Сброс пароля</h3>

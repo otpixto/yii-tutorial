@@ -323,8 +323,7 @@
       width: 130px !important; }
     .page-header .topbar-actions {
       float: right;
-      margin-bottom: 15px;
-      position: static !important; }
+      margin-bottom: 15px; }
       .page-header .topbar-actions .btn-group-notification .dropdown-menu-v2 {
         right: -125px; }
         .page-header .topbar-actions .btn-group-notification .dropdown-menu-v2:before {
@@ -816,18 +815,6 @@ body {
     .breadcrumbs .breadcrumb li.active {
       color: #009dc7;
       text-transform: uppercase; }
-
-@media (max-width: 991px) {
-  /* 991px */
-  .breadcrumbs {
-    overflow: hidden;
-    text-align: left;
-    margin-bottom: 10px; }
-    .breadcrumbs h1 {
-      float: none;
-      margin-bottom: 20px; }
-    .breadcrumbs .breadcrumb {
-      text-align: left; } }
 
 /*--------------------------------------------------
 	[Copyright]

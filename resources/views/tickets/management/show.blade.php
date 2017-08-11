@@ -108,6 +108,7 @@
                                         Добродел
                                     </span>
                                 @endif
+                                &nbsp;
                             </dd>
                         </dl>
                     </div>
@@ -327,21 +328,24 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-                        <h4>Проделанная работа</h4>
+                        <h4>Комментарии</h4>
                         @if ( $ticket->comments->count() )
-                            @include( 'parts.comments', [ 'comments' => $ticket->comments ] )
+                            @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                         @endif
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <button type="button" class="btn btn-block btn-primary btn-lg">
-                        Добавить запись о проделанной работе
-                    </button>
+            @if ( $ticket->canComment() )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
+                            <i class="fa fa-commenting"></i>
+                            Добавить комментарий
+                        </button>
+                    </div>
                 </div>
-            </div>
+            @endif
 
         </div>
     </div>

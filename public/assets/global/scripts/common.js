@@ -173,4 +173,11 @@ $( document )
 
         $( $( this ).attr( 'data-toggle' ) ).toggle();
 
+    })
+
+    .on ( 'submit', '.submit-loading', function ( e )
+    {
+
+        $( this ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
+
     });

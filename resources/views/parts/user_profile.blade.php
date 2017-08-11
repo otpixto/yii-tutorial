@@ -1,7 +1,7 @@
 <!-- BEGIN USER PROFILE -->
 <div class="btn-group-img btn-group">
     <button type="button" class="btn btn-sm md-skip dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-        <span>{{ \Auth::user()->getName() }}</span>
+        <span>{{ \Auth::user()->getShortName() }}</span>
     </button>
     <ul class="dropdown-menu-v2" role="menu">
         <li>

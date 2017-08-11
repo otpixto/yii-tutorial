@@ -3,18 +3,18 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Обращения' ]
+        [ 'Работа на сетях' ]
     ]) !!}
 @endsection
 
 @section( 'content' )
 
-    @can( 'tickets.create' )
+    @can( 'works.create' )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
+                <a href="{{ route( 'works.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
-                    Добавить обращение
+                    Добавить сообщение
                 </a>
             </div>
         </div>
@@ -39,53 +39,68 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
+            {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr class="info">
-                        <th colspan="2">
-                             Статус \ Номер обращения \ Оценка
-                        </th>
-                        <th width="250">
-                            Дата и время создания
+                        <th>
+                             Номер сообщения
                         </th>
                         <th>
-                            Оператор
+                            Основание
                         </th>
                         <th>
-                            ЭО
+                            Адрес работ
                         </th>
                         <th>
-                            Категория и тип обращения
+                            Тип работ
                         </th>
                         <th>
-                            Адрес проблемы \ группа
+                            Исполнитель работ
+                        </th>
+                        <th>
+                            Состав работ
+                        </th>
+                        <th>
+                            &nbsp;Дата и время начала
+                        </th>
+                        <th>
+                            &nbsp;Дата и время окончания (план)
+                        </th>
+                        <th>
+                            &nbsp;Комментарии
                         </th>
                         <th>
                             &nbsp;
                         </th>
                     </tr>
                     <tr class="info">
-                        <td colspan="2">
+                        <td>
                             {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
                         </td>
                         <td>
-                            <div class="input-group date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'Период ОТ' ] ) !!}
-                                <span class="input-group-addon"> - </span>
-                                {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'Период ДО' ] ) !!}
-                            </div>
+                            {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                         </td>
                         <td>
-                            {!! Form::text( 'operator', \Input::old( 'operator' ), [ 'class' => 'form-control', 'placeholder' => 'Оператор' ] ) !!}
+                            {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
                         </td>
                         <td>
-                            {!! Form::text( 'management_id', \Input::old( 'management_id' ), [ 'class' => 'form-control', 'placeholder' => 'ЭО' ] ) !!}
+                            {!! Form::text( 'type', \Input::old( 'type' ), [ 'class' => 'form-control', 'placeholder' => 'Тип' ] ) !!}
                         </td>
                         <td>
-                            {!! Form::text( 'type_id', \Input::old( 'type_id' ), [ 'class' => 'form-control', 'placeholder' => 'Тип обращения' ] ) !!}
+                            {!! Form::text( 'management', \Input::old( 'management' ), [ 'class' => 'form-control', 'placeholder' => 'Исполнитель' ] ) !!}
                         </td>
                         <td>
-                            {!! Form::text( 'address_id', \Input::old( 'address_id' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес проблемы' ] ) !!}
+                            {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
+                        </td>
+                        <td>
+                            {!! Form::text( 'datetime_begin', \Input::old( 'datetime_begin' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Начало', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                        </td>
+                        <td>
+                            {!! Form::text( 'datetime_end', \Input::old( 'datetime_end' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Окончание', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                        </td>
+                        <td>
+                            {!! Form::text( 'text', \Input::old( 'text' ), [ 'class' => 'form-control', 'placeholder' => 'Комментарии' ] ) !!}
                         </td>
                         <td class="text-right">
                             <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
@@ -94,41 +109,13 @@
                         </td>
                     </tr>
                 </thead>
-                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                 <tbody>
-                @foreach ( $tickets as $ticket )
-                    @include( 'parts.ticket', [ 'ticket' => $ticket ] )
-                    @if ( $ticket->childs->count() )
-                        @foreach ( $ticket->childs as $child )
-                            @include( 'parts.ticket', [ 'ticket' => $child ] )
-                        @endforeach
-                    @endif
+                @foreach ( $works as $work )
+                    @include( 'parts.work', [ 'work' => $work ] )
                 @endforeach
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3" class="text-right">
-                            Действия с выделенными
-                        </th>
-                        <td colspan="5">
-                            @can ( 'tickets.group' )
-                                <button type="submit" name="action" value="group" class="btn btn-default">
-                                    Группировать
-                                </button>
-                                <button type="submit" name="action" value="ungroup" class="btn btn-default">
-                                    Разгруппировать
-                                </button>
-                            @endcan
-                            @can ( 'tickets.delete' )
-                                <button type="submit" name="action" value="delete" class="btn btn-danger hidden">
-                                    Удалить
-                                </button>
-                            @endcan
-                        </td>
-                    </tr>
-                </tfoot>
-                {!! Form::close() !!}
             </table>
+            {!! Form::close() !!}
 
         </div>
     </div>
@@ -159,9 +146,6 @@
         }
         .color-inherit {
             color: inherit;
-        }
-        .border-left {
-            border-left: 2px solid #337ab7 !important;
         }
     </style>
 @endsection

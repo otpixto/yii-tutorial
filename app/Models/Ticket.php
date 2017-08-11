@@ -12,6 +12,8 @@ class Ticket extends BaseModel
     protected $table = 'tickets';
 
     private $can_edit = null;
+    private $can_comment = null;
+    private $can_group = null;
 
     public static $places = [
         'Помещение',
@@ -144,12 +146,6 @@ class Ticket extends BaseModel
     public function type ()
     {
         return $this->belongsTo( 'App\Models\Type' );
-    }
-
-    public function comments ()
-    {
-        return $this->hasMany( 'App\Models\Comment', 'model_id' )
-			->where( 'model_name', '=', get_class( $this ) );
     }
 
     public function parent ()
@@ -365,7 +361,7 @@ class Ticket extends BaseModel
         switch ( $this->status_code )
         {
 
-            case 'transferred_management':
+            case 'transferred':
 
                 if ( $this->type->period_acceptance )
                 {
@@ -390,11 +386,12 @@ class Ticket extends BaseModel
                 return 'danger';
                 break;
 
-            case 'accepted_management':
+            case 'accepted':
+            case 'assigned':
                 return 'success';
                 break;
 
-            case 'transferred_management_again':
+            case 'transferred_again':
                 return 'warning';
                 break;
 
@@ -458,6 +455,38 @@ class Ticket extends BaseModel
         return $this->can_edit;
     }
 
+    public function canComment ()
+    {
+        if ( is_null( $this->can_comment ) )
+        {
+            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'completed_with_act' && $this->status_code != 'completed_without_act' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' )
+            {
+                $this->can_comment = true;
+            }
+            else
+            {
+                $this->can_comment = false;
+            }
+        }
+        return $this->can_comment;
+    }
+
+    public function canGroup ()
+    {
+        if ( is_null( $this->can_group ) )
+        {
+            if ( \Auth::user()->can( 'tickets.group' ) && $this->status_code != 'cancel' && $this->status_code != 'no_contract' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' )
+            {
+                $this->can_group = true;
+            }
+            else
+            {
+                $this->can_group = false;
+            }
+        }
+        return $this->can_group;
+    }
+
     public function getStatusHistory ( $status_code )
     {
         if ( ! is_array( $status_code ) ) $status_code = [ $status_code ];
@@ -479,58 +508,46 @@ class Ticket extends BaseModel
 
         \DB::beginTransaction();
 
-        if ( $this->group_uuid )
+        $this->status_code = $status_code;
+        $this->status_name = self::$statuses[ $status_code ];
+        $this->save();
+
+        $res = StatusHistory::create([
+            'model_id'          => $this->id,
+            'model_name'        => get_class( $this ),
+            'status_code'       => $status_code,
+            'status_name'       => self::$statuses[ $status_code ],
+        ]);
+
+        if ( $res instanceof MessageBag )
         {
-            foreach ( $this->group as $ticket )
-            {
-
-                $ticket->status_code = $status_code;
-                $ticket->status_name = self::$statuses[ $status_code ];
-                $ticket->save();
-
-                $res = StatusHistory::create([
-                    'model_id'          => $ticket->id,
-                    'model_name'        => get_class( $ticket ),
-                    'status_code'       => $status_code,
-                    'status_name'       => self::$statuses[ $status_code ],
-                ]);
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-
-                $res = $ticket->processStatus();
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-
-            }
+            return $res;
         }
-        else
+
+        $res = $this->processStatus();
+
+        if ( $res instanceof MessageBag )
         {
+            return $res;
+        }
 
-            $this->status_code = $status_code;
-            $this->status_name = self::$statuses[ $status_code ];
-            $this->save();
+        $group = $this
+            ->group()
+            ->where( 'id', '!=', $this->id )
+            ->where( 'status_code', '!=', $this->status_code )
+            ->get();
 
-            $res = StatusHistory::create([
-                'model_id'          => $this->id,
-                'model_name'        => get_class( $this ),
-                'status_code'       => $status_code,
-                'status_name'       => self::$statuses[ $status_code ],
-            ]);
-            if ( $res instanceof MessageBag )
+        if ( $group->count() )
+        {
+            foreach ( $group as $row )
             {
-                return $res;
+                $res = $row->changeStatus( $this->status_code, true );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withErrors( $res );
+                }
             }
-
-            $res = $this->processStatus();
-            if ( $res instanceof MessageBag )
-            {
-                return $res;
-            }
-
         }
 
         \DB::commit();
