@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
-        [ 'Пользователи' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

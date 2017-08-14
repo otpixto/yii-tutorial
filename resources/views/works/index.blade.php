@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Работа на сетях' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -39,83 +39,87 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="info">
-                        <th>
-                             Номер сообщения
-                        </th>
-                        <th>
-                            Основание
-                        </th>
-                        <th>
-                            Адрес работ
-                        </th>
-                        <th>
-                            Тип работ
-                        </th>
-                        <th>
-                            Исполнитель работ
-                        </th>
-                        <th>
-                            Состав работ
-                        </th>
-                        <th>
-                            &nbsp;Дата и время начала
-                        </th>
-                        <th>
-                            &nbsp;Дата и время окончания (план)
-                        </th>
-                        <th>
-                            &nbsp;Комментарии
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                    <tr class="info">
-                        <td>
-                            {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'type', \Input::old( 'type' ), [ 'class' => 'form-control', 'placeholder' => 'Тип' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'management', \Input::old( 'management' ), [ 'class' => 'form-control', 'placeholder' => 'Исполнитель' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'datetime_begin', \Input::old( 'datetime_begin' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Начало', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'datetime_end', \Input::old( 'datetime_end' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Окончание', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::text( 'text', \Input::old( 'text' ), [ 'class' => 'form-control', 'placeholder' => 'Комментарии' ] ) !!}
-                        </td>
-                        <td class="text-right">
-                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                <i class="fa fa-filter"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach ( $works as $work )
-                    @include( 'parts.work', [ 'work' => $work ] )
-                @endforeach
-                </tbody>
-            </table>
-            {!! Form::close() !!}
+            @if ( $works->count() )
+
+                {{ $works->render() }}
+
+                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr class="info">
+                            <th>
+                                 Номер сообщения
+                            </th>
+                            <th>
+                                Основание
+                            </th>
+                            <th>
+                                Адрес работ
+                            </th>
+                            <th>
+                                Тип работ
+                            </th>
+                            <th>
+                                Исполнитель работ
+                            </th>
+                            <th>
+                                Состав работ
+                            </th>
+                            <th>
+                                &nbsp;Дата и время начала
+                            </th>
+                            <th>
+                                &nbsp;Дата и время окончания (план)
+                            </th>
+                            <th>
+                                &nbsp;
+                            </th>
+                        </tr>
+                        <tr class="info">
+                            <td>
+                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'type', \Input::old( 'type' ), [ 'class' => 'form-control', 'placeholder' => 'Тип' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'management', \Input::old( 'management' ), [ 'class' => 'form-control', 'placeholder' => 'Исполнитель' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'datetime_begin', \Input::old( 'datetime_begin' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Начало', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'datetime_end', \Input::old( 'datetime_end' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Окончание', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                            </td>
+                            <td class="text-right">
+                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ( $works as $work )
+                        @include( 'parts.work', [ 'work' => $work ] )
+                    @endforeach
+                    </tbody>
+                </table>
+                {!! Form::close() !!}
+
+                {{ $works->render() }}
+
+            @else
+                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+            @endif
 
         </div>
     </div>

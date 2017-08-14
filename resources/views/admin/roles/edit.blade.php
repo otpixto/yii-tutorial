@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
         [ 'Роли', route( 'roles.index' ) ],
-        [ 'Редактировать роль "' . $role->name . '"' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

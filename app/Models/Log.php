@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-class Tag extends BaseModel
+class Log extends BaseModel
 {
 
-    protected $table = 'tags';
+    protected $table = 'logs';
 
     protected $fillable = [
         'model_id',
-        'model_name',
+		'model_name',
         'text'
     ];
 	

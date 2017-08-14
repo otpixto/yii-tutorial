@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Типы обращений' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -14,7 +14,7 @@
         <div class="col-xs-12">
             <a href="{{ route( 'types.create' ) }}" class="btn btn-success">
                 <i class="fa fa-plus"></i>
-                Добавить тип
+                Добавить тип обращений
             </a>
         </div>
     </div>

@@ -4,8 +4,8 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Адреса', route( 'addresses.index' ) ],
-        [ 'Редактировать "' . $address->name . '"' ]
+        [ 'Здания', route( 'addresses.index' ) ],
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

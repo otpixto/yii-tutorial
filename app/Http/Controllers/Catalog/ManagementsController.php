@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Title;
 use App\Models\Address;
 use App\Models\AddressManagement;
 use App\Models\Category;
@@ -12,11 +13,13 @@ use Illuminate\Support\Collection;
 
 class ManagementsController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Эксплуатирующие организации' );
+    }
+
     public function index()
     {
 
@@ -52,6 +55,7 @@ class ManagementsController extends BaseController
      */
     public function create()
     {
+        Title::add( 'Добавить ЭО' );
         return view( 'catalog.managements.create' );
     }
 
@@ -92,6 +96,8 @@ class ManagementsController extends BaseController
      */
     public function edit($id)
     {
+
+        Title::add( 'Редактировать ЭО' );
 
         $management = Management::find( $id );
 

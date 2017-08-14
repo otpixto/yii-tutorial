@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Обращения', route( 'tickets.index' ) ],
-        [ 'Обращение #' . $ticket->id ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

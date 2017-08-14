@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Справочники' ],
         [ 'Заявители', route( 'customers.index' ) ],
-        [ 'Добавить заявителя' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

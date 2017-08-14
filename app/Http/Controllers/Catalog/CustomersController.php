@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Title;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Management;
@@ -9,11 +10,13 @@ use Illuminate\Http\Request;
 
 class CustomersController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Заявители' );
+    }
+
     public function index()
     {
 
@@ -42,8 +45,7 @@ class CustomersController extends BaseController
         $customers = $customers->paginate( 30 );
 
         return view( 'catalog.customers.index' )
-            ->with( 'customers', $customers )
-            ->with( 'title', 'Заявители' );
+            ->with( 'customers', $customers );
 
     }
 
@@ -54,6 +56,7 @@ class CustomersController extends BaseController
      */
     public function create()
     {
+        Title::add( 'Добавить заявителя' );
         return view( 'catalog.customers.create' );
     }
 
@@ -95,6 +98,8 @@ class CustomersController extends BaseController
     public function edit($id)
     {
 
+        Title::add( 'Редактировать заявителя' );
+
         $customer = Customer::find( $id );
 
         if ( !$customer )
@@ -104,8 +109,7 @@ class CustomersController extends BaseController
         }
 
         return view( 'catalog.customers.edit' )
-            ->with( 'customer', $customer )
-            ->with( 'title', 'Редактировать заявителя' );
+            ->with( 'customer', $customer );
 
     }
 

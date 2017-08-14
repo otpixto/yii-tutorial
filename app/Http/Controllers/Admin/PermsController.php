@@ -10,10 +10,14 @@ use Iphome\Permission\Models\Role;
 class PermsController extends BaseController
 {
 
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Права' );
+    }
+
     public function index ()
     {
-
-        Title::add( 'Права' );
 
         $search = trim( \Input::get( 'search', '' ) );
 

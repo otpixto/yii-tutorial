@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
         [ 'Права', route( 'perms.index' ) ],
-        [ 'Редактировать права "' . $perm->name . '"' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Title;
 use App\Models\Address;
 use App\Models\AddressManagement;
+use App\Models\Category;
 use App\Models\Management;
 use App\Models\Type;
 use Illuminate\Http\Request;
@@ -12,25 +14,20 @@ use Illuminate\Support\MessageBag;
 
 class AddressesController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Здания' );
+    }
+
     public function index()
     {
 
         $search = trim( \Input::get( 'search', '' ) );
-        $management = trim( \Input::get( 'management', '' ) );
 
         $addresses = Address
-            ::orderBy( 'addresses.name' );
-
-        if ( !empty( $management ) )
-        {
-            $addresses
-                ->where( 'addresses.management_id', '=', $management );
-        }
+            ::orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
@@ -39,20 +36,16 @@ class AddressesController extends BaseController
                 ->where( function ( $q ) use ( $s )
                 {
                     return $q
-                        ->where( 'addresses.name', 'like', $s )
-                        ->orWhere( 'managements.name', 'like', $s );
+                        ->where( 'name', 'like', $s );
                 });
         }
 
         $addresses = $addresses
             ->paginate( 30 )
-            ->appends( compact( 'search', 'management' ) );
-
-        $managements = Management::orderBy( 'name' )->get();
+            ->appends( compact( 'search' ) );
 
         return view( 'catalog.addresses.index' )
-            ->with( 'addresses', $addresses )
-            ->with( 'managements', $managements );
+            ->with( 'addresses', $addresses );
 
     }
 
@@ -63,6 +56,8 @@ class AddressesController extends BaseController
      */
     public function create()
     {
+
+        Title::add( 'Добавить здание' );
 
         $managements = Management::orderBy( 'name' )->pluck( 'name', 'id' );
 
@@ -107,6 +102,8 @@ class AddressesController extends BaseController
      */
     public function edit($id)
     {
+
+        Title::add( 'Редактировать здание' );
 
         $address = Address::with( 'managements' )->find( $id );
 
@@ -204,10 +201,11 @@ class AddressesController extends BaseController
 
         $addresses = Address
             ::select(
-                'addresses.*'
+                'id',
+                'name AS text'
             )
-            ->where( 'addresses.name', 'like', $q )
-            ->orderBy( 'addresses.name' )
+            ->where( 'name', 'like', $q )
+            ->orderBy( 'name' )
             ->get();
 
         return $addresses;

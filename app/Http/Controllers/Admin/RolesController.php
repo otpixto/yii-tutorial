@@ -10,10 +10,14 @@ use Iphome\Permission\Models\Role;
 class RolesController extends BaseController
 {
 
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Роли' );
+    }
+
     public function index ()
     {
-
-        Title::add( 'Роли' );
 
         $search = trim( \Input::get( 'search', '' ) );
 
@@ -32,7 +36,7 @@ class RolesController extends BaseController
                 });
         }
 
-        $roles = $roles->get();
+        $roles = $roles->paginate( 30 );
 
         return view('admin.roles.index' )
             ->with( 'roles', $roles );

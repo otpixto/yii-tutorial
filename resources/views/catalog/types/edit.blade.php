@@ -4,8 +4,8 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Типы обращений', route( 'types.index' ) ],
-        [ 'Редактировать "' . $type->name . '"' ]
+        [ 'Классификатор', route( 'types.index' ) ],
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

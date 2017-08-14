@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Справочники' ],
         [ 'Заявители', route( 'customers.index' ) ],
-        [ 'Редактировать "' . $customer->getName() . '"' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

@@ -48,7 +48,10 @@ class CommentsController extends Controller
                 'model_name'    => get_class( $comment ),
                 'path'          => $path
             ]);
+            $file->save();
         }
+
+        $comment->save();
 
 		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
 		

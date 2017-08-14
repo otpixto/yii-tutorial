@@ -2,30 +2,31 @@
 
 namespace App\Http\Controllers\Operator;
 
-use App\Models\Customer;
-use App\Models\Ticket;
-use App\Models\TicketManagement;
+use App\Classes\Title;
+use App\Http\Controllers\Controller;
+use App\Models\Address;
+use App\Models\BaseModel;
+use App\Models\Management;
 use App\Models\Type;
 use App\Models\Work;
 use Illuminate\Http\Request;
-use Illuminate\Support\MessageBag;
-use Ramsey\Uuid\Uuid;
 
 class WorksController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Работы на сетях' );
+    }
+
     public function index()
     {
 
-        $works = Work::orderBy( 'id', 'desc' )->get();
+        $works = Work::orderBy( 'id', 'desc' )->paginate( 30 );
 
         return view( 'works.index' )
-            ->with( 'works', $works )
-            ->with( 'title', 'Работа на сетях' );
+            ->with( 'works', $works );
 
     }
 
@@ -37,6 +38,20 @@ class WorksController extends BaseController
     public function create ()
     {
 
+        Title::add( 'Добавить сообщение' );
+
+        $managements = Management::orderBy( 'name' )->get();
+        $types = Type::orderBy( 'name' )->get();
+
+        if ( !empty( \Input::old( 'address_id' ) ) )
+        {
+            $address = Address::find( \Input::old( 'address_id' ) );
+        }
+
+        return view( 'works.create' )
+            ->with( 'managements', $managements )
+            ->with( 'types', $types )
+            ->with( 'address', $address ?? null );
 
     }
 
@@ -49,7 +64,17 @@ class WorksController extends BaseController
     public function store ( Request $request )
     {
 
+        $this->validate( $request, Work::$rules );
 
+        $work = Work::create( $request->all() );
+
+        if ( !empty( $request->comment ) )
+        {
+            $work->addComment( $request->comment );
+        }
+
+        return redirect()->route( 'works.index' )
+            ->with( 'success', 'Сообщение успешно добавлено' );
 
     }
 
@@ -75,7 +100,24 @@ class WorksController extends BaseController
     public function edit($id)
     {
 
+        Title::add( 'Редактировать сообщение' );
 
+        $work = Work::find( $id );
+
+        if ( ! $work )
+        {
+            return redirect()->back()->withErrors(['Запись не найдена']);
+        }
+
+        $managements = Management::orderBy( 'name' )->get();
+        $types = Type::orderBy( 'name' )->get();
+        $address = Address::find( $work->address_id );
+
+        return view( 'works.edit' )
+            ->with( 'work', $work )
+            ->with( 'managements', $managements )
+            ->with( 'types', $types )
+            ->with( 'address', $address );
 
     }
 
@@ -88,7 +130,21 @@ class WorksController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $this->validate( $request, Work::$rules );
+
+        $work = Work::find( $id );
+
+        if ( ! $work )
+        {
+            return redirect()->back()->withErrors(['Запись не найдена']);
+        }
+
+        $work->edit( $request->all() );
+
+        return redirect()->route( 'works.index' )
+            ->with( 'success', 'Сообщение успешно обновлено' );
+
     }
 
     /**

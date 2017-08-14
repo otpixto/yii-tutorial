@@ -4,8 +4,8 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Исполнители', route( 'managements.index' ) ],
-        [ 'Редактировать "' . $management->name . '"' ]
+        [ 'Эксплуатирующие организации', route( 'managements.index' ) ],
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

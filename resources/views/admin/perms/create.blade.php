@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
         [ 'Права', route( 'perms.index' ) ],
-        [ 'Создать права' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

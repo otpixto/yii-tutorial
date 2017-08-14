@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\Title;
 use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
@@ -9,16 +10,17 @@ use App\Models\Type;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use function PHPSTORM_META\elementType;
 use Ramsey\Uuid\Uuid;
 
 class TicketsController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Реестр обращений' );
+    }
+
     public function index()
     {
 
@@ -86,8 +88,7 @@ class TicketsController extends BaseController
             $ticketManagements = $ticketManagements->paginate( 30 );
 
             return view( 'tickets.management.index' )
-                ->with( 'ticketManagements', $ticketManagements )
-                ->with( 'title', 'Реестр обращений' );
+                ->with( 'ticketManagements', $ticketManagements );
 
         }
         else
@@ -107,6 +108,8 @@ class TicketsController extends BaseController
     public function create ()
     {
 
+        Title::add( 'Добавить обращение' );
+
         $res = Type
             ::orderBy( 'name' )
             ->get();
@@ -119,8 +122,7 @@ class TicketsController extends BaseController
 
         return view( 'tickets.create' )
             ->with( 'types', $types )
-            ->with( 'places', Ticket::$places )
-            ->with( 'title', 'Добавить обращение' );
+            ->with( 'places', Ticket::$places );
     }
 
     /**
@@ -286,12 +288,12 @@ class TicketsController extends BaseController
         }
         else
         {
+            Title::add( 'Доступ запрещен' );
             return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' )
-                ->with( 'title', 'Доступ запрещен' );
+                ->with( 'error', 'Доступ запрещен' );
         }
 
-        $title = 'Обращение #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' );
+        Title::add( 'Обращение #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
 
         $dt_now = Carbon::now();
 
@@ -321,8 +323,7 @@ class TicketsController extends BaseController
             ->with( 'dt_accepted', $dt_accepted ?? null )
             ->with( 'dt_completed', $dt_completed ?? null )
             ->with( 'dt_now', $dt_now )
-            ->with( 'execution_hours', $execution_hours ?? null )
-            ->with( 'title', $title );
+            ->with( 'execution_hours', $execution_hours ?? null );
 
     }
 

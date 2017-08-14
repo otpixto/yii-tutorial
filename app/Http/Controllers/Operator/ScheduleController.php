@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\Title;
 use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
@@ -12,11 +13,13 @@ use Ramsey\Uuid\Uuid;
 
 class ScheduleController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'График работы операторов' );
+    }
+
     public function index()
     {
 

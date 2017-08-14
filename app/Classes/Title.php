@@ -23,6 +23,11 @@ class Title
         self::add( $value );
     }
 
+    public static function get ()
+    {
+        return self::$title[ count( self::$title ) - 1 ] ?? null;
+    }
+
     public static function render ( $html = false )
     {
         $title = config( 'app.name' );

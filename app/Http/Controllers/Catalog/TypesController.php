@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Title;
 use App\Models\Category;
 use App\Models\Type;
 use Illuminate\Http\Request;
 
 class TypesController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Классификатор' );
+    }
+
     public function index()
     {
 
@@ -64,6 +67,8 @@ class TypesController extends BaseController
     public function create()
     {
 
+        Title::add( 'Добавить Тип обращений' );
+
         $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
 
         return view( 'catalog.types.create' )
@@ -107,6 +112,8 @@ class TypesController extends BaseController
      */
     public function edit($id)
     {
+
+        Title::add( 'Редактировать Тип обращений' );
 
         $type = Type::find( $id );
 

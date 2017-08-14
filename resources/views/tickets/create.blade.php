@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Обращения', route( 'tickets.index' ) ],
-        [ 'Добавить обращение' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -24,9 +24,9 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'address', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control address', 'placeholder' => 'Адрес', 'required', 'id' => 'address' ] ) !!}
+                    {!! Form::select( 'address_id', [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
                 </div>
             </div>
 
@@ -99,9 +99,9 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'customer_address', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-6">
-                    {!! Form::text( 'customer_address', \Input::old( 'customer_address' ), [ 'class' => 'form-control address', 'placeholder' => 'Адрес', 'required', 'id' => 'customer_address' ] ) !!}
+                    {!! Form::select( 'customer_address_id', [], \Input::old( 'customer_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'customer_address' ] ) !!}
                 </div>
                 <div class="col-xs-3">
                     {!! Form::text( 'customer_flat', \Input::old( 'customer_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'customer_flat' ] ) !!}
@@ -217,7 +217,6 @@
     <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
     <style>
         .mt-checkbox, .mt-radio {
@@ -230,8 +229,6 @@
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/typeahead/handlebars.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/typeahead/typeahead.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
@@ -447,32 +444,18 @@
                 $( '#microphone' ).click( ToggleMicrophone );
 
                 $( '.select2' ).select2();
-
-                var addresses = new Bloodhound({
-                    datumTokenizer: function(d) { return d.tokens; },
-                    queryTokenizer: Bloodhound.tokenizers.whitespace,
-                    remote: {
-                        url: '{{ route( 'addresses.search' ) }}?q=%QUERY',
-                        wildcard: '%QUERY'
-                    }
-                });
-
-                addresses.initialize();
-
-                $( '.address' ).typeahead( null, {
-                    name: 'address',
-                    displayKey: 'name',
-                    hint: ( App.isRTL() ? false : true ),
-                    highlight: true,
-                    minLength: 3,
-                    source: addresses.ttAdapter(),
-                    templates: {
-                        empty: [
-                            '<div class="alert alert-danger" style="margin-bottom: 0;">',
-                            'Ничего не найдено по вашему запросу',
-                            '</div>'
-                        ].join('\n'),
-                        suggestion: Handlebars.compile('<div><strong>\{\{name\}\}</strong></div>')
+                
+                $( '.select2-ajax' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
                     }
                 });
 

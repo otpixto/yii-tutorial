@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Title;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoriesController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Категории обращений' );
+    }
+
     public function index()
     {
 
@@ -45,6 +48,7 @@ class CategoriesController extends BaseController
      */
     public function create()
     {
+        Title::add( 'Добавить категорию обращений' );
         return view( 'catalog.categories.create' );
     }
 

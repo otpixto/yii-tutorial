@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Заявители' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

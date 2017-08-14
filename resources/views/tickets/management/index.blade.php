@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Обращения' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

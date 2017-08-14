@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
-        [ 'Права' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -59,7 +59,7 @@
                                 @include( 'admin.perms.tree', [ 'tree' => $perms_tree ] )
                             </ul>
                         </div>
-                    @else
+                    @elseif ( $perms->count() )
 
                         {{ $perms->render() }}
 
@@ -104,6 +104,8 @@
 
                         {{ $perms->render() }}
 
+                    @else
+                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                     @endif
 
                 </div>

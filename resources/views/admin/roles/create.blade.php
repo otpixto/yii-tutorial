@@ -5,7 +5,7 @@
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
         [ 'Роли', route( 'roles.index' ) ],
-        [ 'Создать роль' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

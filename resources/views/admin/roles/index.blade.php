@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Администрирование' ],
-        [ 'Роли' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -19,41 +19,43 @@
         </div>
     </div>
 
-    @if ( $roles->count() )
-
-        <div class="todo-ui">
-            <div class="todo-sidebar">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                        </div>
-                        <a href="{{ route( 'roles.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+    <div class="todo-ui">
+        <div class="todo-sidebar">
+            <div class="portlet light ">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
-                        <div class="todo-project-list">
-                            {!! Form::open( [ 'method' => 'get' ] ) !!}
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
-                                </div>
+                    <a href="{{ route( 'roles.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                </div>
+                <div class="portlet-body todo-project-list-content" style="height: auto;">
+                    <div class="todo-project-list">
+                        {!! Form::open( [ 'method' => 'get' ] ) !!}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
                             </div>
-                            <div class="row margin-top-10">
-                                <div class="col-xs-12">
-                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                                </div>
-                            </div>
-                            {!! Form::close() !!}
                         </div>
+                        <div class="row margin-top-10">
+                            <div class="col-xs-12">
+                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
-            <!-- END TODO SIDEBAR -->
+        </div>
+        <!-- END TODO SIDEBAR -->
 
-            <!-- BEGIN TODO CONTENT -->
-            <div class="todo-content">
-                <div class="portlet light ">
-                    <div class="portlet-body">
+        <!-- BEGIN TODO CONTENT -->
+        <div class="todo-content">
+            <div class="portlet light ">
+                <div class="portlet-body">
+
+                    @if ( $roles->count() )
+
+                        {{ $roles->render() }}
 
                         <table class="table table-hover table-striped">
                             <thead>
@@ -94,15 +96,17 @@
                             </tbody>
                         </table>
 
-                    </div>
+                        {{ $roles->render() }}
+
+                    @else
+                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                    @endif
+
                 </div>
             </div>
-            <!-- END TODO CONTENT -->
         </div>
-
-    @else
-        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-    @endif
+        <!-- END TODO CONTENT -->
+    </div>
 
 @endsection
 

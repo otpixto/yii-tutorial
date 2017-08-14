@@ -23,7 +23,6 @@ class User extends Authenticatable
         'lastname',
         'phone',
         'email',
-        'password',
     ];
 
     public static $rules_create = [

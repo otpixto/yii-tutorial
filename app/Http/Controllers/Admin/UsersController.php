@@ -13,10 +13,14 @@ use Iphome\Permission\Models\Role;
 class UsersController extends BaseController
 {
 
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Пользователи' );
+    }
+
     public function index ()
     {
-
-        Title::add( 'Пользователи' );
 
         $search = trim( \Input::get( 'search', '' ) );
         $role = trim( \Input::get( 'role', '' ) );

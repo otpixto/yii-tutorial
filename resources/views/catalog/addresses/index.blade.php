@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Адреса' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -14,7 +14,7 @@
         <div class="col-xs-12">
             <a href="{{ route( 'addresses.create' ) }}" class="btn btn-success">
                 <i class="fa fa-plus"></i>
-                Добавить адрес
+                Добавить здание
             </a>
         </div>
     </div>
@@ -43,30 +43,6 @@
                         </div>
                         {!! Form::hidden( 'management', \Input::get( 'management' ) ) !!}
                         {!! Form::close() !!}
-                    </div>
-                </div>
-            </div>
-            <div class="portlet light hidden">
-                <div class="portlet-title">
-                    <div class="caption" data-toggle="collapse" data-target="#filter">
-                        <span class="caption-subject font-green-sharp bold uppercase">УК</span>
-                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
-                    </div>
-                </div>
-                <div class="portlet-body todo-project-list-content" id="filter" style="height: auto;">
-                    <div class="todo-project-list">
-                        <ul class="nav nav-stacked">
-                            @foreach ( $managements as $management )
-                                <li @if ( \Input::get( 'management' ) == $management->id ) class="active" @endif>
-                                    <a href="?search={{ \Input::get( 'search' ) }}&management={{ $management->id }}">
-                                        {{ $management->name }}
-                                        <span class="badge badge-info pull-right">
-                                            {{ $management->addresses->count() }}
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
                     </div>
                 </div>
             </div>

@@ -60,9 +60,7 @@
             <!-- BEGIN BREADCRUMBS -->
             <div class="breadcrumbs">
 
-                @if ( !empty( $title ) )
-                    <h1>{{ $title }}</h1>
-                @endif
+                <h1>{{ \App\Classes\Title::get() }}</h1>
 
                 @yield( 'breadcrumbs' )
 
