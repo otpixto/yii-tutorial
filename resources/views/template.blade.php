@@ -40,7 +40,8 @@
                     <!-- BEGIN TOPBAR ACTIONS -->
                     <div class="topbar-actions">
 
-                        @include( 'parts.notification' )
+                        {{--@include( 'parts.notification' )--}}
+                        @include( 'parts.phone' )
                         @include( 'parts.user_profile' )
 
                     </div>

@@ -8,11 +8,13 @@ class Customer extends BaseModel
     protected $table = 'customers';
 
     public static $rules = [
-        'firstname'         => 'required|max:191',
-        'middlename'        => 'nullable|max:191',
-        'lastname'          => 'nullable|max:191',
-        'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'phone2'            => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'firstname'             => 'required|max:191',
+        'middlename'            => 'nullable|max:191',
+        'lastname'              => 'nullable|max:191',
+        'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'actual_address_id'     => 'required|integer',
+        'flat'                  => 'required|string',
     ];
 
     protected $fillable = [
@@ -20,7 +22,9 @@ class Customer extends BaseModel
         'middlename',
         'lastname',
         'phone',
-        'phone2'
+        'phone2',
+        'actual_address_id',
+        'flat',
     ];
 
     public function tickets ()
@@ -28,7 +32,7 @@ class Customer extends BaseModel
         return $this->hasMany( 'App\Models\Ticket' );
     }
 
-    public function address ()
+    public function actualAddress ()
     {
         return $this->belongsTo( 'App\Models\Address' );
     }
@@ -108,6 +112,11 @@ class Customer extends BaseModel
             }
         }
         return $phones;
+    }
+
+    public function getActualAddress ()
+    {
+        return $this->actualAddress->name . ', кв. ' . $this->flat;
     }
 
 }

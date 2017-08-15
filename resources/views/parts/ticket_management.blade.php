@@ -20,7 +20,7 @@
         {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
     </td>
     <td>
-        {{ $ticket->address }}
+        {{ $ticket->address->name }}
     </td>
     <td>
         <div class="bold">

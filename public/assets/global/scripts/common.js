@@ -133,7 +133,23 @@ var Modal = {
 	
 };
 
+String.prototype.plural = Number.prototype.plural = function ( a, b, c )
+{
+    var index = this % 100;
+    index = (index >=11 && index <= 14) ? 0 : (index %= 10) < 5 ? (index > 2 ? 2 : index): 0;
+    return(this+[a, b, c][index]);
+};
+
 $( document )
+
+	.ready ( function ()
+	{
+
+        $( '#phone.btn-danger i' ).pulsate({
+            color: "#CC0000"
+        });
+
+	})
 
 	.on ( 'click', '[data-action="comment"]', function ( e )
 	{

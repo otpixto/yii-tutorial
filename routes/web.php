@@ -1,9 +1,19 @@
 <?php
 
+Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
+
 Route::group( [ 'middleware' => 'auth' ], function ()
 {
 
+    Route::get( '/profile/phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
+    Route::get( '/profile/phone-reg', 'ProfileController@getPhoneReg' )->name( 'profile.phone_reg' );
+    Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
+    Route::get( '/profile/phone-confirm', 'ProfileController@getPhoneConfirm' )->name( 'profile.phone_confirm' );
+    Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
+    Route::get( '/profile/phone-unreg', 'ProfileController@getPhoneUnreg' )->name( 'profile.phone_unreg' );
+
     Route::get( '/', 'HomeController@getIndex' )->name( 'home' );
+    Route::get( 'tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
     Route::resource( 'tickets', 'Operator\TicketsController' );
     Route::get( 'tickets/{id}/act', 'Operator\TicketsController@act' )->name( 'tickets.act' );
     Route::post( 'tickets/{id}/rate', 'Operator\TicketsController@rate' )->name( 'tickets.rate' );

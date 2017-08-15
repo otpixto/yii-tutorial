@@ -57,7 +57,7 @@
                     <div class="note">
                         <dl>
                             <dt>Адрес проблемы:</dt>
-                            <dd>{{ $ticket->address }}</dd>
+                            <dd>{{ $ticket->address->name }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -302,8 +302,21 @@
                 <div class="col-xs-6">
                     <div class="note">
                         <dl>
+                            <dt>Телефон(ы) Заявителя:</dt>
+                            <dd>{{ $ticket->getPhones() }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note">
+                        <dl>
                             <dt>Адрес проживания:</dt>
-                            <dd>{{ $ticket->actual_address ?? '-' }}</dd>
+                            <dd>
+                                {{ $ticket->getActualAddress() }}
+                            </dd>
                         </dl>
                     </div>
                 </div>

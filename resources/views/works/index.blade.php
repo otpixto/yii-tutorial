@@ -43,9 +43,9 @@
 
                 {{ $works->render() }}
 
-                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
+                        {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                         <tr class="info">
                             <th>
                                  Номер сообщения
@@ -83,22 +83,19 @@
                                 {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                             </td>
                             <td>
-                                {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+                                {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
                             </td>
                             <td>
-                                {!! Form::text( 'type', \Input::old( 'type' ), [ 'class' => 'form-control', 'placeholder' => 'Тип' ] ) !!}
+                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
                             </td>
                             <td>
-                                {!! Form::text( 'management', \Input::old( 'management' ), [ 'class' => 'form-control', 'placeholder' => 'Исполнитель' ] ) !!}
+                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
                             </td>
                             <td>
                                 {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
                             </td>
-                            <td>
-                                {!! Form::text( 'datetime_begin', \Input::old( 'datetime_begin' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Начало', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::text( 'datetime_end', \Input::old( 'datetime_end' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Окончание', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                            <td colspan="2">
+                                {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Дата', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                             </td>
                             <td class="text-right">
                                 <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
@@ -106,6 +103,7 @@
                                 </button>
                             </td>
                         </tr>
+                        {!! Form::close() !!}
                     </thead>
                     <tbody>
                     @foreach ( $works as $work )
@@ -113,7 +111,6 @@
                     @endforeach
                     </tbody>
                 </table>
-                {!! Form::close() !!}
 
                 {{ $works->render() }}
 
@@ -127,6 +124,8 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
@@ -155,6 +154,8 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
@@ -165,11 +166,29 @@
         $( document )
             .ready( function ()
             {
+
                 $('.date-picker').datepicker({
                     rtl: App.isRTL(),
                     orientation: "left",
                     autoclose: true
                 });
+
+                $( '.select2' ).select2();
+
+                $( '.select2-ajax' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
+
             });
     </script>
 @endsection

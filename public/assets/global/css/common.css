@@ -4,3 +4,7 @@
     border: inherit;
     background-color: inherit;
 }
+
+.page-header .navbar .topbar-actions .btn-phone .btn {
+    top: 7px;
+}

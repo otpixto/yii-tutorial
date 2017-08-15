@@ -89,33 +89,39 @@ class Ticket extends BaseModel
     ];
 
     public static $rules = [
-        'type_id'           => 'required|integer',
-        'firstname'         => 'required|max:191',
-        'middlename'        => 'nullable|max:191',
-        'lastname'          => 'nullable|max:191',
-        'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'phone2'            => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'text'              => 'required|max:191',
-        'address'           => 'max:191',
-        'emergency'         => 'boolean',
-        'urgently'          => 'boolean',
-        'dobrodel'          => 'boolean',
-        'place'             => 'required|integer',
-        'managements'       => 'required|array',
+        'type_id'                   => 'required|integer',
+        'address_id'                => 'required|integer',
+        'place'                     => 'required|integer',
+        'emergency'                 => 'boolean',
+        'urgently'                  => 'boolean',
+        'dobrodel'                  => 'boolean',
+        'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'firstname'                 => 'required|max:191',
+        'middlename'                => 'nullable|max:191',
+        'lastname'                  => 'nullable|max:191',
+        'actual_address_id'         => 'required|integer',
+        'flat'                      => 'required|string',
+        'customer_id'               => 'integer',
+        'text'                      => 'required|max:191',
+        'managements'               => 'required|array',
     ];
 
     protected $fillable = [
         'type_id',
-        'firstname',
-        'middlename',
-        'lastname',
-        'phone',
-        'phone2',
-        'text',
-        'address',
+        'address_id',
         'emergency',
         'urgently',
         'dobrodel',
+        'phone',
+        'phone2',
+        'firstname',
+        'middlename',
+        'lastname',
+        'actual_address_id',
+        'flat',
+        'customer_id',
+        'text',
     ];
 
     public function managements ()
@@ -134,6 +140,11 @@ class Ticket extends BaseModel
     }
 
     public function address ()
+    {
+        return $this->belongsTo( 'App\Models\Address' );
+    }
+
+    public function actualAddress ()
     {
         return $this->belongsTo( 'App\Models\Address' );
     }
@@ -206,6 +217,22 @@ class Ticket extends BaseModel
                         ->where( 'author_id', '=', Auth::user()->id );
                 }
                 return $q;
+            });
+    }
+
+    public function scopeFastSearch ( $query, $search )
+    {
+        $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+        return $query
+            ->where( function ( $q ) use ( $s )
+            {
+                return $q
+                    ->where( 'firstname', 'like', $s )
+                    ->orWhere( 'middlename', 'like', $s )
+                    ->orWhere( 'lastname', 'like', $s )
+                    ->orWhere( 'phone', 'like', $s )
+                    ->orWhere( 'phone2', 'like', $s )
+                    ->orWhere( 'text', 'like', $s );
             });
     }
 
@@ -311,6 +338,11 @@ class Ticket extends BaseModel
 		return $statuses;
 	}
 
+	public function getActualAddress ()
+    {
+        return $this->actualAddress->name . ', кв. ' . $this->flat;
+    }
+
 	public function getColor ()
     {
 
@@ -411,32 +443,6 @@ class Ticket extends BaseModel
         {
             return $this->status_name;
         }
-    }
-
-    public function addComment ( $text )
-    {
-
-        $comment = Comment::create([
-            'model_id'     	=> $this->id,
-			'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-
-        return $comment;
-
-    }
-	
-	public function addTag ( $text )
-    {
-
-        $tag = Tag::create([
-            'model_id'     	=> $this->id,
-			'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-
-        return $tag;
-
     }
 
     public function canEdit ()

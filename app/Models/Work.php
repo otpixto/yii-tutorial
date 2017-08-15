@@ -90,4 +90,17 @@ class Work extends BaseModel
 
     }
 
+    public function scopeFastSearch ( $query, $search )
+    {
+        $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+        return $query
+            ->where( function ( $q ) use ( $s )
+            {
+                return $q
+                    ->where( 'reason', 'like', $s )
+                    ->orWhere( 'who', 'like', $s )
+                    ->orWhere( 'composition', 'like', $s );
+            });
+    }
+
 }

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
+use App\Models\Address;
 use App\Models\Customer;
+use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -21,82 +24,162 @@ class TicketsController extends BaseController
         Title::add( 'Реестр обращений' );
     }
 
-    public function index()
+    public function index ()
     {
-
-        $search = trim( \Input::get( 'search', '' ) );
-        $group = trim( \Input::get( 'group', '' ) );
 
         if ( \Auth::user()->hasRole( 'operator' ) )
         {
-            $view = 'tickets.operator.index';
-            $tickets = Ticket
-                ::mine()
-                ->parentsOnly()
-                ->orderBy( 'id', 'desc' );
-            if ( !empty( $search ) )
-            {
-                $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-                $tickets
-                    ->where( function ( $q ) use ( $s )
-                    {
-                        return $q
-                            ->where( 'firstname', 'like', $s )
-                            ->orWhere( 'middlename', 'like', $s )
-                            ->orWhere( 'lastname', 'like', $s )
-                            ->orWhere( 'phone', 'like', $s )
-                            ->orWhere( 'phone2', 'like', $s )
-                            ->orWhere( 'address', 'like', $s )
-                            ->orWhere( 'text', 'like', $s );
-                    });
-            }
-            if ( !empty( $group ) )
-            {
-                $tickets
-                    ->where( 'group_uuid', '=', $group );
-            }
 
-            $tickets = $tickets->paginate( 30 );
-
-            return view( 'tickets.operator.index' )
-                ->with( 'tickets', $tickets )
-                ->with( 'title', 'Реестр обращений' );
+            return $this->operator();
 
         }
         else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
         {
 
-            $ticketManagements = \Auth::user()->management->tickets()->mine()->orderBy( 'id', 'desc' );
-
-            if ( !empty( $search ) )
-            {
-                $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-                $ticketManagements
-                    ->whereHas( 'ticket', function ( $q ) use ( $s )
-                    {
-                        return $q
-                            ->where( 'firstname', 'like', $s )
-                            ->orWhere( 'middlename', 'like', $s )
-                            ->orWhere( 'lastname', 'like', $s )
-                            ->orWhere( 'phone', 'like', $s )
-                            ->orWhere( 'phone2', 'like', $s )
-                            ->orWhere( 'address', 'like', $s )
-                            ->orWhere( 'text', 'like', $s );
-                    });
-            }
-
-            $ticketManagements = $ticketManagements->paginate( 30 );
-
-            return view( 'tickets.management.index' )
-                ->with( 'ticketManagements', $ticketManagements );
+            return $this->management();
 
         }
         else
         {
+            Title::add( 'Доступ запрещен' );
             return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' )
-                ->with( 'title', 'Доступ запрещен' );
+                ->with( 'error', 'Доступ запрещен' );
         }
+
+    }
+
+    public function operator ()
+    {
+
+        $types = Type::all();
+        $managements = Management::all();
+        $operators = User::role( 'operator' )->get();
+
+        $tickets = Ticket
+            ::mine()
+            ->parentsOnly()
+            ->orderBy( 'id', 'desc' );
+
+        if ( !empty( \Input::get( 'search' ) ) )
+        {
+            $tickets
+                ->fastSearch( \Input::get( 'search' ) );
+        }
+
+        if ( !empty( \Input::get( 'group' ) ) )
+        {
+            $tickets
+                ->where( 'group_uuid', '=', \Input::get( 'group' ) );
+        }
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'period_from' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( \Input::get( 'period_from' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'period_to' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( \Input::get( 'period_to' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'operator_id' ) ) )
+        {
+            $tickets
+                ->where( 'author_id', '=', \Input::get( 'operator_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.operator.index' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', $types )
+            ->with( 'managements', $managements )
+            ->with( 'operators', $operators )
+            ->with( 'address', $address ?? null );
+
+    }
+
+    public function management ()
+    {
+
+        $types = Type::all();
+
+        $ticketManagements = \Auth::user()->management->tickets()->mine()->orderBy( 'id', 'desc' );
+
+        $ticketManagements
+            ->whereHas( 'ticket', function ( $q )
+            {
+
+                if ( !empty( \Input::get( 'search' ) ) )
+                {
+                    $q
+                        ->fastSearch( \Input::get( 'search' ) );
+                }
+
+                if ( !empty( \Input::get( 'id' ) ) )
+                {
+                    $q
+                        ->where( 'id', '=', \Input::get( 'id' ) );
+                }
+
+                if ( !empty( \Input::get( 'period_from' ) ) )
+                {
+                    $q
+                        ->where( 'created_at', '>=', Carbon::parse( \Input::get( 'period_from' ) )->setTime( 0, 0, 0 )->toDateTimeString() );
+                }
+
+                if ( !empty( \Input::get( 'period_to' ) ) )
+                {
+                    $q
+                        ->where( 'created_at', '<=', Carbon::parse( \Input::get( 'period_to' ) )->setTime( 23, 59, 59 )->toDateTimeString() );
+                }
+
+                if ( !empty( \Input::get( 'type_id' ) ) )
+                {
+                    $q
+                        ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+                }
+
+                return $q;
+
+            });
+
+        $ticketManagements = $ticketManagements->paginate( 30 );
+
+        return view( 'tickets.management.index' )
+            ->with( 'ticketManagements', $ticketManagements )
+            ->with( 'types', $types );
 
     }
 
@@ -135,6 +218,7 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, Ticket::$rules );
+        $this->validate( $request, Customer::$rules );
 
         if ( ! isset( Ticket::$places[ $request->get( 'place' ) ] ) )
         {
@@ -145,26 +229,16 @@ class TicketsController extends BaseController
 
         $ticket = Ticket::create( $request->all() );
 
-        $customer = Customer
-            ::where( function ( $q ) use ( $ticket )
-            {
-                return $q
-                    ->where( 'phone', '=', $ticket->phone )
-                    ->orWhere( 'phone', '=', $ticket->phone2 )
-                    ->orWhere( 'phone2', '=', $ticket->phone )
-                    ->orWhere( 'phone2', '=', $ticket->phone2 );
-            })
-            ->where( 'lastname', '=', trim( $ticket->lastname ) )
-            ->where( 'middlename', '=', trim( $ticket->middlename ) )
-            ->where( 'firstname', '=', trim( $ticket->firstname ) )
-            ->first();
-
-        if ( !$customer )
+        if ( !empty( $request->get( 'customer_id' ) ) )
         {
-            $this->validate( $request, Customer::$rules );
+            $customer = Customer
+                ::where( 'id', '=', $request->get( 'customer_id' ) )
+                ->first();
+            $customer->edit( $request->all() );
+        }
+        else
+        {
             $customer = Customer::create( $request->all() );
-            $ticket->customer_id = $customer->id;
-            $ticket->save();
         }
 
         $status_code = 'no_contract';
@@ -336,7 +410,7 @@ class TicketsController extends BaseController
     public function edit($id)
     {
 
-        return redirect()->route( 'tickets.show', $id );
+        return $this->show( $id );
 
     }
 
@@ -361,37 +435,6 @@ class TicketsController extends BaseController
     public function destroy($id)
     {
         //
-    }
-	
-	public function comment ( Request $request, $id )
-    {
-        
-		$ticket = Ticket::find( $id );
-
-		if ( !$ticket )
-		{
-			return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
-		}
-
-		\DB::beginTransaction();
-
-        $ticket->addComment( $request->get( 'text' ) );
-
-        $group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
-
-		if ( $group->count() )
-        {
-            foreach ( $group as $row )
-            {
-                $row->addComment( $request->get( 'text' ) );
-            }
-        }
-
-        \DB::commit();
-
-		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
-		
     }
 
     public function changeStatus ( Request $request, $id )
@@ -451,6 +494,8 @@ class TicketsController extends BaseController
             //->orderBy( 'id', 'desc' )
             ->get();
 
+        \DB::beginTransaction();
+
         switch ( $request->get( 'action' ) )
         {
 
@@ -461,7 +506,6 @@ class TicketsController extends BaseController
                 }
                 $uuid = Uuid::uuid4()->toString();
                 $parent = null;
-                \DB::beginTransaction();
                 foreach ( $tickets as $ticket )
                 {
                     $ticket->group_uuid = $uuid;
@@ -476,11 +520,9 @@ class TicketsController extends BaseController
                     }
                     $ticket->save();
                 }
-                \DB::commit();
                 break;
 
             case 'ungroup':
-                \DB::beginTransaction();
                 foreach ( $tickets as $ticket )
                 {
                     $group = $ticket->group()
@@ -513,11 +555,9 @@ class TicketsController extends BaseController
                     $ticket->parent_id = null;
                     $ticket->save();
                 }
-                \DB::commit();
                 break;
 
             case 'delete':
-
                 foreach ( $tickets as $ticket )
                 {
                     $ticket->delete();
@@ -529,6 +569,8 @@ class TicketsController extends BaseController
                 break;
 
         }
+
+        \DB::commit();
 
         return redirect()->back()->with( 'success', 'Готово' );
 
@@ -545,11 +587,13 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Обращение не найдено' ] );
         }
 
+        \DB::beginTransaction();
+
         $ticket->rate = $request->get( 'rate' );
         $ticket->rate_comment = $request->get( 'comment', null );
         $ticket->save();
 
-        $group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
+        /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
 
         if ( $group->count() )
         {
@@ -559,9 +603,25 @@ class TicketsController extends BaseController
                 $row->rate_comment = $ticket->rate_comment;
                 $row->save();
             }
-        }
+        }*/
+
+        \DB::commit();
 
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
+
+    }
+
+    public function call ( Request $request )
+    {
+
+        Title::add( 'Обзвон' );
+
+        $tickets = Ticket
+            ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )
+            ->paginate( 30 );
+
+        return view( 'tickets.operator.call' )
+            ->with( 'tickets', $tickets );
 
     }
 

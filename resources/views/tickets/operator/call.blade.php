@@ -9,84 +9,91 @@
 
 @section( 'content' )
 
-    <div class="row">
-        <div class="col-xs-12">
-            {!! Form::open( [ 'method' => 'get' ] ) !!}
-                <div class="input-group">
-                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa fa-search"></i>
-                            Поиск
-                        </button>
-                    </span>
-                </div>
-            {!! Form::close() !!}
-        </div>
-    </div>
-
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            @if ( $ticketManagements->count() )
+            @if ( $tickets->count() )
 
-                {{ $ticketManagements->render() }}
+                {{ $tickets->render() }}
 
                 <table class="table table-striped table-bordered table-hover">
-                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                     <thead>
                         <tr class="info">
                             <th>
-                                 Статус \ Номер обращения \ Оценка
-                            </th>
-                            <th width="250">
-                                Дата и время создания
+                                ФИО Заявителя
                             </th>
                             <th>
-                                Адрес проблемы
+                                Телефон(ы) Заявителя
+                            </th>
+                            <th>
+                                ЭО
                             </th>
                             <th>
                                 Категория и тип обращения
                             </th>
                             <th>
+                                Адрес проблемы
+                            </th>
+                            <th>
                                 &nbsp;
                             </th>
                         </tr>
-                        <tr class="info">
+                    </thead>
+                    <tbody>
+                    @foreach ( $tickets as $ticket )
+                        <tr>
                             <td>
-                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
+                                {{ $ticket->getName() }}
                             </td>
                             <td>
-                                <div class="input-group date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                    {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'Период ОТ' ] ) !!}
-                                    <span class="input-group-addon"> - </span>
-                                    {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'Период ДО' ] ) !!}
+                                {{ $ticket->getPhones() }}
+                            </td>
+                            <td>
+                                @foreach ( $ticket->managements as $ticketManagement )
+                                    <div>
+                                        {{ $ticketManagement->management->name }}
+                                    </div>
+                                @endforeach
+                            </td>
+                            <td>
+                                <div class="bold">
+                                    {{ $ticket->type->category->name }}
+                                </div>
+                                <div class="small">
+                                    {{ $ticket->type->name }}
                                 </div>
                             </td>
                             <td>
-                                {!! Form::select( 'address_id', \Input::old( 'address_id' ) ? \App\Models\Address::find( \Input::old( 'address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                                {{ $ticket->address->name }}
                             </td>
                             <td>
-                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
-                            </td>
-                            <td class="text-right">
-                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                    <i class="fa fa-filter"></i>
-                                </button>
+                                <div class="text-nowrap">
+                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением">
+                                        <i class="fa fa-check"></i>
+                                    </a>
+                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением">
+                                        <i class="fa fa-remove"></i>
+                                    </a>
+                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно">
+                                        <i class="fa fa-repeat"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
-                    </thead>
-                    {!! Form::close() !!}
-                    {!! Form::open( [ 'url' => route( 'tickets.action' ), 'class' => 'submit-loading' ] ) !!}
-                    <tbody>
-                    @foreach ( $ticketManagements as $ticketManagement )
-                        @include( 'parts.ticket_management', [ 'ticketManagement' => $ticketManagement, 'ticket' => $ticketManagement->ticket ] )
+                        @if ( $ticket->comments->count() )
+                            <tr>
+                                <td colspan="6">
+                                    <div class="note note-info">
+                                        @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
                     @endforeach
                     </tbody>
-                    {!! Form::close() !!}
                 </table>
 
-                {{ $ticketManagements->render() }}
+                {{ $tickets->render() }}
 
             @else
                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
@@ -106,11 +113,7 @@
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
     <style>
-        .alert {
-            margin-bottom: 0;
-        }
-        .mt-element-ribbon {
-
+        .alert, .mt-element-ribbon, .note {
             margin-bottom: 0;
         }
         .mt-element-ribbon .ribbon.ribbon-right {
@@ -118,11 +121,14 @@
             right: -8px;
         }
         .mt-element-ribbon .ribbon.ribbon-clip {
-            left: -18px;
-            top: -18px;
+            left: -19px;
+            top: -19px;
         }
         .color-inherit {
             color: inherit;
+        }
+        .border-left {
+            border-left: 2px solid #b71a00 !important;
         }
     </style>
 @endsection

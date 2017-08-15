@@ -26,14 +26,14 @@
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id', [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id' ) ? \App\Models\Address::find( \Input::old( 'address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'place', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'place', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place' ), [ 'class' => 'form-control', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place', 'required' ] ) !!}
+                    {!! Form::select( 'place', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place' ), [ 'class' => 'form-control', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place' ] ) !!}
                 </div>
             </div>
 
@@ -101,10 +101,10 @@
             <div class="form-group">
                 {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-6">
-                    {!! Form::select( 'customer_address_id', [], \Input::old( 'customer_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'customer_address' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id' ) ? \App\Models\Address::find( \Input::old( 'actual_address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'actual_address_id' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'customer_flat', \Input::old( 'customer_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'customer_flat' ] ) !!}
+                    {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'flat' ] ) !!}
                 </div>
             </div>
 
@@ -184,9 +184,7 @@
 
     </div>
 
-    {!! Form::hidden( 'address_id', \Input::old( 'address_id' ), [ 'id' => 'address_id' ] ) !!}
     {!! Form::hidden( 'customer_id', \Input::old( 'customer_id' ), [ 'id' => 'customer_id' ] ) !!}
-    {!! Form::hidden( 'customer_address_id', \Input::old( 'customer_address_id' ), [ 'id' => 'customer_address_id' ] ) !!}
     {!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements' ] ) !!}
 
     {!! Form::close() !!}
@@ -214,7 +212,6 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
@@ -265,9 +262,13 @@
                 if ( response )
                 {
                     $( '#customers' ).html( response );
-                    if ( ! $( '#customers-select' ).hasClass( 'btn-danger' ) )
+                    if ( $( '#customer_id' ).val() == '' )
                     {
                         $( '#customers-select' ).removeAttr( 'disabled' ).attr( 'class', 'btn btn-warning' );
+                        if ( $( '[data-action="customers-select"]' ).length == 1 )
+                        {
+                            $( '[data-action="customers-select"]' ).trigger( 'click' );
+                        }
                     }
                 }
                 else
@@ -505,7 +506,8 @@
                         if ( result )
                         {
 
-                            $( '#firstname, #middlename, #lastname, #customer_address, #customer_id, #customer_address_id, #phone2' ).val( '' );
+                            $( '#firstname, #middlename, #lastname, #customer_id, #actual_address_id, #phone2, #flat' ).val( '' );
+                            $( '#actual_address_id' ).trigger( 'change' );
                             that.attr( 'id', 'customers-select' ).attr( 'class', 'btn btn-warning' );
 
                         }
@@ -521,51 +523,68 @@
 
                 var that = $( this );
 
-                bootbox.confirm({
-                    message: 'Заполнить поля заявителя выбранными данными?',
-                    size: 'small',
-                    buttons: {
-                        confirm: {
-                            label: '<i class="fa fa-check"></i> Да',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: '<i class="fa fa-times"></i> Нет',
-                            className: 'btn-danger'
-                        }
-                    },
-                    callback: function ( result )
+                function setValue ()
+                {
+
+                    $( '#customers-modal' ).modal( 'hide' );
+
+                    var address_id = that.attr( 'data-address-id' );
+                    var address = that.attr( 'data-address' );
+
+                    $( '#firstname' ).val( that.attr( 'data-firstname' ) );
+                    $( '#middlename' ).val( that.attr( 'data-middlename' ) );
+                    $( '#lastname' ).val( that.attr( 'data-lastname' ) );
+                    $( '#actual_address_id' ).append( $( '<option></option>' ).val( address_id ).text( address ) ).val( address_id ).trigger( 'change' );
+                    $( '#flat' ).val( that.attr( 'data-flat' ) );
+
+                    if ( $( '#phone2' ).val() == '' )
                     {
-                        if ( result )
+                        if ( $( '#phone' ).val().replace( /\D/g, '' ).substr( -10 ) == that.attr( 'data-phone2' ) )
                         {
-
-                            $( '#customers-modal' ).modal( 'hide' );
-
-                            $( '#firstname' ).val( that.attr( 'data-firstname' ) );
-                            $( '#middlename' ).val( that.attr( 'data-middlename' ) );
-                            $( '#lastname' ).val( that.attr( 'data-lastname' ) );
-                            $( '#customer_address' ).val( that.attr( 'data-address' ) );
-
-                            if ( $( '#phone2' ).val() == '' )
-                            {
-                                if ( $( '#phone' ).val().replace( /\D/g, '' ).substr( -10 ) == that.attr( 'data-phone2' ) )
-                                {
-                                    $( '#phone2' ).val( that.attr( 'data-phone' ) );
-                                }
-                                else
-                                {
-                                    $( '#phone2' ).val( that.attr( 'data-phone2' ) );
-                                }
-                            }
-
-                            $( '#customer_id' ).val( that.attr( 'data-id' ) );
-                            $( '#customer_address_id' ).val( that.attr( 'data-address-id' ) );
-
-                            $( '#customers-select' ).attr( 'class', 'btn btn-danger' ).attr( 'id', 'customers-clear' );
-
+                            $( '#phone2' ).val( that.attr( 'data-phone' ) );
+                        }
+                        else
+                        {
+                            $( '#phone2' ).val( that.attr( 'data-phone2' ) );
                         }
                     }
-                });
+
+                    $( '#customer_id' ).val( that.attr( 'data-id' ) );
+
+                    $( '#customers-select' ).attr( 'class', 'btn btn-danger' ).attr( 'id', 'customers-clear' );
+
+                };
+
+                if ( $( '[data-action="customers-select"]' ).length == 1 )
+                {
+                    setValue();
+                }
+                else
+                {
+                    bootbox.confirm({
+                        message: 'Заполнить поля заявителя выбранными данными?',
+                        size: 'small',
+                        buttons: {
+                            confirm: {
+                                label: '<i class="fa fa-check"></i> Да',
+                                className: 'btn-success'
+                            },
+                            cancel: {
+                                label: '<i class="fa fa-times"></i> Нет',
+                                className: 'btn-danger'
+                            }
+                        },
+                        callback: function ( result )
+                        {
+                            if ( result )
+                            {
+
+                                setValue();
+
+                            }
+                        }
+                    });
+                }
 
             })
 

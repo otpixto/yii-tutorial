@@ -57,7 +57,7 @@
         </div>
     </td>
     <td>
-        {{ $ticket->address }}
+        {{ $ticket->address->name }}
     </td>
     <td class="text-right">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
@@ -65,3 +65,23 @@
         </a>
     </td>
 </tr>
+@if ( $ticket->comments->count() )
+    <tr>
+        @if ( $ticket->group_uuid )
+            @if ( ! $ticket->parent_id )
+                <td colspan="8" class="border-left">
+            @else
+                <td width="30" class="border-left text-center">
+                    &nbsp;
+                </td>
+                <td colspan="7">
+            @endif
+        @else
+            <td colspan="8">
+        @endif
+            <div class="note note-info">
+                @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
+            </div>
+        </td>
+    </tr>
+@endif

@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
-use App\Http\Controllers\Controller;
 use App\Models\Address;
-use App\Models\BaseModel;
 use App\Models\Management;
 use App\Models\Type;
 use App\Models\Work;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class WorksController extends BaseController
@@ -23,10 +22,57 @@ class WorksController extends BaseController
     public function index()
     {
 
-        $works = Work::orderBy( 'id', 'desc' )->paginate( 30 );
+        $types = Type::all();
+        $managements = Management::all();
+
+        $works = Work
+            ::orderBy( 'id', 'desc' );
+
+        if ( !empty( \Input::get( 'search' ) ) )
+        {
+            $works
+                ->fastSearch( \Input::get( 'search' ) );
+        }
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $works
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'date' ) ) )
+        {
+            $works
+                ->whereRaw( 'DATE( time_begin ) <= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] )
+                ->whereRaw( 'DATE( time_end ) >= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] );
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $works
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $works
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $works
+                ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+        }
+
+        $works = $works->paginate( 30 );
 
         return view( 'works.index' )
-            ->with( 'works', $works );
+            ->with( 'works', $works )
+            ->with( 'types', $types )
+            ->with( 'managements', $managements )
+            ->with( 'address', $address ?? null );
 
     }
 

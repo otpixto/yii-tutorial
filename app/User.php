@@ -2,8 +2,10 @@
 
 namespace App;
 
+use App\Classes\Asterisk;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\MessageBag;
 use Iphome\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -98,6 +100,14 @@ class User extends Authenticatable
         return $this->belongsTo( 'App\Models\Management' );
     }
 
+    /**
+     * Авторизация на телефоне
+     */
+    public function phoneSession ()
+    {
+        return $this->hasOne( 'App\Models\PhoneSession' );
+    }
+
     public static function add ( array $input )
     {
 
@@ -178,6 +188,20 @@ class User extends Authenticatable
 
         return $this->availableStatuses;
 
+    }
+
+    public function phoneSessionUnreg ()
+    {
+        if ( ! $this->phoneSession )
+        {
+            return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
+        }
+        $asterisk = new Asterisk();
+        if ( ! $asterisk->queueRemove( $this->phoneSession->ext_number ) )
+        {
+            return new MessageBag( [ $asterisk->last_result ] );
+        }
+        $this->phoneSession->delete();
     }
 
 }

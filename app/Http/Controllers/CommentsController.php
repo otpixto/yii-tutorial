@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
@@ -37,10 +38,27 @@ class CommentsController extends Controller
     {
         
 		$this->validate( $request, Comment::$rules );
-		
-		$comment = Comment::create( $request->all() );
 
-		if ( $request->hasFile( 'file' ) )
+		if ( $request->get( 'model_name' ) == 'App\Models\Ticket' )
+        {
+            $ticket = Ticket::find( $request->get( 'model_id' ) );
+            $comment = $ticket->addComment( $request->get( 'text' ) );
+            /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
+            if ( $group->count() )
+            {
+                foreach ( $group as $row )
+                {
+                    $row->addComment( $comment->text );
+                }
+            }*/
+        }
+        else
+        {
+            $comment = Comment::create( $request->all() );
+            $comment->save();
+        }
+
+        if ( $request->hasFile( 'file' ) )
         {
             $path = Storage::putFile( 'files', $request->file( 'file' ) );
             $file = File::create([
@@ -50,8 +68,6 @@ class CommentsController extends Controller
             ]);
             $file->save();
         }
-
-        $comment->save();
 
 		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
 		
