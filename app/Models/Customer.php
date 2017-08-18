@@ -14,7 +14,7 @@ class Customer extends BaseModel
         'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'actual_address_id'     => 'required|integer',
-        'flat'                  => 'required|string',
+        'actual_flat'           => 'required|string',
     ];
 
     protected $fillable = [
@@ -24,7 +24,7 @@ class Customer extends BaseModel
         'phone',
         'phone2',
         'actual_address_id',
-        'flat',
+        'actual_flat',
     ];
 
     public function tickets ()
@@ -114,9 +114,9 @@ class Customer extends BaseModel
         return $phones;
     }
 
-    public function getActualAddress ()
+    public function getAddress ()
     {
-        return $this->actualAddress->name . ', кв. ' . $this->flat;
+        return $this->actualAddress->name . ', кв. ' . $this->actual_flat;
     }
 
 }

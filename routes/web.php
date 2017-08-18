@@ -5,6 +5,11 @@ Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
 Route::group( [ 'middleware' => 'auth' ], function ()
 {
 
+    Route::get( '/', 'HomeController@index' )->name( 'home' );
+    Route::get( '/about', 'HomeController@about' )->name( 'about' );
+
+    Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
+
     Route::get( '/profile/phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
     Route::get( '/profile/phone-reg', 'ProfileController@getPhoneReg' )->name( 'profile.phone_reg' );
     Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
@@ -12,21 +17,22 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
     Route::get( '/profile/phone-unreg', 'ProfileController@getPhoneUnreg' )->name( 'profile.phone_unreg' );
 
-    Route::get( '/', 'HomeController@getIndex' )->name( 'home' );
+    Route::get( 'tickets/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
+    Route::post( 'tickets/rate', 'Operator\TicketsController@postRateForm' );
+    Route::post( 'tickets/close', 'Operator\TicketsController@postClose' )->name( 'tickets.close' );
+    Route::post( 'tickets/repeat', 'Operator\TicketsController@postRepeat' )->name( 'tickets.repeat' );
+
     Route::get( 'tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
-    Route::resource( 'tickets', 'Operator\TicketsController' );
     Route::get( 'tickets/{id}/act', 'Operator\TicketsController@act' )->name( 'tickets.act' );
-    Route::post( 'tickets/{id}/rate', 'Operator\TicketsController@rate' )->name( 'tickets.rate' );
     Route::post( 'tickets/{id}/change-status', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
     Route::post( 'tickets/managements/{id}/change-status', 'Operator\TicketsController@changeManagementStatus' )->name( 'tickets.managements.status' );
+    Route::post( 'tickets/managements/{id}/executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.managements.executor' );
 	Route::post( 'tickets/{id}/comment', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
     Route::post( 'tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
+    Route::resource( 'tickets', 'Operator\TicketsController' );
 
 	Route::get( 'comment', 'CommentsController@form' )->name( 'comments.form' );
 	Route::post( 'comment', 'CommentsController@store' )->name( 'comments.store' );
-
-    Route::get( 'rate', 'RateController@form' )->name( 'rate.form' );
-    Route::post( 'rate', 'RateController@store' )->name( 'rate.store' );
 
     Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
     Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );

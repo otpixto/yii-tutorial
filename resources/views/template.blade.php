@@ -28,19 +28,15 @@
                     </a>
                     <!-- END LOGO -->
 
-                    <!-- BEGIN SEARCH -->
-                    {!! Form::open( [ 'method' => 'get', 'class' => 'search' ] ) !!}
-                    {!! Form::text( 'search', null, [ 'class' => 'form-control', 'placeholder' => 'Поиск...' ] ) !!}
-                        <a href="javascript:;" class="btn submit md-skip">
-                            <i class="fa fa-search"></i>
-                        </a>
-                    {!! Form::close() !!}
-                    <!-- END SEARCH -->
+                    @include( 'parts.search' )
 
                     <!-- BEGIN TOPBAR ACTIONS -->
                     <div class="topbar-actions">
 
                         {{--@include( 'parts.notification' )--}}
+
+                        @include( 'parts.count' )
+
                         @include( 'parts.phone' )
                         @include( 'parts.user_profile' )
 

@@ -10,7 +10,7 @@
 @section( 'content' )
 
     @can( 'tickets.create' )
-        <div class="row margin-bottom-15">
+        <div class="row margin-bottom-15 hidden-print">
             <div class="col-xs-12">
                 <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
@@ -20,7 +20,7 @@
         </div>
     @endcan
 
-    <div class="row">
+    <div class="row hidden-print">
         <div class="col-xs-12">
             {!! Form::open( [ 'method' => 'get' ] ) !!}
                 <div class="input-group">
@@ -39,69 +39,82 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            @if ( $tickets->count() )
+            {{ $tickets->render() }}
 
-                {{ $tickets->render() }}
-
-                <table class="table table-striped table-bordered table-hover">
-                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
-                    <thead>
-                        <tr class="info">
-                            <th colspan="2">
-                                 Статус \ Номер обращения \ Оценка
-                            </th>
-                            <th width="250">
-                                Дата и время создания
-                            </th>
-                            <th>
-                                Оператор
-                            </th>
-                            <th>
-                                ЭО
-                            </th>
-                            <th>
-                                Категория и тип обращения
-                            </th>
-                            <th>
-                                Адрес проблемы
-                            </th>
-                            <th>
-                                &nbsp;
-                            </th>
-                        </tr>
-                        <tr class="info">
-                            <td colspan="2">
-                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
-                            </td>
-                            <td>
-                                <div class="input-group date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                    {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'Период ОТ' ] ) !!}
-                                    <span class="input-group-addon"> - </span>
-                                    {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'Период ДО' ] ) !!}
+            <table class="table table-striped table-bordered table-hover">
+                {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
+                <thead>
+                    <tr class="info">
+                        <th colspan="2" width="20%">
+                             Статус \ Номер обращения \ Оценка
+                        </th>
+                        <th width="250">
+                            Дата и время создания
+                        </th>
+                        <th width="150">
+                            Оператор
+                        </th>
+                        <th width="200">
+                            ЭО
+                        </th>
+                        <th width="200">
+                            Категория и тип обращения
+                        </th>
+                        <th>
+                            Адрес проблемы
+                        </th>
+                        <th class="hidden-print">
+                            &nbsp;
+                        </th>
+                    </tr>
+                    <tr class="info hidden-print">
+                        <td colspan="2">
+                            <div class="row">
+                                <div class="col-xs-8">
+                                    {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \App\Models\Ticket::$statuses, \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                 </div>
-                            </td>
-                            <td>
-                                {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
-                            </td>
-                            <td class="text-right">
-                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                    <i class="fa fa-filter"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </thead>
-                    {!! Form::close() !!}
-                    {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
-                    <tbody>
+                                <div class="col-xs-4">
+                                    {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group date-picker input-daterange" data-date-format="dd.mm.yyyy">
+                                {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
+                                <span class="input-group-addon"> - </span>
+                                {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
+                            </div>
+                        </td>
+                        <td>
+                            {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
+                        </td>
+                        <td>
+                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
+                        </td>
+                        <td>
+                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-xs-8">
+                                    {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                                </div>
+                                <div class="col-xs-4">
+                                    {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-right hidden-print">
+                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                <i class="fa fa-filter"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </thead>
+                {!! Form::close() !!}
+                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
+                <tbody>
+                @if ( $tickets->count() )
                     @foreach ( $tickets as $ticket )
                         @include( 'parts.ticket', [ 'ticket' => $ticket ] )
                         @if ( $ticket->childs->count() )
@@ -111,7 +124,7 @@
                         @endif
                     @endforeach
                     </tbody>
-                    <tfoot>
+                    <tfoot class="hidden-print">
                         <tr>
                             <th colspan="3" class="text-right">
                                 Действия с выделенными
@@ -134,11 +147,12 @@
                         </tr>
                     </tfoot>
                     {!! Form::close() !!}
-                </table>
+                @endif
+            </table>
 
-                {{ $tickets->render() }}
+            {{ $tickets->render() }}
 
-            @else
+            @if ( ! $tickets->count() )
                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
             @endif
 

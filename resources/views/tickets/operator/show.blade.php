@@ -13,37 +13,10 @@
     <div class="row">
         <div class="col-lg-6">
 
-            @if ( $ticket->status_code == 'closed_with_confirm' && ! $ticket->rate )
+            @if ( $ticket->status_code == 'closed_with_confirm' )
                 <div class="row">
                     <div class="col-xs-12">
-                        {!! Form::open( [ 'url' => route( 'tickets.rate', $ticket->id ), 'id' => 'rate-form' ] ) !!}
-                        {!! Form::hidden( 'comment', null ) !!}
-                        {!! Form::hidden( 'rate', null ) !!}
-                        {!! Form::close() !!}
-                        <div class="note note-info">
-                            <dl>
-                                <dt>
-                                    Оценка работы ЭО:
-                                </dt>
-                                <dd>
-                                    <button type="button" class="btn btn-danger btn-lg bold" data-rate="1">
-                                        1
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-lg bold" data-rate="2">
-                                        2
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-lg bold" data-rate="3">
-                                        3
-                                    </button>
-                                    <button type="button" class="btn btn-success btn-lg bold" data-rate="4">
-                                        4
-                                    </button>
-                                    <button type="button" class="btn btn-success btn-lg bold" data-rate="5">
-                                        5
-                                    </button>
-                                </dd>
-                            </dl>
-                        </div>
+                        @include( 'parts.rate_form' )
                     </div>
                 </div>
             @endif
@@ -56,9 +29,9 @@
                                 <dt>Сменить статус:</dt>
                                 <dd>
                                     @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
+                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
                                         {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary btn-lg' ] ) !!}
+                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
                                         {!! Form::close() !!}
                                     @endforeach
                                 </dd>
@@ -102,7 +75,7 @@
                         @endif
                         <dl>
                             <dt>Адрес проблемы:</dt>
-                            <dd>{{ $ticket->address->name }}</dd>
+                            <dd>{{ $ticket->getAddress() }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -411,7 +384,7 @@
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->getActualAddress() }}
+                                {{ $ticket->customer->getAddress() }}
                             </dd>
                         </dl>
                     </div>
@@ -438,7 +411,7 @@
                                         Наименование \ Телефон \ Адрес
                                     </th>
                                     <th>
-                                        Ответственный
+                                        Исполнитель
                                     </th>
                                     <th>
                                         Статус
@@ -460,15 +433,17 @@
                                                 {{ $ticketManagement->management->address }}
                                             </dd>
                                         </dl>
-                                        <p class="margin-top-10 hidden-print">
-                                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
-                                                <i class="glyphicon glyphicon-print"></i>
-                                                Акт выполненных работ
-                                            </a>
-                                        </p>
+                                        @if ( $ticketManagement->status_code )
+                                            <p class="margin-top-10 hidden-print">
+                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+                                                    <i class="glyphicon glyphicon-print"></i>
+                                                    Акт выполненных работ
+                                                </a>
+                                            </p>
+                                        @endif
                                     </td>
                                     <td>
-                                        -
+                                        {{ $ticketManagement->executor ?? '-' }}
                                     </td>
                                     <td>
                                         <span class="text-{{ $ticketManagement->getClass() }}">
@@ -483,23 +458,23 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <h4>Комментарии</h4>
-                        @if ( $ticket->comments->count() )
+            @if ( $ticket->comments->count() )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            <h4>Сообщения</h4>
                             @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
-                        @endif
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             @if ( $ticket->canComment() )
                 <div class="row">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
-                            Добавить комментарий
+                            Добавить сообщение
                         </button>
                     </div>
                 </div>

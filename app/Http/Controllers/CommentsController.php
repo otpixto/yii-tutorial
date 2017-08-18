@@ -58,15 +58,19 @@ class CommentsController extends Controller
             $comment->save();
         }
 
-        if ( $request->hasFile( 'file' ) )
+        if ( $request->hasFile( 'files' ) )
         {
-            $path = Storage::putFile( 'files', $request->file( 'file' ) );
-            $file = File::create([
-                'model_id'      => $comment->id,
-                'model_name'    => get_class( $comment ),
-                'path'          => $path
-            ]);
-            $file->save();
+            foreach ( $request->file( 'files' ) as $_file )
+            {
+                $path = Storage::putFile( 'files', $_file );
+                $file = File::create([
+                    'model_id'      => $comment->id,
+                    'model_name'    => get_class( $comment ),
+                    'path'          => $path,
+                    'name'          => $_file->getClientOriginalName()
+                ]);
+                $file->save();
+            }
         }
 
 		return redirect()->back()->with( 'success', 'Комментарий добавлен' );

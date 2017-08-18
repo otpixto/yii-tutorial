@@ -168,7 +168,6 @@
                     showMeridian: false
                 });
 
-
             });
 
     </script>

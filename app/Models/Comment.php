@@ -17,6 +17,7 @@ class Comment extends BaseModel
         'model_id'			=> 'required|integer',
 		'model_name'		=> 'required|string',
         'text'				=> 'required|string',
+        'files'             => 'array'
     ];
 
 }

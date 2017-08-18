@@ -39,7 +39,7 @@
 
         <h1 class="text-center">
             Акт выполненных работ
-        </h2>
+        </h1>
 		
 		<p><br /></p>
 		<p><br /></p>
@@ -57,7 +57,7 @@
         </p>
 
         <p>
-            Адрес заявителя <b>{{ $ticketManagement->ticket->address }}</b>
+            Адрес заявителя <b>{{ $ticketManagement->ticket->address->name }}</b>
         </p>
 
         <p>

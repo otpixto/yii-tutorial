@@ -78,6 +78,12 @@ class TicketsController extends BaseController
                 ->where( 'id', '=', \Input::get( 'id' ) );
         }
 
+        if ( !empty( \Input::get( 'status_code' ) ) )
+        {
+            $tickets
+                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
+        }
+
         if ( !empty( \Input::get( 'period_from' ) ) )
         {
             $tickets
@@ -107,6 +113,12 @@ class TicketsController extends BaseController
             $tickets
                 ->where( 'address_id', '=', \Input::get( 'address_id' ) );
             $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
         }
 
         if ( !empty( \Input::get( 'management_id' ) ) )
@@ -141,6 +153,26 @@ class TicketsController extends BaseController
             ->whereHas( 'ticket', function ( $q )
             {
 
+                if ( !empty( \Input::get( 'show' ) ) )
+                {
+                    switch ( \Input::get( 'show' ) )
+                    {
+
+                        case 'not_processed':
+
+                            $q->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
+
+                            break;
+
+                        case 'not_completed':
+
+                            $q->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
+
+                            break;
+
+                    }
+                }
+
                 if ( !empty( \Input::get( 'search' ) ) )
                 {
                     $q
@@ -171,15 +203,39 @@ class TicketsController extends BaseController
                         ->where( 'type_id', '=', \Input::get( 'type_id' ) );
                 }
 
+                if ( !empty( \Input::get( 'address_id' ) ) )
+                {
+                    $q
+                        ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                }
+
+                if ( !empty( \Input::get( 'flat' ) ) )
+                {
+                    $q
+                        ->where( 'flat', '=', \Input::get( 'flat' ) );
+                }
+
                 return $q;
 
             });
 
+        if ( !empty( \Input::get( 'status_code' ) ) )
+        {
+            $ticketManagements
+                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
+        }
+
         $ticketManagements = $ticketManagements->paginate( 30 );
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
 
         return view( 'tickets.management.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'types', $types );
+            ->with( 'types', $types )
+            ->with( 'address', $address ?? null );
 
     }
 
@@ -239,6 +295,8 @@ class TicketsController extends BaseController
         else
         {
             $customer = Customer::create( $request->all() );
+            $ticket->customer_id = $customer->id;
+            $ticket->save();
         }
 
         $status_code = 'no_contract';
@@ -481,18 +539,34 @@ class TicketsController extends BaseController
 
     }
 
-    public function action ( Request $request )
+    public function setExecutor ( Request $request, $id )
     {
 
-        if ( count( $request->get( 'tickets', [] ) ) < 2 )
+        $ticketManagement = TicketManagement::find( $id );
+
+        if ( ! $ticketManagement )
         {
-            return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
         }
 
-        $tickets = Ticket
-            ::whereIn( 'id', $request->get( 'tickets' ) )
-            //->orderBy( 'id', 'desc' )
-            ->get();
+        $ticketManagement->executor = $request->get( 'executor' );
+        $ticketManagement->save();
+
+        $res = $ticketManagement->changeStatus( 'assigned', true );
+
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
+
+    }
+
+    public function action ( Request $request )
+    {
 
         \DB::beginTransaction();
 
@@ -500,10 +574,22 @@ class TicketsController extends BaseController
         {
 
             case 'group':
+
+                if ( count( $request->get( 'tickets', [] ) ) < 2 )
+                {
+                    return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
+                }
+
+                $tickets = Ticket
+                    ::whereIn( 'id', $request->get( 'tickets' ) )
+                    //->orderBy( 'id', 'desc' )
+                    ->get();
+
                 if ( $tickets->count() != count( $request->get( 'tickets' ) ) )
                 {
                     return redirect()->back()->withErrors( [ 'Количество выбранных обращений не совпадает с количество найденных!' ] );
                 }
+
                 $uuid = Uuid::uuid4()->toString();
                 $parent = null;
                 foreach ( $tickets as $ticket )
@@ -520,9 +606,21 @@ class TicketsController extends BaseController
                     }
                     $ticket->save();
                 }
+
                 break;
 
             case 'ungroup':
+
+                if ( count( $request->get( 'tickets', [] ) ) < 1 )
+                {
+                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одно обращение' ] );
+                }
+
+                $tickets = Ticket
+                    ::whereIn( 'id', $request->get( 'tickets' ) )
+                    //->orderBy( 'id', 'desc' )
+                    ->get();
+
                 foreach ( $tickets as $ticket )
                 {
                     $group = $ticket->group()
@@ -555,13 +653,26 @@ class TicketsController extends BaseController
                     $ticket->parent_id = null;
                     $ticket->save();
                 }
+
                 break;
 
             case 'delete':
+
+                if ( count( $request->get( 'tickets', [] ) ) < 1 )
+                {
+                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одно обращение' ] );
+                }
+
+                $tickets = Ticket
+                    ::whereIn( 'id', $request->get( 'tickets' ) )
+                    //->orderBy( 'id', 'desc' )
+                    ->get();
+
                 foreach ( $tickets as $ticket )
                 {
                     $ticket->delete();
                 }
+
                 break;
 
             default:
@@ -573,41 +684,6 @@ class TicketsController extends BaseController
         \DB::commit();
 
         return redirect()->back()->with( 'success', 'Готово' );
-
-    }
-
-    public function rate ( Request $request, $id )
-    {
-
-        $ticket = Ticket::find( $id );
-
-        if ( !$ticket )
-        {
-            return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
-        }
-
-        \DB::beginTransaction();
-
-        $ticket->rate = $request->get( 'rate' );
-        $ticket->rate_comment = $request->get( 'comment', null );
-        $ticket->save();
-
-        /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
-
-        if ( $group->count() )
-        {
-            foreach ( $group as $row )
-            {
-                $row->rate = $ticket->rate;
-                $row->rate_comment = $ticket->rate_comment;
-                $row->save();
-            }
-        }*/
-
-        \DB::commit();
-
-        return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
 
     }
 
@@ -632,6 +708,113 @@ class TicketsController extends BaseController
 
         return view( 'tickets.act' )
             ->with( 'ticketManagement', $ticketManagement );
+
+    }
+
+    public function getRateForm ( Request $request )
+    {
+        $ticket = $ticket = Ticket::find( $request->get( 'id' ) );
+        return view( 'parts.rate_form' )
+            ->with( 'ticket', $ticket );
+    }
+
+    public function postRateForm ( Request $request )
+    {
+
+        $ticket = Ticket::find( $request->get( 'id' ) );
+
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+
+        \DB::beginTransaction();
+
+        if ( $ticket->status_code != 'closed_with_confirm' )
+        {
+            $res = $ticket->changeStatus( 'closed_with_confirm', true );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $res );
+            }
+        }
+
+        $ticket->rate = $request->get( 'rate' );
+        $ticket->rate_comment = $request->get( 'comment', null );
+        $ticket->save();
+
+        /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
+
+        if ( $group->count() )
+        {
+            foreach ( $group as $row )
+            {
+                $row->rate = $ticket->rate;
+                $row->rate_comment = $ticket->rate_comment;
+                $row->save();
+            }
+        }*/
+
+        \DB::commit();
+
+        return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
+
+    }
+
+    public function postClose ( Request $request )
+    {
+
+        $ticket = Ticket::find( $request->get( 'id' ) );
+
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+
+        \DB::beginTransaction();
+
+        if ( $ticket->status_code != 'closed_without_confirm' )
+        {
+            $res = $ticket->changeStatus( 'closed_without_confirm', true );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $res );
+            }
+        }
+
+        \DB::commit();
+
+        return redirect()->back()->with( 'success', 'Обращение успешно закрыто' );
+
+    }
+
+    public function postRepeat ( Request $request )
+    {
+
+        $ticket = Ticket::find( $request->get( 'id' ) );
+
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+
+        \DB::beginTransaction();
+
+        if ( $ticket->status_code != 'transferred_again' )
+        {
+            $res = $ticket->changeStatus( 'transferred_again', true );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $res );
+            }
+        }
+
+        \DB::commit();
+
+        return redirect()->back()->with( 'success', 'Обращение повторно передано в ЭО' );
 
     }
 	

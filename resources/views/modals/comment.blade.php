@@ -6,7 +6,7 @@
 </div>
 @if ( isset( $with_file ) && $with_file )
     <div class="form-group">
-        {!! Form::file( 'file', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл' ] ) !!}
+        {!! Form::file( 'files[]', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл(ы)', 'multiple' ] ) !!}
     </div>
 @endif
 {!! Form::close() !!}

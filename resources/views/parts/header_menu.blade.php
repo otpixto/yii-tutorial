@@ -2,14 +2,14 @@
 <div class="nav-collapse collapse navbar-collapse navbar-responsive-collapse">
     <ul class="nav navbar-nav">
 
-        <li class="dropdown more-dropdown @if ( Request::is( '/' ) || Request::is( 'schedule*' ) ) selected @endif">
-            <a href="{{ route( 'home' ) }}" class="text-uppercase">
+        <li class="dropdown more-dropdown @if ( Request::is( 'about' ) || Request::is( 'schedule*' ) ) selected @endif">
+            <a href="{{ route( 'about' ) }}" class="text-uppercase">
                 <i class="fa fa-home"></i>
                 Главная
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{{ route( 'home' ) }}">
+                    <a href="{{ route( 'about' ) }}">
                         О компании
                     </a>
                 </li>
@@ -144,6 +144,7 @@
                 </ul>
             </li>
         @endif
+
     </ul>
 </div>
 <!-- END HEADER MENU -->

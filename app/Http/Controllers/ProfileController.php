@@ -113,11 +113,11 @@ class ProfileController extends Controller
     public function getTest ()
     {
         $asterisk = new Asterisk();
-        /*if ( ! $asterisk->connectTwo( '02', '03' ) )
+        if ( ! $asterisk->connectTwo( '02', '03' ) )
         {
             dd( $asterisk->last_result );
-        }*/
-        $asterisk->queueRemove( '02' );
+        }
+        //$asterisk->queueRemove( '02' );
         //$asterisk->queueRemove( '03' );
         //$asterisk->queueAdd( '02' );
         //$asterisk->queueAdd( '03' );

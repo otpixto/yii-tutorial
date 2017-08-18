@@ -18,9 +18,9 @@ class Work extends BaseModel
         'who'               => 'required|max:255',
         'reason'            => 'required|max:255',
         'date_begin'        => 'required|date_format:d.m.Y',
-        'time_begin'        => 'required|date_format:H:i',
+        'time_begin'        => 'required|date_format:G:i',
         'date_end'          => 'required|date_format:d.m.Y',
-        'time_end'          => 'required|date_format:H:i',
+        'time_end'          => 'required|date_format:G:i',
     ];
 
     protected $fillable = [
@@ -99,8 +99,32 @@ class Work extends BaseModel
                 return $q
                     ->where( 'reason', 'like', $s )
                     ->orWhere( 'who', 'like', $s )
-                    ->orWhere( 'composition', 'like', $s );
+                    ->orWhere( 'composition', 'like', $s )
+                    ->orWhereHas( 'address', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->where( 'name', 'like', $s );
+                    })
+                    ->orWhereHas( 'management', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->where( 'name', 'like', $s );
+                    })
+                    ->orWhereHas( 'type', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->where( 'name', 'like', $s );
+                    });
             });
+    }
+
+    public function getClass ()
+    {
+        $dt_now = Carbon::now();
+        $dt_begin = Carbon::parse( $this->time_begin );
+        $dt_end = Carbon::parse( $this->time_end );
+        if ( $dt_begin->timestamp <= $dt_now->timestamp && $dt_now->timestamp <= $dt_end->timestamp )
+        {
+            return 'warning';
+        }
+        return 'text-muted';
     }
 
 }

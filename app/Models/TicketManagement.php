@@ -13,7 +13,6 @@ class TicketManagement extends BaseModel
     private $history = [];
 
     public static $statuses = [
-        null                                => 'Статус не назначен',
         'transferred'	                    => 'Передано в ЭО',
         'transferred_again'	                => 'Передано в ЭО повторно',
         'accepted'                          => 'Принято к исполнению',
@@ -34,7 +33,6 @@ class TicketManagement extends BaseModel
             'accepted',
         ],
         'accepted' => [
-            'assigned',
             'waiting'
         ],
         'assigned' => [
@@ -42,9 +40,6 @@ class TicketManagement extends BaseModel
             'completed_without_act',
             'not_verified',
             'waiting'
-        ],
-        'waiting' => [
-            'assigned',
         ],
     ];
 
@@ -170,22 +165,59 @@ class TicketManagement extends BaseModel
     public function getClass ()
     {
 
+        $now = Carbon::now();
+
         switch ( $this->status_code )
         {
 
-            case 'not_verified':
-            case 'cancel':
-            case 'no_contract':
-                return 'danger';
+            case 'transferred':
+            case 'transferred_again':
+
+                if ( $this->ticket->type->period_acceptance )
+                {
+
+                    $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                    $dt = $status_transferred->created_at;
+                    $dt->addMinutes( $this->ticket->type->period_acceptance * 60 );
+
+                    if ( $now->timestamp > $dt->timestamp )
+                    {
+                        return 'danger';
+                    }
+
+                }
+
+                return 'warning';
+
                 break;
 
             case 'accepted':
             case 'assigned':
+
+                if ( $this->ticket->type->period_execution )
+                {
+
+                    $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
+                    $dt = $status_accepted->created_at;
+                    $dt->addMinutes( $this->ticket->type->period_execution * 60 );
+
+                    if ( $now->timestamp > $dt->timestamp )
+                    {
+                        return 'danger';
+                    }
+
+                }
+
                 return 'success';
+
                 break;
 
-            case 'transferred_again':
-                return 'warning';
+            case 'not_verified':
+            case 'cancel':
+            case 'no_contract':
+
+                return 'danger';
+
                 break;
 
         }
@@ -242,21 +274,42 @@ class TicketManagement extends BaseModel
             case 'completed_with_act':
             case 'completed_without_act':
             case 'not_verified':
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
+
             case 'waiting':
 
-                if ( $this->ticket->status_code != $this->status_code )
+                $this->executor = null;
+                $this->save();
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
                 {
-                    $res = $this->ticket->changeStatus( $this->status_code, true );
-                    if ( $res instanceof MessageBag )
-                    {
-                        return $res;
-                    }
+                    return $res;
                 }
 
                 break;
 
         }
 
+    }
+
+    private function changeTicketStatus ()
+    {
+        if ( $this->ticket->status_code != $this->status_code )
+        {
+            $res = $this->ticket->changeStatus( $this->status_code, true );
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+        }
     }
 
 }

@@ -20,7 +20,7 @@
         {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
     </td>
     <td>
-        {{ $ticket->address->name }}
+        {{ $ticket->getAddress() }}
     </td>
     <td>
         <div class="bold">
@@ -30,7 +30,7 @@
             {{ $ticket->type->name }}
         </div>
     </td>
-    <td class="text-right">
+    <td class="text-right hidden-print">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
             <i class="fa fa-chevron-right"></i>
         </a>

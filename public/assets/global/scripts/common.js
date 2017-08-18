@@ -145,7 +145,7 @@ $( document )
 	.ready ( function ()
 	{
 
-        $( '#phone.btn-danger i' ).pulsate({
+        $( '.pulsate' ).pulsate({
             color: "#CC0000"
         });
 
@@ -195,5 +195,20 @@ $( document )
     {
 
         $( this ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
+
+    })
+
+    .on ( 'submit', '[data-confirm]', function ( e )
+    {
+
+        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) )
+		{
+			e.preventDefault();
+			if ( $( this ).hasClass( 'submit-loading' ) )
+			{
+                $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+			}
+			return false;
+		}
 
     });

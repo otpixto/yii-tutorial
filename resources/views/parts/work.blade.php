@@ -1,4 +1,4 @@
-<tr>
+<tr class="{{ $work->getClass() }}">
     <td>
         #{{ $work->id }}
     </td>

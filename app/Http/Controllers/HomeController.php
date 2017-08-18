@@ -15,7 +15,22 @@ class HomeController extends Controller
     }
 
 
-    public function getIndex ()
+    public function index ()
+    {
+
+        return redirect()->route( 'tickets.index' );
+
+    }
+
+    public function about ()
+    {
+
+        return view('home' )
+            ->with( 'title', 'О компании' );
+
+    }
+
+    public function getFile ()
     {
 
         return view('home' )

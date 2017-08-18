@@ -19,7 +19,7 @@
     @foreach ( $customers as $customer )
         <tr>
             <td>
-                <button type="button" class="btn btn-info" data-id="{{ $customer->id }}" data-firstname="{{ $customer->firstname }}" data-middlename="{{ $customer->middlename }}" data-lastname="{{ $customer->lastname }}" data-phone="{{ $customer->phone }}" data-phone2="{{ $customer->phone2 }}" data-address="{{ $customer->actualAddress->name }}" data-address-id="{{ $customer->actualAddress->id }}" data-flat="{{ $customer->flat }}" data-action="customers-select">
+                <button type="button" class="btn btn-info" data-id="{{ $customer->id }}" data-firstname="{{ $customer->firstname }}" data-middlename="{{ $customer->middlename }}" data-lastname="{{ $customer->lastname }}" data-phone="{{ $customer->phone }}" data-phone2="{{ $customer->phone2 }}" data-address="{{ $customer->actualAddress->name }}" data-address-id="{{ $customer->actualAddress->id }}" data-flat="{{ $customer->actual_flat }}" data-action="customers-select">
                     <i class="glyphicon glyphicon-ok"></i>
                 </button>
             </td>
@@ -30,7 +30,7 @@
                 {{ $customer->getPhones() }}
             </td>
             <td>
-                {{ $customer->getActualAddress() }}
+                {{ $customer->getAddress() }}
             </td>
         </tr>
     @endforeach

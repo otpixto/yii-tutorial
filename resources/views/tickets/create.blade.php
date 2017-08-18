@@ -25,8 +25,12 @@
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
+                <div class="col-xs-5">
                     {!! Form::select( 'address_id', \Input::old( 'address_id' ) ? \App\Models\Address::find( \Input::old( 'address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
+                </div>
+                {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
                 </div>
             </div>
 
@@ -100,11 +104,12 @@
 
             <div class="form-group">
                 {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-6">
+                <div class="col-xs-5">
                     {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id' ) ? \App\Models\Address::find( \Input::old( 'actual_address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'actual_address_id' ] ) !!}
                 </div>
+                {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'flat' ] ) !!}
+                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'actual_flat' ] ) !!}
                 </div>
             </div>
 
@@ -234,9 +239,6 @@
     <script src="//webasr.yandex.net/jsapi/v1/webspeechkit.js" type="text/javascript"></script>
     <script type="text/javascript">
 
-        //window.ya.speechkit.settings.lang = 'ru-RU';
-        //window.ya.speechkit.settings.apikey = '7562b975-c851-4ab9-b12e-c017b93ea567';
-
         var streamer = new ya.speechkit.SpeechRecognition();
 
         function SearchCustomers ()
@@ -251,7 +253,7 @@
                 return;
             }
 
-            if ( phone.length < 10 ) return;
+            //if ( phone.length < 10 ) return;
 
             $( '#customers-list .list-group' ).empty();
 
@@ -460,11 +462,11 @@
                     }
                 });
 
-                $( '#phone' ).on( 'keyup', function ( e )
-                {
-                    SearchCustomers();
-                });
+            })
 
+            .on( 'keyup', '#phone', function ( e )
+            {
+                SearchCustomers();
             })
 
             .on( 'keydown', function ( e )
@@ -506,8 +508,9 @@
                         if ( result )
                         {
 
-                            $( '#firstname, #middlename, #lastname, #customer_id, #actual_address_id, #phone2, #flat' ).val( '' );
+                            $( '#firstname, #middlename, #lastname, #customer_id, #actual_address_id, #phone2, #actual_flat' ).val( '' );
                             $( '#actual_address_id' ).trigger( 'change' );
+                            $( '#phone' ).removeAttr( 'readonly' );
                             that.attr( 'id', 'customers-select' ).attr( 'class', 'btn btn-warning' );
 
                         }
@@ -535,7 +538,9 @@
                     $( '#middlename' ).val( that.attr( 'data-middlename' ) );
                     $( '#lastname' ).val( that.attr( 'data-lastname' ) );
                     $( '#actual_address_id' ).append( $( '<option></option>' ).val( address_id ).text( address ) ).val( address_id ).trigger( 'change' );
-                    $( '#flat' ).val( that.attr( 'data-flat' ) );
+                    $( '#actual_flat' ).val( that.attr( 'data-flat' ) );
+
+                    $( '#phone' ).attr( 'readonly', 'readonly' );
 
                     if ( $( '#phone2' ).val() == '' )
                     {

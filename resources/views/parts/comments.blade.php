@@ -24,6 +24,19 @@
 			<p>
 				{{ $comment->text }}
 			</p>
+			@if ( $comment->files->count() )
+				<div class="note">
+					<h5>Прикрепленные файлы:</h5>
+					@foreach ( $comment->files as $file )
+						<div>
+							<a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+								<i class="fa fa-file"></i>
+								{{ $file->name }}
+							</a>
+						</div>
+					@endforeach
+				</div>
+			@endif
 			@if ( $comment->childs->count() )
 				@include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $comment->childs ] )
 			@endif

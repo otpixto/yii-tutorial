@@ -39,82 +39,82 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            @if ( $works->count() )
+            {{ $works->render() }}
 
-                {{ $works->render() }}
-
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
-                        <tr class="info">
-                            <th>
-                                 Номер сообщения
-                            </th>
-                            <th>
-                                Основание
-                            </th>
-                            <th>
-                                Адрес работ
-                            </th>
-                            <th>
-                                Тип работ
-                            </th>
-                            <th>
-                                Исполнитель работ
-                            </th>
-                            <th>
-                                Состав работ
-                            </th>
-                            <th>
-                                &nbsp;Дата и время начала
-                            </th>
-                            <th>
-                                &nbsp;Дата и время окончания (план)
-                            </th>
-                            <th>
-                                &nbsp;
-                            </th>
-                        </tr>
-                        <tr class="info">
-                            <td>
-                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер обращения' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
-                            </td>
-                            <td>
-                                {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
-                            </td>
-                            <td colspan="2">
-                                {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Дата', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                            </td>
-                            <td class="text-right">
-                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                    <i class="fa fa-filter"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        {!! Form::close() !!}
-                    </thead>
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
+                    <tr class="info">
+                        <th>
+                             Номер сообщения
+                        </th>
+                        <th>
+                            Основание
+                        </th>
+                        <th>
+                            Адрес работ
+                        </th>
+                        <th>
+                            Тип работ
+                        </th>
+                        <th>
+                            Исполнитель работ
+                        </th>
+                        <th>
+                            Состав работ
+                        </th>
+                        <th>
+                            &nbsp;Дата и время начала
+                        </th>
+                        <th>
+                            &nbsp;Дата и время окончания (план)
+                        </th>
+                        <th>
+                            &nbsp;
+                        </th>
+                    </tr>
+                    <tr class="info">
+                        <td width="10%">
+                            {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+                        </td>
+                        <td width="15%">
+                            {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
+                        </td>
+                        <td width="15%">
+                            {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                        </td>
+                        <td width="15%">
+                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                        </td>
+                        <td width="15%">
+                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
+                        </td>
+                        <td width="15%">
+                            {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
+                        </td>
+                        <td colspan="2" width="10%">
+                            {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Дата', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                        </td>
+                        <td class="text-right">
+                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                <i class="fa fa-filter"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {!! Form::close() !!}
+                </thead>
+                @if ( $works->count() )
                     <tbody>
                     @foreach ( $works as $work )
                         @include( 'parts.work', [ 'work' => $work ] )
                     @endforeach
                     </tbody>
-                </table>
+                @endif
+            </table>
 
-                {{ $works->render() }}
+            {{ $works->render() }}
 
-            @else
+            @if ( ! $works->count() )
                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
             @endif
 

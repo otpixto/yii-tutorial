@@ -68,13 +68,13 @@
                             </td>
                             <td>
                                 <div class="text-nowrap">
-                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением">
+                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением" data-action="close-rate" data-id="{{ $ticket->id }}">
                                         <i class="fa fa-check"></i>
                                     </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением">
+                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением" data-action="close" data-id="{{ $ticket->id }}">
                                         <i class="fa fa-remove"></i>
                                     </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно">
+                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно" data-action="repeat" data-id="{{ $ticket->id }}">
                                         <i class="fa fa-repeat"></i>
                                     </a>
                                 </div>
@@ -134,6 +134,7 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
@@ -143,7 +144,9 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
     <script type="text/javascript">
+
         $( document )
+
             .ready( function ()
             {
 
@@ -169,6 +172,140 @@
                     }
                 });
 
+            })
+
+            .on( 'click', '[data-action="close-rate"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var id = $( this ).attr( 'data-id' );
+
+                var dialog = bootbox.dialog({
+                    title: 'Оцените работу ЭО',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+                });
+
+                dialog.init( function ()
+                {
+                    $.get( '{{ route( 'tickets.rate' ) }}', {
+                        id: id
+                    }, function ( response )
+                    {
+                        dialog.find( '.bootbox-body' ).html( response );
+                    });
+                });
+
+            })
+
+            .on( 'click', '[data-action="close"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.confirm({
+                    message: 'Закрыть данное обращение без подтверждения?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            $.post( '{{ route( 'tickets.close' ) }}', {
+                                id: id
+                            }, function ( response )
+                            {
+                                window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-action="repeat"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.confirm({
+                    message: 'Передать повторно обращение ЭО?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            $.post( '{{ route( 'tickets.repeat' ) }}', {
+                                id: id
+                            }, function ( response )
+                            {
+                                window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-rate]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var rate = $( this ).attr( 'data-rate' );
+                var form = $( '#rate-form' );
+
+                form.find( '[name="rate"]' ).val( rate );
+
+                if ( rate < 4 )
+                {
+                    bootbox.prompt({
+                        title: 'Введите комментарий к оценке',
+                        inputType: 'textarea',
+                        callback: function (result) {
+                            if ( !result ) {
+                                alert('Действие отменено!');
+                            }
+                            else {
+                                form.find('[name="comment"]').val(result);
+                                form.submit();
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    form.submit();
+                }
+
             });
+
     </script>
 @endsection

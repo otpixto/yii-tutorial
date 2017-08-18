@@ -76,6 +76,12 @@ class BaseModel extends Model
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function files ()
+    {
+        return $this->hasMany( 'App\Models\File', 'model_id' )
+            ->where( 'model_name', '=', get_class( $this ) );
+    }
+
     public function parent ()
     {
         return $this->belongsTo( $this->model_name, 'model_id' );

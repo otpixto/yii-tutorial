@@ -17,14 +17,13 @@ class Ticket extends BaseModel
 
     public static $places = [
         'Помещение',
-        'МОП',
+        'Здание',
         'Двор',
         'Дорога',
         'Сквер',
     ];
 
     public static $statuses = [
-        null                                => 'Статус не назначен',
         'draft'					            => 'Черновик',
         'created'                           => 'Принято оператором ЕДС',
         'transferred'                       => 'Передано в ЭО',
@@ -82,16 +81,16 @@ class Ticket extends BaseModel
     ];
 
     protected $nullable = [
-        'management_id',
-        'address_id',
         'customer_id',
-        'phone2'
+        'phone2',
+        'flat',
     ];
 
     public static $rules = [
         'type_id'                   => 'required|integer',
         'address_id'                => 'required|integer',
         'place'                     => 'required|integer',
+        'flat'                      => 'nullable|max:50',
         'emergency'                 => 'boolean',
         'urgently'                  => 'boolean',
         'dobrodel'                  => 'boolean',
@@ -100,9 +99,7 @@ class Ticket extends BaseModel
         'firstname'                 => 'required|max:191',
         'middlename'                => 'nullable|max:191',
         'lastname'                  => 'nullable|max:191',
-        'actual_address_id'         => 'required|integer',
-        'flat'                      => 'required|string',
-        'customer_id'               => 'integer',
+        'customer_id'               => 'nullable|integer',
         'text'                      => 'required|max:191',
         'managements'               => 'required|array',
     ];
@@ -110,6 +107,7 @@ class Ticket extends BaseModel
     protected $fillable = [
         'type_id',
         'address_id',
+        'flat',
         'emergency',
         'urgently',
         'dobrodel',
@@ -118,8 +116,6 @@ class Ticket extends BaseModel
         'firstname',
         'middlename',
         'lastname',
-        'actual_address_id',
-        'flat',
         'customer_id',
         'text',
     ];
@@ -162,6 +158,11 @@ class Ticket extends BaseModel
     public function parent ()
     {
         return $this->belongsTo( 'App\Models\Ticket', 'parent_id' );
+    }
+
+    public function customer ()
+    {
+        return $this->belongsTo( 'App\Models\Customer' );
     }
 
     public function childs ()
@@ -230,9 +231,24 @@ class Ticket extends BaseModel
                     ->where( 'firstname', 'like', $s )
                     ->orWhere( 'middlename', 'like', $s )
                     ->orWhere( 'lastname', 'like', $s )
-                    ->orWhere( 'phone', 'like', $s )
-                    ->orWhere( 'phone2', 'like', $s )
-                    ->orWhere( 'text', 'like', $s );
+                    ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $s ), - 10 ) )
+                    ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $s ), - 10 ) )
+                    ->orWhere( 'text', 'like', $s )
+                    ->orWhereHas( 'address', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->where( 'name', 'like', $s );
+                    })
+                    ->orWhereHas( 'managements', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->whereHas( 'management', function ( $q3 ) use ( $s )
+                        {
+                            return $q3->where( 'name', 'like', $s );
+                        });
+                    })
+                    ->orWhereHas( 'type', function ( $q2 ) use ( $s )
+                    {
+                        return $q2->where( 'name', 'like', $s );
+                    });
             });
     }
 
@@ -338,9 +354,9 @@ class Ticket extends BaseModel
 		return $statuses;
 	}
 
-	public function getActualAddress ()
+    public function getAddress ()
     {
-        return $this->actualAddress->name . ', кв. ' . $this->flat;
+        return $this->address->name . ', кв. ' . $this->flat;
     }
 
 	public function getColor ()
@@ -352,6 +368,7 @@ class Ticket extends BaseModel
         {
 
             case 'accepted':
+            case 'assigned':
 
                 if ( $this->type->period_acceptance )
                 {
@@ -394,12 +411,14 @@ class Ticket extends BaseModel
         {
 
             case 'transferred':
+            case 'transferred_again':
 
                 if ( $this->type->period_acceptance )
                 {
 
-                    $dt = Carbon::parse( $this->created_at );
-                    $dt->addSeconds( $this->type->period_acceptance * 60 * 60 );
+                    $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                    $dt = $status_transferred->created_at;
+                    $dt->addMinutes( $this->type->period_acceptance * 60 );
 
                     if ( $now->timestamp > $dt->timestamp )
                     {
@@ -412,19 +431,33 @@ class Ticket extends BaseModel
 
                 break;
 
+            case 'accepted':
+            case 'assigned':
+
+                if ( $this->type->period_execution )
+                {
+
+                    /*$status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
+                    $dt = $status_accepted->created_at;
+                    $dt->addMinutes( $this->type->period_execution * 60 );
+
+                    if ( $now->timestamp > $dt->timestamp )
+                    {
+                        return 'danger';
+                    }*/
+
+                }
+
+                return 'success';
+
+                break;
+
             case 'not_verified':
             case 'cancel':
             case 'no_contract':
+
                 return 'danger';
-                break;
 
-            case 'accepted':
-            case 'assigned':
-                return 'success';
-                break;
-
-            case 'transferred_again':
-                return 'warning';
                 break;
 
         }
@@ -465,7 +498,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'completed_with_act' && $this->status_code != 'completed_without_act' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' )
+            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'completed_with_act' && $this->status_code != 'completed_without_act' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' )
             {
                 $this->can_comment = true;
             }
@@ -568,40 +601,47 @@ class Ticket extends BaseModel
 
             case 'cancel':
             case 'no_contract':
+            case 'transferred':
 
-                foreach ( $this->managements as $management )
+                $res = $this->changeManagementsStatus();
+                if ( $res instanceof MessageBag )
                 {
-					if ( $management->status_code != $this->status_code )
-					{
-						$res = $management->changeStatus( $this->status_code, true );
-						if ( $res instanceof MessageBag )
-						{
-							return $res;
-						}
-					}
+                    return $res;
                 }
 
                 break;
 
-            case 'transferred':
             case 'transferred_again':
 
-                foreach ( $this->managements as $management )
+                $this->rate = null;
+                $this->rate_comment = null;
+                $this->save();
+
+                $res = $this->changeManagementsStatus();
+                if ( $res instanceof MessageBag )
                 {
-                    if ( $management->status_code != 'transferred' && $management->status_code != 'transferred_again' )
-                    {
-                        $res = $management->changeStatus( $this->status_code, true );
-                        if ( $res instanceof MessageBag )
-                        {
-                            return $res;
-                        }
-                    }
+                    return $res;
                 }
 
                 break;
 
         }
 
+    }
+
+    private function changeManagementsStatus ()
+    {
+        foreach ( $this->managements as $management )
+        {
+            if ( $management->status_code != $this->status_code )
+            {
+                $res = $management->changeStatus( $this->status_code, true );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+            }
+        }
     }
 
 }

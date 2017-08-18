@@ -22,8 +22,8 @@
         <div class="clearfix"></div>
         @if ( $ticket->canGroup() )
             <label class="mt-checkbox">
-                <input type="checkbox" name="tickets[]" value="{{ $ticket->id }}" />
-                <span></span>
+                <input type="checkbox" name="tickets[]" value="{{ $ticket->id }}" class="hidden-print" />
+                <span class="hidden-print"></span>
                 #{{ $ticket->id }}
             </label>
         @else
@@ -57,9 +57,9 @@
         </div>
     </td>
     <td>
-        {{ $ticket->address->name }}
+        {{ $ticket->getAddress() }}
     </td>
-    <td class="text-right">
+    <td class="text-right hidden-print">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
             <i class="fa fa-chevron-right"></i>
         </a>

@@ -10,6 +10,22 @@
 
 @section( 'content' )
 
+    @if ( $ticketManagement->status_code == 'accepted' || $ticketManagement->status_code == 'waiting' )
+        {!! Form::open( [ 'url' => route( 'tickets.managements.executor', $ticketManagement->id ), 'class' => 'submit-loading form-horizontal' ] ) !!}
+        <div class="note note-info">
+            <div class="form-group">
+                {!! Form::label( 'executor', 'Назначить исполнителя:', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
+                    {!! Form::text( 'executor', $ticketManagement->executor, [ 'class' => 'form-control', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+                </div>
+            </div>
+        </div>
+        {!! Form::close() !!}
+    @endif
+
     @if ( $ticketManagement->getAvailableStatuses() )
         <div class="row">
             <div class="col-xs-12">
@@ -18,9 +34,9 @@
                         <dt>Сменить статус:</dt>
                         <dd>
                             @foreach( $ticketManagement->getAvailableStatuses() as $status_code => $status_name )
-                                {!! Form::open( [ 'url' => route( 'tickets.managements.status', $ticketManagement->id ), 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
+                                {!! Form::open( [ 'url' => route( 'tickets.managements.status', $ticketManagement->id ), 'data-status' => $status_code, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
                                 {!! Form::hidden( 'status_code', $status_code ) !!}
-                                {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary btn-lg' ] ) !!}
+                                {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
                                 {!! Form::close() !!}
                             @endforeach
                         </dd>
@@ -57,7 +73,7 @@
                     <div class="note">
                         <dl>
                             <dt>Адрес проблемы:</dt>
-                            <dd>{{ $ticket->address->name }}</dd>
+                            <dd>{{ $ticket->getAddress() }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -315,7 +331,7 @@
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->getActualAddress() }}
+                                {{ $ticket->customer->getAddress() }}
                             </dd>
                         </dl>
                     </div>
@@ -323,6 +339,21 @@
             </div>
 
             <hr />
+
+            @if ( $ticketManagement->executor )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note note-info">
+                            <dl>
+                                <dt>Исполнитель:</dt>
+                                <dd>
+                                    {{ $ticketManagement->executor }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             @if ( $ticket->type->need_act )
                 <div class="alert alert-warning">
@@ -338,23 +369,23 @@
                 </a>
             </p>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <h4>Комментарии</h4>
-                        @if ( $ticket->comments->count() )
+            @if ( $ticket->comments->count() )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            <h4>Сообщения</h4>
                             @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
-                        @endif
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             @if ( $ticket->canComment() )
                 <div class="row">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
-                            Добавить комментарий
+                            Добавить сообщение
                         </button>
                     </div>
                 </div>

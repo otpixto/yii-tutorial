@@ -36,7 +36,11 @@ class Counter
             else if ( $user->hasRole( 'management' ) && $user->management )
             {
                 $tickets_count = $user->management->tickets()->mine()->count();
+                $count_not_processed = $user->management->tickets()->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->count();
+                $count_not_completed = $user->management->tickets()->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )->count();
                 \Session::put( 'tickets_count', $tickets_count );
+                \Session::put( 'count_not_processed', $count_not_processed );
+                \Session::put( 'count_not_completed', $count_not_completed );
             }
 
         }
