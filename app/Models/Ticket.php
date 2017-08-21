@@ -293,6 +293,28 @@ class Ticket extends BaseModel
         return $ticket;
 
     }
+	
+	public function edit ( array $attributes = [] )
+	{
+		$this->fill( $attributes );
+		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
+		{
+			if ( ! isset( $attributes['emergency'] ) )
+			{
+				$this->emergency = 0;
+			}
+			if ( ! isset( $attributes['urgently'] ) )
+			{
+				$this->urgently = 0;
+			}
+			if ( ! isset( $attributes['dobrodel'] ) )
+			{
+				$this->dobrodel = 0;
+			}
+		}
+		$this->save();
+		return $this;
+	}
 
     public function getName ()
     {
@@ -356,7 +378,12 @@ class Ticket extends BaseModel
 
     public function getAddress ()
     {
-        return $this->address->name . ', кв. ' . $this->flat;
+		$addr = $this->address->name;
+		if ( $this->flat )
+		{
+			$addr .= ', кв. ' . $this->flat;
+		}
+        return $addr;
     }
 
 	public function getColor ()
@@ -482,7 +509,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_edit ) )
         {
-            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
+            if ( \Auth::user()->can( 'tickets.edit' ) && $this->status_code == 'draft' )
             {
                 $this->can_edit = true;
             }
@@ -498,7 +525,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'completed_with_act' && $this->status_code != 'completed_without_act' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' )
+            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' )
             {
                 $this->can_comment = true;
             }
@@ -610,6 +637,20 @@ class Ticket extends BaseModel
                 }
 
                 break;
+				
+			case 'closed_with_confirm':
+			case 'closed_without_confirm':
+			
+				$res = $this->changeManagementsStatus([
+					'completed_with_act',
+					'completed_without_act'
+				]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
 
             case 'transferred_again':
 
@@ -617,7 +658,10 @@ class Ticket extends BaseModel
                 $this->rate_comment = null;
                 $this->save();
 
-                $res = $this->changeManagementsStatus();
+                $res = $this->changeManagementsStatus([
+					'completed_with_act',
+					'completed_without_act'
+				]);
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -629,11 +673,11 @@ class Ticket extends BaseModel
 
     }
 
-    private function changeManagementsStatus ()
+    private function changeManagementsStatus ( array $apply_statuses = [] )
     {
         foreach ( $this->managements as $management )
         {
-            if ( $management->status_code != $this->status_code )
+            if ( $management->status_code != $this->status_code && ( count( $apply_statuses ) == 0 || in_array( $management->status_code, $apply_statuses ) ) )
             {
                 $res = $management->changeStatus( $this->status_code, true );
                 if ( $res instanceof MessageBag )

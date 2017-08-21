@@ -58,15 +58,15 @@
                     </div>
 
                     <div class="col-xs-4">
-                        {!! Form::label( 'flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'flat', \Input::old( 'flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
+                        {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
                     </div>
 
                 </div>
 
                 <div class="form-group">
                     <div class="col-xs-12">
-                        {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
                 </div>
 

@@ -58,8 +58,8 @@
                     </div>
 
                     <div class="col-xs-4">
-                        {!! Form::label( 'flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
+                        {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
                     </div>
 
                 </div>

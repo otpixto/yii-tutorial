@@ -1,5 +1,5 @@
 @if ( \Session::has( 'success' ) )
-    <div class="alert alert-success margin-bottom-15" role="alert">
+    <div class="alert alert-success margin-bottom-15 hidden-print" role="alert">
         <button class="close" data-close="alert"></button>
         <span>
             <i class="fa fa-check"></i>

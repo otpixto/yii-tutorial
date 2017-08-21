@@ -57,7 +57,7 @@
         </p>
 
         <p>
-            Адрес заявителя <b>{{ $ticketManagement->ticket->address->name }}</b>
+            Адрес проблемы <b>{{ $ticketManagement->ticket->getAddress() }}</b>
         </p>
 
         <p>

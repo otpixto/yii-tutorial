@@ -29,7 +29,7 @@ var Modal = {
 		else
 		{
 			var html = '' +
-			'<div class="modal fade" tabindex="-1" role="basic" aria-hidden="true">' +
+			'<div class="modal fade" role="basic" aria-hidden="true">' +
 				'<div class="modal-dialog">' +
 					'<div class="modal-content">' +
 						'<div class="modal-header">' +
@@ -108,6 +108,27 @@ var Modal = {
 			Modal.addSubmit( 'Готово', id );
 		}
 		
+		if ( simple )
+		{
+			setTimeout( function ()
+			{
+				$( '#modals [data-id="' + id + '"] .select2' ).select2();
+				$( '#modals [data-id="' + id + '"] .select2-ajax' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
+			}, 300 );
+		}
+		
 	},
 	
 	addSubmit: function ( value, id )
@@ -139,6 +160,14 @@ String.prototype.plural = Number.prototype.plural = function ( a, b, c )
     index = (index >=11 && index <= 14) ? 0 : (index %= 10) < 5 ? (index > 2 ? 2 : index): 0;
     return(this+[a, b, c][index]);
 };
+
+if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
+    var ui_dialog_interaction = $.ui.dialog.prototype._allowInteraction;
+    $.ui.dialog.prototype._allowInteraction = function(e) {
+        if ($(e.target).closest('.select2-dropdown').length) return true;
+        return ui_dialog_interaction.apply(this, arguments);
+    };
+}
 
 $( document )
 

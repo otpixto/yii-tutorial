@@ -21,6 +21,9 @@
     </td>
     <td>
         {{ $ticket->getAddress() }}
+		<span class="small text-muted">
+			({{ $ticket->place }})
+		</span>
     </td>
     <td>
         <div class="bold">

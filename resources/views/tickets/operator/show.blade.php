@@ -14,7 +14,7 @@
         <div class="col-lg-6">
 
             @if ( $ticket->status_code == 'closed_with_confirm' )
-                <div class="row">
+                <div class="row hidden-print">
                     <div class="col-xs-12">
                         @include( 'parts.rate_form' )
                     </div>
@@ -22,7 +22,7 @@
             @endif
 
             @if ( $ticket->getAvailableStatuses() )
-                <div class="row">
+                <div class="row hidden-print">
                     <div class="col-xs-12">
                         <div class="note note-info">
                             <dl>
@@ -53,7 +53,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="type">
                                 <i class="fa fa-edit"></i>
                             </button>
                         @endif
@@ -69,49 +69,25 @@
                 <div class="col-xs-6">
                     <div class="note">
                         @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="address">
                                 <i class="fa fa-edit"></i>
                             </button>
                         @endif
                         <dl>
                             <dt>Адрес проблемы:</dt>
-                            <dd>{{ $ticket->getAddress() }}</dd>
+                            <dd>
+								{{ $ticket->getAddress() }}
+								<span class="small text-muted">
+									({{ $ticket->place }})
+								</span>
+							</dd>
                         </dl>
                     </div>
                 </div>
 				<div class="col-xs-6">
                     <div class="note">
                         @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
-                        <dl>
-                            <dt>Проблемное место:</dt>
-                            <dd>{{ $ticket->place }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-				<div class="col-xs-6">
-                    <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
-                        <dl>
-                            <dt>Текст обращения:</dt>
-                            <dd>{{ $ticket->text }}</dd>
-                        </dl>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="mark">
                                 <i class="fa fa-edit"></i>
                             </button>
                         @endif
@@ -149,6 +125,22 @@
                                 @endif
                                 &nbsp;
                             </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+				<div class="col-xs-12">
+                    <div class="note">
+                        @if ( $ticket->canEdit() )
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="text">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        @endif
+                        <dl>
+                            <dt>Текст обращения:</dt>
+                            <dd>{{ $ticket->text }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -348,7 +340,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="name">
                                 <i class="fa fa-edit"></i>
                             </button>
                         @endif
@@ -361,7 +353,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="phone">
                                 <i class="fa fa-edit"></i>
                             </button>
                         @endif
@@ -376,11 +368,6 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
@@ -403,19 +390,32 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-                        <h4>Эксплуатационные организации</h4>
+						@if ( $ticket->canEdit() )
+							<button type="button" class="btn pull-right btn-primary margin-right-10 hidden-print" data-action="add-management">
+								<i class="fa fa-plus"></i>
+							</button>
+						@endif
+						<h4>
+							Эксплуатационные организации
+						</h4>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>
                                         Наименование \ Телефон \ Адрес
                                     </th>
-                                    <th>
-                                        Исполнитель
-                                    </th>
-                                    <th>
-                                        Статус
-                                    </th>
+									@if ( $ticket->canEdit() )
+										<th>
+											&nbsp;
+										</th>
+									@else
+										<th>
+											Исполнитель
+										</th>
+										<th>
+											Статус
+										</th>
+									@endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -442,14 +442,22 @@
                                             </p>
                                         @endif
                                     </td>
-                                    <td>
-                                        {{ $ticketManagement->executor ?? '-' }}
-                                    </td>
-                                    <td>
-                                        <span class="text-{{ $ticketManagement->getClass() }}">
-                                            {{ $ticketManagement->status_name }}
-                                        </span>
-                                    </td>
+									@if ( $ticket->canEdit() )
+										<td class="text-right" style="padding-right: 0px !important;">
+											<button type="button" class="btn btn-xs btn-danger margin-right-10 hidden-print" data-delete-management="{{ $ticketManagement->id }}">
+												<i class="fa fa-remove"></i>
+											</button>
+										</td>
+									@else
+										<td>
+											{{ $ticketManagement->executor ?? '-' }}
+										</td>
+										<td>
+											<span class="text-{{ $ticketManagement->getClass() }}">
+												{{ $ticketManagement->status_name }}
+											</span>
+										</td>
+									@endif
                                 </tr>
                             @endforeach
                             </tbody>
@@ -470,7 +478,7 @@
             @endif
 
             @if ( $ticket->canComment() )
-                <div class="row">
+                <div class="row hidden-print">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
@@ -482,10 +490,14 @@
 
         </div>
     </div>
+	
+	{!! Form::hidden( 'ticket_id', $ticket->id, [ 'id' => 'ticket-id' ] ) !!}
 
 @endsection
 
 @section( 'css' )
+	<link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <style>
         dl, .alert {
             margin: 0px;
@@ -502,6 +514,8 @@
 @section( 'js' )
 
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+	<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
 
@@ -538,7 +552,66 @@
                     form.submit();
                 }
 
-            });
+            })
+			
+			.on( 'click', '[data-edit]', function ( e )
+			{
+				e.preventDefault();
+				var param = $( this ).attr( 'data-edit' );
+				$.get( '{{ route( 'tickets.edit', $ticket ) }}', {
+					param: param
+				}, function ( response )
+				{
+					Modal.createSimple( 'Редактировать обращение', response, 'edit-' + param );
+				});
+			})
+			
+			.on( 'click', '[data-action="add-management"]', function ( e )
+			{
+				e.preventDefault();
+				$.get( '{{ route( 'tickets.add_management', $ticket ) }}', 
+				function ( response )
+				{
+					Modal.createSimple( 'Добавить Эксплуатационную организацию', response, 'add-management' );
+				});
+			})
+			
+			.on( 'click', '[data-delete-management]', function ( e )
+			{
+				e.preventDefault();
+				var line = $( this ).closest( 'tr' );
+				var id = $( this ).attr( 'data-delete-management' );
+				bootbox.confirm({
+					message: 'Вы уверены, что хотите убрать из обращения ЭО?',
+					size: 'small',
+					buttons: {
+						confirm: {
+							label: '<i class="fa fa-check"></i> Да',
+							className: 'btn-success'
+						},
+						cancel: {
+							label: '<i class="fa fa-times"></i> Нет',
+							className: 'btn-danger'
+						}
+					},
+					callback: function ( result )
+					{
+						if ( result )
+						{
+
+							$.post( '{{ route( 'tickets.del_management' ) }}', {
+								id: id
+								},
+								function ( response )
+								{
+									line.remove();
+								});
+							
+						}
+					}
+				});
+				
+			});
 
     </script>
 

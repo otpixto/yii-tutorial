@@ -58,6 +58,9 @@
     </td>
     <td>
         {{ $ticket->getAddress() }}
+		<span class="small text-muted">
+			({{ $ticket->place }})
+		</span>
     </td>
     <td class="text-right hidden-print">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">

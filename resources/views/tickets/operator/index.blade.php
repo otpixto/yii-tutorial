@@ -45,10 +45,10 @@
                 {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                 <thead>
                     <tr class="info">
-                        <th colspan="2" width="20%">
+                        <th colspan="2" width="250">
                              Статус \ Номер обращения \ Оценка
                         </th>
-                        <th width="250">
+                        <th width="220">
                             Дата и время создания
                         </th>
                         <th width="150">
@@ -70,20 +70,25 @@
                     <tr class="info hidden-print">
                         <td colspan="2">
                             <div class="row">
-                                <div class="col-xs-8">
+                                <div class="col-lg-7">
                                     {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \App\Models\Ticket::$statuses, \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                 </div>
-                                <div class="col-xs-4">
+                                <div class="col-lg-5">
                                     {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div class="input-group date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
-                                <span class="input-group-addon"> - </span>
-                                {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
-                            </div>
+                            <div class="date-picker input-daterange" data-date-format="dd.mm.yyyy">
+								<div class="row">
+									<div class="col-lg-6">
+										{!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
+									</div>
+									<div class="col-lg-6">
+										{!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
+									</div>
+								</div>
+							</div>
                         </td>
                         <td>
                             {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
@@ -96,10 +101,10 @@
                         </td>
                         <td>
                             <div class="row">
-                                <div class="col-xs-8">
+                                <div class="col-lg-7">
                                     {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
                                 </div>
-                                <div class="col-xs-4">
+                                <div class="col-lg-5">
                                     {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
                                 </div>
                             </div>

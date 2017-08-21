@@ -12,20 +12,13 @@
         </span>
     </button>
     <ul class="dropdown-menu-v2" role="menu">
-        <li>
+        <li class="hidden">
             <a href="">
                 <i class="icon-user"></i>
                 Мой профиль
             </a>
         </li>
-        <li>
-            <a href="">
-                <i class="icon-envelope-open"></i>
-                Мои сообщения
-                <span class="badge badge-danger"> 3 </span>
-            </a>
-        </li>
-        <li class="divider"> </li>
+        <li class="divider hidden"> </li>
         <li>
             <a href="/logout">
                 <i class="icon-key"></i>

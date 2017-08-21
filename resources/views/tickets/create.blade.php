@@ -11,6 +11,7 @@
 @section( 'content' )
 
     {!! Form::open( [ 'url' => route( 'tickets.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+	{!! Form::hidden( 'draft', '0', [ 'id' => 'draft' ] ) !!}
 
     <div class="row">
 
@@ -180,11 +181,17 @@
 
         </div>
 
-        <div class="col-xs-5">
-            <button type="submit" class="btn green btn-block btn-lg">
+        <div class="col-xs-5 text-right">
+            <button type="submit" class="btn green btn-lg btn-block">
                 <i class="fa fa-plus"></i>
                 Добавить обращение
             </button>
+			<p class="small text-muted">
+				или
+				<button type="button" class="btn btn-xs btn-default" id="save-draft">
+					Сохранить черновик
+				</button>
+			</p>
         </div>
 
     </div>
@@ -621,7 +628,41 @@
             .on( 'change', '#address_id, #type_id', function ( e )
             {
                 GetManagements();
-            });
+            })
+			
+			.on( 'click', '#save-draft', function ( e )
+			{
+				
+				e.preventDefault();
+				
+				var form = $( this ).closest( 'form' );
+				
+				bootbox.confirm({
+					message: 'Сохранить обращение как черновик?',
+					size: 'small',
+					buttons: {
+						confirm: {
+							label: '<i class="fa fa-check"></i> Да',
+							className: 'btn-success'
+						},
+						cancel: {
+							label: '<i class="fa fa-times"></i> Нет',
+							className: 'btn-danger'
+						}
+					},
+					callback: function ( result )
+					{
+						if ( result )
+						{
+
+							$( '#draft' ).val( '1' );
+							form.submit();
+
+						}
+					}
+				});
+				
+			});
 
     </script>
 @endsection

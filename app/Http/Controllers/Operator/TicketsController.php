@@ -272,7 +272,7 @@ class TicketsController extends BaseController
      */
     public function store ( Request $request )
     {
-
+		
         $this->validate( $request, Ticket::$rules );
         $this->validate( $request, Customer::$rules );
 
@@ -309,20 +309,27 @@ class TicketsController extends BaseController
                 'management_id'     => $manament_id,
             ]);
 
-            if ( $ticketManagement->management->has_contract )
-            {
-                $status_code = 'created';
-            }
-            else
-            {
-                $res = $ticketManagement->changeStatus( 'no_contract', true );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors( $res );
-                }
-            }
+			if ( $request->get( 'draft' ) == 1 )
+			{
+				$status_code = 'draft';
+			}
+			else
+			{
+				if ( $ticketManagement->management->has_contract )
+				{
+					$status_code = 'created';
+				}
+				else
+				{
+					$res = $ticketManagement->changeStatus( 'no_contract', true );
+					if ( $res instanceof MessageBag )
+					{
+						return redirect()->back()
+							->withInput()
+							->withErrors( $res );
+					}
+				}
+			}
 
         }
 
@@ -465,10 +472,75 @@ class TicketsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( Request $request, $id )
     {
 
-        return $this->show( $id );
+        $ticket = Ticket::find( $id );
+		$param = $request->get( 'param' );
+		
+		switch ( $param )
+		{
+			
+			case 'type':
+			
+				$res = Type
+					::orderBy( 'name' )
+					->get();
+			
+				$types = [];
+				foreach ( $res as $r )
+				{
+					$types[ $r->category->name ][ $r->id ] = $r->name;
+				}
+			
+				return view( 'tickets.operator.edit.type' )
+					->with( 'ticket', $ticket )
+					->with( 'types', $types )
+					->with( 'param', $param );
+			
+				break;
+				
+			case 'address':
+			
+				return view( 'tickets.operator.edit.address' )
+					->with( 'ticket', $ticket )
+					->with( 'param', $param );
+			
+				break;
+				
+			case 'mark':
+			
+				return view( 'tickets.operator.edit.mark' )
+					->with( 'ticket', $ticket )
+					->with( 'param', $param );
+			
+				break;
+				
+			case 'text':
+			
+				return view( 'tickets.operator.edit.text' )
+					->with( 'ticket', $ticket )
+					->with( 'param', $param );
+			
+				break;
+				
+			case 'name':
+			
+				return view( 'tickets.operator.edit.name' )
+					->with( 'ticket', $ticket )
+					->with( 'param', $param );
+			
+				break;
+				
+			case 'phone':
+			
+				return view( 'tickets.operator.edit.phone' )
+					->with( 'ticket', $ticket )
+					->with( 'param', $param );
+			
+				break;
+				
+		}
 
     }
 
@@ -479,9 +551,21 @@ class TicketsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
-        //
+		
+        $ticket = Ticket::find( $id );
+		if ( ! $ticket )
+		{
+			return redirect()->route( 'tickets.index' )
+				->withErrors( [ 'Обращение не найдено' ] );
+		}
+		
+		$ticket->edit( $request->all() );
+		
+		return redirect()->route( 'tickets.show', $ticket->id )
+            ->with( 'success', 'Обращение успешно отредактировано' );
+		
     }
 
     /**
@@ -710,10 +794,50 @@ class TicketsController extends BaseController
             ->with( 'ticketManagement', $ticketManagement );
 
     }
+	
+	public function getAddManagement ( Request $request, $id )
+    {
+        $ticket = Ticket::find( $id );
+		$managements = Management
+			::whereNotIn( 'id', $ticket->managements->pluck( 'management_id' ) )
+			->where( 'has_contract', '=', 1 )
+			->get();
+        return view( 'tickets.operator.edit.add_management' )
+            ->with( 'ticket', $ticket )
+			->with( 'managements', $managements );
+    }
+	
+	public function postAddManagement ( Request $request, $id )
+    {
+        $ticket = Ticket::find( $request->get( 'id' ) );
+		if ( ! $ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+		$management_id = $request->get( 'management_id' );
+		if ( ! $management_id )
+		{
+			return redirect()->route( 'tickets.show', $ticket->id )
+                ->withErrors( [ 'ЭО не выбрана' ] );
+		}
+        $ticketManagement = TicketManagement::create([
+			'ticket_id'         => $ticket->id,
+			'management_id'     => $request->get( 'management_id' ),
+		]);
+		return redirect()->route( 'tickets.show', $ticket->id )
+            ->with( 'success', 'ЭО успешно добавлена' );
+    }
+	
+	public function postDelManagement ( Request $request )
+    {
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+		$ticketManagement->delete();
+    }
 
     public function getRateForm ( Request $request )
     {
-        $ticket = $ticket = Ticket::find( $request->get( 'id' ) );
+        $ticket = Ticket::find( $request->get( 'id' ) );
         return view( 'parts.rate_form' )
             ->with( 'ticket', $ticket );
     }

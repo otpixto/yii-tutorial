@@ -292,17 +292,6 @@
                 </div>
             @endif
 
-            @if ( $execution_hours )
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="note note-info">
-                            <b>Продолжительность работы ЭО в часах: </b>
-                            {{ $execution_hours }}
-                        </div>
-                    </div>
-                </div>
-            @endif
-
         </div>
         <div class="col-lg-6">
 
@@ -340,7 +329,24 @@
 
             <hr />
 
-            @if ( $ticketManagement->executor )
+			<div class="row">
+				<div class="col-xs-12">
+				@if ( $ticket->type->need_act )
+					<div class="alert alert-warning">
+						<i class="glyphicon glyphicon-exclamation-sign"></i>
+						Требуется Акт выполненных работ
+						<p class="margin-top-10 hidden-print">
+							<a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+								<i class="glyphicon glyphicon-print"></i>
+								Акт выполненных работ
+							</a>
+						</p>
+					</div>
+				@endif
+				</div>
+			</div> 
+			
+			@if ( $ticketManagement->executor )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note note-info">
@@ -354,20 +360,33 @@
                     </div>
                 </div>
             @endif
-
-            @if ( $ticket->type->need_act )
-                <div class="alert alert-warning">
-                    <i class="glyphicon glyphicon-exclamation-sign"></i>
-                    Требуется Акт выполненных работ
+			
+			@if ( $execution_hours )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note note-info">
+                            <b>Продолжительность работы ЭО в часах: </b>
+                            {{ $execution_hours }}
+                        </div>
+                    </div>
                 </div>
             @endif
-
-            <p class="margin-top-10 hidden-print">
-                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
-                    <i class="glyphicon glyphicon-print"></i>
-                    Акт выполненных работ
-                </a>
-            </p>
+			
+			@if ( $ticket->rate )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            <b>Оценка работы ЭО: </b>
+                            @include( 'parts.rate', [ 'ticket' => $ticket ] )
+                            @if ( $ticket->rate_comment )
+                                <p>
+                                    {{ $ticket->rate_comment }}
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             @if ( $ticket->comments->count() )
                 <div class="row">
@@ -380,7 +399,7 @@
                 </div>
             @endif
 
-            @if ( $ticket->canComment() )
+            @if ( $ticketManagement->canComment() )
                 <div class="row">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">

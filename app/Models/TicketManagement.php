@@ -11,6 +11,7 @@ class TicketManagement extends BaseModel
     protected $table = 'tickets_managements';
 
     private $history = [];
+	private $can_comment = null;
 
     public static $statuses = [
         'transferred'	                    => 'Передано в ЭО',
@@ -19,6 +20,8 @@ class TicketManagement extends BaseModel
         'assigned'                          => 'Назначен исполнитель',
         'completed_with_act'                => 'Выполнено с актом',
         'completed_without_act'		        => 'Выполнено без акта',
+		'closed_with_confirm'		        => 'Закрыто с подтверждением',
+        'closed_without_confirm'	        => 'Закрыто без подтверждения',
         'not_verified'		                => 'Проблема не подтверждена',
         'waiting'	                        => 'Отложено',
         'no_contract'	                    => 'Отказ (нет договора с ЭО)',
@@ -225,6 +228,22 @@ class TicketManagement extends BaseModel
         return '';
 
     }
+	
+	public function canComment ()
+    {
+        if ( is_null( $this->can_comment ) )
+        {
+            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' )
+            {
+                $this->can_comment = true;
+            }
+            else
+            {
+                $this->can_comment = false;
+            }
+        }
+        return $this->can_comment;
+    }
 
     # force - принудительно
     public function changeStatus ( $status_code, $force = false )
@@ -270,12 +289,37 @@ class TicketManagement extends BaseModel
         {
 
             case 'accepted':
+
+                $res = $this->changeTicketStatus([
+					'transferred',
+					'transferred_again'
+				]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
+				
             case 'assigned':
+
+                $res = $this->changeTicketStatus([
+					'accepted'
+				]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
+				
             case 'completed_with_act':
             case 'completed_without_act':
             case 'not_verified':
 
-                $res = $this->changeTicketStatus();
+                $res = $this->changeTicketStatus([
+					'assigned'
+				]);
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -288,7 +332,10 @@ class TicketManagement extends BaseModel
                 $this->executor = null;
                 $this->save();
 
-                $res = $this->changeTicketStatus();
+                $res = $this->changeTicketStatus([
+					'accepted',
+					'assigned'
+				]);
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -300,9 +347,9 @@ class TicketManagement extends BaseModel
 
     }
 
-    private function changeTicketStatus ()
+    private function changeTicketStatus ( array $apply_statuses = [] )
     {
-        if ( $this->ticket->status_code != $this->status_code )
+        if ( $this->ticket->status_code != $this->status_code && ( count( $apply_statuses ) == 0 || in_array( $this->ticket->status_code, $apply_statuses ) ) )
         {
             $res = $this->ticket->changeStatus( $this->status_code, true );
             if ( $res instanceof MessageBag )
