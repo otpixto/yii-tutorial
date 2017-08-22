@@ -10,102 +10,122 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
+    @can( 'works.create' )
+        <div class="row margin-bottom-15">
+            <div class="col-xs-6">
+                <a href="{{ route( 'managements.create' ) }}" class="btn btn-success btn-lg">
+                    <i class="fa fa-plus"></i>
+                    Добавить ЭО
+                </a>
+            </div>
+            <div class="col-xs-6 text-right">
+                <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                    <i class="fa fa-download"></i>
+                    Выгрузить в Excel
+                </a>
+            </div>
+        </div>
+    @endcan
+
+    <div class="row">
         <div class="col-xs-12">
-            <a href="{{ route( 'managements.create' ) }}" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-                Добавить ЭО
-            </a>
+            {!! Form::open( [ 'method' => 'get' ] ) !!}
+            <div class="input-group">
+                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
+                <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa fa-search"></i>
+                            Поиск
+                        </button>
+                    </span>
+            </div>
+            {!! Form::close() !!}
         </div>
     </div>
 
-    <div class="todo-ui">
-        <div class="todo-sidebar">
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                    </div>
-                    <a href="{{ route( 'managements.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
-                </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
-                    <div class="todo-project-list">
-                        {!! Form::open( [ 'method' => 'get' ] ) !!}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
-                            </div>
-                        </div>
-                        <div class="row margin-top-10">
-                            <div class="col-xs-12">
-                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
-                    </div>
-                </div>
-            </div>
+    <div class="row margin-top-15">
+        <div class="col-xs-12">
+
+            @if ( $managements->count() )
+
+                {{ $managements->render() }}
+
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>
+                            Категория
+                        </th>
+                        <th>
+                            Наименование
+                        </th>
+                        <th>
+                            Адрес
+                        </th>
+                        <th>
+                            Телефон(ы)
+                        </th>
+                        <th>
+                            График работы
+                        </th>
+                        <th>
+                            ФИО руководителя
+                        </th>
+                        <th>
+                            E-mail
+                        </th>
+                        <th>
+                            Сайт
+                        </th>
+                        <th class="text-right">
+                            &nbsp;
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ( $managements as $management )
+                        <tr>
+                            <td>
+                                {{ $management->getCategory() }}
+                            </td>
+                            <td>
+                                {{ $management->name }}
+                            </td>
+                            <td>
+                                {{ $management->address }}
+                            </td>
+                            <td>
+                                {{ $management->getPhones() }}
+                            </td>
+                            <td>
+                                {{ $management->schedule }}
+                            </td>
+                            <td>
+                                {{ $management->director }}
+                            </td>
+                            <td>
+                                {{ $management->email }}
+                            </td>
+                            <td>
+                                {{ $management->site }}
+                            </td>
+                            <td class="text-right">
+                                <a href="{{ route( 'managements.edit', $management->id ) }}" class="btn btn-info">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+                {{ $managements->render() }}
+
+            @else
+                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+            @endif
+
         </div>
-        <!-- END TODO SIDEBAR -->
-
-        <!-- BEGIN TODO CONTENT -->
-        <div class="todo-content">
-            <div class="portlet light ">
-                <div class="portlet-body">
-
-                    @if ( $managements->count() )
-
-                        {{ $managements->render() }}
-
-                        <table class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th>
-                                    Наименование
-                                </th>
-                                <th>
-                                    Адрес
-                                </th>
-                                <th>
-                                    Телефон
-                                </th>
-                                <th class="text-right">
-                                    &nbsp;
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ( $managements as $management )
-                                <tr>
-                                    <td>
-                                        {{ $management->name }}
-                                    </td>
-                                    <td>
-                                        {{ $management->address }}
-                                    </td>
-                                    <td>
-                                        {{ $management->phone }}
-                                    </td>
-                                    <td class="text-right">
-                                        <a href="{{ route( 'managements.edit', $management->id ) }}" class="btn btn-xs btn-info">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-
-                        {{ $managements->render() }}
-
-                    @else
-                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                    @endif
-
-                </div>
-            </div>
-        </div>
-        <!-- END TODO CONTENT -->
     </div>
 
 @endsection

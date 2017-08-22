@@ -122,7 +122,16 @@ class Customer extends BaseModel
 
     public function getAddress ()
     {
-        return $this->actualAddress->name . ', кв. ' . $this->actual_flat;
+        $addr = '';
+        if ( $this->actualAddress )
+        {
+            $addr .= $this->actualAddress->name;
+        }
+        if ( $this->actual_flat )
+        {
+            $addr .= ', кв. ' . $this->actual_flat;
+        }
+        return $addr;
     }
 
 }

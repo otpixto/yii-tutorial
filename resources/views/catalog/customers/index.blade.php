@@ -10,96 +10,96 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
-        <div class="col-xs-12">
-            <a href="{{ route( 'customers.create' ) }}" class="btn btn-success">
+    <div class="row margin-bottom-15 hidden-print">
+        <div class="col-xs-6">
+            <a href="{{ route( 'customers.create' ) }}" class="btn btn-success btn-lg">
                 <i class="fa fa-plus"></i>
                 Добавить заявителя
             </a>
         </div>
+        <div class="col-xs-6 text-right">
+            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить в Excel
+            </a>
+        </div>
     </div>
 
-    <div class="todo-ui">
-        <div class="todo-sidebar">
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                    </div>
-                    <a href="{{ route( 'customers.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
-                </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
-                    <div class="todo-project-list">
-                        {!! Form::open( [ 'method' => 'get' ] ) !!}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
-                            </div>
-                        </div>
-                        <div class="row margin-top-10">
-                            <div class="col-xs-12">
-                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
-                    </div>
-                </div>
+    <div class="row hidden-print">
+        <div class="col-xs-12">
+            {!! Form::open( [ 'method' => 'get' ] ) !!}
+            <div class="input-group">
+                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fa fa-search"></i>
+                        Поиск
+                    </button>
+                </span>
             </div>
+            {!! Form::close() !!}
         </div>
-        <!-- END TODO SIDEBAR -->
+    </div>
 
-        <!-- BEGIN TODO CONTENT -->
-        <div class="todo-content">
-            <div class="portlet light ">
-                <div class="portlet-body">
+    <div class="row margin-top-15">
+        <div class="col-xs-12">
 
-                    @if ( $customers->count() )
+            @if ( $customers->count() )
 
-                        {{ $customers->render() }}
+                {{ $customers->render() }}
 
-                        <table class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th>
-                                    ФИО
-                                </th>
-                                <th>
-                                    Телефон(ы)
-                                </th>
-                                <th class="text-right">
-                                    &nbsp;
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ( $customers as $customer )
-                                <tr>
-                                    <td>
-                                        {{ $customer->getName() }}
-                                    </td>
-                                    <td>
-                                        {{ $customer->getPhones() }}
-                                    </td>
-                                    <td class="text-right">
-                                        <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-xs btn-info">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>
+                            ФИО
+                        </th>
+                        <th>
+                            Телефон(ы)
+                        </th>
+                        <th>
+                            Адрес
+                        </th>
+                        <th>
+                            E-mail
+                        </th>
+                        <th class="text-right">
+                            &nbsp;
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ( $customers as $customer )
+                        <tr>
+                            <td>
+                                {{ $customer->getName() }}
+                            </td>
+                            <td>
+                                {{ $customer->getPhones() }}
+                            </td>
+                            <td>
+                                {{ $customer->getAddress() }}
+                            </td>
+                            <td>
+                                {{ $customer->email }}
+                            </td>
+                            <td class="text-right">
+                                <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-info">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
 
-                        {{ $customers->render() }}
+                {{ $customers->render() }}
 
-                    @else
-                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                    @endif
+            @else
+                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+            @endif
 
-                </div>
-            </div>
         </div>
-        <!-- END TODO CONTENT -->
     </div>
 
 @endsection

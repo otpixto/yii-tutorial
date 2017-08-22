@@ -10,10 +10,10 @@ class Management extends BaseModel
     protected $table = 'managements';
 
     public static $categories = [
-        'УК',
-        'ЖСК, ТСН (ТСЖ)',
-        'РСО',
-        'Прочие',
+        1 => 'УК',
+        2 => 'ЖСК, ТСН (ТСЖ)',
+        3 => 'РСО',
+        4 => 'Прочие',
     ];
 
     public static $services = [
@@ -39,7 +39,7 @@ class Management extends BaseModel
         'email',
         'site',
         'services',
-        'category',
+        'category_id',
     ];
 
     protected $fillable = [
@@ -52,7 +52,7 @@ class Management extends BaseModel
         'email',
         'site',
         'services',
-        'category',
+        'category_id',
     ];
 
     public function addresses ()
@@ -155,6 +155,42 @@ class Management extends BaseModel
         {
             return new MessageBag([ 'Неверный пин-код' ]);
         }
+    }
+
+    public function getPhones ( $html = false )
+    {
+        $phones = '';
+        if ( !empty( $this->phone ) )
+        {
+            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+            if ( $html )
+            {
+                $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+            }
+            else
+            {
+                $phones = $phone;
+            }
+        }
+        if ( !empty( $this->phone2 ) )
+        {
+            $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
+            $phones .= '; ';
+            if ( $html )
+            {
+                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone2 . '</a';
+            }
+            else
+            {
+                $phones .= $phone2;
+            }
+        }
+        return $phones;
+    }
+
+    public function getCategory ()
+    {
+        return self::$categories[ $this->category_id ];
     }
 
 }

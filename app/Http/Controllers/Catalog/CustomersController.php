@@ -42,6 +42,28 @@ class CustomersController extends BaseController
                 });
         }
 
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $customers = $customers->get();
+            $data = [];
+            foreach ( $customers as $customer )
+            {
+                $data[] = [
+                    'ФИО'                   => $customer->getName(),
+                    'Телефон(ы)'            => $customer->getPhones(),
+                    'Адрес проживания'      => $customer->getAddress(),
+                    'E-mail'                => $customer->email,
+                ];
+            }
+            \Excel::create( 'ЗАЯВИТЕЛИ', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'ЗАЯВИТЕЛИ', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
         $customers = $customers->paginate( 30 );
 
         return view( 'catalog.customers.index' )

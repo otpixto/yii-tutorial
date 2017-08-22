@@ -66,6 +66,34 @@ class WorksController extends BaseController
                 ->where( 'management_id', '=', \Input::get( 'management_id' ) );
         }
 
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $works = $works->get();
+            $data = [];
+            foreach ( $works as $work )
+            {
+                $data[] = [
+                    '#'                             => $work->id,
+                    'Дата и время'                  => $work->created_at->format( 'd.m.y H:i' ),
+                    'Кто сообщил'                   => $work->who,
+                    'Основание'                     => $work->reason,
+                    'Адрес работ'                   => $work->address->name,
+                    'Тип работ'                     => $work->type->name,
+                    'Исполнитель работ'             => $work->management->name,
+                    'Состав работ'                  => $work->composition,
+                    'Время начала работ'            => Carbon::parse( $work->time_begin )->format( 'd.m.y H:i' ),
+                    'Время окончания работ'         => Carbon::parse( $work->time_end )->format( 'd.m.y H:i' ),
+                ];
+            }
+            \Excel::create( 'РАБОТЫ НА СЕТЯХ', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'РАБОТЫ НА СЕТЯХ', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
         $works = $works->paginate( 30 );
 
         return view( 'works.index' )

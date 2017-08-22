@@ -150,8 +150,9 @@ class TicketsController extends BaseController
                             'Проблемное место'      => $ticket->place,
                             'Категория обращения'   => $ticket->type->category->name,
                             'Тип обращения'         => $ticket->type->name,
-                            'ФИО заявителя'         => $ticket->customer->getName(),
-                            'Адрес заявителя'       => $ticket->customer->getAddress(),
+                            'ФИО заявителя'         => $ticket->getName(),
+                            'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                            'Адрес проживания'      => $ticket->customer->getAddress(),
                             'Оператор'              => $ticket->author->getName(),
                             'ЭО'                    => $ticketManagement->management->name,
                         ];
@@ -168,16 +169,17 @@ class TicketsController extends BaseController
                         'Проблемное место'      => $ticket->place,
                         'Категория обращения'   => $ticket->type->category->name,
                         'Тип обращения'         => $ticket->type->name,
-                        'ФИО заявителя'         => $ticket->customer->getName(),
-                        'Адрес заявителя'       => $ticket->customer->getAddress(),
+                        'ФИО заявителя'         => $ticket->getName(),
+                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                        'Адрес проживания'      => $ticket->customer->getAddress(),
                         'Оператор'              => $ticket->author->getName(),
                         'ЭО'                    => '',
                     ];
                 }
             }
-            \Excel::create( 'Обращения', function ( $excel ) use ( $data )
+            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'Обращения', function ( $sheet ) use ( $data )
+                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -294,13 +296,14 @@ class TicketsController extends BaseController
                     'Проблемное место'      => $ticket->place,
                     'Категория обращения'   => $ticket->type->category->name,
                     'Тип обращения'         => $ticket->type->name,
-                    'ФИО заявителя'         => $ticket->customer->getName(),
-                    'Адрес заявителя'       => $ticket->customer->getAddress(),
+                    'ФИО заявителя'         => $ticket->getName(),
+                    'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                    'Адрес проживания'      => $ticket->customer->getAddress(),
                 ];
             }
-            \Excel::create( 'Обращения', function ( $excel ) use ( $data )
+            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'Обращения', function ( $sheet ) use ( $data )
+                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });

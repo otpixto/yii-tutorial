@@ -11,10 +11,16 @@
 
     @can( 'works.create' )
         <div class="row margin-bottom-15">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
                 <a href="{{ route( 'works.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить сообщение
+                </a>
+            </div>
+            <div class="col-xs-6 text-right">
+                <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                    <i class="fa fa-download"></i>
+                    Выгрузить в Excel
                 </a>
             </div>
         </div>

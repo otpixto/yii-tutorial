@@ -41,6 +41,33 @@ class ManagementsController extends BaseController
                 });
         }
 
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $managements = $managements->get();
+            $data = [];
+            foreach ( $managements as $management )
+            {
+                $data[] = [
+                    'Категория'             => $management->getCategory(),
+                    'Услуги'                => $management->services,
+                    'Наименование'          => $management->name,
+                    'Телефон(ы)'            => $management->getPhones(),
+                    'Адрес'                 => $management->address,
+                    'График работы'         => $management->schedule,
+                    'ФИО руководителя'      => $management->director,
+                    'E-mail'                => $management->email,
+                    'Сайт'                  => $management->site,
+                ];
+            }
+            \Excel::create( 'ЭКСПЛУАТИРУЮЩИЕ ОРГАНИЗАЦИИ', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'ЭКСПЛУАТИРУЮЩИЕ ОРГАНИЗАЦИИ', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
         $managements = $managements->paginate( 30 );
 
         return view( 'catalog.managements.index' )
