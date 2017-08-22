@@ -57,6 +57,10 @@
         </p>
 
         <p>
+            Телефон(ы) заявителя <b>{{ $ticketManagement->ticket->getPhones() }}</b>
+        </p>
+
+        <p>
             Адрес проблемы <b>{{ $ticketManagement->ticket->getAddress() }}</b>
         </p>
 

@@ -9,6 +9,15 @@
 
 @section( 'content' )
 
+    <div class="row margin-bottom-15 hidden-print">
+        <div class="col-xs-12 text-right">
+            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить в Excel
+            </a>
+        </div>
+    </div>
+
     <div class="row hidden-print">
         <div class="col-xs-12">
             {!! Form::open( [ 'method' => 'get' ] ) !!}

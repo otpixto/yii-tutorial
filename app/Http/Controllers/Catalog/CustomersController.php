@@ -108,8 +108,11 @@ class CustomersController extends BaseController
                 ->withErrors( [ 'Заявитель не найден' ] );
         }
 
+        $tickets = $customer->tickets()->paginate( 30 );
+
         return view( 'catalog.customers.edit' )
-            ->with( 'customer', $customer );
+            ->with( 'customer', $customer )
+            ->with( 'tickets', $tickets );
 
     }
 

@@ -433,7 +433,7 @@
                                                 {{ $ticketManagement->management->address }}
                                             </dd>
                                         </dl>
-                                        @if ( $ticketManagement->status_code )
+                                        @if ( $ticket->type->need_act && $ticketManagement->status_code )
                                             <p class="margin-top-10 hidden-print">
                                                 <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
                                                     <i class="glyphicon glyphicon-print"></i>

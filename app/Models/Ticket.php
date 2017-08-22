@@ -84,6 +84,7 @@ class Ticket extends BaseModel
         'customer_id',
         'phone2',
         'flat',
+        'managements',
     ];
 
     public static $rules = [
@@ -101,7 +102,7 @@ class Ticket extends BaseModel
         'lastname'                  => 'nullable|max:191',
         'customer_id'               => 'nullable|integer',
         'text'                      => 'required|max:191',
-        'managements'               => 'required|array',
+        'managements'               => 'nullable|array',
     ];
 
     protected $fillable = [
@@ -277,17 +278,6 @@ class Ticket extends BaseModel
         $ticket = new Ticket( $attributes );
         $ticket->author_id = Auth::user()->id;
         $ticket->place = self::$places[ $attributes['place'] ];
-
-        $address = Address
-            ::where( 'name', '=', trim( $ticket->address ) )
-            ->first();
-
-        if ( $address )
-        {
-            $ticket->address_id = $address->id;
-            //$ticket->management_id = $address->management_id;
-        }
-
         $ticket->save();
 
         return $ticket;
@@ -686,6 +676,41 @@ class Ticket extends BaseModel
                 }
             }
         }
+    }
+
+    public function getMessageForTelegram ()
+    {
+
+        $message = '<em>Обращение #' . $this->id  . '</em>' . PHP_EOL . PHP_EOL;
+        $message .= 'Тип обращения: ' . $this->type->name . PHP_EOL;
+        $message .= 'Адрес проблемы: ' . $this->getAddress() . PHP_EOL;
+        $message .= 'Проблемное место: ' . $this->place . PHP_EOL . PHP_EOL;
+        $message .= 'Текст проблемы: ' . $this->text . PHP_EOL . PHP_EOL;
+        $message .= 'ФИО заявителя: ' . $this->getName() . PHP_EOL;
+        $message .= 'Телефон(ы) заявителя: ' . $this->getPhones() . PHP_EOL;
+
+        $message .= PHP_EOL . route( 'tickets.show', $this->id ) . PHP_EOL;
+
+        return $message;
+
+    }
+
+    public function sendTelegram ()
+    {
+
+        foreach ( $this->managements as $ticketManagement )
+        {
+            foreach ( $ticketManagement->management->subscriptions as $subscription )
+            {
+                \Telegram::sendMessage([
+                    'chat_id'                   => $subscription->telegram_id,
+                    'text'                      => $this->getMessageForTelegram(),
+                    'parse_mode'                => 'html',
+                    'disable_web_page_preview'  => true
+                ]);
+            }
+        }
+
     }
 
 }

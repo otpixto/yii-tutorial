@@ -183,6 +183,8 @@ return [
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
+        Telegram\Bot\Laravel\TelegramServiceProvider::class,
+
     ],
 
     /*
@@ -237,6 +239,8 @@ return [
         'Input' => Illuminate\Support\Facades\Input::class,
 
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+        'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
 
     ],
 

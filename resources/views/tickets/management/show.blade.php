@@ -12,7 +12,7 @@
 
     @if ( $ticketManagement->status_code == 'accepted' || $ticketManagement->status_code == 'waiting' )
         {!! Form::open( [ 'url' => route( 'tickets.managements.executor', $ticketManagement->id ), 'class' => 'submit-loading form-horizontal' ] ) !!}
-        <div class="note note-info">
+        <div class="note note-info hidden-print">
             <div class="form-group">
                 {!! Form::label( 'executor', 'Назначить исполнителя:', [ 'class' => 'control-label col-xs-4' ] ) !!}
                 <div class="col-xs-4">
@@ -27,7 +27,7 @@
     @endif
 
     @if ( $ticketManagement->getAvailableStatuses() )
-        <div class="row">
+        <div class="row hidden-print">
             <div class="col-xs-12">
                 <div class="note note-info">
                     <dl>
@@ -294,6 +294,8 @@
 
         </div>
         <div class="col-lg-6">
+		
+			<hr class="visible-md" />
 
             <div class="row">
                 <div class="col-xs-6">
@@ -329,22 +331,22 @@
 
             <hr />
 
-			<div class="row">
-				<div class="col-xs-12">
-				@if ( $ticket->type->need_act )
-					<div class="alert alert-warning">
-						<i class="glyphicon glyphicon-exclamation-sign"></i>
-						Требуется Акт выполненных работ
-						<p class="margin-top-10 hidden-print">
-							<a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
-								<i class="glyphicon glyphicon-print"></i>
-								Акт выполненных работ
-							</a>
-						</p>
+			@if ( $ticket->type->need_act )
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="alert alert-warning">
+							<i class="glyphicon glyphicon-exclamation-sign"></i>
+							Требуется Акт выполненных работ
+							<p class="margin-top-10 hidden-print">
+								<a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+									<i class="glyphicon glyphicon-print"></i>
+									Акт выполненных работ
+								</a>
+							</p>
+						</div>
 					</div>
-				@endif
 				</div>
-			</div> 
+			@endif
 			
 			@if ( $ticketManagement->executor )
                 <div class="row">
@@ -400,7 +402,7 @@
             @endif
 
             @if ( $ticketManagement->canComment() )
-                <div class="row">
+                <div class="row hidden-print">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>

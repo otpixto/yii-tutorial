@@ -131,6 +131,59 @@ class TicketsController extends BaseController
                 });
         }
 
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $tickets = $tickets->get();
+            $data = [];
+            foreach ( $tickets as $ticket )
+            {
+                if ( $ticket->managements->count() )
+                {
+                    foreach ( $ticket->managements as $ticketManagement )
+                    {
+                        $data[] = [
+                            '#'                     => $ticket->id,
+                            'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                            'Текущий статус'        => $ticket->status_name,
+                            'Адрес проблемы'        => $ticket->address->name,
+                            'Квартира'              => $ticket->flat,
+                            'Проблемное место'      => $ticket->place,
+                            'Категория обращения'   => $ticket->type->category->name,
+                            'Тип обращения'         => $ticket->type->name,
+                            'ФИО заявителя'         => $ticket->customer->getName(),
+                            'Адрес заявителя'       => $ticket->customer->getAddress(),
+                            'Оператор'              => $ticket->author->getName(),
+                            'ЭО'                    => $ticketManagement->management->name,
+                        ];
+                    }
+                }
+                else
+                {
+                    $data[] = [
+                        '#'                     => $ticket->id,
+                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                        'Текущий статус'        => $ticket->status_name,
+                        'Адрес проблемы'        => $ticket->address->name,
+                        'Квартира'              => $ticket->flat,
+                        'Проблемное место'      => $ticket->place,
+                        'Категория обращения'   => $ticket->type->category->name,
+                        'Тип обращения'         => $ticket->type->name,
+                        'ФИО заявителя'         => $ticket->customer->getName(),
+                        'Адрес заявителя'       => $ticket->customer->getAddress(),
+                        'Оператор'              => $ticket->author->getName(),
+                        'ЭО'                    => '',
+                    ];
+                }
+            }
+            \Excel::create( 'Обращения', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'Обращения', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
         $tickets = $tickets->paginate( 30 );
 
         return view( 'tickets.operator.index' )
@@ -225,6 +278,35 @@ class TicketsController extends BaseController
                 ->where( 'status_code', '=', \Input::get( 'status_code' ) );
         }
 
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $ticketManagements = $ticketManagements->get();
+            $data = [];
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+                $ticket = $ticketManagement->ticket;
+                $data[] = [
+                    '#'                     => $ticket->id,
+                    'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                    'Текущий статус'        => $ticket->status_name,
+                    'Адрес проблемы'        => $ticket->address->name,
+                    'Квартира'              => $ticket->flat,
+                    'Проблемное место'      => $ticket->place,
+                    'Категория обращения'   => $ticket->type->category->name,
+                    'Тип обращения'         => $ticket->type->name,
+                    'ФИО заявителя'         => $ticket->customer->getName(),
+                    'Адрес заявителя'       => $ticket->customer->getAddress(),
+                ];
+            }
+            \Excel::create( 'Обращения', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'Обращения', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
         $ticketManagements = $ticketManagements->paginate( 30 );
 
         if ( !empty( \Input::get( 'address_id' ) ) )
@@ -272,7 +354,7 @@ class TicketsController extends BaseController
      */
     public function store ( Request $request )
     {
-		
+
         $this->validate( $request, Ticket::$rules );
         $this->validate( $request, Customer::$rules );
 
@@ -350,6 +432,8 @@ class TicketsController extends BaseController
                 ->withInput()
                 ->withErrors( $res );
         }
+
+        $ticket->sendTelegram();
 
 		\DB::commit();
 

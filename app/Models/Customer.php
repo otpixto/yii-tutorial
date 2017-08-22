@@ -15,6 +15,11 @@ class Customer extends BaseModel
         'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'actual_address_id'     => 'required|integer',
         'actual_flat'           => 'required|string',
+        'email'                 => 'nullable|email',
+    ];
+
+    protected $nullable = [
+        'email'
     ];
 
     protected $fillable = [
@@ -25,6 +30,7 @@ class Customer extends BaseModel
         'phone2',
         'actual_address_id',
         'actual_flat',
+        'email',
     ];
 
     public function tickets ()

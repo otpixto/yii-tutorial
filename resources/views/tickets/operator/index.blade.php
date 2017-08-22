@@ -9,16 +9,22 @@
 
 @section( 'content' )
 
-    @can( 'tickets.create' )
-        <div class="row margin-bottom-15 hidden-print">
-            <div class="col-xs-12">
+    <div class="row margin-bottom-15 hidden-print">
+        <div class="col-xs-6">
+            @can( 'tickets.create' )
                 <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить обращение
                 </a>
-            </div>
+            @endcan
         </div>
-    @endcan
+        <div class="col-xs-6 text-right">
+            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить в Excel
+            </a>
+        </div>
+    </div>
 
     <div class="row hidden-print">
         <div class="col-xs-12">

@@ -11,26 +11,18 @@
 
 @section( 'content' )
 
-    <div class="portlet light">
-        <div class="portlet-body">
-            <div class="tab-content">
+    {!! Form::model( $category, [ 'method' => 'put', 'route' => [ 'categories.update', $category->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-                {!! Form::model( $category, [ 'method' => 'put', 'route' => [ 'categories.update', $category->id ] ] ) !!}
-
-                <div class="form-group">
-                    <label class="control-label">Наименование</label>
-                    {!! Form::text( 'name', \Input::old( 'name', $category->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                </div>
-
-                <div class="margin-top-10">
-                    {!! Form::submit( 'Редактировать', [ 'class' => 'btn green' ] ) !!}
-                </div>
-
-                {!! Form::close() !!}
-
-            </div>
-        </div>
+    <div class="form-group">
+        <label class="control-label">Наименование</label>
+        {!! Form::text( 'name', \Input::old( 'name', $category->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
     </div>
+
+    <div class="margin-top-10">
+        {!! Form::submit( 'Редактировать', [ 'class' => 'btn green' ] ) !!}
+    </div>
+
+    {!! Form::close() !!}
 
 @endsection
 

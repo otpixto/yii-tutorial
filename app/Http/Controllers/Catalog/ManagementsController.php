@@ -68,12 +68,15 @@ class ManagementsController extends BaseController
     public function store(Request $request)
     {
 
-        $this->validate( $request, Management::$rules );
+        $rules = Management::$rules;
+        //$rules['services'] = 'nullable|in:' . implode( ',', Management::$services );
+
+        $this->validate( $request, $rules );
 
         $management = Management::create( $request->all() );
 
         return redirect()->route( 'managements.index' )
-            ->with( 'success', 'УК успешно добавлена' );
+            ->with( 'success', 'ЭО успешно добавлена' );
 
     }
 
@@ -104,7 +107,7 @@ class ManagementsController extends BaseController
         if ( !$management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УК не найдена' ] );
+                ->withErrors( [ 'ЭО не найдена' ] );
         }
 
         $addresses = Address
@@ -163,15 +166,20 @@ class ManagementsController extends BaseController
         if ( !$management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УК не найдена' ] );
+                ->withErrors( [ 'ЭО не найдена' ] );
         }
 
-        $this->validate( $request, Management::$rules );
+        $rules = Management::$rules;
+        //$rules['services'] = 'nullable|in:' . implode( ',', Management::$services );
+
+        $this->validate( $request, $rules );
+
+        $this->validate( $request, $rules );
 
         $management->edit( $request->all() );
 
         return redirect()->route( 'managements.edit', $management->id )
-            ->with( 'success', 'УК успешно отредактирована' );
+            ->with( 'success', 'ЭО успешно отредактирована' );
 
     }
 
@@ -198,7 +206,7 @@ class ManagementsController extends BaseController
         if ( ! $res->count() )
         {
             return view( 'parts.error' )
-                ->with( 'error', 'УК не найдены по заданным критериям' );
+                ->with( 'error', 'ЭО не найдены по заданным критериям' );
         }
 
         $managements = Management
