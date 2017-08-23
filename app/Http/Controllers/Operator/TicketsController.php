@@ -51,13 +51,12 @@ class TicketsController extends BaseController
     public function operator ()
     {
 
-        $types = Type::all();
-        $managements = Management::all();
         $operators = User::role( 'operator' )->get();
 
         $tickets = Ticket
             ::mine()
             ->parentsOnly()
+            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
             ->orderBy( 'id', 'desc' );
 
         if ( !empty( \Input::get( 'search' ) ) )
@@ -190,8 +189,8 @@ class TicketsController extends BaseController
 
         return view( 'tickets.operator.index' )
             ->with( 'tickets', $tickets )
-            ->with( 'types', $types )
-            ->with( 'managements', $managements )
+            ->with( 'types', Type::all() )
+            ->with( 'managements', Management::all() )
             ->with( 'operators', $operators )
             ->with( 'address', $address ?? null );
 
@@ -200,9 +199,12 @@ class TicketsController extends BaseController
     public function management ()
     {
 
-        $types = Type::all();
-
-        $ticketManagements = \Auth::user()->management->tickets()->mine()->orderBy( 'id', 'desc' );
+        $ticketManagements = \Auth::user()
+            ->management
+            ->tickets()
+            ->mine()
+            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
+            ->orderBy( 'id', 'desc' );
 
         $ticketManagements
             ->whereHas( 'ticket', function ( $q )
@@ -319,7 +321,7 @@ class TicketsController extends BaseController
 
         return view( 'tickets.management.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'types', $types )
+            ->with( 'types', Type::all() )
             ->with( 'address', $address ?? null );
 
     }
@@ -344,8 +346,27 @@ class TicketsController extends BaseController
             $types[ $r->category->name ][ $r->id ] = $r->name;
         }
 
+        $draft = Ticket
+            ::where( 'author_id', '=', \Auth::user()->id )
+            ->where( 'status_code', '=', 'draft' )
+            ->first();
+
+        if ( ! $draft )
+        {
+            $draft = new Ticket();
+            $draft->status_code = 'draft';
+            $draft->status_name = Ticket::$statuses[ 'draft' ];
+            $draft->author_id = \Auth::user()->id;
+            if ( \Input::get( 'phone' ) )
+            {
+                $draft->phone = \Input::get( 'phone' );
+            }
+            $draft->save();
+        }
+
         return view( 'tickets.create' )
             ->with( 'types', $types )
+            ->with( 'draft', $draft )
             ->with( 'places', Ticket::$places );
     }
 
@@ -368,7 +389,20 @@ class TicketsController extends BaseController
 
 		\DB::beginTransaction();
 
-        $ticket = Ticket::create( $request->all() );
+        $draft = Ticket
+            ::where( 'author_id', '=', \Auth::user()->id )
+            ->where( 'status_code', '=', 'draft' )
+            ->first();
+
+        if ( $draft )
+        {
+            $ticket = $draft;
+            $ticket->edit( $request->all() );
+        }
+        else
+        {
+            $ticket = Ticket::create( $request->all() );
+        }
 
         if ( !empty( $request->get( 'customer_id' ) ) )
         {
@@ -394,27 +428,20 @@ class TicketsController extends BaseController
                 'management_id'     => $manament_id,
             ]);
 
-			if ( $request->get( 'draft' ) == 1 )
-			{
-				$status_code = 'draft';
-			}
-			else
-			{
-				if ( $ticketManagement->management->has_contract )
-				{
-					$status_code = 'created';
-				}
-				else
-				{
-					$res = $ticketManagement->changeStatus( 'no_contract', true );
-					if ( $res instanceof MessageBag )
-					{
-						return redirect()->back()
-							->withInput()
-							->withErrors( $res );
-					}
-				}
-			}
+            if ( $ticketManagement->management->has_contract )
+            {
+                $status_code = 'created';
+            }
+            else
+            {
+                $res = $ticketManagement->changeStatus( 'no_contract', true );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors( $res );
+                }
+            }
 
         }
 
@@ -435,8 +462,6 @@ class TicketsController extends BaseController
                 ->withInput()
                 ->withErrors( $res );
         }
-
-        $ticket->sendTelegram();
 
 		\DB::commit();
 
@@ -872,6 +897,367 @@ class TicketsController extends BaseController
 
     }
 
+    public function closed ( Request $request )
+    {
+
+        Title::add( 'Закрытые обращения' );
+
+        if ( \Auth::user()->hasRole( 'operator' ) )
+        {
+
+            return $this->closedOperator();
+
+        }
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+        {
+
+            return $this->closedManagement();
+
+        }
+        else
+        {
+            Title::add( 'Доступ запрещен' );
+            return view( 'blank' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
+
+    }
+
+    public function closedOperator ()
+    {
+
+        $tickets = Ticket
+            ::whereIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm' ] );
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'name' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $exp = explode( ' ', \Input::get( 'name' ) );
+                    foreach ( $exp as $e )
+                    {
+                        $s = '%' . $e . '%';
+                        $q
+                            ->orWhere( 'firstname', 'like', $s )
+                            ->orWhere( 'middlename', 'like', $s )
+                            ->orWhere( 'lastname', 'like', $s );
+                    }
+                    return $q;
+                });
+        }
+
+        if ( !empty( \Input::get( 'phone' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $s = mb_substr( preg_replace( '/[^0-9]/', '', \Input::get( 'phone' ) ), -10 );
+                    return $q
+                        ->where( 'phone', 'like', $s )
+                        ->orWhere( 'phone2', 'like', $s );
+                });
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.operator.other' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'address', $address ?? null );
+
+    }
+
+    public function closedManagement ()
+    {
+
+        $ticketManagements = \Auth::user()
+            ->management
+            ->tickets()
+            ->mine()
+            ->whereIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm' ] )
+            ->orderBy( 'id', 'desc' );
+
+        $ticketManagements
+            ->whereHas( 'ticket', function ( $q )
+            {
+
+                if ( !empty( \Input::get( 'id' ) ) )
+                {
+                    $q
+                        ->where( 'id', '=', \Input::get( 'id' ) );
+                }
+
+                if ( !empty( \Input::get( 'name' ) ) )
+                {
+                    $q
+                        ->where( function ( $q2 )
+                        {
+                            $exp = explode( ' ', \Input::get( 'name' ) );
+                            foreach ( $exp as $e )
+                            {
+                                $s = '%' . $e . '%';
+                                $q2
+                                    ->orWhere( 'firstname', 'like', $s )
+                                    ->orWhere( 'middlename', 'like', $s )
+                                    ->orWhere( 'lastname', 'like', $s );
+                            }
+                            return $q2;
+                        });
+                }
+
+                if ( !empty( \Input::get( 'phone' ) ) )
+                {
+                    $q
+                        ->where( function ( $q2 )
+                        {
+                            $s = mb_substr( preg_replace( '/[^0-9]/', '', \Input::get( 'phone' ) ), -10 );
+                            return $q2
+                                ->where( 'phone', 'like', $s )
+                                ->orWhere( 'phone2', 'like', $s );
+                        });
+                }
+
+                if ( !empty( \Input::get( 'type_id' ) ) )
+                {
+                    $q
+                        ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+                }
+
+                if ( !empty( \Input::get( 'address_id' ) ) )
+                {
+                    $q
+                        ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                }
+
+                if ( !empty( \Input::get( 'flat' ) ) )
+                {
+                    $q
+                        ->where( 'flat', '=', \Input::get( 'flat' ) );
+                }
+
+                return $q;
+
+            });
+
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        $ticketManagements = $ticketManagements->paginate( 30 );
+
+        return view( 'tickets.management.other' )
+            ->with( 'ticketManagements', $ticketManagements )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'address', $address ?? null );
+
+    }
+
+    public function no_contract ( Request $request )
+    {
+
+        Title::add( 'Отсутствует договор' );
+
+        $tickets = Ticket
+            ::where( 'status_code', '=', 'no_contract' );
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'name' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $exp = explode( ' ', \Input::get( 'name' ) );
+                    foreach ( $exp as $e )
+                    {
+                        $s = '%' . $e . '%';
+                        $q
+                            ->orWhere( 'firstname', 'like', $s )
+                            ->orWhere( 'middlename', 'like', $s )
+                            ->orWhere( 'lastname', 'like', $s );
+                    }
+                    return $q;
+                });
+        }
+
+        if ( !empty( \Input::get( 'phone' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $s = mb_substr( preg_replace( '/[^0-9]/', '', \Input::get( 'phone' ) ), -10 );
+                    return $q
+                        ->where( 'phone', 'like', $s )
+                        ->orWhere( 'phone2', 'like', $s );
+                });
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.operator.other' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'address', $address ?? null );
+
+    }
+
+    public function canceled ( Request $request )
+    {
+
+        Title::add( 'Отмененные обращения' );
+
+        $tickets = Ticket
+            ::where( 'status_code', '=', 'cancel' );
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'name' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $exp = explode( ' ', \Input::get( 'name' ) );
+                    foreach ( $exp as $e )
+                    {
+                        $s = '%' . $e . '%';
+                        $q
+                            ->orWhere( 'firstname', 'like', $s )
+                            ->orWhere( 'middlename', 'like', $s )
+                            ->orWhere( 'lastname', 'like', $s );
+                    }
+                    return $q;
+                });
+        }
+
+        if ( !empty( \Input::get( 'phone' ) ) )
+        {
+            $tickets
+                ->where( function ( $q )
+                {
+                    $s = mb_substr( preg_replace( '/[^0-9]/', '', \Input::get( 'phone' ) ), -10 );
+                    return $q
+                        ->where( 'phone', 'like', $s )
+                        ->orWhere( 'phone2', 'like', $s );
+                });
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.operator.other' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'address', $address ?? null );
+
+    }
+
     public function act ( $id )
     {
 
@@ -942,6 +1328,9 @@ class TicketsController extends BaseController
 
         \DB::beginTransaction();
 
+        $ticket->rate = $request->get( 'rate' );
+        $ticket->rate_comment = $request->get( 'comment', null );
+
         if ( $ticket->status_code != 'closed_with_confirm' )
         {
             $res = $ticket->changeStatus( 'closed_with_confirm', true );
@@ -951,8 +1340,6 @@ class TicketsController extends BaseController
             }
         }
 
-        $ticket->rate = $request->get( 'rate' );
-        $ticket->rate_comment = $request->get( 'comment', null );
         $ticket->save();
 
         /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();

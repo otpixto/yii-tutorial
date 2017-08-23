@@ -18,21 +18,22 @@
                 {{ $tickets->render() }}
 
                 <table class="table table-striped table-bordered table-hover">
+                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                     <thead>
                         <tr class="info">
                             <th>
                                 Номер обращения
                             </th>
-                            <th>
+                            <th width="15%">
                                 ФИО Заявителя
                             </th>
-                            <th>
+                            <th width="15%">
                                 Телефон(ы) Заявителя
                             </th>
-                            <th>
+                            <th width="15%">
                                 ЭО
                             </th>
-                            <th>
+                            <th width="15%">
                                 Категория и тип обращения
                             </th>
                             <th>
@@ -42,7 +43,40 @@
                                 &nbsp;
                             </th>
                         </tr>
+                        <tr class="info hidden-print">
+                            <td>
+                                {!! Form::text( 'id', \Input::get( 'id' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'name', \Input::get( 'name' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-lg-7">
+                                        {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                                    </div>
+                                    <div class="col-lg-5">
+                                        {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-right hidden-print">
+                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+                            </td>
+                        </tr>
                     </thead>
+                    {!! Form::close() !!}
                     <tbody>
                     @foreach ( $tickets as $ticket )
                         <tr>
@@ -77,17 +111,9 @@
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <div class="text-nowrap">
-                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением" data-action="close-rate" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-check"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением" data-action="close" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно" data-action="repeat" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-repeat"></i>
-                                    </a>
-                                </div>
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
                             </td>
                         </tr>
                         @if ( $ticket->comments->count() )

@@ -21,7 +21,7 @@
             </ul>
         </li>
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.show', 'tickets.create' ) )
+        @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call', 'tickets.closed', 'tickets.no_contract' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
@@ -47,11 +47,32 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.closed' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.closed' ) }}">
+                                Закрытые обращения
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.no_contract' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.no_contract' ) }}">
+                                Отсутствует договор
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.canceled' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.canceled' ) }}">
+                                Отмененные обращения
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
         @endif
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'works.show', 'works.create' ) )
+        @if ( \Auth::user()->admin || \Auth::user()->can( 'works.show', 'works.create', 'works.all' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
@@ -67,6 +88,13 @@
                         <li>
                             <a href="{{ route( 'works.create' ) }}">
                                 Создать сообщение
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'works.all' ) )
+                        <li>
+                            <a href="{{ route( 'works.index' ) }}?show=all">
+                                Работы за все время
                             </a>
                         </li>
                     @endif

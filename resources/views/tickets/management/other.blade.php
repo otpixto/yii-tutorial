@@ -13,26 +13,24 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            @if ( $tickets->count() )
+            @if ( $ticketManagements->count() )
 
-                {{ $tickets->render() }}
+                {{ $ticketManagements->render() }}
 
                 <table class="table table-striped table-bordered table-hover">
+                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                     <thead>
                         <tr class="info">
                             <th>
                                 Номер обращения
                             </th>
-                            <th>
+                            <th width="15%">
                                 ФИО Заявителя
                             </th>
-                            <th>
+                            <th width="15%">
                                 Телефон(ы) Заявителя
                             </th>
-                            <th>
-                                ЭО
-                            </th>
-                            <th>
+                            <th width="15%">
                                 Категория и тип обращения
                             </th>
                             <th>
@@ -42,59 +40,74 @@
                                 &nbsp;
                             </th>
                         </tr>
+                        <tr class="info hidden-print">
+                            <td>
+                                {!! Form::text( 'id', \Input::get( 'id' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'name', \Input::get( 'name' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control' ] ) !!}
+                            </td>
+                            <td>
+                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-lg-7">
+                                        {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                                    </div>
+                                    <div class="col-lg-5">
+                                        {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-right hidden-print">
+                                <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+                            </td>
+                        </tr>
                     </thead>
+                    {!! Form::close() !!}
                     <tbody>
-                    @foreach ( $tickets as $ticket )
+                    @foreach ( $ticketManagements as $ticketManagement )
                         <tr>
                             <td>
-                                {{ $ticket->id }}
+                                {{ $ticketManagement->ticket->id }}
                             </td>
                             <td>
-                                {{ $ticket->getName() }}
+                                {{ $ticketManagement->ticket->getName() }}
                             </td>
                             <td>
-                                {{ $ticket->getPhones() }}
-                            </td>
-                            <td>
-                                @foreach ( $ticket->managements as $ticketManagement )
-                                    <div>
-                                        {{ $ticketManagement->management->name }}
-                                    </div>
-                                @endforeach
+                                {{ $ticketManagement->ticket->getPhones() }}
                             </td>
                             <td>
                                 <div class="bold">
-                                    {{ $ticket->type->category->name }}
+                                    {{ $ticketManagement->ticket->type->category->name }}
                                 </div>
                                 <div class="small">
-                                    {{ $ticket->type->name }}
+                                    {{ $ticketManagement->ticket->type->name }}
                                 </div>
                             </td>
                             <td>
-                                {{ $ticket->getAddress() }}
+                                {{ $ticketManagement->ticket->getAddress() }}
                                 <span class="small text-muted">
-                                    ({{ $ticket->place }})
+                                    ({{ $ticketManagement->ticket->place }})
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <div class="text-nowrap">
-                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением" data-action="close-rate" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-check"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением" data-action="close" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно" data-action="repeat" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-repeat"></i>
-                                    </a>
-                                </div>
+                                <a href="{{ route( 'tickets.show', $ticketManagement->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticketManagement->ticket->id }}" target="_blank">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
                             </td>
                         </tr>
-                        @if ( $ticket->comments->count() )
+                        @if ( $ticketManagement->ticket->comments->count() )
                             <tr>
                                 <td colspan="6">
                                     <div class="note note-info">
-                                        @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
+                                        @include( 'parts.comments', [ 'ticket' => $ticketManagement->ticket, 'comments' => $ticketManagement->ticket->comments ] )
                                     </div>
                                 </td>
                             </tr>
@@ -103,7 +116,7 @@
                     </tbody>
                 </table>
 
-                {{ $tickets->render() }}
+                {{ $ticketManagements->render() }}
 
             @else
                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

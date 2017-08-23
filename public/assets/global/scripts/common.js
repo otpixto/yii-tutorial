@@ -169,6 +169,35 @@ if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
     };
 }
 
+function onAnswer ( phone )
+{
+
+    bootbox.confirm({
+        message: 'Перейти к оформлению обращения?',
+        size: 'small',
+        buttons: {
+            confirm: {
+                label: '<i class="fa fa-check"></i> Да',
+                className: 'btn-success'
+            },
+            cancel: {
+                label: '<i class="fa fa-times"></i> Нет',
+                className: 'btn-danger'
+            }
+        },
+        callback: function ( result )
+        {
+            if ( result )
+            {
+
+                window.location.href = '/tickets/create?phone=' + String( phone ).substr( -10 );
+
+            }
+        }
+    });
+
+};
+
 $( document )
 
 	.ready ( function ()
@@ -239,5 +268,7 @@ $( document )
 			}
 			return false;
 		}
+
+        $( this ).trigger( 'confirmed', [ e ] );
 
     });

@@ -29,7 +29,7 @@
                                 <dt>Сменить статус:</dt>
                                 <dd>
                                     @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
+                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'data-id' => $ticket->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
                                         {!! Form::hidden( 'status_code', $status_code ) !!}
                                         {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
                                         {!! Form::close() !!}
@@ -600,7 +600,7 @@
 						{
 
 							$.post( '{{ route( 'tickets.del_management' ) }}', {
-								id: id
+								    id: id
 								},
 								function ( response )
 								{
@@ -611,7 +611,37 @@
 					}
 				});
 				
-			});
+			})
+
+            .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var id = $( this ).attr( 'data-id' );
+
+                var dialog = bootbox.dialog({
+                    title: 'Оцените работу ЭО',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+                });
+
+                dialog.init( function ()
+                {
+                    $.get( '{{ route( 'tickets.rate' ) }}', {
+                        id: id
+                    }, function ( response )
+                    {
+                        dialog.find( '.bootbox-body' ).html( response );
+                    });
+                });
+
+            });
 
     </script>
 

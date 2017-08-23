@@ -28,6 +28,13 @@ class WorksController extends BaseController
         $works = Work
             ::orderBy( 'id', 'desc' );
 
+        if ( \Input::get( 'show' ) != 'all' )
+        {
+            $now = Carbon::now()->toDateString();
+            $works
+                ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] );
+        }
+
         if ( !empty( \Input::get( 'search' ) ) )
         {
             $works

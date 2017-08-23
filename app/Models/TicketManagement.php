@@ -285,8 +285,50 @@ class TicketManagement extends BaseModel
     public function processStatus ()
     {
 
+        $ticket = $this->ticket;
+
         switch ( $this->status_code )
         {
+
+            case 'transferred':
+
+                $message = '<em>Добавлено обращение</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Адрес проблемы: ' . $ticket->getAddress() . PHP_EOL;
+                $message .= 'Проблемное место: ' . $ticket->place . PHP_EOL . PHP_EOL;
+
+                $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
+
+                $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
+                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
+
+            case 'transferred_again':
+
+                $message = '<em>Обращение передано повторно</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Адрес проблемы: ' . $ticket->getAddress() . PHP_EOL;
+                $message .= 'Проблемное место: ' . $ticket->place . PHP_EOL . PHP_EOL;
+
+                $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
+
+                $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
+                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
 
             case 'accepted':
 
@@ -299,6 +341,15 @@ class TicketManagement extends BaseModel
                     return $res;
                 }
 
+                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
                 break;
 				
             case 'assigned':
@@ -310,6 +361,15 @@ class TicketManagement extends BaseModel
                 {
                     return $res;
                 }
+
+                $message = '<em>Назначен исполнитель</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Исполнитель: ' . $this->executor . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
 
                 break;
 				
@@ -324,6 +384,15 @@ class TicketManagement extends BaseModel
                 {
                     return $res;
                 }
+
+                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
 
                 break;
 
@@ -341,6 +410,48 @@ class TicketManagement extends BaseModel
                     return $res;
                 }
 
+                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
+
+            case 'closed_with_confirm':
+            case 'closed_without_confirm':
+
+                $message = '<em>Обращение закрыто</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+
+                if ( $ticket->rate )
+                {
+                    $message .= 'Оценка: ' . $ticket->rate . PHP_EOL;
+                    if ( $ticket->rate_comment )
+                    {
+                        $message .= 'Комментарий: ' . $ticket->rate_comment . PHP_EOL;
+                    }
+                }
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
+
+            case 'cancel':
+
+                $message = '<em>Обращение отменено</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
                 break;
 
         }
@@ -357,6 +468,23 @@ class TicketManagement extends BaseModel
                 return $res;
             }
         }
+    }
+
+    public function sendTelegram ( $message = null )
+    {
+
+        if ( empty( $message ) || ! $this->management->has_contract ) return;
+
+        foreach ( $this->management->subscriptions as $subscription )
+        {
+            \Telegram::sendMessage([
+                'chat_id'                   => $subscription->telegram_id,
+                'text'                      => $message,
+                'parse_mode'                => 'html',
+                'disable_web_page_preview'  => true
+            ]);
+        }
+
     }
 
 }

@@ -1,4 +1,4 @@
-<tr class="{{ $work->getClass() }}">
+<tr class="{{ \Input::get( 'show' ) == 'all' ? $work->getClass() : '' }}">
     <td>
         #{{ $work->id }}
     </td>

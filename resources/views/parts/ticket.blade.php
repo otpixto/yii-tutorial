@@ -1,4 +1,4 @@
-<tr>
+<tr @if ( $ticket->status_code == 'closed_with_confirm' || $ticket->status_code == 'closed_without_confirm' ) class="text-muted" @endif>
     @if ( $ticket->group_uuid )
         @if ( ! $ticket->parent_id )
             <td colspan="2" class="border-left">
@@ -49,12 +49,14 @@
         @endforeach
     </td>
     <td>
-        <div class="bold">
-            {{ $ticket->type->category->name }}
-        </div>
-        <div class="small">
-            {{ $ticket->type->name }}
-        </div>
+        @if ( $ticket->type )
+            <div class="bold">
+                {{ $ticket->type->category->name }}
+            </div>
+            <div class="small">
+                {{ $ticket->type->name }}
+            </div>
+        @endif
     </td>
     <td>
         {{ $ticket->getAddress() }}

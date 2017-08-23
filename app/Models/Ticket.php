@@ -201,7 +201,17 @@ class Ticket extends BaseModel
         return $query
             ->where( function ( $q ) use ( $user )
             {
-                if ( $user->can( 'tickets.all' ) ) return;
+                if ( $user->can( 'tickets.all' ) )
+                {
+                    $q
+                        ->where( function ( $q2 )
+                        {
+                            return $q2
+                                ->where( 'author_id', '=', \Auth::user()->id )
+                                ->orWhere( 'status_code', '!=', 'draft' );
+                        });
+                    return;
+                }
                 $q
                     ->whereIn( 'status_code', $user->getAvailableStatuses() );
                 if ( $user->can( 'tickets.executor' ) && $user->management )
@@ -216,7 +226,7 @@ class Ticket extends BaseModel
                 else
                 {
                     $q
-                        ->where( 'author_id', '=', Auth::user()->id );
+                        ->where( 'author_id', '=', \Auth::user()->id );
                 }
                 return $q;
             });
@@ -286,6 +296,18 @@ class Ticket extends BaseModel
 	
 	public function edit ( array $attributes = [] )
 	{
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        }
+        if ( !empty( $attributes['phone2'] ) )
+        {
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+        }
+        if ( !empty( $attributes['place'] ) )
+        {
+            $this->place = self::$places[ $attributes['place'] ];
+        }
 		$this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
 		{
@@ -368,7 +390,11 @@ class Ticket extends BaseModel
 
     public function getAddress ()
     {
-		$addr = $this->address->name;
+        $addr = '';
+        if ( $this->address )
+        {
+            $addr .= $this->address->name;
+        }
 		if ( $this->flat )
 		{
 			$addr .= ', кв. ' . $this->flat;
@@ -499,7 +525,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_edit ) )
         {
-            if ( \Auth::user()->can( 'tickets.edit' ) && $this->status_code == 'draft' )
+            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
             {
                 $this->can_edit = true;
             }
@@ -616,8 +642,32 @@ class Ticket extends BaseModel
         switch ( $this->status_code )
         {
 
-            case 'cancel':
             case 'no_contract':
+
+                $res = $this->changeManagementsStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
+
+            case 'cancel':
+
+                $res = $this->changeManagementsStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                $message = '<em>Обращение отменено</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Номер обращения: ' . $this->id . '</b>' . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
+
             case 'transferred':
 
                 $res = $this->changeManagementsStatus();
@@ -646,7 +696,6 @@ class Ticket extends BaseModel
 
                 $this->rate = null;
                 $this->rate_comment = null;
-                $this->save();
 
                 $res = $this->changeManagementsStatus([
 					'completed_with_act',
@@ -656,6 +705,8 @@ class Ticket extends BaseModel
                 {
                     return $res;
                 }
+
+                $this->save();
 
                 break;
 
@@ -678,33 +729,20 @@ class Ticket extends BaseModel
         }
     }
 
-    public function getMessageForTelegram ()
+    public function sendTelegram ( $message = null )
     {
 
-        $message = '<em>Обращение #' . $this->id  . '</em>' . PHP_EOL . PHP_EOL;
-        $message .= 'Тип обращения: ' . $this->type->name . PHP_EOL;
-        $message .= 'Адрес проблемы: ' . $this->getAddress() . PHP_EOL;
-        $message .= 'Проблемное место: ' . $this->place . PHP_EOL . PHP_EOL;
-        $message .= 'Текст проблемы: ' . $this->text . PHP_EOL . PHP_EOL;
-        $message .= 'ФИО заявителя: ' . $this->getName() . PHP_EOL;
-        $message .= 'Телефон(ы) заявителя: ' . $this->getPhones() . PHP_EOL;
-
-        $message .= PHP_EOL . route( 'tickets.show', $this->id ) . PHP_EOL;
-
-        return $message;
-
-    }
-
-    public function sendTelegram ()
-    {
+        if ( empty( $message ) ) return;
 
         foreach ( $this->managements as $ticketManagement )
         {
-            foreach ( $ticketManagement->management->subscriptions as $subscription )
+            $management = $ticketManagement->management;
+            if ( ! $management->has_contract ) continue;
+            foreach ( $management->subscriptions as $subscription )
             {
                 \Telegram::sendMessage([
                     'chat_id'                   => $subscription->telegram_id,
-                    'text'                      => $this->getMessageForTelegram(),
+                    'text'                      => $message,
                     'parse_mode'                => 'html',
                     'disable_web_page_preview'  => true
                 ]);

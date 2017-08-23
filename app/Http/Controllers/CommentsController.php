@@ -41,8 +41,30 @@ class CommentsController extends Controller
 
 		if ( $request->get( 'model_name' ) == 'App\Models\Ticket' )
         {
+
             $ticket = Ticket::find( $request->get( 'model_id' ) );
             $comment = $ticket->addComment( $request->get( 'text' ) );
+
+            if ( $comment->author->hasRole( 'operator' ) )
+            {
+                $author = '<i>[Оператор ЕДС]</i> ' . $comment->author->getName();
+            }
+            elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
+            {
+                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $comment->author->getName();
+            }
+
+            $message = '<em>Добавлено сообщение</em>' . PHP_EOL . PHP_EOL;
+
+            $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+            $message .= 'Автор сообщения: ' . $author . PHP_EOL;
+
+            $message .= PHP_EOL . $comment->text . PHP_EOL;
+
+            $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+            $ticket->sendTelegram( $message );
+
             /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
             if ( $group->count() )
             {
@@ -51,6 +73,7 @@ class CommentsController extends Controller
                     $row->addComment( $comment->text );
                 }
             }*/
+
         }
         else
         {

@@ -15,6 +15,7 @@
 <script src="/assets/global/scripts/app.min.js" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
+<script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/jquery.pulsate.min.js" type="text/javascript"></script>
 <script src="/assets/layouts/layout5/scripts/layout.min.js" type="text/javascript"></script>
 <script src="/assets/layouts/global/scripts/quick-sidebar.min.js" type="text/javascript"></script>

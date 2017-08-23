@@ -63,6 +63,10 @@
             {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
             {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
         </div>
+        <div class="col-xs-4">
+            {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control', 'placeholder' => 'Заключен договор' ] ) !!}
+        </div>
     </div>
 
     <div class="form-group">

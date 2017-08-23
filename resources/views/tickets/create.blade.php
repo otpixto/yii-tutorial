@@ -20,25 +20,25 @@
             <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id' ) ? \App\Models\Address::find( \Input::old( 'address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id' ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
+                    {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'place', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'place', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place' ), [ 'class' => 'form-control', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place' ] ) !!}
+                    {!! Form::select( 'place', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place', $draft->place ?? null ), [ 'class' => 'form-control', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place' ] ) !!}
                 </div>
             </div>
 
@@ -46,21 +46,21 @@
                 {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
+                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ) ) !!}
                         <span></span>
                         Авария
                     </label>
                 </div>
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently' ) ) !!}
+                        {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently', $draft->urgently ?? null ) ) !!}
                         <span></span>
                         Срочно
                     </label>
                 </div>
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel' ) ) !!}
+                        {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel', $draft->dobrodel ?? null ) ) !!}
                         <span></span>
                         Добродел
                     </label>
@@ -72,10 +72,10 @@
             <div class="form-group">
                 {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-4">
-                    {!! Form::text( 'phone', \Input::old( 'phone', \Input::get( 'phone' ) ), [ 'id' => 'phone', 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
+                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
-                    {!! Form::text( 'phone2', \Input::old( 'phone2' ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
+                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
                 </div>
                 <div class="col-xs-1 text-right">
                     @if ( ! empty( \Input::old( 'customer_id' ) ) )
@@ -93,24 +93,24 @@
             <div class="form-group">
                 {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'id' => 'lastname', 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' ] ) !!}
+                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'id' => 'firstname', 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
+                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'id' => 'middlename', 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
+                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id' ) ? \App\Models\Address::find( \Input::old( 'actual_address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'actual_address_id' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id' ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'actual_address_id' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'actual_flat' ] ) !!}
+                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control', 'placeholder' => 'Квартира', 'required', 'id' => 'actual_flat' ] ) !!}
                 </div>
             </div>
 
@@ -166,7 +166,7 @@
                 <i class="fa fa-microphone-slash"></i>
             </button>
             {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::textarea( 'text', \Input::old( 'text' ), [ 'class' => 'form-control autosizeme', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5 ] ) !!}
+            {!! Form::textarea( 'text', \Input::old( 'text', $draft->text ?? null ), [ 'class' => 'form-control autosizeme', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5 ] ) !!}
 
         </div>
 
@@ -177,7 +177,7 @@
         <div class="col-xs-7">
 
             {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'tags', \Input::old( 'tags' ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
+            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
 
         </div>
 
@@ -186,17 +186,11 @@
                 <i class="fa fa-plus"></i>
                 Добавить обращение
             </button>
-			<p class="small text-muted">
-				или
-				<button type="button" class="btn btn-xs btn-default" id="save-draft">
-					Сохранить черновик
-				</button>
-			</p>
         </div>
 
     </div>
 
-    {!! Form::hidden( 'customer_id', \Input::old( 'customer_id' ), [ 'id' => 'customer_id' ] ) !!}
+    {!! Form::hidden( 'customer_id', \Input::old( 'customer_id', $draft->customer_id ?? null ), [ 'id' => 'customer_id' ] ) !!}
     {!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements' ] ) !!}
 
     {!! Form::close() !!}
@@ -235,7 +229,6 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
@@ -443,10 +436,6 @@
             .ready( function ()
             {
 
-                GetTypeInfo();
-                GetManagements();
-                SearchCustomers();
-
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
@@ -468,6 +457,10 @@
                         }
                     }
                 });
+
+                GetTypeInfo();
+                GetManagements();
+                SearchCustomers();
 
             })
 
