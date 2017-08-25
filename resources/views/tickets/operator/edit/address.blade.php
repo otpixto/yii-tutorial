@@ -15,7 +15,7 @@
 <div class="form-group">
 	{!! Form::label( 'place', 'Проблемное место', [ 'class' => 'control-label col-xs-4' ] ) !!}
 	<div class="col-xs-8">
-		{!! Form::text( 'place', $ticket->place, [ 'class' => 'form-control' ] ) !!}
+		{!! Form::select( 'place_id', \App\Models\Ticket::$places, $ticket->place_id, [ 'class' => 'form-control' ] ) !!}
 	</div>
 </div>
 {!! Form::close() !!}

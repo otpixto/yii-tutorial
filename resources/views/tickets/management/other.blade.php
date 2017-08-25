@@ -94,7 +94,7 @@
                             <td>
                                 {{ $ticketManagement->ticket->getAddress() }}
                                 <span class="small text-muted">
-                                    ({{ $ticketManagement->ticket->place }})
+                                    ({{ $ticketManagement->ticket->getPlace() }})
                                 </span>
                             </td>
                             <td class="text-right hidden-print">

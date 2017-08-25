@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( $ticketManagement->status_code == 'accepted' || $ticketManagement->status_code == 'waiting' )
+    @if ( $ticketManagement->status_code == 'accepted' )
         {!! Form::open( [ 'url' => route( 'tickets.managements.executor', $ticketManagement->id ), 'class' => 'submit-loading form-horizontal' ] ) !!}
         <div class="note note-info hidden-print">
             <div class="form-group">
@@ -81,7 +81,7 @@
                     <div class="note">
                         <dl>
                             <dt>Проблемное место:</dt>
-                            <dd>{{ $ticket->place }}</dd>
+                            <dd>{{ $ticket->getPlace() }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -394,7 +394,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
-                            <h4>Сообщения</h4>
+                            <h4>Комментарии</h4>
                             @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                         </div>
                     </div>
@@ -404,9 +404,9 @@
             @if ( $ticketManagement->canComment() )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
-                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
-                            Добавить сообщение
+                            Добавить комментарий
                         </button>
                     </div>
                 </div>

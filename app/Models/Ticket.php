@@ -16,11 +16,11 @@ class Ticket extends BaseModel
     private $can_group = null;
 
     public static $places = [
-        'Помещение',
-        'Здание',
-        'Двор',
-        'Дорога',
-        'Сквер',
+        1 => 'Помещение',
+        2 => 'Здание',
+        3 => 'Двор',
+        4 => 'Дорога',
+        5 => 'Сквер',
     ];
 
     public static $statuses = [
@@ -38,6 +38,15 @@ class Ticket extends BaseModel
         'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отмена',
         'no_contract'                       => 'Отказ (нет договора с ЭО)',
+    ];
+
+    public static $not_notify = [
+        'draft',
+        'created',
+        'cancel',
+        'completed_with_act',
+        'completed_without_act',
+        'not_verified',
     ];
 
     public static $final_statuses = [
@@ -90,8 +99,10 @@ class Ticket extends BaseModel
     public static $rules = [
         'type_id'                   => 'required|integer',
         'address_id'                => 'required|integer',
-        'place'                     => 'required|integer',
+        'actual_address_id'         => 'required|integer',
+        'place_id'                  => 'required|integer',
         'flat'                      => 'nullable|max:50',
+        'actual_flat'               => 'nullable|max:50',
         'emergency'                 => 'boolean',
         'urgently'                  => 'boolean',
         'dobrodel'                  => 'boolean',
@@ -108,7 +119,9 @@ class Ticket extends BaseModel
     protected $fillable = [
         'type_id',
         'address_id',
+        'actual_address_id',
         'flat',
+        'actual_flat',
         'emergency',
         'urgently',
         'dobrodel',
@@ -118,6 +131,7 @@ class Ticket extends BaseModel
         'middlename',
         'lastname',
         'customer_id',
+        'place_id',
         'text',
     ];
 
@@ -287,7 +301,6 @@ class Ticket extends BaseModel
 
         $ticket = new Ticket( $attributes );
         $ticket->author_id = Auth::user()->id;
-        $ticket->place = self::$places[ $attributes['place'] ];
         $ticket->save();
 
         return $ticket;
@@ -304,11 +317,7 @@ class Ticket extends BaseModel
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
-        if ( !empty( $attributes['place'] ) )
-        {
-            $this->place = self::$places[ $attributes['place'] ];
-        }
-		$this->fill( $attributes );
+        $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
 		{
 			if ( ! isset( $attributes['emergency'] ) )
@@ -348,15 +357,19 @@ class Ticket extends BaseModel
 
     public function getPhones ( $html = false )
     {
-        $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
-        if ( $html )
-        {
-            $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
-        }
-        else
-        {
-            $phones = $phone;
-        }
+		$phones = '';
+		if ( !empty( $this->phone ) )
+		{
+			$phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+			if ( $html )
+			{
+				$phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+			}
+			else
+			{
+				$phones = $phone;
+			}
+		}
         if ( !empty( $this->phone2 ) )
         {
             $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
@@ -388,7 +401,7 @@ class Ticket extends BaseModel
 		return $statuses;
 	}
 
-    public function getAddress ()
+    public function getAddress ( $with_place = false )
     {
         $addr = '';
         if ( $this->address )
@@ -399,7 +412,16 @@ class Ticket extends BaseModel
 		{
 			$addr .= ', кв. ' . $this->flat;
 		}
+		if ( $with_place )
+        {
+            $addr .= ' (' . self::$places[ $this->place_id ] . ')';
+        }
         return $addr;
+    }
+
+    public function getPlace ()
+    {
+        return self::$places[ $this->place_id ] ?? null;
     }
 
 	public function getColor ()
@@ -557,7 +579,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_group ) )
         {
-            if ( \Auth::user()->can( 'tickets.group' ) && $this->status_code != 'cancel' && $this->status_code != 'no_contract' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' )
+            if ( \Auth::user()->can( 'tickets.group' ) && $this->status_code != 'draft' && $this->status_code != 'cancel' && $this->status_code != 'no_contract' && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' )
             {
                 $this->can_group = true;
             }
@@ -732,7 +754,7 @@ class Ticket extends BaseModel
     public function sendTelegram ( $message = null )
     {
 
-        if ( empty( $message ) ) return;
+        if ( empty( $message ) || in_array( $this->status_code, self::$not_notify ) ) return;
 
         foreach ( $this->managements as $ticketManagement )
         {

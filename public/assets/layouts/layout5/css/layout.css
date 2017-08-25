@@ -80,12 +80,13 @@
         .page-header .navbar .search .form-control::-webkit-input-placeholder {
           color: #4b5761; }
       .page-header .navbar .search .btn {
-        padding: 0; }
-        .page-header .navbar .search .btn > i {
-          top: 9px;
-          right: 15px;
+          padding: 0;
+          top: 6px;
+          right: 8px;
           position: absolute;
-          color: #4b5761; }
+          color: #4b5761;
+          background: none;
+        }
     .page-header .navbar .topbar-actions {
       position: absolute; }
       .page-header .navbar .topbar-actions .btn-group-notification .dropdown-menu-v2 {

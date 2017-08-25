@@ -169,6 +169,19 @@ class User extends Authenticatable
         return $name;
     }
 
+    public function getFullName ()
+    {
+        if ( $this->hasRole( 'operator' ) )
+        {
+            return '<i>[Оператор ЕДС]</i> ' . $this->getName();
+        }
+        elseif ( $this->hasRole( 'management' ) && $this->management )
+        {
+            return '<i>[' . $this->management->name . ']</i> ' . $this->getName();
+        }
+        return '';
+    }
+
     public function getAvailableStatuses ( $flush = false )
     {
 

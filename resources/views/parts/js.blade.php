@@ -21,5 +21,7 @@
 <script src="/assets/layouts/global/scripts/quick-sidebar.min.js" type="text/javascript"></script>
 <script src="/assets/layouts/global/scripts/quick-nav.min.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/common.js" type="text/javascript"></script>
+{{--<script src="https://dev.eds-juk.ru:9898/socket.io/socket.io.js" type="text/javascript"></script>
+<script src="/assets/global/scripts/asterisk.js" type="text/javascript"></script>--}}
 <!-- END THEME LAYOUT SCRIPTS -->
 @yield( 'js' )

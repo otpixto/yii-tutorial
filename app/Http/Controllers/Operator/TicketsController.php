@@ -56,7 +56,7 @@ class TicketsController extends BaseController
         $tickets = Ticket
             ::mine()
             ->parentsOnly()
-            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
+            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
             ->orderBy( 'id', 'desc' );
 
         if ( !empty( \Input::get( 'search' ) ) )
@@ -159,6 +159,7 @@ class TicketsController extends BaseController
                 }
                 else
                 {
+                    if ( $ticket->status_code == 'draft' ) continue;
                     $data[] = [
                         '#'                     => $ticket->id,
                         'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
@@ -292,7 +293,7 @@ class TicketsController extends BaseController
                 $data[] = [
                     '#'                     => $ticket->id,
                     'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                    'Текущий статус'        => $ticket->status_name,
+                    'Текущий статус'        => $ticketManagement->status_name,
                     'Адрес проблемы'        => $ticket->address->name,
                     'Квартира'              => $ticket->flat,
                     'Проблемное место'      => $ticket->place,
@@ -382,7 +383,7 @@ class TicketsController extends BaseController
         $this->validate( $request, Ticket::$rules );
         $this->validate( $request, Customer::$rules );
 
-        if ( ! isset( Ticket::$places[ $request->get( 'place' ) ] ) )
+        if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
         {
             return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
         }
@@ -489,6 +490,17 @@ class TicketsController extends BaseController
             $view = 'tickets.operator.show';
 
             $ticket = Ticket::find( $id );
+
+            if ( ! $ticket )
+            {
+                return redirect()->route( 'tickets.index' )
+                    ->withErrors( [ 'Обращение не найдено' ] );
+            }
+			
+			if ( $ticket->status_code == 'draft' )
+			{
+				return redirect()->route( 'tickets.create' );
+			}
 
             if ( !$ticket )
             {
@@ -889,7 +901,7 @@ class TicketsController extends BaseController
         Title::add( 'Обзвон' );
 
         $tickets = Ticket
-            ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )
+            ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
             ->paginate( 30 );
 
         return view( 'tickets.operator.call' )
@@ -1410,10 +1422,67 @@ class TicketsController extends BaseController
             }
         }
 
+        $text = trim( $request->get( 'comment', '' ) );
+
+        if ( !empty( $text ) )
+        {
+
+            $comment = $ticket->addComment( $request->get( 'comment' ) );
+
+            $author = $comment->author->getName();
+
+            if ( $comment->author->hasRole( 'operator' ) )
+            {
+                $author = '<i>[Оператор ЕДС]</i> ' . $author;
+            }
+            elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
+            {
+                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $author;
+            }
+
+            $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
+
+            $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+            $message .= 'Автор комментария: ' . $author . PHP_EOL;
+
+            $message .= PHP_EOL . $comment->text . PHP_EOL;
+
+            $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+            $ticket->sendTelegram( $message );
+
+        }
+
         \DB::commit();
 
         return redirect()->back()->with( 'success', 'Обращение повторно передано в ЭО' );
 
+    }
+
+    public function postSave ( Request $request )
+    {
+        $ticket = Ticket::find( $request->id );
+        if ( ! $ticket ) return;
+        $ticket->edit([
+            $request->get( 'field' ) => $request->get( 'value' )
+        ]);
+    }
+
+    public function cancel ( Request $request, $id )
+    {
+        $ticket = Ticket::find( $id );
+        if ( !$ticket )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Обращение не найдено' ] );
+        }
+        if ( $ticket->status_code != 'draft' )
+        {
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Невозможно отменить добавленное обращение' ] );
+        }
+        $ticket->delete();
+        return redirect()->route( 'tickets.index' );
     }
 	
 }

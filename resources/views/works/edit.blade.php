@@ -63,7 +63,7 @@
 
             <div class="row margin-top-10">
                 <div class="col-xs-12">
-                    <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-file="1">
+                    <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
                         <i class="fa fa-comment"></i>
                         Добавить комментарий
                     </button>

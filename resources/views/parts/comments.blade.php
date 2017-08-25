@@ -15,7 +15,7 @@
 					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
 				</span>
 				@if ( isset( $ticket ) && $ticket->canComment() )
-					<button class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-file="1">
+					<button class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
 						<i class="fa fa-commenting"></i>
 						ответить
 					</button>

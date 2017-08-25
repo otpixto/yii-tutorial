@@ -59,7 +59,7 @@
                         @endif
                         <dl>
                             <dt>Тип обращения:</dt>
-                            <dd>{{ $ticket->type->name }}</dd>
+                            <dd>{{ $ticket->type->name ?? '' }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                             <dd>
 								{{ $ticket->getAddress() }}
 								<span class="small text-muted">
-									({{ $ticket->place }})
+									({{ $ticket->getPlace() }})
 								</span>
 							</dd>
                         </dl>
@@ -94,7 +94,7 @@
                         <dl>
                             <dt>Дополнительные метки:</dt>
                             <dd>
-                                @if ( $ticket->type->is_pay || $ticket->type->category->is_pay )
+                                @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
                                     <span class="badge badge-warning bold">
                                         Платно
                                     </span>
@@ -148,6 +148,7 @@
 			
             <hr />
 
+			@if ( $ticket->type )
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
@@ -174,6 +175,7 @@
                     </div>
                 </div>
             </div>
+			@endif
 
             @if ( $dt_transferred )
                 <div class="row">
@@ -371,7 +373,7 @@
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->customer->getAddress() }}
+                                {{ $ticket->customer ? $ticket->customer->getAddress() : '' }}
                             </dd>
                         </dl>
                     </div>
@@ -380,7 +382,7 @@
 
             <hr />
 
-            @if ( $ticket->type->need_act )
+            @if ( $ticket->type && $ticket->type->need_act )
                 <div class="alert alert-warning">
                     <i class="glyphicon glyphicon-exclamation-sign"></i>
                     Требуется Акт выполненных работ
@@ -470,7 +472,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
-                            <h4>Сообщения</h4>
+                            <h4>Комментарии</h4>
                             @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                         </div>
                     </div>
@@ -480,9 +482,9 @@
             @if ( $ticket->canComment() )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
-                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-file="1">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
-                            Добавить сообщение
+                            Добавить комментарий
                         </button>
                     </div>
                 </div>

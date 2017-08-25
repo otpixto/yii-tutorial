@@ -21,19 +21,22 @@
                     <thead>
                         <tr class="info">
                             <th>
-                                Номер обращения
+                                №
                             </th>
                             <th>
-                                ФИО Заявителя
+                                Статус
                             </th>
                             <th>
-                                Телефон(ы) Заявителя
+                                ФИО \ Телефон(ы) заявителя
                             </th>
                             <th>
                                 ЭО
                             </th>
                             <th>
                                 Категория и тип обращения
+                            </th>
+                            <th>
+                                Текст проблемы
                             </th>
                             <th>
                                 Адрес проблемы
@@ -50,10 +53,11 @@
                                 {{ $ticket->id }}
                             </td>
                             <td>
-                                {{ $ticket->getName() }}
+                                {{ $ticket->status_name }}
                             </td>
                             <td>
-                                {{ $ticket->getPhones() }}
+                                {{ $ticket->getName() }}
+                                <br />{{ $ticket->getPhones() }}
                             </td>
                             <td>
                                 @foreach ( $ticket->managements as $ticketManagement )
@@ -71,9 +75,12 @@
                                 </div>
                             </td>
                             <td>
+                                {{ $ticket->text }}
+                            </td>
+                            <td>
                                 {{ $ticket->getAddress() }}
                                 <span class="small text-muted">
-                                    ({{ $ticket->place }})
+                                    ({{ $ticket->getPlace() }})
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
@@ -88,11 +95,17 @@
                                         <i class="fa fa-repeat"></i>
                                     </a>
                                 </div>
+                                <div class="margin-top-10">
+                                    <button type="button" class="btn btn-default" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+                                        <i class="fa fa-commenting"></i>
+                                        Комментарий
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @if ( $ticket->comments->count() )
                             <tr>
-                                <td colspan="6">
+                                <td colspan="8">
                                     <div class="note note-info">
                                         @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                                     </div>
@@ -253,7 +266,25 @@
 
                 var id = $( this ).attr( 'data-id' );
 
-                bootbox.confirm({
+                bootbox.prompt({
+                    title: 'Напишите причину повторной передачи обращения ЭО',
+                    inputType: 'textarea',
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+                            $.post( '{{ route( 'tickets.repeat' ) }}', {
+                                id: id,
+                                comment: result
+                            }, function ( response )
+                            {
+                                window.location.reload();
+                            });
+                        }
+                    }
+                });
+
+                /*bootbox.confirm({
                     message: 'Передать повторно обращение ЭО?',
                     size: 'small',
                     buttons: {
@@ -280,7 +311,7 @@
 
                         }
                     }
-                });
+                });*/
 
             })
 

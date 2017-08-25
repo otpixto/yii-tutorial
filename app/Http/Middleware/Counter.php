@@ -31,11 +31,11 @@ class Counter
             {
                 $tickets_count = Ticket
                     ::mine()
-                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
+                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
                     ->count();
                 \Session::put( 'tickets_count', $tickets_count );
                 $tickets_call_count = Ticket
-                    ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )
+                    ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                     ->count();
                 \Session::put( 'tickets_call_count', $tickets_call_count );
                 $works_count = Work
@@ -48,7 +48,7 @@ class Counter
                 $tickets_count = $user->management
                     ->tickets()
                     ->mine()
-                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
+                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
                     ->count();
                 $count_not_processed = $user
                     ->management

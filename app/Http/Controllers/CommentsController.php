@@ -31,6 +31,8 @@ class CommentsController extends Controller
         return view( 'modals.comment' )
 			->with( 'model_id', $request->get( 'model_id' ) )
 			->with( 'model_name', $request->get( 'model_name' ) )
+            ->with( 'origin_model_id', $request->get( 'origin_model_id' ) )
+            ->with( 'origin_model_name', $request->get( 'origin_model_name' ) )
             ->with( 'with_file', $request->get( 'with_file' ) );
     }
 	
@@ -39,25 +41,29 @@ class CommentsController extends Controller
         
 		$this->validate( $request, Comment::$rules );
 
-		if ( $request->get( 'model_name' ) == 'App\Models\Ticket' )
+        $comment = Comment::create( $request->all() );
+        $comment->save();
+
+		if ( $request->get( 'origin_model_name' ) == Ticket::class )
         {
 
-            $ticket = Ticket::find( $request->get( 'model_id' ) );
-            $comment = $ticket->addComment( $request->get( 'text' ) );
+            $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
+
+            $author = $comment->author->getName();
 
             if ( $comment->author->hasRole( 'operator' ) )
             {
-                $author = '<i>[Оператор ЕДС]</i> ' . $comment->author->getName();
+                $author = '<i>[Оператор ЕДС]</i> ' . $author;
             }
             elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
             {
-                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $comment->author->getName();
+                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $author;
             }
 
-            $message = '<em>Добавлено сообщение</em>' . PHP_EOL . PHP_EOL;
+            $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
 
-            $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
-            $message .= 'Автор сообщения: ' . $author . PHP_EOL;
+            $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+            $message .= 'Автор комментария: ' . $author . PHP_EOL;
 
             $message .= PHP_EOL . $comment->text . PHP_EOL;
 
@@ -74,11 +80,6 @@ class CommentsController extends Controller
                 }
             }*/
 
-        }
-        else
-        {
-            $comment = Comment::create( $request->all() );
-            $comment->save();
         }
 
         if ( $request->hasFile( 'files' ) )

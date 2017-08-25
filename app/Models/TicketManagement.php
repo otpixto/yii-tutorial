@@ -36,13 +36,16 @@ class TicketManagement extends BaseModel
             'accepted',
         ],
         'accepted' => [
-            'waiting'
+            'waiting',
         ],
         'assigned' => [
             'completed_with_act',
             'completed_without_act',
             'not_verified',
-            'waiting'
+            'waiting',
+        ],
+        'waiting' => [
+            'accepted',
         ],
     ];
 
@@ -294,10 +297,8 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Добавлено обращение</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Адрес проблемы: ' . $ticket->getAddress() . PHP_EOL;
-                $message .= 'Проблемное место: ' . $ticket->place . PHP_EOL . PHP_EOL;
 
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
@@ -314,10 +315,8 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Обращение передано повторно</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Адрес проблемы: ' . $ticket->getAddress() . PHP_EOL;
-                $message .= 'Проблемное место: ' . $ticket->place . PHP_EOL . PHP_EOL;
 
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
@@ -334,7 +333,8 @@ class TicketManagement extends BaseModel
 
                 $res = $this->changeTicketStatus([
 					'transferred',
-					'transferred_again'
+					'transferred_again',
+                    'waiting'
 				]);
                 if ( $res instanceof MessageBag )
                 {
@@ -343,8 +343,9 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
                 $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
 
@@ -364,8 +365,9 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Назначен исполнитель</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Исполнитель: ' . $this->executor . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
                 $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
 
@@ -387,8 +389,9 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
                 $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
 
@@ -412,8 +415,9 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
                 $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
 
@@ -426,7 +430,7 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Обращение закрыто</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
 
                 if ( $ticket->rate )
@@ -448,7 +452,7 @@ class TicketManagement extends BaseModel
 
                 $message = '<em>Обращение отменено</em>' . PHP_EOL . PHP_EOL;
 
-                $message .= '<b>Номер обращения: ' . $ticket->id . '</b>' . PHP_EOL;
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
 
                 $this->sendTelegram( $message );
 

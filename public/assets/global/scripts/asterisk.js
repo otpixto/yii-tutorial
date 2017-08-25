@@ -1,46 +1,29 @@
 var socket = io();
-var token = $( 'meta[name="user-token"]' ).attr( 'content' );
-var connected = false;
-var authorized = false;
+var ext_number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
 socket
 
     .on( 'connect', function ()
     {
-        socket.emit( 'auth', token );
-        connected = true;
+        console.log( 'socket connected' );
+        if ( ext_number )
+        {
+            socket.emit( 'ext_number', ext_number );
+        }
     })
 
-    .on( 'auth', function ()
+    .on( 'picked_up', function ( phone )
     {
-        authorized = true;
+        console.log( 'picked_up', phone );
+        $.cookie( 'phone', phone );
     })
 
-    .on( 'logout', function ()
+    .on( 'picked_down', function ()
     {
-        authorized = false;
+        console.log( 'picked_down' );
+        $.removeCookie( 'phone' );
     })
 
-    .on( 'disconnect', function ()
+    .on( 'call', function ( phone )
     {
-        connected = false;
-        authorized = false;
-    })
-
-    .on( 'picked_up', function ( data )
-    {
-
-
-    })
-
-    .on( 'picked_down', function ( data )
-    {
-
-
-    })
-
-    .on( 'call', function ( data )
-    {
-
-        
     });

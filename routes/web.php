@@ -26,6 +26,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/tickets/close', 'Operator\TicketsController@postClose' )->name( 'tickets.close' );
     Route::post( '/tickets/repeat', 'Operator\TicketsController@postRepeat' )->name( 'tickets.repeat' );
 
+    Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
+    Route::get( '/tickets/{id}/cancel', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
     Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
     Route::get( '/tickets/closed', 'Operator\TicketsController@closed' )->name( 'tickets.closed' );
     Route::get( '/tickets/no_contract', 'Operator\TicketsController@no_contract' )->name( 'tickets.no_contract' );

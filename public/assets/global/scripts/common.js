@@ -169,7 +169,7 @@ if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
     };
 }
 
-function onAnswer ( phone )
+function onPickedUp ( phone )
 {
 
     bootbox.confirm({
@@ -203,6 +203,12 @@ $( document )
 	.ready ( function ()
 	{
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         $( '.pulsate' ).pulsate({
             color: "#CC0000"
         });
@@ -216,6 +222,8 @@ $( document )
 		
 		var model_id = $( this ).attr( 'data-model-id' );
 		var model_name = $( this ).attr( 'data-model-name' );
+        var origin_model_id = $( this ).attr( 'data-origin-model-id' );
+        var origin_model_name = $( this ).attr( 'data-origin-model-name' );
 		var with_file = $( this ).attr( 'data-file' ) || 0;
 
 		if ( ! model_name || ! model_id ) return;
@@ -223,6 +231,8 @@ $( document )
 		$.get( '/comment', {
 			model_name: model_name,
 			model_id: model_id,
+            origin_model_id: origin_model_id,
+            origin_model_name: origin_model_name,
             with_file: with_file
 		}, function ( response )
 		{
