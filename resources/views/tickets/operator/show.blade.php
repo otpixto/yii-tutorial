@@ -367,7 +367,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row hidden">
                 <div class="col-xs-12">
                     <div class="note">
                         <dl>

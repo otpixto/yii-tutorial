@@ -169,34 +169,16 @@ if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
     };
 }
 
-function onPickedUp ( phone )
+function genPassword ( length )
 {
-
-    bootbox.confirm({
-        message: 'Перейти к оформлению обращения?',
-        size: 'small',
-        buttons: {
-            confirm: {
-                label: '<i class="fa fa-check"></i> Да',
-                className: 'btn-success'
-            },
-            cancel: {
-                label: '<i class="fa fa-times"></i> Нет',
-                className: 'btn-danger'
-            }
-        },
-        callback: function ( result )
-        {
-            if ( result )
-            {
-
-                window.location.href = '/tickets/create?phone=' + String( phone ).substr( -10 );
-
-            }
-        }
-    });
-
-};
+    var possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var text = '';
+    for ( var i=0; i < length; i++ )
+    {
+        text += possible.charAt( Math.floor( Math.random() * possible.length ) );
+    }
+    return text;
+}
 
 $( document )
 
@@ -207,10 +189,6 @@ $( document )
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
-        });
-
-        $( '.pulsate' ).pulsate({
-            color: "#CC0000"
         });
 
 	})

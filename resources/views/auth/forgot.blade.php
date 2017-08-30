@@ -3,7 +3,7 @@
 @section( 'content' )
 
     <!-- BEGIN FORGOT PASSWORD FORM -->
-    {!! Form::open( [ 'class' => 'forget-form' ] ) !!}
+    {!! Form::open( [ 'class' => 'forget-form submit-loading' ] ) !!}
     <h3 class="font-green">Забыли пароль?</h3>
 
     @include( 'parts.errors' )

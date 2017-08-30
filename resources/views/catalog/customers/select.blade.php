@@ -10,7 +10,7 @@
             <th>
                 Телефон(ы)
             </th>
-            <th>
+            <th class="hidden">
                 Адрес проживания
             </th>
         </tr>
@@ -29,7 +29,7 @@
             <td>
                 {{ $customer->getPhones() }}
             </td>
-            <td>
+            <td class="hidden">
                 {{ $customer->getAddress() }}
             </td>
         </tr>

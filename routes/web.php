@@ -34,6 +34,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::get( '/tickets/canceled', 'Operator\TicketsController@canceled' )->name( 'tickets.canceled' );
     Route::get( '/tickets/closed', 'Operator\TicketsController@closed' )->name( 'tickets.closed' );
     Route::get( '/tickets/{id}/act', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+    Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
+    Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
     Route::post( '/tickets/{id}/change-status', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
     Route::post( '/tickets/managements/{id}/change-status', 'Operator\TicketsController@changeManagementStatus' )->name( 'tickets.managements.status' );
     Route::post( '/tickets/managements/{id}/executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.managements.executor' );
@@ -54,6 +56,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::get( '/customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
     Route::get( '/customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
 
+    Route::get( '/works/search', 'Operator\WorksController@search' )->name( 'works.search' );
     Route::resource( '/works', 'Operator\WorksController' );
     Route::resource( '/schedule', 'Operator\ScheduleController' );
 

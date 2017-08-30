@@ -2,9 +2,9 @@
 <div class="btn-group-img btn-group">
     <button type="button" class="btn btn-sm md-skip dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span>
-            @if( \Auth::user()->management )
+            @if( \Auth::user()->company || \Auth::user()->managements->count() )
                 <b class="text-info">
-                    ({{ \Auth::user()->management->name }})
+                    ({{ \Auth::user()->company ?? \Auth::user()->managements()->first()->name }})
                 </b>
                 &nbsp;
             @endif

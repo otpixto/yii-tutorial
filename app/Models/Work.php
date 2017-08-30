@@ -68,6 +68,22 @@ class Work extends BaseModel
         $work->time_end = $dt_end->toDateTimeString();
         $work->save();
 
+        $message = '<em>Добавлена работа на сетях</em>' . PHP_EOL . PHP_EOL;
+
+        $message .= '<b>Адрес работы: ' . $work->getAddress() . '</b>' . PHP_EOL;
+        $message .= 'Тип работ: ' . $work->type->name . PHP_EOL;
+        $message .= 'Основание: ' . $work->reason . PHP_EOL;
+        $message .= 'Исполнитель работ: ' . $work->management->name . PHP_EOL;
+        $message .= 'Кто передал: ' . $work->who . PHP_EOL;
+        $message .= 'Состав работ: ' . $work->composition . PHP_EOL . PHP_EOL;
+
+        $message .= 'Начало работ: ' . $work->time_begin . PHP_EOL;
+        $message .= 'Окончание работ: ' . $work->time_end . PHP_EOL;
+
+        $message .= PHP_EOL . route( 'works.edit', $work->id ) . PHP_EOL;
+
+        $work->sendTelegram( $message );
+
         return $work;
 
     }
@@ -115,6 +131,20 @@ class Work extends BaseModel
             });
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->where( function ( $q )
+            {
+                if ( ! \Auth::user()->hasRole( 'operator' ) )
+                {
+                    return $q
+                        ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+                }
+
+            });
+    }
+
     public function getClass ()
     {
         $dt_now = Carbon::now();
@@ -125,6 +155,33 @@ class Work extends BaseModel
             return 'warning';
         }
         return 'text-muted';
+    }
+
+    public function getAddress ()
+    {
+        $addr = '';
+        if ( $this->address )
+        {
+            $addr .= $this->address->name;
+        }
+        return $addr;
+    }
+
+    public function sendTelegram ( $message = null )
+    {
+
+        if ( empty( $message ) || ! $this->management->has_contract ) return;
+
+        foreach ( $this->management->subscriptions as $subscription )
+        {
+            \Telegram::sendMessage([
+                'chat_id'                   => $subscription->telegram_id,
+                'text'                      => $message,
+                'parse_mode'                => 'html',
+                'disable_web_page_preview'  => true
+            ]);
+        }
+
     }
 
 }

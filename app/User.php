@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Classes\Asterisk;
+use App\Notifications\MailResetPasswordToken;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\MessageBag;
@@ -14,17 +15,21 @@ class User extends Authenticatable
 
     public $availableStatuses = null;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+    protected $nullable = [
+        'company',
+        'phone',
+        'middlename',
+        'roles',
+    ];
+
     protected $fillable = [
         'firstname',
         'middlename',
         'lastname',
         'phone',
         'email',
+        'company',
+        'password',
     ];
 
     public static $rules_create = [
@@ -33,7 +38,7 @@ class User extends Authenticatable
             'max:255',
         ],
         'middlename' => [
-            'required',
+            'nullable',
             'max:255',
         ],
         'lastname' => [
@@ -41,7 +46,7 @@ class User extends Authenticatable
             'max:255',
         ],
         'phone' => [
-            'required',
+            'nullable',
             'max:18',
             'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         ],
@@ -56,6 +61,18 @@ class User extends Authenticatable
             'min: 6',
             'confirmed'
         ],
+        'company' => [
+            'nullable',
+            'max:255',
+        ],
+        'roles' => [
+            'nullable',
+            'array',
+        ],
+        'roles' => [
+            'nullable',
+            'array',
+        ]
     ];
 
     public static $rules_edit = [
@@ -64,7 +81,7 @@ class User extends Authenticatable
             'max:255',
         ],
         'middlename' => [
-            'required',
+            'nullable',
             'max:255',
         ],
         'lastname' => [
@@ -72,7 +89,12 @@ class User extends Authenticatable
             'max:255',
         ],
         'phone' => [
-            'required',
+            'nullable',
+            'max:18',
+            'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        ],
+        'company' => [
+            'nullable',
             'max:255',
         ],
     ];
@@ -100,6 +122,11 @@ class User extends Authenticatable
         return $this->belongsTo( 'App\Models\Management' );
     }
 
+    public function managements ()
+    {
+        return $this->belongsToMany( 'App\Models\Management', 'users_managements' );
+    }
+
     /**
      * Авторизация на телефоне
      */
@@ -108,32 +135,23 @@ class User extends Authenticatable
         return $this->hasOne( 'App\Models\PhoneSession' );
     }
 
-    public static function add ( array $input )
+    public static function create ( array $attributes = [] )
     {
 
-        $rules = self::$rules_create;
+        $attributes['password'] = bcrypt( $attributes['password'] );
+        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
 
-        $validator = \Validator::make( $input, $rules );
-        if ( $validator->fails() ) return $validator->messages();
-
-        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $input['phone'] ), -10 );
-
-        $user = new User( $input );
+        $user = new User( $attributes );
         $user->save();
 
         return $user;
 
     }
 
-    public function edit ( array $input )
+    public function edit ( array $attributes = [] )
     {
 
-        $rules = self::$rules_edit;
-
-        $validator = \Validator::make( $input, $rules );
-        if ( $validator->fails() ) return $validator->messages();
-
-        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $input['phone'] ), -10 );
+        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
 
         $this->fill( $input );
         $this->save();
@@ -142,15 +160,10 @@ class User extends Authenticatable
 
     }
 
-    public function changePass ( array $input )
+    public function changePass ( array $attributes = [] )
     {
 
-        $rules = self::$rules_password;
-
-        $validator = \Validator::make( $input, $rules );
-        if ( $validator->fails() ) return $validator->messages();
-
-        $this->password = bcrypt( $input['password'] );
+        $this->password = bcrypt( $attributes['password'] );
         $this->save();
 
         return $this;
@@ -175,9 +188,9 @@ class User extends Authenticatable
         {
             return '<i>[Оператор ЕДС]</i> ' . $this->getName();
         }
-        elseif ( $this->hasRole( 'management' ) && $this->management )
+        elseif ( $this->hasRole( 'management' ) && $this->managements->count() )
         {
-            return '<i>[' . $this->management->name . ']</i> ' . $this->getName();
+            return '<i>[' . ( $this->company ?? $this->managements()->first()->name ) . ']</i> ' . $this->getName();
         }
         return '';
     }
@@ -215,6 +228,29 @@ class User extends Authenticatable
             return new MessageBag( [ $asterisk->last_result ] );
         }
         $this->phoneSession->delete();
+    }
+
+    public function getPhone ( $html = false )
+    {
+        $phones = '';
+        if ( !empty( $this->phone ) )
+        {
+            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+            if ( $html )
+            {
+                $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+            }
+            else
+            {
+                $phones = $phone;
+            }
+        }
+        return $phones;
+    }
+
+    public function sendPasswordResetNotification ( $token )
+    {
+        $this->notify( new MailResetPasswordToken( $token ) );
     }
 
 }

@@ -39,7 +39,9 @@
         {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
     </td>
     <td>
-        {{ $ticket->author->getShortName() }}
+        <span class="{{ $ticket->author->id == \Auth::user()->id ? 'mark' : '' }}">
+            {{ $ticket->author->getShortName() }}
+        </span>
     </td>
     <td>
         @foreach ( $ticket->managements as $ticketManagement )
@@ -60,9 +62,11 @@
     </td>
     <td>
         {{ $ticket->getAddress() }}
-		<span class="small text-muted">
-			({{ $ticket->getPlace() }})
-		</span>
+        @if ( $ticket->getPlace() )
+            <span class="small text-muted">
+                ({{ $ticket->getPlace() }})
+            </span>
+        @endif
     </td>
     <td class="text-right hidden-print">
         <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">

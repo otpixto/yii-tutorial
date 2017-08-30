@@ -85,9 +85,6 @@
                             <thead>
                             <tr>
                                 <th>
-                                    ID
-                                </th>
-                                <th>
                                     E-mail
                                 </th>
                                 <th>
@@ -96,6 +93,12 @@
                                 <th>
                                     Телефон
                                 </th>
+                                <th>
+                                    Роли
+                                </th>
+                                <th>
+                                    Активен
+                                </th>
                                 <th class="text-right">
                                     &nbsp;
                                 </th>
@@ -103,21 +106,42 @@
                             </thead>
                             <tbody>
                             @foreach ( $users as $user )
-                                <tr>
-                                    <td>
-                                        {{ $user->id }}
-                                    </td>
+                                <tr class="{{ $user->admin ? 'text-danger bold' : '' }}">
                                     <td>
                                         {{ $user->email }}
                                     </td>
                                     <td>
-                                        {{ $user->getName() }}
+                                        <span class="small">
+                                            {{ $user->getName() }}
+                                        </span>
                                     </td>
                                     <td>
-                                        {{ $user->phone }}
+                                        <span class="small">
+                                            {{ $user->getPhone() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @foreach ( $user->roles as $role )
+                                            <div class="small">
+                                                <a href="{{ route( 'roles.edit', $role->id ) }}">
+                                                    {{ $role->name }}
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @if ( $user->active )
+                                            <span class="label label-success">
+                                                Да
+                                            </span>
+                                        @else
+                                            <span class="label label-danger">
+                                                Нет
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-xs btn-info">
+                                        <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>

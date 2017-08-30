@@ -71,17 +71,24 @@ class UsersController extends BaseController
         Title::add( 'Создать пользователя' );
 
         $roles = Role::orderBy( 'name' )->get();
-        $perms_tree = Permission::getTree();
 
         return view('admin.users.create' )
-            ->with( 'perms_tree', $perms_tree )
             ->with( 'roles', $roles );
 
     }
 
     public function store ( Request $request )
     {
-        dd( $request->all() );
+
+        $this->validate( $request, User::$rules_create );
+
+        $user = User::create( $request->all() );
+
+        $user->syncRoles( $request->get( 'roles', [] ) );
+
+        return redirect()->route( 'users.edit', $user->id )
+            ->with( 'success', 'Пользователь успешно создан' );
+
     }
 
     public function edit ( $id )
@@ -100,7 +107,11 @@ class UsersController extends BaseController
         $roles = Role::orderBy( 'name' )->get();
         $perms_tree = Permission::getTree();
 
-        $managements = Management::orderBy( 'name' )->get()->pluck( 'name', 'id' );
+        $managements = Management
+            ::whereNotIn( 'id', $user->managements->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->get()
+            ->pluck( 'name', 'id' );
 
         return view('admin.users.edit' )
             ->with( 'user', $user )
@@ -124,31 +135,29 @@ class UsersController extends BaseController
         switch ( $request->get( 'action' ) )
         {
             case 'edit_personal':
-                $res = $user->edit( \Input::all() );
+                $this->validate( $request, User::$rules_edit );
+                $res = $user->edit( $request->all() );
                 if ( $res instanceof MessageBag )
                 {
                     return redirect()->back()->withInput()->withErrors( $res );
                 }
                 break;
             case 'edit_binds':
-                $user->management_id = $request->get( 'management_id' ) ?? null;
-                $user->save();
+                $user->managements()->sync( $request->get( 'managements' ) );
                 break;
             case 'change_password':
-                $res = $user->changePass( \Input::all() );
+                $this->validate( $request, User::$rules_password );
+                $res = $user->changePass( $request->all() );
                 if ( $res instanceof MessageBag )
                 {
                     return redirect()->back()->withInput()->withErrors( $res );
                 }
                 break;
             case 'edit_access':
-
                 $user->syncRoles( $request->get( 'roles', [] ) );
                 $user->syncPermissions( $request->get( 'perms', [] ) );
-
                 $user->active = $request->get( 'active', 0 );
                 $user->save();
-
                 break;
             default:
                 return redirect()->back()->withInput()->withErrors( [ 'Некорректное действие' ] );

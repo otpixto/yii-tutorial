@@ -11,36 +11,28 @@
 
 @section( 'content' )
 
-    <div class="portlet light">
-        <div class="portlet-body">
-            <div class="tab-content">
+    {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ] ] ) !!}
 
-                {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ] ] ) !!}
-
-                <div class="form-group">
-                    <label class="control-label">Код</label>
-                    {!! Form::text( 'code', \Input::old( 'code', $perm->code ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label">Наименование</label>
-                    {!! Form::text( 'name', \Input::old( 'name', $perm->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label">Guard</label>
-                    {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', $perm->guard_name ), [ 'class' => 'form-control' ] ) !!}
-                </div>
-
-                <div class="margin-top-10">
-                    {!! Form::submit( 'Редактировать', [ 'class' => 'btn green' ] ) !!}
-                </div>
-
-                {!! Form::close() !!}
-
-            </div>
-        </div>
+    <div class="form-group">
+        {!! Form::label( 'code', 'Код', [ 'class' => 'control-label' ] ) !!}
+        {!! Form::text( 'code', \Input::old( 'code', $perm->code ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
     </div>
+
+    <div class="form-group">
+        {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+        {!! Form::text( 'name', \Input::old( 'name', $perm->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+    </div>
+
+    <div class="form-group">
+        {!! Form::label( 'guard_name', 'Guard', [ 'class' => 'control-label' ] ) !!}
+        {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', $perm->guard_name ), [ 'class' => 'form-control' ] ) !!}
+    </div>
+
+    <div class="margin-top-10">
+        {!! Form::submit( 'Редактировать', [ 'class' => 'btn green' ] ) !!}
+    </div>
+
+    {!! Form::close() !!}
 
 @endsection
 

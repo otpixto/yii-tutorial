@@ -3,7 +3,7 @@
 @section( 'content' )
 
     <!-- BEGIN LOGIN FORM -->
-    {!! Form::open( [ 'class' => 'login-form' ] ) !!}
+    {!! Form::open( [ 'class' => 'login-form submit-loading' ] ) !!}
         <h3 class="form-title font-green">Авторизация</h3>
 
         @include( 'parts.errors' )
@@ -17,12 +17,12 @@
         </div>
         <div class="form-group">
             <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
-            <label class="control-label visible-ie8 visible-ie9">E-mail</label>
-            <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="E-mail" name="email" />
+            {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+            {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control form-control-solid placeholder-no-fix', 'autocomplete' => 'off', 'placeholder' => 'E-mail', 'required' => 'required' ] ) !!}
         </div>
         <div class="form-group">
-            <label class="control-label visible-ie8 visible-ie9">Пароль</label>
-            <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Пароль" name="password" />
+            {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
+            {!! Form::password( 'password', [ 'class' => 'form-control form-control-solid placeholder-no-fix', 'autocomplete' => 'off', 'placeholder' => 'Пароль', 'required' => 'required' ] ) !!}
         </div>
         <div class="form-actions">
             <button type="submit" class="btn green uppercase">Войти</button>

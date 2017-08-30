@@ -91,7 +91,7 @@
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id', [ $address ? $address->pluck( 'name', 'id' )->toArray() : [] ], $work->address_id ?? null, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес работы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required' ] ) !!}
+                    {!! Form::select( 'address_id', [ $work->address ? $work->address->pluck( 'name', 'id' )->toArray() : [] ], $work->address_id ?? null, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес работы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required' ] ) !!}
                 </div>
             </div>
 

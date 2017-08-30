@@ -74,9 +74,10 @@ class AddressesController extends BaseController
     public function store(Request $request)
     {
 
-        $this->validate( $request, Address::getRules() );
+        $this->validate( $request, Address::$rules );
 
         $address = Address::create( $request->all() );
+        $address->save();
 
         return redirect()->route( 'addresses.index' )
             ->with( 'success', 'Адрес успешно добавлен' );
@@ -173,7 +174,7 @@ class AddressesController extends BaseController
                 ->withErrors( [ 'Адрес не найдена' ] );
         }
 
-        $this->validate( $request, Address::getRules( $address->id ) );
+        $this->validate( $request, Address::$rules );
 
         $address->fill( $request->all() );
         $address->save();

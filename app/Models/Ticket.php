@@ -94,12 +94,14 @@ class Ticket extends BaseModel
         'phone2',
         'flat',
         'managements',
+        'actual_address_id',
+        'actual_flat',
     ];
 
     public static $rules = [
         'type_id'                   => 'required|integer',
         'address_id'                => 'required|integer',
-        'actual_address_id'         => 'required|integer',
+        'actual_address_id'         => 'nullable|integer',
         'place_id'                  => 'required|integer',
         'flat'                      => 'nullable|max:50',
         'actual_flat'               => 'nullable|max:50',
@@ -228,13 +230,13 @@ class Ticket extends BaseModel
                 }
                 $q
                     ->whereIn( 'status_code', $user->getAvailableStatuses() );
-                if ( $user->can( 'tickets.executor' ) && $user->management )
+                if ( $user->can( 'tickets.executor' ) && $user->managements->count() )
                 {
                     $q
                         ->whereHas( 'allowedManagements', function ( $q2 ) use ( $user )
                         {
                             return $q2
-                                ->where( 'management_id', '=', $user->management->id );
+                                ->whereIn( 'management_id', $user->managements->pluck( 'id' ) );
                         });
                 }
                 else
@@ -293,10 +295,10 @@ class Ticket extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
         if ( !empty( $attributes['phone2'] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
         }
 
         $ticket = new Ticket( $attributes );
@@ -311,11 +313,11 @@ class Ticket extends BaseModel
 	{
         if ( !empty( $attributes['phone'] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
         }
         if ( !empty( $attributes['phone2'] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
         }
         $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )

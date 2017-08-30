@@ -47,18 +47,17 @@ class UserPhoneAuth extends BaseModel
             return new MessageBag([ 'Пользовательский телефон уже зарегистрирован' ]);
         }
 
-        $r = UserPhoneAuth::find( \Auth::user ()->id );
-        if ( $r )
+        $res = UserPhoneAuth
+            ::where( 'user_id', '=', \Auth::user ()->id )
+            ->orWhere( 'ext_number', '=', $attributes['ext_number'] )
+            ->get();
+        if ( $res->count() )
         {
-            $r->delete();
+            foreach ( $res as $r )
+            {
+                $r->delete();
+            }
         }
-
-        $r = UserPhoneAuth::where( 'ext_number', '=', $attributes['ext_number'] )->first();
-        if ( $r )
-        {
-            $r->delete();
-        }
-
         $phoneAuth = new UserPhoneAuth( $attributes );
         $phoneAuth->user_id = \Auth::user()->id;
         $phoneAuth->code = self::genCode();
@@ -103,7 +102,7 @@ class UserPhoneAuth extends BaseModel
     private static function callWithCode ( $ext_number, $code )
     {
 
-        if ( !self::$asterisk || !self::$asterisk->originate( $ext_number, $code ) )
+        if ( ! self::$asterisk || ! self::$asterisk->originate( $ext_number, $code ) )
         {
             return new MessageBag([ 'Ошибка Астериска' ]);
         }

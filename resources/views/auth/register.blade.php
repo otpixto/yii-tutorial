@@ -6,7 +6,7 @@
     @include( 'parts.success' )
 
     <!-- BEGIN REGISTRATION FORM -->
-    {!! Form::open( [ 'class' => 'register-form' ] ) !!}
+    {!! Form::open( [ 'class' => 'register-form submit-loading' ] ) !!}
     <h3 class="font-green">Регистрация</h3>
 
     @include( 'parts.errors' )
@@ -38,7 +38,15 @@
     </div>
     <div class="form-group">
         {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
-        {!! Form::password( 'password', [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Пароль', 'autocomplete' => 'off', 'required' ] ) !!}
+        <div class="input-group">
+            {!! Form::password( 'password', [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'Пароль', 'autocomplete' => 'off', 'required' ] ) !!}
+            <span class="input-group-btn">
+                <button id="genpassword" class="btn btn-info" type="button">
+                    <i class="fa fa-arrow-left fa-fw"></i>
+                    случайный
+                </button>
+            </span>
+        </div>
     </div>
     <div class="form-group">
         {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
@@ -60,9 +68,22 @@
         $( document )
             .ready( function ()
             {
+
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
+
+            })
+
+            .on( 'click', '#genpassword', function ( e )
+            {
+
+                e.preventDefault();
+
+                var password = genPassword( 6 );
+                alert( 'Сохраните этот пароль: ' + password );
+                $( '#password, #password_confirmation' ).val( password );
+
             });
 
     </script>

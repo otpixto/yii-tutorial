@@ -9,22 +9,26 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15 hidden-print">
-        <div class="col-xs-6">
-            @can( 'tickets.create' )
-                <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
-                    <i class="fa fa-plus"></i>
-                    Добавить обращение
-                </a>
-            @endcan
+    @can( 'tickets.create', 'tickets.export' )
+        <div class="row margin-bottom-15 hidden-print">
+            <div class="col-xs-6">
+                @can( 'tickets.create' )
+                    <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
+                        <i class="fa fa-plus"></i>
+                        Добавить обращение
+                    </a>
+                @endcan
+            </div>
+            <div class="col-xs-6 text-right">
+                @can( 'tickets.export' )
+                    <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                        <i class="fa fa-download"></i>
+                        Выгрузить в Excel
+                    </a>
+                @endcan
+            </div>
         </div>
-        <div class="col-xs-6 text-right">
-            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                <i class="fa fa-download"></i>
-                Выгрузить в Excel
-            </a>
-        </div>
-    </div>
+    @endcan
 
     <div class="row hidden-print">
         <div class="col-xs-12">

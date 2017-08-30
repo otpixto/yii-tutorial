@@ -51,7 +51,7 @@
 {{-- Subcopy --}}
 @isset($actionText)
 @component('mail::subcopy')
-Если у вас возникли проблемы с нажатием кнопки "{{ $actionText }}" button, Скопируйте и вставьте URL-адрес ниже
+Если у вас возникли проблемы с нажатием кнопки "{{ $actionText }}", Скопируйте и вставьте URL-адрес ниже
 В ваш веб-браузер: [{{ $actionUrl }}]({{ $actionUrl }})
 @endcomponent
 @endisset

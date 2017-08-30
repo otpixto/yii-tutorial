@@ -37,20 +37,20 @@
                 <!-- PERSONAL INFO TAB -->
                 <div class="steps" id="step1">
                     <div class="form-group">
-                        <label class="control-label">Фамилия</label>
-                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
+                        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' => 'required' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Имя</label>
-                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
+                        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя', 'required' => 'required' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Отчество</label>
+                        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Телефон</label>
-                        {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control', 'placeholder' => 'Телефон' ] ) !!}
+                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
@@ -61,16 +61,24 @@
                 <!-- PASSWORD TAB -->
                 <div class="steps hidden" id="step2">
                     <div class="form-group">
-                        <label class="control-label">E-mail</label>
-                        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
+                        {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail', 'required' => 'required' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Пароль</label>
-                        {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
+                        {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
+                        <div class="input-group">
+                            {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль', 'required' => 'required' ] ) !!}
+                            <span class="input-group-btn">
+                                <button id="genpassword" class="btn btn-info" type="button">
+                                    <i class="fa fa-arrow-left fa-fw"></i>
+                                    случайный
+                                </button>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Повторите пароль</label>
-                        {!! Form::password( 'password_confirm', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
+                        {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль', 'required' => 'required' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
@@ -91,26 +99,11 @@
                         @foreach ( $roles as $_role )
                             <label class="mt-checkbox mt-checkbox-outline">
                                 {{ $_role->name }}
-                                {!! Form::checkbox( 'roles[]', $_role->id ) !!}
+                                {!! Form::checkbox( 'roles[]', $_role->code ) !!}
                                 <span></span>
                             </label>
                         @endforeach
                     </div>
-
-                    <div class="caption caption-md">
-                        <i class="icon-globe theme-font hide"></i>
-                        <span class="caption-subject font-blue-madison bold uppercase">Выберите права</span>
-                    </div>
-
-                    @if ( $perms_tree )
-                        <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-busy="false" aria-selected="false">
-                            <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
-                                @include( 'admin.perms.tree', [ 'tree' => $perms_tree ] )
-                            </ul>
-                        </div>
-                    @endif
-
-                    <div id="perms-results"></div>
 
                     <!--end profile-settings-->
                     <div class="margin-top-10">
@@ -129,13 +122,13 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
 
     <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
@@ -143,36 +136,9 @@
             .ready( function ()
             {
 
-                @if ( $perms_tree )
-
-                    $( '#tree' )
-
-                    .on( 'changed.jstree', function ( e, data )
-                    {
-                        $( '#perms-results' ).empty();
-                        $.each( data.selected, function ( i, code )
-                        {
-                            $( '#perms-results' ).append(
-                                $( '<input type="hidden" name="perms[]">' ).val( code )
-                            );
-                        });
-                    })
-
-                    .jstree(
-                        {
-                            'plugins': [
-                                'wholerow',
-                                'checkbox'
-                            ],
-                            "core": {
-                                "themes":
-                                    {
-                                        "icons":false
-                                    }
-                            }
-                        });
-
-                @endif
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
 
             })
 
@@ -192,6 +158,17 @@
                         step_block.addClass( 'hidden' ).prev().removeClass( 'hidden' );
                         break;
                 }
+            })
+
+            .on( 'click', '#genpassword', function ( e )
+            {
+
+                e.preventDefault();
+
+                var password = genPassword( 6 );
+                alert( 'Сохраните этот пароль: ' + password );
+                $( '#password, #password_confirmation' ).val( password );
+
             });
 
     </script>

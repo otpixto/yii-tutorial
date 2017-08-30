@@ -23,7 +23,7 @@
                     <a href="#personal" data-toggle="tab" aria-expanded="true">Персональная информация</a>
                 </li>
                 <li>
-                    <a href="#binds" data-toggle="tab">Привязки</a>
+                    <a href="#binds" data-toggle="tab">Привязки ЭО</a>
                 </li>
                 <li>
                     <a href="#password" data-toggle="tab">Сменить пароль</a>
@@ -55,7 +55,11 @@
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone', \Input::old( 'phone', $user->phone ), [ 'class' => 'form-control', 'placeholder' => 'Телефон' ] ) !!}
+                        {!! Form::text( 'phone', \Input::old( 'phone', $user->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label( 'company', 'Компания', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'company', \Input::old( 'company', $user->company ), [ 'class' => 'form-control', 'placeholder' => 'Компания' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
@@ -66,11 +70,22 @@
 
                 <!-- BINDS TAB -->
                 <div class="tab-pane" id="binds">
-                    {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
+                    {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                     {!! Form::hidden( 'action', 'edit_binds' ) !!}
+                    <div class="mt-checkbox-list">
+                        @foreach ( $user->managements as $management )
+                            <label class="mt-checkbox mt-checkbox-outline">
+                                {{ $management->name }}
+                                {!! Form::checkbox( 'managements[]', $management->id, true ) !!}
+                                <span></span>
+                            </label>
+                        @endforeach
+                    </div>
                     <div class="form-group">
-                        {!! Form::label( 'management_id', 'Исполнитель', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'management_id', [ null => ' -- не присвоен -- ' ] + $managements->toArray(), $user->management_id, [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель' ] ) !!}
+                        <div class="col-xs-12">
+                            {!! Form::label( 'add_management', 'Добавить исполнителя', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::select( 'managements[]', [ null => ' -- выберите из списка -- ' ] + $managements->toArray(), null, [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель', 'id' => 'add_management' ] ) !!}
+                        </div>
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
@@ -84,12 +99,12 @@
                     {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
                     {!! Form::hidden( 'action', 'change_password' ) !!}
                     <div class="form-group">
-                        <label class="control-label">Пароль</label>
+                        {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Повторите пароль</label>
-                        {!! Form::password( 'password_confirm', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
+                        {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::submit( 'Сменить пароль', [ 'class' => 'btn green' ] ) !!}
@@ -159,7 +174,6 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -167,6 +181,7 @@
 
 @section( 'js' )
     <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -176,7 +191,19 @@
             .ready( function ()
             {
 
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
+
                 $( '.select2' ).select2();
+
+                $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                    var target = $(e.target).attr("href");
+                    if ( target == '#binds' )
+                    {
+                        $( '.select2' ).select2();
+                    }
+                });
 
                 @if ( $perms_tree )
 

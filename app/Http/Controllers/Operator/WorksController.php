@@ -22,11 +22,9 @@ class WorksController extends BaseController
     public function index()
     {
 
-        $types = Type::all();
-        $managements = Management::all();
-
         $works = Work
-            ::orderBy( 'id', 'desc' );
+            ::mine()
+            ->orderBy( 'id', 'desc' );
 
         if ( \Input::get( 'show' ) != 'all' )
         {
@@ -105,8 +103,8 @@ class WorksController extends BaseController
 
         return view( 'works.index' )
             ->with( 'works', $works )
-            ->with( 'types', $types )
-            ->with( 'managements', $managements )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'address', $address ?? null );
 
     }
@@ -130,8 +128,8 @@ class WorksController extends BaseController
         }
 
         return view( 'works.create' )
-            ->with( 'managements', $managements )
-            ->with( 'types', $types )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'address', $address ?? null );
 
     }
@@ -168,7 +166,22 @@ class WorksController extends BaseController
     public function show ( $id )
     {
 
+        if ( \Auth::user()->can( 'works.edit' ) )
+        {
+            return redirect()->route( 'works.edit', $id );
+        }
 
+        Title::add( 'Просмотр сообщения' );
+
+        $work = Work::find( $id );
+
+        if ( ! $work )
+        {
+            return redirect()->back()->withErrors(['Запись не найдена']);
+        }
+
+        return view( 'works.show' )
+            ->with( 'work', $work );
 
     }
 
@@ -178,8 +191,13 @@ class WorksController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
+
+        if ( ! \Auth::user()->can( 'works.edit' ) )
+        {
+            return redirect()->route( 'works.show', $id );
+        }
 
         Title::add( 'Редактировать сообщение' );
 
@@ -243,6 +261,27 @@ class WorksController extends BaseController
     {
 
 
+
+    }
+
+    public function search ( Request $request )
+    {
+
+        $now = Carbon::now()->toDateString();
+
+        $works = Work
+            ::where( 'address_id', '=', $request->get( 'address_id' ) )
+            ->where( 'type_id', '=', $request->get( 'type_id' ) )
+            ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
+            ->orderBy( 'id', 'desc' )
+            ->take( 10 )
+            ->get();
+
+        if ( $works->count() )
+        {
+            return view( 'works.select' )
+                ->with( 'works', $works );
+        }
 
     }
 

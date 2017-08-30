@@ -19,13 +19,6 @@
         <div class="col-lg-7">
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
                     {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
@@ -33,6 +26,13 @@
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
                     {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -68,12 +68,12 @@
                 </div>
             </div>
 
-            <hr style="margin-top: 26px;" />
+            <hr style="margin-top: 30px;" />
 
             <div class="form-group">
                 {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-4">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Телефон', 'required' ] ) !!}
+                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '' ] ) !!}
                 </div>
                 <div class="col-xs-4">
                     {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Доп. телефон' ] ) !!}
@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group ">
                 {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
                     {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control autosave', 'placeholder' => 'Фамилия', 'required' ] ) !!}
@@ -104,50 +104,48 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group hidden">
                 {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required', 'id' => 'actual_address_id' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'required', 'id' => 'actual_flat' ] ) !!}
+                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'id' => 'actual_flat' ] ) !!}
                 </div>
             </div>
 
         </div>
 
-        <div class="col-lg-5">
+        <div class="col-lg-5 hidden" id="info-block">
 
             <hr class="visible-sm" />
 
             <div class="form-group">
-                <label class="control-label col-xs-3">
-                    Категория
-                </label>
-                <div class="col-xs-9">
-                    <span class="form-control" id="category"></span>
+                {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
+                <div class="col-md-7 col-xs-6">
+                    <span class="form-control-static bold text-info" id="category"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Сезонность устранения', [ 'class' => 'control-label col-xs-5' ] ) !!}
-                <div class="col-xs-7">
-                    <span class="form-control" id="season"></span>
+                {!! Form::label( null, 'Сезонность устранения', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
+                <div class="col-md-7 col-xs-6">
+                    <span class="form-control-static bold text-info" id="season"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Период на принятие заявки в работу, час', [ 'class' => 'control-label col-xs-7' ] ) !!}
-                <div class="col-xs-5">
-                    <span class="form-control" id="period_acceptance"></span>
+                {!! Form::label( null, 'Период на принятие заявки в работу, час', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
+                <div class="col-md-5 col-xs-6">
+                    <span class="form-control-static bold text-info" id="period_acceptance"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Период на исполнение, час', [ 'class' => 'control-label col-xs-7' ] ) !!}
-                <div class="col-xs-5">
-                    <span class="form-control" id="period_execution"></span>
+                {!! Form::label( null, 'Период на исполнение, час', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
+                <div class="col-md-5 col-xs-6">
+                    <span class="form-control-static bold text-info" id="period_execution"></span>
                 </div>
             </div>
 
@@ -209,9 +207,57 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title">Выберите заявителя</h4>
+                    <h4 class="modal-title">
+                        Выберите заявителя
+                    </h4>
                 </div>
                 <div class="modal-body" id="customers">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="tickets-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-warning bold">
+                        <i class="fa fa-support"></i>
+                        Обращения заявителя
+                    </h4>
+                </div>
+                <div class="modal-body" id="customer_tickets">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="works-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title bold text-danger">
+                        <i class="fa fa-wrench"></i>
+                        Работы на сетях
+                    </h4>
+                </div>
+                <div class="modal-body" id="works">
 
                 </div>
                 <div class="modal-footer">
@@ -250,7 +296,7 @@
 
         var streamer = new ya.speechkit.SpeechRecognition();
 
-        function SearchCustomers ()
+        function SearchCustomers ( obj )
         {
 
             var phone = $( '#phone' ).val();
@@ -262,7 +308,10 @@
                 return;
             }
 
-            //if ( phone.length < 10 ) return;
+            if ( obj )
+            {
+                obj.trigger( 'change' );
+            }
 
             $( '#customers-list .list-group' ).empty();
 
@@ -286,6 +335,30 @@
                 {
                     $( '#customers' ).empty();
                     $( '#customers-select' ).attr( 'disabled', 'disabled' ).attr( 'class', 'btn btn-default' );
+                }
+            });
+
+        };
+
+        function SearchTickets ()
+        {
+
+            var customer_id = $( '#customer_id' ).val();
+
+            if ( ! customer_id ) return;
+
+            $.get( '{{ route( 'tickets.search' ) }}', {
+                customer_id: customer_id
+            }, function ( response )
+            {
+                if ( response )
+                {
+                    $( '#customer_tickets' ).html( response );
+                    $( '#tickets-modal' ).modal( 'show' );
+                }
+                else
+                {
+                    $( '#customer_tickets' ).empty();
                 }
             });
 
@@ -411,6 +484,7 @@
                 type_id: type_id
             }, function ( response )
             {
+                $( '#info-block' ).removeClass( 'hidden' );
                 $( '#period_acceptance' ).text( response.period_acceptance );
                 $( '#period_execution' ).text( response.period_execution );
                 $( '#season' ).text( response.season );
@@ -436,6 +510,33 @@
             }, function ( response )
             {
                 $( '#managements' ).html( response );
+            });
+
+        };
+
+        function GetWorks ()
+        {
+
+            var address_id = $( '#address_id' ).val();
+            var type_id = $( '#type_id' ).val();
+            if ( !address_id || !type_id )
+            {
+                return;
+            };
+            $.get( '{{ route( 'works.search' ) }}', {
+                address_id: address_id,
+                type_id: type_id
+            }, function ( response )
+            {
+                if ( response )
+                {
+                    $( '#works' ).html( response );
+                    $( '#works-modal' ).modal( 'show' );
+                }
+                else
+                {
+                    $( '#works' ).empty();
+                }
             });
 
         };
@@ -469,7 +570,13 @@
 
                 GetTypeInfo();
                 GetManagements();
+                GetWorks();
                 SearchCustomers();
+                SearchTickets();
+
+                @if ( $draft->phone )
+                    $( '#phone' ).trigger( 'change' );
+                @endif
 
             })
 
@@ -486,9 +593,14 @@
                 });
             })
 
+            .on( 'change', '#customer_id', function ( e )
+            {
+                SearchTickets();
+            })
+
             .on( 'keyup', '#phone', function ( e )
             {
-                SearchCustomers();
+                SearchCustomers( $( this ) );
             })
 
             .on( 'keydown', function ( e )
@@ -615,26 +727,6 @@
 
             })
 
-            .on( 'typeahead:asyncrequest', '#address', function ( e, data )
-            {
-                $( '#address_id' ).val( '' ).trigger( 'change' );
-            })
-
-            .on( 'typeahead:select', '#address', function ( e, data )
-            {
-                $( '#address_id' ).val( data.id ).trigger( 'change' );
-            })
-
-            .on( 'typeahead:asyncrequest', '#customer_address', function ( e, data )
-            {
-                $( '#customer_address_id' ).val( '' );
-            })
-
-            .on( 'typeahead:select', '#customer_address', function ( e, data )
-            {
-                $( '#customer_address_id' ).val( data.id );
-            })
-
             .on( 'change', '#type_id', function ( e )
             {
                 GetTypeInfo();
@@ -643,6 +735,7 @@
             .on( 'change', '#address_id, #type_id', function ( e )
             {
                 GetManagements();
+                GetWorks();
             })
 			
 			.on( 'click', '#save-draft', function ( e )

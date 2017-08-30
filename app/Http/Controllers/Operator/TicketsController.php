@@ -51,8 +51,6 @@ class TicketsController extends BaseController
     public function operator ()
     {
 
-        $operators = User::role( 'operator' )->get();
-
         $tickets = Ticket
             ::mine()
             ->parentsOnly()
@@ -192,7 +190,7 @@ class TicketsController extends BaseController
             ->with( 'tickets', $tickets )
             ->with( 'types', Type::all() )
             ->with( 'managements', Management::all() )
-            ->with( 'operators', $operators )
+            ->with( 'operators', User::role( 'operator' )->get() )
             ->with( 'address', $address ?? null );
 
     }
@@ -1270,6 +1268,159 @@ class TicketsController extends BaseController
 
     }
 
+    public function customerTickets ( Request $request, $customer_id )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.customer_tickets' ) )
+        {
+            return redirect()->back()->withErrors( [ 'Доступ запрещен' ] );
+        }
+
+        Title::add( 'Обращения заявителя' );
+
+        $tickets = Ticket
+            ::where( 'customer_id', '=', $customer_id )
+            ->where( 'status_code', '!=', 'draft' )
+            ->orderBy( 'id', 'desc' );
+
+        if ( !empty( \Input::get( 'search' ) ) )
+        {
+            $tickets
+                ->fastSearch( \Input::get( 'search' ) );
+        }
+
+        if ( !empty( \Input::get( 'group' ) ) )
+        {
+            $tickets
+                ->where( 'group_uuid', '=', \Input::get( 'group' ) );
+        }
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'status_code' ) ) )
+        {
+            $tickets
+                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
+        }
+
+        if ( !empty( \Input::get( 'period_from' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( \Input::get( 'period_from' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'period_to' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( \Input::get( 'period_to' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'operator_id' ) ) )
+        {
+            $tickets
+                ->where( 'author_id', '=', \Input::get( 'operator_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        if ( \Input::get( 'export' ) == 1 )
+        {
+            $tickets = $tickets->get();
+            $data = [];
+            foreach ( $tickets as $ticket )
+            {
+                if ( $ticket->managements->count() )
+                {
+                    foreach ( $ticket->managements as $ticketManagement )
+                    {
+                        $data[] = [
+                            '#'                     => $ticket->id,
+                            'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                            'Текущий статус'        => $ticket->status_name,
+                            'Адрес проблемы'        => $ticket->address->name,
+                            'Квартира'              => $ticket->flat,
+                            'Проблемное место'      => $ticket->place,
+                            'Категория обращения'   => $ticket->type->category->name,
+                            'Тип обращения'         => $ticket->type->name,
+                            'ФИО заявителя'         => $ticket->getName(),
+                            'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                            'Адрес проживания'      => $ticket->customer->getAddress(),
+                            'Оператор'              => $ticket->author->getName(),
+                            'ЭО'                    => $ticketManagement->management->name,
+                        ];
+                    }
+                }
+                else
+                {
+                    if ( $ticket->status_code == 'draft' ) continue;
+                    $data[] = [
+                        '#'                     => $ticket->id,
+                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                        'Текущий статус'        => $ticket->status_name,
+                        'Адрес проблемы'        => $ticket->address->name,
+                        'Квартира'              => $ticket->flat,
+                        'Проблемное место'      => $ticket->place,
+                        'Категория обращения'   => $ticket->type->category->name,
+                        'Тип обращения'         => $ticket->type->name,
+                        'ФИО заявителя'         => $ticket->getName(),
+                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                        'Адрес проживания'      => $ticket->customer->getAddress(),
+                        'Оператор'              => $ticket->author->getName(),
+                        'ЭО'                    => '',
+                    ];
+                }
+            }
+            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.operator.customer_tickets' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', Type::all() )
+            ->with( 'managements', Management::all() )
+            ->with( 'operators', User::role( 'operator' )->get() )
+            ->with( 'address', $address ?? null );
+
+    }
+
     public function act ( $id )
     {
 
@@ -1483,6 +1634,27 @@ class TicketsController extends BaseController
         }
         $ticket->delete();
         return redirect()->route( 'tickets.index' );
+    }
+
+    public function search ( Request $request )
+    {
+
+        $customer = Customer::find( $request->get( 'customer_id' ) );
+
+        $tickets = Ticket
+            ::where( 'customer_id', '=', $customer->id )
+            ->where( 'status_code', '!=', 'draft' )
+            ->orderBy( 'id', 'desc' )
+            ->take( 10 )
+            ->get();
+
+        if ( $tickets->count() )
+        {
+            return view( 'tickets.operator.select' )
+                ->with( 'tickets', $tickets )
+                ->with( 'customer', $customer );
+        }
+
     }
 	
 }
