@@ -3,31 +3,9 @@ var ext_number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
 function onPickedUp ( phone )
 {
-
-    bootbox.confirm({
-        message: 'Перейти к оформлению обращения?',
-        size: 'small',
-        buttons: {
-            confirm: {
-                label: '<i class="fa fa-check"></i> Да',
-                className: 'btn-success'
-            },
-            cancel: {
-                label: '<i class="fa fa-times"></i> Нет',
-                className: 'btn-danger'
-            }
-        },
-        callback: function ( result )
-        {
-            if ( result )
-            {
-
-                window.location.href = '/tickets/create?phone=' + String( phone ).substr( -10 );
-
-            }
-        }
+    $.post( '/tickets/create-draft', {
+        phone: phone
     });
-
 };
 
 socket

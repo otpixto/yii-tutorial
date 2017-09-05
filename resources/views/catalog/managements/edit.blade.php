@@ -77,6 +77,31 @@
 
     {!! Form::close() !!}
 
+    <h3>Оповещения в Telegram</h3>
+
+    {!! Form::open( [ 'url' => route( 'managements.telegram' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+    <div class="form-group">
+        @if ( ! $management->telegram_code )
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-success" data-action="telegram-on" data-id="{{ $management->id }}">Подключить</button>
+            </div>
+        @else
+            <div class="col-xs-6">
+                <button type="button" class="btn btn-danger" data-action="telegram-off" data-id="{{ $management->id }}">Отключить</button>
+                <button type="button" class="btn btn-warning" data-action="telegram-gen" data-id="{{ $management->id }}">Сгенерировать пин-код</button>
+            </div>
+            <label class="col-xs-3 control-label">
+                Пин-код
+            </label>
+            <div class="col-xs-3">
+                <span class="form-control">
+                    {{ $management->telegram_code }}
+                </span>
+            </div>
+        @endif
+    </div>
+    {!! Form::close() !!}
+
     <div class="row margin-top-15">
         <div class="col-md-12">
             <table class="table table-bordered table-hover table-striped">
@@ -171,6 +196,7 @@
     <script type="text/javascript">
 
         $( document )
+
             .ready(function()
             {
 
@@ -214,7 +240,116 @@
 
                 });
 
-            });
+            })
+
+            .on( 'click', '[data-action="telegram-on"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.confirm({
+                    message: 'Включить оповещения?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            $.post( '{{ route( 'managements.telegram' ) }}', {
+                                id: id,
+                                action: 'on'
+                            }, function ( response )
+                            {
+                                window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-action="telegram-off"]', function ( e ) {
+
+                e.preventDefault();
+
+                var id = $(this).attr('data-id');
+
+                bootbox.confirm({
+                    message: 'Отключить оповещения?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+
+                            $.post('{{ route( 'managements.telegram' ) }}', {
+                                id: id,
+                                action: 'off'
+                            }, function (response) {
+                                window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-action="telegram-gen"]', function ( e ) {
+
+                e.preventDefault();
+
+                var id = $(this).attr('data-id');
+
+                bootbox.confirm({
+                    message: 'Сгенерировать новый пин-код?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+
+                            $.post('{{ route( 'managements.telegram' ) }}', {
+                                id: id,
+                                action: 'gen'
+                            }, function (response) {
+                                window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
 
     </script>
 @endsection

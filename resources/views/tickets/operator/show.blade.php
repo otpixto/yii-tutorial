@@ -514,7 +514,7 @@
 @endsection
 
 @section( 'js' )
-
+	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>

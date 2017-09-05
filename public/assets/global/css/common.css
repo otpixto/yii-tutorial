@@ -8,3 +8,7 @@
 .page-header .navbar .topbar-actions .btn-phone .btn {
     top: 7px;
 }
+
+.datepicker {
+    z-index: 999999;
+}

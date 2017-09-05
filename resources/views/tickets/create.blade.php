@@ -19,6 +19,13 @@
         <div class="col-lg-7">
 
             <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
                     {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
@@ -26,13 +33,6 @@
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
                     {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -70,6 +70,19 @@
 
             <hr style="margin-top: 30px;" />
 
+            <div class="form-group ">
+                {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Фамилия', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-3">
+                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Имя', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-3">
+                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Отчество' ] ) !!}
+                </div>
+            </div>
+
             <div class="form-group">
                 {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-4">
@@ -88,19 +101,6 @@
                             <i class="fa fa-user"></i>
                         </button>
                     @endif
-                </div>
-            </div>
-
-            <div class="form-group ">
-                {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control autosave', 'placeholder' => 'Фамилия', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control autosave', 'placeholder' => 'Имя', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control autosave', 'placeholder' => 'Отчество' ] ) !!}
                 </div>
             </div>
 
@@ -136,14 +136,14 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Период на принятие заявки в работу, час', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
+                {!! Form::label( null, 'Период на принятие заявки в работу', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
                 <div class="col-md-5 col-xs-6">
                     <span class="form-control-static bold text-info" id="period_acceptance"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Период на исполнение, час', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
+                {!! Form::label( null, 'Период на исполнение', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
                 <div class="col-md-5 col-xs-6">
                     <span class="form-control-static bold text-info" id="period_execution"></span>
                 </div>
@@ -485,8 +485,8 @@
             }, function ( response )
             {
                 $( '#info-block' ).removeClass( 'hidden' );
-                $( '#period_acceptance' ).text( response.period_acceptance );
-                $( '#period_execution' ).text( response.period_execution );
+                $( '#period_acceptance' ).text( response.period_acceptance + ' ч.' );
+                $( '#period_execution' ).text( response.period_execution + ' ч.' );
                 $( '#season' ).text( response.season );
                 $( '#category' ).text( response.category_name );
             });

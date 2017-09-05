@@ -296,4 +296,46 @@ class ManagementsController extends BaseController
 
     }
 
+    public function telegram ( Request $request )
+    {
+
+        $management = Management::find( $request->get( 'id' ) );
+
+        foreach ( $management->subscriptions as $subscription )
+        {
+            $subscription->delete();
+        }
+
+        switch ( $request->get( 'action' ) )
+        {
+
+            case 'gen':
+            case 'on':
+
+                $management->telegram_code = $this->genCode();
+
+                break;
+
+            case 'off':
+
+                $management->telegram_code = null;
+
+                break;
+
+        }
+
+        $management->save();
+
+    }
+
+    public function genCode ( $length = 4 )
+    {
+        $code = '';
+        for ( $i = 0; $i < $length; $i ++ )
+        {
+            $code .= rand( 0, 9 );
+        }
+        return $code;
+    }
+
 }

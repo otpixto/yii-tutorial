@@ -21,7 +21,7 @@
                     <thead>
                         <tr class="info">
                             <th>
-                                №
+                                Дата \ №
                             </th>
                             <th>
                                 Статус
@@ -50,7 +50,8 @@
                     @foreach ( $tickets as $ticket )
                         <tr>
                             <td>
-                                {{ $ticket->id }}
+                                {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
+                                <br />#{{ $ticket->id }}
                             </td>
                             <td>
                                 {{ $ticket->status_name }}
@@ -94,11 +95,14 @@
                                     <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно" data-action="repeat" data-id="{{ $ticket->id }}">
                                         <i class="fa fa-repeat"></i>
                                     </a>
+                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
                                 </div>
                                 <div class="margin-top-10">
                                     <button type="button" class="btn btn-default" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
                                         <i class="fa fa-commenting"></i>
-                                        Комментарий
+                                        Добавить комментарий
                                     </button>
                                 </div>
                             </td>

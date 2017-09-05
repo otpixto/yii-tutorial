@@ -10,16 +10,19 @@ class Customer extends BaseModel
     public static $rules = [
         'firstname'             => 'required|max:191',
         'middlename'            => 'nullable|max:191',
-        'lastname'              => 'nullable|max:191',
+        'lastname'              => 'required|max:191',
         'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'actual_address_id'     => 'required|integer',
-        'actual_flat'           => 'required|string',
+        'actual_address_id'     => 'nullable|integer',
+        'actual_flat'           => 'nullable|string',
         'email'                 => 'nullable|email',
     ];
 
     protected $nullable = [
-        'email'
+        'email',
+		'middlename',
+		'actual_address_id',
+        'actual_flat',
     ];
 
     protected $fillable = [

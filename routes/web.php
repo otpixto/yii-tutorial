@@ -25,6 +25,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
     Route::post( '/tickets/close', 'Operator\TicketsController@postClose' )->name( 'tickets.close' );
     Route::post( '/tickets/repeat', 'Operator\TicketsController@postRepeat' )->name( 'tickets.repeat' );
+    Route::post( '/tickets/create-draft', 'Operator\TicketsController@createDraft' )->name( 'tickets.create_draft' );
 
     Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
     Route::get( '/tickets/{id}/cancel', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
@@ -69,6 +70,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
 
         Route::resource( 'categories', 'Catalog\CategoriesController' );
         Route::resource( 'types', 'Catalog\TypesController' );
+
+        Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
         Route::resource( 'managements', 'Catalog\ManagementsController' );
         Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@addAddresses' )->name( 'managements.addresses.add' );
 

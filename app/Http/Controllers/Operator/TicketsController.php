@@ -144,7 +144,7 @@ class TicketsController extends BaseController
                             'Текущий статус'        => $ticket->status_name,
                             'Адрес проблемы'        => $ticket->address->name,
                             'Квартира'              => $ticket->flat,
-                            'Проблемное место'      => $ticket->place,
+                            'Проблемное место'      => $ticket->getPlace(),
                             'Категория обращения'   => $ticket->type->category->name,
                             'Тип обращения'         => $ticket->type->name,
                             'ФИО заявителя'         => $ticket->getName(),
@@ -164,7 +164,7 @@ class TicketsController extends BaseController
                         'Текущий статус'        => $ticket->status_name,
                         'Адрес проблемы'        => $ticket->address->name,
                         'Квартира'              => $ticket->flat,
-                        'Проблемное место'      => $ticket->place,
+                        'Проблемное место'      => $ticket->getPlace(),
                         'Категория обращения'   => $ticket->type->category->name,
                         'Тип обращения'         => $ticket->type->name,
                         'ФИО заявителя'         => $ticket->getName(),
@@ -294,7 +294,7 @@ class TicketsController extends BaseController
                     'Текущий статус'        => $ticketManagement->status_name,
                     'Адрес проблемы'        => $ticket->address->name,
                     'Квартира'              => $ticket->flat,
-                    'Проблемное место'      => $ticket->place,
+                    'Проблемное место'      => $ticket->getPlace(),
                     'Категория обращения'   => $ticket->type->category->name,
                     'Тип обращения'         => $ticket->type->name,
                     'ФИО заявителя'         => $ticket->getName(),
@@ -322,6 +322,26 @@ class TicketsController extends BaseController
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'types', Type::all() )
             ->with( 'address', $address ?? null );
+
+    }
+
+    public function createDraft ( Request $request )
+    {
+
+        $draft = Ticket
+            ::where( 'author_id', '=', \Auth::user()->id )
+            ->where( 'status_code', '=', 'draft' )
+            ->first();
+
+        if ( ! $draft )
+        {
+            $draft = new Ticket();
+            $draft->status_code = 'draft';
+            $draft->status_name = Ticket::$statuses[ 'draft' ];
+            $draft->author_id = \Auth::user()->id;
+            $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+            $draft->save();
+        }
 
     }
 
@@ -1370,7 +1390,7 @@ class TicketsController extends BaseController
                             'Текущий статус'        => $ticket->status_name,
                             'Адрес проблемы'        => $ticket->address->name,
                             'Квартира'              => $ticket->flat,
-                            'Проблемное место'      => $ticket->place,
+                            'Проблемное место'      => $ticket->getPlace(),
                             'Категория обращения'   => $ticket->type->category->name,
                             'Тип обращения'         => $ticket->type->name,
                             'ФИО заявителя'         => $ticket->getName(),
@@ -1390,7 +1410,7 @@ class TicketsController extends BaseController
                         'Текущий статус'        => $ticket->status_name,
                         'Адрес проблемы'        => $ticket->address->name,
                         'Квартира'              => $ticket->flat,
-                        'Проблемное место'      => $ticket->place,
+                        'Проблемное место'      => $ticket->getPlace(),
                         'Категория обращения'   => $ticket->type->category->name,
                         'Тип обращения'         => $ticket->type->name,
                         'ФИО заявителя'         => $ticket->getName(),

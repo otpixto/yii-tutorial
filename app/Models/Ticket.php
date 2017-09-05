@@ -250,31 +250,41 @@ class Ticket extends BaseModel
 
     public function scopeFastSearch ( $query, $search )
     {
-        $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+        $eq = trim( $search );
+        $like = '%' . str_replace( ' ', '%', $eq ) . '%';
         return $query
-            ->where( function ( $q ) use ( $s )
+            ->where( function ( $q ) use ( $like, $eq )
             {
                 return $q
-                    ->where( 'firstname', 'like', $s )
-                    ->orWhere( 'middlename', 'like', $s )
-                    ->orWhere( 'lastname', 'like', $s )
-                    ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $s ), - 10 ) )
-                    ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $s ), - 10 ) )
-                    ->orWhere( 'text', 'like', $s )
-                    ->orWhereHas( 'address', function ( $q2 ) use ( $s )
+                    ->where( 'id', '=', $eq )
+                    ->orWhere( 'firstname', 'like', $like )
+                    ->orWhere( 'middlename', 'like', $like )
+                    ->orWhere( 'lastname', 'like', $like )
+                    ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
+                    ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
+                    ->orWhere( 'text', 'like', $like )
+                    ->orWhere( 'flat', '=', $eq )
+                    ->orWhereHas( 'author', function ( $q2 ) use ( $like )
                     {
-                        return $q2->where( 'name', 'like', $s );
+                        return $q2
+                            ->where( 'firstname', 'like', $like )
+                            ->orWhere( 'middlename', 'like', $like )
+                            ->orWhere( 'lastname', 'like', $like );
                     })
-                    ->orWhereHas( 'managements', function ( $q2 ) use ( $s )
+                    ->orWhereHas( 'address', function ( $q2 ) use ( $like )
                     {
-                        return $q2->whereHas( 'management', function ( $q3 ) use ( $s )
+                        return $q2->where( 'name', 'like', $like );
+                    })
+                    ->orWhereHas( 'managements', function ( $q2 ) use ( $like )
+                    {
+                        return $q2->whereHas( 'management', function ( $q3 ) use ( $like )
                         {
-                            return $q3->where( 'name', 'like', $s );
+                            return $q3->where( 'name', 'like', $like );
                         });
                     })
-                    ->orWhereHas( 'type', function ( $q2 ) use ( $s )
+                    ->orWhereHas( 'type', function ( $q2 ) use ( $like )
                     {
-                        return $q2->where( 'name', 'like', $s );
+                        return $q2->where( 'name', 'like', $like );
                     });
             });
     }
