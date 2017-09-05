@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => 'eds',
+    'default' => env('DB_CONNECTION','eds' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,11 +41,11 @@ return [
 
         'eds' => [
             'driver' => 'mysql',
-            'host' => '93.157.232.151',
-            'port' => '3306',
-            'database' => 'eds',
-            'username' => 'eds',
-            'password' => 'dZzwgrxE6eBp9dA1',
+            'host' => env('DB_HOST','93.157.232.151' ),
+            'port' => env('DB_PORT','3306' ),
+            'database' => env('DB_DATABASE','eds' ),
+            'username' => env('DB_USERNAME','eds' ),
+            'password' => env('DB_PASSWORD','dZzwgrxE6eBp9dA1' ),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
