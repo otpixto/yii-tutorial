@@ -17,9 +17,23 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'address_id[]', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                    {!! Form::select( 'address_id[]', $addresses->pluck( 'name', 'id' )->toArray(), $addresses->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работ', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип работ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -43,16 +57,16 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
-                </div>
-            </div>
-
         </div>
 
         <div class="col-lg-6">
+
+            <div class="form-group">
+                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                </div>
+            </div>
 
             <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -62,23 +76,16 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип работ', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'address_id', [ $address ? $address->pluck( 'name', 'id' )->toArray() : [] ], $address->id ?? null, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес работы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'who', 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::text( 'who', \Input::old( 'who' ), [ 'class' => 'form-control', 'placeholder' => 'Должность и ФИО', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'who', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Контактный телефон' ] ) !!}
                 </div>
             </div>
 
@@ -90,6 +97,9 @@
 
         <div class="col-xs-12">
 
+            <button type="button" class="btn btn-default margin-bottom-5" id="microphone" data-state="off">
+                <i class="fa fa-microphone-slash"></i>
+            </button>
             {!! Form::label( 'comment', 'Комментарий', [ 'class' => 'control-label' ] ) !!}
             {!! Form::textarea( 'comment', \Input::old( 'comment' ), [ 'class' => 'form-control autosizeme', 'placeholder' => 'Комментарий', 'rows' => 3 ] ) !!}
 
@@ -136,12 +146,120 @@
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="//webasr.yandex.net/jsapi/v1/webspeechkit.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+        var streamer = new ya.speechkit.SpeechRecognition();
+
+        function MicrophoneOn ()
+        {
+
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'on' ) return;
+
+            streamer.start({
+
+                apikey: '7562b975-c851-4ab9-b12e-c017b93ea567',
+
+                // initCallback вызывается после успешной инициализации сессии.
+                initCallback: function () {
+                    $( '#microphone' )
+                        .attr( 'data-state', 'on' )
+                        .removeClass( 'btn-default' )
+                        .addClass( 'btn-success' )
+                        .find( '.fa' )
+                        .removeClass( 'fa-microphone-slash' )
+                        .addClass( 'fa-microphone' );
+                },
+                // Данная функция вызывается многократно.
+                // Ей передаются промежуточные результаты распознавания.
+                // После остановки распознавания этой функции
+                // будет передан финальный результат.
+                dataCallback: function ( text, done )
+                {
+                    if ( done && text != '' )
+                    {
+                        MicrophoneOff();
+                        var value = $.trim( $( '#comment' ).val() );
+                        if ( value != '' )
+                        {
+                            value += "\n";
+                        }
+                        $( '#comment' ).val( value + text );
+                    }
+                },
+                // Вызывается при возникновении ошибки (например, если передан неверный API-ключ).
+                errorCallback: function (err) {
+                    //console.log("Возникла ошибка: " + err);
+                    alert( "Возникла ошибка: " + err );
+                    MicrophoneOff();
+                },
+                // Содержит сведения о ходе процесса распознавания.
+                infoCallback: function (sent_bytes, sent_packages, processed, format) {
+                    //console.log("Отправлено данных на сервер: " + sent_bytes);
+                    //console.log("Отправлено пакетов на сервер: " + sent_packages);
+                    //console.log("Количество пакетов, которые обработал сервер: " + processed);
+                    //console.log("До какой частоты понижена частота дискретизации звука: " + format);
+                },
+                // Будет вызвана после остановки распознавания.
+                stopCallback: function () {
+                    //console.log("Запись звука прекращена.");
+                    MicrophoneOff();
+                },
+                // Возвращать ли промежуточные результаты.
+                particialResults: true,
+                // Длительность промежутка тишины (в сантисекундах),
+                // при наступлении которой API начнет преобразование
+                // промежуточных результатов в финальный текст.
+                utteranceSilence: 200
+            });
+
+        };
+
+        function MicrophoneOff ()
+        {
+
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' ) return;
+
+            $( '#microphone' )
+                .attr( 'data-state', 'off' )
+                .removeClass( 'btn-success' )
+                .addClass( 'btn-default' )
+                .find( '.fa' )
+                .removeClass( 'fa-microphone' )
+                .addClass( 'fa-microphone-slash' );
+
+            streamer.stop();
+
+        };
+
+        function ToggleMicrophone ()
+        {
+
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' )
+            {
+
+                MicrophoneOn();
+
+            }
+            else
+            {
+
+                MicrophoneOff();
+
+            }
+
+        };
 
         $( document )
 
             .ready( function ()
             {
+
+                $( '#microphone' ).click( ToggleMicrophone );
+
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
 
                 $( '.select2' ).select2();
 
@@ -168,6 +286,14 @@
                     showMeridian: false
                 });
 
+            })
+
+            .on( 'keydown', function ( e )
+            {
+                if ( e.ctrlKey && e.which == 32 )
+                {
+                    ToggleMicrophone();
+                }
             });
 
     </script>

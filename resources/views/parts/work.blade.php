@@ -6,7 +6,9 @@
         {{ $work->reason }}
     </td>
     <td>
-        {{ $work->address->name }}
+        @foreach ( $work->addresses as $address )
+            {{ $address->name }}
+        @endforeach
     </td>
     <td>
         {{ $work->type->name }}

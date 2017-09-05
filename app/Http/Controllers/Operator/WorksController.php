@@ -9,6 +9,7 @@ use App\Models\Type;
 use App\Models\Work;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class WorksController extends BaseController
 {
@@ -119,18 +120,19 @@ class WorksController extends BaseController
 
         Title::add( 'Добавить сообщение' );
 
-        $managements = Management::orderBy( 'name' )->get();
-        $types = Type::orderBy( 'name' )->get();
+        $addresses = new Collection();
 
-        if ( !empty( \Input::old( 'address_id' ) ) )
+        if ( !empty( \Input::old( 'address_id', [] ) ) )
         {
-            $address = Address::find( \Input::old( 'address_id' ) );
+            $addresses = Address
+                ::whereIn( 'id', \Input::old( 'address_id' ) )
+                ->get();
         }
 
         return view( 'works.create' )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
-            ->with( 'address', $address ?? null );
+            ->with( 'addresses', $addresses );
 
     }
 
@@ -151,6 +153,8 @@ class WorksController extends BaseController
         {
             $work->addComment( $request->comment );
         }
+
+        $work->addresses()->sync( $request->get( 'address_id', [] ) );
 
         return redirect()->route( 'works.index' )
             ->with( 'success', 'Сообщение успешно добавлено' );
@@ -270,7 +274,11 @@ class WorksController extends BaseController
         $now = Carbon::now()->toDateString();
 
         $works = Work
-            ::where( 'address_id', '=', $request->get( 'address_id' ) )
+            ::whereHas( 'addresses', function ( $a ) use ( $request )
+            {
+                return $a
+                    ->where( 'address_id', '=', $request->get( 'address_id' ) );
+            })
             ->where( 'type_id', '=', $request->get( 'type_id' ) )
             ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
             ->orderBy( 'id', 'desc' )

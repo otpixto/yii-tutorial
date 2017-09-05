@@ -12,7 +12,7 @@ class Work extends BaseModel
 
     public static $rules = [
         'type_id'           => 'required|integer',
-        'address_id'        => 'required|integer',
+        'address_id'        => 'required|array',
         'management_id'     => 'required|integer',
         'comment'           => 'max:255',
         'who'               => 'required|max:255',
@@ -21,16 +21,21 @@ class Work extends BaseModel
         'time_begin'        => 'required|date_format:G:i',
         'date_end'          => 'required|date_format:d.m.Y',
         'time_end'          => 'required|date_format:G:i',
+        'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+    ];
+
+    protected $nullable = [
+        'phone',
     ];
 
     protected $fillable = [
         'type_id',
-        'address_id',
         'management_id',
         'who',
         'reason',
         'text',
         'composition',
+        'phone',
     ];
 
     public function type ()
@@ -38,9 +43,9 @@ class Work extends BaseModel
         return $this->belongsTo( 'App\Models\Type' );
     }
 
-    public function address ()
+    public function addresses ()
     {
-        return $this->belongsTo( 'App\Models\Address' );
+        return $this->belongsToMany( 'App\Models\Address', 'works_addresses' );
     }
 
     public function management ()
@@ -56,6 +61,11 @@ class Work extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+        }
+
         $exp = explode( ':', $attributes['time_begin'] );
         $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1] );
 
@@ -70,7 +80,10 @@ class Work extends BaseModel
 
         $message = '<em>Добавлена работа на сетях</em>' . PHP_EOL . PHP_EOL;
 
-        $message .= '<b>Адрес работы: ' . $work->getAddress() . '</b>' . PHP_EOL;
+        foreach ( $work->addresses as $address )
+        {
+            $message .= '<b>Адрес работы: ' . $address->name . '</b>' . PHP_EOL;
+        }
         $message .= 'Тип работ: ' . $work->type->name . PHP_EOL;
         $message .= 'Основание: ' . $work->reason . PHP_EOL;
         $message .= 'Исполнитель работ: ' . $work->management->name . PHP_EOL;
@@ -90,6 +103,11 @@ class Work extends BaseModel
 
     public function edit ( array $attributes = [] )
     {
+
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+        }
 
         $exp = explode( ':', $attributes['time_begin'] );
         $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1] );

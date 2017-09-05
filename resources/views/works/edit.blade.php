@@ -17,29 +17,16 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'management_id', $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id', $work->management_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                    {!! Form::select( 'address_id[]', $work->addresses->pluck( 'name', 'id' ), $work->addresses->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
-                    {!! Form::text( 'date_begin', \Input::old( 'date_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_begin', \Input::old( 'time_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время начала работ', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
-                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ', 'required' ] ) !!}
+                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id', $work->type_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -50,29 +37,36 @@
                 </div>
             </div>
 
-            <div class="row margin-top-10">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <h4>Комментарии</h4>
-                        @if ( $work->comments->count() )
-                            @include( 'parts.comments', [ 'comments' => $work->comments ] )
-                        @endif
-                    </div>
+            <div class="form-group">
+                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-5">
+                    {!! Form::text( 'date_begin', \Input::old( 'date_begin', \Carbon\Carbon::parse( $work->date_begin )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_begin', \Input::old( 'time_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время начала работ', 'required' ] ) !!}
                 </div>
             </div>
 
-            <div class="row margin-top-10">
-                <div class="col-xs-12">
-                    <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
-                        <i class="fa fa-comment"></i>
-                        Добавить комментарий
-                    </button>
+            <div class="form-group">
+                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-5">
+                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->date_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ', 'required' ] ) !!}
                 </div>
             </div>
 
         </div>
 
         <div class="col-lg-6">
+
+            <div class="form-group">
+                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id', $work->management_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                </div>
+            </div>
 
             <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -82,23 +76,16 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id', $work->type_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип работ', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'address_id', [ $work->address ? $work->address->pluck( 'name', 'id' )->toArray() : [] ], $work->address_id ?? null, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес работы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'who', 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::text( 'who', \Input::old( 'who', $work->who ), [ 'class' => 'form-control', 'placeholder' => 'Должность и ФИО', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'who', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::text( 'phone', \Input::old( 'phone', $work->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Контактный телефон' ] ) !!}
                 </div>
             </div>
 
@@ -116,6 +103,26 @@
     </div>
 
     {!! Form::close() !!}
+
+    <div class="row margin-top-10">
+        <div class="col-xs-12">
+            <div class="note">
+                <h4>Комментарии</h4>
+                @if ( $work->comments->count() )
+                    @include( 'parts.comments', [ 'comments' => $work->comments ] )
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="row margin-top-10">
+        <div class="col-xs-12">
+            <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
+                <i class="fa fa-comment"></i>
+                Добавить комментарий
+            </button>
+        </div>
+    </div>
 
 @endsection
 
@@ -149,6 +156,10 @@
 
             .ready( function ()
             {
+
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
 
                 $( '.select2' ).select2();
 
