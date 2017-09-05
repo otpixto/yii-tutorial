@@ -117,10 +117,10 @@ class ProfileController extends Controller
         {
             dd( $asterisk->last_result );
         }*/
+        $asterisk->queueRemove( '01' );
         $asterisk->queueRemove( '02' );
-        //$asterisk->queueRemove( '03' );
-        //$asterisk->queueAdd( '02' );
-        //$asterisk->queueAdd( '03' );
+        $asterisk->queueRemove( '03' );
+        $asterisk->queueRemove( '04' );
         $queues = $asterisk->queues( true );
         dd( $queues );
     }

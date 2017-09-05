@@ -2,6 +2,7 @@
 
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
+Route::post( '/rest/create-draft', 'RestController@createDraft' );
 
 Route::group( [ 'middleware' => 'auth' ], function ()
 {

@@ -1,13 +1,6 @@
 var socket = io( '//dev.eds-juk.ru:8443', { secure: true } );
 var ext_number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
-function onPickedUp ( phone )
-{
-    $.post( '/tickets/create-draft', {
-        phone: phone
-    });
-};
-
 socket
 
     .on( 'connect', function ()
@@ -23,7 +16,6 @@ socket
     {
         console.log( 'picked_up', phone );
         $.cookie( 'phone', phone );
-        onPickedUp ( phone );
     })
 
     .on( 'picked_down', function ()

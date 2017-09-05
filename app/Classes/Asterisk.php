@@ -14,7 +14,7 @@ class Asterisk
     private $socket = false;
     private $auth = false;
 
-    private $size = 500;
+    private $size = 1000;
     private $timeout = 10;
 
     public $last_result = null;
