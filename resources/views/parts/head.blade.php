@@ -16,7 +16,7 @@
     {{--<meta content="width=device-width, initial-scale=1" name="viewport" />--}}
     <meta content="{{ \App\Classes\Title::render() }}" name="description" />
     <meta content="Dmitry Skabelin" name="author" />
-    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="shortcut icon" href="/images/favicon.ico" />
     @include( 'parts.css' )
 </head>
 <!-- END HEAD -->
