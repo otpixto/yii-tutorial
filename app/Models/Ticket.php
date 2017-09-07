@@ -489,16 +489,16 @@ class Ticket extends BaseModel
 
                 if ( $this->type->period_acceptance )
                 {
-
                     $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                    $dt = $status_transferred->created_at;
-                    $dt->addMinutes( $this->type->period_acceptance * 60 );
-
-                    if ( $now->timestamp > $dt->timestamp )
+                    if ( $status_transferred )
                     {
-                        return 'danger';
+                        $dt = $status_transferred->created_at;
+                        $dt->addMinutes( $this->type->period_acceptance * 60 );
+                        if ( $now->timestamp > $dt->timestamp )
+                        {
+                            return 'danger';
+                        }
                     }
-
                 }
 
                 return 'warning';
