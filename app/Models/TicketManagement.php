@@ -162,12 +162,14 @@ class TicketManagement extends BaseModel
                 {
 
                     $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                    $dt = $status_transferred->created_at;
-                    $dt->addMinutes( $this->ticket->type->period_acceptance * 60 );
-
-                    if ( $now->timestamp > $dt->timestamp )
+                    if ( $status_transferred )
                     {
-                        return 'danger';
+                        $dt = $status_transferred->created_at;
+                        $dt->addMinutes( $this->ticket->type->period_acceptance * 60 );
+                        if ( $now->timestamp > $dt->timestamp )
+                        {
+                            return 'danger';
+                        }
                     }
 
                 }
@@ -183,12 +185,14 @@ class TicketManagement extends BaseModel
                 {
 
                     $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
-                    $dt = $status_accepted->created_at;
-                    $dt->addMinutes( $this->ticket->type->period_execution * 60 );
-
-                    if ( $now->timestamp > $dt->timestamp )
+                    if ( $status_accepted )
                     {
-                        return 'danger';
+                        $dt = $status_accepted->created_at;
+                        $dt->addMinutes( $this->ticket->type->period_execution * 60 );
+                        if ( $now->timestamp > $dt->timestamp )
+                        {
+                            return 'danger';
+                        }
                     }
 
                 }
