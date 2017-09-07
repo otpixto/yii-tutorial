@@ -9,7 +9,9 @@
 @section( 'content' )
 
     <div class="text-center">
-        <img src="/images/info.png" />
+        <a href="/files/info.pdf">
+            <img src="/images/info.png" />
+        </a>
     </div>
 
 @endsection

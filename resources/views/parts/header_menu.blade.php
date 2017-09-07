@@ -13,11 +13,13 @@
                         О компании
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route( 'schedule.index' ) }}">
-                        График работы операторов
-                    </a>
-                </li>
+                @if ( \Auth::user()->admin || \Auth::user()->can( 'schedule' ) )
+                    <li>
+                        <a href="{{ route( 'schedule.index' ) }}">
+                            График работы операторов
+                        </a>
+                    </li>
+                @endif
             </ul>
         </li>
 
