@@ -73,10 +73,11 @@
 
     {!! Form::close() !!}
 
+    <h3>
+        История обращений
+    </h3>
+
     @if ( $tickets->count() )
-        <h3>
-            История обращений
-        </h3>
         {{ $tickets->render() }}
         <table class="table table-hover table-striped">
             <thead>
@@ -136,6 +137,8 @@
             </tbody>
         </table>
         {{ $tickets->render() }}
+    @else
+        @include( 'parts.error', [ 'error' => 'У заявителя обращения отсутствуют' ] )
     @endif
 
 @endsection
