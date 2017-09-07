@@ -15,47 +15,24 @@ class BaseModel extends Model
 
     public function addComment ( $text )
     {
-
         $comment = Comment::create([
             'model_id'     	=> $this->id,
             'model_name'	=> get_class( $this ),
             'text'          => $text
         ]);
-
         $comment->save();
-
         return $comment;
-
     }
 
     public function addTag ( $text )
     {
-
         $tag = Tag::create([
             'model_id'     	=> $this->id,
             'model_name'	=> get_class( $this ),
             'text'          => $text
         ]);
-
         $tag->save();
-
         return $tag;
-
-    }
-
-    public function addLog ( $text )
-    {
-
-        $log = Log::create([
-            'model_id'     	=> $this->id,
-            'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-
-        $log->save();
-
-        return $log;
-
     }
 
     public function comments ()
@@ -150,6 +127,20 @@ class BaseModel extends Model
             'model_id'      => $this->id,
             'model_name'    => get_class( $this ),
             'text'          => '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"'
+        ]);
+        if ( $log instanceof MessageBag )
+        {
+            return $log;
+        }
+        $log->save();
+    }
+
+    public function addLog ( $text )
+    {
+        $log = Log::create([
+            'model_id'      => $this->id,
+            'model_name'    => get_class( $this ),
+            'text'          => $text
         ]);
         if ( $log instanceof MessageBag )
         {

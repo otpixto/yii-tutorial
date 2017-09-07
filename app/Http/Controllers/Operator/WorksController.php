@@ -83,7 +83,7 @@ class WorksController extends BaseController
                     'Дата и время'                  => $work->created_at->format( 'd.m.y H:i' ),
                     'Кто сообщил'                   => $work->who,
                     'Основание'                     => $work->reason,
-                    'Адрес работ'                   => $work->address->name,
+                    'Адрес работ'                   => $work->addresses->implode( 'name', '; ' ),
                     'Тип работ'                     => $work->type->name,
                     'Исполнитель работ'             => $work->management->name,
                     'Состав работ'                  => $work->composition,
