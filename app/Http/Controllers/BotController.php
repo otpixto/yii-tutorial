@@ -22,6 +22,7 @@ class BotController extends Controller
         if ( $token != \Config::get( 'telegram.bot_token' ) ) return;
 
         $update = $this->telegram->commandsHandler( true );
+        if ( ! $update->getMessage() ) return;
 
         $telegram_id = $update->getMessage()->getChat()->getId();
 
