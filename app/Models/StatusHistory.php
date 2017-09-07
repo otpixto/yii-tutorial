@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\Auth;
-
 class StatusHistory extends BaseModel
 {
 
@@ -24,26 +22,5 @@ class StatusHistory extends BaseModel
         'status_code'				=> 'required|string',
         'status_name'				=> 'required|string',
     ];
-
-    public function parent ()
-    {
-        return $this->belongsTo( $this->model_name, 'model_id' );
-    }
-
-    public function author ()
-    {
-        return $this->belongsTo( 'App\User' );
-    }
-
-    public static function create ( array $attributes = [] )
-    {
-        $new = new StatusHistory( $attributes );
-        if ( empty( $new->author_id ) )
-        {
-            $new->author_id = Auth::user()->id;
-        }
-        $new->save();
-        return $new;
-    }
 
 }

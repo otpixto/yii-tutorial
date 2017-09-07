@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 
 class Work extends BaseModel
 {
@@ -51,11 +52,6 @@ class Work extends BaseModel
     public function management ()
     {
         return $this->belongsTo( 'App\Models\Management' );
-    }
-
-    public function author ()
-    {
-        return $this->belongsTo( 'App\User' );
     }
 
     public static function create ( array $attributes = [] )
@@ -115,9 +111,16 @@ class Work extends BaseModel
         $exp = explode( ':', $attributes['time_end'] );
         $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1] );
 
+        $attributes['time_begin'] = $dt_begin->toDateTimeString();
+        $attributes['time_end'] = $dt_end->toDateTimeString();
+
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
+
         $this->fill( $attributes );
-        $this->time_begin = $dt_begin->toDateTimeString();
-        $this->time_end = $dt_end->toDateTimeString();
         $this->save();
 
         return $this;

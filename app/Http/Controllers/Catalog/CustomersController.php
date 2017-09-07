@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Management;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class CustomersController extends BaseController
 {
@@ -158,7 +159,12 @@ class CustomersController extends BaseController
 
         $this->validate( $request, Customer::$rules );
 		
-		$customer->edit( $request->all() );
+		$res = $customer->edit( $request->all() );
+		if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
 
         return redirect()->route( 'customers.edit', $customer->id )
             ->with( 'success', 'Заявитель успешно отредактирован' );

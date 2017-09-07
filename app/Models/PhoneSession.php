@@ -24,15 +24,11 @@ class PhoneSession extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-
         $v = Validator::make( $attributes, self::$rules );
         if ( $v->fails() ) return $v->messages();
-
         $session = new static( $attributes );
         $session->save();
-
         return $session;
-
     }
 
 }

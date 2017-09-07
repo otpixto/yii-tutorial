@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\MessageBag;
+
 class Customer extends BaseModel
 {
 
@@ -48,34 +50,31 @@ class Customer extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-
         $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
         if ( !empty( $attributes['phone2'] ) )
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
-
         $customer = new Customer( $attributes );
         $customer->save();
-
         return $customer;
-
     }
 	
 	public function edit ( array $attributes = [] )
     {
-
         $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
         if ( !empty( $attributes['phone2'] ) )
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
-
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         $this->fill( $attributes );
         $this->save();
-
         return $this;
-
     }
 
     public function getName ()

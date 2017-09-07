@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Rule;
 
 class Type extends BaseModel
@@ -33,6 +34,23 @@ class Type extends BaseModel
         $new->need_act = isset( $attributes['need_act'] ) ? 1 : 0;
         $new->save();
         return $new;
+    }
+
+    public function edit ( array $attributes = [] )
+    {
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
+        $this->fill( $attributes );
+        if ( empty( $attributes['need_act'] ) )
+        {
+            $this->need_act = 0;
+            $this->saveLog( 'need_act', 1, 0 );
+        }
+        $this->save();
+        return $this;
     }
 
     public static function getRules ( $ignore = null )

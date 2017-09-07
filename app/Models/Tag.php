@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\MessageBag;
+
 class Tag extends BaseModel
 {
 

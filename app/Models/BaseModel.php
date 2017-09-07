@@ -101,26 +101,61 @@ class BaseModel extends Model
 
     public static function create ( array $attributes = [] )
     {
-
-        if ( !empty( $attributes['model_name'] ) )
+        if ( isset( $attributes['model_name'], $attributes['model_id'] ) )
         {
             $model = new $attributes['model_name'];
-            $exists = $model->where( 'id', '=',$attributes['model_id'] )->first();
+            $exists = $model->where( 'id', '=', $attributes['model_id'] )->first();
             if ( ! $exists )
             {
                 return new MessageBag( [ 'Некорректные данные' ] );
             }
         }
-
         $new = new static( $attributes );
-
         if ( Schema::hasColumn( $new->getTable(), 'author_id' ) )
         {
             $new->author_id = Auth::user()->id;
         }
-
         return $new;
+    }
 
+    public function edit ( array $attributes = [] )
+    {
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
+        $this->fill( $attributes );
+        $this->save();
+        return $this;
+    }
+
+    public function saveLogs ( array $newValues = [] )
+    {
+        $oldValues = $this->getAttributes();
+        foreach ( $newValues as $field => $val )
+        {
+            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val ) continue;
+            $log = $this->saveLog( $field, $oldValues[ $field ], $val );
+            if ( $log instanceof MessageBag )
+            {
+                return $log;
+            }
+        }
+    }
+
+    public function saveLog ( $field, $oldValue, $newValue )
+    {
+        $log = Log::create([
+            'model_id'      => $this->id,
+            'model_name'    => get_class( $this ),
+            'text'          => '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"'
+        ]);
+        if ( $log instanceof MessageBag )
+        {
+            return $log;
+        }
+        $log->save();
     }
 
 }

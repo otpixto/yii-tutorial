@@ -19,16 +19,4 @@ class Status extends BaseModel
         'status_name'				=> 'required|string',
     ];
 
-    public function parent ()
-    {
-        return $this->belongsTo( $this->model_name, 'model_id' );
-    }
-
-    public static function create ( array $attributes = [] )
-    {
-        $new = new Status( $attributes );
-        $new->save();
-        return $new;
-    }
-
 }

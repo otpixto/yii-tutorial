@@ -90,31 +90,10 @@ class TicketManagement extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
-    public function files ()
-    {
-        return $this->hasMany( 'App\Models\File', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
-    public function tags ()
-    {
-        return $this->hasMany( 'App\Models\Tag', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
     public function scopeMine ( $query )
     {
         return $query
             ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
-    }
-
-    public static function create ( array $attributes = [] )
-    {
-
-        $ticketManagement = new TicketManagement( $attributes );
-        $ticketManagement->save();
-        return $ticketManagement;
-
     }
 
     public function getAvailableStatuses ()

@@ -162,11 +162,6 @@ class Ticket extends BaseModel
         return $this->belongsTo( 'App\Models\Address' );
     }
 
-    public function author ()
-    {
-        return $this->belongsTo( 'App\User' );
-    }
-
     public function type ()
     {
         return $this->belongsTo( 'App\Models\Type' );
@@ -191,12 +186,6 @@ class Ticket extends BaseModel
     public function group ()
     {
         return $this->hasMany( 'App\Models\Ticket', 'group_uuid', 'group_uuid' );
-    }
-	
-	public function tags ()
-    {
-        return $this->hasMany( 'App\Models\Tag', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
     }
 
     public function statuses ()
@@ -329,20 +318,28 @@ class Ticket extends BaseModel
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
         }
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
 		{
-			if ( ! isset( $attributes['emergency'] ) )
+			if ( ! isset( $attributes['emergency'] ) && $this->emergency == 1 )
 			{
 				$this->emergency = 0;
+				$this->saveLog( 'emergency', 1, 0 );
 			}
-			if ( ! isset( $attributes['urgently'] ) )
+			if ( ! isset( $attributes['urgently'] ) && $this->urgently == 1 )
 			{
 				$this->urgently = 0;
+                $this->saveLog( 'urgently', 1, 0 );
 			}
-			if ( ! isset( $attributes['dobrodel'] ) )
+			if ( ! isset( $attributes['dobrodel'] ) && $this->dobrodel == 1 )
 			{
 				$this->dobrodel = 0;
+                $this->saveLog( 'dobrodel', 1, 0 );
 			}
 		}
 		$this->save();

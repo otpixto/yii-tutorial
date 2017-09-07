@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\MessageBag;
-
 class File extends BaseModel
 {
 

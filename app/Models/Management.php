@@ -91,6 +91,11 @@ class Management extends BaseModel
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
+        $res = $this->saveLogs( $attributes );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         $this->fill( $attributes );
         $this->has_contract = !empty( $attributes['has_contract'] ) ? 1 : 0;
         $this->save();
