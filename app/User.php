@@ -162,7 +162,7 @@ class User extends Authenticatable
     public function changePass ( array $attributes = [] )
     {
 
-        $this->saveLogs( $attributes );
+        $this->addLog( 'Пароль изменен' );
 
         $this->password = bcrypt( $attributes['password'] );
         $this->save();
