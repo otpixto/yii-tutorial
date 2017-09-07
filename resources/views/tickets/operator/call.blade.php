@@ -85,26 +85,9 @@
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <div class="text-nowrap">
-                                    <a href="javascript:;" class="btn btn-lg btn-success tooltips" title="Закрыть с подтверждением" data-action="close-rate" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-check"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-warning tooltips" title="Закрыть без подтверждением" data-action="close" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </a>
-                                    <a href="javascript:;" class="btn btn-lg btn-danger tooltips" title="Передать ЭО повторно" data-action="repeat" data-id="{{ $ticket->id }}">
-                                        <i class="fa fa-repeat"></i>
-                                    </a>
-                                    <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
-                                        <i class="fa fa-chevron-right"></i>
-                                    </a>
-                                </div>
-                                <div class="margin-top-10">
-                                    <button type="button" class="btn btn-default" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
-                                        <i class="fa fa-commenting"></i>
-                                        Добавить комментарий
-                                    </button>
-                                </div>
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
                             </td>
                         </tr>
                         @if ( $ticket->comments->count() )
