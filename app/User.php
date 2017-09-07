@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Classes\Asterisk;
+use App\Models\Log;
 use App\Notifications\MailResetPasswordToken;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -149,6 +150,8 @@ class User extends Authenticatable
 
         $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
 
+        $this->saveLogs( $attributes );
+
         $this->fill( $attributes );
         $this->save();
 
@@ -158,6 +161,8 @@ class User extends Authenticatable
 
     public function changePass ( array $attributes = [] )
     {
+
+        $this->saveLogs( $attributes );
 
         $this->password = bcrypt( $attributes['password'] );
         $this->save();
@@ -247,6 +252,43 @@ class User extends Authenticatable
     public function sendPasswordResetNotification ( $token )
     {
         $this->notify( new MailResetPasswordToken( $token ) );
+    }
+
+    public function saveLogs ( array $newValues = [] )
+    {
+        $oldValues = $this->getAttributes();
+        foreach ( $newValues as $field => $val )
+        {
+            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val ) continue;
+            $log = $this->saveLog( $field, $oldValues[ $field ], $val );
+            if ( $log instanceof MessageBag )
+            {
+                return $log;
+            }
+        }
+    }
+
+    public function saveLog ( $field, $oldValue, $newValue )
+    {
+        $log = $this->addLog( '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"' );
+        if ( $log instanceof MessageBag )
+        {
+            return $log;
+        }
+    }
+
+    public function addLog ( $text )
+    {
+        $log = Log::create([
+            'model_id'      => $this->id,
+            'model_name'    => get_class( $this ),
+            'text'          => $text
+        ]);
+        if ( $log instanceof MessageBag )
+        {
+            return $log;
+        }
+        $log->save();
     }
 
 }

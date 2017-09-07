@@ -123,16 +123,11 @@ class BaseModel extends Model
 
     public function saveLog ( $field, $oldValue, $newValue )
     {
-        $log = Log::create([
-            'model_id'      => $this->id,
-            'model_name'    => get_class( $this ),
-            'text'          => '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"'
-        ]);
+        $log = $this->addLog( '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"' );
         if ( $log instanceof MessageBag )
         {
             return $log;
         }
-        $log->save();
     }
 
     public function addLog ( $text )
