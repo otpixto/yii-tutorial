@@ -1035,15 +1035,12 @@ class TicketsController extends BaseController
 
     public function closedManagement ()
     {
-
-        $ticketManagements = \Auth::user()
-            ->management
-            ->tickets()
+		
+		$ticketManagements = TicketManagement
+            ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
             ->mine()
             ->whereIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm' ] )
-            ->orderBy( 'id', 'desc' );
-
-        $ticketManagements
+            ->orderBy( 'id', 'desc' )
             ->whereHas( 'ticket', function ( $q )
             {
 
