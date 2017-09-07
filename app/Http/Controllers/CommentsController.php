@@ -49,22 +49,11 @@ class CommentsController extends Controller
 
             $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
 
-            $author = $comment->author->getName();
-
-            if ( $comment->author->hasRole( 'operator' ) )
-            {
-                $author = '<i>[Оператор ЕДС]</i> ' . $author;
-            }
-            elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
-            {
-                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $author;
-            }
-
             $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
 
             $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
             $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-            $message .= 'Автор комментария: ' . $author . PHP_EOL;
+            $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
 
             $message .= PHP_EOL . $comment->text . PHP_EOL;
 

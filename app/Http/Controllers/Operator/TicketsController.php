@@ -937,7 +937,7 @@ class TicketsController extends BaseController
             return $this->closedOperator();
 
         }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
         {
 
             return $this->closedManagement();
@@ -1599,21 +1599,10 @@ class TicketsController extends BaseController
 
             $comment = $ticket->addComment( $request->get( 'comment' ) );
 
-            $author = $comment->author->getName();
-
-            if ( $comment->author->hasRole( 'operator' ) )
-            {
-                $author = '<i>[Оператор ЕДС]</i> ' . $author;
-            }
-            elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
-            {
-                $author = '<i>[' . $comment->author->management->name . ']</i> ' . $author;
-            }
-
             $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
 
             $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-            $message .= 'Автор комментария: ' . $author . PHP_EOL;
+            $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
 
             $message .= PHP_EOL . $comment->text . PHP_EOL;
 
