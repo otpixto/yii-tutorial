@@ -8,6 +8,8 @@
 
 @section( 'content' )
 
-    <b>{{ \Config::get( 'app.name' ) }}</b> - это збс!
+    <div class="text-center">
+        <img src="/images/info.png" />
+    </div>
 
 @endsection
