@@ -118,7 +118,7 @@
                         </tr>
                         @if ( $ticket->comments->count() )
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="note note-info">
                                         @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
                                     </div>
