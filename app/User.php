@@ -69,10 +69,6 @@ class User extends Authenticatable
             'nullable',
             'array',
         ],
-        'roles' => [
-            'nullable',
-            'array',
-        ]
     ];
 
     public static $rules_edit = [
@@ -151,9 +147,9 @@ class User extends Authenticatable
     public function edit ( array $attributes = [] )
     {
 
-        $input['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
 
-        $this->fill( $input );
+        $this->fill( $attributes );
         $this->save();
 
         return $this;

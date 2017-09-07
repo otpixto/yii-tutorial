@@ -33,7 +33,7 @@ class TicketsController extends BaseController
             return $this->operator();
 
         }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
         {
 
             return $this->management();
@@ -198,9 +198,8 @@ class TicketsController extends BaseController
     public function management ()
     {
 
-        $ticketManagements = \Auth::user()
-            ->management
-            ->tickets()
+        $ticketManagements = TicketManagement
+            ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
             ->mine()
             ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
             ->orderBy( 'id', 'desc' );
@@ -534,14 +533,14 @@ class TicketsController extends BaseController
             }
 
         }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
         {
 
             $view = 'tickets.management.show';
 
             $ticketManagement = TicketManagement
                 ::where( 'ticket_id', '=', $id )
-                ->where( 'management_id', '=', \Auth::user()->management->id )
+                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                 ->mine()
                 ->first();
 

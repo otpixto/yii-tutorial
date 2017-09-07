@@ -1,4 +1,4 @@
-@if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->management )
+@if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
     <!-- BEGIN COUNT-->
     <div class="btn-phone btn-group margin-right-10">
         <a href="{{ route( 'tickets.index' ) }}?show=not_processed" class="btn btn-sm btn-{{ \Session::get( 'count_not_processed' ) == 0 ? 'default' : 'warning' }} tooltips" title="Необработанные">

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use App\Models\Work;
 use Carbon\Carbon;
 use Closure;
@@ -43,21 +44,21 @@ class Counter
                     ->count();
                 \Session::put( 'works_count', $works_count );
             }
-            else if ( $user->hasRole( 'management' ) && $user->management )
+            else if ( $user->hasRole( 'management' ) && $user->managements->count() )
             {
-                $tickets_count = $user->management
-                    ->tickets()
+                $tickets_count = TicketManagement
+                    ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                     ->mine()
                     ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
                     ->count();
-                $count_not_processed = $user
-                    ->management
-                    ->tickets()
+                $count_not_processed = TicketManagement
+                    ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
+                    ->mine()
                     ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
                     ->count();
-                $count_not_completed = $user
-                    ->management
-                    ->tickets()
+                $count_not_completed = TicketManagement
+                    ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
+                    ->mine()
                     ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
                     ->count();
                 \Session::put( 'tickets_count', $tickets_count );
