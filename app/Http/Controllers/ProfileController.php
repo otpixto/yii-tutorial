@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
+use App\Models\Address;
+use App\Models\AddressManagement;
+use App\Models\Management;
 use App\Models\PhoneSession;
+use App\Models\Type;
 use App\Models\UserPhoneAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -112,6 +116,41 @@ class ProfileController extends Controller
 
     public function getTest ()
     {
+
+        set_time_limit(0 );
+
+        $types = Type::pluck( 'id' );
+        $addresses = Address::pluck( 'id' );
+
+        /*foreach ( Management::all() as $management )
+        {
+            $management->types()->sync( $types );
+            $management->addresses()->sync( $addresses );
+        }*/
+
+        /*foreach ( Address::all() as $addr )
+        {
+            $addr->types()->sync( $types );
+        }*/
+
+        /*$addressesManagements = AddressManagement
+            ::select(
+                'address_id',
+                'management_id'
+            )
+            ->groupBy(
+                'address_id',
+                'management_id'
+            )
+            ->get();
+
+        foreach ( $addressesManagements as $r )
+        {
+            $r->management->addresses()->attach( $r->address_id );
+        }*/
+
+        die('OK');
+
         $asterisk = new Asterisk();
         /*if ( ! $asterisk->connectTwo( '02', '03' ) )
         {

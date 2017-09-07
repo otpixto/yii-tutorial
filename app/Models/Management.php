@@ -57,8 +57,12 @@ class Management extends BaseModel
 
     public function addresses ()
     {
-        return $this->belongsToMany( 'App\Models\Address', 'addresses_managements' )
-            ->withPivot( [ 'type_id' ] );
+        return $this->belongsToMany( 'App\Models\Address', 'managements_addresses' );
+    }
+
+    public function types ()
+    {
+        return $this->belongsToMany( 'App\Models\Type', 'managements_types' );
     }
 
     public function tickets ()

@@ -107,77 +107,101 @@
             <table class="table table-bordered table-hover table-striped">
                 <thead>
                 <tr class="info">
-                    <th class="text-right" width="35%">
-                        Адрес
+                    <th width="50%">
+                        Адреса
                     </th>
-                    <th with="65%">
+                    <th with="50%">
                         Типы обращений
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach ( $addressManagements as $address_id => $arr )
-                    <tr>
-                        <td class="text-right">
-                            <a href="{{ route( 'addresses.edit', $address_id ) }}">
-                                {{ $arr[0]->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <a href="#" data-toggle="#types-{{ $address_id }}">Скрыть\Показать ({{ $arr[1]->count() }})</a>
-                            <ul class="list-group" style="display: none;" id="types-{{ $address_id }}">
-                                @foreach ( $arr[1] as $type )
-                                    <li href="{{ route( 'types.edit', $type->id ) }}" class="list-group-item">
-                                        {{ $type->name }}
-                                        <a href="#" class="badge badge-danger pull-right" data-action="address-type-delete" data-type="{{ $type->id }}" data-managment="{{ $management->id }}" data-address="{{ $address_id }}">
-                                            <i class="fa fa-remove"></i>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ) ] ) !!}
-                            {!! Form::hidden( 'management_id', $management->id ) !!}
-                            {!! Form::hidden( 'address_id', $address_id ) !!}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {!! Form::select( 'types[]', $arr[2]->pluck( 'name', 'id' ), null, [ 'class' => 'form-control select2', 'id' => 'management-types', 'multiple' ] ) !!}
-                                </div>
+                <tr>
+                    <td>
+                        @if ( ! $managementAddresses->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $managementAddresses as $r )
+                            <div class="margin-bottom-5">
+                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="management-address" data-management="{{ $management->id }}" data-address="{{ $r->id }}">
+                                    <i class="fa fa-remove"></i>
+                                </a>
+                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
                             </div>
-                            <div class="row margin-top-10">
-                                <div class="col-md-12">
-                                    <button id="add-management" class="btn btn-success">
-                                        <i class="glyphicon glyphicon-ok"></i>
-                                        Добавить Типы
-                                    </button>
-                                    <button type="button" id="address-type-delete" class="btn btn-danger" data-managment="{{ $management->id }}" data-address="{{ $address_id }}">
-                                        <i class="fa fa-remove"></i>
-                                        Удалить Здание
-                                    </button>
-                                </div>
+                        @endforeach
+                    </td>
+                    <td>
+                        @if ( ! $managementTypes->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $managementTypes as $r )
+                            <div class="margin-bottom-5">
+                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="management-type" data-management="{{ $management->id }}" data-type="{{ $r->id }}">
+                                    <i class="fa fa-remove"></i>
+                                </a>
+                                <a href="{{ route( 'types.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
                             </div>
-                            {!! Form::close() !!}
-                        </td>
-                    </tr>
-                @endforeach
+                        @endforeach
+                    </td>
+                </tr>
                 </tbody>
+                <tfoot>
+                <tr>
+                    <td>
+                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.addresses.add' ) ] ) !!}
+                        {!! Form::hidden( 'management_id', $management->id ) !!}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'id' => 'addresses-add', 'multiple' ] ) !!}
+                            </div>
+                        </div>
+                        <div class="row margin-top-10">
+                            <div class="col-md-12">
+                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                    <input name="select_all_addresses" id="select-all-addresses" type="checkbox" value="1" />
+                                    <span></span>
+                                    Выбрать все
+                                </label>
+                                &nbsp;&nbsp;&nbsp;
+                                <button id="add-management" class="btn btn-success">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить Адрес
+                                </button>
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    </td>
+                    <td>
+                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.types.add' ) ] ) !!}
+                        {!! Form::hidden( 'management_id', $management->id ) !!}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
+                            </div>
+                        </div>
+                        <div class="row margin-top-10">
+                            <div class="col-md-12 text-right">
+                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                    <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
+                                    <span></span>
+                                    Выбрать все
+                                </label>
+                                &nbsp;&nbsp;&nbsp;
+                                <button id="add-management" class="btn btn-success">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить Тип
+                                </button>
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    </td>
+                </tr>
+                </tfoot>
             </table>
-
-            {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.addresses.add' ) ] ) !!}
-            {!! Form::hidden( 'management_id', $management->id ) !!}
-            <div class="row">
-                <div class="col-md-12">
-                    {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'multiple' ] ) !!}
-                </div>
-            </div>
-            <div class="row margin-top-10">
-                <div class="col-md-12">
-                    <button id="add-management" class="btn btn-success">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        Добавить Здания
-                    </button>
-                </div>
-            </div>
-            {!! Form::close() !!}
 
         </div>
     </div>
@@ -206,38 +230,84 @@
 
                 $( '.select2' ).select2();
 
-                $( '[data-action="address-type-delete"]' ).click( function ( e )
-                {
+            })
 
-                    e.preventDefault();
-                    if ( !confirm( 'Уверены, что хотите удалить?' ) ) return;
+            .on( 'click', '[data-delete="management-address"]', function ( e )
+            {
 
-                    var data = {};
+                e.preventDefault();
 
-                    var management_id = $( this ).attr( 'data-management' );
-                    var address_id = $( this ).attr( 'data-address' );
-                    var type_id = $( this ).attr( 'data-type' );
+                var management_id = $( this ).attr( 'data-management' );
+                var address_id = $( this ).attr( 'data-address' );
+                var obj = $( this ).closest( 'div' );
 
-                    if ( management_id )
+                bootbox.confirm({
+                    message: 'Удалить привязку?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
                     {
-                        data.management_id = management_id;
+                        if ( result )
+                        {
+
+                            obj.remove();
+
+                            $.post( '{{ route( 'managements.addresses.del' ) }}', {
+                                management_id: management_id,
+                                address_id: address_id
+                            });
+
+                        }
                     }
+                });
 
-                    if ( address_id )
+            })
+
+            .on( 'click', '[data-delete="management-type"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var management_id = $( this ).attr( 'data-management' );
+                var type_id = $( this ).attr( 'data-type' );
+                var obj = $( this ).closest( 'div' );
+
+                bootbox.confirm({
+                    message: 'Удалить привязку?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
                     {
-                        data.address_id = address_id;
+                        if ( result )
+                        {
+
+                            obj.remove();
+
+                            $.post( '{{ route( 'managements.types.del' ) }}', {
+                                management_id: management_id,
+                                type_id: type_id
+                            });
+
+                        }
                     }
-
-                    if ( type_id )
-                    {
-                        data.type_id = type_id;
-                    }
-
-                    $.post( '{{ route( 'binds.delete' ) }}', data, function ( response )
-                    {
-                        console.log( response );
-                    });
-
                 });
 
             })
@@ -350,6 +420,34 @@
                 });
 
             })
+
+            .on( 'change', '#select-all-addresses', function ()
+            {
+                if ( $( this ).is( ':checked' ) )
+                {
+                    $( '#addresses-add > option' ).prop( 'selected', 'selected' );
+                    $( '#addresses-add' ).trigger( 'change' );
+                }
+                else
+                {
+                    $( '#addresses-add > option' ).removeAttr( 'selected' );
+                    $( '#addresses-add' ).trigger( 'change' );
+                }
+            })
+
+            .on( 'change', '#select-all-types', function ()
+            {
+                if ( $( this ).is( ':checked' ) )
+                {
+                    $( '#types-add > option' ).prop( 'selected', 'selected' );
+                    $( '#types-add' ).trigger( 'change' );
+                }
+                else
+                {
+                    $( '#types-add > option' ).removeAttr( 'selected' );
+                    $( '#types-add' ).trigger( 'change' );
+                }
+            });
 
     </script>
 @endsection

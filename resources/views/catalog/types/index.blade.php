@@ -105,7 +105,7 @@
                                         {{ $type->name }}
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'types.edit', $type->id ) }}" class="btn btn-xs btn-info">
+                                        <a href="{{ route( 'types.edit', $type->id ) }}" class="btn btn-info">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>

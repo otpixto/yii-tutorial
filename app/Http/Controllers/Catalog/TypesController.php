@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
+use App\Models\Address;
 use App\Models\Category;
+use App\Models\Management;
 use App\Models\Type;
 use Illuminate\Http\Request;
 
@@ -123,11 +125,31 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Тип не найдена' ] );
         }
 
-        $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
+        $allowedAddresses = Address
+            ::whereNotIn( 'id', $type->addresses->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $typeAddresses = $type->addresses()
+            ->orderBy( 'name' )
+            ->get();
+
+        $allowedManagements = Management
+            ::whereNotIn( 'id', $type->managements->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $typeManagements = $type->managements()
+            ->orderBy( 'name' )
+            ->get();
 
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
-            ->with( 'categories', $categories );
+            ->with( 'categories', Category::orderBy( 'name' )->pluck( 'name', 'id' ) )
+            ->with( 'allowedAddresses', $allowedAddresses )
+            ->with( 'typeAddresses', $typeAddresses )
+            ->with( 'allowedManagements', $allowedManagements )
+            ->with( 'typeManagements', $typeManagements );
 
     }
 
@@ -181,6 +203,70 @@ class TypesController extends BaseController
         $type->category_name = $type->category->name;
 
         return $type;
+
+    }
+
+    public function addManagements ( Request $request )
+    {
+
+        $type = Type::find( $request->get( 'type_id' ) );
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Тип не найден' ] );
+        }
+        $type->managements()->attach( $request->get( 'managements' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнители успешно добавлены' );
+
+    }
+
+    public function delManagement ( Request $request )
+    {
+
+        $type = Type::find( $request->get( 'type_id' ) );
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Тип не найден' ] );
+        }
+        $type->managements()->detach( $request->get( 'management_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнитель успешно удален' );
+
+    }
+
+    public function addAddresses ( Request $request )
+    {
+
+        $type = Type::find( $request->get( 'type_id' ) );
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Тип не найден' ] );
+        }
+        $type->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function delAddress ( Request $request )
+    {
+
+        $type = Type::find( $request->get( 'type_id' ) );
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Тип не найден' ] );
+        }
+        $type->addresses()->detach( $request->get( 'address_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адрес успешно удален' );
 
     }
 

@@ -18,6 +18,16 @@ class Type extends BaseModel
         'season',
     ];
 
+    public function addresses ()
+    {
+        return $this->belongsToMany( 'App\Models\Address', 'addresses_types' );
+    }
+
+    public function managements ()
+    {
+        return $this->belongsToMany( 'App\Models\Management', 'managements_types' );
+    }
+
     public function tickets ()
     {
         return $this->hasMany( 'App\Models\Ticket' );

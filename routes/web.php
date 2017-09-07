@@ -65,16 +65,26 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::prefix( 'catalog' )->group( function ()
     {
 
-        Route::resource( 'addresses', 'Catalog\AddressesController' );
         Route::post( 'addresses/types/add', 'Catalog\AddressesController@addTypes' )->name( 'addresses.types.add' );
+        Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );
         Route::post( 'addresses/managements/add', 'Catalog\AddressesController@addManagements' )->name( 'addresses.managements.add' );
+        Route::post( 'addresses/managements/del', 'Catalog\AddressesController@delManagement' )->name( 'addresses.managements.del' );
+        Route::resource( 'addresses', 'Catalog\AddressesController' );
 
         Route::resource( 'categories', 'Catalog\CategoriesController' );
+
+        Route::post( 'types/addresses/add', 'Catalog\TypesController@addAddresses' )->name( 'types.addresses.add' );
+        Route::post( 'types/addresses/del', 'Catalog\TypesController@delAddress' )->name( 'types.addresses.del' );
+        Route::post( 'types/managements/add', 'Catalog\TypesController@addManagements' )->name( 'types.managements.add' );
+        Route::post( 'types/managements/del', 'Catalog\TypesController@delManagement' )->name( 'types.managements.del' );
         Route::resource( 'types', 'Catalog\TypesController' );
 
         Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
-        Route::resource( 'managements', 'Catalog\ManagementsController' );
+        Route::post( 'managements/types/add', 'Catalog\ManagementsController@addTypes' )->name( 'managements.types.add' );
+        Route::post( 'managements/types/del', 'Catalog\ManagementsController@delType' )->name( 'managements.types.del' );
         Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@addAddresses' )->name( 'managements.addresses.add' );
+        Route::post( 'managements/addresses/del', 'Catalog\ManagementsController@delAddress' )->name( 'managements.addresses.del' );
+        Route::resource( 'managements', 'Catalog\ManagementsController' );
 
         Route::resource( 'customers', 'Catalog\CustomersController' );
 

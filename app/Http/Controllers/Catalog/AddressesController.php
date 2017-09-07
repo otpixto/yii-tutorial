@@ -111,48 +111,33 @@ class AddressesController extends BaseController
         if ( !$address )
         {
             return redirect()->route( 'addresses.index' )
-                ->withErrors( [ 'Адрес не найдена' ] );
+                ->withErrors( [ 'Адрес не найден' ] );
         }
 
-        $managements = Management
-            ::orderBy( 'name' )
+        $allowedManagements = Management
+            ::whereNotIn( 'id', $address->managements->pluck( 'id' ) )
+            ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        $allowedManagements = $managements->toArray();
-
-        $addressManagements = [];
-
-        $res = AddressManagement
-            ::where( 'address_id', '=', $address->id )
-            ->with( 'management', 'type' )
+        $addressManagements = $address->managements()
+            ->orderBy( 'name' )
             ->get();
 
-        foreach ( $res as $r )
-        {
-            if ( !isset( $addressManagements[ $r->management_id ] ) )
-            {
-                $addressManagements[ $r->management_id ] = [ $r->management, new Collection() ];
-                unset( $allowedManagements[ $r->management_id ] );
-            }
-            if ( $r->type_id )
-            {
-                $addressManagements[ $r->management_id ][ 1 ]->push( $r->type );
-            }
-        }
+        $allowedTypes = Type
+            ::whereNotIn( 'id', $address->types->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
-        foreach ( $addressManagements as $management_id => & $arr )
-        {
-            $allowedTypes = Type
-                ::whereNotIn( 'id', $arr[1]->pluck( 'id' ) )
-                ->get();
-            $arr[2] = $allowedTypes;
-        }
+        $addressTypes = $address->types()
+            ->orderBy( 'name' )
+            ->get();
 
         return view( 'catalog.addresses.edit' )
             ->with( 'address', $address )
-            ->with( 'managements', $managements )
             ->with( 'addressManagements', $addressManagements )
-            ->with( 'allowedManagements', $allowedManagements );
+            ->with( 'allowedManagements', $allowedManagements )
+            ->with( 'allowedTypes', $allowedTypes )
+            ->with( 'addressTypes', $addressTypes );
 
     }
 
@@ -171,7 +156,7 @@ class AddressesController extends BaseController
         if ( !$address )
         {
             return redirect()->route( 'addresses.index' )
-                ->withErrors( [ 'Адрес не найдена' ] );
+                ->withErrors( [ 'Адрес не найден' ] );
         }
 
         $this->validate( $request, Address::$rules );
@@ -217,6 +202,11 @@ class AddressesController extends BaseController
     {
 
         $address = Address::find( $request->get( 'address_id' ) );
+        if ( !$address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
+        }
         $address->managements()->attach( $request->get( 'managements' ) );
 
         return redirect()->back()
@@ -224,33 +214,51 @@ class AddressesController extends BaseController
 
     }
 
+    public function delManagement ( Request $request )
+    {
+
+        $address = Address::find( $request->get( 'address_id' ) );
+        if ( !$address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
+        }
+        $address->managements()->detach( $request->get( 'management_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнитель успешно удален' );
+
+    }
+
     public function addTypes ( Request $request )
     {
 
         $address = Address::find( $request->get( 'address_id' ) );
-        $management = Management::find( $request->get( 'management_id' ) );
-
-        \DB::beginTransaction();
-
-        foreach ( $request->get( 'types' ) as $type_id )
+        if ( !$address )
         {
-            $addressManagement = AddressManagement
-                ::create([
-                    'address_id'        => $address->id,
-                    'management_id'     => $management->id,
-                    'type_id'           => $type_id
-                ]);
-            if ( $addressManagement instanceof MessageBag )
-            {
-                return redirect()->back()
-                    ->withErrors( $addressManagement );
-            }
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
         }
-
-        \DB::commit();
+        $address->types()->attach( $request->get( 'types', [] ) );
 
         return redirect()->back()
             ->with( 'success', 'Типы успешно назначены' );
+
+    }
+
+    public function delType ( Request $request )
+    {
+
+        $address = Address::find( $request->get( 'address_id' ) );
+        if ( !$address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
+        }
+        $address->types()->detach( $request->get( 'type_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Тип успешно удален' );
 
     }
 

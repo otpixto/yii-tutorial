@@ -17,8 +17,12 @@ class Address extends BaseModel
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'addresses_managements' )
-            ->withPivot( [ 'type_id' ] );
+        return $this->belongsToMany( 'App\Models\Management', 'managements_addresses' );
+    }
+
+    public function types ()
+    {
+        return $this->belongsToMany( 'App\Models\Type', 'addresses_types' );
     }
 
 }

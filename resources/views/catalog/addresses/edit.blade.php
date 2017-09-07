@@ -35,77 +35,101 @@
             <table class="table table-bordered table-hover table-striped">
                 <thead>
                     <tr class="info">
-                        <th class="text-right" width="35%">
-                            Исполнитель
+                        <th width="50%">
+                            ЭО
                         </th>
-                        <th with="65%">
-                           Типы обращений
+                        <th with="50%">
+                            Типы обращений
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                @foreach ( $addressManagements as $management_id => $arr )
                     <tr>
-                        <td class="text-right">
-                            <a href="{{ route( 'managements.edit', $management_id ) }}">
-                                {{ $arr[0]->name }}
-                            </a>
-                        </td>
                         <td>
-                            <a href="#" data-toggle="#types-{{ $management_id }}">Скрыть\Показать ({{ $arr[1]->count() }})</a>
-                            <ul class="list-group" style="display: none;" id="types-{{ $management_id }}">
-                            @foreach ( $arr[1] as $type )
-                                <li href="{{ route( 'types.edit', $type->id ) }}" class="list-group-item">
-                                    {{ $type->name }}
-                                    <a href="#" class="badge badge-danger pull-right" data-action="address-type-delete" data-type="{{ $type->id }}" data-managment="{{ $management_id }}" data-address="{{ $address->id }}">
+                            @if ( ! $addressManagements->count() )
+                                @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                            @endif
+                            @foreach ( $addressManagements as $r )
+                                <div class="margin-bottom-5">
+                                    <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="address-management" data-address="{{ $address->id }}" data-management="{{ $r->id }}">
                                         <i class="fa fa-remove"></i>
                                     </a>
-                                </li>
+                                    <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                        {{ $r->name }}
+                                    </a>
+                                </div>
                             @endforeach
-                            </ul>
-                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ) ] ) !!}
-                            {!! Form::hidden( 'management_id', $management_id ) !!}
+                        </td>
+                        <td>
+                            @if ( ! $addressTypes->count() )
+                                @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                            @endif
+                            @foreach ( $addressTypes as $r )
+                                <div class="margin-bottom-5">
+                                    <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="address-type" data-address="{{ $address->id }}" data-type="{{ $r->id }}">
+                                        <i class="fa fa-remove"></i>
+                                    </a>
+                                    <a href="{{ route( 'types.edit', $r->id ) }}">
+                                        {{ $r->name }}
+                                    </a>
+                                </div>
+                            @endforeach
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>
+                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.managements.add' ) ] ) !!}
                             {!! Form::hidden( 'address_id', $address->id ) !!}
                             <div class="row">
                                 <div class="col-md-12">
-                                    {!! Form::select( 'types[]', $arr[2]->pluck( 'name', 'id' ), null, [ 'class' => 'form-control select2', 'id' => 'management-types', 'multiple' ] ) !!}
+                                    {!! Form::select( 'managements[]', $allowedManagements, null, [ 'class' => 'form-control select2', 'id' => 'management-add', 'multiple' ] ) !!}
                                 </div>
                             </div>
                             <div class="row margin-top-10">
                                 <div class="col-md-12">
+                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                        <input name="select_all_managements" id="select-all-managements" type="checkbox" value="1" />
+                                        <span></span>
+                                        Выбрать все
+                                    </label>
+                                    &nbsp;&nbsp;&nbsp;
                                     <button id="add-management" class="btn btn-success">
-                                        <i class="glyphicon glyphicon-ok"></i>
-                                        Добавить Типы
+                                        <i class="glyphicon glyphicon-plus"></i>
+                                        Добавить ЭО
                                     </button>
-                                    <button id="del-management" class="btn btn-danger" data-managment="{{ $management_id }}" data-address="{{ $address->id }}">
-                                        <i class="fa fa-remove"></i>
-                                        Удалить ЭО
+                                </div>
+                            </div>
+                            {!! Form::close() !!}
+                        </td>
+                        <td>
+                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ) ] ) !!}
+                            {!! Form::hidden( 'address_id', $address->id ) !!}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-md-12 text-right">
+                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                        <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
+                                        <span></span>
+                                        Выбрать все
+                                    </label>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <button id="add-management" class="btn btn-success">
+                                        <i class="glyphicon glyphicon-plus"></i>
+                                        Добавить Тип
                                     </button>
                                 </div>
                             </div>
                             {!! Form::close() !!}
                         </td>
                     </tr>
-                @endforeach
-                </tbody>
+                </tfoot>
             </table>
-
-            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.managements.add' ) ] ) !!}
-            {!! Form::hidden( 'address_id', $address->id ) !!}
-            <div class="row">
-                <div class="col-md-12">
-                    {!! Form::select( 'managements[]', $allowedManagements, null, [ 'class' => 'form-control select2', 'id' => 'management-add', 'multiple' ] ) !!}
-                </div>
-            </div>
-            <div class="row margin-top-10">
-                <div class="col-md-12">
-                    <button id="add-management" class="btn btn-success">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        Добавить ЭО
-                    </button>
-                </div>
-            </div>
-            {!! Form::close() !!}
 
         </div>
     </div>
@@ -129,6 +153,114 @@
 
                 $( '.select2' ).select2();
 
+            })
+
+            .on( 'click', '[data-delete="address-type"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var address_id = $( this ).attr( 'data-address' );
+                var type_id = $( this ).attr( 'data-type' );
+                var obj = $( this ).closest( 'div' );
+
+                bootbox.confirm({
+                    message: 'Удалить привязку?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            obj.remove();
+
+                            $.post( '{{ route( 'addresses.types.del' ) }}', {
+                                address_id: address_id,
+                                type_id: type_id
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-delete="address-management"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var address_id = $( this ).attr( 'data-address' );
+                var management_id = $( this ).attr( 'data-management' );
+                var obj = $( this ).closest( 'div' );
+
+                bootbox.confirm({
+                    message: 'Удалить привязку?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            obj.remove();
+
+                            $.post( '{{ route( 'addresses.managements.del' ) }}', {
+                                address_id: address_id,
+                                management_id: management_id
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'change', '#select-all-managements', function ()
+            {
+                if ( $( this ).is( ':checked' ) )
+                {
+                    $( '#management-add > option' ).prop( 'selected', 'selected' );
+                    $( '#management-add' ).trigger( 'change' );
+                }
+                else
+                {
+                    $( '#management-add > option' ).removeAttr( 'selected' );
+                    $( '#management-add' ).trigger( 'change' );
+                }
+            })
+
+            .on( 'change', '#select-all-types', function ()
+            {
+                if ( $( this ).is( ':checked' ) )
+                {
+                    $( '#types-add > option' ).prop( 'selected', 'selected' );
+                    $( '#types-add' ).trigger( 'change' );
+                }
+                else
+                {
+                    $( '#types-add > option' ).removeAttr( 'selected' );
+                    $( '#types-add' ).trigger( 'change' );
+                }
             });
 
     </script>

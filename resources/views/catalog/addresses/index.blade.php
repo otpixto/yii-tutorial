@@ -76,7 +76,7 @@
                                         {{ $address->name }}
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-xs btn-info">
+                                        <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-info">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>

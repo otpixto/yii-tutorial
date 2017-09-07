@@ -102,7 +102,7 @@ class ManagementsController extends BaseController
 
         $management = Management::create( $request->all() );
 
-        return redirect()->route( 'managements.index' )
+        return redirect()->route( 'managements.edit', $management->id )
             ->with( 'success', 'ЭО успешно добавлена' );
 
     }
@@ -137,44 +137,30 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'ЭО не найдена' ] );
         }
 
-        $addresses = Address
-            ::orderBy( 'name' )
+        $allowedAddresses = Address
+            ::whereNotIn( 'id', $management->addresses->pluck( 'id' ) )
+            ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        $allowedAddresses = $addresses->toArray();
-
-        $addressManagements = [];
-
-        $res = AddressManagement
-            ::where( 'management_id', '=', $management->id )
-            ->with( 'address', 'type' )
+        $managementAddresses = $management->addresses()
+            ->orderBy( 'name' )
             ->get();
 
-        foreach ( $res as $r )
-        {
-            if ( !isset( $addressManagements[ $r->address_id ] ) )
-            {
-                $addressManagements[ $r->address_id ] = [ $r->address, new Collection() ];
-                unset( $allowedAddresses[ $r->address_id ] );
-            }
-            if ( $r->type_id )
-            {
-                $addressManagements[ $r->address_id ][ 1 ]->push( $r->type );
-            }
-        }
+        $allowedTypes = Type
+            ::whereNotIn( 'id', $management->types->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
-        foreach ( $addressManagements as $address_id => & $arr )
-        {
-            $allowedTypes = Type
-                ::whereNotIn( 'id', $arr[1]->pluck( 'id' ) )
-                ->get();
-            $arr[2] = $allowedTypes;
-        }
+        $managementTypes = $management->types()
+            ->orderBy( 'name' )
+            ->get();
 
         return view( 'catalog.managements.edit' )
             ->with( 'management', $management )
-            ->with( 'addressManagements', $addressManagements )
-            ->with( 'allowedAddresses', $allowedAddresses );
+            ->with( 'allowedAddresses', $allowedAddresses )
+            ->with( 'managementAddresses', $managementAddresses )
+            ->with( 'allowedTypes', $allowedTypes )
+            ->with( 'managementTypes', $managementTypes );
 
     }
 
@@ -201,8 +187,6 @@ class ManagementsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $this->validate( $request, $rules );
-
         $management->edit( $request->all() );
 
         return redirect()->route( 'managements.edit', $management->id )
@@ -224,21 +208,32 @@ class ManagementsController extends BaseController
     public function search ( Request $request )
     {
 
-        $res = AddressManagement
-            ::select( 'management_id' )
-            ->where( 'type_id', '=', $request->get( 'type_id' ) )
-            ->where( 'address_id', '=', $request->get( 'address_id' ) )
+        $type_id = $request->get( 'type_id' );
+        $address_id = $request->get( 'address_id' );
+
+        $managements = Management
+            ::whereHas( 'types', function ( $q ) use ( $type_id )
+            {
+                return $q
+                    ->where( 'type_id', '=', $type_id );
+            })
+            ->whereHas( 'addresses', function ( $q ) use ( $address_id, $type_id )
+            {
+                return $q
+                    ->where( 'address_id', '=', $address_id )
+                    ->whereHas( 'types', function ( $q2 ) use ( $type_id )
+                    {
+                        return $q2
+                            ->where( 'type_id', '=', $type_id );
+                    });
+            })
             ->get();
 
-        if ( ! $res->count() )
+        if ( ! $managements->count() )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'ЭО не найдены по заданным критериям' );
         }
-
-        $managements = Management
-            ::whereIn( 'id', $res->pluck( 'management_id' ) )
-            ->get();
 
         if ( ! empty( $request->get( 'selected' ) ) )
         {
@@ -259,40 +254,63 @@ class ManagementsController extends BaseController
     {
 
         $management = Management::find( $request->get( 'management_id' ) );
-        $management->addresses()->attach( $request->get( 'addresses' ) );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'ЭО не найдена' ] );
+        }
+        $management->addresses()->attach( $request->get( 'addresses', [] ) );
 
         return redirect()->back()
             ->with( 'success', 'Адреса успешно добавлены' );
 
     }
 
+    public function delAddress ( Request $request )
+    {
+
+        $management = Management::find( $request->get( 'management_id' ) );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'ЭО не найдена' ] );
+        }
+        $management->addresses()->detach( $request->get( 'address_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адрес успешно удален' );
+
+    }
+
     public function addTypes ( Request $request )
     {
 
-        $address = Address::find( $request->get( 'address_id' ) );
         $management = Management::find( $request->get( 'management_id' ) );
-
-        \DB::beginTransaction();
-
-        foreach ( $request->get( 'types' ) as $type_id )
+        if ( ! $management )
         {
-            $addressManagement = AddressManagement
-                ::create([
-                    'address_id'        => $address->id,
-                    'management_id'     => $management->id,
-                    'type_id'           => $type_id
-                ]);
-            if ( $addressManagement instanceof MessageBag )
-            {
-                return redirect()->back()
-                    ->withErrors( $addressManagement );
-            }
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'ЭО не найдена' ] );
         }
-
-        \DB::commit();
+        $management->types()->attach( $request->get( 'types', [] ) );
 
         return redirect()->back()
             ->with( 'success', 'Типы успешно назначены' );
+
+    }
+
+    public function delType ( Request $request )
+    {
+
+        $management = Management::find( $request->get( 'management_id' ) );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'ЭО не найдена' ] );
+        }
+        $management->types()->detach( $request->get( 'type_id' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Тип успешно удален' );
 
     }
 
