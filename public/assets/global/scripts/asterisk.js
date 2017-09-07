@@ -1,4 +1,4 @@
-var socket = io( '//dev.eds-juk.ru:8443', { secure: true } );
+var socket = io( '//juk.edska.ru:8443', { secure: true } );
 var ext_number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
 socket
