@@ -48,9 +48,11 @@
             По заявке <b>№ {{ $ticketManagement->ticket_id }}</b> от <b>{{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}</b>
         </p>
 
-        <p>
-            Заявку принял <b>{{ $ticketManagement->statusesHistory()->first()->author->getName() ?? '-' }}</b>
-        </p>
+        @if ( $ticketManagement->statusesHistory()->first() && $ticketManagement->statusesHistory()->first()->author )
+            <p>
+                Заявку принял <b>{{ $ticketManagement->statusesHistory()->first()->author->getName() ?? '-' }}</b>
+            </p>
+        @endif
 
         <p>
             ФИО заявителя <b>{{ $ticketManagement->ticket->getName() ?? '-' }}</b>
