@@ -17,7 +17,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
     Route::get( '/profile/phone-confirm', 'ProfileController@getPhoneConfirm' )->name( 'profile.phone_confirm' );
     Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
-    Route::get( '/profile/phone-unreg', 'ProfileController@getPhoneUnreg' )->name( 'profile.phone_unreg' );
+    Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
 
 	Route::get( '/tickets/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
     Route::post( '/tickets/{id}/add-management', 'Operator\TicketsController@postAddManagement' );

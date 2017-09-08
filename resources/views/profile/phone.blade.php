@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    <div class="form-horizontal">
+    {!! Form::open( [ 'url' => route( 'profile.phone_unreg' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
         <div class="form-group">
             <div class="col-xs-3 control-label">
@@ -35,12 +35,12 @@
 
         <div class="form-group">
             <div class=" col-xs-offset-3 col-xs-6">
-                <a href="{{ route( 'profile.phone_unreg' ) }}" class="btn btn-danger">
+                <button type="submit" class="btn btn-danger">
                     Разлогинить телефон
-                </a>
+                </button>
             </div>
         </div>
 
-    </div>
+    {!! Form::close() !!}
 
 @endsection

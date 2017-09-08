@@ -99,7 +99,7 @@ class ProfileController extends Controller
 
     }
 
-    public function getPhoneUnreg ()
+    public function postPhoneUnreg ()
     {
         $res = \Auth::user()->phoneSessionUnreg();
         if ( $res instanceof MessageBag )
