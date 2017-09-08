@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class CategoriesController extends BaseController
 {
@@ -64,6 +65,11 @@ class CategoriesController extends BaseController
         $this->validate( $request, Category::$rules );
 
         $category = Category::create( $request->all() );
+        if ( $category instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $category );
+        }
         $category->save();
 
         return redirect()->route( 'categories.index' )
@@ -110,7 +116,7 @@ class CategoriesController extends BaseController
 
         $category = Category::find( $id );
 
-        if ( !$category )
+        if ( ! $category )
         {
             return redirect()->route( 'categories.index' )
                 ->withErrors( [ 'Категория не найдена' ] );
@@ -118,8 +124,12 @@ class CategoriesController extends BaseController
 
         $this->validate( $request, Category::$rules );
 
-        $category->fill( $request->all() );
-        $category->save();
+        $res = $category->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
 
         return redirect()->route( 'categories.edit', $category->id )
             ->with( 'success', 'Категория успешно отредактирована' );

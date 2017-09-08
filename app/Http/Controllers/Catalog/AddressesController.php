@@ -77,6 +77,11 @@ class AddressesController extends BaseController
         $this->validate( $request, Address::$rules );
 
         $address = Address::create( $request->all() );
+        if ( $address instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $address );
+        }
         $address->save();
 
         return redirect()->route( 'addresses.index' )
@@ -152,8 +157,7 @@ class AddressesController extends BaseController
     {
 
         $address = Address::find( $id );
-
-        if ( !$address )
+        if ( ! $address )
         {
             return redirect()->route( 'addresses.index' )
                 ->withErrors( [ 'Адрес не найден' ] );
@@ -161,8 +165,12 @@ class AddressesController extends BaseController
 
         $this->validate( $request, Address::$rules );
 
-        $address->fill( $request->all() );
-        $address->save();
+        $res = $address->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
 
         return redirect()->route( 'addresses.edit', $address->id )
             ->with( 'success', 'Адрес успешно отредактирован' );
