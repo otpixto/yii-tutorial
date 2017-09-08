@@ -14,7 +14,7 @@ class Asterisk
     private $socket = false;
     private $auth = false;
 
-    private $size = 1500;
+    private $size = 3000;
     private $timeout = 10;
 
     public $last_result = null;
@@ -62,26 +62,18 @@ class Asterisk
         $this->auth = false;
     }
 
-    private function read ( $size = null )
+    private function read ()
     {
-        if ( $size && $size > $this->size )
-        {
-            $wait = (int) ceil( $size / $this->size ) * 10000;
-            usleep( $wait );
-        }
-        else
-        {
-            $size = $this->size;
-        }
-        $result = fread( $this->socket, $size );
+        sleep( 1 );
+        $result = fread( $this->socket, $this->size );
         $this->last_result = $result;
         return $result;
     }
 
-    private function write ( $packet, $size = null )
+    private function write ( $packet )
     {
         fwrite( $this->socket, $packet );
-        return $this->read( $size );
+        return $this->read();
     }
 
     private function isSuccess ( $result = null )
