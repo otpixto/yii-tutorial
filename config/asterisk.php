@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'ip'                => '10.10.10.155',
+    'ip'                => '109.206.159.155',
     'port'              => 5038,
     'user'              => 'asterisk',
     'pass'              => 'ololoasterisk321123',
