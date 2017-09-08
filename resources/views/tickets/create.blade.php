@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Обращения', route( 'tickets.index' ) ],
+        [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -19,16 +19,16 @@
         <div class="col-lg-7">
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип обращения', 'required' ] ) !!}
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -183,7 +183,7 @@
         <div class="col-xs-5 text-right">
             <button type="submit" class="btn green btn-lg btn-block">
                 <i class="fa fa-plus"></i>
-                Добавить обращение
+                Добавить заявку
             </button>
             @if ( $draft )
                 <div class="text-right margin-top-10">
@@ -231,7 +231,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                     <h4 class="modal-title text-warning bold">
                         <i class="fa fa-support"></i>
-                        Обращения заявителя
+                        Заявки заявителя
                     </h4>
                 </div>
                 <div class="modal-body" id="customer_tickets">
@@ -736,41 +736,7 @@
             {
                 GetManagements();
                 GetWorks();
-            })
-			
-			.on( 'click', '#save-draft', function ( e )
-			{
-				
-				e.preventDefault();
-				
-				var form = $( this ).closest( 'form' );
-				
-				bootbox.confirm({
-					message: 'Сохранить обращение как черновик?',
-					size: 'small',
-					buttons: {
-						confirm: {
-							label: '<i class="fa fa-check"></i> Да',
-							className: 'btn-success'
-						},
-						cancel: {
-							label: '<i class="fa fa-times"></i> Нет',
-							className: 'btn-danger'
-						}
-					},
-					callback: function ( result )
-					{
-						if ( result )
-						{
-
-							$( '#draft' ).val( '1' );
-							form.submit();
-
-						}
-					}
-				});
-				
-			});
+            });
 
     </script>
 @endsection

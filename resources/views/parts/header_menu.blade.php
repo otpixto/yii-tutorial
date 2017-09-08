@@ -27,7 +27,7 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
-                    Обращения
+                    Заявки
                     @if ( \Session::get( 'tickets_count' ) > 0 )
                         <span class="badge badge-success bold">
                             {{ \Session::get( 'tickets_count' ) }}
@@ -38,7 +38,7 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.create' ) )
                         <li>
                             <a href="{{ route( 'tickets.create' ) }}">
-                                Создать обращение
+                                Создать заявку
                             </a>
                         </li>
                     @endif
@@ -52,7 +52,7 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.closed' ) )
                         <li>
                             <a href="{{ route( 'tickets.closed' ) }}">
-                                Закрытые обращения
+                                Закрытые заявки
                             </a>
                         </li>
                     @endif
@@ -66,7 +66,7 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.canceled' ) )
                         <li>
                             <a href="{{ route( 'tickets.canceled' ) }}">
-                                Отмененные обращения
+                                Отмененные заявки
                             </a>
                         </li>
                     @endif

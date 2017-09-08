@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Обращения', route( 'tickets.index' ) ],
+        [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -45,7 +45,7 @@
                 <thead>
                     <tr class="info">
                         <th colspan="2" width="250">
-                             Статус \ Номер обращения \ Оценка
+                             Статус \ Номер заявки \ Оценка
                         </th>
                         <th width="220">
                             Дата и время создания
@@ -57,7 +57,7 @@
                             ЭО
                         </th>
                         <th width="200">
-                            Категория и тип обращения
+                            Категория и тип заявки
                         </th>
                         <th>
                             Адрес проблемы
@@ -96,7 +96,7 @@
                             {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
                         </td>
                         <td>
-                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                         </td>
                         <td>
                             <div class="row">

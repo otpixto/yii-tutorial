@@ -28,7 +28,23 @@ class Counter
 
             $now = Carbon::now()->toDateString();
 
-            if ( $user->hasRole( 'operator' ) )
+            if ( $user->hasRole( 'control' ) )
+            {
+                $tickets_count = Ticket
+                    ::mine()
+                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
+                    ->count();
+                \Session::put( 'tickets_count', $tickets_count );
+                $tickets_call_count = Ticket
+                    ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                    ->count();
+                \Session::put( 'tickets_call_count', $tickets_call_count );
+                $works_count = Work
+                    ::whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
+                    ->count();
+                \Session::put( 'works_count', $works_count );
+            }
+            else if ( $user->hasRole( 'operator' ) )
             {
                 $tickets_count = Ticket
                     ::mine()

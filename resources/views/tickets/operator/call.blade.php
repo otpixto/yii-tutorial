@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Реестр обращений', route( 'tickets.index' ) ],
+        [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -33,7 +33,7 @@
                                 ЭО
                             </th>
                             <th>
-                                Категория и тип обращения
+                                Категория и тип заявки
                             </th>
                             <th>
                                 Текст проблемы
@@ -85,7 +85,7 @@
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticket->id }}" target="_blank">
                                     <i class="fa fa-chevron-right"></i>
                                 </a>
                             </td>
@@ -181,157 +181,6 @@
                         }
                     }
                 });
-
-            })
-
-            .on( 'click', '[data-action="close-rate"]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var id = $( this ).attr( 'data-id' );
-
-                var dialog = bootbox.dialog({
-                    title: 'Оцените работу ЭО',
-                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-                });
-
-                dialog.init( function ()
-                {
-                    $.get( '{{ route( 'tickets.rate' ) }}', {
-                        id: id
-                    }, function ( response )
-                    {
-                        dialog.find( '.bootbox-body' ).html( response );
-                    });
-                });
-
-            })
-
-            .on( 'click', '[data-action="close"]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var id = $( this ).attr( 'data-id' );
-
-                bootbox.confirm({
-                    message: 'Закрыть данное обращение без подтверждения?',
-                    size: 'small',
-                    buttons: {
-                        confirm: {
-                            label: '<i class="fa fa-check"></i> Да',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: '<i class="fa fa-times"></i> Нет',
-                            className: 'btn-danger'
-                        }
-                    },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
-
-                            $.post( '{{ route( 'tickets.close' ) }}', {
-                                id: id
-                            }, function ( response )
-                            {
-                                window.location.reload();
-                            });
-
-                        }
-                    }
-                });
-
-            })
-
-            .on( 'click', '[data-action="repeat"]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var id = $( this ).attr( 'data-id' );
-
-                bootbox.prompt({
-                    title: 'Напишите причину повторной передачи обращения ЭО',
-                    inputType: 'textarea',
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
-                            $.post( '{{ route( 'tickets.repeat' ) }}', {
-                                id: id,
-                                comment: result
-                            }, function ( response )
-                            {
-                                window.location.reload();
-                            });
-                        }
-                    }
-                });
-
-                /*bootbox.confirm({
-                    message: 'Передать повторно обращение ЭО?',
-                    size: 'small',
-                    buttons: {
-                        confirm: {
-                            label: '<i class="fa fa-check"></i> Да',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: '<i class="fa fa-times"></i> Нет',
-                            className: 'btn-danger'
-                        }
-                    },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
-
-                            $.post( '{{ route( 'tickets.repeat' ) }}', {
-                                id: id
-                            }, function ( response )
-                            {
-                                window.location.reload();
-                            });
-
-                        }
-                    }
-                });*/
-
-            })
-
-            .on( 'click', '[data-rate]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var rate = $( this ).attr( 'data-rate' );
-                var form = $( '#rate-form' );
-
-                form.find( '[name="rate"]' ).val( rate );
-
-                if ( rate < 4 )
-                {
-                    bootbox.prompt({
-                        title: 'Введите комментарий к оценке',
-                        inputType: 'textarea',
-                        callback: function (result) {
-                            if ( !result ) {
-                                alert('Действие отменено!');
-                            }
-                            else {
-                                form.find('[name="comment"]').val(result);
-                                form.submit();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    form.submit();
-                }
 
             });
 

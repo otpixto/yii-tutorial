@@ -13,34 +13,6 @@
     <div class="row">
         <div class="col-lg-6">
 
-            @if ( $ticket->status_code == 'closed_with_confirm' )
-                <div class="row hidden-print">
-                    <div class="col-xs-12">
-                        @include( 'parts.rate_form' )
-                    </div>
-                </div>
-            @endif
-
-            @if ( $ticket->getAvailableStatuses() )
-                <div class="row hidden-print">
-                    <div class="col-xs-12">
-                        <div class="note note-info">
-                            <dl>
-                                <dt>Сменить статус:</dt>
-                                <dd>
-                                    @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'data-id' => $ticket->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
-                                        {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
-                                        {!! Form::close() !!}
-                                    @endforeach
-                                </dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
             <div class="row">
                 <div class="col-xs-6">
                     <div class="note note-{{ $ticket->getClass() }}">
@@ -52,11 +24,6 @@
                 </div>
                 <div class="col-xs-6">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="type">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>Тип заявки:</dt>
                             <dd>{{ $ticket->type->name ?? '' }}</dd>
@@ -68,11 +35,6 @@
             <div class="row">
                 <div class="col-xs-6">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="address">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>Адрес проблемы:</dt>
                             <dd>
@@ -86,11 +48,6 @@
                 </div>
 				<div class="col-xs-6">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="mark">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>Дополнительные метки:</dt>
                             <dd>
@@ -133,13 +90,8 @@
             <div class="row">
 				<div class="col-xs-12">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="text">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
-                            <dt>Текст заявки:</dt>
+                            <dt>Текст обращения:</dt>
                             <dd>{{ $ticket->text }}</dd>
                         </dl>
                     </div>
@@ -341,11 +293,6 @@
             <div class="row">
                 <div class="col-xs-6">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="name">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>ФИО Заявителя:</dt>
                             <dd>{{ $ticket->getName() }}</dd>
@@ -354,11 +301,6 @@
                 </div>
                 <div class="col-xs-6">
                     <div class="note">
-                        @if ( $ticket->canEdit() )
-                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="phone">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        @endif
                         <dl>
                             <dt>Телефон(ы) Заявителя:</dt>
                             <dd>{{ $ticket->getPhones() }}</dd>
@@ -392,11 +334,6 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-						@if ( $ticket->canEdit() )
-							<button type="button" class="btn pull-right btn-primary margin-right-10 hidden-print" data-action="add-management">
-								<i class="fa fa-plus"></i>
-							</button>
-						@endif
 						<h4>
 							Эксплуатационные организации
 						</h4>
@@ -406,18 +343,12 @@
                                     <th>
                                         Наименование \ Телефон \ Адрес
                                     </th>
-									@if ( $ticket->canEdit() )
-										<th>
-											&nbsp;
-										</th>
-									@else
-										<th>
-											Исполнитель
-										</th>
-										<th>
-											Статус
-										</th>
-									@endif
+                                    <th>
+                                        Исполнитель
+                                    </th>
+                                    <th>
+                                        Статус
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -449,22 +380,14 @@
                                             </p>
                                         @endif
                                     </td>
-									@if ( $ticket->canEdit() )
-										<td class="text-right" style="padding-right: 0px !important;">
-											<button type="button" class="btn btn-xs btn-danger margin-right-10 hidden-print" data-delete-management="{{ $ticketManagement->id }}">
-												<i class="fa fa-remove"></i>
-											</button>
-										</td>
-									@else
-										<td>
-											{{ $ticketManagement->executor ?? '-' }}
-										</td>
-										<td>
-											<span class="text-{{ $ticketManagement->getClass() }}">
-												{{ $ticketManagement->status_name }}
-											</span>
-										</td>
-									@endif
+                                    <td>
+                                        {{ $ticketManagement->executor ?? '-' }}
+                                    </td>
+                                    <td>
+                                        <span class="text-{{ $ticketManagement->getClass() }}">
+                                            {{ $ticketManagement->status_name ?? '-' }}
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -523,133 +446,4 @@
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-
-    <script type="text/javascript">
-
-        $( document )
-
-            .on( 'click', '[data-rate]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var rate = $( this ).attr( 'data-rate' );
-                var form = $( '#rate-form' );
-
-                form.find( '[name="rate"]' ).val( rate );
-
-                if ( rate < 4 )
-                {
-                    bootbox.prompt({
-                        title: 'Введите комментарий к оценке',
-                        inputType: 'textarea',
-                        callback: function (result) {
-                            if ( !result ) {
-                                alert('Действие отменено!');
-                            }
-                            else {
-                                form.find('[name="comment"]').val(result);
-                                form.submit();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    form.submit();
-                }
-
-            })
-			
-			.on( 'click', '[data-edit]', function ( e )
-			{
-				e.preventDefault();
-				var param = $( this ).attr( 'data-edit' );
-				$.get( '{{ route( 'tickets.edit', $ticket ) }}', {
-					param: param
-				}, function ( response )
-				{
-					Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
-				});
-			})
-			
-			.on( 'click', '[data-action="add-management"]', function ( e )
-			{
-				e.preventDefault();
-				$.get( '{{ route( 'tickets.add_management', $ticket ) }}', 
-				function ( response )
-				{
-					Modal.createSimple( 'Добавить Эксплуатационную организацию', response, 'add-management' );
-				});
-			})
-			
-			.on( 'click', '[data-delete-management]', function ( e )
-			{
-				e.preventDefault();
-				var line = $( this ).closest( 'tr' );
-				var id = $( this ).attr( 'data-delete-management' );
-				bootbox.confirm({
-					message: 'Вы уверены, что хотите убрать из заявки ЭО?',
-					size: 'small',
-					buttons: {
-						confirm: {
-							label: '<i class="fa fa-check"></i> Да',
-							className: 'btn-success'
-						},
-						cancel: {
-							label: '<i class="fa fa-times"></i> Нет',
-							className: 'btn-danger'
-						}
-					},
-					callback: function ( result )
-					{
-						if ( result )
-						{
-
-							$.post( '{{ route( 'tickets.del_management' ) }}', {
-								    id: id
-								},
-								function ( response )
-								{
-									line.remove();
-								});
-							
-						}
-					}
-				});
-				
-			})
-
-            .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
-            {
-
-                e.preventDefault();
-                pe.preventDefault();
-
-                if ( $( this ).hasClass( 'submit-loading' ) )
-                {
-                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-                }
-
-                var id = $( this ).attr( 'data-id' );
-
-                var dialog = bootbox.dialog({
-                    title: 'Оцените работу ЭО',
-                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-                });
-
-                dialog.init( function ()
-                {
-                    $.get( '{{ route( 'tickets.rate' ) }}', {
-                        id: id
-                    }, function ( response )
-                    {
-                        dialog.find( '.bootbox-body' ).html( response );
-                    });
-                });
-
-            });
-
-    </script>
-
 @endsection

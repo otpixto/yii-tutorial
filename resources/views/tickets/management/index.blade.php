@@ -46,7 +46,7 @@
                 <thead>
                     <tr class="info">
                         <th>
-                             Статус \ Номер обращения \ Оценка
+                             Статус \ Номер заявки \ Оценка
                         </th>
                         <th width="15%">
                             Дата и время создания
@@ -55,7 +55,7 @@
                             Адрес проблемы
                         </th>
                         <th>
-                            Категория и тип обращения
+                            Категория и тип заявки
                         </th>
                         <th class="hidden-print">
                             &nbsp;
@@ -90,7 +90,7 @@
                             </div>
                         </td>
                         <td>
-                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                         </td>
                         <td class="text-right hidden-print">
                             <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">

@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Реестр обращений', route( 'tickets.index' ) ],
+        [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -22,7 +22,7 @@
                     <thead>
                         <tr class="info">
                             <th>
-                                Номер обращения
+                                Номер заявки
                             </th>
                             <th width="15%">
                                 ФИО Заявителя
@@ -31,7 +31,7 @@
                                 Телефон(ы) Заявителя
                             </th>
                             <th width="15%">
-                                Категория и тип обращения
+                                Категория и тип заявки
                             </th>
                             <th>
                                 Адрес проблемы
@@ -51,7 +51,7 @@
                                 {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control' ] ) !!}
                             </td>
                             <td>
-                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип обращения' ] ) !!}
+                                {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                             </td>
                             <td>
                                 <div class="row">
@@ -98,7 +98,7 @@
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <a href="{{ route( 'tickets.show', $ticketManagement->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticketManagement->ticket->id }}" target="_blank">
+                                <a href="{{ route( 'tickets.show', $ticketManagement->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticketManagement->ticket->id }}" target="_blank">
                                     <i class="fa fa-chevron-right"></i>
                                 </a>
                             </td>
@@ -229,7 +229,7 @@
                 var id = $( this ).attr( 'data-id' );
 
                 bootbox.confirm({
-                    message: 'Закрыть данное обращение без подтверждения?',
+                    message: 'Закрыть заявку без подтверждения?',
                     size: 'small',
                     buttons: {
                         confirm: {
@@ -267,7 +267,7 @@
                 var id = $( this ).attr( 'data-id' );
 
                 bootbox.confirm({
-                    message: 'Передать повторно обращение ЭО?',
+                    message: 'Передать повторно заявку ЭО?',
                     size: 'small',
                     buttons: {
                         confirm: {

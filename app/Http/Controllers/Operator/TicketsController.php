@@ -21,13 +21,19 @@ class TicketsController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Реестр обращений' );
+        Title::add( 'Реестр заявок' );
     }
 
     public function index ()
     {
 
-        if ( \Auth::user()->hasRole( 'operator' ) )
+        if ( \Auth::user()->hasRole( 'control' ) )
+        {
+
+            return $this->control();
+
+        }
+        else if ( \Auth::user()->hasRole( 'operator' ) )
         {
 
             return $this->operator();
@@ -45,6 +51,153 @@ class TicketsController extends BaseController
             return view( 'blank' )
                 ->with( 'error', 'Доступ запрещен' );
         }
+
+    }
+
+    public function control ()
+    {
+
+        $tickets = Ticket
+            ::mine()
+            ->parentsOnly()
+            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
+            ->orderBy( 'id', 'desc' );
+
+        if ( !empty( \Input::get( 'search' ) ) )
+        {
+            $tickets
+                ->fastSearch( \Input::get( 'search' ) );
+        }
+
+        if ( !empty( \Input::get( 'group' ) ) )
+        {
+            $tickets
+                ->where( 'group_uuid', '=', \Input::get( 'group' ) );
+        }
+
+        if ( !empty( \Input::get( 'id' ) ) )
+        {
+            $tickets
+                ->where( 'id', '=', \Input::get( 'id' ) );
+        }
+
+        if ( !empty( \Input::get( 'status_code' ) ) )
+        {
+            $tickets
+                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
+        }
+
+        if ( !empty( \Input::get( 'period_from' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( \Input::get( 'period_from' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'period_to' ) ) )
+        {
+            $tickets
+                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( \Input::get( 'period_to' ) )->toDateTimeString() ] );
+        }
+
+        if ( !empty( \Input::get( 'operator_id' ) ) )
+        {
+            $tickets
+                ->where( 'author_id', '=', \Input::get( 'operator_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'type_id' ) ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'address_id' ) ) )
+        {
+            $tickets
+                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+            $address = Address::find( \Input::get( 'address_id' ) );
+        }
+
+        if ( !empty( \Input::get( 'flat' ) ) )
+        {
+            $tickets
+                ->where( 'flat', '=', \Input::get( 'flat' ) );
+        }
+
+        if ( !empty( \Input::get( 'management_id' ) ) )
+        {
+            $tickets
+                ->whereHas( 'managements', function ( $q )
+                {
+                    return $q
+                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                });
+        }
+
+        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
+        {
+            $tickets = $tickets->get();
+            $data = [];
+            foreach ( $tickets as $ticket )
+            {
+                if ( $ticket->managements->count() )
+                {
+                    foreach ( $ticket->managements as $ticketManagement )
+                    {
+                        $data[] = [
+                            '#'                     => $ticket->id,
+                            'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                            'Текущий статус'        => $ticket->status_name,
+                            'Адрес проблемы'        => $ticket->address->name,
+                            'Квартира'              => $ticket->flat,
+                            'Проблемное место'      => $ticket->getPlace(),
+                            'Категория заявки'      => $ticket->type->category->name,
+                            'Тип заявки'            => $ticket->type->name,
+                            'ФИО заявителя'         => $ticket->getName(),
+                            'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                            'Адрес проживания'      => $ticket->customer->getAddress(),
+                            'Оператор'              => $ticket->author->getName(),
+                            'ЭО'                    => $ticketManagement->management->name,
+                        ];
+                    }
+                }
+                else
+                {
+                    if ( $ticket->status_code == 'draft' ) continue;
+                    $data[] = [
+                        '#'                     => $ticket->id,
+                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                        'Текущий статус'        => $ticket->status_name,
+                        'Адрес проблемы'        => $ticket->address->name,
+                        'Квартира'              => $ticket->flat,
+                        'Проблемное место'      => $ticket->getPlace(),
+                        'Категория заявки'      => $ticket->type->category->name,
+                        'Тип заявки'            => $ticket->type->name,
+                        'ФИО заявителя'         => $ticket->getName(),
+                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                        'Адрес проживания'      => $ticket->customer->getAddress(),
+                        'Оператор'              => $ticket->author->getName(),
+                        'ЭО'                    => '',
+                    ];
+                }
+            }
+            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                });
+            })->export( 'xls' );
+        }
+
+        $tickets = $tickets->paginate( 30 );
+
+        return view( 'tickets.control.index' )
+            ->with( 'tickets', $tickets )
+            ->with( 'types', Type::all() )
+            ->with( 'managements', Management::all() )
+            ->with( 'operators', User::role( 'operator' )->get() )
+            ->with( 'address', $address ?? null );
 
     }
 
@@ -128,7 +281,7 @@ class TicketsController extends BaseController
                 });
         }
 
-        if ( \Input::get( 'export' ) == 1 )
+        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
         {
             $tickets = $tickets->get();
             $data = [];
@@ -145,8 +298,8 @@ class TicketsController extends BaseController
                             'Адрес проблемы'        => $ticket->address->name,
                             'Квартира'              => $ticket->flat,
                             'Проблемное место'      => $ticket->getPlace(),
-                            'Категория обращения'   => $ticket->type->category->name,
-                            'Тип обращения'         => $ticket->type->name,
+                            'Категория заявки'      => $ticket->type->category->name,
+                            'Тип заявки'            => $ticket->type->name,
                             'ФИО заявителя'         => $ticket->getName(),
                             'Телефон(ы) заявителя'  => $ticket->getPhones(),
                             'Адрес проживания'      => $ticket->customer->getAddress(),
@@ -165,8 +318,8 @@ class TicketsController extends BaseController
                         'Адрес проблемы'        => $ticket->address->name,
                         'Квартира'              => $ticket->flat,
                         'Проблемное место'      => $ticket->getPlace(),
-                        'Категория обращения'   => $ticket->type->category->name,
-                        'Тип обращения'         => $ticket->type->name,
+                        'Категория заявки'   => $ticket->type->category->name,
+                        'Тип заявки'         => $ticket->type->name,
                         'ФИО заявителя'         => $ticket->getName(),
                         'Телефон(ы) заявителя'  => $ticket->getPhones(),
                         'Адрес проживания'      => $ticket->customer->getAddress(),
@@ -175,9 +328,9 @@ class TicketsController extends BaseController
                     ];
                 }
             }
-            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
+            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
+                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -280,7 +433,7 @@ class TicketsController extends BaseController
                 ->where( 'status_code', '=', \Input::get( 'status_code' ) );
         }
 
-        if ( \Input::get( 'export' ) == 1 )
+        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
         {
             $ticketManagements = $ticketManagements->get();
             $data = [];
@@ -294,16 +447,16 @@ class TicketsController extends BaseController
                     'Адрес проблемы'        => $ticket->address->name,
                     'Квартира'              => $ticket->flat,
                     'Проблемное место'      => $ticket->getPlace(),
-                    'Категория обращения'   => $ticket->type->category->name,
-                    'Тип обращения'         => $ticket->type->name,
+                    'Категория заявки'      => $ticket->type->category->name,
+                    'Тип заявки'            => $ticket->type->name,
                     'ФИО заявителя'         => $ticket->getName(),
                     'Телефон(ы) заявителя'  => $ticket->getPhones(),
                     'Адрес проживания'      => $ticket->customer->getAddress(),
                 ];
             }
-            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
+            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
+                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -352,7 +505,7 @@ class TicketsController extends BaseController
     public function create ()
     {
 
-        Title::add( 'Добавить обращение' );
+        Title::add( 'Добавить заявку' );
 
         $res = Type
             ::orderBy( 'name' )
@@ -493,7 +646,7 @@ class TicketsController extends BaseController
 		\DB::commit();
 
         return redirect()->route( 'tickets.show', $ticket->id )
-            ->with( 'success', 'Обращение успешно добавлено' );
+            ->with( 'success', 'Заявка успешно добавлена' );
 
     }
 
@@ -520,19 +673,13 @@ class TicketsController extends BaseController
             if ( ! $ticket )
             {
                 return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Обращение не найдено' ] );
+                    ->withErrors( [ 'Заявка не найдена' ] );
             }
 			
 			if ( $ticket->status_code == 'draft' )
 			{
 				return redirect()->route( 'tickets.create' );
 			}
-
-            if ( !$ticket )
-            {
-                return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Обращение не найдено' ] );
-            }
 
             if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
             {
@@ -553,19 +700,13 @@ class TicketsController extends BaseController
                 ->mine()
                 ->first();
 
-            if ( !$ticketManagement )
+            if ( ! $ticketManagement || ! $ticketManagement->ticket )
             {
                 return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Обращение не найдено' ] );
+                    ->withErrors( [ 'Заявка не найдена' ] );
             }
 
             $ticket = $ticketManagement->ticket;
-
-            if ( !$ticket )
-            {
-                return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Обращение не найдено' ] );
-            }
 
             if ( $ticketManagement->status_code != 'cancel' && $ticketManagement->status_code != 'no_contract' )
             {
@@ -582,7 +723,7 @@ class TicketsController extends BaseController
                 ->with( 'error', 'Доступ запрещен' );
         }
 
-        Title::add( 'Обращение #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+        Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
 
         $dt_now = Carbon::now();
 
@@ -708,13 +849,13 @@ class TicketsController extends BaseController
 		if ( ! $ticket )
 		{
 			return redirect()->route( 'tickets.index' )
-				->withErrors( [ 'Обращение не найдено' ] );
+				->withErrors( [ 'Заявка не найдена' ] );
 		}
 		
 		$ticket->edit( $request->all() );
 		
 		return redirect()->route( 'tickets.show', $ticket->id )
-            ->with( 'success', 'Обращение успешно отредактировано' );
+            ->with( 'success', 'Заявка успешно отредактирована' );
 		
     }
 
@@ -737,7 +878,7 @@ class TicketsController extends BaseController
         if ( !$ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         $res = $ticket->changeStatus( $request->get( 'status_code' ) );
@@ -756,10 +897,10 @@ class TicketsController extends BaseController
     {
 
         $ticketManagement = TicketManagement::find( $id );
-        if ( !$ticketManagement )
+        if ( ! $ticketManagement )
         {
-            return redirect()->back()
-                ->withErrors( [ 'Исполнитель по данному обращнию не найден' ] );
+            return redirect()->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
@@ -781,7 +922,7 @@ class TicketsController extends BaseController
         if ( ! $ticketManagement )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         $ticketManagement->executor = $request->get( 'executor' );
@@ -811,7 +952,7 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 2 )
                 {
-                    return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более обращения' ] );
+                    return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более заявок' ] );
                 }
 
                 $tickets = Ticket
@@ -821,7 +962,7 @@ class TicketsController extends BaseController
 
                 if ( $tickets->count() != count( $request->get( 'tickets' ) ) )
                 {
-                    return redirect()->back()->withErrors( [ 'Количество выбранных обращений не совпадает с количество найденных!' ] );
+                    return redirect()->back()->withErrors( [ 'Количество выбранных заявок не совпадает с количество найденных!' ] );
                 }
 
                 $uuid = Uuid::uuid4()->toString();
@@ -847,7 +988,7 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 1 )
                 {
-                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одно обращение' ] );
+                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одну заявку' ] );
                 }
 
                 $tickets = Ticket
@@ -894,7 +1035,7 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 1 )
                 {
-                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одно обращение' ] );
+                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одну заявку' ] );
                 }
 
                 $tickets = Ticket
@@ -938,7 +1079,7 @@ class TicketsController extends BaseController
     public function closed ( Request $request )
     {
 
-        Title::add( 'Закрытые обращения' );
+        Title::add( 'Закрытые заявки' );
 
         if ( \Auth::user()->hasRole( 'operator' ) )
         {
@@ -1213,7 +1354,7 @@ class TicketsController extends BaseController
     public function canceled ( Request $request )
     {
 
-        Title::add( 'Отмененные обращения' );
+        Title::add( 'Отмененные заявки' );
 
         $tickets = Ticket
             ::where( 'status_code', '=', 'cancel' );
@@ -1301,7 +1442,7 @@ class TicketsController extends BaseController
             return redirect()->back()->withErrors( [ 'Доступ запрещен' ] );
         }
 
-        Title::add( 'Обращения заявителя' );
+        Title::add( 'Заявки заявителя' );
 
         $tickets = Ticket
             ::where( 'customer_id', '=', $customer_id )
@@ -1396,8 +1537,8 @@ class TicketsController extends BaseController
                             'Адрес проблемы'        => $ticket->address->name,
                             'Квартира'              => $ticket->flat,
                             'Проблемное место'      => $ticket->getPlace(),
-                            'Категория обращения'   => $ticket->type->category->name,
-                            'Тип обращения'         => $ticket->type->name,
+                            'Категория заявки'      => $ticket->type->category->name,
+                            'Тип заявки'            => $ticket->type->name,
                             'ФИО заявителя'         => $ticket->getName(),
                             'Телефон(ы) заявителя'  => $ticket->getPhones(),
                             'Адрес проживания'      => $ticket->customer->getAddress(),
@@ -1416,8 +1557,8 @@ class TicketsController extends BaseController
                         'Адрес проблемы'        => $ticket->address->name,
                         'Квартира'              => $ticket->flat,
                         'Проблемное место'      => $ticket->getPlace(),
-                        'Категория обращения'   => $ticket->type->category->name,
-                        'Тип обращения'         => $ticket->type->name,
+                        'Категория заявки'      => $ticket->type->category->name,
+                        'Тип заявки'            => $ticket->type->name,
                         'ФИО заявителя'         => $ticket->getName(),
                         'Телефон(ы) заявителя'  => $ticket->getPhones(),
                         'Адрес проживания'      => $ticket->customer->getAddress(),
@@ -1426,9 +1567,9 @@ class TicketsController extends BaseController
                     ];
                 }
             }
-            \Excel::create( 'ОБРАЩЕНИЯ', function ( $excel ) use ( $data )
+            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'ОБРАЩЕНИЯ', function ( $sheet ) use ( $data )
+                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -1474,7 +1615,7 @@ class TicketsController extends BaseController
 		if ( ! $ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 		$management_id = $request->get( 'management_id' );
 		if ( ! $management_id )
@@ -1511,7 +1652,7 @@ class TicketsController extends BaseController
         if ( !$ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         \DB::beginTransaction();
@@ -1553,10 +1694,10 @@ class TicketsController extends BaseController
 
         $ticket = Ticket::find( $request->get( 'id' ) );
 
-        if ( !$ticket )
+        if ( ! $ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         \DB::beginTransaction();
@@ -1572,7 +1713,7 @@ class TicketsController extends BaseController
 
         \DB::commit();
 
-        return redirect()->back()->with( 'success', 'Обращение успешно закрыто' );
+        return redirect()->back()->with( 'success', 'Заявка успешно закрыта' );
 
     }
 
@@ -1584,7 +1725,7 @@ class TicketsController extends BaseController
         if ( !$ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
 
         \DB::beginTransaction();
@@ -1620,7 +1761,7 @@ class TicketsController extends BaseController
 
         \DB::commit();
 
-        return redirect()->back()->with( 'success', 'Обращение повторно передано в ЭО' );
+        return redirect()->back()->with( 'success', 'Заявка повторно передана в ЭО' );
 
     }
 
@@ -1636,15 +1777,15 @@ class TicketsController extends BaseController
     public function cancel ( Request $request, $id )
     {
         $ticket = Ticket::find( $id );
-        if ( !$ticket )
+        if ( ! $ticket )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Обращение не найдено' ] );
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
         if ( $ticket->status_code != 'draft' )
         {
             return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Невозможно отменить добавленное обращение' ] );
+                ->withErrors( [ 'Невозможно отменить добавленную заявку' ] );
         }
         $ticket->delete();
         return redirect()->route( 'tickets.index' );

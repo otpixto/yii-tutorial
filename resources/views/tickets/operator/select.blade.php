@@ -12,13 +12,13 @@
                 Дата
             </th>
             <th>
-                Тип обращения
+                Тип заявки
             </th>
             <th>
                 Адрес проблемы
             </th>
             <th>
-                Текст обращения
+                Текст заявки
             </th>
         </tr>
     </thead>
@@ -57,7 +57,7 @@
 @can ( 'tickets.customer_tickets' )
     <div class="margin-top-10">
         <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" target="_blank" class="btn btn-primary">
-            Показать все обращения заявителя
+            Показать все заявки заявителя
         </a>
     </div>
 @endcan

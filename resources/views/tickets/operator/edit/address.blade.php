@@ -1,9 +1,9 @@
 {!! Form::model( $ticket, [ 'method' => 'put', 'route' => [ 'tickets.update', $ticket->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 {!! Form::hidden( 'id', $ticket->id ) !!}
 <div class="form-group">
-	{!! Form::label( 'address_id', 'Адрес обращения', [ 'class' => 'control-label col-xs-4' ] ) !!}
+	{!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-4' ] ) !!}
 	<div class="col-xs-8">
-		{!! Form::select( 'address_id', $ticket->address->pluck( 'name', 'id' ), $ticket->address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес обращения', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
+		{!! Form::select( 'address_id', $ticket->address->pluck( 'name', 'id' ), $ticket->address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес обращения', 'data-allow-clear' => true, 'required' ] ) !!}
 	</div>
 </div>
 <div class="form-group">

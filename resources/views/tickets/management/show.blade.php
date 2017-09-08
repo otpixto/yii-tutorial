@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Обращения', route( 'tickets.index' ) ],
+        [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -61,7 +61,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         <dl>
-                            <dt>Тип обращения:</dt>
+                            <dt>Тип заявки:</dt>
                             <dd>{{ $ticket->type->name }}</dd>
                         </dl>
                     </div>
