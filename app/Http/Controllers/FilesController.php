@@ -29,9 +29,15 @@ class FilesController extends Controller
             return redirect()->back()->withErrors( [ 'Неверный токен' ] );
         }
 
-        $path = storage_path( 'app/' . $file->path );
-
-        return response()->download( $path, $file->name );
+        try
+        {
+            $path = storage_path( 'app/' . $file->path );
+            return response()->download( $path, $file->name );
+        }
+        catch ( \Exception $e )
+        {
+            return redirect()->back()->withErrors( $e->getMessage() );
+        }
 
     }
 	
