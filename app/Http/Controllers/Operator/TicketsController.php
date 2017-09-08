@@ -446,6 +446,15 @@ class TicketsController extends BaseController
                 'management_id'     => $manament_id,
             ]);
 
+            if ( $ticketManagement instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors( $ticketManagement );
+            }
+
+            $ticketManagement->save();
+
             if ( $ticketManagement->management->has_contract )
             {
                 $status_code = 'created';
