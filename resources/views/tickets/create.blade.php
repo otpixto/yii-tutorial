@@ -47,7 +47,7 @@
                 {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ), [ 'class' => 'autosave' ] ) !!}
+                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency' ] ) !!}
                         <span></span>
                         Авария
                     </label>
@@ -489,6 +489,14 @@
                 $( '#period_execution' ).text( response.period_execution + ' ч.' );
                 $( '#season' ).text( response.season );
                 $( '#category' ).text( response.category_name );
+                if ( response.emergency )
+                {
+                    $( '#emergency' ).prop( 'checked', 'checked' ).attr( 'disabled', 'disabled' );
+                }
+                else
+                {
+                    $( '#emergency' ).removeAttr( 'checked' ).removeAttr( 'disabled' );
+                }
             });
 
         };

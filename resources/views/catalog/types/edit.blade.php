@@ -43,14 +43,28 @@
 
     <div class="form-group">
 
-        <div class="col-xs-8">
+        <div class="col-xs-12">
             {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
             {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
         </div>
 
+    </div>
+
+    <div class="form-group">
+
         <div class="col-xs-4">
             {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
-            <br />{!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+            {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+        </div>
+
+        <div class="col-xs-4">
+            {!! Form::label( 'is_pay', 'Платно', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+        </div>
+
+        <div class="col-xs-4">
+            {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
         </div>
 
     </div>

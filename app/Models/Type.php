@@ -16,6 +16,9 @@ class Type extends BaseModel
         'period_acceptance',
         'period_execution',
         'season',
+        'is_pay',
+        'emergency',
+        'need_act',
     ];
 
     public function addresses ()
@@ -38,14 +41,6 @@ class Type extends BaseModel
         return $this->belongsTo( 'App\Models\Category' );
     }
 
-    public static function create ( array $attributes = [] )
-    {
-        $new = new Type( $attributes );
-        $new->need_act = isset( $attributes['need_act'] ) ? 1 : 0;
-        $new->save();
-        return $new;
-    }
-
     public function edit ( array $attributes = [] )
     {
         $res = $this->saveLogs( $attributes );
@@ -54,10 +49,20 @@ class Type extends BaseModel
             return $res;
         }
         $this->fill( $attributes );
-        if ( empty( $attributes['need_act'] ) )
+        if ( empty( $attributes['need_act'] ) && $this->need_act == 1 )
         {
             $this->need_act = 0;
             $this->saveLog( 'need_act', 1, 0 );
+        }
+        if ( empty( $attributes['is_pay'] ) && $this->is_pay == 1 )
+        {
+            $this->is_pay = 0;
+            $this->saveLog( 'is_pay', 1, 0 );
+        }
+        if ( empty( $attributes['emergency'] ) && $this->emergency == 1 )
+        {
+            $this->emergency = 0;
+            $this->saveLog( 'emergency', 1, 0 );
         }
         $this->save();
         return $this;

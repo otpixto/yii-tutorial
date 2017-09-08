@@ -72,10 +72,7 @@
                             ФИО руководителя
                         </th>
                         <th>
-                            E-mail
-                        </th>
-                        <th>
-                            Сайт
+                            Есть договор
                         </th>
                         <th class="text-right">
                             &nbsp;
@@ -104,10 +101,15 @@
                                 {{ $management->director }}
                             </td>
                             <td>
-                                {{ $management->email }}
-                            </td>
-                            <td>
-                                {{ $management->site }}
+                                @if ( $management->has_contract )
+                                    <span class="label label-success">
+                                        Да
+                                    </span>
+                                @else
+                                    <span class="label label-danger">
+                                        Нет
+                                    </span>
+                                @endif
                             </td>
                             <td class="text-right">
                                 <a href="{{ route( 'managements.edit', $management->id ) }}" class="btn btn-info">

@@ -90,6 +90,15 @@
                                 <th>
                                     Наименование
                                 </th>
+                                <th>
+                                    Необходим акт
+                                </th>
+                                <th>
+                                    Платно
+                                </th>
+                                <th>
+                                    Авария
+                                </th>
                                 <th class="text-right">
                                     &nbsp;
                                 </th>
@@ -103,6 +112,39 @@
                                     </td>
                                     <td>
                                         {{ $type->name }}
+                                    </td>
+                                    <td>
+                                        @if ( $type->need_act )
+                                            <span class="label label-success">
+                                                Да
+                                            </span>
+                                        @else
+                                            <span class="label label-danger">
+                                                Нет
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ( $type->is_pay )
+                                            <span class="label label-success">
+                                                Да
+                                            </span>
+                                        @else
+                                            <span class="label label-danger">
+                                                Нет
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ( $type->emergency )
+                                            <span class="label label-success">
+                                                Да
+                                            </span>
+                                        @else
+                                            <span class="label label-danger">
+                                                Нет
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'types.edit', $type->id ) }}" class="btn btn-info">

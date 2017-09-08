@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Management;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class TypesController extends BaseController
 {
@@ -173,9 +174,12 @@ class TypesController extends BaseController
 
         $this->validate( $request, Type::getRules( $type->id ) );
 
-        $type->fill( $request->all() );
-        $type->need_act = (int) $request->get( 'need_act', 0 );
-        $type->save();
+        $res = $type->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( $res );
+        }
 
         return redirect()->route( 'types.edit', $type->id )
             ->with( 'success', 'Тип успешно отредактирован' );
