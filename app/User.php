@@ -185,7 +185,11 @@ class User extends Authenticatable
 
     public function getFullName ()
     {
-        if ( $this->hasRole( 'operator' ) )
+        if ( $this->hasRole( 'control' ) )
+        {
+            return '<i>[Контролирующий]</i> ' . $this->getName();
+        }
+        else if ( $this->hasRole( 'operator' ) )
         {
             return '<i>[Оператор ЕДС]</i> ' . $this->getName();
         }
