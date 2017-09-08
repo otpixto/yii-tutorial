@@ -162,6 +162,8 @@
                         </tr>
                     </tfoot>
                     {!! Form::close() !!}
+                @else
+                    </tbody>
                 @endif
             </table>
 

@@ -116,8 +116,6 @@
                         </td>
                     </tr>
                 </thead>
-                {!! Form::close() !!}
-                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                 <tbody>
                 @if ( $tickets->count() )
                     @foreach ( $tickets as $ticket )
@@ -128,31 +126,8 @@
                             @endforeach
                         @endif
                     @endforeach
-                    </tbody>
-                    <tfoot class="hidden-print">
-                        <tr>
-                            <th colspan="3" class="text-right">
-                                Действия с выделенными
-                            </th>
-                            <td colspan="5">
-                                @can ( 'tickets.group' )
-                                    <button type="submit" name="action" value="group" class="btn btn-default">
-                                        Группировать
-                                    </button>
-                                    <button type="submit" name="action" value="ungroup" class="btn btn-default">
-                                        Разгруппировать
-                                    </button>
-                                @endcan
-                                @can ( 'tickets.delete' )
-                                    <button type="submit" name="action" value="delete" class="btn btn-danger hidden">
-                                        Удалить
-                                    </button>
-                                @endcan
-                            </td>
-                        </tr>
-                    </tfoot>
-                    {!! Form::close() !!}
                 @endif
+                </tbody>
             </table>
 
             {{ $tickets->render() }}
