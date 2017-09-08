@@ -64,6 +64,7 @@ class CategoriesController extends BaseController
         $this->validate( $request, Category::$rules );
 
         $category = Category::create( $request->all() );
+        $category->save();
 
         return redirect()->route( 'categories.index' )
             ->with( 'success', 'Категория успешно добавлена' );

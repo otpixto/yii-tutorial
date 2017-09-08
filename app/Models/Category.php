@@ -20,11 +20,4 @@ class Category extends BaseModel
         return $this->hasMany( 'App\Models\Type' );
     }
 
-    public static function create ( array $attributes = [] )
-    {
-        $new = new Category( $attributes );
-        $new->save();
-        return $new;
-    }
-
 }
