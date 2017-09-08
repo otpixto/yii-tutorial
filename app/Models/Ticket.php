@@ -625,17 +625,19 @@ class Ticket extends BaseModel
         $this->status_name = self::$statuses[ $status_code ];
         $this->save();
 
-        $res = StatusHistory::create([
+        $statusHistory = StatusHistory::create([
             'model_id'          => $this->id,
             'model_name'        => get_class( $this ),
             'status_code'       => $status_code,
             'status_name'       => self::$statuses[ $status_code ],
         ]);
 
-        if ( $res instanceof MessageBag )
+        if ( $statusHistory instanceof MessageBag )
         {
-            return $res;
+            return $statusHistory;
         }
+
+        $statusHistory->save();
 
         $res = $this->processStatus();
 

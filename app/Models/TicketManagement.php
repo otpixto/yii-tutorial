@@ -251,12 +251,19 @@ class TicketManagement extends BaseModel
         $this->status_name = self::$statuses[ $status_code ];
         $this->save();
 
-        StatusHistory::create([
+        $statusHistory = StatusHistory::create([
             'model_id'          => $this->id,
             'model_name'        => get_class( $this ),
             'status_code'       => $status_code,
             'status_name'       => self::$statuses[ $status_code ],
         ]);
+
+        if ( $statusHistory instanceof MessageBag )
+        {
+            return $statusHistory;
+        }
+
+        $statusHistory->save();
 
         $res = $this->processStatus();
         if ( $res instanceof MessageBag )
