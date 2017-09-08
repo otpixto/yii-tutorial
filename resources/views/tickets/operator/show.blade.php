@@ -435,6 +435,11 @@
                                                 {{ $ticketManagement->management->address }}
                                             </dd>
                                         </dl>
+                                        @if ( ! $ticketManagement->management->has_contract )
+                                            <div class="alert alert-danger margin-top-10">
+                                                Отсутствует договор
+                                            </div>
+                                        @endif
                                         @if ( $ticket->type->need_act && $ticketManagement->status_code )
                                             <p class="margin-top-10 hidden-print">
                                                 <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
