@@ -819,6 +819,14 @@ class TicketsController extends BaseController
 					->with( 'param', $param );
 			
 				break;
+
+            case 'actual_address':
+
+                return view( 'tickets.operator.edit.actual_address' )
+                    ->with( 'ticket', $ticket )
+                    ->with( 'param', $param );
+
+                break;
 				
 			case 'mark':
 			

@@ -316,13 +316,13 @@
                 </div>
             </div>
 
-            <div class="row hidden">
+            <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->customer->getAddress() }}
+                                {{ $ticket->getActualAddress() }}
                             </dd>
                         </dl>
                     </div>

@@ -367,13 +367,18 @@
                 </div>
             </div>
 
-            <div class="row hidden">
+            <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
+                        @if ( $ticket->canEdit() )
+                            <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="actual_address">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        @endif
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->customer ? $ticket->customer->getAddress() : '' }}
+                                {{ $ticket->getActualAddress() }}
                             </dd>
                         </dl>
                     </div>

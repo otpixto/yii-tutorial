@@ -428,6 +428,20 @@ class Ticket extends BaseModel
         return $addr;
     }
 
+    public function getActualAddress ()
+    {
+        $addr = '';
+        if ( $this->actualAddress )
+        {
+            $addr .= $this->actualAddress->name;
+        }
+        if ( $this->actual_flat )
+        {
+            $addr .= ', кв. ' . $this->actual_flat;
+        }
+        return $addr;
+    }
+
     public function getPlace ()
     {
         return self::$places[ $this->place_id ] ?? null;

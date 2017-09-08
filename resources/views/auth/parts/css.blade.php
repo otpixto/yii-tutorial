@@ -16,7 +16,6 @@
 <!-- BEGIN PAGE LEVEL STYLES -->
 <link href="/assets/pages/css/login.css" rel="stylesheet" type="text/css" />
 <!-- END PAGE LEVEL STYLES -->
-<link rel="shortcut icon" href="favicon.ico" />
 <!-- BEGIN THEME LAYOUT STYLES -->
 @yield( 'css' )
 <!-- END THEME LAYOUT STYLES -->

@@ -104,8 +104,8 @@
                 </div>
             </div>
 
-            <div class="form-group hidden">
-                {!! Form::label( 'customer_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="form-group">
+                {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
                     {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id' ] ) !!}
                 </div>
