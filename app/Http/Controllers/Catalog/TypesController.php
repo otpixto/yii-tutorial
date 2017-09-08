@@ -90,6 +90,12 @@ class TypesController extends BaseController
         $this->validate( $request, Type::getRules() );
 
         $type = Type::create( $request->all() );
+        if ( $type instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $type );
+        }
+        $type->save();
 
         return redirect()->route( 'types.index' )
             ->with( 'success', 'Тип успешно добавлен' );
@@ -120,7 +126,7 @@ class TypesController extends BaseController
 
         $type = Type::find( $id );
 
-        if ( !$type )
+        if ( ! $type )
         {
             return redirect()->route( 'types.index' )
                 ->withErrors( [ 'Тип не найдена' ] );
