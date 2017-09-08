@@ -2,7 +2,17 @@
 <div class="btn-group-img btn-group">
     <button type="button" class="btn btn-sm md-skip dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span>
-            @if( \Auth::user()->company || \Auth::user()->managements->count() )
+            @if ( \Auth::user()->hasRole( 'control' ) )
+                <b class="text-info">
+                    (Контролирующий)
+                </b>
+                &nbsp;
+            @elseif ( \Auth::user()->hasRole( 'operator' ) )
+                <b class="text-info">
+                    (Оператор ЕДС)
+                </b>
+                &nbsp;
+            @else ( \Auth::user()->hasRole( 'management' ) && ( \Auth::user()->company || \Auth::user()->managements->count() ) )
                 <b class="text-info">
                     ({{ \Auth::user()->company ?? \Auth::user()->managements()->first()->name }})
                 </b>
