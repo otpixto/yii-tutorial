@@ -1628,7 +1628,7 @@ class TicketsController extends BaseController
                 });
         }
 
-        if ( \Input::get( 'export' ) == 1 )
+        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
         {
             $tickets = $tickets->get();
             $data = [];

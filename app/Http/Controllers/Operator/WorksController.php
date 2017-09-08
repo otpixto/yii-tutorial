@@ -72,7 +72,7 @@ class WorksController extends BaseController
                 ->where( 'management_id', '=', \Input::get( 'management_id' ) );
         }
 
-        if ( \Input::get( 'export' ) == 1 )
+        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'works.export' ) ) )
         {
             $works = $works->get();
             $data = [];

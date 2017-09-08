@@ -157,7 +157,7 @@ class Work extends BaseModel
         return $query
             ->where( function ( $q )
             {
-                if ( ! \Auth::user()->hasRole( 'operator' ) )
+                if ( ! \Auth::user()->hasRole( 'operator' ) && ! \Auth::user()->hasRole( 'control' ) )
                 {
                     return $q
                         ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
