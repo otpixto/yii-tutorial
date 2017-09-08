@@ -49,29 +49,29 @@
         </p>
 
         <p>
-            Заявку принял <b>{{ $ticketManagement->statusesHistory()->first()->author->getName() }}</b>
+            Заявку принял <b>{{ $ticketManagement->statusesHistory()->first()->author->getName() ?? '-' }}</b>
         </p>
 
         <p>
-            ФИО заявителя <b>{{ $ticketManagement->ticket->getName() }}</b>
+            ФИО заявителя <b>{{ $ticketManagement->ticket->getName() ?? '-' }}</b>
         </p>
 
         <p>
-            Телефон(ы) заявителя <b>{{ $ticketManagement->ticket->getPhones() }}</b>
+            Телефон(ы) заявителя <b>{{ $ticketManagement->ticket->getPhones() ?? '-' }}</b>
         </p>
 
         <p>
-            Адрес проблемы <b>{{ $ticketManagement->ticket->getAddress() }}</b>
+            Адрес проблемы <b>{{ $ticketManagement->ticket->getAddress() ?? '-' }}</b>
         </p>
 
         <p>
-            Тип проблемы: <b>{{ $ticketManagement->ticket->type->name }}</b>
+            Тип проблемы: <b>{{ $ticketManagement->ticket->type->name ?? '-' }}</b>
         </p>
 		
 		<p><br /></p>
 
         <p>
-            Проблема: <b>{{ $ticketManagement->ticket->text }}</b>
+            Проблема: <b>{{ $ticketManagement->ticket->text ?? '-' }}</b>
         </p>
 
 		<p><br /></p>
