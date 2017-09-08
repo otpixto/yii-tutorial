@@ -663,7 +663,28 @@ class TicketsController extends BaseController
         $status_accepted = null;
         $status_completed = null;
 
-        if ( \Auth::user()->hasRole( 'operator' ) )
+        if ( \Auth::user()->hasRole( 'control' ) )
+        {
+
+            $view = 'tickets.control.show';
+
+            $ticket = Ticket::find( $id );
+
+            if ( ! $ticket )
+            {
+                return redirect()->route( 'tickets.index' )
+                    ->withErrors( [ 'Заявка не найдена' ] );
+            }
+
+            if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
+            {
+                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
+
+        }
+        else if ( \Auth::user()->hasRole( 'operator' ) )
         {
 
             $view = 'tickets.operator.show';
