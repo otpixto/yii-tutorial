@@ -73,73 +73,146 @@
 
     {!! Form::close() !!}
 
-    <h3>
-        История обращений
-    </h3>
+    <div class="row">
+        <div class="col-lg-7">
 
-    @if ( $tickets->count() )
-        {{ $tickets->render() }}
-        <table class="table table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        Номер обращения
-                    </th>
-                    <th>
-                        Дата обращения
-                    </th>
-                    <th>
-                        Адрес обращения
-                    </th>
-                    <th>
-                        Тип обращения
-                    </th>
-                    <th>
-                        Статус обращения
-                    </th>
-                    <th class="hidden-print">
-                        &nbsp;
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach( $customer->tickets as $ticket )
-                <tr>
-                    <td>
-                        <a href="{{ route( 'tickets.show', $ticket->id ) }}" target="_blank">
-                            {{ $ticket->id }}
-                        </a>
-                    </td>
-                    <td>
-                        {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
-                    </td>
-                    <td>
-                        {{ $ticket->getAddress() }}
-                        <span class="small text-muted">
-                            ({{ $ticket->place }})
-                        </span>
-                    </td>
-                    <td>
-                        {{ $ticket->type->name }}
-                    </td>
-                    <td>
-                        <span class="text-{{ $ticket->getClass() }}">
-                            {{ $ticket->status_name }}
-                        </span>
-                    </td>
-                    <td class="text-right hidden-print">
-                        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
-                            <i class="fa fa-chevron-right"></i>
-                        </a>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-        {{ $tickets->render() }}
-    @else
-        @include( 'parts.error', [ 'error' => 'У заявителя обращения отсутствуют' ] )
-    @endif
+            <h3>
+                История обращений
+            </h3>
+
+            @if ( $tickets->count() )
+                {{ $tickets->render() }}
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>
+                            Номер заявки
+                        </th>
+                        <th>
+                            Дата заявки
+                        </th>
+                        <th>
+                            Адрес проблемы
+                        </th>
+                        <th>
+                            Тип заявки
+                        </th>
+                        <th>
+                            Статус заявки
+                        </th>
+                        <th class="hidden-print">
+                            &nbsp;
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach( $customer->tickets as $ticket )
+                        <tr>
+                            <td>
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" target="_blank">
+                                    {{ $ticket->id }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
+                            </td>
+                            <td>
+                                {{ $ticket->getAddress() }}
+                                <span class="small text-muted">
+                                    ({{ $ticket->place }})
+                                </span>
+                            </td>
+                            <td>
+                                {{ $ticket->type->name }}
+                            </td>
+                            <td>
+                                <span class="text-{{ $ticket->getClass() }}">
+                                    {{ $ticket->status_name }}
+                                </span>
+                            </td>
+                            <td class="text-right hidden-print">
+                                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}" target="_blank">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                {{ $tickets->render() }}
+            @else
+                @include( 'parts.error', [ 'error' => 'У заявителя обращения отсутствуют' ] )
+            @endif
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <h3>
+                История звонков
+            </h3>
+
+            @if ( $calls->count() )
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>
+                            Дата звонка
+                        </th>
+                        <th>
+                            Оператор
+                        </th>
+                        <th>
+                            Добавочный
+                        </th>
+                        @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                            <th>
+                                Запись
+                            </th>
+                        @endif
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ( $calls as $call )
+                        <tr>
+                            <td>
+                                {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
+                            </td>
+                            <td>
+                                @if ( $call->queueLog->operator() )
+                                    {{ $call->queueLog->operator()->getShortName() }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                {{ $call->queueLog->ext_number() }}
+                            </td>
+                            @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                                <td>
+                                    @if ( $call->hasMp3() )
+                                        <a href="{{ $call->getMp3() }}" target="_blank">
+                                            {{ $call->getMp3() }}
+                                        </a>
+                                    @else
+                                        <span class="text-danger">
+                                            Запись не найдена
+                                        </span>
+                                    @endif
+                                </td>
+                            @endif
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                {{ $tickets->render() }}
+            @else
+                @include( 'parts.error', [ 'error' => 'У заявителя звонки отсутствуют' ] )
+            @endif
+
+        </div>
+
+    </div>
 
 @endsection
 

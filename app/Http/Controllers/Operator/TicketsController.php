@@ -194,9 +194,9 @@ class TicketsController extends BaseController
 
         return view( 'tickets.control.index' )
             ->with( 'tickets', $tickets )
-            ->with( 'types', Type::all() )
-            ->with( 'managements', Management::all() )
-            ->with( 'operators', User::role( 'operator' )->get() )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'address', $address ?? null );
 
     }
@@ -341,9 +341,9 @@ class TicketsController extends BaseController
 
         return view( 'tickets.operator.index' )
             ->with( 'tickets', $tickets )
-            ->with( 'types', Type::all() )
-            ->with( 'managements', Management::all() )
-            ->with( 'operators', User::role( 'operator' )->get() )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'address', $address ?? null );
 
     }
@@ -472,7 +472,7 @@ class TicketsController extends BaseController
 
         return view( 'tickets.management.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'types', Type::all() )
+            ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'address', $address ?? null );
 
     }

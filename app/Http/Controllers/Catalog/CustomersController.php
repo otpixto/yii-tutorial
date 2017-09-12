@@ -32,14 +32,14 @@ class CustomersController extends BaseController
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $customers
-                ->where( function ( $q ) use ( $s )
+                ->where( function ( $q ) use ( $s, $search )
                 {
                     return $q
                         ->where( 'firstname', 'like', $s )
                         ->orWhere( 'middlename', 'like', $s )
                         ->orWhere( 'lastname', 'like', $s )
-                        ->orWhere( 'phone', 'like', $s )
-                        ->orWhere( 'phone2', 'like', $s );
+                        ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) )
+                        ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) );
                 });
         }
 
@@ -125,17 +125,19 @@ class CustomersController extends BaseController
 
         $customer = Customer::find( $id );
 
-        if ( !$customer )
+        if ( ! $customer )
         {
             return redirect()->route( 'customers.index' )
                 ->withErrors( [ 'Заявитель не найден' ] );
         }
 
+        $calls = $customer->calls( 30 );
         $tickets = $customer->tickets()->paginate( 30 );
 
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
-            ->with( 'tickets', $tickets );
+            ->with( 'tickets', $tickets )
+            ->with( 'calls', $calls );
 
     }
 

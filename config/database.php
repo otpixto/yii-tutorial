@@ -53,6 +53,18 @@ return [
             'engine' => null,
         ],
 
+        'asterisk' => [
+            'driver' => 'mysql',
+            'host' => '109.206.159.155',
+            //'host' => '10.10.10.155',
+            'port' => '3306',
+            'database' => 'asteriskcdrdb',
+            'username' => 'skadmit',
+            'password' => 'mAax8LnoZzfLse8Y',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Asterisk\Cdr;
 use Illuminate\Support\MessageBag;
 
 class Customer extends BaseModel
@@ -46,6 +47,35 @@ class Customer extends BaseModel
     public function actualAddress ()
     {
         return $this->belongsTo( 'App\Models\Address' );
+    }
+
+    public function calls ( $limit = null )
+    {
+        $cdr = Cdr
+            ::where( function ( $q )
+            {
+                return $q
+                    ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone ] );
+                if ( $this->phone2 )
+                {
+                    $q
+                        ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone2 ] );
+                }
+            })
+            ->answered()
+            ->incoming()
+            ->whereHas( 'queueLog', function ( $q )
+            {
+                return $q
+                    ->completed();
+            })
+            ->orderBy( 'uniqueid', 'desc' );
+        if ( $limit )
+        {
+            $cdr->take( $limit );
+        }
+        $cdr = $cdr->get();
+        return $cdr;
     }
 
     public static function create ( array $attributes = [] )
