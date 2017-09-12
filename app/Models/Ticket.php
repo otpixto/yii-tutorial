@@ -691,7 +691,10 @@ class Ticket extends BaseModel
 
             case 'no_contract':
 
-                $res = $this->changeManagementsStatus();
+                $res = $this->changeManagementsStatus([
+                    'draft',
+                    'created'
+                ]);
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -717,7 +720,9 @@ class Ticket extends BaseModel
 
             case 'transferred':
 
-                $res = $this->changeManagementsStatus();
+                $res = $this->changeManagementsStatus([
+                    'created'
+                ]);
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
