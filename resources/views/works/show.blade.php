@@ -17,28 +17,19 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    <span class="form-control">
-                        {{ $work->management->name }}
+                    <span class="form-control-static">
+                        {{ $work->addresses->implode( 'name', '; ' ) }}
                     </span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    <span class="form-control">
-                        {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control">
-                        {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+                    <span class="form-control-static">
+                        {{ $work->type->name }}
                     </span>
                 </div>
             </div>
@@ -46,8 +37,26 @@
             <div class="form-group">
                 {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    <span class="form-control">
+                    <span class="form-control-static">
                         {{ $work->composition }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
                     </span>
                 </div>
             </div>
@@ -57,28 +66,19 @@
         <div class="col-lg-6">
 
             <div class="form-group">
+                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->management->name }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    <span class="form-control">
+                    <span class="form-control-static">
                         {{ $work->reason }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control">
-                        {{ $work->type->name }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control">
-                        {{ $work->getAddress() }}
                     </span>
                 </div>
             </div>
@@ -86,36 +86,45 @@
             <div class="form-group">
                 {!! Form::label( 'who', 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    <span class="form-control">
+                    <span class="form-control-static">
                         {{ $work->who }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'who', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->phone }}
                     </span>
                 </div>
             </div>
 
         </div>
 
-        <div class="row margin-top-10">
-            <div class="col-xs-12">
-                <div class="note">
-                    <h4>Комментарии</h4>
-                    @if ( $work->comments->count() )
-                        @include( 'parts.comments', [ 'comments' => $work->comments ] )
-                    @endif
-                </div>
+    </div>
+
+    {!! Form::close() !!}
+
+    <div class="row margin-top-10">
+        <div class="col-xs-12">
+            <div class="note">
+                <h4>Комментарии</h4>
+                @if ( $work->comments->count() )
+                    @include( 'parts.comments', [ 'comments' => $work->comments ] )
+                @endif
             </div>
         </div>
+    </div>
 
-        @if ( \Auth::user()->can( 'works.comment' ) )
-            <div class="row margin-top-10">
-                <div class="col-xs-12">
-                    <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
-                        <i class="fa fa-comment"></i>
-                        Добавить комментарий
-                    </button>
-                </div>
-            </div>
-        @endif
-
+    <div class="row margin-top-10">
+        <div class="col-xs-12">
+            <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
+                <i class="fa fa-comment"></i>
+                Добавить комментарий
+            </button>
+        </div>
     </div>
 
     {!! Form::close() !!}
@@ -146,40 +155,4 @@
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-
-        $( document )
-
-            .ready( function ()
-            {
-
-                $( '.select2' ).select2();
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-
-                $( '.datepicker' ).datepicker();
-
-                $( '.timepicker-24' ).timepicker({
-                    autoclose: true,
-                    minuteStep: 5,
-                    showSeconds: false,
-                    showMeridian: false
-                });
-
-
-            });
-
-    </script>
 @endsection

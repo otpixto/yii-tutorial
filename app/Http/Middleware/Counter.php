@@ -57,6 +57,7 @@ class Counter
                 \Session::put( 'tickets_call_count', $tickets_call_count );
                 $works_count = Work
                     ::whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
+                    ->mine()
                     ->count();
                 \Session::put( 'works_count', $works_count );
             }
@@ -65,7 +66,7 @@ class Counter
                 $tickets_count = TicketManagement
                     ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                     ->mine()
-                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
+                    ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
                     ->count();
                 $count_not_processed = TicketManagement
                     ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
@@ -77,9 +78,14 @@ class Counter
                     ->mine()
                     ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
                     ->count();
+                $works_count = Work
+                    ::whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
+                    ->mine()
+                    ->count();
                 \Session::put( 'tickets_count', $tickets_count );
                 \Session::put( 'count_not_processed', $count_not_processed );
                 \Session::put( 'count_not_completed', $count_not_completed );
+                \Session::put( 'works_count', $works_count );
             }
 
         }

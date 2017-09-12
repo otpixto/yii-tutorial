@@ -154,15 +154,23 @@ class Work extends BaseModel
 
     public function scopeMine ( $query )
     {
-        return $query
-            ->where( function ( $q )
+        if ( \Auth::user()->hasRole( 'operator' ) || \Auth::user()->hasRole( 'control' ) )
+        {
+            return $query;
+        }
+        $addresses = [];
+        foreach ( \Auth::user()->managements as $management )
+        {
+            foreach ( $management->addresses as $address )
             {
-                if ( ! \Auth::user()->hasRole( 'operator' ) && ! \Auth::user()->hasRole( 'control' ) )
-                {
-                    return $q
-                        ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
-                }
-
+                $addresses[] = $address->id;
+            }
+        }
+        return $query
+            ->whereHas( 'addresses', function ( $q ) use ( $addresses )
+            {
+                return $q
+                    ->whereIn( 'address_id', $addresses );
             });
     }
 

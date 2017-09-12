@@ -12,11 +12,16 @@
                     (Оператор ЕДС)
                 </b>
                 &nbsp;
-            @else ( \Auth::user()->hasRole( 'management' ) && ( \Auth::user()->company || \Auth::user()->managements->count() ) )
+            @elseif ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->company )
                 <b class="text-info">
-                    ({{ \Auth::user()->company ?? \Auth::user()->managements()->first()->name }})
+                    ({{ \Auth::user()->company }})
                 </b>
                 &nbsp;
+            @elseif ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
+                <b class="text-info">
+                    ({{ \Auth::user()->managements()->first()->name }})
+                </b>
+            &nbsp;
             @endif
             {{ \Auth::user()->getShortName() }}
         </span>

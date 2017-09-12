@@ -357,29 +357,29 @@ class TicketsController extends BaseController
             ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
             ->orderBy( 'id', 'desc' );
 
+        if ( ! empty( \Input::get( 'show' ) ) )
+        {
+            switch ( \Input::get( 'show' ) )
+            {
+
+                case 'not_processed':
+
+                    $ticketManagements->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
+
+                    break;
+
+                case 'not_completed':
+
+                    $ticketManagements->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
+
+                    break;
+
+            }
+        }
+
         $ticketManagements
             ->whereHas( 'ticket', function ( $q )
             {
-
-                if ( !empty( \Input::get( 'show' ) ) )
-                {
-                    switch ( \Input::get( 'show' ) )
-                    {
-
-                        case 'not_processed':
-
-                            $q->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
-
-                            break;
-
-                        case 'not_completed':
-
-                            $q->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
-
-                            break;
-
-                    }
-                }
 
                 if ( !empty( \Input::get( 'search' ) ) )
                 {
