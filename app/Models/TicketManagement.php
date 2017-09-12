@@ -14,6 +14,8 @@ class TicketManagement extends BaseModel
 	private $can_comment = null;
 
     public static $statuses = [
+        'draft'					            => 'Черновик',
+        'created'                           => 'Принято оператором ЕДС',
         'transferred'	                    => 'Передано в ЭО',
         'transferred_again'	                => 'Передано в ЭО повторно',
         'accepted'                          => 'Принято к исполнению',
