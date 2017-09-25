@@ -1,6 +1,7 @@
 <?php
 
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
+Route::get( '/fix/{ext_number}', 'ProfileController@getFix' )->name( 'fix' );
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 Route::post( '/rest/create-draft', 'RestController@createDraft' );
 

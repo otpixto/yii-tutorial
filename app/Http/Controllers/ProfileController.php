@@ -128,5 +128,18 @@ class ProfileController extends Controller
             $r->delete();
         }
     }
+	
+	public function getFix ( $ext_number )
+    {
+
+        $asterisk = new Asterisk();
+        $asterisk->queueRemove( $ext_number );
+        $phoneSession = PhoneSession::where( 'ext_number', '=', $ext_number )->first();
+		if ( $phoneSession )
+		{
+			$phoneSession->delete();
+		}
+	
+    }
 
 }
