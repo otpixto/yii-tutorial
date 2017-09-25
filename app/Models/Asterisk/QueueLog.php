@@ -3,13 +3,14 @@
 namespace App\Models\Asterisk;
 
 use App\User;
+use Carbon\Carbon;
 
 class QueueLog extends BaseModel
 {
 
     protected $table = 'queue_log';
 
-    private $_operator = -1;
+    private $_operator = '-1';
 
     public function cdr ()
     {
@@ -35,16 +36,17 @@ class QueueLog extends BaseModel
 
     public function operator ()
     {
-        if ( $this->_operator == -1 )
+        if ( $this->_operator == '-1' )
         {
+            $datetime = Carbon::parse( $this->time )->toDateTimeString();
             $this->_operator = User
-                ::whereHas( 'phoneSession', function ( $q )
+                ::whereHas( 'phoneSession', function ( $q ) use ( $datetime )
                 {
                     return $q
                         ->withTrashed()
                         ->where( 'ext_number', '=', $this->ext_number() )
-                        ->where( 'created_at', '>=', $this->time )
-                        ->where( 'deleted_at', '<=', $this->time );
+                        ->where( 'created_at', '<=', $datetime )
+                        ->where( 'deleted_at', '>=', $datetime );
                 })
                 ->first();
         }
