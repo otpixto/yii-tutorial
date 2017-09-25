@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Support\MessageBag;
+use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class TicketManagement extends BaseModel
 {
@@ -479,12 +480,24 @@ class TicketManagement extends BaseModel
 
         foreach ( $this->management->subscriptions as $subscription )
         {
-            \Telegram::sendMessage([
-                'chat_id'                   => $subscription->telegram_id,
-                'text'                      => $message,
-                'parse_mode'                => 'html',
-                'disable_web_page_preview'  => true
-            ]);
+            try
+            {
+                \Telegram::sendMessage([
+                    'chat_id'                   => $subscription->telegram_id,
+                    'text'                      => $message,
+                    'parse_mode'                => 'html',
+                    'disable_web_page_preview'  => true
+                ]);
+            }
+            catch ( TelegramResponseException $e )
+            {
+                $errorData = $e->getResponseData();
+                if ( $errorData['ok'] === false )
+                {
+                    $subscription->addLog( 'Подписка удалена по причине "' . $errorData['description'] . '"' );
+                    $subscription->delete();
+                }
+            }
         }
 
     }
