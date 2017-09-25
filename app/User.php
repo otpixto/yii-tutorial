@@ -183,6 +183,30 @@ class User extends Authenticatable
         return $name;
     }
 
+    public function getPosition ()
+    {
+        if ( $this->hasRole( 'control' ) )
+        {
+            return '<b class="text-info">[Контролирующий]</b>';
+        }
+        else if ( $this->hasRole( 'operator' ) )
+        {
+            return '<b class="text-info">[Оператор ЕДС]</b>';
+        }
+        elseif ( $this->hasRole( 'management' ) && $this->company )
+        {
+            return '<b class="text-info">[' . $this->company . ']</b>';
+        }
+        elseif ( $this->hasRole( 'management' ) && $this->managements->count() )
+        {
+            return '<b class="text-info">[' . $this->managements()->first()->name . ']</b>';
+        }
+        else
+        {
+            return '';
+        }
+    }
+
     public function getFullName ()
     {
         if ( $this->hasRole( 'control' ) )

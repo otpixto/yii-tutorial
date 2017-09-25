@@ -4,11 +4,7 @@
 		<div class="media-body">
 			<h5 class="media-heading">
 				<a href="javascript:;">
-					@if ( $comment->author->hasRole( 'operator' ) )
-						<b>[Оператор ЕДС]</b>
-					@elseif ( $comment->author->hasRole( 'management' ) && $comment->author->management )
-						<b>[{{ $comment->author->management->name }}]</b>
-					@endif
+					{!! $comment->author->getPosition() !!}
 					{{ $comment->author->getShortName() }}
 				</a>
 				<span class="small">
