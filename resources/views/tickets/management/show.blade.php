@@ -322,7 +322,7 @@
                         <dl>
                             <dt>Адрес проживания:</dt>
                             <dd>
-                                {{ $ticket->getActualAddress() }}
+                                {{ $ticket->getActualAddress() ?: '-' }}
                             </dd>
                         </dl>
                     </div>
