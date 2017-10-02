@@ -526,14 +526,12 @@
         {
 
             var address_id = $( '#address_id' ).val();
-            var type_id = $( '#type_id' ).val();
-            if ( !address_id || !type_id )
+            if ( ! address_id )
             {
                 return;
             };
             $.get( '{{ route( 'works.search' ) }}', {
-                address_id: address_id,
-                type_id: type_id
+                address_id: address_id
             }, function ( response )
             {
                 if ( response )
@@ -743,6 +741,10 @@
             .on( 'change', '#address_id, #type_id', function ( e )
             {
                 GetManagements();
+            })
+
+            .on( 'change', '#address_id', function ( e )
+            {
                 GetWorks();
             });
 
