@@ -161,16 +161,24 @@
                 </div>
             </div>
 
-            @if ( $dt_transferred )
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="note">
-                            <strong>Заявка передана ЭО: </strong>
-                            {{ $dt_transferred->format( 'd.m.Y H:i' ) }}
-                        </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Заявка передана в ЭО:</dt>
+                            <dd>{{ $dt_transferred ? $dt_transferred->format( 'd.m.Y H:i' ) : '-' }}</dd>
+                        </dl>
                     </div>
                 </div>
-            @endif
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Оператор ЕДС:</dt>
+                            <dd>{{ $ticket->author->getName() }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
 
             @if ( $dt_acceptance_expire && $dt_execution_expire )
                 <div class="row">
@@ -331,23 +339,40 @@
 
             <hr />
 
-			@if ( $ticket->type->need_act )
-				<div class="row">
-					<div class="col-xs-12">
-						<div class="alert alert-warning">
-							<i class="glyphicon glyphicon-exclamation-sign"></i>
-							Требуется Акт выполненных работ
-							<p class="margin-top-10 hidden-print">
-								<a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
-									<i class="glyphicon glyphicon-print"></i>
-									Акт выполненных работ
-								</a>
-							</p>
-						</div>
-					</div>
-				</div>
-			@endif
-			
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-warning">
+                        <i class="glyphicon glyphicon-exclamation-sign"></i>
+                        Требуется Акт выполненных работ
+                        <p class="margin-top-10 hidden-print">
+                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info">
+                                <i class="glyphicon glyphicon-print"></i>
+                                Распечатать бланк Акта
+                            </a>
+                            @if ( $ticketManagement->canUploadAct() )
+                                <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}">
+                                    <i class="glyphicon glyphicon-upload"></i>
+                                    Прикрепить оформленный Акт
+                                </button>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            @if ( $ticketManagement->files->count() )
+                <div class="note note-default">
+                    @foreach ( $ticketManagement->files as $file )
+                        <div>
+                            <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                <i class="fa fa-file"></i>
+                                {{ $file->name }}
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
 			@if ( $ticketManagement->executor )
                 <div class="row">
                     <div class="col-xs-12">

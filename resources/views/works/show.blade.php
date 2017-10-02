@@ -17,7 +17,7 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->addresses->implode( 'name', '; ' ) }}
@@ -26,16 +26,16 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->type->name }}
+                        {{ $work->getCategory() }}
                     </span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->composition }}
@@ -44,7 +44,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
@@ -53,7 +53,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
@@ -66,7 +66,7 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->management->name }}
@@ -75,7 +75,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->reason }}
@@ -84,7 +84,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'who', 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->who }}
@@ -93,7 +93,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'who', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->phone }}

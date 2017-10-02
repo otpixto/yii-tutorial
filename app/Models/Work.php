@@ -11,8 +11,17 @@ class Work extends BaseModel
 
     protected $table = 'works';
 
+    public static $categories = [
+        1 => 'ГВС (горячее водоснабжение)',
+        2 => 'ХВС (холодное водоснабжение)',
+        3 => 'ЭС (электроснабжение)',
+        4 => 'ГС (газоснабжение)',
+        5 => 'ТС (теплоснабжение)',
+        6 => 'БУ (благоустройство)'
+    ];
+
     public static $rules = [
-        'type_id'           => 'required|integer',
+        'category_id'       => 'required|integer',
         'address_id'        => 'required|array',
         'management_id'     => 'required|integer',
         'comment'           => 'max:255',
@@ -30,7 +39,7 @@ class Work extends BaseModel
     ];
 
     protected $fillable = [
-        'type_id',
+        'category_id',
         'management_id',
         'who',
         'reason',
@@ -80,7 +89,7 @@ class Work extends BaseModel
         {
             $message .= '<b>Адрес работы: ' . $address->name . '</b>' . PHP_EOL;
         }
-        $message .= 'Тип работ: ' . $work->type->name . PHP_EOL;
+        $message .= 'Категория: ' . $work->getCategory() . PHP_EOL;
         $message .= 'Основание: ' . $work->reason . PHP_EOL;
         $message .= 'Исполнитель работ: ' . $work->management->name . PHP_EOL;
         $message .= 'Кто передал: ' . $work->who . PHP_EOL;
@@ -92,6 +101,12 @@ class Work extends BaseModel
         $message .= PHP_EOL . route( 'works.edit', $work->id ) . PHP_EOL;
 
         $work->sendTelegram( $message );
+
+        $res = $work->addLog( 'Добавлена работа на сетях' );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
 
         return $work;
 
@@ -172,6 +187,11 @@ class Work extends BaseModel
                 return $q
                     ->whereIn( 'address_id', $addresses );
             });
+    }
+
+    public function getCategory ()
+    {
+        return self::$categories[ $this->category_id ] ?? null;
     }
 
     public function getClass ()

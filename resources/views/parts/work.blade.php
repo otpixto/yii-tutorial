@@ -11,7 +11,7 @@
         @endforeach
     </td>
     <td>
-        {{ $work->type->name }}
+        {{ $work->getCategory() }}
     </td>
     <td>
         {{ $work->management->name }}

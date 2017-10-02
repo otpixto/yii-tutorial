@@ -573,6 +573,10 @@ class TicketsController extends BaseController
         else
         {
             $ticket = Ticket::create( $request->all() );
+            if ( $ticket instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $ticket );
+            }
         }
 
         if ( !empty( $request->get( 'customer_id' ) ) )

@@ -50,6 +50,9 @@ Route::group( [ 'middleware' => 'auth' ], function ()
 	Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
 	Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
 
+    Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
+    Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
+
     Route::post( '/managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
     Route::post( '/types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
 

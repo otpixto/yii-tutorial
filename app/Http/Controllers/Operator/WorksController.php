@@ -10,6 +10,7 @@ use App\Models\Work;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\MessageBag;
 
 class WorksController extends BaseController
 {
@@ -147,14 +148,32 @@ class WorksController extends BaseController
 
         $this->validate( $request, Work::$rules );
 
+        if ( ! isset( Work::$categories[ $request->get( 'category_id' ) ] ) )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректная категория' ] );
+        }
+
+        \DB::beginTransaction();
+
         $work = Work::create( $request->all() );
+
+        if ( $work instanceof MessageBag )
+        {
+            return redirect()->back()->withErrors( $work );
+        }
 
         if ( !empty( $request->comment ) )
         {
-            $work->addComment( $request->comment );
+            $comment = $work->addComment( $request->comment );
+            if ( $comment instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $comment );
+            }
         }
 
         $work->addresses()->sync( $request->get( 'address_id', [] ) );
+
+        \DB::commit();
 
         return redirect()->route( 'works.index' )
             ->with( 'success', 'Сообщение успешно добавлено' );
@@ -209,7 +228,7 @@ class WorksController extends BaseController
 
         if ( ! $work )
         {
-            return redirect()->back()->withErrors(['Запись не найдена']);
+            return redirect()->back()->withErrors( [ 'Запись не найдена' ] );
         }
 
         $managements = Management::orderBy( 'name' )->get();
@@ -231,19 +250,28 @@ class WorksController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $this->validate( $request, Work::$rules );
+
+        if ( ! isset( Work::$categories[ $request->get( 'category_id' ) ] ) )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректная категория' ] );
+        }
 
         $work = Work::find( $id );
 
         if ( ! $work )
         {
-            return redirect()->back()->withErrors(['Запись не найдена']);
+            return redirect()->back()->withErrors( [ 'Запись не найдена' ] );
         }
 
-        $work->edit( $request->all() );
+        $res = $work->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()->withErrors( $res );
+        }
 
         return redirect()->route( 'works.index' )
             ->with( 'success', 'Сообщение успешно обновлено' );
@@ -256,7 +284,7 @@ class WorksController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }
@@ -279,7 +307,6 @@ class WorksController extends BaseController
                 return $a
                     ->where( 'address_id', '=', $request->get( 'address_id' ) );
             })
-            ->where( 'type_id', '=', $request->get( 'type_id' ) )
             ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
             ->orderBy( 'id', 'desc' )
             ->take( 10 )

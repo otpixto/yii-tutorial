@@ -129,16 +129,24 @@
             </div>
 			@endif
 
-            @if ( $dt_transferred )
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="note">
-                            <strong>Заявка передана ЭО: </strong>
-                            {{ $dt_transferred->format( 'd.m.Y H:i' ) }}
-                        </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Заявка передана в ЭО:</dt>
+                            <dd>{{ $dt_transferred ? $dt_transferred->format( 'd.m.Y H:i' ) : '-' }}</dd>
+                        </dl>
                     </div>
                 </div>
-            @endif
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Оператор ЕДС:</dt>
+                            <dd>{{ $ticket->author->getName() }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
 
             @if ( $dt_acceptance_expire && $dt_execution_expire )
                 <div class="row">
@@ -375,7 +383,7 @@
                                             <p class="margin-top-10 hidden-print">
                                                 <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
                                                     <i class="glyphicon glyphicon-print"></i>
-                                                    Акт выполненных работ
+                                                    Распечатать бланк Акта
                                                 </a>
                                             </p>
                                         @endif

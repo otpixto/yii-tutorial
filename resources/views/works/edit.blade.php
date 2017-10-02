@@ -24,9 +24,9 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id', $work->type_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип работ', 'required' ] ) !!}
+                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -83,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'who', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'phone', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::text( 'phone', \Input::old( 'phone', $work->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Контактный телефон' ] ) !!}
                 </div>

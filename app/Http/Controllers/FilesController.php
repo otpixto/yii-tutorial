@@ -6,6 +6,7 @@ use App\Models\File;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\MessageBag;
 
 class FilesController extends Controller
 {
@@ -38,6 +39,39 @@ class FilesController extends Controller
         {
             return redirect()->back()->withErrors( $e->getMessage() );
         }
+
+    }
+
+    public function form ( Request $request )
+    {
+        return view( 'modals.files' )
+            ->with( 'model_id', $request->get( 'model_id' ) )
+            ->with( 'model_name', $request->get( 'model_name' ) );
+    }
+
+    public function store ( Request $request )
+    {
+
+        if ( $request->hasFile( 'files' ) )
+        {
+            foreach ( $request->file( 'files' ) as $_file )
+            {
+                $path = Storage::putFile( 'files', $_file );
+                $file = File::create([
+                    'model_id'      => $request->get( 'model_id' ),
+                    'model_name'    => $request->get( 'model_name' ),
+                    'path'          => $path,
+                    'name'          => $_file->getClientOriginalName()
+                ]);
+                if ( $file instanceof MessageBag )
+                {
+                    return redirect()->back()->withErrors( $file );
+                }
+                $file->save();
+            }
+        }
+
+        return redirect()->back()->with( 'success', 'Файл(ы) добавлен(ы)' );
 
     }
 	

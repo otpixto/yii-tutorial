@@ -305,6 +305,12 @@ class Ticket extends BaseModel
         $ticket->author_id = Auth::user()->id;
         $ticket->save();
 
+        $res = $ticket->addLog( 'Добавлена заявка' );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
+
         return $ticket;
 
     }
@@ -330,17 +336,29 @@ class Ticket extends BaseModel
 			if ( ! isset( $attributes['emergency'] ) && $this->emergency == 1 )
 			{
 				$this->emergency = 0;
-				$this->saveLog( 'emergency', 1, 0 );
+				$res = $this->saveLog( 'emergency', 1, 0 );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
 			}
 			if ( ! isset( $attributes['urgently'] ) && $this->urgently == 1 )
 			{
 				$this->urgently = 0;
-                $this->saveLog( 'urgently', 1, 0 );
+                $res = $this->saveLog( 'urgently', 1, 0 );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
 			}
 			if ( ! isset( $attributes['dobrodel'] ) && $this->dobrodel == 1 )
 			{
 				$this->dobrodel = 0;
-                $this->saveLog( 'dobrodel', 1, 0 );
+                $res = $this->saveLog( 'dobrodel', 1, 0 );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
 			}
 		}
 		$this->save();

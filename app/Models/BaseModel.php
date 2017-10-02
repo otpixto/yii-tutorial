@@ -21,6 +21,11 @@ class BaseModel extends Model
             'text'          => $text
         ]);
         $comment->save();
+        $res = $comment->addLog( 'Добавлен комментарий' );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         return $comment;
     }
 
@@ -32,6 +37,11 @@ class BaseModel extends Model
             'text'          => $text
         ]);
         $tag->save();
+        $res = $tag->addLog( 'Добавлен тег' );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         return $tag;
     }
 

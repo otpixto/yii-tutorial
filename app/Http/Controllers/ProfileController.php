@@ -6,6 +6,7 @@ use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
 use App\Models\UserPhoneAuth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -112,21 +113,8 @@ class ProfileController extends Controller
 
     public function getTest ()
     {
-
-        $asterisk = new Asterisk();
-        /*if ( ! $asterisk->connectTwo( '02', '03' ) )
-        {
-            dd( $asterisk->last_result );
-        }*/
-        $asterisk->queueRemove( '01' );
-        $asterisk->queueRemove( '02' );
-        $asterisk->queueRemove( '03' );
-        $asterisk->queueRemove( '04' );
-        $res = PhoneSession::all();
-        foreach ( $res as $r )
-        {
-            $r->delete();
-        }
+        $dt = Carbon::parse( '2017-07-30 17:55:53.565550' );
+        dd( $dt->toDateTimeString() );
     }
 	
 	public function getFix ( $ext_number )

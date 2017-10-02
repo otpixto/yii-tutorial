@@ -13,6 +13,7 @@ class TicketManagement extends BaseModel
 
     private $history = [];
 	private $can_comment = null;
+    private $can_upload_act = null;
 
     public static $statuses = [
         'draft'					            => 'Черновик',
@@ -232,6 +233,22 @@ class TicketManagement extends BaseModel
             }
         }
         return $this->can_comment;
+    }
+
+    public function canUploadAct ()
+    {
+        if ( is_null( $this->can_upload_act ) )
+        {
+            if ( \Auth::user()->can( 'tickets.files' ) && $this->status_code == 'completed_with_act' )
+            {
+                $this->can_upload_act = true;
+            }
+            else
+            {
+                $this->can_upload_act = false;
+            }
+        }
+        return $this->can_upload_act;
     }
 
     # force - принудительно

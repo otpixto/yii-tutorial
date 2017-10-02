@@ -218,6 +218,26 @@ $( document )
 		});
 	
 	})
+
+    .on ( 'click', '[data-action="file"]', function ( e )
+    {
+
+        e.preventDefault();
+
+        var model_id = $( this ).attr( 'data-model-id' );
+        var model_name = $( this ).attr( 'data-model-name' );
+
+        if ( ! model_name || ! model_id ) return;
+
+        $.get( '/file', {
+            model_name: model_name,
+            model_id: model_id
+        }, function ( response )
+        {
+            Modal.createSimple( 'Прикрепить файл', response, 'file' );
+        });
+
+    })
 	
 	.on ( 'click', '[data-modal-submit]', function ( e )
 	{
