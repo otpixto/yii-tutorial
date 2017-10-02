@@ -273,7 +273,7 @@ class WorksController extends BaseController
             return redirect()->back()->withErrors( $res );
         }
 
-        return redirect()->route( 'works.index' )
+        return redirect()->back()
             ->with( 'success', 'Сообщение успешно обновлено' );
 
     }

@@ -46,6 +46,8 @@ class Work extends BaseModel
         'text',
         'composition',
         'phone',
+		'time_begin',
+		'time_end',
     ];
 
     public function type ()
@@ -121,10 +123,10 @@ class Work extends BaseModel
         }
 
         $exp = explode( ':', $attributes['time_begin'] );
-        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1] );
+        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1], 0 );
 
         $exp = explode( ':', $attributes['time_end'] );
-        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1] );
+        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1], 0 );
 
         $attributes['time_begin'] = $dt_begin->toDateTimeString();
         $attributes['time_end'] = $dt_end->toDateTimeString();
