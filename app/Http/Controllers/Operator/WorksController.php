@@ -267,11 +267,17 @@ class WorksController extends BaseController
             return redirect()->back()->withErrors( [ 'Запись не найдена' ] );
         }
 
+        \DB::beginTransaction();
+
         $res = $work->edit( $request->all() );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()->withErrors( $res );
         }
+
+        $work->addresses()->sync( $request->get( 'address_id', [] ) );
+
+        \DB::commit();
 
         return redirect()->back()
             ->with( 'success', 'Сообщение успешно обновлено' );
