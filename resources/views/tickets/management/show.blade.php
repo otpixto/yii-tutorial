@@ -345,7 +345,7 @@
                         <i class="glyphicon glyphicon-exclamation-sign"></i>
                         Требуется Акт выполненных работ
                         <p class="margin-top-10 hidden-print">
-                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info">
+                            <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info" target="_blank">
                                 <i class="glyphicon glyphicon-print"></i>
                                 Распечатать бланк Акта
                             </a>

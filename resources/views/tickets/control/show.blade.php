@@ -381,7 +381,7 @@
                                         @endif
                                         @if ( $ticket->type->need_act && $ticketManagement->status_code )
                                             <p class="margin-top-10 hidden-print">
-                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info">
+                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-info" target="_blank">
                                                     <i class="glyphicon glyphicon-print"></i>
                                                     Распечатать бланк Акта
                                                 </a>

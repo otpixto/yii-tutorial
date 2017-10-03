@@ -98,7 +98,7 @@
                                 </span>
                             </td>
                             <td class="text-right hidden-print">
-                                <a href="{{ route( 'tickets.show', $ticketManagement->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticketManagement->ticket->id }}" target="_blank">
+                                <a href="{{ route( 'tickets.show', $ticketManagement->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticketManagement->ticket->id }}">
                                     <i class="fa fa-chevron-right"></i>
                                 </a>
                             </td>

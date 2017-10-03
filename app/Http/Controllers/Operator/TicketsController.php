@@ -568,6 +568,7 @@ class TicketsController extends BaseController
         if ( $draft )
         {
             $ticket = $draft;
+            $ticket->created_at = Carbon::now()->toDateTimeString();
             $ticket->edit( $request->all() );
         }
         else

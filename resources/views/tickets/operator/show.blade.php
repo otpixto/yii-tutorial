@@ -455,7 +455,7 @@
                                         </dl>
                                         @if ( $ticketManagement->management->has_contract && $ticketManagement->status_code )
                                             <p class="margin-top-10 hidden-print">
-                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info">
+                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info" target="_blank">
                                                     <i class="glyphicon glyphicon-print"></i>
                                                     Распечатать бланк Акта
                                                 </a>
