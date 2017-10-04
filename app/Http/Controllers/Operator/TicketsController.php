@@ -1153,7 +1153,8 @@ class TicketsController extends BaseController
     {
 
         $tickets = Ticket
-            ::whereIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm' ] );
+            ::mine()
+            ->whereIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm' ] );
 
         if ( !empty( \Input::get( 'id' ) ) )
         {
