@@ -146,8 +146,7 @@ class ReportsController extends BaseController
                     ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
             }
 
-            $tickets = $tickets
-                ->get();
+            $tickets = $tickets->get();
 
             foreach ( $tickets as $ticket )
             {
@@ -197,8 +196,21 @@ class ReportsController extends BaseController
             $ticketManagements = TicketManagement
                 ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                 ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
-                ->mine()
-                ->get();
+                ->mine();
+
+            if ( $request->get( 'date_from' ) )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+            }
+
+            if ( $request->get( 'date_to' ) )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+            }
+
+            $ticketManagements = $ticketManagements->get();
 
             foreach ( $ticketManagements as $management )
             {
