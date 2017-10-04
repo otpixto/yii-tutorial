@@ -104,6 +104,45 @@
             </li>
         @endif
 
+        @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.managements' ) )
+            <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
+                <a {{--href="{{ route( 'reports.index' ) }}"--}} class="text-uppercase">
+                    <i class="fa fa-bar-chart"></i>
+                    Отчеты
+                </a>
+                <ul class="dropdown-menu">
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.managements' ) )
+                        <li>
+                            <a href="{{ route( 'reports.managements' ) }}">
+                                Отчет по ЭО
+                            </a>
+                        </li>
+                    @endif
+                    {{--@if ( \Auth::user()->admin || \Auth::user()->can( 'reports.addresses' ) )
+                        <li>
+                            <a href="{{ route( 'reports.addresses' ) }}">
+                                Отчет по адресам
+                            </a>
+                        </li>
+                    @endif--}}
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.types' ) )
+                        <li>
+                            <a href="{{ route( 'reports.types' ) }}">
+                                Отчет по категориям
+                            </a>
+                        </li>
+                    @endif
+                    {{--@if ( \Auth::user()->admin || \Auth::user()->can( 'reports.summary' ) )
+                        <li>
+                            <a href="{{ route( 'reports.summary' ) }}">
+                                Суммарные показатели
+                            </a>
+                        </li>
+                    @endif--}}
+                </ul>
+            </li>
+        @endif
+
         @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.managements.show', 'catalog.categories.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">

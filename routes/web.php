@@ -66,6 +66,15 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::resource( '/works', 'Operator\WorksController' );
     Route::resource( '/schedule', 'Operator\ScheduleController' );
 
+    Route::prefix( 'reports' )->group( function ()
+    {
+        Route::get( 'index', 'Operator\ReportsController@index' )->name( 'reports.index' );
+        Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
+        Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
+        Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
+        Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
+    });
+
     Route::prefix( 'catalog' )->group( function ()
     {
 
