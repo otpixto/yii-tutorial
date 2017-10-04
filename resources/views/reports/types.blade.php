@@ -14,10 +14,10 @@
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-md-3' ] ) !!}
         <div class="col-md-6">
             <div class="col-xs-6">
-                {!! Form::text( 'date_from', \Input::old( 'date_from' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
             </div>
             <div class="col-xs-6">
-                {!! Form::text( 'date_to', \Input::old( 'date_to' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -36,10 +36,13 @@
                 Категория проблем
             </th>
             <th class="text-center">
-                Количество заявок
+                Всего заявок
             </th>
             <th class="text-center">
-                Количество выполненных заявок
+                Выполнено
+            </th>
+            <th class="text-center">
+                Отменено
             </th>
         </tr>
         </thead>
@@ -60,6 +63,9 @@
                     </td>
                     <td class="text-center">
                         {{ $category['completed'] }}
+                    </td>
+                    <td data-field="canceled" class="text-center">
+                        {{ $category['canceled'] }}
                     </td>
                 </tr>
             @endforeach

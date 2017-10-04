@@ -14,10 +14,10 @@
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-md-3' ] ) !!}
         <div class="col-md-6">
             <div class="col-xs-6">
-                {!! Form::text( 'date_from', \Input::old( 'date_from' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
             </div>
             <div class="col-xs-6">
-                {!! Form::text( 'date_to', \Input::old( 'date_to' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -35,10 +35,13 @@
                 Нименование ЭО
             </th>
             <th class="text-center">
-                Количество заявок
+                Всего заявок
             </th>
             <th class="text-center">
-                Количество выполненных заявок
+                Выполнено
+            </th>
+            <th class="text-center">
+                Отменено
             </th>
         </tr>
         </thead>
@@ -53,6 +56,9 @@
                 </td>
                 <td data-field="completed" class="text-center">
                     {{ $r['completed'] }}
+                </td>
+                <td data-field="canceled" class="text-center">
+                    {{ $r['canceled'] }}
                 </td>
             </tr>
         @endforeach
@@ -97,7 +103,8 @@
                     dataProvider.push({
                         'name': $.trim( $( this ).find( '[data-field="name"]' ).text() ),
                         'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
-                        'completed': $.trim( $( this ).find( '[data-field="completed"]' ).text() )
+                        'completed': $.trim( $( this ).find( '[data-field="completed"]' ).text() ),
+                        'canceled': $.trim( $( this ).find( '[data-field="canceled"]' ).text() )
                     });
 
                 });
@@ -122,6 +129,15 @@
                             "title": "Выполнено",
                             "type": "column",
                             "valueField": "completed"
+                        },
+                        {
+                            "balloonText": "Отменено: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "canceled",
+                            "lineAlpha": 0.2,
+                            "title": "Отменено",
+                            "type": "column",
+                            "valueField": "canceled"
                         }
                     ],
                     "type": "serial",

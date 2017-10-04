@@ -29,23 +29,26 @@ class ReportsController extends BaseController
 
         $data = [];
 
+        $date_from = $request->get( 'date_from', date( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', date( 'd.m.Y' ) );
+
         if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
         {
 
             $tickets = Ticket
                 ::mine()
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+                ->whereNotIn( 'status_code', [ 'draft' ] );
 
-            if ( $request->get( 'date_from' ) )
+            if ( $date_from )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
             }
 
-            if ( $request->get( 'date_to' ) )
+            if ( $date_to )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
             }
 
             $tickets = $tickets->get();
@@ -55,7 +58,7 @@ class ReportsController extends BaseController
 
                 $managements = $ticket->managements()
                     ->mine()
-                    ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
+                    ->whereNotIn( 'status_code', [ 'draft' ] )
                     ->get();
 
                 foreach ( $managements as $management )
@@ -65,7 +68,8 @@ class ReportsController extends BaseController
                         $data[ $management->management_id ] = [
                             'name' => $management->management->name,
                             'total' => 0,
-                            'completed' => 0
+                            'completed' => 0,
+                            'canceled' => 0
                         ];
                     }
                     $data[ $management->management_id ][ 'total' ] ++;
@@ -77,6 +81,9 @@ class ReportsController extends BaseController
                         case 'closed_without_confirm':
                         case 'not_verified':
                             $data[ $management->management_id ][ 'completed' ] ++;
+                            break;
+                        case 'cancel':
+                            $data[ $management->management_id ][ 'canceled' ] ++;
                             break;
                     }
                 }
@@ -90,18 +97,18 @@ class ReportsController extends BaseController
             $ticketManagements = TicketManagement
                 ::mine()
                 ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+                ->whereNotIn( 'status_code', [ 'draft' ] );
 
-            if ( $request->get( 'date_from' ) )
+            if ( $date_from )
             {
                 $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
             }
 
-            if ( $request->get( 'date_to' ) )
+            if ( $date_to )
             {
                 $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
             }
 
             $ticketManagements = $ticketManagements->get();
@@ -113,7 +120,8 @@ class ReportsController extends BaseController
                     $data[ $management->management_id ] = [
                         'name' => $management->management->name,
                         'total' => 0,
-                        'completed' => 0
+                        'completed' => 0,
+                        'canceled' => 0
                     ];
                 }
                 $data[ $management->management_id ][ 'total' ] ++;
@@ -125,6 +133,9 @@ class ReportsController extends BaseController
                     case 'closed_without_confirm':
                     case 'not_verified':
                         $data[ $management->management_id ][ 'completed' ] ++;
+                        break;
+                    case 'cancel':
+                        $data[ $management->management_id ][ 'canceled' ] ++;
                         break;
                 }
             }
@@ -143,7 +154,9 @@ class ReportsController extends BaseController
         });
 
         return view( 'reports.managements' )
-            ->with( 'data', $data );
+            ->with( 'data', $data )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
 
     }
 
@@ -159,23 +172,26 @@ class ReportsController extends BaseController
 
         $data = [];
 
+        $date_from = $request->get( 'date_from', date( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', date( 'd.m.Y' ) );
+
         if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
         {
 
             $tickets = Ticket
                 ::mine()
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+                ->whereNotIn( 'status_code', [ 'draft' ] );
 
-            if ( $request->get( 'date_from' ) )
+            if ( $date_from )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
             }
 
-            if ( $request->get( 'date_to' ) )
+            if ( $date_to )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
             }
 
             $tickets = $tickets->get();
@@ -187,7 +203,7 @@ class ReportsController extends BaseController
 
                 $managements = $ticket->managements()
                     ->mine()
-                    ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
+                    ->whereNotIn( 'status_code', [ 'draft' ] )
                     ->get();
 
                 foreach ( $managements as $management )
@@ -204,7 +220,8 @@ class ReportsController extends BaseController
                         $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
                             'name' => $category->name,
                             'total' => 0,
-                            'completed' => 0
+                            'completed' => 0,
+                            'canceled' => 0
                         ];
                     }
                     $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
@@ -216,6 +233,9 @@ class ReportsController extends BaseController
                         case 'closed_without_confirm':
                         case 'not_verified':
                             $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'completed' ] ++;
+                            break;
+                        case 'cancel':
+                            $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'canceled' ] ++;
                             break;
                     }
                 }
@@ -229,18 +249,18 @@ class ReportsController extends BaseController
             $ticketManagements = TicketManagement
                 ::mine()
                 ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+                ->whereNotIn( 'status_code', [ 'draft' ] );
 
-            if ( $request->get( 'date_from' ) )
+            if ( $date_from )
             {
                 $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
             }
 
-            if ( $request->get( 'date_to' ) )
+            if ( $date_to )
             {
                 $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
             }
 
             $ticketManagements = $ticketManagements->get();
@@ -261,7 +281,8 @@ class ReportsController extends BaseController
                     $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
                         'name' => $category->name,
                         'total' => 0,
-                        'completed' => 0
+                        'completed' => 0,
+                        'canceled' => 0
                     ];
                 }
                 $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
@@ -274,6 +295,9 @@ class ReportsController extends BaseController
                     case 'not_verified':
                         $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'completed' ] ++;
                         break;
+                    case 'cancel':
+                        $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'canceled' ] ++;
+                        break;
                 }
             }
 
@@ -285,13 +309,20 @@ class ReportsController extends BaseController
                 ->with( 'error', 'Доступ запрещен' );
         }
 
-        uasort( $data, function ( $a, $b )
+        foreach ( $data as & $r )
         {
-            return $a['total'] < $b['total'];
-        });
+
+            uasort( $r['categories'], function ( $a, $b )
+            {
+                return $a['total'] < $b['total'];
+            });
+
+        }
 
         return view( 'reports.types' )
-            ->with( 'data', $data );
+            ->with( 'data', $data )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
 
     }
 
