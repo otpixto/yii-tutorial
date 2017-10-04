@@ -54,6 +54,7 @@ class ReportsController extends BaseController
             {
 
                 $managements = $ticket->managements()
+                    ->mine()
                     ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
                     ->get();
 
@@ -87,9 +88,9 @@ class ReportsController extends BaseController
         {
 
             $ticketManagements = TicketManagement
-                ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
-                ->mine();
+                ::mine()
+                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
+                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
 
             if ( $request->get( 'date_from' ) )
             {
@@ -136,6 +137,11 @@ class ReportsController extends BaseController
                 ->with( 'error', 'Доступ запрещен' );
         }
 
+        uasort( $data, function ( $a, $b )
+        {
+            return $a['total'] < $b['total'];
+        });
+
         return view( 'reports.managements' )
             ->with( 'data', $data );
 
@@ -180,6 +186,7 @@ class ReportsController extends BaseController
                 $category = $ticket->type->category;
 
                 $managements = $ticket->managements()
+                    ->mine()
                     ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
                     ->get();
 
@@ -220,9 +227,9 @@ class ReportsController extends BaseController
         {
 
             $ticketManagements = TicketManagement
+                ::mine()
                 ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
-                ->mine();
+                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
 
             if ( $request->get( 'date_from' ) )
             {
@@ -277,6 +284,11 @@ class ReportsController extends BaseController
             return view( 'blank' )
                 ->with( 'error', 'Доступ запрещен' );
         }
+
+        uasort( $data, function ( $a, $b )
+        {
+            return $a['total'] < $b['total'];
+        });
 
         return view( 'reports.types' )
             ->with( 'data', $data );
