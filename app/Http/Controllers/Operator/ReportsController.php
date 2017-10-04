@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Operator;
 use App\Classes\Title;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ReportsController extends BaseController
 {
@@ -118,7 +120,7 @@ class ReportsController extends BaseController
 
     }
 
-    public function types ()
+    public function types ( Request $request )
     {
 
         Title::add( 'Отчет по категориям' );
@@ -130,7 +132,21 @@ class ReportsController extends BaseController
 
             $tickets = Ticket
                 ::mine()
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
+                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+
+            if ( $request->get( 'date_from' ) )
+            {
+                $tickets
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+            }
+
+            if ( $request->get( 'date_to' ) )
+            {
+                $tickets
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+            }
+
+            $tickets = $tickets
                 ->get();
 
             foreach ( $tickets as $ticket )
