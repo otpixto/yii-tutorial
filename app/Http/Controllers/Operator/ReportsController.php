@@ -22,7 +22,7 @@ class ReportsController extends BaseController
 
     }
 
-    public function managements ()
+    public function managements ( Request $request )
     {
 
         Title::add( 'Отчет по ЭО' );
@@ -34,8 +34,21 @@ class ReportsController extends BaseController
 
             $tickets = Ticket
                 ::mine()
-                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
-                ->get();
+                ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] );
+
+            if ( $request->get( 'date_from' ) )
+            {
+                $tickets
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+            }
+
+            if ( $request->get( 'date_to' ) )
+            {
+                $tickets
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+            }
+
+            $tickets = $tickets->get();
 
             foreach ( $tickets as $ticket )
             {
@@ -76,8 +89,21 @@ class ReportsController extends BaseController
             $ticketManagements = TicketManagement
                 ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                 ->whereNotIn( 'status_code', [ 'draft', 'cancel' ] )
-                ->mine()
-                ->get();
+                ->mine();
+
+            if ( $request->get( 'date_from' ) )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateString() ] );
+            }
+
+            if ( $request->get( 'date_to' ) )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateString() ] );
+            }
+
+            $ticketManagements = $ticketManagements->get();
 
             foreach ( $ticketManagements as $management )
             {
