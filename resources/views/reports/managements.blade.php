@@ -43,10 +43,10 @@
             </tr>
             <tr>
                 <th class="text-center">
-                    Отмена
+                    Отменено Заявителем
                 </th>
                 <th class="text-center">
-                    Не подтверждено
+                    Проблема не подтверждена
                 </th>
                 <th class="text-center">
                     С подтверждением
@@ -127,8 +127,17 @@
                 <th class="text-center warning">
                     {{ $summary['closed'] }}
                 </th>
-                <th colspan="2">
-                    &nbsp;
+                <th class="text-right">
+                    <span data-field="percent">
+                        {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}
+                    </span>
+                    %
+                </th>
+                <th>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%">
+                        </div>
+                    </div>
                 </th>
             </tr>
         </tfoot>
@@ -141,6 +150,9 @@
     <style>
         .progress {
             margin-bottom: 0 !important;
+        }
+        .table tfoot th, .table tfoot td {
+            padding: 8px !important;
         }
     </style>
 @endsection
