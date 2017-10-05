@@ -389,6 +389,11 @@ class ReportsController extends BaseController
 
         }
 
+        uasort( $data, function ( $a, $b )
+        {
+            return strcmp( $a['name'], $b['name'] );
+        });
+
         return view( 'reports.types' )
             ->with( 'data', $data )
             ->with( 'summary', $summary )
