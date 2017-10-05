@@ -11,16 +11,14 @@
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal' ] ) !!}
     <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-md-3' ] ) !!}
-        <div class="col-md-6">
-            <div class="col-xs-6">
-                {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
-            </div>
-            <div class="col-xs-6">
-                {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
-            </div>
+        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-3">
+            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-md-3">
+        <div class="col-xs-3">
+            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+        </div>
+        <div class="col-xs-3 hidden-print">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>

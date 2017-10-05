@@ -11,16 +11,14 @@
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal' ] ) !!}
     <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-md-3' ] ) !!}
-        <div class="col-md-6">
-            <div class="col-xs-6">
-                {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
-            </div>
-            <div class="col-xs-6">
-                {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
-            </div>
+        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-3">
+            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-md-3">
+        <div class="col-xs-3">
+            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+        </div>
+        <div class="col-xs-3 hidden-print">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
@@ -60,7 +58,7 @@
                 <th>
                     &nbsp;
                 </th>
-                <th style="width: 15%;">
+                <th class="hidden-print" style="width: 15%;">
                     &nbsp;
                 </th>
             </tr>
@@ -89,13 +87,10 @@
                 <td data-field="closed" class="text-center info bold">
                     {{ $r['closed'] }}
                 </td>
-                <td class="text-right">
-                    <span data-field="percent">
-                        {{ ceil( $r['closed'] * 100 / $r['total'] ) }}
-                    </span>
-                     %
+                <td class="text-right" data-field="percent">
+                    {{ ceil( $r['closed'] * 100 / $r['total'] ) }}%
                 </td>
-                <td>
+                <td class="hidden-print">
                     <div class="progress">
                         <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $r['closed'] * 100 / $r['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $r['closed'] * 100 / $r['total'] ) }}%">
                         </div>
@@ -128,10 +123,7 @@
                     {{ $summary['closed'] }}
                 </th>
                 <th class="text-right">
-                    <span data-field="percent">
-                        {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}
-                    </span>
-                    %
+                    {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%
                 </th>
                 <th>
                     <div class="progress">
