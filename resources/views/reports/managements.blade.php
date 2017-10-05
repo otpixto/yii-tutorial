@@ -9,7 +9,11 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal' ] ) !!}
+    <p class="visible-print">
+        за период с {{ $date_from }} по {{ $date_to }}
+    </p>
+
+    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
@@ -18,13 +22,13 @@
         <div class="col-xs-3">
             {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-xs-3 hidden-print">
+        <div class="col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    <div id="chartdiv" style="min-height: 500px;"></div>
+    <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
 
     <table class="table table-striped sortable" id="data">
         <thead>

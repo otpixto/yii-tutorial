@@ -25,7 +25,7 @@ class ReportsController extends BaseController
     public function managements ( Request $request )
     {
 
-        Title::add( 'Отчет по ЭО' );
+        Title::add( 'Отчет по количеству заявок' );
 
         $data = [];
 
