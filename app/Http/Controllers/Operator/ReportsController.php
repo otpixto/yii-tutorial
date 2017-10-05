@@ -29,8 +29,17 @@ class ReportsController extends BaseController
 
         $data = [];
 
-        $date_from = $request->get( 'date_from', date( 'd.m.Y' ) );
-        $date_to = $request->get( 'date_to', date( 'd.m.Y' ) );
+        $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
+
+        $summary = [
+            'total' => 0,
+            'closed' => 0,
+            'not_verified' => 0,
+            'canceled' => 0,
+            'closed_with_confirm' => 0,
+            'closed_without_confirm' => 0
+        ];
 
         if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
         {
@@ -68,22 +77,40 @@ class ReportsController extends BaseController
                         $data[ $management->management_id ] = [
                             'name' => $management->management->name,
                             'total' => 0,
-                            'completed' => 0,
-                            'canceled' => 0
+                            'closed' => 0,
+                            'not_verified' => 0,
+                            'canceled' => 0,
+                            'closed_with_confirm' => 0,
+                            'closed_without_confirm' => 0
                         ];
                     }
+                    $summary[ 'total' ] ++;
                     $data[ $management->management_id ][ 'total' ] ++;
                     switch ( $management->status_code )
                     {
-                        case 'completed_with_act':
-                        case 'completed_without_act':
                         case 'closed_with_confirm':
+                            $data[ $management->management_id ][ 'closed' ] ++;
+                            $data[ $management->management_id ][ 'closed_with_confirm' ] ++;
+                            $summary[ 'closed' ] ++;
+                            $summary[ 'closed_with_confirm' ] ++;
+                            break;
                         case 'closed_without_confirm':
+                            $data[ $management->management_id ][ 'closed' ] ++;
+                            $data[ $management->management_id ][ 'closed_without_confirm' ] ++;
+                            $summary[ 'closed' ] ++;
+                            $summary[ 'closed_without_confirm' ] ++;
+                            break;
                         case 'not_verified':
-                            $data[ $management->management_id ][ 'completed' ] ++;
+                            $data[ $management->management_id ][ 'closed' ] ++;
+                            $data[ $management->management_id ][ 'not_verified' ] ++;
+                            $summary[ 'closed' ] ++;
+                            $summary[ 'not_verified' ] ++;
                             break;
                         case 'cancel':
+                            $data[ $management->management_id ][ 'closed' ] ++;
                             $data[ $management->management_id ][ 'canceled' ] ++;
+                            $summary[ 'closed' ] ++;
+                            $summary[ 'canceled' ] ++;
                             break;
                     }
                 }
@@ -120,22 +147,40 @@ class ReportsController extends BaseController
                     $data[ $management->management_id ] = [
                         'name' => $management->management->name,
                         'total' => 0,
-                        'completed' => 0,
-                        'canceled' => 0
+                        'closed' => 0,
+                        'not_verified' => 0,
+                        'canceled' => 0,
+                        'closed_with_confirm' => 0,
+                        'closed_without_confirm' => 0
                     ];
                 }
+                $summary[ 'total' ] ++;
                 $data[ $management->management_id ][ 'total' ] ++;
                 switch ( $management->status_code )
                 {
-                    case 'completed_with_act':
-                    case 'completed_without_act':
                     case 'closed_with_confirm':
+                        $data[ $management->management_id ][ 'closed' ] ++;
+                        $data[ $management->management_id ][ 'closed_with_confirm' ] ++;
+                        $summary[ 'closed' ] ++;
+                        $summary[ 'closed_with_confirm' ] ++;
+                        break;
                     case 'closed_without_confirm':
+                        $data[ $management->management_id ][ 'closed' ] ++;
+                        $data[ $management->management_id ][ 'closed_without_confirm' ] ++;
+                        $summary[ 'closed' ] ++;
+                        $summary[ 'closed_without_confirm' ] ++;
+                        break;
                     case 'not_verified':
-                        $data[ $management->management_id ][ 'completed' ] ++;
+                        $data[ $management->management_id ][ 'closed' ] ++;
+                        $data[ $management->management_id ][ 'not_verified' ] ++;
+                        $summary[ 'closed' ] ++;
+                        $summary[ 'not_verified' ] ++;
                         break;
                     case 'cancel':
+                        $data[ $management->management_id ][ 'closed' ] ++;
                         $data[ $management->management_id ][ 'canceled' ] ++;
+                        $summary[ 'closed' ] ++;
+                        $summary[ 'canceled' ] ++;
                         break;
                 }
             }
@@ -155,6 +200,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.managements' )
             ->with( 'data', $data )
+            ->with( 'summary', $summary )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -172,8 +218,8 @@ class ReportsController extends BaseController
 
         $data = [];
 
-        $date_from = $request->get( 'date_from', date( 'd.m.Y' ) );
-        $date_to = $request->get( 'date_to', date( 'd.m.Y' ) );
+        $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
         if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
         {
@@ -248,7 +294,7 @@ class ReportsController extends BaseController
 
             $ticketManagements = TicketManagement
                 ::mine()
-                ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
+                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
                 ->whereNotIn( 'status_code', [ 'draft' ] );
 
             if ( $date_from )

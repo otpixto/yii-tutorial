@@ -114,7 +114,7 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.managements' ) )
                         <li>
                             <a href="{{ route( 'reports.managements' ) }}">
-                                Отчет по ЭО
+                                Отчет по количеству заявок
                             </a>
                         </li>
                     @endif

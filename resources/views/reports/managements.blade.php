@@ -28,22 +28,42 @@
 
     <div id="chartdiv" style="min-height: 500px;"></div>
 
-    <table class="table table-hover table-striped sortable" id="data">
+    <table class="table table-striped sortable" id="data">
         <thead>
-        <tr>
-            <th>
-                Нименование ЭО
-            </th>
-            <th class="text-center">
-                Всего заявок
-            </th>
-            <th class="text-center">
-                Выполнено
-            </th>
-            <th class="text-center">
-                Отменено
-            </th>
-        </tr>
+            <tr>
+                <th rowspan="3">
+                    Нименование ЭО
+                </th>
+                <th class="text-center info bold" rowspan="2">
+                    Поступило заявок
+                </th>
+                <th class="text-center" colspan="5">
+                    Закрыто заявок
+                </th>
+            </tr>
+            <tr>
+                <th class="text-center">
+                    Отмена
+                </th>
+                <th class="text-center">
+                    Не подтверждено
+                </th>
+                <th class="text-center">
+                    С подтверждением
+                </th>
+                <th class="text-center">
+                    Без подтверждения
+                </th>
+                <th class="text-center info bold">
+                    Всего
+                </th>
+                <th>
+                    &nbsp;
+                </th>
+                <th style="width: 15%;">
+                    &nbsp;
+                </th>
+            </tr>
         </thead>
         <tbody>
         @foreach ( $data as $r )
@@ -51,24 +71,78 @@
                 <td data-field="name">
                     {{ $r['name'] }}
                 </td>
-                <td data-field="total" class="text-center">
+                <td data-field="total" class="text-center info bold">
                     {{ $r['total'] }}
-                </td>
-                <td data-field="completed" class="text-center">
-                    {{ $r['completed'] }}
                 </td>
                 <td data-field="canceled" class="text-center">
                     {{ $r['canceled'] }}
                 </td>
+                <td data-field="not_verified" class="text-center">
+                    {{ $r['not_verified'] }}
+                </td>
+                <td data-field="closed_with_confirm" class="text-center">
+                    {{ $r['closed_with_confirm'] }}
+                </td>
+                <td data-field="closed_without_confirm" class="text-center">
+                    {{ $r['closed_without_confirm'] }}
+                </td>
+                <td data-field="closed" class="text-center info bold">
+                    {{ $r['closed'] }}
+                </td>
+                <td class="text-right">
+                    <span data-field="percent">
+                        {{ ceil( $r['closed'] * 100 / $r['total'] ) }}
+                    </span>
+                     %
+                </td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $r['closed'] * 100 / $r['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $r['closed'] * 100 / $r['total'] ) }}%">
+                        </div>
+                    </div>
+                </td>
             </tr>
         @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <th class="text-right">
+                    Всего:
+                </th>
+                <th class="text-center warning">
+                    {{ $summary['total'] }}
+                </th>
+                <th class="text-center">
+                    {{ $summary['canceled'] }}
+                </th>
+                <th class="text-center">
+                    {{ $summary['not_verified'] }}
+                </th>
+                <th class="text-center">
+                    {{ $summary['closed_with_confirm'] }}
+                </th>
+                <th class="text-center">
+                    {{ $summary['closed_without_confirm'] }}
+                </th>
+                <th class="text-center warning">
+                    {{ $summary['closed'] }}
+                </th>
+                <th colspan="2">
+                    &nbsp;
+                </th>
+            </tr>
+        </tfoot>
     </table>
 
 @endsection
 
 @section( 'css' )
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .progress {
+            margin-bottom: 0 !important;
+        }
+    </style>
 @endsection
 
 @section( 'js' )
@@ -103,8 +177,7 @@
                     dataProvider.push({
                         'name': $.trim( $( this ).find( '[data-field="name"]' ).text() ),
                         'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
-                        'completed': $.trim( $( this ).find( '[data-field="completed"]' ).text() ),
-                        'canceled': $.trim( $( this ).find( '[data-field="canceled"]' ).text() )
+                        'closed': $.trim( $( this ).find( '[data-field="closed"]' ).text() ),
                     });
 
                 });
@@ -113,7 +186,7 @@
                     "dataProvider": dataProvider,
                     "graphs": [
                         {
-                            "balloonText": "Всего: [[value]]",
+                            "balloonText": "Поступило: [[value]]",
                             "fillAlphas": 0.8,
                             "id": "total",
                             "lineAlpha": 0.2,
@@ -122,22 +195,13 @@
                             "valueField": "total"
                         },
                         {
-                            "balloonText": "Выполнено: [[value]]",
+                            "balloonText": "Закрыто: [[value]]",
                             "fillAlphas": 0.8,
-                            "id": "completed",
+                            "id": "closed",
                             "lineAlpha": 0.2,
-                            "title": "Выполнено",
+                            "title": "Закрыто",
                             "type": "column",
-                            "valueField": "completed"
-                        },
-                        {
-                            "balloonText": "Отменено: [[value]]",
-                            "fillAlphas": 0.8,
-                            "id": "canceled",
-                            "lineAlpha": 0.2,
-                            "title": "Отменено",
-                            "type": "column",
-                            "valueField": "canceled"
+                            "valueField": "closed"
                         }
                     ],
                     "type": "serial",
