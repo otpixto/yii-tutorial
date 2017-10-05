@@ -24,7 +24,9 @@
         </div>
         <div class="col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
+            @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.export' ) )
+                {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
+            @endif
         </div>
     </div>
     {!! Form::close() !!}
