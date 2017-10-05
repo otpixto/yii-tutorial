@@ -115,7 +115,7 @@ class Ticket extends BaseModel
         'middlename'                => 'nullable|max:191',
         'lastname'                  => 'nullable|max:191',
         'customer_id'               => 'nullable|integer',
-        'text'                      => 'required|max:191',
+        'text'                      => 'required|max:1000',
         'managements'               => 'nullable|array',
     ];
 
