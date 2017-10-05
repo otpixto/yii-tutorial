@@ -105,7 +105,7 @@
         @endif
 
         @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.managements' ) )
-            <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
+            <li class="dropdown more-dropdown @if ( Request::is( 'reports*' ) ) selected @endif">
                 <a {{--href="{{ route( 'reports.index' ) }}"--}} class="text-uppercase">
                     <i class="fa fa-bar-chart"></i>
                     Отчеты
