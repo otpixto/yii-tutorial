@@ -198,6 +198,31 @@ class ReportsController extends BaseController
             return $a['total'] < $b['total'];
         });
 
+        if ( $request->has( 'export' ) && ( \Auth::user()->admin || \Auth::user()->can( 'reports.export' ) ) )
+        {
+            $print_data = [];
+            foreach ( $data as $r )
+            {
+                $print_data[] = [
+                    'Нименование ЭО'                => $r['name'],
+                    'Поступило заявок'              => $r['total'],
+                    'Всего закрыто заявок'          => $r['closed'],
+                    'Отменено Заявителем'           => $r['canceled'],
+                    'Проблема не подтверждена'      => $r['not_verified'],
+                    'Закрыто c подтверждением'      => $r['closed_with_confirm'],
+                    'Закрыто без подтверждения'     => $r['closed_without_confirm'],
+                    '% закрытых заявок'             => ceil( $r['closed'] * 100 / $r['total'] ),
+                ];
+            }
+            \Excel::create( Title::get(), function ( $excel ) use ( $print_data )
+            {
+                $excel->sheet( Title::get(), function ( $sheet ) use ( $print_data )
+                {
+                    $sheet->fromArray( $print_data );
+                });
+            })->export( 'xls' );
+        }
+
         return view( 'reports.managements' )
             ->with( 'data', $data )
             ->with( 'summary', $summary )

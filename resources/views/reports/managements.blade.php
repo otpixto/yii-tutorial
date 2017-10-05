@@ -24,6 +24,7 @@
         </div>
         <div class="col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+            {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
