@@ -190,7 +190,9 @@ class TicketsController extends BaseController
             })->export( 'xls' );
         }
 
-        $tickets = $tickets->paginate( 30 );
+        $tickets = $tickets
+            ->paginate( 30 )
+            ->appends( \Input::all() );
 
         return view( 'tickets.control.index' )
             ->with( 'tickets', $tickets )
@@ -318,8 +320,8 @@ class TicketsController extends BaseController
                         'Адрес проблемы'        => $ticket->address->name,
                         'Квартира'              => $ticket->flat,
                         'Проблемное место'      => $ticket->getPlace(),
-                        'Категория заявки'   => $ticket->type->category->name,
-                        'Тип заявки'         => $ticket->type->name,
+                        'Категория заявки'      => $ticket->type->category->name,
+                        'Тип заявки'            => $ticket->type->name,
                         'ФИО заявителя'         => $ticket->getName(),
                         'Телефон(ы) заявителя'  => $ticket->getPhones(),
                         'Адрес проживания'      => $ticket->customer->getAddress(),
@@ -337,7 +339,9 @@ class TicketsController extends BaseController
             })->export( 'xls' );
         }
 
-        $tickets = $tickets->paginate( 30 );
+        $tickets = $tickets
+            ->paginate( 30 )
+            ->appends( \Input::all() );
 
         return view( 'tickets.operator.index' )
             ->with( 'tickets', $tickets )
@@ -463,7 +467,9 @@ class TicketsController extends BaseController
             })->export( 'xls' );
         }
 
-        $ticketManagements = $ticketManagements->paginate( 30 );
+        $ticketManagements = $ticketManagements
+            ->paginate( 30 )
+            ->appends( \Input::all() );
 
         if ( !empty( \Input::get( 'address_id' ) ) )
         {
