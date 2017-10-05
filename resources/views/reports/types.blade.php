@@ -37,10 +37,13 @@
                 Всего заявок
             </th>
             <th class="text-center">
-                Выполнено
+                Закрыто
             </th>
-            <th class="text-center">
-                Отменено
+            <th>
+                &nbsp;
+            </th>
+            <th class="hidden-print" style="width: 15%;">
+                &nbsp;
             </th>
         </tr>
         </thead>
@@ -60,21 +63,57 @@
                         {{ $category['total'] }}
                     </td>
                     <td class="text-center">
-                        {{ $category['completed'] }}
+                        {{ $category['closed'] }}
                     </td>
-                    <td data-field="canceled" class="text-center">
-                        {{ $category['canceled'] }}
+                    <td class="text-right" data-field="percent">
+                        {{ ceil( $category['closed'] * 100 / $category['total'] ) }}%
+                    </td>
+                    <td class="hidden-print">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $category['closed'] * 100 / $category['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $category['closed'] * 100 / $category['total'] ) }}%">
+                            </div>
+                        </div>
                     </td>
                 </tr>
             @endforeach
         @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-right">
+                    Всего:
+                </th>
+                <th class="text-center">
+                    {{ $summary['total'] }}
+                </th>
+                <th class="text-center">
+                    {{ $summary['closed'] }}
+                </th>
+                <th class="text-right">
+                    {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%
+                </th>
+                <th>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%">
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
     </table>
 
 @endsection
 
 @section( 'css' )
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .progress {
+            margin-bottom: 0 !important;
+        }
+        .table tfoot th, .table tfoot td {
+            padding: 8px !important;
+        }
+    </style>
 @endsection
 
 @section( 'js' )

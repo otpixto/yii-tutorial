@@ -221,6 +221,11 @@ class ReportsController extends BaseController
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
+        $summary = [
+            'total' => 0,
+            'closed' => 0
+        ];
+
         if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
         {
 
@@ -266,22 +271,19 @@ class ReportsController extends BaseController
                         $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
                             'name' => $category->name,
                             'total' => 0,
-                            'completed' => 0,
-                            'canceled' => 0
+                            'closed' => 0
                         ];
                     }
+                    $summary[ 'total' ] ++;
                     $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
                     switch ( $management->status_code )
                     {
-                        case 'completed_with_act':
-                        case 'completed_without_act':
                         case 'closed_with_confirm':
                         case 'closed_without_confirm':
                         case 'not_verified':
-                            $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'completed' ] ++;
-                            break;
                         case 'cancel':
-                            $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'canceled' ] ++;
+                            $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
+                            $summary[ 'closed' ] ++;
                             break;
                     }
                 }
@@ -327,22 +329,19 @@ class ReportsController extends BaseController
                     $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
                         'name' => $category->name,
                         'total' => 0,
-                        'completed' => 0,
-                        'canceled' => 0
+                        'closed' => 0
                     ];
                 }
+                $summary[ 'total' ] ++;
                 $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
                 switch ( $management->status_code )
                 {
-                    case 'completed_with_act':
-                    case 'completed_without_act':
                     case 'closed_with_confirm':
                     case 'closed_without_confirm':
                     case 'not_verified':
-                        $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'completed' ] ++;
-                        break;
                     case 'cancel':
-                        $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'canceled' ] ++;
+                        $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
+                        $summary[ 'closed' ] ++;
                         break;
                 }
             }
@@ -367,6 +366,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.types' )
             ->with( 'data', $data )
+            ->with( 'summary', $summary )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
