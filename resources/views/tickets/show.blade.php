@@ -471,7 +471,7 @@
                     @endif
                 </div>
 
-                @if ( $ticketManagement->canPrintAct() )
+                @if ( $ticketManagement->canPrintAct() || $ticketManagement->canUploadAct() )
                     <div class="row hidden-print">
                         <div class="col-xs-12">
                             <div class="note">
