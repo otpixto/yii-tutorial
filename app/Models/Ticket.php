@@ -325,11 +325,14 @@ class Ticket extends BaseModel
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
         }
-        $res = $this->saveLogs( $attributes );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
+		if ( $this->status_code != 'draft' )
+		{
+			$res = $this->saveLogs( $attributes );
+			if ( $res instanceof MessageBag )
+			{
+				return $res;
+			}
+		}
         $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
 		{
