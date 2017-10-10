@@ -60,7 +60,7 @@
                                 {{ $log->created_at->format( 'd.m.Y H:i' ) }}
                             </td>
                             <td>
-                                {{ $log->parent ? $log->parent::$name : $log->model_name }}
+                                {{ $log->model_name }}
                             </td>
                             <td>
                                 {{ $log->model_id }}
