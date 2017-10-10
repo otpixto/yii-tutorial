@@ -435,11 +435,6 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="note">
-                            @if ( $ticket->canEdit() )
-                                <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="actual_address">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                            @endif
                             <dl>
                                 <dt>
                                     @if ( $ticket->managements()->mine()->count() > 1 )
@@ -555,22 +550,14 @@
                                                 </dd>
                                             </dl>
                                         </div>
-                                        @if ( $ticket->canEdit() )
-                                            <div class="col-xs-7">
-                                                <button type="button" class="btn btn-xs btn-danger margin-right-10 hidden-print" data-delete-management="{{ $ticketManagement->id }}">
-                                                    <i class="fa fa-remove"></i>
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="col-xs-4">
-                                                {{ $ticketManagement->executor ?? '-' }}
-                                            </div>
-                                            <div class="col-xs-3 text-right">
-                                                <span class="badge badge-{{ $ticketManagement->getClass() }} bold">
-                                                    {{ $ticketManagement->status_name }}
-                                                </span>
-                                            </div>
-                                        @endif
+                                        <div class="col-xs-4">
+                                            {{ $ticketManagement->executor ?? '-' }}
+                                        </div>
+                                        <div class="col-xs-3 text-right">
+                                            <span class="badge badge-{{ $ticketManagement->getClass() }} bold">
+                                                {{ $ticketManagement->status_name }}
+                                            </span>
+                                        </div>
                                     </div>
                                     @if ( $ticketManagement->canPrintAct() )
                                         <div class="row margin-top-10 hidden-print">

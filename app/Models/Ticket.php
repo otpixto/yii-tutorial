@@ -595,7 +595,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_edit ) )
         {
-            if ( ( \Auth::user()->admin || \Auth::user()->can( 'tickets.edit' ) ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
+            if ( \Auth::user()->can( 'tickets.edit' ) )
             {
                 $this->can_edit = true;
             }
