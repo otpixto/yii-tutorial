@@ -306,7 +306,7 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_upload_act ) )
         {
-            if ( \Auth::user()->can( 'tickets.files' ) && ! in_array( $this->status_code, Ticket::$final_statuses ) )
+            if ( \Auth::user()->can( 'tickets.files' ) && $this->management->has_contract )
             {
                 $this->can_upload_act = true;
             }
