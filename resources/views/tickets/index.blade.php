@@ -218,6 +218,9 @@
         .border-left {
             border-left: 2px solid #b71a00 !important;
         }
+        .opacity {
+            opacity: 0.5;
+        }
     </style>
 @endsection
 

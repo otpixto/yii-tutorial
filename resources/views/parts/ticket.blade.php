@@ -1,4 +1,4 @@
-<tr @if ( $ticketManagement->status_code == 'closed_with_confirm' || $ticketManagement->status_code == 'closed_without_confirm' ) class="text-muted" @endif>
+<tr @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) class="text-muted opacity" @endif>
     <td>
         <div class="mt-element-ribbon" id="ticket-status-{{ $ticketManagement->getTicketNumber() }}">
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticketManagement->getClass() }}">
