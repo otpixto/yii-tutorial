@@ -30,22 +30,23 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/tickets/create-draft', 'Operator\TicketsController@createDraft' )->name( 'tickets.create_draft' );
 
     Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
-    Route::get( '/tickets/{id}/cancel', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
+    Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
     Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
     Route::get( '/tickets/closed', 'Operator\TicketsController@closed' )->name( 'tickets.closed' );
     Route::get( '/tickets/no_contract', 'Operator\TicketsController@no_contract' )->name( 'tickets.no_contract' );
     Route::get( '/tickets/canceled', 'Operator\TicketsController@canceled' )->name( 'tickets.canceled' );
     Route::get( '/tickets/closed', 'Operator\TicketsController@closed' )->name( 'tickets.closed' );
-    Route::get( '/tickets/{id}/act', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+    Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
     Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
     Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
-    Route::post( '/tickets/{id}/change-status', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-    Route::post( '/tickets/managements/{id}/change-status', 'Operator\TicketsController@changeManagementStatus' )->name( 'tickets.managements.status' );
-    Route::post( '/tickets/managements/{id}/executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.managements.executor' );
-	Route::post( '/tickets/{id}/comment', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
+    Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
+    Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
+	Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
     Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
     Route::post( '/tickets', 'Operator\TicketsController@export' );
     Route::resource( '/tickets', 'Operator\TicketsController' );
+    Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
+    Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
 
 	Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
 	Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
@@ -111,6 +112,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'users', 'Admin\UsersController' );
         Route::resource( 'roles', 'Admin\RolesController' );
         Route::resource( 'perms', 'Admin\PermsController' );
+        Route::resource( 'logs', 'Admin\LogsController' );
 
     });
 

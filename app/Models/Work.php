@@ -11,6 +11,8 @@ class Work extends BaseModel
 
     protected $table = 'works';
 
+    public static $name = 'Работа на сетях';
+
     public static $categories = [
         1 => 'ГВС (горячее водоснабжение)',
         2 => 'ХВС (холодное водоснабжение)',

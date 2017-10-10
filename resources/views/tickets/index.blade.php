@@ -9,13 +9,23 @@
 
 @section( 'content' )
 
-    @can( 'tickets.export' )
+    @can( 'tickets.create', 'tickets.export' )
         <div class="row margin-bottom-15 hidden-print">
-            <div class="col-xs-12 text-right">
-                <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                    <i class="fa fa-download"></i>
-                    Выгрузить в Excel
-                </a>
+            <div class="col-xs-6">
+                @can( 'tickets.create' )
+                    <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
+                        <i class="fa fa-plus"></i>
+                        Добавить заявку
+                    </a>
+                @endcan
+            </div>
+            <div class="col-xs-6 text-right">
+                @can( 'tickets.export' )
+                    <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                        <i class="fa fa-download"></i>
+                        Выгрузить в Excel
+                    </a>
+                @endcan
             </div>
         </div>
     @endcan
@@ -39,24 +49,37 @@
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
-            {{ $tickets->render() }}
+            <div class="row">
+                <div class="col-xs-8">
+                    {{ $ticketManagements->render() }}
+                </div>
+                <div class="col-xs-4 text-right margin-top-10 margin-bottom-10">
+                    <span class="label label-info">
+                        Найдено: <b>{{ $ticketManagements->total() }}</b>
+                    </span>
+                </div>
+            </div>
 
             <table class="table table-striped table-bordered table-hover">
                 {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                 <thead>
                     <tr class="info">
-                        <th colspan="2" width="250">
+                        <th width="250">
                              Статус \ Номер заявки
                         </th>
                         <th width="220">
                             Дата и время создания
                         </th>
-                        <th width="150">
-                            Оператор
-                        </th>
-                        <th width="200">
-                            ЭО
-                        </th>
+                        @if ( $field_operator )
+                            <th width="150">
+                                Оператор
+                            </th>
+                        @endif
+                        @if ( $field_management )
+                            <th width="200">
+                                ЭО
+                            </th>
+                        @endif
                         <th width="200">
                             Категория и тип заявки
                         </th>
@@ -68,10 +91,10 @@
                         </th>
                     </tr>
                     <tr class="info hidden-print">
-                        <td colspan="2">
+                        <td>
                             <div class="row">
                                 <div class="col-lg-7">
-                                    {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \App\Models\Ticket::$statuses, \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
+                                    {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                 </div>
                                 <div class="col-lg-5">
                                     {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
@@ -90,19 +113,23 @@
 								</div>
 							</div>
                         </td>
-                        <td>
-                            {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
-                        </td>
-                        <td>
-                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
-                        </td>
+                        @if ( $field_operator )
+                            <td>
+                                {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
+                            </td>
+                        @endif
+                        @if ( $field_management )
+                            <td>
+                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
+                            </td>
+                        @endif
                         <td>
                             {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                         </td>
                         <td>
                             <div class="row">
                                 <div class="col-lg-7">
-                                    {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' )->toArray() : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                                    {!! Form::select( 'address_id', [ null => ' -- все -- ' ] + ( $address ? $address->pluck( 'name', 'id' )->toArray() : [] ), \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
                                 </div>
                                 <div class="col-lg-5">
                                     {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
@@ -116,23 +143,47 @@
                         </td>
                     </tr>
                 </thead>
+                {!! Form::close() !!}
+                {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                 <tbody>
-                @if ( $tickets->count() )
-                    @foreach ( $tickets as $ticket )
-                        @include( 'parts.ticket', [ 'ticket' => $ticket ] )
-                        @if ( $ticket->childs->count() )
-                            @foreach ( $ticket->childs as $child )
-                                @include( 'parts.ticket', [ 'ticket' => $child ] )
-                            @endforeach
-                        @endif
+                @if ( $ticketManagements->count() )
+                    @foreach ( $ticketManagements as $ticketManagement )
+                        @include( 'parts.ticket', [ 'ticketManagement' => $ticketManagement ] )
                     @endforeach
+                    </tbody>
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.group' ) || \Auth::user()->can( 'tickets.delete' ) )
+                        <tfoot class="hidden-print">
+                            <tr>
+                                <th colspan="{{ 2 + ( $field_operator ? 1 : 0 ) }}" class="text-right">
+                                    Действия с выделенными
+                                </th>
+                                <td colspan="{{ 4 + ( $field_management ? 1 : 0 ) }}">
+                                    @can ( 'tickets.group' )
+                                        <button type="submit" name="action" value="group" class="btn btn-default">
+                                            Группировать
+                                        </button>
+                                        <button type="submit" name="action" value="ungroup" class="btn btn-default">
+                                            Разгруппировать
+                                        </button>
+                                    @endcan
+                                    @can ( 'tickets.delete' )
+                                        <button type="submit" name="action" value="delete" class="btn btn-danger hidden">
+                                            Удалить
+                                        </button>
+                                    @endcan
+                                </td>
+                            </tr>
+                        </tfoot>
+                    @endif
+                    {!! Form::close() !!}
+                @else
+                    </tbody>
                 @endif
-                </tbody>
             </table>
 
-            {{ $tickets->render() }}
+            {{ $ticketManagements->render() }}
 
-            @if ( ! $tickets->count() )
+            @if ( ! $ticketManagements->count() )
                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
             @endif
 
@@ -195,6 +246,7 @@
                 $( '.select2-ajax' ).select2({
                     minimumInputLength: 3,
                     minimumResultsForSearch: 30,
+                    allowClear: true,
                     ajax: {
                         delay: 450,
                         processResults: function ( data, page )

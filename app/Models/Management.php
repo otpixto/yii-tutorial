@@ -9,6 +9,8 @@ class Management extends BaseModel
 
     protected $table = 'managements';
 
+    public static $name = 'ЭО';
+
     public static $categories = [
         1 => 'УК',
         2 => 'ЖСК, ТСН (ТСЖ)',

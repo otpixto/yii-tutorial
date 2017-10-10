@@ -4,6 +4,7 @@ namespace App;
 
 use App\Classes\Asterisk;
 use App\Models\Log;
+use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -224,25 +225,30 @@ class User extends Authenticatable
         return '';
     }
 
-    public function getAvailableStatuses ( $flush = false )
+    public function getAvailableStatuses ( $with_names = false )
     {
-
-        if ( $flush || is_null( $this->availableStatuses ) )
+        if ( is_null( $this->availableStatuses ) )
         {
             $perms = $this->getAllPermissions();
-            $statuses = [];
+            $this->availableStatuses = [];
             foreach ( $perms as $perm )
             {
                 if ( str_is( 'tickets.statuses.*', $perm->code ) )
                 {
-                    $statuses[] = str_replace( 'tickets.statuses.', '', $perm->code );
+                    $status_code = str_replace( 'tickets.statuses.', '', $perm->code );
+                    if ( ! isset( Ticket::$statuses[ $status_code ] ) ) continue;
+                    $this->availableStatuses[ $status_code ] = Ticket::$statuses[ $status_code ];
                 }
             }
-            $this->availableStatuses = $statuses;
         }
-
-        return $this->availableStatuses;
-
+        if ( ! $with_names )
+        {
+            return array_keys( $this->availableStatuses );
+        }
+        else
+        {
+            return $this->availableStatuses;
+        }
     }
 
     public function phoneSessionUnreg ()

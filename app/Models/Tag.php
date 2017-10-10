@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\MessageBag;
-
 class Tag extends BaseModel
 {
 
     protected $table = 'tags';
+
+    public static $name = 'Тег';
 
     protected $fillable = [
         'model_id',

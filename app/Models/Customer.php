@@ -10,6 +10,8 @@ class Customer extends BaseModel
 
     protected $table = 'customers';
 
+    public static $name = 'Заявитель';
+
     public static $rules = [
         'firstname'             => 'required|max:191',
         'middlename'            => 'nullable|max:191',

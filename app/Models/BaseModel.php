@@ -13,12 +13,19 @@ class BaseModel extends Model
 
     use SoftDeletes;
 
+    public function getModelName ()
+    {
+        return self::$name ?? null;
+    }
+
     public function addComment ( $text )
     {
         $comment = Comment::create([
-            'model_id'     	=> $this->id,
-            'model_name'	=> get_class( $this ),
-            'text'          => $text
+            'model_id'     	            => $this->id,
+            'model_name'	            => get_class( $this ),
+            'origin_model_id'			=> $this->id,
+            'origin_model_name'		    => get_class( $this ),
+            'text'                      => $text
         ]);
         $comment->save();
         $res = $comment->addLog( 'Добавлен комментарий' );

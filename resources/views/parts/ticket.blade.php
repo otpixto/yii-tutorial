@@ -1,95 +1,65 @@
-<tr @if ( $ticket->status_code == 'closed_with_confirm' || $ticket->status_code == 'closed_without_confirm' ) class="text-muted" @endif>
-    @if ( $ticket->group_uuid )
-        @if ( ! $ticket->parent_id )
-            <td colspan="2" class="border-left">
-        @else
-            <td width="30" class="border-left text-center">
-                &nbsp;
-            </td>
-            <td>
-        @endif
-    @else
-        <td colspan="2">
-    @endif
-        <div class="mt-element-ribbon">
-            <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticket->getClass() }}">
+<tr @if ( $ticketManagement->status_code == 'closed_with_confirm' || $ticketManagement->status_code == 'closed_without_confirm' ) class="text-muted" @endif>
+    <td>
+        <div class="mt-element-ribbon" id="ticket-status-{{ $ticketManagement->getTicketNumber() }}">
+            <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticketManagement->getClass() }}">
                 <div class="ribbon-sub ribbon-clip ribbon-round"></div>
-                <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="color-inherit">
-                    {{ $ticket->status_name }}
+                <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="color-inherit">
+                    {{ $ticketManagement->status_name }}
                 </a>
             </div>
         </div>
         <div class="clearfix"></div>
-        @if ( $ticket->canGroup() )
-            <label class="mt-checkbox">
-                <input type="checkbox" name="tickets[]" value="{{ $ticket->id }}" class="hidden-print" />
-                <span class="hidden-print"></span>
-                #{{ $ticket->id }}
-            </label>
-        @else
-            #{{ $ticket->id }}
-        @endif
-        @if ( $ticket->rate )
+            #{{ $ticketManagement->getTicketNumber() }}
+        @if ( $ticketManagement->rate )
             <span class="pull-right">
-                @include( 'parts.rate', [ 'ticket' => $ticket ] )
+                @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
             </span>
         @endif
     </td>
     <td>
-        {{ $ticket->created_at->format( 'd.m.Y H:i' ) }}
+        {{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}
     </td>
+    @if ( $field_operator )
+        <td>
+            <span class="{{ $ticketManagement->ticket->author->id == \Auth::user()->id ? 'mark' : '' }}">
+                {{ $ticketManagement->ticket->author->getShortName() }}
+            </span>
+        </td>
+    @endif
+    @if ( $field_management )
+        <td>
+            {{ $ticketManagement->management->name }}
+        </td>
+    @endif
     <td>
-        <span class="{{ $ticket->author->id == \Auth::user()->id ? 'mark' : '' }}">
-            {{ $ticket->author->getShortName() }}
-        </span>
-    </td>
-    <td>
-        @foreach ( $ticket->managements as $ticketManagement )
-            <div>
-                {{ $ticketManagement->management->name }}
-            </div>
-        @endforeach
-    </td>
-    <td>
-        @if ( $ticket->type )
+        @if ( $ticketManagement->ticket->type )
             <div class="bold">
-                {{ $ticket->type->category->name }}
+                {{ $ticketManagement->ticket->type->category->name }}
             </div>
             <div class="small">
-                {{ $ticket->type->name }}
+                {{ $ticketManagement->ticket->type->name }}
             </div>
         @endif
     </td>
     <td>
-        {{ $ticket->getAddress() }}
-        @if ( $ticket->getPlace() )
+        {{ $ticketManagement->ticket->getAddress() }}
+        @if ( $ticketManagement->ticket->getPlace() )
             <span class="small text-muted">
-                ({{ $ticket->getPlace() }})
+                ({{ $ticketManagement->ticket->getPlace() }})
             </span>
         @endif
     </td>
     <td class="text-right hidden-print">
-        <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть обращение #{{ $ticket->id }}">
+        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
             <i class="fa fa-chevron-right"></i>
         </a>
     </td>
 </tr>
-@if ( $ticket->comments->count() )
+@if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->count() )
     <tr>
-        @if ( $ticket->group_uuid )
-            @if ( ! $ticket->parent_id )
-                <td colspan="8" class="border-left">
-            @else
-                <td width="30" class="border-left text-center">
-                    &nbsp;
-                </td>
-                <td colspan="7">
-            @endif
-        @else
-            <td colspan="8">
-        @endif
+        <td colspan="{{ ( 5 + ( $field_operator ? 1 : 0 ) + ( $field_management ? 1 : 0 ) ) }}">
             <div class="note note-info">
-                @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
+                @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments ] )
             </div>
         </td>
     </tr>

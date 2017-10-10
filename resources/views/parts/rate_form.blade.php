@@ -1,6 +1,6 @@
-@if ( ! $ticket->rate )
+@if ( ! $ticketManagement->rate )
     {!! Form::open( [ 'url' => route( 'tickets.rate' ), 'id' => 'rate-form' ] ) !!}
-    {!! Form::hidden( 'id', $ticket->id ) !!}
+    {!! Form::hidden( 'id', $ticketManagement->id ) !!}
     {!! Form::hidden( 'comment', null ) !!}
     {!! Form::hidden( 'rate', null ) !!}
     {!! Form::close() !!}

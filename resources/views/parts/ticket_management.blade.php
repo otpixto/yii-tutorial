@@ -1,6 +1,6 @@
 <tr>
     <td>
-        <div class="mt-element-ribbon">
+        <div class="mt-element-ribbon" id="ticket-status-{{ $ticket->id }}">
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticket->getClass() }}">
                 <div class="ribbon-sub ribbon-clip ribbon-round"></div>
                 <a href="{{ route( 'tickets.show', $ticket->id ) }}" class="color-inherit">

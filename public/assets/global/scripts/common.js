@@ -204,6 +204,8 @@ $( document )
         var origin_model_name = $( this ).attr( 'data-origin-model-name' );
 		var with_file = $( this ).attr( 'data-file' ) || 0;
 
+        var title = $( this ).attr( 'data-title' );
+
 		if ( ! model_name || ! model_id ) return;
 
 		$.get( '/comment', {
@@ -214,7 +216,7 @@ $( document )
             with_file: with_file
 		}, function ( response )
 		{
-			Modal.createSimple( 'Добавить комментарий', response, 'comment' );
+			Modal.createSimple( title || 'Добавить комментарий', response, 'comment' );
 		});
 	
 	})
@@ -229,12 +231,16 @@ $( document )
 
         if ( ! model_name || ! model_id ) return;
 
+        var title = $( this ).attr( 'data-title' );
+        var status = $( this ).attr( 'data-status' );
+
         $.get( '/file', {
             model_name: model_name,
-            model_id: model_id
+            model_id: model_id,
+            status: status
         }, function ( response )
         {
-            Modal.createSimple( 'Прикрепить файл', response, 'file' );
+            Modal.createSimple( title || 'Прикрепить файл', response, 'file' );
         });
 
     })
@@ -276,6 +282,15 @@ $( document )
 			}
 			return false;
 		}
+
+        $( this ).trigger( 'confirmed', [ e ] );
+
+    })
+
+    .on ( 'click', 'a[data-confirm]', function ( e )
+    {
+
+        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) ) return false;
 
         $( this ).trigger( 'confirmed', [ e ] );
 

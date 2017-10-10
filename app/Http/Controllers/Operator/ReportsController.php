@@ -41,156 +41,70 @@ class ReportsController extends BaseController
             'closed_without_confirm' => 0
         ];
 
-        if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
+        $ticketManagements = TicketManagement
+            ::mine()
+            ->whereNotIn( 'status_code', [ 'draft' ] );
+
+        if ( $date_from )
         {
-
-            $tickets = Ticket
-                ::mine()
-                ->whereNotIn( 'status_code', [ 'draft' ] );
-
-            if ( $date_from )
-            {
-                $tickets
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-            }
-
-            if ( $date_to )
-            {
-                $tickets
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-            }
-
-            $tickets = $tickets->get();
-
-            foreach ( $tickets as $ticket )
-            {
-
-                $managements = $ticket->managements()
-                    ->mine()
-                    ->whereNotIn( 'status_code', [ 'draft' ] )
-                    ->get();
-
-                foreach ( $managements as $management )
-                {
-                    if ( ! isset( $data[ $management->management_id ] ) )
-                    {
-                        $data[ $management->management_id ] = [
-                            'name' => $management->management->name,
-                            'total' => 0,
-                            'closed' => 0,
-                            'not_verified' => 0,
-                            'canceled' => 0,
-                            'closed_with_confirm' => 0,
-                            'closed_without_confirm' => 0
-                        ];
-                    }
-                    $summary[ 'total' ] ++;
-                    $data[ $management->management_id ][ 'total' ] ++;
-                    switch ( $management->status_code )
-                    {
-                        case 'closed_with_confirm':
-                            $data[ $management->management_id ][ 'closed' ] ++;
-                            $data[ $management->management_id ][ 'closed_with_confirm' ] ++;
-                            $summary[ 'closed' ] ++;
-                            $summary[ 'closed_with_confirm' ] ++;
-                            break;
-                        case 'closed_without_confirm':
-                            $data[ $management->management_id ][ 'closed' ] ++;
-                            $data[ $management->management_id ][ 'closed_without_confirm' ] ++;
-                            $summary[ 'closed' ] ++;
-                            $summary[ 'closed_without_confirm' ] ++;
-                            break;
-                        case 'not_verified':
-                            $data[ $management->management_id ][ 'closed' ] ++;
-                            $data[ $management->management_id ][ 'not_verified' ] ++;
-                            $summary[ 'closed' ] ++;
-                            $summary[ 'not_verified' ] ++;
-                            break;
-                        case 'cancel':
-                            $data[ $management->management_id ][ 'closed' ] ++;
-                            $data[ $management->management_id ][ 'canceled' ] ++;
-                            $summary[ 'closed' ] ++;
-                            $summary[ 'canceled' ] ++;
-                            break;
-                    }
-                }
-
-            }
-
+            $ticketManagements
+                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
         }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
+
+        if ( $date_to )
         {
-
-            $ticketManagements = TicketManagement
-                ::mine()
-                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft' ] );
-
-            if ( $date_from )
-            {
-                $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-            }
-
-            if ( $date_to )
-            {
-                $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-            }
-
-            $ticketManagements = $ticketManagements->get();
-
-            foreach ( $ticketManagements as $management )
-            {
-                if ( ! isset( $data[ $management->management_id ] ) )
-                {
-                    $data[ $management->management_id ] = [
-                        'name' => $management->management->name,
-                        'total' => 0,
-                        'closed' => 0,
-                        'not_verified' => 0,
-                        'canceled' => 0,
-                        'closed_with_confirm' => 0,
-                        'closed_without_confirm' => 0
-                    ];
-                }
-                $summary[ 'total' ] ++;
-                $data[ $management->management_id ][ 'total' ] ++;
-                switch ( $management->status_code )
-                {
-                    case 'closed_with_confirm':
-                        $data[ $management->management_id ][ 'closed' ] ++;
-                        $data[ $management->management_id ][ 'closed_with_confirm' ] ++;
-                        $summary[ 'closed' ] ++;
-                        $summary[ 'closed_with_confirm' ] ++;
-                        break;
-                    case 'closed_without_confirm':
-                        $data[ $management->management_id ][ 'closed' ] ++;
-                        $data[ $management->management_id ][ 'closed_without_confirm' ] ++;
-                        $summary[ 'closed' ] ++;
-                        $summary[ 'closed_without_confirm' ] ++;
-                        break;
-                    case 'not_verified':
-                        $data[ $management->management_id ][ 'closed' ] ++;
-                        $data[ $management->management_id ][ 'not_verified' ] ++;
-                        $summary[ 'closed' ] ++;
-                        $summary[ 'not_verified' ] ++;
-                        break;
-                    case 'cancel':
-                        $data[ $management->management_id ][ 'closed' ] ++;
-                        $data[ $management->management_id ][ 'canceled' ] ++;
-                        $summary[ 'closed' ] ++;
-                        $summary[ 'canceled' ] ++;
-                        break;
-                }
-            }
-
+            $ticketManagements
+                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
         }
-        else
+
+        $ticketManagements = $ticketManagements->get();
+
+        foreach ( $ticketManagements as $ticketManagement )
         {
-            Title::add( 'Доступ запрещен' );
-            return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' );
+
+            if ( ! isset( $data[ $ticketManagement->management_id ] ) )
+            {
+                $data[ $ticketManagement->management_id ] = [
+                    'name' => $ticketManagement->management->name,
+                    'total' => 0,
+                    'closed' => 0,
+                    'not_verified' => 0,
+                    'canceled' => 0,
+                    'closed_with_confirm' => 0,
+                    'closed_without_confirm' => 0
+                ];
+            }
+            $summary[ 'total' ] ++;
+            $data[ $ticketManagement->management_id ][ 'total' ] ++;
+            switch ( $ticketManagement->status_code )
+            {
+                case 'closed_with_confirm':
+                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                    $data[ $ticketManagement->management_id ][ 'closed_with_confirm' ] ++;
+                    $summary[ 'closed' ] ++;
+                    $summary[ 'closed_with_confirm' ] ++;
+                    break;
+                case 'closed_without_confirm':
+                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                    $data[ $ticketManagement->management_id ][ 'closed_without_confirm' ] ++;
+                    $summary[ 'closed' ] ++;
+                    $summary[ 'closed_without_confirm' ] ++;
+                    break;
+                case 'not_verified':
+                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                    $data[ $ticketManagement->management_id ][ 'not_verified' ] ++;
+                    $summary[ 'closed' ] ++;
+                    $summary[ 'not_verified' ] ++;
+                    break;
+                case 'cancel':
+                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                    $data[ $ticketManagement->management_id ][ 'canceled' ] ++;
+                    $summary[ 'closed' ] ++;
+                    $summary[ 'canceled' ] ++;
+                    break;
+
+            }
+
         }
 
         uasort( $data, function ( $a, $b )
@@ -251,132 +165,55 @@ class ReportsController extends BaseController
             'closed' => 0
         ];
 
-        if ( \Auth::user()->hasRole( 'control' ) || \Auth::user()->hasRole( 'operator' ) )
+        $ticketManagements = TicketManagement
+            ::mine()
+            ->whereNotIn( 'status_code', [ 'draft' ] );
+
+        if ( $date_from )
         {
-
-            $tickets = Ticket
-                ::mine()
-                ->whereNotIn( 'status_code', [ 'draft' ] );
-
-            if ( $date_from )
-            {
-                $tickets
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-            }
-
-            if ( $date_to )
-            {
-                $tickets
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-            }
-
-            $tickets = $tickets->get();
-
-            foreach ( $tickets as $ticket )
-            {
-
-                $category = $ticket->type->category;
-
-                $managements = $ticket->managements()
-                    ->mine()
-                    ->whereNotIn( 'status_code', [ 'draft' ] )
-                    ->get();
-
-                foreach ( $managements as $management )
-                {
-                    if ( ! isset( $data[ $management->management_id ] ) )
-                    {
-                        $data[ $management->management_id ] = [
-                            'name' => $management->management->name,
-                            'categories' => []
-                        ];
-                    }
-                    if ( ! isset( $data[ $management->management_id ][ 'categories' ][ $category->id ] ) )
-                    {
-                        $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
-                            'name' => $category->name,
-                            'total' => 0,
-                            'closed' => 0
-                        ];
-                    }
-                    $summary[ 'total' ] ++;
-                    $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
-                    switch ( $management->status_code )
-                    {
-                        case 'closed_with_confirm':
-                        case 'closed_without_confirm':
-                        case 'not_verified':
-                        case 'cancel':
-                            $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
-                            $summary[ 'closed' ] ++;
-                            break;
-                    }
-                }
-
-            }
-
+            $ticketManagements
+                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
         }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
+
+        if ( $date_to )
         {
-
-            $ticketManagements = TicketManagement
-                ::mine()
-                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->whereNotIn( 'status_code', [ 'draft' ] );
-
-            if ( $date_from )
-            {
-                $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-            }
-
-            if ( $date_to )
-            {
-                $ticketManagements
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-            }
-
-            $ticketManagements = $ticketManagements->get();
-
-            foreach ( $ticketManagements as $management )
-            {
-                $ticket = $management->ticket;
-                $category = $ticket->type->category;
-                if ( ! isset( $data[ $management->management_id ] ) )
-                {
-                    $data[ $management->management_id ] = [
-                        'name' => $management->management->name,
-                        'categories' => []
-                    ];
-                }
-                if ( ! isset( $data[ $management->management_id ][ 'categories' ][ $category->id ] ) )
-                {
-                    $data[ $management->management_id ][ 'categories' ][ $category->id ] = [
-                        'name' => $category->name,
-                        'total' => 0,
-                        'closed' => 0
-                    ];
-                }
-                $summary[ 'total' ] ++;
-                $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
-                switch ( $management->status_code )
-                {
-                    case 'closed_with_confirm':
-                    case 'closed_without_confirm':
-                    case 'not_verified':
-                    case 'cancel':
-                        $data[ $management->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
-                        $summary[ 'closed' ] ++;
-                        break;
-                }
-            }
-
+            $ticketManagements
+                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
         }
-        else
+
+        $ticketManagements = $ticketManagements->get();
+
+        foreach ( $ticketManagements as $ticketManagement )
         {
-            Title::add( 'Доступ запрещен' );
-            return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' );
+            $ticket = $ticketManagement->ticket;
+            $category = $ticket->type->category;
+            if ( ! isset( $data[ $ticketManagement->management_id ] ) )
+            {
+                $data[ $ticketManagement->management_id ] = [
+                    'name' => $ticketManagement->management->name,
+                    'categories' => []
+                ];
+            }
+            if ( ! isset( $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ] ) )
+            {
+                $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ] = [
+                    'name' => $category->name,
+                    'total' => 0,
+                    'closed' => 0
+                ];
+            }
+            $summary[ 'total' ] ++;
+            $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
+            switch ( $ticketManagement->status_code )
+            {
+                case 'closed_with_confirm':
+                case 'closed_without_confirm':
+                case 'not_verified':
+                case 'cancel':
+                    $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
+                    $summary[ 'closed' ] ++;
+                    break;
+            }
         }
 
         foreach ( $data as & $r )

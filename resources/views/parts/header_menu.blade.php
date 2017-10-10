@@ -28,10 +28,17 @@
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
                     Заявки
-                    @if ( \Session::get( 'tickets_count' ) > 0 )
-                        <span class="badge badge-success bold">
-                            {{ \Session::get( 'tickets_count' ) }}
-                        </span>
+                    @if ( \Auth::user()->can( 'tickets.counter' ) )
+                        @if ( \Session::get( 'tickets_count' ) > 0 )
+                            <span class="badge badge-success bold">
+                                {{ \Session::get( 'tickets_count' ) }}
+                            </span>
+                        @endif
+                        @if ( \Session::get( 'tickets_call_count' ) > 0 )
+                            <span class="badge badge-danger bold">
+                                {{ \Session::get( 'tickets_call_count' ) }}
+                            </span>
+                        @endif
                     @endif
                 </a>
                 <ul class="dropdown-menu">
@@ -44,29 +51,13 @@
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.call' ) )
                         <li>
-                            <a href="{{ route( 'tickets.call' ) }}">
+                            <a href="{{ route( 'tickets.index' ) }}?show=call">
                                 Обзвон
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.closed' ) )
-                        <li>
-                            <a href="{{ route( 'tickets.closed' ) }}">
-                                Закрытые заявки
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.no_contract' ) )
-                        <li>
-                            <a href="{{ route( 'tickets.no_contract' ) }}">
-                                Отсутствует договор
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.canceled' ) )
-                        <li>
-                            <a href="{{ route( 'tickets.canceled' ) }}">
-                                Отмененные заявки
+                                @if ( \Auth::user()->can( 'tickets.counter' ) && \Session::get( 'tickets_call_count' ) > 0 )
+                                    <span class="badge badge-danger bold">
+                                        {{ \Session::get( 'tickets_call_count' ) }}
+                                    </span>
+                                @endif
                             </a>
                         </li>
                     @endif
@@ -79,7 +70,7 @@
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
                     Работы на сетях
-                    @if ( \Session::get( 'works_count' ) > 0 )
+                    @if ( ( \Auth::user()->admin || \Auth::user()->can( 'works.counter' ) ) && \Session::get( 'works_count' ) > 0 )
                         <span class="badge badge-danger bold">
                             {{ \Session::get( 'works_count' ) }}
                         </span>
@@ -207,6 +198,13 @@
                         <li aria-haspopup="true" class=" ">
                             <a href="/admin/roles" class="nav-link">
                                 Роли
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="/admin/logs" class="nav-link">
+                                Системные логи
                             </a>
                         </li>
                     @endif

@@ -7,6 +7,8 @@ class Category extends BaseModel
 
     protected $table = 'categories';
 
+    public static $name = 'Категория';
+
     public static $rules = [
         'name'              => 'required|string|max:255',
     ];

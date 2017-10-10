@@ -10,6 +10,8 @@ class Type extends BaseModel
 
     protected $table = 'types';
 
+    public static $name = 'Тип обращения';
+
     protected $fillable = [
         'name',
         'category_id',

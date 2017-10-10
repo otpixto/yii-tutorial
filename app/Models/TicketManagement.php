@@ -11,36 +11,29 @@ class TicketManagement extends BaseModel
 
     protected $table = 'tickets_managements';
 
+    public static $name = 'ЭО заявки';
+
     private $history = [];
+
+    private $can_edit = null;
 	private $can_comment = null;
     private $can_upload_act = null;
+    private $can_print_act = null;
 
-    public static $statuses = [
-        'draft'					            => 'Черновик',
-        'created'                           => 'Принято оператором ЕДС',
-        'transferred'	                    => 'Передано в ЭО',
-        'transferred_again'	                => 'Передано в ЭО повторно',
-        'accepted'                          => 'Принято к исполнению',
-        'assigned'                          => 'Назначен исполнитель',
-        'completed_with_act'                => 'Выполнено с актом',
-        'completed_without_act'		        => 'Выполнено без акта',
-		'closed_with_confirm'		        => 'Закрыто с подтверждением',
-        'closed_without_confirm'	        => 'Закрыто без подтверждения',
-        'not_verified'		                => 'Проблема не подтверждена',
-        'waiting'	                        => 'Отложено',
-        'no_contract'	                    => 'Отказ (нет договора с ЭО)',
-		'cancel'				            => 'Отмена',
-    ];
+    private $availableStatuses = null;
 
     public static $workflow = [
         'transferred' => [
             'accepted',
+            'rejected',
         ],
         'transferred_again' => [
             'accepted',
+            'rejected',
         ],
         'accepted' => [
             'waiting',
+            'assigned',
         ],
         'assigned' => [
             'completed_with_act',
@@ -50,6 +43,19 @@ class TicketManagement extends BaseModel
         ],
         'waiting' => [
             'accepted',
+        ],
+        'completed_with_act' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'transferred_again',
+        ],
+        'completed_without_act' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'transferred_again',
+        ],
+        'not_verified' => [
+            'transferred_again',
         ],
     ];
 
@@ -96,19 +102,59 @@ class TicketManagement extends BaseModel
 
     public function scopeMine ( $query )
     {
+        if ( \Auth::user()->can( 'tickets.all' ) )
+        {
+            $query
+                ->whereHas( 'ticket', function ( $q )
+                {
+                    return $q
+                        ->where( 'author_id', '=', \Auth::user()->id );
+                })
+                ->orWhere( 'status_code', '!=', 'draft' );
+        }
+        else
+        {
+            $query
+                ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() )
+                ->where( function ( $q )
+                {
+                    return $q
+                        ->whereHas( 'ticket', function ( $ticket )
+                        {
+                            return $ticket
+                                ->where( 'author_id', '=', \Auth::user()->id );
+                        })
+                        ->orWhereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+                });
+        }
+        return $query;
+    }
+
+    public function scopeNotFinaleStatuses ( $query )
+    {
         return $query
-            ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
+            ->whereNotIn( 'status_code', Ticket::$final_statuses );
     }
 
     public function getAvailableStatuses ()
     {
-        $workflow = self::$workflow[ $this->status_code ] ?? [];
-        $statuses = [];
-        foreach ( $workflow as $status_code )
+        if ( is_null( $this->availableStatuses ) )
         {
-            $statuses[ $status_code ] = self::$statuses[ $status_code ];
+            $user_statuses = \Auth::user()->getAvailableStatuses();
+            $this->availableStatuses = [];
+            if ( \Auth::user()->can( 'tickets.status' ) )
+            {
+                $workflow = self::$workflow[ $this->status_code ] ?? [];
+                foreach ( $workflow as $status_code )
+                {
+                    if ( in_array( $status_code, $user_statuses ) )
+                    {
+                        $this->availableStatuses[ $status_code ] = Ticket::$statuses[ $status_code ];
+                    }
+                }
+            }
         }
-        return $statuses;
+        return $this->availableStatuses;
     }
 
     public function addComment ( $text )
@@ -218,12 +264,17 @@ class TicketManagement extends BaseModel
         return '';
 
     }
+
+    public function getTicketNumber ()
+    {
+        return $this->ticket_id . '/' . $this->id;
+    }
 	
 	public function canComment ()
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' )
+            if ( \Auth::user()->can( 'tickets.comment' ) && ! in_array( $this->status_code, Ticket::$final_statuses ) )
             {
                 $this->can_comment = true;
             }
@@ -235,11 +286,27 @@ class TicketManagement extends BaseModel
         return $this->can_comment;
     }
 
+    public function canPrintAct ()
+    {
+        if ( is_null( $this->can_print_act ) )
+        {
+            if ( \Auth::user()->can( 'tickets.act' ) && $this->management->has_contract && $this->status_code )
+            {
+                $this->can_print_act = true;
+            }
+            else
+            {
+                $this->can_print_act = false;
+            }
+        }
+        return $this->can_print_act;
+    }
+
     public function canUploadAct ()
     {
         if ( is_null( $this->can_upload_act ) )
         {
-            if ( \Auth::user()->can( 'tickets.files' ) && $this->status_code == 'completed_with_act' )
+            if ( \Auth::user()->can( 'tickets.files' ) && ! in_array( $this->status_code, Ticket::$final_statuses ) )
             {
                 $this->can_upload_act = true;
             }
@@ -251,11 +318,27 @@ class TicketManagement extends BaseModel
         return $this->can_upload_act;
     }
 
+    public function canEdit ()
+    {
+        if ( is_null( $this->can_edit ) )
+        {
+            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
+            {
+                $this->can_edit = true;
+            }
+            else
+            {
+                $this->can_edit = false;
+            }
+        }
+        return $this->can_edit;
+    }
+
     # force - принудительно
     public function changeStatus ( $status_code, $force = false )
     {
 
-        if ( ! isset( self::$statuses[ $status_code ] ) )
+        if ( ! isset( Ticket::$statuses[ $status_code ] ) )
         {
             return new MessageBag([ 'Некорректный статус' ]);
         }
@@ -268,14 +351,14 @@ class TicketManagement extends BaseModel
         \DB::beginTransaction();
 
         $this->status_code = $status_code;
-        $this->status_name = self::$statuses[ $status_code ];
+        $this->status_name = Ticket::$statuses[ $status_code ];
         $this->save();
 
         $statusHistory = StatusHistory::create([
             'model_id'          => $this->id,
             'model_name'        => get_class( $this ),
             'status_code'       => $status_code,
-            'status_name'       => self::$statuses[ $status_code ],
+            'status_name'       => Ticket::$statuses[ $status_code ],
         ]);
 
         if ( $statusHistory instanceof MessageBag )
@@ -442,6 +525,16 @@ class TicketManagement extends BaseModel
             case 'closed_with_confirm':
             case 'closed_without_confirm':
 
+                $res = $this->changeTicketStatus([
+                    'completed_with_act',
+                    'completed_without_act',
+                    'not_verified'
+                ]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
                 $message = '<em>Обращение закрыто</em>' . PHP_EOL . PHP_EOL;
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
@@ -474,6 +567,30 @@ class TicketManagement extends BaseModel
 
                 break;
 
+            case 'rejected':
+
+                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+
+                $this->sendTelegram( $message );
+
+                break;
+
+        }
+
+        if ( $this->ticket->managements->count() == 1 )
+        {
+            $res = $this->changeTicketStatus();
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
         }
 
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
+use App\Models\TicketManagement;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,8 @@ class FilesController extends Controller
     {
         return view( 'modals.files' )
             ->with( 'model_id', $request->get( 'model_id' ) )
-            ->with( 'model_name', $request->get( 'model_name' ) );
+            ->with( 'model_name', $request->get( 'model_name' ) )
+            ->with( 'status', $request->get( 'status' ) );
     }
 
     public function store ( Request $request )
@@ -54,6 +56,7 @@ class FilesController extends Controller
 
         if ( $request->hasFile( 'files' ) )
         {
+            \DB::beginTransaction();
             foreach ( $request->file( 'files' ) as $_file )
             {
                 $path = Storage::putFile( 'files', $_file );
@@ -69,6 +72,19 @@ class FilesController extends Controller
                 }
                 $file->save();
             }
+            if ( ! empty( $request->get( 'status' ) ) && $request->get( 'model_name' ) == TicketManagement::class )
+            {
+                $ticketManagement = TicketManagement::find( $request->get( 'model_id' ) );
+                if ( $ticketManagement )
+                {
+                    $res = $ticketManagement->changeStatus( $request->get( 'status' ) );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return redirect()->back()->withErrors( $res );
+                    }
+                }
+            }
+            \DB::commit();
         }
 
         return redirect()->back()->with( 'success', 'Файл(ы) добавлен(ы)' );

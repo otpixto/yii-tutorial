@@ -14,6 +14,8 @@ class UserPhoneAuth extends BaseModel
     protected $table = 'users_phone_auth';
     protected $primaryKey = 'id';
 
+    public static $name = 'Авторизация на телефоне';
+
     private static $code_length = 4; // длина кода авторизации
     public static $timeout = 30; // таймаут авторизации
 

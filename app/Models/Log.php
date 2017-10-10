@@ -7,6 +7,8 @@ class Log extends BaseModel
 
     protected $table = 'logs';
 
+    public static $name = 'Системный лог';
+
     protected $fillable = [
         'model_id',
 		'model_name',

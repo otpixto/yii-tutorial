@@ -8,7 +8,7 @@
 		{!! Form::textarea( 'text', null, [ 'class' => 'form-control submit-loading', 'required' ] ) !!}
 	</div>
 </div>
-@if ( isset( $with_file ) && $with_file )
+@if ( isset( $with_file ) && $with_file && \Auth::user()->can( 'tickets.files' ) )
     <div class="form-group">
 		<div class="col-xs-12">
 			{!! Form::file( 'files[]', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл(ы)', 'multiple' ] ) !!}

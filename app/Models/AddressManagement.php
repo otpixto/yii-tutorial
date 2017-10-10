@@ -9,6 +9,8 @@ class AddressManagement extends BaseModel
 
     protected $table = 'addresses_managements';
 
+    public static $name = 'Привязка ЭО к адресу';
+
     protected $fillable = [
         'address_id',
         'type_id',

@@ -24,430 +24,136 @@ class TicketsController extends BaseController
         Title::add( 'Реестр заявок' );
     }
 
-    public function index ()
+    public function index ( Request $request, $statuses = null )
     {
 
-        if ( \Auth::user()->hasRole( 'control' ) )
-        {
+        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
+        $field_management = \Auth::user()->can( 'tickets.field_management' );
 
-            return $this->control();
-
-        }
-        else if ( \Auth::user()->hasRole( 'operator' ) )
-        {
-
-            return $this->operator();
-
-        }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
-        {
-
-            return $this->management();
-
-        }
-        else
-        {
-            Title::add( 'Доступ запрещен' );
-            return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' );
-        }
-
-    }
-
-    public function control ()
-    {
-
-        $tickets = Ticket
-            ::mine()
-            ->parentsOnly()
-            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
-            ->orderBy( 'id', 'desc' );
-
-        if ( !empty( \Input::get( 'search' ) ) )
-        {
-            $tickets
-                ->fastSearch( \Input::get( 'search' ) );
-        }
-
-        if ( !empty( \Input::get( 'group' ) ) )
-        {
-            $tickets
-                ->where( 'group_uuid', '=', \Input::get( 'group' ) );
-        }
-
-        if ( !empty( \Input::get( 'id' ) ) )
-        {
-            $tickets
-                ->where( 'id', '=', \Input::get( 'id' ) );
-        }
-
-        if ( !empty( \Input::get( 'status_code' ) ) )
-        {
-            $tickets
-                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
-        }
-
-        if ( !empty( \Input::get( 'period_from' ) ) )
-        {
-            $tickets
-                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( \Input::get( 'period_from' ) )->toDateTimeString() ] );
-        }
-
-        if ( !empty( \Input::get( 'period_to' ) ) )
-        {
-            $tickets
-                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( \Input::get( 'period_to' ) )->toDateTimeString() ] );
-        }
-
-        if ( !empty( \Input::get( 'operator_id' ) ) )
-        {
-            $tickets
-                ->where( 'author_id', '=', \Input::get( 'operator_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'type_id' ) ) )
-        {
-            $tickets
-                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'address_id' ) ) )
-        {
-            $tickets
-                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
-            $address = Address::find( \Input::get( 'address_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'flat' ) ) )
-        {
-            $tickets
-                ->where( 'flat', '=', \Input::get( 'flat' ) );
-        }
-
-        if ( !empty( \Input::get( 'management_id' ) ) )
-        {
-            $tickets
-                ->whereHas( 'managements', function ( $q )
-                {
-                    return $q
-                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
-                });
-        }
-
-        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
-        {
-            $tickets = $tickets->get();
-            $data = [];
-            foreach ( $tickets as $ticket )
-            {
-                if ( $ticket->managements->count() )
-                {
-                    foreach ( $ticket->managements as $ticketManagement )
-                    {
-                        $data[] = [
-                            '#'                     => $ticket->id,
-                            'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                            'Текущий статус'        => $ticket->status_name,
-                            'Адрес проблемы'        => $ticket->address->name,
-                            'Квартира'              => $ticket->flat,
-                            'Проблемное место'      => $ticket->getPlace(),
-                            'Категория заявки'      => $ticket->type->category->name,
-                            'Тип заявки'            => $ticket->type->name,
-                            'ФИО заявителя'         => $ticket->getName(),
-                            'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                            'Адрес проживания'      => $ticket->customer->getAddress(),
-                            'Оператор'              => $ticket->author->getName(),
-                            'ЭО'                    => $ticketManagement->management->name,
-                        ];
-                    }
-                }
-                else
-                {
-                    if ( $ticket->status_code == 'draft' ) continue;
-                    $data[] = [
-                        '#'                     => $ticket->id,
-                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                        'Текущий статус'        => $ticket->status_name,
-                        'Адрес проблемы'        => $ticket->address->name,
-                        'Квартира'              => $ticket->flat,
-                        'Проблемное место'      => $ticket->getPlace(),
-                        'Категория заявки'      => $ticket->type->category->name,
-                        'Тип заявки'            => $ticket->type->name,
-                        'ФИО заявителя'         => $ticket->getName(),
-                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                        'Адрес проживания'      => $ticket->customer->getAddress(),
-                        'Оператор'              => $ticket->author->getName(),
-                        'ЭО'                    => '',
-                    ];
-                }
-            }
-            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
-            {
-                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
-                {
-                    $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
-        }
-
-        $tickets = $tickets
-            ->paginate( 30 )
-            ->appends( \Input::all() );
-
-        return view( 'tickets.control.index' )
-            ->with( 'tickets', $tickets )
-            ->with( 'types', Type::orderBy( 'name' )->get() )
-            ->with( 'managements', Management::orderBy( 'name' )->get() )
-            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
-            ->with( 'address', $address ?? null );
-
-    }
-
-    public function operator ()
-    {
-
-        $tickets = Ticket
-            ::mine()
-            ->parentsOnly()
-            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract', 'not_verified' ] )
-            ->orderBy( 'id', 'desc' );
-
-        if ( !empty( \Input::get( 'search' ) ) )
-        {
-            $tickets
-                ->fastSearch( \Input::get( 'search' ) );
-        }
-
-        if ( !empty( \Input::get( 'group' ) ) )
-        {
-            $tickets
-                ->where( 'group_uuid', '=', \Input::get( 'group' ) );
-        }
-
-        if ( !empty( \Input::get( 'id' ) ) )
-        {
-            $tickets
-                ->where( 'id', '=', \Input::get( 'id' ) );
-        }
-
-        if ( !empty( \Input::get( 'status_code' ) ) )
-        {
-            $tickets
-                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
-        }
-
-        if ( !empty( \Input::get( 'period_from' ) ) )
-        {
-            $tickets
-                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( \Input::get( 'period_from' ) )->toDateTimeString() ] );
-        }
-
-        if ( !empty( \Input::get( 'period_to' ) ) )
-        {
-            $tickets
-                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( \Input::get( 'period_to' ) )->toDateTimeString() ] );
-        }
-
-        if ( !empty( \Input::get( 'operator_id' ) ) )
-        {
-            $tickets
-                ->where( 'author_id', '=', \Input::get( 'operator_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'type_id' ) ) )
-        {
-            $tickets
-                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'address_id' ) ) )
-        {
-            $tickets
-                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
-            $address = Address::find( \Input::get( 'address_id' ) );
-        }
-
-        if ( !empty( \Input::get( 'flat' ) ) )
-        {
-            $tickets
-                ->where( 'flat', '=', \Input::get( 'flat' ) );
-        }
-
-        if ( !empty( \Input::get( 'management_id' ) ) )
-        {
-            $tickets
-                ->whereHas( 'managements', function ( $q )
-                {
-                    return $q
-                        ->where( 'management_id', '=', \Input::get( 'management_id' ) );
-                });
-        }
-
-        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
-        {
-            $tickets = $tickets->get();
-            $data = [];
-            foreach ( $tickets as $ticket )
-            {
-                if ( $ticket->managements->count() )
-                {
-                    foreach ( $ticket->managements as $ticketManagement )
-                    {
-                        $data[] = [
-                            '#'                     => $ticket->id,
-                            'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                            'Текущий статус'        => $ticket->status_name,
-                            'Адрес проблемы'        => $ticket->address->name,
-                            'Квартира'              => $ticket->flat,
-                            'Проблемное место'      => $ticket->getPlace(),
-                            'Категория заявки'      => $ticket->type->category->name,
-                            'Тип заявки'            => $ticket->type->name,
-                            'ФИО заявителя'         => $ticket->getName(),
-                            'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                            'Адрес проживания'      => $ticket->customer->getAddress(),
-                            'Оператор'              => $ticket->author->getName(),
-                            'ЭО'                    => $ticketManagement->management->name,
-                        ];
-                    }
-                }
-                else
-                {
-                    if ( $ticket->status_code == 'draft' ) continue;
-                    $data[] = [
-                        '#'                     => $ticket->id,
-                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                        'Текущий статус'        => $ticket->status_name,
-                        'Адрес проблемы'        => $ticket->address->name,
-                        'Квартира'              => $ticket->flat,
-                        'Проблемное место'      => $ticket->getPlace(),
-                        'Категория заявки'      => $ticket->type->category->name,
-                        'Тип заявки'            => $ticket->type->name,
-                        'ФИО заявителя'         => $ticket->getName(),
-                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                        'Адрес проживания'      => $ticket->customer->getAddress(),
-                        'Оператор'              => $ticket->author->getName(),
-                        'ЭО'                    => '',
-                    ];
-                }
-            }
-            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
-            {
-                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
-                {
-                    $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
-        }
-
-        $tickets = $tickets
-            ->paginate( 30 )
-            ->appends( \Input::all() );
-
-        return view( 'tickets.operator.index' )
-            ->with( 'tickets', $tickets )
-            ->with( 'types', Type::orderBy( 'name' )->get() )
-            ->with( 'managements', Management::orderBy( 'name' )->get() )
-            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
-            ->with( 'address', $address ?? null );
-
-    }
-
-    public function management ()
-    {
+        $exp_number = explode( '/', $request->get( 'id', '' ) );
 
         $ticketManagements = TicketManagement
-            ::whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-            ->mine()
-            ->whereNotIn( 'status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel', 'no_contract' ] )
-            ->orderBy( 'id', 'desc' );
-
-        if ( ! empty( \Input::get( 'show' ) ) )
-        {
-            switch ( \Input::get( 'show' ) )
+            ::mine()
+            ->orderBy( 'id', 'desc' )
+            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number )
             {
 
-                case 'not_processed':
-
-                    $ticketManagements->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
-
-                    break;
-
-                case 'not_completed':
-
-                    $ticketManagements->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
-
-                    break;
-
-            }
-        }
-
-        $ticketManagements
-            ->whereHas( 'ticket', function ( $q )
-            {
-
-                if ( !empty( \Input::get( 'search' ) ) )
+                if ( !empty( $request->get( 'search' ) ) )
                 {
-                    $q
-                        ->fastSearch( \Input::get( 'search' ) );
+                    $ticket
+                        ->fastSearch( $request->get( 'search' ) );
                 }
 
-                if ( !empty( \Input::get( 'id' ) ) )
+                if ( !empty( $request->get( 'group' ) ) )
                 {
-                    $q
-                        ->where( 'id', '=', \Input::get( 'id' ) );
+                    $ticket
+                        ->where( 'group_uuid', '=', $request->get( 'group' ) );
                 }
 
-                if ( !empty( \Input::get( 'period_from' ) ) )
+                if ( !empty( $exp_number[0] ) )
                 {
-                    $q
-                        ->where( 'created_at', '>=', Carbon::parse( \Input::get( 'period_from' ) )->setTime( 0, 0, 0 )->toDateTimeString() );
+                    $ticket
+                        ->where( 'id', '=', $exp_number[0] );
                 }
 
-                if ( !empty( \Input::get( 'period_to' ) ) )
+                if ( !empty( $request->get( 'status_code' ) ) )
                 {
-                    $q
-                        ->where( 'created_at', '<=', Carbon::parse( \Input::get( 'period_to' ) )->setTime( 23, 59, 59 )->toDateTimeString() );
+                    $ticket
+                        ->where( 'status_code', '=', $request->get( 'status_code' ) );
                 }
 
-                if ( !empty( \Input::get( 'type_id' ) ) )
+                if ( !empty( $request->get( 'period_from' ) ) )
                 {
-                    $q
-                        ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+                    $ticket
+                        ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'period_from' ) )->toDateTimeString() ] );
                 }
 
-                if ( !empty( \Input::get( 'address_id' ) ) )
+                if ( !empty( $request->get( 'period_to' ) ) )
                 {
-                    $q
-                        ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                    $ticket
+                        ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'period_to' ) )->toDateTimeString() ] );
                 }
 
-                if ( !empty( \Input::get( 'flat' ) ) )
+                if ( $field_operator && !empty( $request->get( 'operator_id' ) ) )
                 {
-                    $q
-                        ->where( 'flat', '=', \Input::get( 'flat' ) );
+                    $ticket
+                        ->where( 'author_id', '=', $request->get( 'operator_id' ) );
                 }
 
-                return $q;
+                if ( !empty( $request->get( 'type_id' ) ) )
+                {
+                    $ticket
+                        ->where( 'type_id', '=', $request->get( 'type_id' ) );
+                }
+
+                if ( !empty( $request->get( 'address_id' ) ) )
+                {
+                    $ticket
+                        ->where( 'address_id', '=', $request->get( 'address_id' ) );
+                }
+
+                if ( !empty( $request->get( 'flat' ) ) )
+                {
+                    $ticket
+                        ->where( 'flat', '=', $request->get( 'flat' ) );
+                }
 
             });
 
-        if ( !empty( \Input::get( 'status_code' ) ) )
+        if ( $statuses )
         {
             $ticketManagements
-                ->where( 'status_code', '=', \Input::get( 'status_code' ) );
+                ->whereIn( 'status_code', $statuses );
         }
 
-        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
+        if ( !empty( $request->get( 'address_id' ) ) )
+        {
+            $address = Address::find( $request->get( 'address_id' ) );
+        }
+
+        if ( !empty( $exp_number[1] ) )
+        {
+            $ticketManagements
+                ->where( 'id', '=', $exp_number[1] );
+        }
+
+        if ( $field_management && !empty( $request->get( 'management_id' ) ) )
+        {
+            $ticketManagements
+                ->where( 'management_id', '=', $request->get( 'management_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'show' ) ) )
+        {
+            switch ( $request->get( 'show' ) )
+            {
+                case 'call':
+                    $ticketManagements
+                        ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] );
+                    break;
+                case 'not_processed':
+                    $ticketManagements
+                        ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
+                    break;
+                case 'not_completed':
+                    $ticketManagements
+                        ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
+                    break;
+            }
+        }
+
+        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) )
         {
             $ticketManagements = $ticketManagements->get();
             $data = [];
             foreach ( $ticketManagements as $ticketManagement )
             {
                 $ticket = $ticketManagement->ticket;
+                if ( $ticket->status_code == 'draft' ) continue;
                 $data[] = [
                     '#'                     => $ticket->id,
                     'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                    'Текущий статус'        => $ticketManagement->status_name,
+                    'Текущий статус'        => $ticket->status_name,
                     'Адрес проблемы'        => $ticket->address->name,
                     'Квартира'              => $ticket->flat,
                     'Проблемное место'      => $ticket->getPlace(),
@@ -457,6 +163,14 @@ class TicketsController extends BaseController
                     'Телефон(ы) заявителя'  => $ticket->getPhones(),
                     'Адрес проживания'      => $ticket->customer->getAddress(),
                 ];
+                if ( $field_operator )
+                {
+                    $data[][ 'Оператор' ] = $ticket->author->getName();
+                }
+                if ( $field_management )
+                {
+                    $data[][ 'ЭО' ] = $ticketManagement->management->name;
+                }
             }
             \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
             {
@@ -465,20 +179,20 @@ class TicketsController extends BaseController
                     $sheet->fromArray( $data );
                 });
             })->export( 'xls' );
+            die;
         }
 
         $ticketManagements = $ticketManagements
             ->paginate( 30 )
-            ->appends( \Input::all() );
+            ->appends( $request->all() );
 
-        if ( !empty( \Input::get( 'address_id' ) ) )
-        {
-            $address = Address::find( \Input::get( 'address_id' ) );
-        }
-
-        return view( 'tickets.management.index' )
+        return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
+            ->with( 'field_operator', $field_operator )
+            ->with( 'field_management', $field_management )
             ->with( 'address', $address ?? null );
 
     }
@@ -501,6 +215,8 @@ class TicketsController extends BaseController
             $draft->save();
         }
 
+        return $draft;
+
     }
 
     /**
@@ -508,7 +224,7 @@ class TicketsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create ()
+    public function create ( Request $request )
     {
 
         Title::add( 'Добавить заявку' );
@@ -523,23 +239,7 @@ class TicketsController extends BaseController
             $types[ $r->category->name ][ $r->id ] = $r->name;
         }
 
-        $draft = Ticket
-            ::where( 'author_id', '=', \Auth::user()->id )
-            ->where( 'status_code', '=', 'draft' )
-            ->first();
-
-        if ( ! $draft )
-        {
-            $draft = new Ticket();
-            $draft->status_code = 'draft';
-            $draft->status_name = Ticket::$statuses[ 'draft' ];
-            $draft->author_id = \Auth::user()->id;
-            if ( \Input::get( 'phone' ) )
-            {
-                $draft->phone = \Input::get( 'phone' );
-            }
-            $draft->save();
-        }
+        $draft = $this->createDraft( $request );
 
         return view( 'tickets.create' )
             ->with( 'types', $types )
@@ -663,7 +363,8 @@ class TicketsController extends BaseController
 
 		\DB::commit();
 
-        return redirect()->route( 'tickets.show', $ticket->id )
+        return redirect()
+            ->route( 'tickets.show', $ticket->id )
             ->with( 'success', 'Заявка успешно добавлена' );
 
     }
@@ -674,92 +375,27 @@ class TicketsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show ( $id )
+    public function show ( Request $request, $id )
     {
 
         $status_transferred = null;
         $status_accepted = null;
         $status_completed = null;
 
-        if ( \Auth::user()->hasRole( 'control' ) )
+        $ticket = Ticket::mine()->find( $id );
+
+        if ( ! $ticket )
         {
-
-            $view = 'tickets.control.show';
-
-            $ticket = Ticket::find( $id );
-
-            if ( ! $ticket )
-            {
-                return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Заявка не найдена' ] );
-            }
-
-            if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
-            {
-                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
-
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
         }
-        else if ( \Auth::user()->hasRole( 'operator' ) )
+
+        if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
         {
-
-            $view = 'tickets.operator.show';
-
-            $ticket = Ticket::find( $id );
-
-            if ( ! $ticket )
-            {
-                return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Заявка не найдена' ] );
-            }
-			
-			if ( $ticket->status_code == 'draft' )
-			{
-				return redirect()->route( 'tickets.create' );
-			}
-
-            if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
-            {
-                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
-
-        }
-        else if ( \Auth::user()->hasRole( 'management' ) && \Auth::user()->managements->count() )
-        {
-
-            $view = 'tickets.management.show';
-
-            $ticketManagement = TicketManagement
-                ::where( 'ticket_id', '=', $id )
-                ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) )
-                ->mine()
-                ->first();
-
-            if ( ! $ticketManagement || ! $ticketManagement->ticket )
-            {
-                return redirect()->route( 'tickets.index' )
-                    ->withErrors( [ 'Заявка не найдена' ] );
-            }
-
-            $ticket = $ticketManagement->ticket;
-
-            if ( $ticketManagement->status_code != 'cancel' && $ticketManagement->status_code != 'no_contract' )
-            {
-                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
-
-        }
-        else
-        {
-            Title::add( 'Доступ запрещен' );
-            return view( 'blank' )
-                ->with( 'error', 'Доступ запрещен' );
+            $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+            $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+            $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
         }
 
         Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
@@ -783,7 +419,7 @@ class TicketsController extends BaseController
 
         }
 
-        return view( $view )
+        return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
@@ -793,6 +429,130 @@ class TicketsController extends BaseController
             ->with( 'dt_completed', $dt_completed ?? null )
             ->with( 'dt_now', $dt_now )
             ->with( 'execution_hours', $execution_hours ?? null );
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $ticket_id
+     * @param  int  $ticket_management_id
+     * @return \Illuminate\Http\Response
+     */
+    public function open ( Request $request, $ticket_id, $ticket_management_id = null )
+    {
+
+        $status_transferred = null;
+        $status_accepted = null;
+        $status_completed = null;
+
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
+
+        if ( ! $ticket )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        if ( $ticket_management_id )
+        {
+            $ticketManagement = $ticket
+                ->managements()
+                ->find( $ticket_management_id );
+            if ( ! $ticketManagement )
+            {
+                return redirect()
+                    ->route( 'tickets.index' )
+                    ->withErrors( [ 'Заявка не найдена' ] );
+            }
+            if ( ! in_array( $ticketManagement->status_code, Ticket::$without_time ) )
+            {
+                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
+            Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+        }
+        else
+        {
+            if ( ! in_array($ticket->status_code , Ticket::$without_time ) )
+            {
+                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
+            Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+        }
+
+        $dt_now = Carbon::now();
+
+        if ( $status_transferred )
+        {
+
+            $dt_acceptance_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 );
+            $dt_execution_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 );
+
+            $dt_transferred = $status_transferred->created_at ?? null;
+            $dt_accepted = $status_accepted->created_at ?? null;
+            $dt_completed = $status_completed->created_at ?? null;
+
+            if ( $dt_completed )
+            {
+                $execution_hours = number_format( $dt_completed->diffInMinutes( $dt_transferred ) / 60, 2, '.', '' );
+            }
+
+        }
+
+        return view( 'tickets.show' )
+            ->with( 'ticket', $ticket )
+            ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
+            ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
+            ->with( 'dt_transferred', $dt_transferred ?? null )
+            ->with( 'dt_accepted', $dt_accepted ?? null )
+            ->with( 'dt_completed', $dt_completed ?? null )
+            ->with( 'dt_now', $dt_now )
+            ->with( 'execution_hours', $execution_hours ?? null );
+
+    }
+
+    public function history ( Request $request, $ticket_id, $ticket_management_id )
+    {
+
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
+
+        if ( ! $ticket )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $ticketManagement = $ticket
+            ->managements()
+            ->find( $ticket_management_id );
+        if ( ! $ticketManagement )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        Title::add( 'История изменений заявки #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+
+        $statuses = $ticketManagement->statusesHistory->sortByDesc( 'id' );
+        $logs = $ticketManagement->logs->merge( $ticket->logs )->sortByDesc( 'id' );
+
+        return view( 'tickets.history' )
+            ->with( 'ticket', $ticket )
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'statuses', $statuses )
+            ->with( 'logs', $logs );
 
     }
 
@@ -823,7 +583,7 @@ class TicketsController extends BaseController
 					$types[ $r->category->name ][ $r->id ] = $r->name;
 				}
 			
-				return view( 'tickets.operator.edit.type' )
+				return view( 'tickets.edit.type' )
 					->with( 'ticket', $ticket )
 					->with( 'types', $types )
 					->with( 'param', $param );
@@ -832,7 +592,7 @@ class TicketsController extends BaseController
 				
 			case 'address':
 			
-				return view( 'tickets.operator.edit.address' )
+				return view( 'tickets.edit.address' )
 					->with( 'ticket', $ticket )
 					->with( 'param', $param );
 			
@@ -840,7 +600,7 @@ class TicketsController extends BaseController
 
             case 'actual_address':
 
-                return view( 'tickets.operator.edit.actual_address' )
+                return view( 'tickets.edit.actual_address' )
                     ->with( 'ticket', $ticket )
                     ->with( 'param', $param );
 
@@ -848,7 +608,7 @@ class TicketsController extends BaseController
 				
 			case 'mark':
 			
-				return view( 'tickets.operator.edit.mark' )
+				return view( 'tickets.edit.mark' )
 					->with( 'ticket', $ticket )
 					->with( 'param', $param );
 			
@@ -856,7 +616,7 @@ class TicketsController extends BaseController
 				
 			case 'text':
 			
-				return view( 'tickets.operator.edit.text' )
+				return view( 'tickets.edit.text' )
 					->with( 'ticket', $ticket )
 					->with( 'param', $param );
 			
@@ -864,7 +624,7 @@ class TicketsController extends BaseController
 				
 			case 'name':
 			
-				return view( 'tickets.operator.edit.name' )
+				return view( 'tickets.edit.name' )
 					->with( 'ticket', $ticket )
 					->with( 'param', $param );
 			
@@ -872,7 +632,7 @@ class TicketsController extends BaseController
 				
 			case 'phone':
 			
-				return view( 'tickets.operator.edit.phone' )
+				return view( 'tickets.edit.phone' )
 					->with( 'ticket', $ticket )
 					->with( 'param', $param );
 			
@@ -895,13 +655,15 @@ class TicketsController extends BaseController
         $ticket = Ticket::find( $id );
 		if ( ! $ticket )
 		{
-			return redirect()->route( 'tickets.index' )
+			return redirect()
+                ->route( 'tickets.index' )
 				->withErrors( [ 'Заявка не найдена' ] );
 		}
 		
 		$ticket->edit( $request->all() );
 		
-		return redirect()->route( 'tickets.show', $ticket->id )
+		return redirect()
+            ->route( 'tickets.show', $ticket->id )
             ->with( 'success', 'Заявка успешно отредактирована' );
 		
     }
@@ -917,18 +679,39 @@ class TicketsController extends BaseController
         //
     }
 
-    public function changeStatus ( Request $request, $id )
+    public function changeStatus ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $ticket = Ticket::find( $id );
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
 
-        if ( !$ticket )
+        if ( ! $ticket )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
-        $res = $ticket->changeStatus( $request->get( 'status_code' ) );
+        \DB::beginTransaction();
+
+        if ( $ticket_management_id )
+        {
+            $ticketManagement = $ticket
+                ->managements()
+                ->find( $ticket_management_id );
+            if ( ! $ticketManagement )
+            {
+                return redirect()
+                    ->route( 'tickets.index' )
+                    ->withErrors( [ 'Заявка не найдена' ] );
+            }
+            $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
+        }
+        else
+        {
+            $res = $ticket->changeStatus( $request->get( 'status_code' ) );
+        }
 
         if ( $res instanceof MessageBag )
         {
@@ -936,41 +719,37 @@ class TicketsController extends BaseController
                 ->withErrors( $res );
         }
 
-        return redirect()->back()->with( 'success', 'Статус изменен' );
-
-    }
-
-    public function changeManagementStatus ( Request $request, $id )
-    {
-
-        $ticketManagement = TicketManagement::find( $id );
-        if ( ! $ticketManagement )
+        if ( ! empty( $request->get( 'comment' ) ) )
         {
-            return redirect()->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
+            $res = $ticket->addComment( $request->get( 'comment' ) );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withErrors( $res );
+            }
         }
 
-        $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $res );
-        }
+        \DB::commit();
 
         return redirect()->back()->with( 'success', 'Статус изменен' );
 
     }
 
-    public function setExecutor ( Request $request, $id )
+    public function setExecutor ( Request $request )
     {
 
-        $ticketManagement = TicketManagement::find( $id );
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->find( $request->get( 'id' ) );
 
         if ( ! $ticketManagement )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
+
+        \DB::beginTransaction();
 
         $ticketManagement->executor = $request->get( 'executor' );
         $ticketManagement->save();
@@ -982,6 +761,16 @@ class TicketsController extends BaseController
             return redirect()->back()
                 ->withErrors( $res );
         }
+
+        $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $ticketManagement->executor . '"' );
+
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        \DB::commit();
 
         return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
 
@@ -1106,20 +895,6 @@ class TicketsController extends BaseController
         \DB::commit();
 
         return redirect()->back()->with( 'success', 'Готово' );
-
-    }
-
-    public function call ( Request $request )
-    {
-
-        Title::add( 'Обзвон' );
-
-        $tickets = Ticket
-            ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
-            ->paginate( 30 );
-
-        return view( 'tickets.operator.call' )
-            ->with( 'tickets', $tickets );
 
     }
 
@@ -1310,7 +1085,7 @@ class TicketsController extends BaseController
 
         $tickets = $tickets->paginate( 30 );
 
-        return view( 'tickets.operator.other' )
+        return view( 'tickets.other' )
             ->with( 'tickets', $tickets )
             ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
@@ -1478,7 +1253,7 @@ class TicketsController extends BaseController
 
         $tickets = $tickets->paginate( 30 );
 
-        return view( 'tickets.operator.other' )
+        return view( 'tickets.other' )
             ->with( 'tickets', $tickets )
             ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
@@ -1561,7 +1336,7 @@ class TicketsController extends BaseController
 
         $tickets = $tickets->paginate( 30 );
 
-        return view( 'tickets.operator.other' )
+        return view( 'tickets.other' )
             ->with( 'tickets', $tickets )
             ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
@@ -1655,7 +1430,7 @@ class TicketsController extends BaseController
                 });
         }
 
-        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'tickets.export' ) ) )
+        if ( \Input::get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) )
         {
             $tickets = $tickets->get();
             $data = [];
@@ -1713,7 +1488,7 @@ class TicketsController extends BaseController
 
         $tickets = $tickets->paginate( 30 );
 
-        return view( 'tickets.operator.customer_tickets' )
+        return view( 'tickets.customer_tickets' )
             ->with( 'tickets', $tickets )
             ->with( 'types', Type::all() )
             ->with( 'managements', Management::all() )
@@ -1722,10 +1497,29 @@ class TicketsController extends BaseController
 
     }
 
-    public function act ( $id )
+    public function act ( Request $request, $ticket_id, $ticket_management_id )
     {
 
-        $ticketManagement = TicketManagement::find( $id );
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
+        if ( ! $ticket )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $ticketManagement = $ticket
+            ->managements()
+            ->find( $ticket_management_id );
+
+        if ( ! $ticketManagement )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
 
         return view( 'tickets.act' )
             ->with( 'ticketManagement', $ticketManagement );
@@ -1739,7 +1533,7 @@ class TicketsController extends BaseController
 			::whereNotIn( 'id', $ticket->managements->pluck( 'management_id' ) )
 			->where( 'has_contract', '=', 1 )
 			->get();
-        return view( 'tickets.operator.edit.add_management' )
+        return view( 'tickets.edit.add_management' )
             ->with( 'ticket', $ticket )
 			->with( 'managements', $managements );
     }
@@ -1749,20 +1543,23 @@ class TicketsController extends BaseController
         $ticket = Ticket::find( $request->get( 'id' ) );
 		if ( ! $ticket )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 		$management_id = $request->get( 'management_id' );
 		if ( ! $management_id )
 		{
-			return redirect()->route( 'tickets.show', $ticket->id )
+			return redirect()
+                ->route( 'tickets.show', $ticket->id )
                 ->withErrors( [ 'ЭО не выбрана' ] );
 		}
         $ticketManagement = TicketManagement::create([
 			'ticket_id'         => $ticket->id,
 			'management_id'     => $request->get( 'management_id' ),
 		]);
-		return redirect()->route( 'tickets.show', $ticket->id )
+		return redirect()
+            ->route( 'tickets.show', $ticket->id )
             ->with( 'success', 'ЭО успешно добавлена' );
     }
 	
@@ -1774,54 +1571,56 @@ class TicketsController extends BaseController
 
     public function getRateForm ( Request $request )
     {
-        $ticket = Ticket::find( $request->get( 'id' ) );
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        if ( ! $ticketManagement )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Заявка не найдена' );
+        }
+        if ( $ticketManagement->rate )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'По данной заявке уже имеется оценка' );
+        }
         return view( 'parts.rate_form' )
-            ->with( 'ticket', $ticket );
+            ->with( 'ticketManagement', $ticketManagement );
     }
 
     public function postRateForm ( Request $request )
     {
-
-        $ticket = Ticket::find( $request->get( 'id' ) );
-
-        if ( !$ticket )
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        if ( ! $ticketManagement )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
-
         \DB::beginTransaction();
-
-        $ticket->rate = $request->get( 'rate' );
-        $ticket->rate_comment = $request->get( 'comment', null );
-
-        if ( $ticket->status_code != 'closed_with_confirm' )
+        $ticketManagement->rate = $request->get( 'rate' );
+        $ticketManagement->rate_comment = $request->get( 'comment', null );
+        if ( $ticketManagement->status_code != 'closed_with_confirm' )
         {
-            $res = $ticket->changeStatus( 'closed_with_confirm', true );
+            $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
             if ( $res instanceof MessageBag )
             {
                 return redirect()->back()->withErrors( $res );
             }
         }
-
-        $ticket->save();
-
-        /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
-
-        if ( $group->count() )
+        $ticketManagement->save();
+        if ( $ticketManagement->rate_comment )
         {
-            foreach ( $group as $row )
-            {
-                $row->rate = $ticket->rate;
-                $row->rate_comment = $ticket->rate_comment;
-                $row->save();
-            }
-        }*/
-
+            $res = $ticketManagement->addLog( 'Поставлена оценка "' . $ticketManagement->rate . '" с комментарием "' . $ticketManagement->rate_comment . '"' );
+        }
+        else
+        {
+            $res = $ticketManagement->addLog( 'Поставлена оценка "' . $ticketManagement->rate . '"' );
+        }
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
         \DB::commit();
-
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
-
     }
 
     public function postClose ( Request $request )
@@ -1831,7 +1630,8 @@ class TicketsController extends BaseController
 
         if ( ! $ticket )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
@@ -1859,7 +1659,8 @@ class TicketsController extends BaseController
 
         if ( !$ticket )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
@@ -1914,16 +1715,19 @@ class TicketsController extends BaseController
         $ticket = Ticket::find( $id );
         if ( ! $ticket )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
         if ( $ticket->status_code != 'draft' )
         {
-            return redirect()->route( 'tickets.index' )
+            return redirect()
+                ->route( 'tickets.index' )
                 ->withErrors( [ 'Невозможно отменить добавленную заявку' ] );
         }
         $ticket->delete();
-        return redirect()->route( 'tickets.index' );
+        return redirect()
+            ->route( 'tickets.index' );
     }
 
     public function search ( Request $request )
@@ -1940,7 +1744,7 @@ class TicketsController extends BaseController
 
         if ( $tickets->count() )
         {
-            return view( 'tickets.operator.select' )
+            return view( 'tickets.select' )
                 ->with( 'tickets', $tickets )
                 ->with( 'customer', $customer );
         }

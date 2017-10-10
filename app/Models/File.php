@@ -9,6 +9,8 @@ class File extends BaseModel
 
     protected $table = 'files';
 
+    public static $name = 'Файл';
+
     protected $fillable = [
         'model_id',
         'model_name',

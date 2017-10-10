@@ -7,6 +7,8 @@ class TicketStatus extends BaseModel
 
     protected $table = 'tickets_statuses';
 
+    public static $name = 'Статус заявки';
+
     protected $fillable = [
         'ticket_id',
         'status_code',

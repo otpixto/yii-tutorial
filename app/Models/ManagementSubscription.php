@@ -7,6 +7,8 @@ class ManagementSubscription extends BaseModel
 
     protected $table = 'managements_subscriptions';
 
+    public static $name = 'Подписка на оповещения';
+
     public static $rules = [
         'management_id'         => 'required|integer',
         'telegram_id'           => 'required|integer',

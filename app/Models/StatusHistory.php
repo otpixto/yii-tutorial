@@ -7,6 +7,8 @@ class StatusHistory extends BaseModel
 
     protected $table = 'statuses_history';
 
+    public static $name = 'История статусов';
+
     protected $fillable = [
         'author_id',
         'model_id',

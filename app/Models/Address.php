@@ -7,6 +7,8 @@ class Address extends BaseModel
 
     protected $table = 'addresses';
 
+    public static $name = 'Адрес';
+
     public static $rules = [
         'name'              => 'required|string|max:255',
     ];

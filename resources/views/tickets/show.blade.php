@@ -13,27 +13,43 @@
     <div class="row">
         <div class="col-lg-6">
 
-            @if ( $ticket->status_code == 'closed_with_confirm' )
+            @if ( $ticketManagement && \Auth::user()->can( 'tickets.rate' ) && $ticketManagement->status_code == 'closed_with_confirm' )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
-                        @include( 'parts.rate_form' )
+                        @include( 'parts.rate_form', [ 'ticketManagement' => $ticketManagement ] )
                     </div>
                 </div>
             @endif
 
-            @if ( $ticket->getAvailableStatuses() )
+            @if ( $ticket->getAvailableStatuses() || ( $ticketManagement && $ticketManagement->getAvailableStatuses() ) )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
                         <div class="note note-info">
                             <dl>
                                 <dt>Сменить статус:</dt>
                                 <dd>
-                                    @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'data-id' => $ticket->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
-                                        {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
-                                        {!! Form::close() !!}
-                                    @endforeach
+                                    @if ( $ticket->getAvailableStatuses() )
+                                        @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
+                                            {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'data-id' => $ticket->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
+                                            {!! Form::hidden( 'model_name', get_class( $ticket ) ) !!}
+                                            {!! Form::hidden( 'model_id', $ticket->id ) !!}
+                                            {!! Form::hidden( 'status_code', $status_code ) !!}
+                                            {!! Form::hidden( 'comment', '' ) !!}
+                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
+                                            {!! Form::close() !!}
+                                        @endforeach
+                                    @endif
+                                    @if ( $ticketManagement && $ticketManagement->getAvailableStatuses() )
+                                        @foreach( $ticketManagement->getAvailableStatuses() as $status_code => $status_name )
+                                            {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement->getTicketNumber() ), 'data-status' => $status_code, 'data-id' => $ticketManagement->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
+                                            {!! Form::hidden( 'model_name', get_class( $ticketManagement ) ) !!}
+                                            {!! Form::hidden( 'model_id', $ticketManagement->id ) !!}
+                                            {!! Form::hidden( 'status_code', $status_code ) !!}
+                                            {!! Form::hidden( 'comment', '' ) !!}
+                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
+                                            {!! Form::close() !!}
+                                        @endforeach
+                                    @endif
                                 </dd>
                             </dl>
                         </div>
@@ -43,10 +59,22 @@
 
             <div class="row">
                 <div class="col-xs-6">
-                    <div class="note note-{{ $ticket->getClass() }}">
+                    <div class="note note-{{ ( $ticketManagement ?? $ticket )->getClass() }}">
                         <dl>
                             <dt>Статус:</dt>
-                            <dd>{{ $ticket->status_name }}</dd>
+                            <dd>
+                                @if ( $ticketManagement )
+                                    @if ( \Auth::user()->can( 'tickets.history' ) )
+                                        <a href="{{ route( 'tickets.history', $ticketManagement->getTicketNumber() ) }}">
+                                            {{ $ticketManagement->status_name }}
+                                        </a>
+                                    @else
+                                        {{ $ticketManagement->status_name }}
+                                    @endif
+                                @else
+                                    {{ $ticket->status_name }}
+                                @endif
+                            </dd>
                         </dl>
                     </div>
                 </div>
@@ -327,15 +355,15 @@
                 </div>
             @endif
 
-            @if ( $ticket->rate )
+            @if ( $ticketManagement && $ticketManagement->rate )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
                             <b>Оценка работы ЭО: </b>
-                            @include( 'parts.rate', [ 'ticket' => $ticket ] )
-                            @if ( $ticket->rate_comment )
+                            @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
+                            @if ( $ticketManagement->rate_comment )
                                 <p>
-                                    {{ $ticket->rate_comment }}
+                                    {{ $ticketManagement->rate_comment }}
                                 </p>
                             @endif
                         </div>
@@ -402,123 +430,201 @@
                 </div>
             @endif
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-						@if ( $ticket->canEdit() )
-							<button type="button" class="btn pull-right btn-primary margin-right-10 hidden-print" data-action="add-management">
-								<i class="fa fa-plus"></i>
-							</button>
-						@endif
-						<h4>
-							Эксплуатационные организации
-						</h4>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>
+            @if ( $ticketManagement )
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="note">
+                            @if ( $ticket->canEdit() )
+                                <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="actual_address">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            @endif
+                            <dl>
+                                <dt>
+                                    @if ( $ticket->managements()->mine()->count() > 1 )
+                                        <a href="{{ route( 'tickets.show', $ticket->id ) }}">
+                                            Эксплуатационная организация:
+                                        </a>
+                                    @else
+                                        Эксплуатационная организация:
+                                    @endif
+                                </dt>
+                                <dd>
+                                    {{ $ticketManagement->management->name ?: '-' }}
+                                </dd>
+                                <dd>
+                                    {{ $ticketManagement->management->phone }}
+                                </dd>
+                                <dd class="small">
+                                    {{ $ticketManagement->management->address }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                    @if ( $ticketManagement->executor )
+                        <div class="col-lg-6">
+                            <div class="note note-info">
+                                <dl>
+                                    <dt>Исполнитель:</dt>
+                                    <dd>
+                                        {{ $ticketManagement->executor }}
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                @if ( $ticketManagement->canPrintAct() )
+                    <div class="row hidden-print">
+                        <div class="col-xs-12">
+                            <div class="note">
+                                @if ( $ticketManagement->canPrintAct() )
+                                    <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                        <i class="glyphicon glyphicon-print"></i>
+                                        Распечатать бланк Акта
+                                    </a>
+                                @endif
+                                @if ( $ticketManagement->canUploadAct() )
+                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-title="Прикрепить оформленный акт" data-status="completed_with_act">
+                                        <i class="glyphicon glyphicon-upload"></i>
+                                        Прикрепить оформленный Акт
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @if ( $ticketManagement->files->count() )
+                    <div class="note note-default">
+                        @foreach ( $ticketManagement->files as $file )
+                            <div>
+                                <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                    <i class="fa fa-file"></i>
+                                    {{ $file->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+            @else
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            @if ( \Auth::user()->can( 'tickets.managements' ) )
+                                <div class="bold">
+                                    Эксплуатационные организации
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-5 bold small">
                                         Наименование \ Телефон \ Адрес
-                                    </th>
-									@if ( $ticket->canEdit() )
-										<th>
-											&nbsp;
-										</th>
-									@else
-										<th>
-											Исполнитель
-										</th>
-										<th>
-											Статус
-										</th>
-									@endif
-                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ( $ticket->managements as $ticketManagement )
-                                <tr>
-                                    <td>
-                                        <dl>
-                                            @if ( ! $ticketManagement->management->has_contract )
-                                                <div class="label label-danger pull-right">
-                                                    Отсутствует договор
-                                                </div>
-                                            @endif
-                                            <dt>
-                                                {{ $ticketManagement->management->name }}
-                                            </dt>
-                                            <dd>
-                                                {{ $ticketManagement->management->phone }}
-                                            </dd>
-                                            <dd class="small">
-                                                {{ $ticketManagement->management->address }}
-                                            </dd>
-                                        </dl>
-                                        @if ( $ticketManagement->management->has_contract && $ticketManagement->status_code )
-                                            <p class="margin-top-10 hidden-print">
-                                                <a href="{{ route( 'tickets.act', $ticketManagement->id ) }}" class="btn btn-sm btn-info" target="_blank">
-                                                    <i class="glyphicon glyphicon-print"></i>
-                                                    Распечатать бланк Акта
-                                                </a>
+                                    </div>
+                                    @if ( ! $ticket->canEdit() )
+                                        <div class="col-xs-4 bold small">
+                                            Исполнитель
+                                        </div>
+                                        <div class="col-xs-3 bold small text-right">
+                                            Статус
+                                        </div>
+                                    @endif
+                                </div>
+                                @foreach ( $ticket->managements()->mine()->get() as $ticketManagement )
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-xs-5">
+                                            <dl>
+                                                @if ( ! $ticketManagement->management->has_contract )
+                                                    <div class="label label-danger pull-right">
+                                                        Отсутствует договор
+                                                    </div>
+                                                @endif
+                                                <dt>
+                                                    <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
+                                                        {{ $ticketManagement->management->name }}
+                                                    </a>
+                                                </dt>
+                                                <dd class="small">
+                                                    {{ $ticketManagement->management->getPhones() }}
+                                                </dd>
+                                                <dd class="small">
+                                                    {{ $ticketManagement->management->address }}
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                        @if ( $ticket->canEdit() )
+                                            <div class="col-xs-7">
+                                                <button type="button" class="btn btn-xs btn-danger margin-right-10 hidden-print" data-delete-management="{{ $ticketManagement->id }}">
+                                                    <i class="fa fa-remove"></i>
+                                                </button>
+                                            </div>
+                                        @else
+                                            <div class="col-xs-4">
+                                                {{ $ticketManagement->executor ?? '-' }}
+                                            </div>
+                                            <div class="col-xs-3 text-right">
+                                                <span class="badge badge-{{ $ticketManagement->getClass() }} bold">
+                                                    {{ $ticketManagement->status_name }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @if ( $ticketManagement->canPrintAct() )
+                                        <div class="row margin-top-10 hidden-print">
+                                            <div class="col-xs-12">
+                                                @if ( $ticketManagement->canPrintAct() )
+                                                    <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                                        <i class="glyphicon glyphicon-print"></i>
+                                                        Распечатать бланк Акта
+                                                    </a>
+                                                @endif
                                                 @if ( $ticketManagement->canUploadAct() )
-                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}">
+                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
                                                         <i class="glyphicon glyphicon-upload"></i>
                                                         Прикрепить оформленный Акт
                                                     </button>
                                                 @endif
-                                            </p>
-                                        @endif
-                                        @if ( $ticketManagement->files->count() )
-                                            <div class="note note-default">
-                                                @foreach ( $ticketManagement->files as $file )
-                                                    <div>
-                                                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
-                                                            <i class="fa fa-file"></i>
-                                                            {{ $file->name }}
-                                                        </a>
-                                                    </div>
-                                                @endforeach
                                             </div>
-                                        @endif
-                                    </td>
-									@if ( $ticket->canEdit() )
-										<td class="text-right" style="padding-right: 0px !important;">
-											<button type="button" class="btn btn-xs btn-danger margin-right-10 hidden-print" data-delete-management="{{ $ticketManagement->id }}">
-												<i class="fa fa-remove"></i>
-											</button>
-										</td>
-									@else
-										<td>
-											{{ $ticketManagement->executor ?? '-' }}
-										</td>
-										<td>
-											<span class="text-{{ $ticketManagement->getClass() }}">
-												{{ $ticketManagement->status_name }}
-											</span>
-										</td>
-									@endif
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                                        </div>
+                                    @endif
+                                    @if ( $ticketManagement->files->count() )
+                                        <div class="note note-default">
+                                            @foreach ( $ticketManagement->files as $file )
+                                                <div>
+                                                    <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                                        <i class="fa fa-file"></i>
+                                                        {{ $file->name }}
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            @if ( $ticket->comments->count() )
+            @endif
+
+            @if ( $ticketManagement && \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->count() )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
                             <h4>Комментарии</h4>
-                            @include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $ticket->comments ] )
+                            @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments ] )
                         </div>
                     </div>
                 </div>
             @endif
 
-            @if ( $ticket->canComment() )
+            @if ( $ticketManagement->canComment() )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
-                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
                             Добавить комментарий
                         </button>
@@ -603,17 +709,17 @@
 					Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
 				});
 			})
-			
-			.on( 'click', '[data-action="add-management"]', function ( e )
-			{
-				e.preventDefault();
-				$.get( '{{ route( 'tickets.add_management', $ticket ) }}', 
-				function ( response )
-				{
-					Modal.createSimple( 'Добавить Эксплуатационную организацию', response, 'add-management' );
-				});
-			})
-			
+
+			{{--.on( 'click', '[data-action="add-management"]', function ( e )--}}
+			{{--{--}}
+				{{--e.preventDefault();--}}
+				{{--$.get( '{{ route( 'tickets.add_management', $ticket ) }}', --}}
+				{{--function ( response )--}}
+				{{--{--}}
+					{{--Modal.createSimple( 'Добавить Эксплуатационную организацию', response, 'add-management' );--}}
+				{{--});--}}
+			{{--})--}}
+
 			.on( 'click', '[data-delete-management]', function ( e )
 			{
 				e.preventDefault();
@@ -651,6 +757,50 @@
 				
 			})
 
+            .on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.prompt({
+                    title: 'Введите ФИО и должность назначенного исполнителя',
+                    inputType: 'textarea',
+                    callback: function ( result )
+                    {
+                        if ( ! result )
+                        {
+                            alert( 'Действие отменено!' );
+                        }
+                        else
+                        {
+                            $.post( '{{ route( 'tickets.executor' ) }}', {
+                                id: id,
+                                executor: result
+                            }, function ( response )
+                            {
+                                bootbox.alert({
+                                    message: 'Исполнитель успешно назначен',
+                                    size: 'small',
+                                    callback: function ()
+                                    {
+                                        window.location.reload();
+                                    }
+                                })
+                            });
+                        }
+                    }
+                });
+
+            })
+
             .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
             {
 
@@ -677,6 +827,70 @@
                     {
                         dialog.find( '.bootbox-body' ).html( response );
                     });
+                });
+
+            })
+
+            .on( 'confirmed', '[data-status="rejected"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                var form = $( pe.target );
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.prompt({
+                    title: 'Укажите причину отклонения заявки',
+                    inputType: 'textarea',
+                    callback: function ( result )
+                    {
+                        if ( ! result )
+                        {
+                            alert( 'Действие отменено!' );
+                        }
+                        else
+                        {
+                            form
+                                .removeAttr( 'data-confirm' )
+                                .find( '[name="comment"]' ).val( result );
+                            form.submit();
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'confirmed', '[data-status="completed_with_act"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var form = $( pe.target );
+
+                var model_name = form.find( '[name="model_name"]' ).val();
+                var model_id = form.find( '[name="model_id"]' ).val();
+                var status = form.find( '[name="status_code"]' ).val();
+
+                $.get( '/file', {
+                    model_name: model_name,
+                    model_id: model_id,
+                    status: status
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Прикрепить оформленный Акт', response, 'file' );
                 });
 
             });

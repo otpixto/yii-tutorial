@@ -12,9 +12,13 @@ class Ticket extends BaseModel
 
     protected $table = 'tickets';
 
+    public static $name = 'Заявка';
+
     private $can_edit = null;
     private $can_comment = null;
     private $can_group = null;
+
+    private $availableStatuses = null;
 
     public static $places = [
         1 => 'Помещение',
@@ -38,6 +42,7 @@ class Ticket extends BaseModel
         'not_verified'                      => 'Проблема не потверждена',
         'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отмена',
+        'rejected'                          => 'Отклонено',
         'no_contract'                       => 'Отказ (нет договора с ЭО)',
     ];
 
@@ -53,6 +58,15 @@ class Ticket extends BaseModel
     public static $final_statuses = [
         'closed_with_confirm',
         'closed_without_confirm',
+        'cancel',
+        'no_contract',
+        'rejected',
+    ];
+
+    public static $without_time = [
+        'cancel',
+        'no_contract',
+        'refected',
     ];
 
     public static $workflow = [
@@ -74,18 +88,7 @@ class Ticket extends BaseModel
         'accepted' => [
             'cancel',
         ],
-        'completed_with_act' => [
-            'closed_with_confirm',
-            'closed_without_confirm',
-            'transferred_again',
-        ],
-        'completed_without_act' => [
-            'closed_with_confirm',
-            'closed_without_confirm',
-            'transferred_again',
-        ],
 		'not_verified' => [
-			'transferred_again',
 			'cancel',
 		],
     ];
@@ -116,7 +119,7 @@ class Ticket extends BaseModel
         'lastname'                  => 'nullable',
         'customer_id'               => 'nullable|integer',
         'text'                      => 'required',
-        'managements'               => 'nullable|array',
+        'managements'               => 'required|array',
     ];
 
     protected $fillable = [
@@ -141,16 +144,6 @@ class Ticket extends BaseModel
     public function managements ()
     {
         return $this->hasMany( 'App\Models\TicketManagement' );
-    }
-
-    public function allowedManagements ()
-    {
-        $q = $this->hasMany( 'App\Models\TicketManagement' );
-        if ( Auth::user()->management_id && ! Auth::user()->can( 'tickets.managements_all' ) )
-        {
-            $q->where( 'management_id', '=', Auth::user()->management_id );
-        }
-        return $q;
     }
 
     public function address ()
@@ -201,13 +194,18 @@ class Ticket extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function scopeNotFinaleStatuses ( $query )
+    {
+        return $query
+            ->whereNotIn( 'status_code', self::$final_statuses );
+    }
+
     public function scopeMine ( $query )
     {
-        $user = Auth::user();
         return $query
-            ->where( function ( $q ) use ( $user )
+            ->where( function ( $q )
             {
-                if ( $user->can( 'tickets.all' ) )
+                if ( \Auth::user()->can( 'tickets.all' ) )
                 {
                     $q
                         ->where( function ( $q2 )
@@ -216,23 +214,25 @@ class Ticket extends BaseModel
                                 ->where( 'author_id', '=', \Auth::user()->id )
                                 ->orWhere( 'status_code', '!=', 'draft' );
                         });
-                    return;
                 }
-                $q
-                    ->whereIn( 'status_code', $user->getAvailableStatuses() );
-                if ( $user->can( 'tickets.executor' ) && $user->managements->count() )
+                else if ( \Auth::user()->can( 'tickets.show' ) )
                 {
                     $q
-                        ->whereHas( 'allowedManagements', function ( $q2 ) use ( $user )
+                        ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() )
+                        ->where( function ( $q2 )
                         {
                             return $q2
-                                ->whereIn( 'management_id', $user->managements->pluck( 'id' ) );
+                                ->whereHas( 'managements', function ( $q3 )
+                                {
+                                    return $q3
+                                        ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+                                })
+                                ->orWhere( 'author_id', '=', \Auth::user()->id );
                         });
                 }
                 else
                 {
-                    $q
-                        ->where( 'author_id', '=', \Auth::user()->id );
+                    $q->whereNull( 'id' );
                 }
                 return $q;
             });
@@ -413,21 +413,27 @@ class Ticket extends BaseModel
         }
         return $phones;
     }
-	
-	public function getAvailableStatuses ()
-	{
-	    $user_statuses = Auth::user()->getAvailableStatuses();
-		$workflow = self::$workflow[ $this->status_code ] ?? [];
-		$statuses = [];
-		foreach ( $workflow as $status_code )
-		{
-		    if ( in_array( $status_code, $user_statuses ) )
+
+    public function getAvailableStatuses ()
+    {
+        if ( is_null( $this->availableStatuses ) )
+        {
+            $user_statuses = \Auth::user()->getAvailableStatuses();
+            $this->availableStatuses = [];
+            if ( \Auth::user()->can( 'tickets.status' ) )
             {
-                $statuses[ $status_code ] = self::$statuses[ $status_code ];
+                $workflow = self::$workflow[ $this->status_code ] ?? [];
+                foreach ( $workflow as $status_code )
+                {
+                    if ( in_array( $status_code, $user_statuses ) )
+                    {
+                        $this->availableStatuses[ $status_code ] = self::$statuses[ $status_code ];
+                    }
+                }
             }
-		}
-		return $statuses;
-	}
+        }
+        return $this->availableStatuses;
+    }
 
     public function getAddress ( $with_place = false )
     {
@@ -589,7 +595,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_edit ) )
         {
-            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
+            if ( ( \Auth::user()->admin || \Auth::user()->can( 'tickets.edit' ) ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
             {
                 $this->can_edit = true;
             }
@@ -605,7 +611,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' && $this->status_code != 'draft' )
+            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' && $this->status_code != 'draft' )
             {
                 $this->can_comment = true;
             }
@@ -708,19 +714,6 @@ class Ticket extends BaseModel
         switch ( $this->status_code )
         {
 
-            case 'no_contract':
-
-                $res = $this->changeManagementsStatus([
-                    'draft',
-                    'created'
-                ]);
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-
-                break;
-
             case 'cancel':
 
                 $res = $this->changeManagementsStatus();
@@ -746,38 +739,6 @@ class Ticket extends BaseModel
                 {
                     return $res;
                 }
-
-                break;
-				
-			case 'closed_with_confirm':
-			case 'closed_without_confirm':
-			
-				$res = $this->changeManagementsStatus([
-					'completed_with_act',
-					'completed_without_act'
-				]);
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-
-                break;
-
-            case 'transferred_again':
-
-                $this->rate = null;
-                $this->rate_comment = null;
-
-                $res = $this->changeManagementsStatus([
-					'completed_with_act',
-					'completed_without_act'
-				]);
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-
-                $this->save();
 
                 break;
 

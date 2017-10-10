@@ -7,6 +7,8 @@ class Status extends BaseModel
 
     protected $table = 'statuses';
 
+    public static $name = 'Статус';
+
     protected $fillable = [
         'model_name',
         'status_code',

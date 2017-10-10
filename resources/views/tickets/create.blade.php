@@ -187,7 +187,7 @@
             </button>
             @if ( $draft )
                 <div class="text-right margin-top-10">
-                    <a href="{{ route( 'tickets.cancel', $draft->id ) }}" class="btn btn-danger">
+                    <a href="{{ route( 'tickets.cancel', $draft->id ) }}" class="btn btn-danger" data-confirm="Вы уверены, что хотите отменить заявку?">
                         <i class="fa fa-remove"></i>
                         Отменить
                     </a>
