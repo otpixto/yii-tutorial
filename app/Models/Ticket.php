@@ -752,7 +752,7 @@ class Ticket extends BaseModel
                     unset( $apply_statuses[ $status_code ] );
                 }
 
-                $res = $this->changeManagementsStatus( $apply_statuses );
+                $res = $this->changeManagementsStatus( array_keys( $apply_statuses ) );
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
