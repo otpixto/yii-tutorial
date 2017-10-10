@@ -659,29 +659,50 @@
 
                 var rate = $( this ).attr( 'data-rate' );
                 var form = $( '#rate-form' );
+				
+				bootbox.confirm({
+					message: 'Вы уверены, что хотите поставить оценку ' + rate + '?',
+					size: 'small',
+					buttons: {
+						confirm: {
+							label: '<i class="fa fa-check"></i> Да',
+							className: 'btn-success'
+						},
+						cancel: {
+							label: '<i class="fa fa-times"></i> Нет',
+							className: 'btn-danger'
+						}
+					},
+					callback: function ( res )
+					{
+						
+						if ( ! res ) return;
 
-                form.find( '[name="rate"]' ).val( rate );
+						form.find( '[name="rate"]' ).val( rate );
 
-                if ( rate < 4 )
-                {
-                    bootbox.prompt({
-                        title: 'Введите комментарий к оценке',
-                        inputType: 'textarea',
-                        callback: function (result) {
-                            if ( !result ) {
-                                alert('Действие отменено!');
-                            }
-                            else {
-                                form.find('[name="comment"]').val(result);
-                                form.submit();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    form.submit();
-                }
+						if ( rate < 4 )
+						{
+							bootbox.prompt({
+								title: 'Введите комментарий к оценке',
+								inputType: 'textarea',
+								callback: function (result) {
+									if ( !result ) {
+										alert('Действие отменено!');
+									}
+									else {
+										form.find('[name="comment"]').val(result);
+										form.submit();
+									}
+								}
+							});
+						}
+						else
+						{
+							form.submit();
+						}
+						
+					}
+				});
 
             })
 			
