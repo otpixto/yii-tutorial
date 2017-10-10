@@ -742,6 +742,24 @@ class Ticket extends BaseModel
 
                 break;
 
+            case 'closed_with_confirm':
+            case 'closed_without_confirm':
+
+                $apply_statuses = self::$statuses;
+                unset( $apply_statuses[ 'draft' ] );
+                foreach ( self::$final_statuses as $status_code )
+                {
+                    unset( $apply_statuses[ $status_code ] );
+                }
+
+                $res = $this->changeManagementsStatus( $apply_statuses );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                break;
+
         }
 
     }
