@@ -34,7 +34,6 @@ class TicketsController extends BaseController
 
         $ticketManagements = TicketManagement
             ::mine()
-            ->orderBy( 'id', 'desc' )
             ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number )
             {
 
@@ -123,23 +122,27 @@ class TicketsController extends BaseController
                 ->where( 'management_id', '=', $request->get( 'management_id' ) );
         }
 
-        if ( ! empty( $request->get( 'show' ) ) )
+        switch ( $request->get( 'show' ) )
         {
-            switch ( $request->get( 'show' ) )
-            {
-                case 'call':
-                    $ticketManagements
-                        ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] );
-                    break;
-                case 'not_processed':
-                    $ticketManagements
-                        ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] );
-                    break;
-                case 'not_completed':
-                    $ticketManagements
-                        ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] );
-                    break;
-            }
+            case 'call':
+                $ticketManagements
+                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                    ->orderBy( 'id', 'asc' );
+                break;
+            case 'not_processed':
+                $ticketManagements
+                    ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
+                    ->orderBy( 'id', 'desc' );
+                break;
+            case 'not_completed':
+                $ticketManagements
+                    ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                    ->orderBy( 'id', 'desc' );
+                break;
+            default:
+                $ticketManagements
+                    ->orderBy( 'id', 'desc' );
+                break;
         }
 
         if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) )
