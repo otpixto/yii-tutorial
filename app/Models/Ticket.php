@@ -197,13 +197,13 @@ class Ticket extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
-    /*public function call ()
+    public function call ()
     {
         if ( is_null( $this->_call ) )
         {
             if ( ! $this->call_at ) return null;
-            $dt_from = Carbon::parse( $this->call_at )->subMinutes( 3 );
-            $dt_to = Carbon::parse( $this->call_at )->addMinutes( 3 );
+            $dt_from = Carbon::parse( $this->call_at )->subMinutes( 1 );
+            $dt_to = Carbon::parse( $this->call_at )->addMinutes( 1 );
             $this->_call = Cdr
                 ::where( function ( $q )
                 {
@@ -226,7 +226,7 @@ class Ticket extends BaseModel
                 ->first();
         }
         return $this->_call;
-    }*/
+    }
 
     public function scopeNotFinaleStatuses ( $query )
     {

@@ -371,6 +371,19 @@
                 </div>
             @endif
 
+            @if ( \Auth::user()->can( 'calls' ) && $ticket->call() && $ticket->call()->hasMp3() )
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="note">
+                            <a href="{{ $ticket->call()->getMp3() }}" target="_blank">
+                                <i class="fa fa-phone"></i>
+                                Запись разговора
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
         <div class="col-lg-6">
 

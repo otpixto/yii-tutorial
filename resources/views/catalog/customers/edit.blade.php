@@ -165,7 +165,7 @@
                         <th>
                             Добавочный
                         </th>
-                        @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                        @if ( \Auth::user()->can( 'calls' ) )
                             <th>
                                 Запись
                             </th>
@@ -188,7 +188,7 @@
                             <td>
                                 {{ $call->queueLog->ext_number() }}
                             </td>
-                            @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                            @if ( \Auth::user()->can( 'calls' ) )
                                 <td>
                                     @if ( $call->hasMp3() )
                                         <a href="{{ $call->getMp3() }}" target="_blank">
