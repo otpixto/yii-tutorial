@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PhoneSession;
 use App\Models\Ticket;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RestController extends Controller
@@ -25,12 +26,14 @@ class RestController extends Controller
         //
     }
 
-    public function createDraft ( Request $request )
+    public function createOrUpdateCallDraft ( Request $request )
     {
+
         if ( ! $this->auth( $request ) )
         {
             return $this->error( 100 );
         }
+
         $session = PhoneSession
             ::where( 'ext_number', '=', $request->get( 'ext_number' ) )
             ->first();
@@ -42,21 +45,31 @@ class RestController extends Controller
         {
             return $this->error( 102 );
         }
+
         $draft = Ticket
-            ::where( 'author_id', '=', $session->user->id )
+            ::where( 'author_id', '=', \Auth::user()->id )
             ->where( 'status_code', '=', 'draft' )
             ->first();
-        if ( $draft )
+
+        if ( ! $draft )
         {
-            return $this->error( 103 );
+            $draft = new Ticket();
+            $draft->status_code = 'draft';
+            $draft->status_name = Ticket::$statuses[ 'draft' ];
+            $draft->author_id = $session->user->id;
+            $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+            $draft->call_at = Carbon::now()->toDateTimeString();
         }
-        $draft = new Ticket();
-        $draft->status_code = 'draft';
-        $draft->status_name = Ticket::$statuses[ 'draft' ];
-        $draft->author_id = $session->user->id;
-        $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+        else
+        {
+            $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+            $draft->call_at = Carbon::now()->toDateTimeString();
+        }
+
         $draft->save();
+
         return $this->success( '' );
+
     }
 
     private function error ( $code )

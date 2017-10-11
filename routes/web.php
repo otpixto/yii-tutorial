@@ -3,7 +3,7 @@
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
 Route::get( '/fix/{ext_number}', 'ProfileController@getFix' )->name( 'fix' );
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
-Route::post( '/rest/create-draft', 'RestController@createDraft' );
+Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
 
 Route::group( [ 'middleware' => 'auth' ], function ()
 {
@@ -27,7 +27,6 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
     Route::post( '/tickets/close', 'Operator\TicketsController@postClose' )->name( 'tickets.close' );
     Route::post( '/tickets/repeat', 'Operator\TicketsController@postRepeat' )->name( 'tickets.repeat' );
-    Route::post( '/tickets/create-draft', 'Operator\TicketsController@createDraft' )->name( 'tickets.create_draft' );
 
     Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
     Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );

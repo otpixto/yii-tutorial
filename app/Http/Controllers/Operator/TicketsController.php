@@ -197,7 +197,7 @@ class TicketsController extends BaseController
 
     }
 
-    public function createDraft ( Request $request )
+    public function createDraftIfNotExists ()
     {
 
         $draft = Ticket
@@ -211,7 +211,6 @@ class TicketsController extends BaseController
             $draft->status_code = 'draft';
             $draft->status_name = Ticket::$statuses[ 'draft' ];
             $draft->author_id = \Auth::user()->id;
-            $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
             $draft->save();
         }
 
@@ -239,7 +238,7 @@ class TicketsController extends BaseController
             $types[ $r->category->name ][ $r->id ] = $r->name;
         }
 
-        $draft = $this->createDraft( $request );
+        $draft = $this->createDraftIfNotExists();
 
         return view( 'tickets.create' )
             ->with( 'types', $types )

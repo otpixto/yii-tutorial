@@ -16,6 +16,13 @@ socket
     {
         console.log( 'picked_up', phone );
         $.cookie( 'phone', phone );
+        if ( window.location.pathname == '/tickets/create' )
+        {
+            setTimeout( function()
+            {
+                $( '#phone' ).val( phone ).trigger( 'change' );
+            }, 1000 );
+        }
     })
 
     .on( 'picked_down', function ()
