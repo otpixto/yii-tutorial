@@ -70,25 +70,25 @@
                     <td data-field="name">
                         {{ $r['name'] }}
                     </td>
-                    <td data-field="total" class="text-center info bold">
+                    <td class="text-center info bold">
                         {{ $r['total'] }}
                     </td>
-                    <td data-field="canceled" class="text-center">
+                    <td data-field="1" class="text-center">
                         {{ $r['1'] }}
                     </td>
-                    <td data-field="not_verified" class="text-center">
+                    <td data-field="2" class="text-center">
                         {{ $r['2'] }}
                     </td>
-                    <td data-field="closed_with_confirm" class="text-center">
+                    <td data-field="3" class="text-center">
                         {{ $r['3'] }}
                     </td>
-                    <td data-field="closed_without_confirm" class="text-center">
+                    <td data-field="4" class="text-center">
                         {{ $r['4'] }}
                     </td>
-                    <td data-field="closed" class="text-center">
+                    <td data-field="5" class="text-center">
                         {{ $r['5'] }}
                     </td>
-                    <td class="text-right info bold" data-field="average">
+                    <td class="text-right info bold">
                         {{ $r['average'] }}
                     </td>
                 </tr>
@@ -172,8 +172,11 @@
 
                     dataProvider.push({
                         'name': $.trim( $( this ).find( '[data-field="name"]' ).text() ),
-                        'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
-                        'average': $.trim( $( this ).find( '[data-field="average"]' ).text() ),
+                        '1': $.trim( $( this ).find( '[data-field="1"]' ).text() ),
+                        '2': $.trim( $( this ).find( '[data-field="2"]' ).text() ),
+                        '3': $.trim( $( this ).find( '[data-field="3"]' ).text() ),
+                        '4': $.trim( $( this ).find( '[data-field="4"]' ).text() ),
+                        '5': $.trim( $( this ).find( '[data-field="5"]' ).text() )
                     });
 
                 });
@@ -182,22 +185,49 @@
                     "dataProvider": dataProvider,
                     "graphs": [
                         {
-                            "balloonText": "Всего оценок: [[value]]",
+                            "balloonText": "1 балл: [[value]]",
                             "fillAlphas": 0.8,
-                            "id": "total",
+                            "id": "1",
                             "lineAlpha": 0.2,
-                            "title": "Всего оценок",
+                            "title": "1 балл",
                             "type": "column",
-                            "valueField": "total"
+                            "valueField": "1"
                         },
                         {
-                            "balloonText": "Средний балл: [[value]]",
+                            "balloonText": "2 балла: [[value]]",
                             "fillAlphas": 0.8,
-                            "id": "average",
+                            "id": "2",
                             "lineAlpha": 0.2,
-                            "title": "Средний балл",
+                            "title": "2 балла",
                             "type": "column",
-                            "valueField": "average"
+                            "valueField": "2"
+                        },
+                        {
+                            "balloonText": "3 балла: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "3",
+                            "lineAlpha": 0.2,
+                            "title": "3 балла",
+                            "type": "column",
+                            "valueField": "3"
+                        },
+                        {
+                            "balloonText": "4 балла: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "4",
+                            "lineAlpha": 0.2,
+                            "title": "4 балла",
+                            "type": "column",
+                            "valueField": "4"
+                        },
+                        {
+                            "balloonText": "5 баллов: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "5",
+                            "lineAlpha": 0.2,
+                            "title": "5 баллов",
+                            "type": "column",
+                            "valueField": "5"
                         }
                     ],
                     "type": "serial",
