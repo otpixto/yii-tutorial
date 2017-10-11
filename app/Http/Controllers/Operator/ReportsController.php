@@ -42,7 +42,7 @@ class ReportsController extends BaseController
         ];
 
         $ticketManagements = TicketManagement
-            ::mine()
+            ::mine( true )
             ->whereNotIn( 'status_code', [ 'draft' ] );
 
         if ( $date_from )
@@ -166,7 +166,7 @@ class ReportsController extends BaseController
         ];
 
         $ticketManagements = TicketManagement
-            ::mine()
+            ::mine( true )
             ->whereNotIn( 'status_code', [ 'draft' ] )
             ->whereNotNull( 'rate' );
 
@@ -330,7 +330,7 @@ class ReportsController extends BaseController
         ];
 
         $ticketManagements = TicketManagement
-            ::mine()
+            ::mine( true )
             ->whereNotIn( 'status_code', [ 'draft' ] );
 
         if ( $date_from )

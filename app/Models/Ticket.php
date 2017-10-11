@@ -200,10 +200,10 @@ class Ticket extends BaseModel
             ->whereNotIn( 'status_code', self::$final_statuses );
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, $ignoreStatuses = false )
     {
         return $query
-            ->where( function ( $q )
+            ->where( function ( $q ) use ( $ignoreStatuses )
             {
                 if ( \Auth::user()->can( 'tickets.all' ) )
                 {
@@ -217,8 +217,12 @@ class Ticket extends BaseModel
                 }
                 else if ( \Auth::user()->can( 'tickets.show' ) )
                 {
+                    if ( ! $ignoreStatuses )
+                    {
+                        $q
+                            ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
+                    }
                     $q
-                        ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() )
                         ->where( function ( $q2 )
                         {
                             return $q2

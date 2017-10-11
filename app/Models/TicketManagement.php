@@ -94,7 +94,7 @@ class TicketManagement extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, $ignoreStatuses = false )
     {
         if ( \Auth::user()->can( 'tickets.all' ) )
         {
@@ -106,10 +106,14 @@ class TicketManagement extends BaseModel
                 })
                 ->orWhere( 'status_code', '!=', 'draft' );
         }
-        else
+        else if ( \Auth::user()->can( 'tickets.show' ) )
         {
+            if ( ! $ignoreStatuses )
+            {
+                $query
+                    ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
+            }
             $query
-                ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() )
                 ->where( function ( $q )
                 {
                     return $q
@@ -120,6 +124,10 @@ class TicketManagement extends BaseModel
                         })
                         ->orWhereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
                 });
+        }
+        else
+        {
+            $query->whereNull( 'id' );
         }
         return $query;
     }
