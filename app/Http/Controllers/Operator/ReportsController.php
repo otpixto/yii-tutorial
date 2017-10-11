@@ -234,7 +234,7 @@ class ReportsController extends BaseController
             $s += $summary['5'] * 5;
             $c += $summary['5'];
         }
-        $summary[ 'average' ] = $s / $c;
+        $summary[ 'average' ] = number_format($s / $c, 1, '.', '' );
 
         uasort( $data, function ( $a, $b )
         {
@@ -270,7 +270,7 @@ class ReportsController extends BaseController
                 $s += $r['5'] * 5;
                 $c += $r['5'];
             }
-            $r[ 'average' ] = $s / $c;
+            $r[ 'average' ] = number_format($s / $c, 1, '.', '' );
         }
 
         if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
