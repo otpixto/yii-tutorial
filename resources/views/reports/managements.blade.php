@@ -31,116 +31,121 @@
     </div>
     {!! Form::close() !!}
 
-    <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
+    @if ( $summary['closed'] )
 
-    <table class="table table-striped sortable" id="data">
-        <thead>
-            <tr>
-                <th rowspan="3">
-                    Нименование ЭО
-                </th>
-                <th class="text-center info bold" rowspan="2">
-                    Поступило заявок
-                </th>
-                <th class="text-center" colspan="5">
-                    Закрыто заявок
-                </th>
-            </tr>
-            <tr>
-                <th class="text-center">
-                    Отменено Заявителем
-                </th>
-                <th class="text-center">
-                    Проблема не подтверждена
-                </th>
-                <th class="text-center">
-                    С подтверждением
-                </th>
-                <th class="text-center">
-                    Без подтверждения
-                </th>
-                <th class="text-center info bold">
-                    Всего
-                </th>
-                <th>
-                    &nbsp;
-                </th>
-                <th class="hidden-print" style="width: 15%;">
-                    &nbsp;
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach ( $data as $r )
-            <tr>
-                <td data-field="name">
-                    {{ $r['name'] }}
-                </td>
-                <td data-field="total" class="text-center info bold">
-                    {{ $r['total'] }}
-                </td>
-                <td data-field="canceled" class="text-center">
-                    {{ $r['canceled'] }}
-                </td>
-                <td data-field="not_verified" class="text-center">
-                    {{ $r['not_verified'] }}
-                </td>
-                <td data-field="closed_with_confirm" class="text-center">
-                    {{ $r['closed_with_confirm'] }}
-                </td>
-                <td data-field="closed_without_confirm" class="text-center">
-                    {{ $r['closed_without_confirm'] }}
-                </td>
-                <td data-field="closed" class="text-center info bold">
-                    {{ $r['closed'] }}
-                </td>
-                <td class="text-right" data-field="percent">
-                    {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%
-                </td>
-                <td class="hidden-print">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%">
+        <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
+
+        <table class="table table-striped sortable" id="data">
+            <thead>
+                <tr>
+                    <th rowspan="3">
+                        Нименование ЭО
+                    </th>
+                    <th class="text-center info bold" rowspan="2">
+                        Поступило заявок
+                    </th>
+                    <th class="text-center" colspan="5">
+                        Закрыто заявок
+                    </th>
+                </tr>
+                <tr>
+                    <th class="text-center">
+                        Отменено Заявителем
+                    </th>
+                    <th class="text-center">
+                        Проблема не подтверждена
+                    </th>
+                    <th class="text-center">
+                        С подтверждением
+                    </th>
+                    <th class="text-center">
+                        Без подтверждения
+                    </th>
+                    <th class="text-center info bold">
+                        Всего
+                    </th>
+                    <th>
+                        &nbsp;
+                    </th>
+                    <th class="hidden-print" style="width: 15%;">
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach ( $data as $r )
+                <tr>
+                    <td data-field="name">
+                        {{ $r['name'] }}
+                    </td>
+                    <td data-field="total" class="text-center info bold">
+                        {{ $r['total'] }}
+                    </td>
+                    <td data-field="canceled" class="text-center">
+                        {{ $r['canceled'] }}
+                    </td>
+                    <td data-field="not_verified" class="text-center">
+                        {{ $r['not_verified'] }}
+                    </td>
+                    <td data-field="closed_with_confirm" class="text-center">
+                        {{ $r['closed_with_confirm'] }}
+                    </td>
+                    <td data-field="closed_without_confirm" class="text-center">
+                        {{ $r['closed_without_confirm'] }}
+                    </td>
+                    <td data-field="closed" class="text-center info bold">
+                        {{ $r['closed'] }}
+                    </td>
+                    <td class="text-right" data-field="percent">
+                        {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%
+                    </td>
+                    <td class="hidden-print">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%">
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th class="text-right">
-                    Всего:
-                </th>
-                <th class="text-center warning">
-                    {{ $summary['total'] }}
-                </th>
-                <th class="text-center">
-                    {{ $summary['canceled'] }}
-                </th>
-                <th class="text-center">
-                    {{ $summary['not_verified'] }}
-                </th>
-                <th class="text-center">
-                    {{ $summary['closed_with_confirm'] }}
-                </th>
-                <th class="text-center">
-                    {{ $summary['closed_without_confirm'] }}
-                </th>
-                <th class="text-center warning">
-                    {{ $summary['closed'] }}
-                </th>
-                <th class="text-right">
-                    {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%
-                </th>
-                <th>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%">
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    <th class="text-center warning">
+                        {{ $summary['total'] }}
+                    </th>
+                    <th class="text-center">
+                        {{ $summary['canceled'] }}
+                    </th>
+                    <th class="text-center">
+                        {{ $summary['not_verified'] }}
+                    </th>
+                    <th class="text-center">
+                        {{ $summary['closed_with_confirm'] }}
+                    </th>
+                    <th class="text-center">
+                        {{ $summary['closed_without_confirm'] }}
+                    </th>
+                    <th class="text-center warning">
+                        {{ $summary['closed'] }}
+                    </th>
+                    <th class="text-right">
+                        {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%
+                    </th>
+                    <th>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%">
+                            </div>
                         </div>
-                    </div>
-                </th>
-            </tr>
-        </tfoot>
-    </table>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    @else
+        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
+    @endif
 
 @endsection
 
