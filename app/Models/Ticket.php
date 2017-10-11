@@ -614,7 +614,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->status_code != 'closed_with_confirm' && $this->status_code != 'closed_without_confirm' && $this->status_code != 'cancel' && $this->status_code != 'draft' )
+            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->managements()->mine()->whereHas( 'management', function ( $q ){ return $q->where( 'has_contract', '=', 1 ); } )->count() )
             {
                 $this->can_comment = true;
             }

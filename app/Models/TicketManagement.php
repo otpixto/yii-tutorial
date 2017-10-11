@@ -268,7 +268,7 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment' ) && ! in_array( $this->status_code, Ticket::$final_statuses ) )
+            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->management->has_contract )
             {
                 $this->can_comment = true;
             }
@@ -310,22 +310,6 @@ class TicketManagement extends BaseModel
             }
         }
         return $this->can_upload_act;
-    }
-
-    public function canEdit ()
-    {
-        if ( is_null( $this->can_edit ) )
-        {
-            if ( \Auth::user()->can( 'tickets.edit' ) && ( $this->status_code == 'draft' || $this->status_code == 'created' ) )
-            {
-                $this->can_edit = true;
-            }
-            else
-            {
-                $this->can_edit = false;
-            }
-        }
-        return $this->can_edit;
     }
 
     # force - принудительно

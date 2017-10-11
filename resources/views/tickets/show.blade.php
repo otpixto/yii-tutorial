@@ -527,49 +527,49 @@
                                         </div>
                                     @endif
                                 </div>
-                                @foreach ( $ticket->managements()->mine()->get() as $ticketManagement )
+                                @foreach ( $ticket->managements()->mine()->get() as $_ticketManagement )
                                     <hr />
                                     <div class="row">
                                         <div class="col-xs-5">
                                             <dl>
-                                                @if ( ! $ticketManagement->management->has_contract )
+                                                @if ( ! $_ticketManagement->management->has_contract )
                                                     <div class="label label-danger pull-right">
                                                         Отсутствует договор
                                                     </div>
                                                 @endif
                                                 <dt>
-                                                    <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
-                                                        {{ $ticketManagement->management->name }}
+                                                    <a href="{{ route( 'tickets.show', $_ticketManagement->getTicketNumber() ) }}">
+                                                        {{ $_ticketManagement->management->name }}
                                                     </a>
                                                 </dt>
                                                 <dd class="small">
-                                                    {{ $ticketManagement->management->getPhones() }}
+                                                    {{ $_ticketManagement->management->getPhones() }}
                                                 </dd>
                                                 <dd class="small">
-                                                    {{ $ticketManagement->management->address }}
+                                                    {{ $_ticketManagement->management->address }}
                                                 </dd>
                                             </dl>
                                         </div>
                                         <div class="col-xs-4">
-                                            {{ $ticketManagement->executor ?? '-' }}
+                                            {{ $_ticketManagement->executor ?? '-' }}
                                         </div>
                                         <div class="col-xs-3 text-right">
-                                            <span class="badge badge-{{ $ticketManagement->getClass() }} bold">
-                                                {{ $ticketManagement->status_name }}
+                                            <span class="badge badge-{{ $_ticketManagement->getClass() }} bold">
+                                                {{ $_ticketManagement->status_name }}
                                             </span>
                                         </div>
                                     </div>
-                                    @if ( $ticketManagement->canPrintAct() )
+                                    @if ( $_ticketManagement->canPrintAct() )
                                         <div class="row margin-top-10 hidden-print">
                                             <div class="col-xs-12">
-                                                @if ( $ticketManagement->canPrintAct() )
-                                                    <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                                @if ( $_ticketManagement->canPrintAct() )
+                                                    <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
                                                         <i class="glyphicon glyphicon-print"></i>
                                                         Распечатать бланк Акта
                                                     </a>
                                                 @endif
-                                                @if ( $ticketManagement->canUploadAct() )
-                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
+                                                @if ( $_ticketManagement->canUploadAct() )
+                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $_ticketManagement ) }}" data-model-id="{{ $_ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
                                                         <i class="glyphicon glyphicon-upload"></i>
                                                         Прикрепить оформленный Акт
                                                     </button>
@@ -577,9 +577,9 @@
                                             </div>
                                         </div>
                                     @endif
-                                    @if ( $ticketManagement->files->count() )
+                                    @if ( $_ticketManagement->files->count() )
                                         <div class="note note-default">
-                                            @foreach ( $ticketManagement->files as $file )
+                                            @foreach ( $_ticketManagement->files as $file )
                                                 <div>
                                                     <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
                                                         <i class="fa fa-file"></i>
@@ -608,7 +608,7 @@
                 </div>
             @endif
 
-            @if ( $ticketManagement->canComment() )
+            @if ( $ticketManagement && $ticketManagement->canComment() )
                 <div class="row hidden-print">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
@@ -621,7 +621,7 @@
 
         </div>
     </div>
-	
+
 	{!! Form::hidden( 'ticket_id', $ticket->id, [ 'id' => 'ticket-id' ] ) !!}
 
 @endsection
@@ -659,7 +659,7 @@
 
                 var rate = $( this ).attr( 'data-rate' );
                 var form = $( '#rate-form' );
-				
+
 				bootbox.confirm({
 					message: 'Вы уверены, что хотите поставить оценку ' + rate + '?',
 					size: 'small',
@@ -675,7 +675,7 @@
 					},
 					callback: function ( res )
 					{
-						
+
 						if ( ! res ) return;
 
 						form.find( '[name="rate"]' ).val( rate );
@@ -700,12 +700,12 @@
 						{
 							form.submit();
 						}
-						
+
 					}
 				});
 
             })
-			
+
 			.on( 'click', '[data-edit]', function ( e )
 			{
 				e.preventDefault();
@@ -758,11 +758,11 @@
 								{
 									line.remove();
 								});
-							
+
 						}
 					}
 				});
-				
+
 			})
 
             .on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
