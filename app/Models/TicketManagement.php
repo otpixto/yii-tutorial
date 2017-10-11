@@ -159,32 +159,6 @@ class TicketManagement extends BaseModel
         return $this->availableStatuses;
     }
 
-    public function addComment ( $text )
-    {
-
-        $comment = Comment::create([
-            'model_id'     	=> $this->id,
-            'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-
-        return $comment;
-
-    }
-
-    public function addTag ( $text )
-    {
-
-        $tag = Tag::create([
-            'model_id'     	=> $this->id,
-            'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-
-        return $tag;
-
-    }
-
     public function getStatusHistory ( $status_code )
     {
         if ( ! isset( $this->history[ $status_code ] ) )

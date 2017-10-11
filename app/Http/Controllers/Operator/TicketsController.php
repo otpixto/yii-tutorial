@@ -728,7 +728,7 @@ class TicketsController extends BaseController
 
         if ( ! empty( $request->get( 'comment' ) ) )
         {
-            $res = $ticket->addComment( $request->get( 'comment' ) );
+            $res = $ticketManagement->addComment( $request->get( 'comment' ) );
             if ( $res instanceof MessageBag )
             {
                 return redirect()->back()
@@ -1628,84 +1628,6 @@ class TicketsController extends BaseController
         }
         \DB::commit();
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
-    }
-
-    public function postClose ( Request $request )
-    {
-
-        $ticket = Ticket::find( $request->get( 'id' ) );
-
-        if ( ! $ticket )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-
-        \DB::beginTransaction();
-
-        if ( $ticket->status_code != 'closed_without_confirm' )
-        {
-            $res = $ticket->changeStatus( 'closed_without_confirm', true );
-            if ( $res instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $res );
-            }
-        }
-
-        \DB::commit();
-
-        return redirect()->back()->with( 'success', 'Заявка успешно закрыта' );
-
-    }
-
-    public function postRepeat ( Request $request )
-    {
-
-        $ticket = Ticket::find( $request->get( 'id' ) );
-
-        if ( !$ticket )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-
-        \DB::beginTransaction();
-
-        if ( $ticket->status_code != 'transferred_again' )
-        {
-            $res = $ticket->changeStatus( 'transferred_again', true );
-            if ( $res instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $res );
-            }
-        }
-
-        $text = trim( $request->get( 'comment', '' ) );
-
-        if ( !empty( $text ) )
-        {
-
-            $comment = $ticket->addComment( $request->get( 'comment' ) );
-
-            $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
-
-            $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-            $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
-
-            $message .= PHP_EOL . $comment->text . PHP_EOL;
-
-            $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-            $ticket->sendTelegram( $message );
-
-        }
-
-        \DB::commit();
-
-        return redirect()->back()->with( 'success', 'Заявка повторно передана в ЭО' );
-
     }
 
     public function postSave ( Request $request )
