@@ -510,87 +510,85 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
-                            @if ( \Auth::user()->can( 'tickets.managements' ) )
-                                <div class="bold">
-                                    Эксплуатационные организации
+                            <div class="bold">
+                                Эксплуатационные организации
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-5 bold small">
+                                    Наименование \ Телефон \ Адрес
                                 </div>
+                                @if ( ! $ticket->canEdit() )
+                                    <div class="col-xs-4 bold small">
+                                        Исполнитель
+                                    </div>
+                                    <div class="col-xs-3 bold small text-right">
+                                        Статус
+                                    </div>
+                                @endif
+                            </div>
+                            @foreach ( $ticket->managements()->mine()->get() as $_ticketManagement )
+                                <hr />
                                 <div class="row">
-                                    <div class="col-xs-5 bold small">
-                                        Наименование \ Телефон \ Адрес
-                                    </div>
-                                    @if ( ! $ticket->canEdit() )
-                                        <div class="col-xs-4 bold small">
-                                            Исполнитель
-                                        </div>
-                                        <div class="col-xs-3 bold small text-right">
-                                            Статус
-                                        </div>
-                                    @endif
-                                </div>
-                                @foreach ( $ticket->managements()->mine()->get() as $_ticketManagement )
-                                    <hr />
-                                    <div class="row">
-                                        <div class="col-xs-5">
-                                            <dl>
-                                                @if ( ! $_ticketManagement->management->has_contract )
-                                                    <div class="label label-danger pull-right">
-                                                        Отсутствует договор
-                                                    </div>
-                                                @endif
-                                                <dt>
-                                                    <a href="{{ route( 'tickets.show', $_ticketManagement->getTicketNumber() ) }}">
-                                                        {{ $_ticketManagement->management->name }}
-                                                    </a>
-                                                </dt>
-                                                <dd class="small">
-                                                    {{ $_ticketManagement->management->getPhones() }}
-                                                </dd>
-                                                <dd class="small">
-                                                    {{ $_ticketManagement->management->address }}
-                                                </dd>
-                                            </dl>
-                                        </div>
-                                        <div class="col-xs-4">
-                                            {{ $_ticketManagement->executor ?? '-' }}
-                                        </div>
-                                        <div class="col-xs-3 text-right">
-                                            <span class="badge badge-{{ $_ticketManagement->getClass() }} bold">
-                                                {{ $_ticketManagement->status_name }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    @if ( $_ticketManagement->canPrintAct() )
-                                        <div class="row margin-top-10 hidden-print">
-                                            <div class="col-xs-12">
-                                                @if ( $_ticketManagement->canPrintAct() )
-                                                    <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
-                                                        <i class="glyphicon glyphicon-print"></i>
-                                                        Распечатать бланк Акта
-                                                    </a>
-                                                @endif
-                                                @if ( $_ticketManagement->canUploadAct() )
-                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $_ticketManagement ) }}" data-model-id="{{ $_ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
-                                                        <i class="glyphicon glyphicon-upload"></i>
-                                                        Прикрепить оформленный Акт
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
-                                    @if ( $_ticketManagement->files->count() )
-                                        <div class="note note-default">
-                                            @foreach ( $_ticketManagement->files as $file )
-                                                <div>
-                                                    <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
-                                                        <i class="fa fa-file"></i>
-                                                        {{ $file->name }}
-                                                    </a>
+                                    <div class="col-xs-5">
+                                        <dl>
+                                            @if ( ! $_ticketManagement->management->has_contract )
+                                                <div class="label label-danger pull-right">
+                                                    Отсутствует договор
                                                 </div>
-                                            @endforeach
+                                            @endif
+                                            <dt>
+                                                <a href="{{ route( 'tickets.show', $_ticketManagement->getTicketNumber() ) }}">
+                                                    {{ $_ticketManagement->management->name }}
+                                                </a>
+                                            </dt>
+                                            <dd class="small">
+                                                {{ $_ticketManagement->management->getPhones() }}
+                                            </dd>
+                                            <dd class="small">
+                                                {{ $_ticketManagement->management->address }}
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{ $_ticketManagement->executor ?? '-' }}
+                                    </div>
+                                    <div class="col-xs-3 text-right">
+                                        <span class="badge badge-{{ $_ticketManagement->getClass() }} bold">
+                                            {{ $_ticketManagement->status_name }}
+                                        </span>
+                                    </div>
+                                </div>
+                                @if ( $_ticketManagement->canPrintAct() )
+                                    <div class="row margin-top-10 hidden-print">
+                                        <div class="col-xs-12">
+                                            @if ( $_ticketManagement->canPrintAct() )
+                                                <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                                    <i class="glyphicon glyphicon-print"></i>
+                                                    Распечатать бланк Акта
+                                                </a>
+                                            @endif
+                                            @if ( $_ticketManagement->canUploadAct() )
+                                                <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $_ticketManagement ) }}" data-model-id="{{ $_ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
+                                                    <i class="glyphicon glyphicon-upload"></i>
+                                                    Прикрепить оформленный Акт
+                                                </button>
+                                            @endif
                                         </div>
-                                    @endif
-                                @endforeach
-                            @endif
+                                    </div>
+                                @endif
+                                @if ( $_ticketManagement->files->count() )
+                                    <div class="note note-default">
+                                        @foreach ( $_ticketManagement->files as $file )
+                                            <div>
+                                                <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                                    <i class="fa fa-file"></i>
+                                                    {{ $file->name }}
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                 </div>
