@@ -18,17 +18,19 @@ socket
         $.cookie( 'phone', phone );
         if ( window.location.pathname == '/tickets/create' )
         {
-            setTimeout( function()
-            {
-                $( '#phone' ).val( phone ).trigger( 'change' );
-            }, 1000 );
+            $( '#phone' ).val( phone ).trigger( 'keyup' );
         }
+        $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-warning' );
+        $( '#call-phone' ).text( phone );
     })
 
     .on( 'picked_down', function ()
     {
-        console.log( 'picked_down' );
+        var phone = $.cookie( 'phone' );
+        console.log( 'picked_down', phone );
         $.removeCookie( 'phone' );
+        $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-success' );
+        $( '#call-phone' ).text( '' );
     })
 
     .on( 'call', function ( phone )

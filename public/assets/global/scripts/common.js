@@ -191,6 +191,13 @@ $( document )
             }
         });
 
+        var phone = $.cookie( 'phone' );
+        if ( phone )
+		{
+            $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-warning' );
+            $( '#call-phone' ).text( phone );
+		}
+
 	})
 
 	.on ( 'click', '[data-action="comment"]', function ( e )
