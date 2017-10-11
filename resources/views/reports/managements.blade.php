@@ -99,7 +99,7 @@
                 </td>
                 <td class="hidden-print">
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $r['closed'] * 100 / $r['total'] ) }}%">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%">
                         </div>
                     </div>
                 </td>
@@ -134,7 +134,7 @@
                 </th>
                 <th>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%">
                         </div>
                     </div>
                 </th>
