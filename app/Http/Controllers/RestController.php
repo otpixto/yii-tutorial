@@ -47,7 +47,7 @@ class RestController extends Controller
         }
 
         $draft = Ticket
-            ::where( 'author_id', '=', \Auth::user()->id )
+            ::where( 'author_id', '=', $session->user->id )
             ->where( 'status_code', '=', 'draft' )
             ->first();
 
