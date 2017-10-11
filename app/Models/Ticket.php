@@ -205,7 +205,7 @@ class Ticket extends BaseModel
             $dt_from = Carbon::parse( $this->call_at )->subMinutes( 1 );
             $dt_to = Carbon::parse( $this->call_at )->addMinutes( 1 );
             $this->_call = Cdr
-                ::whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone ] )
+                ::whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->call_phone ] )
                 ->answered()
                 ->incoming()
                 ->whereHas( 'queueLog', function ( $q )
