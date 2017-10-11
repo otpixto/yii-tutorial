@@ -233,7 +233,7 @@ class TicketManagement extends BaseModel
             case 'accepted':
             case 'assigned':
 
-                if ( $this->ticket->type->period_execution )
+                /*if ( $this->ticket->type->period_execution )
                 {
 
                     $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
@@ -247,7 +247,7 @@ class TicketManagement extends BaseModel
                         }
                     }
 
-                }
+                }*/
 
                 return 'success';
 

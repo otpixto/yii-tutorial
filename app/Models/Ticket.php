@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Asterisk\Cdr;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
@@ -19,6 +20,8 @@ class Ticket extends BaseModel
     private $can_group = null;
 
     private $availableStatuses = null;
+
+    private $_call = null;
 
     public static $places = [
         1 => 'Помещение',
@@ -193,6 +196,37 @@ class Ticket extends BaseModel
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
             ->where( 'model_name', '=', get_class( $this ) );
     }
+
+    /*public function call ()
+    {
+        if ( is_null( $this->_call ) )
+        {
+            if ( ! $this->call_at ) return null;
+            $dt_from = Carbon::parse( $this->call_at )->subMinutes( 3 );
+            $dt_to = Carbon::parse( $this->call_at )->addMinutes( 3 );
+            $this->_call = Cdr
+                ::where( function ( $q )
+                {
+                    return $q
+                        ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone ] );
+                    if ( $this->phone2 )
+                    {
+                        $q
+                            ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone2 ] );
+                    }
+                })
+                ->answered()
+                ->incoming()
+                ->whereHas( 'queueLog', function ( $q )
+                {
+                    return $q
+                        ->completed();
+                })
+                ->whereBetween( 'calldate', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
+                ->first();
+        }
+        return $this->_call;
+    }*/
 
     public function scopeNotFinaleStatuses ( $query )
     {
@@ -554,19 +588,21 @@ class Ticket extends BaseModel
             case 'accepted':
             case 'assigned':
 
-                if ( $this->type->period_execution )
+                /*if ( $this->type->period_execution )
                 {
 
-                    /*$status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
-                    $dt = $status_accepted->created_at;
-                    $dt->addMinutes( $this->type->period_execution * 60 );
-
-                    if ( $now->timestamp > $dt->timestamp )
+                    $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
+                    if ( $status_accepted )
                     {
-                        return 'danger';
-                    }*/
+                        $dt = $status_accepted->created_at;
+                        $dt->addMinutes( $this->type->period_execution * 60 );
+                        if ( $now->timestamp > $dt->timestamp )
+                        {
+                            return 'danger';
+                        }
+                    }
 
-                }
+                }*/
 
                 return 'success';
 
