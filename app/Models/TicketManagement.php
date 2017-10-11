@@ -184,7 +184,7 @@ class TicketManagement extends BaseModel
             case 'transferred':
             case 'transferred_again':
 
-                if ( $this->ticket->type->period_acceptance )
+                /*if ( $this->ticket->type->period_acceptance )
                 {
 
                     $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
@@ -198,7 +198,7 @@ class TicketManagement extends BaseModel
                         }
                     }
 
-                }
+                }*/
 
                 return 'warning';
 
