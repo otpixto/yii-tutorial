@@ -102,7 +102,7 @@
                     Отчеты
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.managements' ) )
+                    @if ( \Auth::user()->can( 'reports.managements' ) )
                         <li>
                             <a href="{{ route( 'reports.managements' ) }}">
                                 Отчет по количеству заявок
@@ -116,10 +116,17 @@
                             </a>
                         </li>
                     @endif--}}
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.types' ) )
+                    @if ( \Auth::user()->can( 'reports.types' ) )
                         <li>
                             <a href="{{ route( 'reports.types' ) }}">
                                 Отчет по категориям
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'reports.rates' ) )
+                        <li>
+                            <a href="{{ route( 'reports.rates' ) }}">
+                                Отчет по оценкам
                             </a>
                         </li>
                     @endif
