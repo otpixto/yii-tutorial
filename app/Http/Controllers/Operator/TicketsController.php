@@ -183,6 +183,11 @@ class TicketsController extends BaseController
         }
 
         $ticketManagements = $ticketManagements
+            ->with(
+                'comments',
+                'ticket',
+                'management'
+            )
             ->paginate( 30 )
             ->appends( $request->all() );
 

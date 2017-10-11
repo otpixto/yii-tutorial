@@ -10,7 +10,7 @@
 				<span class="small">
 					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
 				</span>
-				@if ( isset( $ticket ) && $ticket->canComment() )
+				@if ( isset( $ticketManagement ) && $ticketManagement->canComment() )
 					<button class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
 						<i class="fa fa-commenting"></i>
 						ответить
@@ -34,7 +34,7 @@
 				</div>
 			@endif
 			@if ( $comment->childs->count() )
-				@include( 'parts.comments', [ 'ticket' => $ticket, 'comments' => $comment->childs ] )
+				@include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $comment->childs ] )
 			@endif
 		</div>
 	</div>

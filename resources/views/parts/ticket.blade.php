@@ -55,11 +55,11 @@
         </a>
     </td>
 </tr>
-@if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->count() )
+@if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->count() )
     <tr>
         <td colspan="{{ ( 5 + ( $field_operator ? 1 : 0 ) + ( $field_management ? 1 : 0 ) ) }}">
             <div class="note note-info">
-                @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments ] )
+                @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
             </div>
         </td>
     </tr>

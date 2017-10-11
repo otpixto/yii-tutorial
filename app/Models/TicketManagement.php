@@ -88,12 +88,6 @@ class TicketManagement extends BaseModel
         return $this->belongsTo( 'App\Models\Ticket' );
     }
 
-    public function comments ()
-    {
-        return $this->hasMany( 'App\Models\Comment', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
     public function statusesHistory ()
     {
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
