@@ -234,7 +234,10 @@ class ReportsController extends BaseController
             $s += $summary['5'] * 5;
             $c += $summary['5'];
         }
-        $summary[ 'average' ] = number_format($s / $c, 1, '.', '' );
+        if ( $c )
+        {
+            $summary[ 'average' ] = number_format($s / $c, 1, '.', '' );
+        }
 
         uasort( $data, function ( $a, $b )
         {
