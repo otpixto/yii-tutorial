@@ -20,7 +20,7 @@
 
     <div class="form-group">
         {!! Form::label( 'number', 'Номер телефона', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::text( 'number', \Input::old( 'number' ), [ 'class' => 'form-control', 'placeholder' => 'Номер телефона' ] ) !!}
+        {!! Form::text( 'number', \Input::old( 'number' ), [ 'class' => 'form-control', 'placeholder' => 'Номер телефона', 'maxlength' => 10 ] ) !!}
     </div>
 
     <div class="margin-top-10">
