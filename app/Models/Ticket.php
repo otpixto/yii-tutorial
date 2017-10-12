@@ -472,7 +472,7 @@ class Ticket extends BaseModel
         $addr = '';
         if ( $this->address )
         {
-            $addr .= $this->address->name;
+            $addr .= $this->address->getAddress();
         }
 		if ( $this->flat )
 		{

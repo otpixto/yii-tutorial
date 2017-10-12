@@ -7,7 +7,9 @@
     </td>
     <td>
         @foreach ( $work->addresses as $address )
-            {{ $address->name }}
+            <div>
+                {{ $address->getAddress() }}
+            </div>
         @endforeach
     </td>
     <td>

@@ -54,4 +54,9 @@ class AddressManagement extends BaseModel
         return $new;
     }
 
+    public function getAddress ()
+    {
+        return $this->address->getAddress();
+    }
+
 }

@@ -105,9 +105,11 @@
                             <dt>Адрес проблемы:</dt>
                             <dd>
 								{{ $ticket->getAddress() }}
-								<span class="small text-muted">
-									({{ $ticket->getPlace() }})
-								</span>
+                                @if ( $ticket->getPlace() )
+                                    <span class="small text-muted">
+                                        ({{ $ticket->getPlace() }})
+                                    </span>
+                                @endif
 							</dd>
                         </dl>
                     </div>

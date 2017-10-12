@@ -29,4 +29,9 @@ class Address extends BaseModel
         return $this->belongsToMany( 'App\Models\Type', 'addresses_types' );
     }
 
+    public function getAddress ()
+    {
+        return $this->address . ' д. ' . $this->home;
+    }
+
 }

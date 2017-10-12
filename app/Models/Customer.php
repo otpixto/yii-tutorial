@@ -159,7 +159,7 @@ class Customer extends BaseModel
         $addr = '';
         if ( $this->actualAddress )
         {
-            $addr .= $this->actualAddress->name;
+            $addr .= $this->actualAddress->getAddress();
         }
         if ( $this->actual_flat )
         {

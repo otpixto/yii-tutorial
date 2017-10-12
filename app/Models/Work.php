@@ -210,16 +210,6 @@ class Work extends BaseModel
         return 'text-muted';
     }
 
-    public function getAddress ()
-    {
-        $addr = '';
-        if ( $this->address )
-        {
-            $addr .= $this->address->name;
-        }
-        return $addr;
-    }
-
     public function sendTelegram ( $message = null )
     {
 
