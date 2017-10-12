@@ -55,6 +55,8 @@ class TicketManagement extends BaseModel
             'transferred_again',
         ],
         'not_verified' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
             'transferred_again',
         ],
     ];

@@ -91,9 +91,6 @@ class Ticket extends BaseModel
         'accepted' => [
             'cancel',
         ],
-		'not_verified' => [
-			'cancel',
-		],
     ];
 
     protected $nullable = [
