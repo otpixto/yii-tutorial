@@ -62,7 +62,7 @@ class ProfileController extends Controller
 
     public function getPhoneConfirm ( Request $request )
     {
-        if ( ! $request->get( 'number' ) )
+        if ( ! \Session::get( 'number' ) )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -72,7 +72,7 @@ class ProfileController extends Controller
         }
         Title::add( 'Авторизация телефона' );
         return view('profile.phone_confirm' )
-            ->with( 'number', $request->get( 'number' ) );
+            ->with( 'number', \Session::get( 'number' ) );
     }
 
     public function postPhoneConfirm ( Request $request )
