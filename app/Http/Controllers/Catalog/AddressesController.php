@@ -27,17 +27,17 @@ class AddressesController extends BaseController
         $search = trim( \Input::get( 'search', '' ) );
 
         $addresses = Address
-            ::orderBy( 'name' );
+            ::select(
+                '*',
+                \DB::raw( 'CONCAT_WS( \', \', address, home ) AS text' )
+            )
+            ->orderBy( 'text' );
 
         if ( !empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $addresses
-                ->where( function ( $q ) use ( $s )
-                {
-                    return $q
-                        ->where( 'name', 'like', $s );
-                });
+                ->where( \DB::raw( 'CONCAT_WS( \', \', address, home )' ), 'like', $s );
         }
 
         $addresses = $addresses
