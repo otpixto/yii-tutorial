@@ -59,6 +59,9 @@
                             <th>
                                 Окончание сессии
                             </th>
+                            <th>
+                                Длительность
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,9 +76,21 @@
                             <td>
                                 {{ $session->created_at->format( 'd.m.Y H:i' ) }}
                             </td>
-                            <td>
-                                {{ $session->deleted_at ? $session->deleted_at->format( 'd.m.Y H:i' ) : '-' }}
-                            </td>
+                            @if ( $session->deleted_at )
+                                <td>
+                                    {{ $session->deleted_at->format( 'd.m.Y H:i' ) }}
+                                </td>
+                                <td>
+                                    @if ( $session->deleted_at->diffInDays( $session->created_at ) >= 1 )
+                                        {{ $session->deleted_at->diffInDays( $session->created_at ) }} д.
+                                    @endif
+                                    {{ date( 'H:i:s', mktime( 0, 0, $session->deleted_at->diffInSeconds( $session->created_at ) ) ) }}
+                                </td>
+                            @else
+                                <td colspan="2">
+                                    -
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                     </tbody>
@@ -90,8 +105,4 @@
         </div>
     </div>
 
-@endsection
-
-@section( 'css' )
-    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
 @endsection
