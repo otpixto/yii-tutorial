@@ -11,7 +11,7 @@
 
     {!! Form::open( [ 'class' => 'form-horizontal submit-loading' ] ) !!}
     <div class="form-group">
-        {!! Form::label( 'number', 'Добавочный номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
             {!! Form::text( 'number', $number, [ 'class' => 'form-control', 'maxlength' => 10, 'readonly' ] ) !!}
         </div>
