@@ -149,11 +149,12 @@ class TicketsController extends BaseController
         {
             $ticketManagements = $ticketManagements->get();
             $data = [];
+            $i = 0;
             foreach ( $ticketManagements as $ticketManagement )
             {
                 $ticket = $ticketManagement->ticket;
-                if ( $ticket->status_code == 'draft' ) continue;
-                $data[] = [
+                if ( ! $ticket || $ticket->status_code == 'draft' ) continue;
+                $data[ $i ] = [
                     '#'                     => $ticket->id,
                     'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
                     'Текущий статус'        => $ticket->status_name,
@@ -162,18 +163,20 @@ class TicketsController extends BaseController
                     'Проблемное место'      => $ticket->getPlace(),
                     'Категория заявки'      => $ticket->type->category->name,
                     'Тип заявки'            => $ticket->type->name,
+                    'Текст обращения'       => $ticket->text,
                     'ФИО заявителя'         => $ticket->getName(),
                     'Телефон(ы) заявителя'  => $ticket->getPhones(),
                     'Адрес проживания'      => $ticket->customer->getAddress(),
                 ];
                 if ( $field_operator )
                 {
-                    $data[][ 'Оператор' ] = $ticket->author->getName();
+                    $data[ $i ][ 'Оператор' ] = $ticket->author->getName();
                 }
                 if ( $field_management )
                 {
-                    $data[][ 'ЭО' ] = $ticketManagement->management->name;
+                    $data[ $i ][ 'ЭО' ] = $ticketManagement->management->name;
                 }
+                $i ++;
             }
             \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
             {
