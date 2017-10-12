@@ -10,14 +10,16 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
-        <div class="col-xs-12">
-            <a href="{{ route( 'sessions.create' ) }}" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-                Добавить в очередь
-            </a>
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.create' ) )
+        <div class="row margin-bottom-15">
+            <div class="col-xs-12">
+                <a href="{{ route( 'sessions.create' ) }}" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Добавить в очередь
+                </a>
+            </div>
         </div>
-    </div>
+    @endif
 
     <div class="row hidden-print">
         <div class="col-xs-12">
