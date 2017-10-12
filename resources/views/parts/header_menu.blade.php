@@ -189,28 +189,35 @@
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show' ) )
                         <li aria-haspopup="true" class=" ">
-                            <a href="/admin/users" class="nav-link">
+                            <a href="{{ route( 'users.index' ) }}" class="nav-link">
                                 Пользователи
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.show' ) )
                         <li aria-haspopup="true" class=" ">
-                            <a href="/admin/perms" class="nav-link">
+                            <a href="{{ route( 'perms.index' ) }}" class="nav-link">
                                 Права
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.show' ) )
                         <li aria-haspopup="true" class=" ">
-                            <a href="/admin/roles" class="nav-link">
+                            <a href="{{ route( 'roles.index' ) }}" class="nav-link">
                                 Роли
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
+                                Телефонные сессии
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs' ) )
                         <li aria-haspopup="true" class=" ">
-                            <a href="/admin/logs" class="nav-link">
+                            <a href="{{ route( 'logs.index' ) }}" class="nav-link">
                                 Системные логи
                             </a>
                         </li>
