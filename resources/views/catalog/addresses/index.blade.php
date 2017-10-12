@@ -62,7 +62,10 @@
                             <thead>
                             <tr>
                                 <th>
-                                    Наименование
+                                    Адрес
+                                </th>
+                                <th>
+                                    Здание
                                 </th>
                                 <th class="text-right">
                                     &nbsp;
@@ -73,7 +76,10 @@
                             @foreach ( $addresses as $address )
                                 <tr>
                                     <td>
-                                        {{ $address->name }}
+                                        {{ $address->address }}
+                                    </td>
+                                    <td>
+                                        {{ $address->home }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-info">

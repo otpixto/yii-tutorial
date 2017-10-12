@@ -15,9 +15,14 @@
 
     <div class="form-group">
 
-        <div class="col-xs-12">
-            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name', $address->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+        <div class="col-xs-9">
+            {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'address', \Input::old( 'address', $address->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+        </div>
+
+        <div class="col-xs-3">
+            {!! Form::label( 'home', 'Здание', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'home', \Input::old( 'home', $address->home ), [ 'class' => 'form-control', 'placeholder' => 'Здание' ] ) !!}
         </div>
 
     </div>

@@ -10,11 +10,13 @@ class Address extends BaseModel
     public static $name = 'Адрес';
 
     public static $rules = [
-        'name'              => 'required|string|max:255',
+        'address'              => 'required|string|max:255',
+        'home'                 => 'required|string',
     ];
 
     protected $fillable = [
-        'name',
+        'address',
+        'home',
     ];
 
     public function managements ()

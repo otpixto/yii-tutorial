@@ -196,10 +196,10 @@ class AddressesController extends BaseController
         $addresses = Address
             ::select(
                 'id',
-                'name AS text'
+                \DB::raw( 'CONCAT_WS( \', \', address, home ) AS text' )
             )
-            ->where( 'name', 'like', $q )
-            ->orderBy( 'name' )
+            ->having( 'text', 'like', $q )
+            ->orderBy( 'text' )
             ->get();
 
         return $addresses;
