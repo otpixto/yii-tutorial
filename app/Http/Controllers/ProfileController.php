@@ -85,15 +85,17 @@ class ProfileController extends Controller
             return redirect()->route( 'profile.phone_reg' )->withErrors( $res );
         }
 
-        $res = PhoneSession::create([
+        $phoneSession = PhoneSession::create([
             'user_id'       => \Auth::user()->id,
             'number'        => $request->get( 'number' )
         ]);
-
-        if ( $res instanceof MessageBag )
+        if ( $phoneSession instanceof MessageBag )
         {
-            return redirect()->route( 'profile.phone_reg' )->withErrors( $res );
+            return redirect()
+                ->route( 'profile.phone_reg' )
+                ->withErrors( $phoneSession );
         }
+        $phoneSession->save();
 
         return redirect()->route( 'profile.phone' )
             ->with( 'success', 'Телефон успешно зарегистрирован' );
