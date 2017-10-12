@@ -35,7 +35,7 @@ class RestController extends Controller
         }
 
         $session = PhoneSession
-            ::where( 'ext_number', '=', $request->get( 'ext_number' ) )
+            ::where( 'number', '=', $request->get( 'number' ) )
             ->first();
         if ( ! $session )
         {

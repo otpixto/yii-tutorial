@@ -12,9 +12,9 @@
     {!! Form::open( [ 'class' => 'form-horizontal submit-loading' ] ) !!}
 
     <div class="form-group">
-        {!! Form::label( 'ext_number', 'Добавочный номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::text( 'ext_number', \Input::old( 'ext_number' ), [ 'class' => 'form-control', 'maxlength' => 4, 'autofocus' ] ) !!}
+            {!! Form::text( 'number', \Input::old( 'number' ), [ 'class' => 'form-control', 'maxlength' => 10, 'autofocus' ] ) !!}
         </div>
     </div>
 

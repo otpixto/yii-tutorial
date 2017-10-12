@@ -13,11 +13,11 @@
 
         <div class="form-group">
             <div class="col-xs-3 control-label">
-                Добавочный
+                Номер
             </div>
             <div class="col-xs-6">
                 <span class="form-control">
-                    {{ \Auth::user()->phoneSession->ext_number }}
+                    {{ \Auth::user()->phoneSession->number }}
                 </span>
             </div>
         </div>

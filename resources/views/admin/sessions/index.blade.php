@@ -68,7 +68,7 @@
                                 {!! $session->user->getFullName() !!}
                             </td>
                             <td>
-                                {{ $session->ext_number }}
+                                {{ $session->number }}
                             </td>
                             <td>
                                 {{ $session->created_at->format( 'd.m.Y H:i' ) }}

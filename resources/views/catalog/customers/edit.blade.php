@@ -186,7 +186,7 @@
                                 @endif
                             </td>
                             <td>
-                                {{ $call->queueLog->ext_number() }}
+                                {{ $call->queueLog->number() }}
                             </td>
                             @if ( \Auth::user()->can( 'calls' ) )
                                 <td>

@@ -19,7 +19,7 @@ class UserPhoneAuth extends BaseModel
     private static $code_length = 4; // длина кода авторизации
     public static $timeout = 30; // таймаут авторизации
 
-    protected $fillable = [ 'user_id', 'ext_number', 'code' ];
+    protected $fillable = [ 'user_id', 'number', 'code' ];
     private static $asterisk;
 
     public function __construct ( array $attributes = [] )
@@ -38,7 +38,7 @@ class UserPhoneAuth extends BaseModel
     {
 
         $rules = [
-            'ext_number' => 'required|min:2|max:4'
+            'number' => 'required|min:2|max:4'
         ];
 
         $v = Validator::make ( $attributes, $rules );
@@ -51,7 +51,7 @@ class UserPhoneAuth extends BaseModel
 
         $res = UserPhoneAuth
             ::where( 'user_id', '=', \Auth::user ()->id )
-            ->orWhere( 'ext_number', '=', $attributes['ext_number'] )
+            ->orWhere( 'number', '=', $attributes['number'] )
             ->get();
         if ( $res->count() )
         {
@@ -65,7 +65,7 @@ class UserPhoneAuth extends BaseModel
         $phoneAuth->code = self::genCode();
         $phoneAuth->save();
 
-        return self::callWithCode( $phoneAuth->ext_number, $phoneAuth->code );
+        return self::callWithCode( $phoneAuth->number, $phoneAuth->code );
 
     }
 
@@ -73,7 +73,7 @@ class UserPhoneAuth extends BaseModel
     {
 
         $rules = [
-            'ext_number'    => 'required|min:2|max:4',
+            'number'        => 'required|min:2',
             'code'          => 'required|digits:' . self::$code_length
         ];
 
@@ -81,7 +81,7 @@ class UserPhoneAuth extends BaseModel
         if ( $v->fails() ) return $v->messages();
 
         $phoneAuth = UserPhoneAuth
-            ::where( 'ext_number', '=', $attributes['ext_number'] )
+            ::where( 'number', '=', $attributes['number'] )
             ->where( 'code', '=', $attributes['code'] )
             ->first();
 
@@ -90,7 +90,7 @@ class UserPhoneAuth extends BaseModel
             return new MessageBag( [ 'Неверный код' ] );
         }
 
-        if ( ! self::$asterisk->queueAdd( $phoneAuth->ext_number ) )
+        if ( ! self::$asterisk->queueAdd( $phoneAuth->number ) )
         {
             return new MessageBag( [ self::$asterisk->last_result ] );
         }
@@ -101,10 +101,10 @@ class UserPhoneAuth extends BaseModel
 
     }
 
-    private static function callWithCode ( $ext_number, $code )
+    private static function callWithCode ( $number, $code )
     {
 
-        if ( ! self::$asterisk || ! self::$asterisk->originate( $ext_number, $code ) )
+        if ( ! self::$asterisk || ! self::$asterisk->originate( $number, $code ) )
         {
             return new MessageBag([ 'Ошибка Астериска' ]);
         }

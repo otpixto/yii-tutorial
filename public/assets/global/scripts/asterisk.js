@@ -1,14 +1,14 @@
 var socket = io( '//juk.edska.ru:8443', { secure: true } );
-var ext_number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
+var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
 socket
 
     .on( 'connect', function ()
     {
         console.log( 'socket connected' );
-        if ( ext_number )
+        if ( number )
         {
-            socket.emit( 'ext_number', ext_number );
+            socket.emit( 'number', number );
         }
     })
 
