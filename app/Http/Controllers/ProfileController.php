@@ -55,14 +55,14 @@ class ProfileController extends Controller
         }
 
         return redirect()->route( 'profile.phone_confirm' )
-            ->with( 'ext_number', $request->get( 'ext_number' ) )
+            ->with( 'number', $request->get( 'number' ) )
             ->with( 'success', 'На указанный добавочный номер выслан код' );
 
     }
 
     public function getPhoneConfirm ( Request $request )
     {
-        if ( ! \Session::get( 'ext_number' ) )
+        if ( ! \Session::get( 'number' ) )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -72,7 +72,7 @@ class ProfileController extends Controller
         }
         Title::add( 'Авторизация телефона' );
         return view('profile.phone_confirm' )
-            ->with( 'ext_number', \Session::get( 'ext_number' ) );
+            ->with( 'number', \Session::get( 'number' ) );
     }
 
     public function postPhoneConfirm ( Request $request )
@@ -87,7 +87,7 @@ class ProfileController extends Controller
 
         $res = PhoneSession::create([
             'user_id'       => \Auth::user()->id,
-            'ext_number'    => $request->get( 'ext_number' )
+            'number'        => $request->get( 'number' )
         ]);
 
         if ( $res instanceof MessageBag )
@@ -117,12 +117,12 @@ class ProfileController extends Controller
         dd( $dt->toDateTimeString() );
     }
 	
-	public function getFix ( $ext_number )
+	public function getFix ( $number )
     {
 
         $asterisk = new Asterisk();
-        $asterisk->queueRemove( $ext_number );
-        $phoneSession = PhoneSession::where( 'ext_number', '=', $ext_number )->first();
+        $asterisk->queueRemove( $number );
+        $phoneSession = PhoneSession::where( 'number', '=', $number )->first();
 		if ( $phoneSession )
 		{
 			$phoneSession->delete();

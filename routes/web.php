@@ -1,7 +1,7 @@
 <?php
 
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
-Route::get( '/fix/{ext_number}', 'ProfileController@getFix' )->name( 'fix' );
+Route::get( '/fix/{number}', 'ProfileController@getFix' )->name( 'fix' );
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
 
@@ -111,6 +111,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'roles', 'Admin\RolesController' );
         Route::resource( 'perms', 'Admin\PermsController' );
         Route::resource( 'logs', 'Admin\LogsController' );
+        Route::resource( 'sessions', 'Admin\SessionsController' );
 
     });
 

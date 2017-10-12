@@ -29,9 +29,9 @@ class QueueLog extends BaseModel
             ->where( 'event', '=', 'ABANDON' );
     }
 
-    public function ext_number ()
+    public function number ()
     {
-        return mb_substr( $this->agent, -2 );
+        return preg_replace( '/\D/', '', $this->agent );
     }
 
     public function operator ()
@@ -44,7 +44,7 @@ class QueueLog extends BaseModel
                 {
                     return $q
                         ->withTrashed()
-                        ->where( 'ext_number', '=', $this->ext_number() )
+                        ->where( 'number', '=', $this->number() )
                         ->where( 'created_at', '<=', $datetime )
                         ->where( 'deleted_at', '>=', $datetime );
                 })

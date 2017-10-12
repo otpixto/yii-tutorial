@@ -64,7 +64,7 @@ class Asterisk
 
     private function read ()
     {
-        sleep( 1 );
+        usleep( 500000 ); //полсекунды
         $result = fread( $this->socket, $this->size );
         $this->last_result = $result;
         return $result;
@@ -227,7 +227,7 @@ class Asterisk
     public function queues ( $parse = false )
     {
         $packet = 'Action: Queues' . PHP_EOL . PHP_EOL;
-        $result = $this->write( $packet, 4096 );
+        $result = $this->write( $packet );
         if ( $parse )
         {
             $exp1 = explode( "\r\n\r\n", $result );
@@ -309,7 +309,7 @@ class Asterisk
         $packet .= 'Context: ' . $context . PHP_EOL;
         $packet .= 'Exten: ' . $exten . PHP_EOL . PHP_EOL;
 
-        $result = $this->write( $packet, 512 );
+        $result = $this->write( $packet );
 
         dd( $result );
 

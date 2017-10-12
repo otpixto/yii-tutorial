@@ -258,7 +258,7 @@ class User extends Authenticatable
             return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
         }
         $asterisk = new Asterisk();
-        if ( ! $asterisk->queueRemove( $this->phoneSession->ext_number ) )
+        if ( ! $asterisk->queueRemove( $this->phoneSession->number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
