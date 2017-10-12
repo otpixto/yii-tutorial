@@ -30,15 +30,16 @@ class ParseAddress extends Command
     public function handle ()
     {
 
-        $addresses = \App\Models\Address::all();
-        foreach ( $addresses as $address )
+        $addresses = \App\Models\Address::whereNull( 'address' )->get();
+        foreach ( $addresses as $addr )
         {
-            $exp = explode( ',', $address->name );
-            print_r( $exp );
-            if ( count( $exp ) < 2 ) continue;
-            $house = trim( str_replace( 'д.', ',', array_pop( $exp ) ) );
-            $address = implode( ',', $exp );
-            echo $address . ' ' . $house . PHP_EOL;
+            $exp = explode( 'д.', $addr->name );
+            if ( count( $exp ) != 2 ) continue;
+            $home = trim( str_replace( ',', '', $exp[1] ) );
+            $address = trim( trim( $exp[0] ), ',' );
+            $addr->address = $address;
+            $addr->home = $home;
+            $addr->save();
         }
 
     }
