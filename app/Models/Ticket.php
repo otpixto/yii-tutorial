@@ -21,7 +21,7 @@ class Ticket extends BaseModel
 
     private $availableStatuses = null;
 
-    private $_call = null;
+    private $_call = '-1';
 
     public static $places = [
         1 => 'Помещение',
@@ -196,11 +196,11 @@ class Ticket extends BaseModel
 
     public function call ()
     {
-        if ( is_null( $this->_call ) )
+        if ( $this->_call == '-1' )
         {
             if ( ! $this->call_at ) return null;
-            $dt_from = Carbon::parse( $this->call_at )->subMinutes( 1 );
-            $dt_to = Carbon::parse( $this->call_at )->addMinutes( 1 );
+            $dt_from = Carbon::parse( $this->call_at )->subSeconds( 30 );
+            $dt_to = Carbon::parse( $this->call_at )->addSeconds( 30 );
             $this->_call = Cdr
                 ::whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->call_phone ] )
                 ->answered()

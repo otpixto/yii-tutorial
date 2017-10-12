@@ -62,7 +62,26 @@ class SessionsController extends BaseController
 
     public function show ( $id )
     {
-        return redirect()->route( 'sessions.index' );
+
+        $session = PhoneSession
+            ::withTrashed()
+            ->find( $id );
+
+        if ( ! $session )
+        {
+            return redirect()
+                ->route( 'sessions.index' )
+                ->withErrors( [ 'Сессия не найдена' ] );
+        }
+
+        Title::add( 'Телефонная сессия оператора ' . $session->user->getName() );
+
+        $calls = $session->calls();
+
+        return view( 'admin.sessions.show' )
+            ->with( 'session', $session )
+            ->with( 'calls', $calls );
+
     }
 
 

@@ -2,10 +2,15 @@
 
 namespace App\Models\Asterisk;
 
+use App\Models\Ticket;
+use Carbon\Carbon;
+
 class Cdr extends BaseModel
 {
 
     protected $table = 'cdr';
+
+    private $_ticket = '-1';
 
     public function queueLog ()
     {
@@ -38,6 +43,20 @@ class Cdr extends BaseModel
             ->where( 'src', 'not like', '499%' )
             ->where( 'src', 'not like', '8495%' )
             ->where( 'src', 'not like', '8499%' );
+    }
+
+    public function ticket ()
+    {
+        if ( $this->_ticket == '-1' )
+        {
+            $dt_from = Carbon::parse( $this->calldate )->subSeconds( 30 );
+            $dt_to = Carbon::parse( $this->calldate )->addSeconds( 30 );
+            $this->_ticket = Ticket
+                ::where( 'call_phone', '=', mb_substr( $this->src, -10 ) )
+                ->whereBetween( 'call_at', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
+                ->first();
+        }
+        return $this->_ticket;
     }
 
     public function hasMp3 ()

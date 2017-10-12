@@ -312,6 +312,8 @@ class ReportsController extends BaseController
     public function addresses ()
     {
 
+        Title::add( 'Отчет по адресам' );
+
     }
 
     public function types ( Request $request )

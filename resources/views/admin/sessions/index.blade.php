@@ -62,6 +62,9 @@
                             <th>
                                 Длительность
                             </th>
+                            <th>
+                                &nbsp;
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,6 +94,11 @@
                                     -
                                 </td>
                             @endif
+                            <td>
+                                <a href="{{ route( 'sessions.show', $session->id ) }}" class="btn btn-lg btn-primary tooltips" title="Просмотр сессии">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
