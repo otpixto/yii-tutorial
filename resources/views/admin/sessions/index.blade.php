@@ -110,7 +110,12 @@
                                 </td>
                             @else
                                 <td colspan="2">
-                                    -
+                                    {!! Form::model( $session, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $session->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fa fa-close"></i>
+                                        Завершить сессию
+                                    </button>
+                                    {!! Form::close() !!}
                                 </td>
                             @endif
                             <td class="text-right">

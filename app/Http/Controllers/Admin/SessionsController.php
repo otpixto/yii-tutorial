@@ -158,4 +158,24 @@ class SessionsController extends BaseController
 
     }
 
+    public function destroy( $id )
+    {
+        $session = PhoneSession::find( $id );
+        if ( ! $session )
+        {
+            return redirect()
+                ->route( 'sessions.index' )
+                ->withErrors( [ 'Сессия не найдена' ] );
+        }
+        $res = $session->user->phoneSessionUnreg();
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()
+                ->route( 'sessions.index' )
+                ->withErrors( $res );
+        }
+        return redirect()->route( 'sessions.index' )
+            ->with( 'success', 'Сессия успешно закрыта' );
+    }
+
 }
