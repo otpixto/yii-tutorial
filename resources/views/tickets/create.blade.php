@@ -11,8 +11,8 @@
 @section( 'content' )
 
     {!! Form::open( [ 'url' => route( 'tickets.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
-	{!! Form::hidden( 'draft', '0', [ 'id' => 'draft' ] ) !!}
-    {!! Form::hidden( 'ticket_id', $draft->id ?? null, [ 'id' => 'ticket_id' ] ) !!}
+	{!! Form::hidden( 'draft', '0', [ 'id' => 'draft', 'autocomplete' => 'off' ] ) !!}
+    {!! Form::hidden( 'ticket_id', $draft->id ?? null, [ 'id' => 'ticket_id', 'autocomplete' => 'off' ] ) !!}
 
     <div class="row">
 
@@ -21,25 +21,25 @@
             <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required' ] ) !!}
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat' ] ) !!}
+                    {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'place_id', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $draft->place_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place_id' ] ) !!}
+                    {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $draft->place_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
@@ -47,21 +47,21 @@
                 {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency' ] ) !!}
+                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency', 'autocomplete' => 'off' ] ) !!}
                         <span></span>
                         Авария
                     </label>
                 </div>
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently', $draft->urgently ?? null ), [ 'class' => 'autosave' ] ) !!}
+                        {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently', $draft->urgently ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
                         <span></span>
                         Срочно
                     </label>
                 </div>
                 <div class="col-xs-3">
                     <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel', $draft->dobrodel ?? null ), [ 'class' => 'autosave' ] ) !!}
+                        {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel', $draft->dobrodel ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
                         <span></span>
                         Добродел
                     </label>
@@ -73,23 +73,23 @@
             <div class="form-group ">
                 {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Фамилия', 'required' ] ) !!}
+                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Имя', 'required' ] ) !!}
+                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Отчество' ] ) !!}
+                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-4">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '' ] ) !!}
+                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-4">
-                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Доп. телефон' ] ) !!}
+                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-1 text-right">
                     @if ( ! empty( \Input::old( 'customer_id', $draft->customer_id ?? null ) ) )
@@ -107,11 +107,11 @@
             <div class="form-group">
                 {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'id' => 'actual_flat' ] ) !!}
+                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'id' => 'actual_flat', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
@@ -165,7 +165,7 @@
                 <i class="fa fa-microphone-slash"></i>
             </button>
             {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::textarea( 'text', \Input::old( 'text', $draft->text ?? null ), [ 'class' => 'form-control autosizeme autosave', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5 ] ) !!}
+            {!! Form::textarea( 'text', \Input::old( 'text', $draft->text ?? null ), [ 'class' => 'form-control autosizeme autosave', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5, 'autocomplete' => 'off' ] ) !!}
 
         </div>
 
@@ -176,7 +176,7 @@
         <div class="col-xs-7">
 
             {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput' ] ) !!}
+            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
 
         </div>
 
@@ -197,8 +197,8 @@
 
     </div>
 
-    {!! Form::hidden( 'customer_id', \Input::old( 'customer_id', $draft->customer_id ?? null ), [ 'id' => 'customer_id', 'class' => 'autosave' ] ) !!}
-    {!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements' ] ) !!}
+    {!! Form::hidden( 'customer_id', \Input::old( 'customer_id', $draft->customer_id ?? null ), [ 'id' => 'customer_id', 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
+    {!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements', 'autocomplete' => 'off' ] ) !!}
 
     {!! Form::close() !!}
 
