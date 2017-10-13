@@ -115,7 +115,6 @@ class BaseModel extends Model
         {
             $new->author_id = Auth::user()->id;
         }
-        $new->addLog( 'Создана запись' );
         return $new;
     }
 
