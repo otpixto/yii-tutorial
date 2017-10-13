@@ -113,7 +113,7 @@
                                     -
                                 </td>
                             @endif
-                            <td>
+                            <td class="text-right">
                                 <a href="{{ route( 'sessions.show', $session->id ) }}" class="btn btn-lg btn-primary tooltips" title="Просмотр сессии">
                                     <i class="fa fa-chevron-right"></i>
                                 </a>
