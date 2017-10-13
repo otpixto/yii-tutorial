@@ -21,21 +21,35 @@
         </div>
     @endif
 
-    <div class="row hidden-print">
-        <div class="col-xs-12">
-            {!! Form::open( [ 'method' => 'get' ] ) !!}
-            <div class="input-group">
-                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa fa-search"></i>
-                            Поиск
-                        </button>
-                    </span>
-            </div>
-            {!! Form::close() !!}
+    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
+    <div class="form-group">
+        {!! Form::label( 'operator', 'Оператор', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
+        <div class="col-md-3 col-xs-4">
+            {!! Form::select( 'operator', [ 0 => ' -- все --' ] + $operators, \Input::get( 'operator' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Оператор' ] ) !!}
+        </div>
+        <div class="col-md-3 col-xs-4">
+            {!! Form::text( 'number', \Input::get( 'number' ), [ 'class' => 'form-control', 'placeholder' => 'Номер', 'maxlength' => '10' ] ) !!}
         </div>
     </div>
+    <div class="form-group">
+        {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
+        <div class="col-md-3 col-xs-4">
+            {!! Form::text( 'date_from', \Input::get( 'date_from' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
+        </div>
+        <div class="col-md-3 col-xs-4">
+            {!! Form::text( 'date_to', \Input::get( 'date_to' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-4 col-md-offset-3 col-md-2 col-xs-4">
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa fa-search"></i>
+                Поиск
+            </button>
+        </div>
+    </div>
+    {!! Form::close() !!}
+
 
     <div class="row margin-top-15">
         <div class="col-xs-12">
@@ -44,7 +58,7 @@
 
             @if ( $sessions->count() )
 
-                <table class="table table-hover table-striped">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th colspan="2" class="text-center">
@@ -74,7 +88,7 @@
                     </thead>
                     <tbody>
                     @foreach ( $sessions as $session )
-                        <tr>
+                        <tr @if ( ! $session->deleted_at ) class="success" @endif>
                             <td>
                                 {!! $session->user->getFullName() !!}
                             </td>
@@ -117,5 +131,43 @@
 
         </div>
     </div>
+
+@endsection
+
+@section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
+@endsection
+
+@section( 'js' )
+
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        $( document )
+
+            .ready( function ()
+            {
+
+                $( '.select2' ).select2();
+
+                $( '.date-picker' ).datepicker({
+                    format: 'dd.mm.yyyy'
+                });
+
+            });
+
+    </script>
 
 @endsection

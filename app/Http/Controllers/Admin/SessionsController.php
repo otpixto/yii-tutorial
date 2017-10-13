@@ -6,6 +6,7 @@ use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Iphome\Permission\Models\Permission;
@@ -17,19 +18,62 @@ class SessionsController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Авторизация на телефоне' );
+        Title::add( 'Телефонные сессии' );
     }
 
-    public function index ()
+    public function index ( Request $request )
     {
 
         $sessions = PhoneSession
             ::withTrashed()
-            ->orderBy( 'id', 'desc' )
-            ->paginate( 30 );
+            ->orderBy( 'id', 'desc' );
+
+        if ( ! empty( $request->get( 'operator' ) ) )
+        {
+            $sessions
+                ->where( 'user_id', '=', $request->get( 'operator' ) );
+        }
+
+        if ( ! empty( $request->get( 'number' ) ) )
+        {
+            $sessions
+                ->where( 'number', '=', $request->get( 'number' ) );
+        }
+
+        if ( ! empty( $request->get( 'date_from' ) ) )
+        {
+            $dt = Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString();
+            $sessions
+                ->whereRaw( 'DATE( created_at ) >= ? AND ( deleted_at IS NULL OR DATE( deleted_at ) >= ? )', [ $dt, $dt ] );
+        }
+
+        if ( ! empty( $request->get( 'date_to' ) ) )
+        {
+            $dt = Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString();
+            $sessions
+                ->whereRaw( 'DATE( created_at ) <= ? AND DATE( deleted_at ) <= ?', [ $dt, $dt ] );
+        }
+
+        $sessions = $sessions
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        $res = User
+            ::role( 'operator' )
+            ->orderBy( 'lastname' )
+            ->orderBy( 'firstname' )
+            ->orderBy( 'middlename' )
+            ->get();
+
+        $operators = [];
+        foreach ( $res as $r )
+        {
+            $operators[ $r->id ] = $r->getName();
+        }
 
         return view('admin.sessions.index' )
-            ->with( 'sessions', $sessions );
+            ->with( 'sessions', $sessions )
+            ->with( 'operators', $operators );
 
     }
 
@@ -39,19 +83,20 @@ class SessionsController extends BaseController
         Title::add( 'Добавить в очередь' );
 
         $res = User
-            ::orderBy( 'lastname' )
+            ::role( 'operator' )
+            ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
             ->orderBy( 'middlename' )
             ->get();
 
-        $users = [];
+        $operators = [];
         foreach ( $res as $r )
         {
-            $users[ $r->id ] = $r->getName();
+            $operators[ $r->id ] = $r->getName();
         }
 
         return view('admin.sessions.create' )
-            ->with( 'users', $users );
+            ->with( 'operators', $operators );
 
     }
 

@@ -15,7 +15,7 @@
 
     <div class="form-group">
         {!! Form::label( 'user_id', 'Пользователь', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::select( 'user_id', $users, \Input::old( 'user_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Пользователь' ] ) !!}
+        {!! Form::select( 'user_id', [ 0 => ' -- выберите из списка -- ' ] + $operators, \Input::old( 'user_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Пользователь' ] ) !!}
     </div>
 
     <div class="form-group">
@@ -46,7 +46,7 @@
             .ready( function ()
             {
 
-                $('.select2').select2();
+                $( '.select2' ).select2();
 
             });
 
