@@ -263,6 +263,7 @@ class User extends Authenticatable
             return new MessageBag( [ $asterisk->last_result ] );
         }
         $this->phoneSession->delete();
+        \Cookie::forget( 'phone' );
     }
 
     public function getPhone ( $html = false )
