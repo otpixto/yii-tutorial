@@ -141,6 +141,7 @@ class SessionsController extends BaseController
         $this->validate( $request, PhoneSession::$rules );
 
         $asterisk = new Asterisk();
+        \DB::beginTransaction();
         if ( $asterisk->queueAdd( $request->get( 'number' ) ) )
         {
             $phoneSession = PhoneSession::create( $request->all() );
@@ -151,7 +152,14 @@ class SessionsController extends BaseController
                     ->withErrors( $phoneSession );
             }
             $phoneSession->save();
+            $log = $phoneSession->addLog( 'Телефонная сессия началась' );
+            if ( $log instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withErrors( $log );
+            }
         }
+        \DB::commit();
 
         return redirect()->route( 'sessions.index' )
             ->with( 'success', 'Телефон успешно добавлен в очередь' );
@@ -160,20 +168,28 @@ class SessionsController extends BaseController
 
     public function destroy( $id )
     {
-        $session = PhoneSession::find( $id );
-        if ( ! $session )
+        $phoneSession = PhoneSession::find( $id );
+        if ( ! $phoneSession )
         {
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( [ 'Сессия не найдена' ] );
         }
-        $res = $session->user->phoneSessionUnreg();
+        \DB::beginTransaction();
+        $log = $phoneSession->addLog( 'Телефонная сессия завершена' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $log );
+        }
+        $res = $phoneSession->user->phoneSessionUnreg();
         if ( $res instanceof MessageBag )
         {
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( $res );
         }
+        \DB::commit();
         return redirect()->route( 'sessions.index' )
             ->with( 'success', 'Сессия успешно закрыта' );
     }

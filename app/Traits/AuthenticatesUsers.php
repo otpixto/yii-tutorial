@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
@@ -114,7 +115,16 @@ trait AuthenticatesUsers
      */
     protected function authenticated(Request $request, $user)
     {
-        //
+        $log = Log::create([
+            'model_id'      => $user->id,
+            'model_name'    => get_class( $user ),
+            'text'          => 'Авторизовался с IP ' . $request->ip()
+        ]);
+        if ( $log instanceof MessageBag )
+        {
+            return false;
+        }
+        $log->save();
     }
 
     /**
@@ -152,9 +162,10 @@ trait AuthenticatesUsers
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function logout(Request $request)
+    public function logout ( Request $request )
     {
         $user = $this->guard()->user();
+        \DB::beginTransaction();
         if ( $user && $user->phoneSession )
         {
             $res = $user->phoneSessionUnreg();
@@ -163,10 +174,21 @@ trait AuthenticatesUsers
                 return redirect()->back()->withErrors( $res );
             }
         }
+        $log = Log::create([
+            'model_id'      => $user->id,
+            'model_name'    => get_class( $user ),
+            'text'          => 'Выход из системы с IP ' . $request->ip()
+        ]);
+        if ( $log instanceof MessageBag )
+        {
+            return false;
+        }
+        $log->save();
         $this->guard()->logout();
         $request->session()->flush();
         $request->session()->regenerate();
-        return redirect('/login');
+        \DB::commit();
+        return redirect('/login' );
     }
 
     /**

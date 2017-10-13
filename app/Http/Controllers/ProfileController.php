@@ -77,14 +77,12 @@ class ProfileController extends Controller
 
     public function postPhoneConfirm ( Request $request )
     {
-
         $res = UserPhoneAuth::confirm( $request->all() );
-
         if ( $res instanceof MessageBag )
         {
             return redirect()->route( 'profile.phone_reg' )->withErrors( $res );
         }
-
+        \DB::beginTransaction();
         $phoneSession = PhoneSession::create([
             'user_id'       => \Auth::user()->id,
             'number'        => $request->get( 'number' )
@@ -96,19 +94,32 @@ class ProfileController extends Controller
                 ->withErrors( $phoneSession );
         }
         $phoneSession->save();
-
+        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $log );
+        }
+        \DB::commit();
         return redirect()->route( 'profile.phone' )
             ->with( 'success', 'Телефон успешно зарегистрирован' );
-
     }
 
     public function postPhoneUnreg ()
     {
+        \DB::beginTransaction();
+        $log = \Auth::user()->phoneSession->addLog( 'Телефонная сессия завершена' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $log );
+        }
         $res = \Auth::user()->phoneSessionUnreg();
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()->withErrors( $res );
         }
+        \DB::commit();
         return redirect()->route( 'profile.phone_reg' )
             ->with( 'success', 'Телефон успешно разлогинен' );
     }
