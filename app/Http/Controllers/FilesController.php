@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
+use App\Models\Ticket;
 use App\Models\TicketManagement;
 use Illuminate\Http\Request;
 use App\Models\Comment;
@@ -72,12 +73,12 @@ class FilesController extends Controller
                 }
                 $file->save();
             }
-            if ( ! empty( $request->get( 'status' ) ) && $request->get( 'model_name' ) == TicketManagement::class )
+            if ( ! empty( $request->get( 'status' ) ) && $request->get( 'model_name' ) == TicketManagement::class && ! in_array( $file->parent->status_code, Ticket::$final_statuses ) )
             {
                 $ticketManagement = TicketManagement::find( $request->get( 'model_id' ) );
                 if ( $ticketManagement )
                 {
-                    $res = $ticketManagement->changeStatus( $request->get( 'status' ) );
+                    $res = $ticketManagement->changeStatus( $request->get( 'status' ), true );
                     if ( $res instanceof MessageBag )
                     {
                         return redirect()->back()->withErrors( $res );
