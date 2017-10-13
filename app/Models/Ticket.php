@@ -198,9 +198,9 @@ class Ticket extends BaseModel
     {
         if ( $this->_call == '-1' )
         {
-            if ( ! $this->call_at ) return null;
-            $dt_from = Carbon::parse( $this->call_at )->subSeconds( 30 );
-            $dt_to = Carbon::parse( $this->call_at )->addSeconds( 30 );
+            if ( ! $this->call_phone || ! $this->call_at ) return null;
+            $dt_from = Carbon::parse( $this->call_at )->subSeconds( \Config::get( 'asterisk.tolerance' ) );
+            $dt_to = Carbon::parse( $this->call_at )->addSeconds( \Config::get( 'asterisk.tolerance' ) );
             $this->_call = Cdr
                 ::whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->call_phone ] )
                 ->answered()
