@@ -72,6 +72,11 @@ class FilesController extends Controller
                     return redirect()->back()->withErrors( $file );
                 }
                 $file->save();
+                $log = $file->parent->addLog( 'Загружен файл "' . $file->name . '"' );
+                if ( $log instanceof MessageBag )
+                {
+                    return redirect()->back()->withErrors( $log );
+                }
             }
             if ( ! empty( $request->get( 'status' ) ) && $request->get( 'model_name' ) == TicketManagement::class && ! in_array( $file->parent->status_code, Ticket::$final_statuses ) )
             {
