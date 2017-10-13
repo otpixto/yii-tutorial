@@ -16,7 +16,7 @@ socket
     {
         console.log( 'picked_up', phone );
         $.cookie( 'phone', phone );
-        if ( window.location.pathname == '/tickets/create' )
+        if ( window.location.pathname == '/tickets/create' && $( '#phone' ).length )
         {
             $( '#phone' ).val( phone ).trigger( 'keyup' );
         }
