@@ -54,6 +54,7 @@ class Cdr extends BaseModel
             $this->_ticket = Ticket
                 ::where( 'call_phone', '=', mb_substr( $this->src, -10 ) )
                 ->whereBetween( 'call_at', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
+                ->where( 'status_code', '!=', 'draft' )
                 ->first();
         }
         return $this->_ticket;
