@@ -211,6 +211,7 @@ class Ticket extends BaseModel
                         ->completed();
                 })
                 ->whereBetween( 'calldate', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
+                ->orderBy( 'id', 'desc' )
                 ->first();
         }
         return $this->_call;

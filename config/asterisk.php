@@ -6,7 +6,7 @@ return [
     'user'              => 'asterisk',
     'pass'              => 'ololoasterisk321123',
     'queue'             => 'eds-zhuk',
-    'tolerance'         => 10, // погрешность разницы во времени (сек)
+    'tolerance'         => 3, // погрешность разницы во времени (сек)
     'period_hours'      => 3, // cdr за последние n часов
     'redirect_timeout'  => 0, // редирект звонка через (сек)
     'allowed'           => [ // разрешенные каналы
