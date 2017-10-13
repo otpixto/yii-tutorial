@@ -20,7 +20,7 @@ class QueueLog extends BaseModel
     public function scopeCompleted ( $query )
     {
         return $query
-            ->where( 'event', '=', 'COMPLETEAGENT' );
+            ->whereIn( 'event', [ 'COMPLETEAGENT', 'COMPLETECALLER' ] );
     }
 
     public function scopeAbandoned ( $query )

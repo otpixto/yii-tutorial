@@ -23,7 +23,7 @@
                                 Дата звонка
                             </th>
                             <th>
-                                Добавочный
+                                Входящий номер
                             </th>
                             <th>
                                 Длительность
@@ -45,7 +45,7 @@
                                 {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
                             </td>
                             <td>
-                                {{ $call->queueLog->number() }}
+                                {{ $call->src }}
                             </td>
                             <td>
                                 {{ date( 'H:i:s', mktime( 0, 0, $call->billsec ) ) }}

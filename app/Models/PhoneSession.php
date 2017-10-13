@@ -3,6 +3,7 @@ declare ( strict_types = 1 );
 
 namespace App\Models;
 
+use App\Classes\Asterisk;
 use App\Models\Asterisk\Cdr;
 
 class PhoneSession extends BaseModel
@@ -31,19 +32,22 @@ class PhoneSession extends BaseModel
     {
         if ( is_null( $this->_calls ) || $this->_limit != $limit )
         {
+            $asterisk = new Asterisk();
+            $number = $asterisk->prepareNumber( $this->number );
+            $channel = $asterisk->prepareChannel( $number );
             $calls = Cdr
                 ::answered()
                 ->incoming()
-                ->whereHas( 'queueLog', function ( $queueLog )
+                ->whereHas( 'queueLog', function ( $queueLog ) use ( $channel )
                 {
                     return $queueLog
                         ->completed()
-                        ->where( 'agent', '=', 'SIP/' . $this->number )
-                        ->where( 'time', '>=', $this->created_at->subSeconds( 10 )->toDateTimeString() );
+                        ->where( 'agent', '=', $channel )
+                        ->where( 'time', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
                     if ( $this->deleted_at )
                     {
                         $calls
-                            ->where( 'time', '<=', $this->deleted_at->addSeconds( 10 )->toDateTimeString() );
+                            ->where( 'time', '<=', $this->deleted_at->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
                     }
                 });
             if ( $limit )

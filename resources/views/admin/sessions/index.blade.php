@@ -47,23 +47,28 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
+                            <th colspan="2" class="text-center">
+                                Оператор
+                            </th>
+                            <th rowspan="2">
+                                Начало сессии
+                            </th>
+                            <th rowspan="2">
+                                Окончание сессии
+                            </th>
+                            <th rowspan="2">
+                                Длительность
+                            </th>
+                            <th rowspan="2">
+                                &nbsp;
+                            </th>
+                        </tr>
+                        <tr>
                             <th>
-                                Пользователь
+                                ФИО
                             </th>
                             <th>
                                 Номер
-                            </th>
-                            <th>
-                                Начало сессии
-                            </th>
-                            <th>
-                                Окончание сессии
-                            </th>
-                            <th>
-                                Длительность
-                            </th>
-                            <th>
-                                &nbsp;
                             </th>
                         </tr>
                     </thead>

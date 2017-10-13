@@ -49,8 +49,8 @@ class Cdr extends BaseModel
     {
         if ( $this->_ticket == '-1' )
         {
-            $dt_from = Carbon::parse( $this->calldate )->subSeconds( 30 );
-            $dt_to = Carbon::parse( $this->calldate )->addSeconds( 30 );
+            $dt_from = Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) );
+            $dt_to = Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) );
             $this->_ticket = Ticket
                 ::where( 'call_phone', '=', mb_substr( $this->src, -10 ) )
                 ->whereBetween( 'call_at', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
