@@ -191,7 +191,7 @@ $( document )
             }
         });
 
-        var phone = $.cookie( 'phone' );
+        var phone = $.cookie ? $.cookie( 'phone' ) : null;
         if ( phone )
 		{
             $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-warning' );
