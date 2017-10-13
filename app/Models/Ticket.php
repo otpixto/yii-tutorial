@@ -692,6 +692,13 @@ class Ticket extends BaseModel
 
         \DB::beginTransaction();
 
+        $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . self::$statuses[ $status_code ] . '"' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $log );
+        }
+
         $this->status_code = $status_code;
         $this->status_name = self::$statuses[ $status_code ];
         $this->save();
