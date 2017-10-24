@@ -55,12 +55,6 @@ class TicketsController extends BaseController
                         ->where( 'id', '=', $exp_number[0] );
                 }
 
-                if ( !empty( $request->get( 'status_code' ) ) )
-                {
-                    $ticket
-                        ->where( 'status_code', '=', $request->get( 'status_code' ) );
-                }
-
                 if ( !empty( $request->get( 'period_from' ) ) )
                 {
                     $ticket
@@ -98,6 +92,12 @@ class TicketsController extends BaseController
                 }
 
             });
+			
+		if ( !empty( $request->get( 'status_code' ) ) )
+		{
+			$ticketManagements
+				->where( 'status_code', '=', $request->get( 'status_code' ) );
+		}
 
         if ( $statuses )
         {
