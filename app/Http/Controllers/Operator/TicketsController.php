@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
 use App\Models\Address;
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Management;
 use App\Models\Ticket;
@@ -73,10 +74,14 @@ class TicketsController extends BaseController
                         ->where( 'author_id', '=', $request->get( 'operator_id' ) );
                 }
 
-                if ( !empty( $request->get( 'type_id' ) ) )
+                if ( !empty( $request->get( 'category_id' ) ) )
                 {
                     $ticket
-                        ->where( 'type_id', '=', $request->get( 'type_id' ) );
+                        ->whereHas( 'type', function ( $q ) use ( $request )
+                        {
+                            return $q
+                                ->where( 'category_id', '=', $request->get( 'category_id' ) );
+                        });
                 }
 
                 if ( !empty( $request->get( 'address_id' ) ) )
@@ -199,7 +204,7 @@ class TicketsController extends BaseController
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'categories', Category::orderBy( 'name' )->get() )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
             ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'field_operator', $field_operator )

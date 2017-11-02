@@ -124,7 +124,7 @@
                             </td>
                         @endif
                         <td>
-                            {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + $types->pluck( 'name', 'id' )->toArray(), \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
+                            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->pluck( 'name', 'id' )->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                         </td>
                         <td>
                             <div class="row">
