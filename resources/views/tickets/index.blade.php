@@ -131,7 +131,17 @@
                             </td>
                         @endif
                         <td>
-                            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->pluck( 'name', 'id' )->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->pluck( 'name', 'id' )->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <label class="col-lg-12">
+                                    {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
+                                    Авария
+                                </label>
+                            </div>
                         </td>
                         <td>
                             <div class="row">

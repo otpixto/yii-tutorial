@@ -40,6 +40,12 @@
                 {{ $ticketManagement->ticket->type->name }}
             </div>
         @endif
+        @if ( $ticketManagement->ticket->emergency )
+            <h3 class="margin-top-15 text-danger bold">
+                <i class="icon-fire"></i>
+                Авария
+            </h3>
+        @endif
     </td>
     <td>
         {{ $ticketManagement->ticket->getAddress() }}

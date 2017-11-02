@@ -96,6 +96,12 @@ class TicketsController extends BaseController
                         ->where( 'flat', '=', $request->get( 'flat' ) );
                 }
 
+                if ( !empty( $request->get( 'emergency' ) ) )
+                {
+                    $ticket
+                        ->where( 'emergency', '=', 1 );
+                }
+
             });
 			
 		if ( !empty( $request->get( 'status_code' ) ) )
