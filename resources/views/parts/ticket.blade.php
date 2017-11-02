@@ -58,6 +58,12 @@
 @if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->count() )
     <tr>
         <td colspan="{{ ( 5 + ( $field_operator ? 1 : 0 ) + ( $field_management ? 1 : 0 ) ) }}">
+            @if ( $ticketManagement->rate_comment )
+                <div class="note note-danger">
+                    <span class="small text-muted">Комментарий к оценке:</span>
+                    {{ $ticketManagement->rate_comment }}
+                </div>
+            @endif
             <div class="note note-info">
                 @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
             </div>

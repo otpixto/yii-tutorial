@@ -73,20 +73,30 @@
                     <td class="text-center info bold">
                         {{ $data[ $management->id ][ 'total' ] }}
                     </td>
-                    <td data-field="1" class="text-center">
-                        {{ $data[ $management->id ][ 'rate-1' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 1, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="1">
+                            {{ $data[ $management->id ][ 'rate-1' ] }}
+                        </a>
                     </td>
-                    <td data-field="2" class="text-center">
-                        {{ $data[ $management->id ][ 'rate-2' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 2, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="2">
+                            {{ $data[ $management->id ][ 'rate-2' ] }}
+                        </a>
                     </td>
-                    <td data-field="3" class="text-center">
-                        {{ $data[ $management->id ][ 'rate-3' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 3, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="3">
+                            {{ $data[ $management->id ][ 'rate-3' ] }}
+                        </a>
                     </td>
-                    <td data-field="4" class="text-center">
-                        {{ $data[ $management->id ][ 'rate-4' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 4, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="4">
+                            {{ $data[ $management->id ][ 'rate-4' ] }}
+                        </a>
                     </td>
-                    <td data-field="5" class="text-center">
-                        {{ $data[ $management->id ][ 'rate-5' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 5, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="5">
+                            {{ $data[ $management->id ][ 'rate-5' ] }}
+                        </a>
                     </td>
                     <td data-field="average" class="text-right info bold">
                         {{ $data[ $management->id ][ 'average' ] }}
@@ -103,19 +113,29 @@
                         {{ $data[ 'total' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $data[ 'rate-1' ] }}
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 1 ] ) }}">
+                            {{ $data[ 'rate-1' ] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data[ 'rate-2' ] }}
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 2 ] ) }}">
+                            {{ $data[ 'rate-2' ] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data[ 'rate-3' ] }}
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 3 ] ) }}">
+                            {{ $data[ 'rate-3' ] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data[ 'rate-4' ] }}
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 4 ] ) }}">
+                            {{ $data[ 'rate-4' ] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data[ 'rate-5' ] }}
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 5 ] ) }}">
+                            {{ $data[ 'rate-5' ] }}
+                        </a>
                     </th>
                     <th class="text-right warning">
                         {{ $data[ 'average' ] }}

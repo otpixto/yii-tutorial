@@ -75,20 +75,30 @@
                     <td data-field="name">
                         {{ $management->name }}
                     </td>
-                    <td data-field="total" class="text-center info bold">
-                        {{ $data[ $management->id ][ 'total' ] }}
+                    <td class="text-center info bold">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                            {{ $data[ $management->id ][ 'total' ] }}
+                        </a>
                     </td>
-                    <td data-field="canceled" class="text-center">
-                        {{ $data[ $management->id ][ 'canceled' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="canceled">
+                            {{ $data[ $management->id ][ 'canceled' ] }}
+                        </a>
                     </td>
-                    <td data-field="not_verified" class="text-center">
-                        {{ $data[ $management->id ][ 'not_verified' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="not_verified">
+                            {{ $data[ $management->id ][ 'not_verified' ] }}
+                        </a>
                     </td>
-                    <td data-field="closed_with_confirm" class="text-center">
-                        {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_with_confirm">
+                            {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                        </a>
                     </td>
-                    <td data-field="closed_without_confirm" class="text-center">
-                        {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_without_confirm">
+                            {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
+                        </a>
                     </td>
                     <td data-field="closed" class="text-center info bold">
                         {{ $data[ $management->id ][ 'closed' ] }}
@@ -114,16 +124,24 @@
                         {{ $data['total'] }}
                     </th>
                     <th class="text-center">
-                        {{ $data['canceled'] }}
+                        <a href="{{ route( 'tickets.index', [ 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                            {{ $data['canceled'] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data['not_verified'] }}
+                        <a href="{{ route( 'tickets.index', [ 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                            {{ $data['not_verified'] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data['closed_with_confirm'] }}
+                        <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                            {{ $data['closed_with_confirm'] }}
+                        </a>
                     </th>
                     <th class="text-center">
-                        {{ $data['closed_without_confirm'] }}
+                        <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                            {{ $data['closed_without_confirm'] }}
+                        </a>
                     </th>
                     <th class="text-center warning">
                         {{ $data['closed'] }}

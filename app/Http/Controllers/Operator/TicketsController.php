@@ -104,6 +104,12 @@ class TicketsController extends BaseController
 				->where( 'status_code', '=', $request->get( 'status_code' ) );
 		}
 
+        if ( !empty( $request->get( 'rate' ) ) )
+        {
+            $ticketManagements
+                ->where( 'rate', '=', $request->get( 'rate' ) );
+        }
+
         if ( $statuses )
         {
             $ticketManagements

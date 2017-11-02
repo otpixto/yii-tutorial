@@ -65,7 +65,7 @@
                 <thead>
                     <tr class="info">
                         <th width="250">
-                             Статус \ Номер заявки
+                             Статус \ Номер заявки \ Оценка
                         </th>
                         <th width="220">
                             Дата и время создания
@@ -93,21 +93,28 @@
                     <tr class="info hidden-print">
                         <td>
                             <div class="row">
-                                <div class="col-lg-7">
+                                <div class="col-lg-12">
                                     {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                 </div>
-                                <div class="col-lg-5">
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-lg-8">
                                     {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+                                </div>
+                                <div class="col-lg-4">
+                                    {!! Form::select( 'rate', [ 0 => '-', 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5 ], \Input::old( 'rate' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Оценка' ] ) !!}
                                 </div>
                             </div>
                         </td>
                         <td>
                             <div class="date-picker input-daterange" data-date-format="dd.mm.yyyy">
 								<div class="row">
-									<div class="col-lg-6">
+									<div class="col-lg-12">
 										{!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
 									</div>
-									<div class="col-lg-6">
+                                </div>
+                                <div class="row margin-top-10">
+									<div class="col-lg-12">
 										{!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
 									</div>
 								</div>
