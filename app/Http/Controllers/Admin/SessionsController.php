@@ -142,7 +142,7 @@ class SessionsController extends BaseController
 
         $asterisk = new Asterisk();
         \DB::beginTransaction();
-        if ( $asterisk->queueAdd( $request->get( 'number' ) ) )
+        if ( ( $res = $asterisk->queueAdd( $request->get( 'number' ) ) ) )
         {
             $phoneSession = PhoneSession::create( $request->all() );
             if ( $phoneSession instanceof MessageBag )
@@ -158,6 +158,11 @@ class SessionsController extends BaseController
                 return redirect()->back()
                     ->withErrors( $log );
             }
+        }
+        else
+        {
+            return redirect()->back()
+                ->withErrors( $asterisk->last_result );
         }
         \DB::commit();
 

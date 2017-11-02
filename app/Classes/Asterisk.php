@@ -251,9 +251,16 @@ class Asterisk
                 {
                     $e2 = trim( $e2 );
                     if ( $e2 == 'members:' ) continue;
-                    if ( mb_substr( $e2, 0, 4 ) == 'sip/' )
+                    if ( mb_substr( $e2, 0, 4 ) == 'sip/' || mb_substr( $e2, 0, 6 ) == 'local/' )
                     {
-                        $exten = preg_replace( '/\D/', '', mb_substr( $e2, 4, 4 ) );
+                        if ( mb_substr( $e2, 0, 6 ) == 'local/' )
+                        {
+                            $exten = mb_substr( preg_replace( '/\D/', '', $e2 ), 2, 10 );
+                        }
+                        else
+                        {
+                            $exten = mb_substr( preg_replace( '/\D/', '', $e2 ), 0, 4 );
+                        }
                         //if ( mb_strpos( $e2, '(busy)' ) )
                         if ( mb_strpos( $e2, 'busy' ) )
                         {

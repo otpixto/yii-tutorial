@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
-use App\Models\Type;
 use App\Models\UserPhoneAuth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -127,50 +126,21 @@ class ProfileController extends Controller
 
     public function getTest ()
     {
-        $types = Type::all();
-        foreach ( $types as $type )
-        {
-            $exp = explode( ' ', $type->name );
-            $old = $exp[ 0 ];
-            if ( ! strpos( $old, '.' ) ) continue;
-            $exp2 = explode( '.', $old );
-            $new = '';
-            if ( strlen( $exp2[ 0 ] ) < 2 )
-            {
-                $new .= '0' . $exp2[ 0 ];
-            }
-            else
-            {
-                $new .= $exp2[ 0 ];
-            }
-            $new .= '.';
-            if ( strlen( $exp2[ 1 ] ) < 2 )
-            {
-                $new .= '0' . $exp2[ 1 ];
-            }
-            else
-            {
-                $new .= $exp2[ 1 ];
-            }
-            $new .= '.';
-            $name = str_replace( $old, $new, $type->name );
-            echo $name . '<br />';
-            $type->name = $name;
-            $type->save();
-        }
+        $asterisk = new Asterisk();
+        dd( $asterisk->queues() );
     }
-	
-	public function getFix ( $number )
+
+    public function getFix ( $number )
     {
 
         $asterisk = new Asterisk();
         $asterisk->queueRemove( $number );
         $phoneSession = PhoneSession::where( 'number', '=', $number )->first();
-		if ( $phoneSession )
-		{
-			$phoneSession->delete();
-		}
-	
+        if ( $phoneSession )
+        {
+            $phoneSession->delete();
+        }
+
     }
 
 }
