@@ -33,10 +33,10 @@
         <div id="chartdiv" style="min-height: {{ $categories->count() * 30 }}px;" class="hidden-print"></div>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
             </div>
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div id="piediv2" style="min-height: 500px;" class="hidden-print"></div>
             </div>
         </div>
