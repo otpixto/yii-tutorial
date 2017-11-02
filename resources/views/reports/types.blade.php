@@ -32,6 +32,8 @@
 
         <div id="chartdiv" style="min-height: {{ $categories->count() * 30 }}px;" class="hidden-print"></div>
 
+        <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
+
         <table class="table table-striped sortable" id="data">
             <thead>
             <tr>
@@ -72,7 +74,9 @@
                         @if ( isset( $data[ 'category-' . $category->id ] ) )
                             {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
                             /
-                            {{ $data[ 'category-' . $category->id ][ 'total' ] }}
+                            <span data-field="total">
+                                {{ $data[ 'category-' . $category->id ][ 'total' ] }}
+                            </span>
                         @else
                             0 / 0
                         @endif
@@ -172,6 +176,7 @@
                });
 
                 var dataProvider = [];
+                var dataProviderPie = [];
 
                 $( '#data tbody tr' ).each( function ()
                 {
@@ -181,9 +186,12 @@
                         'percent': $.trim( $( this ).find( '[data-field="percent"]' ).text() ),
                     });
 
-                });
+                    dataProviderPie.push({
+                        'category': $.trim( $( this ).find( '[data-field="category"]' ).text() ),
+                        'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
+                    });
 
-                console.log( dataProvider );
+                });
 
                 var chart = AmCharts.makeChart("chartdiv", {
                     "dataProvider": dataProvider,
@@ -220,6 +228,21 @@
                     "balloon": {},
                     "titles": [],
                 });
+
+                var pie = AmCharts.makeChart( "piediv", {
+                    "type": "pie",
+                    "theme": "light",
+                    "dataProvider": dataProviderPie,
+                    "valueField": "total",
+                    "titleField": "category",
+                    "outlineAlpha": 0.4,
+                    "depth3D": 15,
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "angle": 30,
+                    "export": {
+                        "enabled": true
+                    }
+                } );
 
             });
     </script>
