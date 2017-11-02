@@ -65,7 +65,7 @@
                         Всего
                     </th>
                     <th colspan="2" class="text-center">
-                        Процент выполненных
+                        Процент выполнения
                     </th>
                 </tr>
             </thead>

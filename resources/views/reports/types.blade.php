@@ -30,7 +30,9 @@
 
     @if ( $data['total'] )
 
-        <table class="table table-striped sortable">
+        <div id="chartdiv" style="min-height: {{ $categories->count() * 30 }}px;" class="hidden-print"></div>
+
+        <table class="table table-striped sortable" id="data">
             <thead>
             <tr>
                 <th>
@@ -52,7 +54,7 @@
             <tbody>
             @foreach ( $categories as $category )
                 <tr>
-                    <td>
+                    <td data-field="category">
                         {{ $category->name }}
                     </td>
                     @foreach ( $managements as $management )
@@ -76,11 +78,14 @@
                         @endif
                     </td>
                     <td class="text-right">
-                        @if ( isset( $data[ 'category-' . $category->id ] ) )
-                            {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%
-                        @else
-                            0%
-                        @endif
+                        <span data-field="percent">
+                            @if ( isset( $data[ 'category-' . $category->id ] ) )
+                                {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}
+                            @else
+                                0
+                            @endif
+                        </span>
+                        %
                     </td>
                     <td class="hidden-print hidden-md">
                         @if ( isset( $data[ 'category-' . $category->id ] ) )
@@ -146,14 +151,76 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/radar.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/themes/light.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/themes/patterns.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amcharts/themes/chalk.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/ammap/ammap.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/ammap/maps/js/worldLow.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/amcharts/amstockcharts/amstock.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $( document )
             .ready(function()
             {
+
                $( '.datepicker' ).datepicker({
                    format: 'dd.mm.yyyy',
                });
+
+                var dataProvider = [];
+
+                $( '#data tbody tr' ).each( function ()
+                {
+
+                    dataProvider.push({
+                        'category': $.trim( $( this ).find( '[data-field="category"]' ).text() ),
+                        'percent': $.trim( $( this ).find( '[data-field="percent"]' ).text() ),
+                    });
+
+                });
+
+                console.log( dataProvider );
+
+                var chart = AmCharts.makeChart("chartdiv", {
+                    "dataProvider": dataProvider,
+                    "graphs": [
+                        {
+                            "balloonText": "Процент выполнения: [[value]]%",
+                            "fillAlphas": 0.8,
+                            "id": "percent",
+                            "lineAlpha": 0.2,
+                            "title": "Процент выполнения",
+                            "type": "column",
+                            "valueField": "percent",
+                        }
+                    ],
+                    "type": "serial",
+                    "theme": "light",
+                    "categoryField": "category",
+                    "rotate": true,
+                    "startDuration": 1,
+                    "categoryAxis": {
+                        "gridPosition": "start",
+                        "position": "left"
+                    },
+                    "trendLines": [],
+                    "guides": [],
+                    "valueAxes": [
+                        {
+                            "id": "ValueAxis-1",
+                            "position": "top",
+                            "axisAlpha": 0
+                        }
+                    ],
+                    "allLabels": [],
+                    "balloon": {},
+                    "titles": [],
+                });
+
             });
     </script>
 @endsection
