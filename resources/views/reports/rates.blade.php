@@ -113,27 +113,27 @@
                         {{ $data[ 'total' ] }}
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'rate' => 1 ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 1, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
                             {{ $data[ 'rate-1' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'rate' => 2 ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 2, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
                             {{ $data[ 'rate-2' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'rate' => 3 ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 3, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
                             {{ $data[ 'rate-3' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'rate' => 4 ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 4, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
                             {{ $data[ 'rate-4' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'rate' => 5 ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'rate' => 5, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
                             {{ $data[ 'rate-5' ] }}
                         </a>
                     </th>
