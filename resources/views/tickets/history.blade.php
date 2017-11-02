@@ -54,6 +54,9 @@
                     Автор
                 </th>
                 <th>
+                    Объект
+                </th>
+                <th>
                     Текст
                 </th>
             </tr>
@@ -66,6 +69,9 @@
                 </td>
                 <td>
                     {!! $log->author->getFullName() !!}
+                </td>
+                <td>
+                    {{ $log->model_name }}
                 </td>
                 <td>
                     {{ $log->text }}

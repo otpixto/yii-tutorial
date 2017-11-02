@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Эксплуатирующие организации', route( 'managements.index' ) ],
+        [ 'Управляющие организации', route( 'managements.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection

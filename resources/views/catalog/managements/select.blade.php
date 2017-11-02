@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-12">
         <label class="control-label">
-            Выберите Эксплуатирующую Организацию:
+            Выберите Управляющую Организацию:
         </label>
         <hr class="margin-top-10 margin-bottom-10" />
     </div>

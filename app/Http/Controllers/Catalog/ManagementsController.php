@@ -17,7 +17,7 @@ class ManagementsController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Эксплуатирующие организации' );
+        Title::add( 'Управляющие организации' );
     }
 
     public function index()
@@ -82,7 +82,7 @@ class ManagementsController extends BaseController
      */
     public function create()
     {
-        Title::add( 'Добавить ЭО' );
+        Title::add( 'Добавить УО' );
         return view( 'catalog.managements.create' );
     }
 
@@ -103,7 +103,7 @@ class ManagementsController extends BaseController
         $management = Management::create( $request->all() );
 
         return redirect()->route( 'managements.edit', $management->id )
-            ->with( 'success', 'ЭО успешно добавлена' );
+            ->with( 'success', 'УО успешно добавлена' );
 
     }
 
@@ -127,14 +127,14 @@ class ManagementsController extends BaseController
     public function edit($id)
     {
 
-        Title::add( 'Редактировать ЭО' );
+        Title::add( 'Редактировать УО' );
 
         $management = Management::find( $id );
 
         if ( !$management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
 
         $allowedAddresses = Address
@@ -179,7 +179,7 @@ class ManagementsController extends BaseController
         if ( !$management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
 
         $rules = Management::$rules;
@@ -190,7 +190,7 @@ class ManagementsController extends BaseController
         $management->edit( $request->all() );
 
         return redirect()->route( 'managements.edit', $management->id )
-            ->with( 'success', 'ЭО успешно отредактирована' );
+            ->with( 'success', 'УО успешно отредактирована' );
 
     }
 
@@ -232,7 +232,7 @@ class ManagementsController extends BaseController
         if ( ! $managements->count() )
         {
             return view( 'parts.error' )
-                ->with( 'error', 'ЭО не найдены по заданным критериям' );
+                ->with( 'error', 'УО не найдены по заданным критериям' );
         }
 
         if ( ! empty( $request->get( 'selected' ) ) )
@@ -257,7 +257,7 @@ class ManagementsController extends BaseController
         if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
         $management->addresses()->attach( $request->get( 'addresses', [] ) );
 
@@ -273,7 +273,7 @@ class ManagementsController extends BaseController
         if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
         $management->addresses()->detach( $request->get( 'address_id' ) );
 
@@ -289,7 +289,7 @@ class ManagementsController extends BaseController
         if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
         $management->types()->attach( $request->get( 'types', [] ) );
 
@@ -305,7 +305,7 @@ class ManagementsController extends BaseController
         if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'ЭО не найдена' ] );
+                ->withErrors( [ 'УО не найдена' ] );
         }
         $management->types()->detach( $request->get( 'type_id' ) );
 

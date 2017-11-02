@@ -555,8 +555,8 @@ class TicketsController extends BaseController
 
         Title::add( 'История изменений заявки #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
 
-        $statuses = $ticketManagement->statusesHistory->sortByDesc( 'id' );
-        $logs = $ticketManagement->logs->merge( $ticket->logs )->sortByDesc( 'id' );
+        $statuses = $ticketManagement->statusesHistory->sortBy( 'id' );
+        $logs = $ticketManagement->logs->merge( $ticket->logs )->sortBy( 'id' );
 
         return view( 'tickets.history' )
             ->with( 'ticket', $ticket )

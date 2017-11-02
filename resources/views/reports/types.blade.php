@@ -28,83 +28,108 @@
     </div>
     {!! Form::close() !!}
 
-    <table class="table table-hover table-striped sortable">
-        <thead>
-        <tr>
-            <th>
-                Нименование ЭО
-            </th>
-            <th>
-                Категория проблем
-            </th>
-            <th class="text-center">
-                Всего заявок
-            </th>
-            <th class="text-center">
-                Закрыто
-            </th>
-            <th>
-                &nbsp;
-            </th>
-            <th class="hidden-print" style="width: 15%;">
-                &nbsp;
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach ( $data as $r )
+    @if ( $data['total'] )
+
+        <table class="table table-striped sortable">
+            <thead>
             <tr>
-                <td rowspan="{{ count( $r['categories'] ) + 1 }}">
-                    {{ $r['name'] }}
-                </td>
+                <th>
+                    Тип проблемы \ Нименование УО
+                </th>
+                @foreach ( $managements as $management )
+                    <th class="text-center">
+                        {{ $management->name }}
+                    </th>
+                @endforeach
+                <th class="text-center info bold">
+                    Всего
+                </th>
+                <th class="text-center" colspan="2">
+                    Процент выполнения
+                </th>
             </tr>
-            @foreach ( $r['categories'] as $category )
+            </thead>
+            <tbody>
+            @foreach ( $categories as $category )
                 <tr>
                     <td>
-                        {{ $category['name'] }}
+                        {{ $category->name }}
                     </td>
-                    <td class="text-center">
-                        {{ $category['total'] }}
+                    @foreach ( $managements as $management )
+                        <td class="text-center">
+                            @if ( isset( $data[ $category->id ], $data[ $category->id ][ $management->id ] ) )
+                                {{ $data[ $category->id ][ $management->id ][ 'closed' ] }}
+                                /
+                                {{ $data[ $category->id ][ $management->id ][ 'total' ] }}
+                            @else
+                                0 / 0
+                            @endif
+                        </td>
+                    @endforeach
+                    <td class="text-center info bold">
+                        @if ( isset( $data[ 'category-' . $category->id ] ) )
+                            {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
+                            /
+                            {{ $data[ 'category-' . $category->id ][ 'total' ] }}
+                        @else
+                            0 / 0
+                        @endif
                     </td>
-                    <td class="text-center">
-                        {{ $category['closed'] }}
+                    <td class="text-right">
+                        @if ( isset( $data[ 'category-' . $category->id ] ) )
+                            {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%
+                        @else
+                            0%
+                        @endif
                     </td>
-                    <td class="text-right" data-field="percent">
-                        {{ ceil( $category['closed'] * 100 / $category['total'] ) }}%
-                    </td>
-                    <td class="hidden-print">
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $category['closed'] * 100 / $category['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $category['closed'] * 100 / $category['total'] ) }}%">
+                    <td class="hidden-print hidden-md">
+                        @if ( isset( $data[ 'category-' . $category->id ] ) )
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%">
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </td>
                 </tr>
             @endforeach
-        @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="2" class="text-right">
-                    Всего:
-                </th>
-                <th class="text-center">
-                    {{ $summary['total'] }}
-                </th>
-                <th class="text-center">
-                    {{ $summary['closed'] }}
-                </th>
-                <th class="text-right">
-                    {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%
-                </th>
-                <th>
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ ceil( $summary['closed'] * 100 / $summary['total'] ) }}%">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
+                            @if ( isset( $data[ 'management-' . $management->id ] ) )
+                                {{ $data[ 'management-' . $management->id ][ 'closed' ] }}
+                                /
+                                {{ $data[ 'management-' . $management->id ][ 'total' ] }}
+                            @else
+                                0 / 0
+                            @endif
+                        </th>
+                    @endforeach
+                    <th class="text-center warning bold">
+                        {{ $data[ 'closed' ] }}
+                        /
+                        {{ $data[ 'total' ] }}
+                    </th>
+                    <th class="text-right" style="width: 30px;">
+                        {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%
+                    </th>
+                    <th style="width: 15%;" class="hidden-print hidden-md">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%">
+                            </div>
                         </div>
-                    </div>
-                </th>
-            </tr>
-        </tfoot>
-    </table>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+
+    @else
+        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
+    @endif
 
 @endsection
 

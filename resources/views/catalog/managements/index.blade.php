@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Справочники' ],
-        [ 'Исполнители' ]
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
@@ -15,7 +15,7 @@
             <div class="col-xs-6">
                 <a href="{{ route( 'managements.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
-                    Добавить ЭО
+                    Добавить УО
                 </a>
             </div>
             <div class="col-xs-6 text-right">

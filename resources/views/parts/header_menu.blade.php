@@ -172,7 +172,7 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.managements.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'managements.index' ) }}" class="nav-link">
-                                Эксплуатирующие организации (ЭО)
+                                Управляющие организации (УО)
                             </a>
                         </li>
                     @endif

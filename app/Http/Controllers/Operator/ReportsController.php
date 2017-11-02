@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
+use App\Models\Category;
+use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use Carbon\Carbon;
@@ -27,12 +29,10 @@ class ReportsController extends BaseController
 
         Title::add( 'Отчет по количеству заявок' );
 
-        $data = [];
-
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
-        $summary = [
+        $data = [
             'total' => 0,
             'closed' => 0,
             'not_verified' => 0,
@@ -41,91 +41,93 @@ class ReportsController extends BaseController
             'closed_without_confirm' => 0
         ];
 
-        $ticketManagements = TicketManagement
-            ::mine( true )
-            ->whereNotIn( 'status_code', [ 'draft' ] );
+        $managements = Management
+            ::mine()
+            ->get();
 
-        if ( $date_from )
-        {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-        }
-
-        if ( $date_to )
-        {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-        }
-
-        $ticketManagements = $ticketManagements->get();
-
-        foreach ( $ticketManagements as $ticketManagement )
+        foreach ( $managements as $management )
         {
 
-            if ( ! isset( $data[ $ticketManagement->management_id ] ) )
+            $data[ $management->id ] = [
+                'name' => $management->name,
+                'total' => 0,
+                'closed' => 0,
+                'not_verified' => 0,
+                'canceled' => 0,
+                'closed_with_confirm' => 0,
+                'closed_without_confirm' => 0
+            ];
+
+            $ticketManagements = $management
+                ->tickets()
+                ->whereNotIn( 'status_code', [ 'draft' ] );
+
+            if ( $date_from )
             {
-                $data[ $ticketManagement->management_id ] = [
-                    'name' => $ticketManagement->management->name,
-                    'total' => 0,
-                    'closed' => 0,
-                    'not_verified' => 0,
-                    'canceled' => 0,
-                    'closed_with_confirm' => 0,
-                    'closed_without_confirm' => 0
-                ];
-            }
-            $summary[ 'total' ] ++;
-            $data[ $ticketManagement->management_id ][ 'total' ] ++;
-            switch ( $ticketManagement->status_code )
-            {
-                case 'closed_with_confirm':
-                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                    $data[ $ticketManagement->management_id ][ 'closed_with_confirm' ] ++;
-                    $summary[ 'closed' ] ++;
-                    $summary[ 'closed_with_confirm' ] ++;
-                    break;
-                case 'closed_without_confirm':
-                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                    $data[ $ticketManagement->management_id ][ 'closed_without_confirm' ] ++;
-                    $summary[ 'closed' ] ++;
-                    $summary[ 'closed_without_confirm' ] ++;
-                    break;
-                case 'not_verified':
-                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                    $data[ $ticketManagement->management_id ][ 'not_verified' ] ++;
-                    $summary[ 'closed' ] ++;
-                    $summary[ 'not_verified' ] ++;
-                    break;
-                case 'cancel':
-                    $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                    $data[ $ticketManagement->management_id ][ 'canceled' ] ++;
-                    $summary[ 'closed' ] ++;
-                    $summary[ 'canceled' ] ++;
-                    break;
-
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
             }
 
+            if ( $date_to )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
+            }
+
+            $ticketManagements = $ticketManagements->get();
+
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+
+                $data[ 'total' ] ++;
+                $data[ $ticketManagement->management_id ][ 'total' ] ++;
+                switch ( $ticketManagement->status_code )
+                {
+                    case 'closed_with_confirm':
+                        $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                        $data[ $ticketManagement->management_id ][ 'closed_with_confirm' ] ++;
+                        $data[ 'closed' ] ++;
+                        $data[ 'closed_with_confirm' ] ++;
+                        break;
+                    case 'closed_without_confirm':
+                        $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                        $data[ $ticketManagement->management_id ][ 'closed_without_confirm' ] ++;
+                        $data[ 'closed' ] ++;
+                        $data[ 'closed_without_confirm' ] ++;
+                        break;
+                    case 'not_verified':
+                        $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                        $data[ $ticketManagement->management_id ][ 'not_verified' ] ++;
+                        $data[ 'closed' ] ++;
+                        $data[ 'not_verified' ] ++;
+                        break;
+                    case 'cancel':
+                        $data[ $ticketManagement->management_id ][ 'closed' ] ++;
+                        $data[ $ticketManagement->management_id ][ 'canceled' ] ++;
+                        $data[ 'closed' ] ++;
+                        $data[ 'canceled' ] ++;
+                        break;
+
+                }
+
+            }
+
         }
 
-        uasort( $data, function ( $a, $b )
-        {
-            return $a['total'] < $b['total'];
-        });
-
-        if ( $request->has( 'export' ) && ( \Auth::user()->admin || \Auth::user()->can( 'reports.export' ) ) )
+        if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
         {
             $print_data = [];
-            foreach ( $data as $r )
+            foreach ( $managements as $management )
             {
                 $print_data[] = [
-                    'Нименование ЭО'                => $r['name'],
-                    'Поступило заявок'              => $r['total'],
-                    'Всего закрыто заявок'          => $r['closed'],
-                    'Отменено Заявителем'           => $r['canceled'],
-                    'Проблема не подтверждена'      => $r['not_verified'],
-                    'Закрыто c подтверждением'      => $r['closed_with_confirm'],
-                    'Закрыто без подтверждения'     => $r['closed_without_confirm'],
-                    '% закрытых заявок'             => ceil( $r['closed'] * 100 / $r['total'] ),
+                    'Нименование ЭО'                => $management->name,
+                    'Поступило заявок'              => $data[ $management->id ][ 'total' ],
+                    'Всего закрыто заявок'          => $data[ $management->id ][ 'closed' ],
+                    'Отменено Заявителем'           => $data[ $management->id ][ 'canceled' ],
+                    'Проблема не подтверждена'      => $data[ $management->id ][ 'not_verified' ],
+                    'Закрыто c подтверждением'      => $data[ $management->id ][ 'closed_with_confirm' ],
+                    'Закрыто без подтверждения'     => $data[ $management->id ][ 'closed_without_confirm' ],
+                    '% закрытых заявок'             => $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0,
                 ];
             }
             \Excel::create( Title::get(), function ( $excel ) use ( $print_data )
@@ -139,7 +141,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.managements' )
             ->with( 'data', $data )
-            ->with( 'summary', $summary )
+            ->with( 'managements', $managements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -150,146 +152,119 @@ class ReportsController extends BaseController
 
         Title::add( 'Отчет по оценкам' );
 
-        $data = [];
-
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
-        $summary = [
+        $data = [
             'total' => 0,
             'average' => 0,
-            1 => 0,
-            2 => 0,
-            3 => 0,
-            4 => 0,
-            5 => 0
+            'rate-1' => 0,
+            'rate-2' => 0,
+            'rate-3' => 0,
+            'rate-4' => 0,
+            'rate-5' => 0
         ];
 
-        $ticketManagements = TicketManagement
-            ::mine( true )
-            ->whereNotIn( 'status_code', [ 'draft' ] )
-            ->whereNotNull( 'rate' );
+        $managements = Management
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
 
-        if ( $date_from )
-        {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
-        }
-
-        if ( $date_to )
-        {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-        }
-
-        $ticketManagements = $ticketManagements->get();
-
-        foreach ( $ticketManagements as $ticketManagement )
+        foreach ( $managements as $management )
         {
 
-            if ( ! isset( $data[ $ticketManagement->management_id ] ) )
+            if ( ! isset( $data[ $management->id ] ) )
             {
-                $data[ $ticketManagement->management_id ] = [
-                    'name' => $ticketManagement->management->name,
+                $data[ $management->id ] = [
                     'total' => 0,
                     'average' => 0,
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0
+                    'rate-1' => 0,
+                    'rate-2' => 0,
+                    'rate-3' => 0,
+                    'rate-4' => 0,
+                    'rate-5' => 0
                 ];
             }
-            $summary[ 'total' ] ++;
-            $data[ $ticketManagement->management_id ][ 'total' ] ++;
-            $data[ $ticketManagement->management_id ][ $ticketManagement->rate ] ++;
-            $summary[ $ticketManagement->rate ] ++;
+
+            $ticketManagements = $management
+                ->tickets()
+                ->whereNotIn( 'status_code', [ 'draft' ] )
+                ->whereNotNull( 'rate' );
+
+            if ( $date_from )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
+            }
+
+            if ( $date_to )
+            {
+                $ticketManagements
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
+            }
+
+            $ticketManagements = $ticketManagements->get();
+
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+
+                $data[ 'total' ] ++;
+                $data[ $ticketManagement->management_id ][ 'total' ] ++;
+                $data[ $ticketManagement->management_id ][ 'rate-' . $ticketManagement->rate ] ++;
+                $data[ 'rate-' . $ticketManagement->rate ] ++;
+
+            }
 
         }
 
         $s = 0;
         $c = 0;
-        if ( $summary['1'] )
+        for ( $i = 1; $i <= 5; $i ++ )
         {
-            $s += $summary['1'] * 1;
-            $c += $summary['1'];
+            if ( $data[ 'rate-' . $i ] )
+            {
+                $s += $data[ 'rate-' . $i ] * $i;
+                $c += $data[ 'rate-' . $i ];
+            }
         }
-        if ( $summary['2'] )
-        {
-            $s += $summary['2'] * 2;
-            $c += $summary['2'];
-        }
-        if ( $summary['3'] )
-        {
-            $s += $summary['3'] * 3;
-            $c += $summary['3'];
-        }
-        if ( $summary['4'] )
-        {
-            $s += $summary['4'] * 4;
-            $c += $summary['4'];
-        }
-        if ( $summary['5'] )
-        {
-            $s += $summary['5'] * 5;
-            $c += $summary['5'];
-        }
+
         if ( $c )
         {
-            $summary[ 'average' ] = number_format($s / $c, 1, '.', '' );
+            $data[ 'average' ] = number_format($s / $c, 1, '.', '' );
         }
 
-        uasort( $data, function ( $a, $b )
-        {
-            return $a['total'] < $b['total'];
-        });
-
-        foreach ( $data as & $r )
+        foreach ( $managements as $management )
         {
             $s = 0;
             $c = 0;
-            if ( $r['1'] )
+            for ( $i = 1; $i <= 5; $i ++ )
             {
-                $s += $r['1'] * 1;
-                $c += $r['1'];
+                if ( $data[ $management->id ][ 'rate-' . $i ] )
+                {
+                    $s += $data[ $management->id ][ 'rate-' . $i ] * $i;
+                    $c += $data[ $management->id ][ 'rate-' . $i ];
+                }
             }
-            if ( $r['2'] )
+            if ( $c )
             {
-                $s += $r['2'] * 2;
-                $c += $r['2'];
+                $data[ $management->id ][ 'average' ] = number_format($s / $c, 1, '.', '' );
             }
-            if ( $r['3'] )
-            {
-                $s += $r['3'] * 3;
-                $c += $r['3'];
-            }
-            if ( $r['4'] )
-            {
-                $s += $r['4'] * 4;
-                $c += $r['4'];
-            }
-            if ( $r['5'] )
-            {
-                $s += $r['5'] * 5;
-                $c += $r['5'];
-            }
-            $r[ 'average' ] = number_format($s / $c, 1, '.', '' );
         }
 
         if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
         {
             $print_data = [];
-            foreach ( $data as $r )
+            foreach ( $managements as $management )
             {
                 $print_data[] = [
-                    'Нименование ЭО'                => $r['name'],
-                    'Всего оценок'                  => $r['total'],
-                    '1 балл'                        => $r['1'],
-                    '2 балла'                       => $r['2'],
-                    '3 балла'                       => $r['3'],
-                    '4 балла'                       => $r['4'],
-                    '5 баллов'                      => $r['5'],
-                    'Средний балл'                  => $r['average'],
+                    'Нименование ЭО'                => $management->name,
+                    'Всего оценок'                  => $data[ $management->id ][ 'total' ],
+                    '1 балл'                        => $data[ $management->id ][ 'rate-1' ],
+                    '2 балла'                       => $data[ $management->id ][ 'rate-2' ],
+                    '3 балла'                       => $data[ $management->id ][ 'rate-3' ],
+                    '4 балла'                       => $data[ $management->id ][ 'rate-4' ],
+                    '5 баллов'                      => $data[ $management->id ][ 'rate-5' ],
+                    'Средний балл'                  => $data[ $management->id ][ 'average' ],
                 ];
             }
             \Excel::create( Title::get(), function ( $excel ) use ( $print_data )
@@ -303,7 +278,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.rates' )
             ->with( 'data', $data )
-            ->with( 'summary', $summary )
+            ->with( 'managements', $managements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -321,85 +296,104 @@ class ReportsController extends BaseController
 
         Title::add( 'Отчет по категориям' );
 
-        $data = [];
-
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
-        $summary = [
-            'total' => 0,
-            'closed' => 0
-        ];
+        $managements = Management
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
 
-        $ticketManagements = TicketManagement
-            ::mine( true )
-            ->whereNotIn( 'status_code', [ 'draft' ] );
+        $categories = Category
+            ::orderBy( 'name' )
+            ->get();
 
-        if ( $date_from )
+        if ( \Cache::has( 'reports-types-' . Carbon::parse( $date_from )->toDateString() . '-' . Carbon::parse( $date_to )->toDateString() ) )
         {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
+            $data = \Cache::get( 'reports-types-' . Carbon::parse( $date_from )->toDateString() . '-' . Carbon::parse( $date_to )->toDateString() );
         }
-
-        if ( $date_to )
+        else
         {
-            $ticketManagements
-                ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
-        }
 
-        $ticketManagements = $ticketManagements->get();
+            $data = [
+                'total' => 0,
+                'closed' => 0
+            ];
 
-        foreach ( $ticketManagements as $ticketManagement )
-        {
-            $ticket = $ticketManagement->ticket;
-            $category = $ticket->type->category;
-            if ( ! isset( $data[ $ticketManagement->management_id ] ) )
+            foreach ( $managements as $management )
             {
-                $data[ $ticketManagement->management_id ] = [
-                    'name' => $ticketManagement->management->name,
-                    'categories' => []
-                ];
+
+                $ticketManagements = $management
+                    ->tickets()
+                    ->whereNotIn( 'status_code', [ 'draft' ] );
+
+                if ( $date_from )
+                {
+                    $ticketManagements
+                        ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $date_from )->toDateString() ] );
+                }
+
+                if ( $date_to )
+                {
+                    $ticketManagements
+                        ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $date_to )->toDateString() ] );
+                }
+
+                $ticketManagements = $ticketManagements->get();
+
+                foreach ( $ticketManagements as $ticketManagement )
+                {
+                    $ticket = $ticketManagement->ticket;
+                    $type = $ticket->type;
+                    if ( ! isset( $data[ 'management-' . $management->id ] ) )
+                    {
+                        $data[ 'management-' . $management->id ] = [
+                            'total' => 0,
+                            'closed' => 0
+                        ];
+                    }
+                    if ( ! isset( $data[ 'category-' . $type->category_id ] ) )
+                    {
+                        $data[ 'category-' . $type->category_id ] = [
+                            'total' => 0,
+                            'closed' => 0
+                        ];
+                    }
+                    if ( ! isset( $data[ $type->category_id ][ $management->id ] ) )
+                    {
+                        $data[ $type->category_id ][ $management->id ] = [
+                            'total' => 0,
+                            'closed' => 0
+                        ];
+                    }
+                    $data[ 'total' ] ++;
+                    $data[ 'management-' . $management->id ][ 'total' ] ++;
+                    $data[ 'category-' . $type->category_id ][ 'total' ] ++;
+                    $data[ $type->category_id ][ $management->id ][ 'total' ] ++;
+                    switch ( $ticketManagement->status_code )
+                    {
+                        case 'closed_with_confirm':
+                        case 'closed_without_confirm':
+                        case 'not_verified':
+                        case 'cancel':
+                            $data[ $type->category_id ][ $management->id ][ 'closed' ] ++;
+                            $data[ 'closed' ] ++;
+                            $data[ 'management-' . $management->id ][ 'closed' ] ++;
+                            $data[ 'category-' . $type->category_id ][ 'closed' ] ++;
+                            break;
+                    }
+                }
+
             }
-            if ( ! isset( $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ] ) )
-            {
-                $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ] = [
-                    'name' => $category->name,
-                    'total' => 0,
-                    'closed' => 0
-                ];
-            }
-            $summary[ 'total' ] ++;
-            $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ][ 'total' ] ++;
-            switch ( $ticketManagement->status_code )
-            {
-                case 'closed_with_confirm':
-                case 'closed_without_confirm':
-                case 'not_verified':
-                case 'cancel':
-                    $data[ $ticketManagement->management_id ][ 'categories' ][ $category->id ][ 'closed' ] ++;
-                    $summary[ 'closed' ] ++;
-                    break;
-            }
-        }
 
-        foreach ( $data as & $r )
-        {
-
-            uasort( $r['categories'], function ( $a, $b )
-            {
-                return $a['total'] < $b['total'];
-            });
+            \Cache::put( $data, 60 );
 
         }
-
-        uasort( $data, function ( $a, $b )
-        {
-            return strcmp( $a['name'], $b['name'] );
-        });
 
         return view( 'reports.types' )
             ->with( 'data', $data )
-            ->with( 'summary', $summary )
+            ->with( 'categories', $categories )
+            ->with( 'managements', $managements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 

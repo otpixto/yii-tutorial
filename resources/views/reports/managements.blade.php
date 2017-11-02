@@ -31,15 +31,15 @@
     </div>
     {!! Form::close() !!}
 
-    @if ( $summary['closed'] )
+    @if ( $data[ 'total' ] )
 
-        <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
+        <div id="chartdiv" style="min-height: {{ $managements->count() * 50 }}px;" class="hidden-print"></div>
 
         <table class="table table-striped sortable" id="data">
             <thead>
                 <tr>
                     <th rowspan="3">
-                        Нименование ЭО
+                        Нименование УО
                     </th>
                     <th class="text-center info bold" rowspan="2">
                         Поступило заявок
@@ -64,44 +64,41 @@
                     <th class="text-center info bold">
                         Всего
                     </th>
-                    <th>
-                        &nbsp;
-                    </th>
-                    <th class="hidden-print" style="width: 15%;">
-                        &nbsp;
+                    <th colspan="2" class="text-center">
+                        Процент выполненных
                     </th>
                 </tr>
             </thead>
             <tbody>
-            @foreach ( $data as $r )
+            @foreach ( $managements as $management )
                 <tr>
                     <td data-field="name">
-                        {{ $r['name'] }}
+                        {{ $management->name }}
                     </td>
                     <td data-field="total" class="text-center info bold">
-                        {{ $r['total'] }}
+                        {{ $data[ $management->id ][ 'total' ] }}
                     </td>
                     <td data-field="canceled" class="text-center">
-                        {{ $r['canceled'] }}
+                        {{ $data[ $management->id ][ 'canceled' ] }}
                     </td>
                     <td data-field="not_verified" class="text-center">
-                        {{ $r['not_verified'] }}
+                        {{ $data[ $management->id ][ 'not_verified' ] }}
                     </td>
                     <td data-field="closed_with_confirm" class="text-center">
-                        {{ $r['closed_with_confirm'] }}
+                        {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
                     </td>
                     <td data-field="closed_without_confirm" class="text-center">
-                        {{ $r['closed_without_confirm'] }}
+                        {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
                     </td>
                     <td data-field="closed" class="text-center info bold">
-                        {{ $r['closed'] }}
+                        {{ $data[ $management->id ][ 'closed' ] }}
                     </td>
-                    <td class="text-right" data-field="percent">
-                        {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%
+                    <td class="text-right" data-field="percent" style="width: 40px;">
+                        {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
                     </td>
-                    <td class="hidden-print">
+                    <td class="hidden-print" style="width: 15%;">
                         <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $r['total'] ? ceil( $r['closed'] * 100 / $r['total'] ) : 0 }}%">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
                             </div>
                         </div>
                     </td>
@@ -114,35 +111,36 @@
                         Всего:
                     </th>
                     <th class="text-center warning">
-                        {{ $summary['total'] }}
+                        {{ $data['total'] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['canceled'] }}
+                        {{ $data['canceled'] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['not_verified'] }}
+                        {{ $data['not_verified'] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['closed_with_confirm'] }}
+                        {{ $data['closed_with_confirm'] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['closed_without_confirm'] }}
+                        {{ $data['closed_without_confirm'] }}
                     </th>
                     <th class="text-center warning">
-                        {{ $summary['closed'] }}
+                        {{ $data['closed'] }}
                     </th>
                     <th class="text-right">
-                        {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%
+                        {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%
                     </th>
-                    <th>
+                    <th class="hidden-print">
                         <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $summary['total'] ? ceil( $summary['closed'] * 100 / $summary['total'] ) : 0 }}%">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%">
                             </div>
                         </div>
                     </th>
                 </tr>
             </tfoot>
         </table>
+
     @else
         @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
     @endif

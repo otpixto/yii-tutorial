@@ -77,6 +77,11 @@ class Management extends BaseModel
         return $this->hasMany( 'App\Models\ManagementSubscription' );
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query->whereIn( 'id', \Auth::user()->managements->pluck( 'id' ) );
+    }
+
     public static function create ( array $attributes = [] )
     {
         $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );

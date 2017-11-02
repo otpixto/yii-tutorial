@@ -34,8 +34,8 @@ class Ticket extends BaseModel
     public static $statuses = [
         'draft'					            => 'Черновик',
         'created'                           => 'Принято оператором ЕДС',
-        'transferred'                       => 'Передано в ЭО',
-        'transferred_again'                 => 'Передано в ЭО повторно',
+        'transferred'                       => 'Передано в УО',
+        'transferred_again'                 => 'Передано в УО повторно',
         'accepted'                          => 'Принято к исполнению',
         'assigned'                          => 'Назначен исполнитель',
         'completed_with_act'		        => 'Выполнено с актом',
@@ -46,7 +46,7 @@ class Ticket extends BaseModel
         'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отмена',
         'rejected'                          => 'Отклонено',
-        'no_contract'                       => 'Отказ (нет договора с ЭО)',
+        'no_contract'                       => 'Отказ (нет договора с УО)',
     ];
 
     public static $not_notify = [

@@ -31,9 +31,9 @@
     </div>
     {!! Form::close() !!}
 
-    @if ( $summary['total'] )
+    @if ( $data[ 'total' ] )
 
-        <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
+        <div id="chartdiv" style="min-height: {{ $managements->count() * 70 }}px;" class="hidden-print"></div>
 
         <table class="table table-striped sortable" id="data">
             <thead>
@@ -65,31 +65,31 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach ( $data as $r )
+            @foreach ( $managements as $management )
                 <tr>
                     <td data-field="name">
-                        {{ $r['name'] }}
+                        {{ $management->name }}
                     </td>
                     <td class="text-center info bold">
-                        {{ $r['total'] }}
+                        {{ $data[ $management->id ][ 'total' ] }}
                     </td>
                     <td data-field="1" class="text-center">
-                        {{ $r['1'] }}
+                        {{ $data[ $management->id ][ 'rate-1' ] }}
                     </td>
                     <td data-field="2" class="text-center">
-                        {{ $r['2'] }}
+                        {{ $data[ $management->id ][ 'rate-2' ] }}
                     </td>
                     <td data-field="3" class="text-center">
-                        {{ $r['3'] }}
+                        {{ $data[ $management->id ][ 'rate-3' ] }}
                     </td>
                     <td data-field="4" class="text-center">
-                        {{ $r['4'] }}
+                        {{ $data[ $management->id ][ 'rate-4' ] }}
                     </td>
                     <td data-field="5" class="text-center">
-                        {{ $r['5'] }}
+                        {{ $data[ $management->id ][ 'rate-5' ] }}
                     </td>
                     <td class="text-right info bold">
-                        {{ $r['average'] }}
+                        {{ $data[ $management->id ][ 'average' ] }}
                     </td>
                 </tr>
             @endforeach
@@ -100,25 +100,25 @@
                         Всего:
                     </th>
                     <th class="text-center warning">
-                        {{ $summary['total'] }}
+                        {{ $data[ 'total' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['1'] }}
+                        {{ $data[ 'rate-1' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['2'] }}
+                        {{ $data[ 'rate-2' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['3'] }}
+                        {{ $data[ 'rate-3' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['4'] }}
+                        {{ $data[ 'rate-4' ] }}
                     </th>
                     <th class="text-center">
-                        {{ $summary['5'] }}
+                        {{ $data[ 'rate-5' ] }}
                     </th>
                     <th class="text-right warning">
-                        {{ $summary['average'] }}
+                        {{ $data[ 'average' ] }}
                     </th>
                 </tr>
             </tfoot>

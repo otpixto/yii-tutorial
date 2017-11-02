@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
+use App\Models\Type;
 use App\Models\UserPhoneAuth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -126,8 +127,37 @@ class ProfileController extends Controller
 
     public function getTest ()
     {
-        $dt = Carbon::parse( '2017-07-30 17:55:53.565550' );
-        dd( $dt->toDateTimeString() );
+        $types = Type::all();
+        foreach ( $types as $type )
+        {
+            $exp = explode( ' ', $type->name );
+            $old = $exp[ 0 ];
+            if ( ! strpos( $old, '.' ) ) continue;
+            $exp2 = explode( '.', $old );
+            $new = '';
+            if ( strlen( $exp2[ 0 ] ) < 2 )
+            {
+                $new .= '0' . $exp2[ 0 ];
+            }
+            else
+            {
+                $new .= $exp2[ 0 ];
+            }
+            $new .= '.';
+            if ( strlen( $exp2[ 1 ] ) < 2 )
+            {
+                $new .= '0' . $exp2[ 1 ];
+            }
+            else
+            {
+                $new .= $exp2[ 1 ];
+            }
+            $new .= '.';
+            $name = str_replace( $old, $new, $type->name );
+            echo $name . '<br />';
+            $type->name = $name;
+            $type->save();
+        }
     }
 	
 	public function getFix ( $number )

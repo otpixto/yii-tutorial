@@ -9,26 +9,26 @@
 
 @section( 'content' )
 
-    @can( 'tickets.create', 'tickets.export' )
+    @if( \Auth::user()->can( 'tickets.create' ) || \Auth::user()->can( 'tickets.export' ) )
         <div class="row margin-bottom-15 hidden-print">
             <div class="col-xs-6">
-                @can( 'tickets.create' )
+                @if( \Auth::user()->can( 'tickets.create' ) )
                     <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
                         <i class="fa fa-plus"></i>
                         Добавить заявку
                     </a>
-                @endcan
+                @endif
             </div>
             <div class="col-xs-6 text-right">
-                @can( 'tickets.export' )
+                @if( \Auth::user()->can( 'tickets.export' ) )
                     <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
                         <i class="fa fa-download"></i>
                         Выгрузить в Excel
                     </a>
-                @endcan
+                @endif
             </div>
         </div>
-    @endcan
+    @endif
 
     <div class="row hidden-print">
         <div class="col-xs-12">
@@ -77,7 +77,7 @@
                         @endif
                         @if ( $field_management )
                             <th width="200">
-                                ЭО
+                                УО
                             </th>
                         @endif
                         <th width="200">
