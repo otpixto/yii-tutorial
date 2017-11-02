@@ -32,7 +32,14 @@
 
         <div id="chartdiv" style="min-height: {{ $categories->count() * 30 }}px;" class="hidden-print"></div>
 
-        <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="piediv2" style="min-height: 500px;" class="hidden-print"></div>
+            </div>
+        </div>
 
         <table class="table table-striped sortable" id="data">
             <thead>
@@ -112,7 +119,9 @@
                             @if ( isset( $data[ 'management-' . $management->id ] ) )
                                 {{ $data[ 'management-' . $management->id ][ 'closed' ] }}
                                 /
-                                {{ $data[ 'management-' . $management->id ][ 'total' ] }}
+                                <span data-management="{{ $management->name }}">
+                                    {{ $data[ 'management-' . $management->id ][ 'total' ] }}
+                                </span>
                             @else
                                 0 / 0
                             @endif
@@ -193,6 +202,11 @@
 
                 });
 
+                dataProviderPie.sort( function ( a, b )
+                {
+                    return Number( a.total ) > Number( b.total );
+                });
+
                 var chart = AmCharts.makeChart("chartdiv", {
                     "dataProvider": dataProvider,
                     "graphs": [
@@ -235,6 +249,38 @@
                     "dataProvider": dataProviderPie,
                     "valueField": "total",
                     "titleField": "category",
+                    "outlineAlpha": 0.4,
+                    "depth3D": 15,
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "angle": 30,
+                    "export": {
+                        "enabled": true
+                    }
+                } );
+
+                var dataProvider = [];
+
+                $( '[data-management]' ).each( function ()
+                {
+
+                    dataProvider.push({
+                        'management': $.trim( $( this ).attr( 'data-management' ) ),
+                        'total': $.trim( $( this ).text() ),
+                    });
+
+                });
+
+                dataProvider.sort( function ( a, b )
+                {
+                    return Number( a.total ) < Number( b.total );
+                });
+
+                var pie2 = AmCharts.makeChart( "piediv2", {
+                    "type": "pie",
+                    "theme": "light",
+                    "dataProvider": dataProvider,
+                    "valueField": "total",
+                    "titleField": "management",
                     "outlineAlpha": 0.4,
                     "depth3D": 15,
                     "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
