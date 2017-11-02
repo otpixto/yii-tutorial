@@ -33,7 +33,7 @@
 
     @if ( $data[ 'total' ] )
 
-        <div id="chartdiv" style="min-height: {{ $managements->count() * 70 }}px;" class="hidden-print"></div>
+        <div id="chartdiv" style="min-height: {{ $managements->count() * 30 }}px;" class="hidden-print"></div>
 
         <table class="table table-striped sortable" id="data">
             <thead>
@@ -88,7 +88,7 @@
                     <td data-field="5" class="text-center">
                         {{ $data[ $management->id ][ 'rate-5' ] }}
                     </td>
-                    <td class="text-right info bold">
+                    <td data-field="average" class="text-right info bold">
                         {{ $data[ $management->id ][ 'average' ] }}
                     </td>
                 </tr>
@@ -172,11 +172,7 @@
 
                     dataProvider.push({
                         'name': $.trim( $( this ).find( '[data-field="name"]' ).text() ),
-                        '1': $.trim( $( this ).find( '[data-field="1"]' ).text() ),
-                        '2': $.trim( $( this ).find( '[data-field="2"]' ).text() ),
-                        '3': $.trim( $( this ).find( '[data-field="3"]' ).text() ),
-                        '4': $.trim( $( this ).find( '[data-field="4"]' ).text() ),
-                        '5': $.trim( $( this ).find( '[data-field="5"]' ).text() )
+                        'average': $.trim( $( this ).find( '[data-field="average"]' ).text() ),
                     });
 
                 });
@@ -185,49 +181,13 @@
                     "dataProvider": dataProvider,
                     "graphs": [
                         {
-                            "balloonText": "1 балл: [[value]]",
+                            "balloonText": "Средний балл: [[value]]",
                             "fillAlphas": 0.8,
-                            "id": "1",
+                            "id": "average",
                             "lineAlpha": 0.2,
-                            "title": "1 балл",
+                            "title": "Средний балл",
                             "type": "column",
-                            "valueField": "1"
-                        },
-                        {
-                            "balloonText": "2 балла: [[value]]",
-                            "fillAlphas": 0.8,
-                            "id": "2",
-                            "lineAlpha": 0.2,
-                            "title": "2 балла",
-                            "type": "column",
-                            "valueField": "2"
-                        },
-                        {
-                            "balloonText": "3 балла: [[value]]",
-                            "fillAlphas": 0.8,
-                            "id": "3",
-                            "lineAlpha": 0.2,
-                            "title": "3 балла",
-                            "type": "column",
-                            "valueField": "3"
-                        },
-                        {
-                            "balloonText": "4 балла: [[value]]",
-                            "fillAlphas": 0.8,
-                            "id": "4",
-                            "lineAlpha": 0.2,
-                            "title": "4 балла",
-                            "type": "column",
-                            "valueField": "4"
-                        },
-                        {
-                            "balloonText": "5 баллов: [[value]]",
-                            "fillAlphas": 0.8,
-                            "id": "5",
-                            "lineAlpha": 0.2,
-                            "title": "5 баллов",
-                            "type": "column",
-                            "valueField": "5"
+                            "valueField": "average"
                         }
                     ],
                     "type": "serial",
