@@ -1,4 +1,9 @@
 @if ($paginator->hasPages())
+    <div class="margin-top-10 margin-bottom-10 visible-print">
+        <span class="label label-info">
+            Страница <b>{{ $paginator->currentPage() }}</b> / <b>{{ $paginator->lastPage() }}</b>
+        </span>
+    </div>
     <ul class="pagination hidden-print">
         {{-- Previous Page Link --}}
         @if ($paginator->onFirstPage())
