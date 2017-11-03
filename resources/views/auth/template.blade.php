@@ -3,7 +3,7 @@
 <!-- BEGIN LOGO -->
 <div class="logo">
     <a href="">
-        <img src="/images/logo2.png" alt="{{ \Config::get( 'app.name' ) }}" />
+        <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
     </a>
 </div>
 <!-- END LOGO -->

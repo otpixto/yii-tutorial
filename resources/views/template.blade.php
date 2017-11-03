@@ -24,7 +24,7 @@
 
                     <!-- BEGIN LOGO -->
                     <a id="index" class="page-logo" href="/">
-                        <img src="/images/logo2.png" alt="{{ \Config::get( 'app.name' ) }}" />
+                        <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
                     </a>
                     <!-- END LOGO -->
 
