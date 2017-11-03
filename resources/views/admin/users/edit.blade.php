@@ -23,7 +23,7 @@
                     <a href="#personal" data-toggle="tab" aria-expanded="true">Персональная информация</a>
                 </li>
                 <li>
-                    <a href="#binds" data-toggle="tab">Привязки ЭО</a>
+                    <a href="#binds" data-toggle="tab">Привязки УО</a>
                 </li>
                 <li>
                     <a href="#password" data-toggle="tab">Сменить пароль</a>
@@ -83,8 +83,8 @@
                     </div>
                     <div class="form-group">
                         <div class="col-xs-12">
-                            {!! Form::label( 'add_management', 'Добавить исполнителя', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'managements[]', [ null => ' -- выберите из списка -- ' ] + $managements->toArray(), null, [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель', 'id' => 'add_management' ] ) !!}
+                            {!! Form::label( 'add_management', 'Добавить УО', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::select( 'managements[]', [ null => ' -- выберите из списка -- ' ] + $managements->toArray(), null, [ 'class' => 'form-control select2', 'data-placeholder' => 'УО', 'id' => 'add_management', 'multiple' ] ) !!}
                         </div>
                     </div>
                     <div class="margiv-top-10">
