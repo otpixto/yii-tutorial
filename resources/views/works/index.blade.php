@@ -10,7 +10,7 @@
 @section( 'content' )
 
     @if( \Auth::user()->can( 'works.create' ) || \Auth::user()->can( 'works.export' ) )
-        <div class="row margin-bottom-15">
+        <div class="row margin-bottom-15 hidden-print">
             <div class="col-xs-6">
                 @can( 'works.create' )
                     <a href="{{ route( 'works.create' ) }}" class="btn btn-success btn-lg">
@@ -30,7 +30,7 @@
         </div>
     @endcan
 
-    <div class="row">
+    <div class="row hidden-print">
         <div class="col-xs-12">
             {!! Form::open( [ 'method' => 'get' ] ) !!}
                 <div class="input-group">
@@ -79,11 +79,11 @@
                         <th>
                             &nbsp;Дата и время окончания (план)
                         </th>
-                        <th>
+                        <th class="hidden-print">
                             &nbsp;
                         </th>
                     </tr>
-                    <tr class="info">
+                    <tr class="info hidden-print">
                         <td width="10%">
                             {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
                         </td>
@@ -105,7 +105,7 @@
                         <td colspan="2" width="10%">
                             {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Дата', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                         </td>
-                        <td class="text-right">
+                        <td class="text-right hidden-print">
                             <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
                                 <i class="fa fa-filter"></i>
                             </button>

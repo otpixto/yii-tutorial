@@ -27,7 +27,7 @@
     <td>
         {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
     </td>
-    <td class="text-right">
+    <td class="text-right hidden-print">
         <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-lg btn-primary">
             <i class="fa fa-chevron-right"></i>
         </a>
