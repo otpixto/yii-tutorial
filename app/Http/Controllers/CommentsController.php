@@ -44,7 +44,7 @@ class CommentsController extends Controller
         $comment = Comment::create( $request->all() );
         $comment->save();
 
-		if ( $request->get( 'origin_model_name' ) == Ticket::class )
+		if ( \Config::get( 'telegram.active' ) && $request->get( 'origin_model_name' ) == Ticket::class )
         {
 
             $ticket = Ticket::find( $request->get( 'origin_model_id' ) );

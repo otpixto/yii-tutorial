@@ -821,7 +821,7 @@ class Ticket extends BaseModel
     public function sendTelegram ( $message = null )
     {
 
-        if ( empty( $message ) || in_array( $this->status_code, self::$not_notify ) ) return;
+        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || in_array( $this->status_code, self::$not_notify ) ) return;
 
         foreach ( $this->managements as $ticketManagement )
         {

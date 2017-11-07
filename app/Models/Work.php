@@ -213,7 +213,7 @@ class Work extends BaseModel
     public function sendTelegram ( $message = null )
     {
 
-        if ( empty( $message ) || ! $this->management->has_contract ) return;
+        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract ) return;
 
         foreach ( $this->management->subscriptions as $subscription )
         {

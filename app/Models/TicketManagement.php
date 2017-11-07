@@ -553,7 +553,7 @@ class TicketManagement extends BaseModel
 
         }
 
-        if ( $this->ticket->managements->count() == 1 )
+        if ( $this->ticket->status_code != 'draft' && $this->ticket->managements->count() == 1 )
         {
             $res = $this->changeTicketStatus();
             if ( $res instanceof MessageBag )
@@ -579,7 +579,7 @@ class TicketManagement extends BaseModel
     public function sendTelegram ( $message = null )
     {
 
-        if ( empty( $message ) || ! $this->management->has_contract ) return;
+        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract ) return;
 
         foreach ( $this->management->subscriptions as $subscription )
         {

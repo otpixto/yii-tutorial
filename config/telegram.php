@@ -1,6 +1,9 @@
 <?php
 
 return [
+
+    'active' => env('TELEGRAM_ACTIVE', '1'),
+
     /*
     |--------------------------------------------------------------------------
     | Telegram Bot API Access Token [REQUIRED]
