@@ -46,6 +46,24 @@
         </div>
     </div>
 
+    <div class="row margin-top-15 hidden-print">
+        <div class="col-xs-12">
+            <div class="note note-default">
+                <p class="text-muted small bold">Быстрый фильтр по статусам:</p>
+                @foreach ( \Auth::user()->getAvailableStatuses( true ) as $status_code => $status_name )
+                    @if ( $status_code != 'draft' )
+                        <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
+                            {{ $status_name }}
+                            <span class="badge bold">
+                                {{ \App\Models\TicketManagement::mine()->where( 'status_code', '=', $status_code )->count() }}
+                            </span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     <div class="row margin-top-15">
         <div class="col-xs-12">
 
@@ -83,11 +101,8 @@
                         <th width="200">
                             Категория и тип заявки
                         </th>
-                        <th>
+                        <th colspan="2">
                             Адрес проблемы
-                        </th>
-                        <th class="hidden-print">
-                            &nbsp;
                         </th>
                     </tr>
                     <tr class="info hidden-print">
@@ -137,13 +152,17 @@
                                 </div>
                             </div>
                             <div class="row margin-top-10">
-                                <label class="col-lg-12">
-                                    {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
-                                    Авария
-                                </label>
+                                <div class="col-lg-12">
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        <i class="icon-fire"></i>
+                                        Авария
+                                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
+                                        <span></span>
+                                    </label>
+                                </div>
                             </div>
                         </td>
-                        <td>
+                        <td colspan="2">
                             <div class="row">
                                 <div class="col-lg-7">
                                     {!! Form::select( 'address_id', [ null => ' -- все -- ' ] + ( $address ? $address->pluck( 'name', 'id' )->toArray() : [] ), \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
@@ -152,11 +171,21 @@
                                     {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
                                 </div>
                             </div>
-                        </td>
-                        <td class="text-right hidden-print">
-                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                <i class="fa fa-filter"></i>
-                            </button>
+                            <div class="row margin-top-10">
+                                <div class="col-lg-12 text-right">
+                                    <span class="text-muted small bold">
+                                        Фильтр:
+                                    </span>
+                                    <a href="{{ route( 'tickets.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
+                                        <i class="icon-close"></i>
+                                        Очистить
+                                    </a>
+                                    <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
+                                        <i class="icon-check"></i>
+                                        Применить
+                                    </button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </thead>
