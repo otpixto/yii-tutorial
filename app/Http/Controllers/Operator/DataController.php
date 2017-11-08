@@ -52,7 +52,7 @@ class DataController extends BaseController
 					$r->address->save();
 				}
 				$managements = [];
-				foreach ( $r->managements as $m )
+				foreach ( $r->managements()->mine()->get() as $m )
 				{
 					$managements[] = $m->management->name;
 				}
