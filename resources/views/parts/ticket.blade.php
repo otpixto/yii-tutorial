@@ -56,13 +56,13 @@
         @endif
     </td>
     <td class="text-right hidden-print">
-        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
+        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-lg btn-{{ in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ? 'info' : 'primary' }} tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
             <i class="fa fa-chevron-right"></i>
         </a>
     </td>
 </tr>
 @if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->count() )
-    <tr>
+    <tr @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) class="text-muted opacity" @endif>
         <td colspan="{{ ( 5 + ( $field_operator ? 1 : 0 ) + ( $field_management ? 1 : 0 ) ) }}">
             @if ( $ticketManagement->rate_comment )
                 <div class="note note-danger">
