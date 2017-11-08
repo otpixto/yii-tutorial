@@ -28,6 +28,7 @@ class DataController extends BaseController
 					->where( 'lon', '=', -1 )
 					->orWhere( 'lat', '=', -1 );
 			})
+			->with( 'address', 'managements' )
 			->get();
 
 		$data = [];
@@ -52,7 +53,7 @@ class DataController extends BaseController
 					$r->address->save();
 				}
 				$managements = [];
-				foreach ( $r->managements()->mine()->get() as $m )
+				foreach ( $r->managements()->whereIn( 'management_id', Management::mine()->pluck( 'id' ) )->get() as $m )
 				{
 					$managements[] = $m->management->name;
 				}
