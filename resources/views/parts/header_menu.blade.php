@@ -137,6 +137,13 @@
                             </a>
                         </li>
                     @endif--}}
+					@if ( \Auth::user()->can( 'reports.map' ) )
+                        <li>
+                            <a href="{{ route( 'reports.map' ) }}">
+                                География обращений
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
         @endif
