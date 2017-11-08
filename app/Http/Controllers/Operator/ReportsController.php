@@ -404,4 +404,10 @@ class ReportsController extends BaseController
 
     }
 
+    public function map ()
+    {
+        Title::add( 'География обращений' );
+        return view( 'reports.map' );
+    }
+
 }

@@ -72,6 +72,12 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
         Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
         Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
+        Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );
+    });
+
+    Route::prefix( 'data' )->group( function ()
+    {
+        Route::get( 'addresses', 'Operator\DataController@addresses' )->name( 'data.addresses' );
     });
 
     Route::prefix( 'catalog' )->group( function ()
