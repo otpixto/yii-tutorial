@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="clearfix"></div>
-            #{{ $ticketManagement->getTicketNumber() }}
+            <b>#{{ $ticketManagement->ticket->id }}</b><span class="text-muted small">/{{ $ticketManagement->id }}</span>
         @if ( $ticketManagement->rate )
             <span class="pull-right">
                 @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
