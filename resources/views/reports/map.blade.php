@@ -40,7 +40,7 @@
                             searchControlProvider: 'yandex#search'
                         }),
                         clusterer = new ymaps.Clusterer({
-                            preset: 'islands#invertedVioletClusterIcons',
+                            preset: 'islands#nightClusterIcons',
                             groupByCoordinates: false,
                             clusterDisableClickZoom: true,
                             clusterHideIconOnBalloonOpen: false,
@@ -59,7 +59,7 @@
         
                         getPointOptions = function () {
                             return {
-                                preset: 'islands#violetIcon'
+                                preset: 'islands#nightDotIcon'
                             };
                         };
 
