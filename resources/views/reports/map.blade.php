@@ -24,6 +24,9 @@
         #map {
             height: 600px;
         }
+		.page-content-row .page-content-col {
+			padding-left: 0 !important;
+		}
     </style>
 @endsection
 
@@ -68,6 +71,8 @@
                                 preset: 'islands#nightDotIcon'
                             };
                         };
+						
+					$( '.ymaps-2-1-56-map-copyrights-promo, .ymaps-2-1-56-copyright' ).remove();
 
                     $.get( '/data/addresses', function ( response )
                     {

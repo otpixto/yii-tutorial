@@ -15,56 +15,56 @@ class DataController extends BaseController
 
     public function addresses ()
     {
-		
-		if ( ! \Input::get( 'flush', 0 ) && \Cache::has( 'reports.map' ) )
-		{
-			$data = \Cache::get( 'reports.map' );
-		}
-		else
-		{
 
-			$res = Ticket
-				::whereHas( 'managements', function ( $q )
-				{
-					return $q
-						->whereIn( 'management_id', Management::mine()->pluck( 'id' ) );
-				})
-				->get();
-
-			$data = [];
-			foreach ( $res as $r )
+		$res = Ticket
+			::whereHas( 'managements', function ( $q )
 			{
-				if ( ! isset( $data[ $r->address_id ] ) )
+				return $q
+					->whereIn( 'management_id', Management::mine()->pluck( 'id' ) );
+			})
+			->whereDoesntHave( 'address', function ( $q )
+			{
+				return $q
+					->where( 'lon', '=', -1 )
+					->orWhere( 'lat', '=', -1 );
+			})
+			->get();
+
+		$data = [];
+		foreach ( $res as $r )
+		{
+			if ( ! isset( $data[ $r->address_id ] ) )
+			{
+				if ( ! $r->address->lon || ! $r->address->lat )
 				{
-					if ( ! $r->address->lon || ! $r->address->lat )
+					$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->address->name ) ) );
+					if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
 					{
-						$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->address->name ) ) );
-						if ( ! isset( $yandex->response->GeoObjectCollection->featureMember[0] ) ) continue;
 						$pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
 						$r->address->lon = $pos[0];
 						$r->address->lat = $pos[1];
-						$r->address->save();
 					}
-					$managements = [];
-					foreach ( $r->managements as $m )
+					else
 					{
-						$managements[] = $m->management->name;
+						$r->address->lon = -1;
+						$r->address->lat = -1;
 					}
-					$data[ $r->address_id ] = [ $r->address_id, $r->address->name, [ $r->address->lat, $r->address->lon ], $managements, 1 ];
+					$r->address->save();
 				}
-				else
+				$managements = [];
+				foreach ( $r->managements as $m )
 				{
-					$data[ $r->address_id ][ 4 ] ++;
+					$managements[] = $m->management->name;
 				}
+				$data[ $r->address_id ] = [ $r->address_id, $r->address->name, [ $r->address->lat, $r->address->lon ], $managements, 1 ];
 			}
-
-			$data = array_values( $data );
-			
-			\Cache::put( 'reports.map', $data, 60 );
-			
+			else
+			{
+				$data[ $r->address_id ][ 4 ] ++;
+			}
 		}
 		
-		return $data;
+		return array_values( $data );
 
     }
 
