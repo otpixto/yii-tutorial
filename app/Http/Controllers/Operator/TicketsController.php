@@ -217,7 +217,7 @@ class TicketsController extends BaseController
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'categories', Category::orderBy( 'name' )->get() )
-            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'managements', \Auth::user()->can( 'tickets.all' ) ? Management::orderBy( 'name' )->get() : Management::mine()->orderBy( 'name' )->get() )
             ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'field_operator', $field_operator )
             ->with( 'field_management', $field_management )
