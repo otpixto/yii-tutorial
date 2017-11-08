@@ -9,7 +9,13 @@
 
 @section( 'content' )
 
-    <div id="map"></div>
+	<div class="progress" id="loading">
+		<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+			Загрузка...
+		</div>
+	</div>
+
+    <div id="map" style="opacity: 0;"></div>
 
 @endsection
 
@@ -51,9 +57,9 @@
                         getPointData = function ( val )
                         {
                             return {
-                                balloonContentHeader: '<h3>' + val[0] + '</h3>',
-                                balloonContentBody: '<p>Количество заявок: <b>' + val[3] + '</b></p><p>УК: <b>' + val[2].join( ', ' ) + '</b><p>',
-                                clusterCaption: val[0]
+                                balloonContentHeader: '<h3>' + val[1] + '</h3>',
+                                balloonContentBody: '<p>Количество заявок: <a href="/tickets?address_id=' + val[0] + '" class="badge">' + val[4] + '</a></p><p>УК: <b>' + val[3].join( ', ' ) + '</b><p>',
+                                clusterCaption: val[1]
                             };
                         },
         
@@ -67,13 +73,15 @@
                     {
                         $.each( response, function ( address_id, val )
                         {
-							var pos = val[1].split( ' ' );
+							var pos = val[2].split( ' ' );
                             clusterer.add( new ymaps.Placemark( [ pos[1], pos[0] ], getPointData(val), getPointOptions()) );
                         });
 						myMap.geoObjects.add(clusterer);
 						myMap.setBounds(clusterer.getBounds(), {
 							checkZoomRange: true
 						});
+						$( '#map' ).css( 'opacity', 1 );
+						$( '#loading' ).addClass( 'hidden' );
                     });
 
                 });

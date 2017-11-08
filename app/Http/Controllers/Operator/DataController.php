@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Models\Ticket;
+use App\Models\Management;
 
 class DataController extends BaseController
 {
@@ -15,7 +16,7 @@ class DataController extends BaseController
     public function addresses ()
     {
 		
-		if ( \Cache::has( 'reports.map' ) )
+		if ( ! \Input::get( 'flush', 0 ) && \Cache::has( 'reports.map' ) )
 		{
 			$data = \Cache::get( 'reports.map' );
 		}
@@ -23,7 +24,11 @@ class DataController extends BaseController
 		{
 
 			$res = Ticket
-				::mine()
+				::whereHas( 'managements', function ( $q )
+				{
+					return $q
+						->whereIn( 'management_id', Management::mine()->pluck( 'id' ) );
+				})
 				->get();
 
 			$data = [];
@@ -38,11 +43,11 @@ class DataController extends BaseController
 					{
 						$managements[] = $m->management->name;
 					}
-					$data[ $r->address_id ] = [ $r->address->name, $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos, $managements, 1 ];
+					$data[ $r->address_id ] = [ $r->address_id, $r->address->name, $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos, $managements, 1 ];
 				}
 				else
 				{
-					$data[ $r->address_id ][ 3 ] ++;
+					$data[ $r->address_id ][ 4 ] ++;
 				}
 			}
 
