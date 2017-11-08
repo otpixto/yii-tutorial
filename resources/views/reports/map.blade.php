@@ -73,8 +73,7 @@
                     {
                         $.each( response, function ( address_id, val )
                         {
-							var pos = val[2].split( ' ' );
-                            clusterer.add( new ymaps.Placemark( [ pos[1], pos[0] ], getPointData(val), getPointOptions()) );
+                            clusterer.add( new ymaps.Placemark( val[2], getPointData(val), getPointOptions()) );
                         });
 						myMap.geoObjects.add(clusterer);
 						myMap.setBounds(clusterer.getBounds(), {

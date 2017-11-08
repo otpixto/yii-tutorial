@@ -36,14 +36,21 @@ class DataController extends BaseController
 			{
 				if ( ! isset( $data[ $r->address_id ] ) )
 				{
-					$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->address->name ) ) );
-					if ( ! isset( $yandex->response->GeoObjectCollection->featureMember[0] ) ) continue;
+					if ( ! $r->address->lon || ! $r->address->lat )
+					{
+						$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->address->name ) ) );
+						if ( ! isset( $yandex->response->GeoObjectCollection->featureMember[0] ) ) continue;
+						$pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
+						$r->address->lon = $pos[0];
+						$r->address->lat = $pos[1];
+						$r->address->save();
+					}
 					$managements = [];
 					foreach ( $r->managements as $m )
 					{
 						$managements[] = $m->management->name;
 					}
-					$data[ $r->address_id ] = [ $r->address_id, $r->address->name, $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos, $managements, 1 ];
+					$data[ $r->address_id ] = [ $r->address_id, $r->address->name, [ $r->address->lat, $r->address->lon ], $managements, 1 ];
 				}
 				else
 				{
@@ -53,7 +60,7 @@ class DataController extends BaseController
 
 			$data = array_values( $data );
 			
-			\Cache::put( 'reports.map', $data, 120 );
+			\Cache::put( 'reports.map', $data, 60 );
 			
 		}
 		
