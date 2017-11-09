@@ -734,26 +734,34 @@ class TicketsController extends BaseController
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
             $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
+            if ( ! empty( $request->get( 'comment' ) ) )
+            {
+                $res = $ticketManagement->addComment( $request->get( 'comment' ) );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withErrors( $res );
+                }
+            }
         }
         else
         {
             $res = $ticket->changeStatus( $request->get( 'status_code' ) );
+            if ( ! empty( $request->get( 'comment' ) ) )
+            {
+                $res = $ticket->addComment( $request->get( 'comment' ) );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withErrors( $res );
+                }
+            }
         }
 
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
                 ->withErrors( $res );
-        }
-
-        if ( ! empty( $request->get( 'comment' ) ) )
-        {
-            $res = $ticketManagement->addComment( $request->get( 'comment' ) );
-            if ( $res instanceof MessageBag )
-            {
-                return redirect()->back()
-                    ->withErrors( $res );
-            }
         }
 
         \DB::commit();

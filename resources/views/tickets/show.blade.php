@@ -610,12 +610,12 @@
 
             @endif
 
-            @if ( $ticketManagement && \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->count() )
+            @if ( $ticketManagement && \Auth::user()->can( 'tickets.comments' ) && ( $ticketManagement->comments->count() || $ticketManagement->ticket->comments->count() ) )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
                             <h4>Комментарии</h4>
-                            @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments ] )
+                            @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'created_at' ) ] )
                         </div>
                     </div>
                 </div>
@@ -869,6 +869,42 @@
 
                 bootbox.prompt({
                     title: 'Укажите причину отклонения заявки',
+                    inputType: 'textarea',
+                    callback: function ( result )
+                    {
+                        if ( ! result )
+                        {
+                            alert( 'Действие отменено!' );
+                        }
+                        else
+                        {
+                            form
+                                .removeAttr( 'data-confirm' )
+                                .find( '[name="comment"]' ).val( result );
+                            form.submit();
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'confirmed', '[data-status="cancel"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                var form = $( pe.target );
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var id = $( this ).attr( 'data-id' );
+
+                bootbox.prompt({
+                    title: 'Укажите причину отмены заявки',
                     inputType: 'textarea',
                     callback: function ( result )
                     {
