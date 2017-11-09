@@ -38,18 +38,18 @@ class PhoneSession extends BaseModel
             $calls = Cdr
                 ::answered()
                 ->incoming()
+                ->where( 'calldate', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
                 ->whereHas( 'queueLog', function ( $queueLog ) use ( $channel )
                 {
                     return $queueLog
                         ->completed()
-                        ->where( 'agent', '=', $channel )
-                        ->where( 'time', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
-                    if ( $this->deleted_at )
-                    {
-                        $calls
-                            ->where( 'time', '<=', $this->deleted_at->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
-                    }
+                        ->where( 'agent', '=', $channel );
                 });
+            if ( $this->deleted_at )
+            {
+                $calls
+                    ->where( 'calldate', '<=', $this->deleted_at->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+            }
             if ( $limit )
             {
                 $calls->take( $limit );
