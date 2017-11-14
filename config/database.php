@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION','eds' ),
+    'default' => env( 'DB_CONNECTION','eds' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +41,7 @@ return [
 
         'eds' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST','93.157.232.151' ),
+            'host' => env('DB_HOST','10.10.10.5' ),
             'port' => env('DB_PORT','3306' ),
             'database' => env('DB_DATABASE','eds' ),
             'username' => env('DB_USERNAME','eds' ),
@@ -49,14 +49,14 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'strict' => true,
+            'strict' => false,
             'engine' => null,
         ],
 
         'asterisk' => [
             'driver' => 'mysql',
-            'host' => '109.206.159.155',
-            //'host' => '10.10.10.155',
+            //'host' => '109.206.159.155',
+            'host' => '10.10.10.155',
             'port' => '3306',
             'database' => 'asteriskcdrdb',
             'username' => 'skadmit',
