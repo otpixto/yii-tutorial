@@ -49,7 +49,7 @@
         </div>
         <!-- END TODO SIDEBAR -->
 
-        <!-- BEGIN TODO CONTENT -->
+        <!-- BEGIN CONTENT -->
         <div class="todo-content">
             <div class="portlet light ">
                 <div class="portlet-body">
@@ -62,10 +62,13 @@
                             <thead>
                             <tr>
                                 <th>
+                                    Регион
+                                </th>
+                                <th>
                                     Адрес
                                 </th>
                                 <th>
-                                    Здание
+                                    GUID
                                 </th>
                                 <th class="text-right">
                                     &nbsp;
@@ -76,10 +79,13 @@
                             @foreach ( $addresses as $address )
                                 <tr>
                                     <td>
-                                        {{ $address->address }}
+                                        {{ $address->region->name ?? '-' }}
                                     </td>
                                     <td>
-                                        {{ $address->home }}
+                                        {{ $address->getAddress() }}
+                                    </td>
+                                    <td>
+                                        {{ $address->guid }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-info">
@@ -100,7 +106,7 @@
                 </div>
             </div>
         </div>
-        <!-- END TODO CONTENT -->
+        <!-- END CONTENT -->
     </div>
 
 @endsection

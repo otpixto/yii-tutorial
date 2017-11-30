@@ -49,8 +49,15 @@
       float: left;
       height: 50px;
       max-height: 50px;
-      line-height: 50px;
       margin-right: 75px; }
+.page-header .navbar .page-logo p {
+  margin: 0 0;
+  font-size: 17px;
+  font-weight: bold;
+}
+.page-header .navbar .page-logo p span.text-danger {
+  font-size: 20px;
+}
       .page-header .navbar .page-logo img {
         width: auto;
         height: auto;

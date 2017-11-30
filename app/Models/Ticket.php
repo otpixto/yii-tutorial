@@ -228,6 +228,14 @@ class Ticket extends BaseModel
         return $query
             ->where( function ( $q ) use ( $ignoreStatuses )
             {
+                if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+                {
+                    $q->whereHas( 'address', function ( $q2 )
+                    {
+                        return $q2
+                            ->where( 'region_id', '=', Region::$current_region->id ?? 0 );
+                    });
+                }
                 if ( \Auth::user()->can( 'tickets.all' ) )
                 {
                     $q

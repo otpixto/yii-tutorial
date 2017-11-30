@@ -27,17 +27,13 @@ class AddressesController extends BaseController
         $search = trim( \Input::get( 'search', '' ) );
 
         $addresses = Address
-            ::select(
-                '*',
-                \DB::raw( 'CONCAT_WS( \', \', address, home ) AS text' )
-            )
-            ->orderBy( 'text' );
+            ::orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $addresses
-                ->where( \DB::raw( 'CONCAT_WS( \', \', address, home )' ), 'like', $s );
+                ->where( 'name', 'like', $s );
         }
 
         $addresses = $addresses
@@ -113,7 +109,7 @@ class AddressesController extends BaseController
 
         $address = Address::with( 'managements' )->find( $id );
 
-        if ( !$address )
+        if ( ! $address )
         {
             return redirect()->route( 'addresses.index' )
                 ->withErrors( [ 'Адрес не найден' ] );
@@ -196,10 +192,10 @@ class AddressesController extends BaseController
         $addresses = Address
             ::select(
                 'id',
-                \DB::raw( 'CONCAT_WS( \', \', address, home ) AS text' )
+                'name AS text'
             )
-            ->having( 'text', 'like', $q )
-            ->orderBy( 'text' )
+            ->where( 'name', 'like', $q )
+            ->orderBy( 'name' )
             ->get();
 
         return $addresses;

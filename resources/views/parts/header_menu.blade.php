@@ -13,7 +13,7 @@
                         О компании
                     </a>
                 </li>
-                @if ( \Auth::user()->admin || \Auth::user()->can( 'schedule' ) )
+                @if ( \Auth::user()->can( 'schedule' ) )
                     <li>
                         <a href="{{ route( 'schedule.index' ) }}">
                             График работы операторов
@@ -23,7 +23,7 @@
             </ul>
         </li>
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call', 'tickets.closed', 'tickets.no_contract' ) )
+        @if ( \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call', 'tickets.closed', 'tickets.no_contract' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
@@ -42,14 +42,14 @@
                     @endif
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.create' ) )
+                    @if ( \Auth::user()->can( 'tickets.create' ) )
                         <li>
                             <a href="{{ route( 'tickets.create' ) }}">
                                 Создать заявку
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.call' ) )
+                    @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
                             <a href="{{ route( 'tickets.index' ) }}?show=call">
                                 Обзвон
@@ -65,7 +65,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'works.show', 'works.create', 'works.all' ) )
+        @if ( \Auth::user()->can( 'works.show', 'works.create', 'works.all' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
@@ -155,28 +155,28 @@
                     Справочники
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.customers.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.customers.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'customers.index' ) }}" class="nav-link">
                                 Заявители
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.addresses.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'addresses.index' ) }}" class="nav-link">
                                 Здания
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.types.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.types.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'types.index' ) }}" class="nav-link">
                                 Классификатор
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.managements.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'managements.index' ) }}" class="nav-link">
                                 Управляющие организации (УО)
@@ -212,6 +212,13 @@
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'roles.index' ) }}" class="nav-link">
                                 Роли
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'regions.index' ) }}" class="nav-link">
+                                Регионы
                             </a>
                         </li>
                     @endif

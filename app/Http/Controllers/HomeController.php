@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Asterisk;
 use App\Classes\Title;
 
 class HomeController extends Controller

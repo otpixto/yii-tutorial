@@ -1,9 +1,32 @@
 <?php
 
+//Auth::routes();
+
+Route::any( '/404', 'ErrorsController@error404' )->name( '404' );
+Route::any( '/500', 'ErrorsController@error500' )->name( '500' );
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
 Route::get( '/fix/{number}', 'ProfileController@getFix' )->name( 'fix' );
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
+
+Route::prefix( 'ais' )->group( function ()
+{
+    Route::get( 'test', 'External\AisController@test' )->name( 'ais.test' );
+});
+
+Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
+Route::post( 'login', 'Auth\LoginController@login' );
+Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
+
+// Registration Routes...
+Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
+Route::post( 'register', 'Auth\RegisterController@register' );
+
+// Password Reset Routes...
+Route::get( 'forgot', 'Auth\ForgotPasswordController@showLinkRequestForm' )->name( 'forgot' );
+Route::post( 'forgot', 'Auth\ForgotPasswordController@sendResetLinkEmail' )->name( 'password.email' );
+Route::get( 'reset/{token}', 'Auth\ResetPasswordController@showResetForm' )->name( 'reset' );
+Route::post( 'reset', 'Auth\ResetPasswordController@reset' );
 
 Route::group( [ 'middleware' => 'auth' ], function ()
 {
@@ -118,9 +141,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'perms', 'Admin\PermsController' );
         Route::resource( 'logs', 'Admin\LogsController' );
         Route::resource( 'sessions', 'Admin\SessionsController' );
+        Route::resource( 'regions', 'Admin\RegionsController' );
 
     });
 
 });
-
-Auth::routes();

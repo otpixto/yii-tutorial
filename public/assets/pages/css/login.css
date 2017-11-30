@@ -192,3 +192,11 @@ Login page
     padding-top: 3px; }
   .login .checkbox {
     font-size: 13px; } }
+.login .logo p {
+  margin: 0 0;
+  font-size: 17px;
+  font-weight: bold;
+}
+.login .logo p span.text-danger {
+  font-size: 20px;
+}

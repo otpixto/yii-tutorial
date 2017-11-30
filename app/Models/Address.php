@@ -10,13 +10,13 @@ class Address extends BaseModel
     public static $name = 'Адрес';
 
     public static $rules = [
-        'address'              => 'required|string|max:255',
-        'home'                 => 'required|string',
+        'region_id'             => 'required|integer',
+        'name'                  => 'required|string|max:255',
     ];
 
     protected $fillable = [
-        'address',
-        'home',
+        'region_id',
+        'name',
     ];
 
     public function managements ()
@@ -29,9 +29,15 @@ class Address extends BaseModel
         return $this->belongsToMany( 'App\Models\Type', 'addresses_types' );
     }
 
+    public function region ()
+    {
+        return $this->belongsTo( 'App\Models\Region' );
+    }
+
     public function getAddress ()
     {
-        return $this->address . ' д. ' . $this->home;
+        //return $this->address . ' д. ' . $this->home;
+        return $this->name;
     }
 
 }

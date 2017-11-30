@@ -25,6 +25,13 @@
                     <!-- BEGIN LOGO -->
                     <a id="index" class="page-logo" href="/">
                         <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
+                        <p>
+                            @if ( \Request::getHost() == \Session::get( 'settings' )->operator_domain )
+                                <span class="text-danger">Оператор</span>
+                            @else
+                                {{ \App\Models\Region::$current_region->name }}
+                            @endif
+                        </p>
                     </a>
                     <!-- END LOGO -->
 

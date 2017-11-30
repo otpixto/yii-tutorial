@@ -77,9 +77,20 @@ class Management extends BaseModel
         return $this->hasMany( 'App\Models\ManagementSubscription' );
     }
 
+    public function region ()
+    {
+        return $this->belongsTo( 'App\Models\Region' );
+    }
+
     public function scopeMine ( $query )
     {
-        return $query->whereIn( 'id', \Auth::user()->managements->pluck( 'id' ) );
+        return $query
+            ->whereHas( 'addresses', function ( $q )
+            {
+                return $q
+                    ->whereIn( 'region_id', \Auth::user()->regions->pluck( 'id' ) );
+            })
+            ->whereIn( 'id', \Auth::user()->managements->pluck( 'id' ) );
     }
 
     public static function create ( array $attributes = [] )

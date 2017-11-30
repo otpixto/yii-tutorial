@@ -119,10 +119,11 @@
                             <td>
                                 {{ $ticket->getAddress() }}
                                 <span class="small text-muted">
-                                    ({{ $ticket->place }})
+                                    ({{ $ticket->getPlace() }})
                                 </span>
                             </td>
                             <td>
+                                <div class="bold">{{ $ticket->type->category->name }}</div>
                                 {{ $ticket->type->name }}
                             </td>
                             <td>

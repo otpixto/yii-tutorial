@@ -115,14 +115,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function management ()
-    {
-        return $this->belongsTo( 'App\Models\Management' );
-    }
-
     public function managements ()
     {
         return $this->belongsToMany( 'App\Models\Management', 'users_managements' );
+    }
+
+    public function regions ()
+    {
+        return $this->belongsToMany( 'App\Models\Region', 'users_regions' );
     }
 
     /**
@@ -324,6 +324,11 @@ class User extends Authenticatable
             return $log;
         }
         $log->save();
+    }
+
+    public function isActive ()
+    {
+        return $this->admin || $this->active;
     }
 
 }

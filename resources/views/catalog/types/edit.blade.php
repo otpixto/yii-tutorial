@@ -84,9 +84,11 @@
                 <tr class="info">
                     <th width="50%">
                         ЭО
+                        ({{ $typeManagements->count() }})
                     </th>
                     <th with="50%">
                         Адреса
+                        ({{ $typeAddresses->count() }})
                     </th>
                 </tr>
                 </thead>

@@ -42,9 +42,11 @@
                     <tr class="info">
                         <th width="50%">
                             ЭО
+                            ({{ $addressManagements->count() }})
                         </th>
                         <th with="50%">
                             Типы обращений
+                            ({{ $addressTypes->count() }})
                         </th>
                     </tr>
                 </thead>

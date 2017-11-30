@@ -54,22 +54,13 @@
                     <thead>
                     <tr>
                         <th>
+                            Регион
+                        </th>
+                        <th>
                             Категория
                         </th>
                         <th>
                             Наименование
-                        </th>
-                        <th>
-                            Адрес
-                        </th>
-                        <th>
-                            Телефон(ы)
-                        </th>
-                        <th>
-                            График работы
-                        </th>
-                        <th>
-                            ФИО руководителя
                         </th>
                         <th>
                             Есть договор
@@ -83,22 +74,13 @@
                     @foreach ( $managements as $management )
                         <tr>
                             <td>
+                                {{ $management->region->name }}
+                            </td>
+                            <td>
                                 {{ $management->getCategory() }}
                             </td>
                             <td>
                                 {{ $management->name }}
-                            </td>
-                            <td>
-                                {{ $management->address }}
-                            </td>
-                            <td>
-                                {{ $management->getPhones() }}
-                            </td>
-                            <td>
-                                {{ $management->schedule }}
-                            </td>
-                            <td>
-                                {{ $management->director }}
                             </td>
                             <td>
                                 @if ( $management->has_contract )

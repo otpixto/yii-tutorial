@@ -39,7 +39,8 @@ class Counter
                 if ( $user->can( 'tickets.call' ) )
                 {
                     $tickets_call_count = TicketManagement
-                        ::whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                        ::mine()
+                        ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                         ->count();
                 }
 

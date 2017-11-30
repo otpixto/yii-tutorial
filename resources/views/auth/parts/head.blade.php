@@ -11,7 +11,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta content="{{ \Config::get( 'app.name' ) }} - Авторизация" name="description" />
-    <meta content="" name="author" />
+    <meta content="{{ \Config::get( 'app.author' ) }}" name="author" />
     <link rel="shortcut icon" href="/images/favicon.ico" />
     @include( 'auth.parts.css' )
 </head>

@@ -63,11 +63,29 @@
             {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
             {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
         </div>
+    </div>
+
+    <h3>Договор</h3>
+
+    <div class="form-group">
         <div class="col-xs-4">
             {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
             {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control', 'placeholder' => 'Заключен договор' ] ) !!}
         </div>
+        <div class="col-xs-4">
+            {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
+        </div>
+        <div class="col-xs-4">
+            {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
+            <div class="input-group">
+                {!! Form::text( 'contract_begin', $management->contract_begin, [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ' ] ) !!}
+                <span class="input-group-addon">-</span>
+                {!! Form::text( 'contract_end', $management->contract_end, [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО' ] ) !!}
+            </div>
+        </div>
     </div>
+
 
     <div class="form-group">
         <div class="col-xs-12">
@@ -102,6 +120,23 @@
     </div>
     {!! Form::close() !!}
 
+    <h3>
+        Подписки
+        ({{ $management->subscriptions->count() }})
+    </h3>
+
+    <ul class="list-group">
+        @foreach ( $management->subscriptions as $subscription )
+            <li class="list-group-item">
+                {{ $subscription->telegram_id }}
+                <a href="" class="badge badge-danger">
+                    <i class="fa fa-remove"></i>
+                    отписать
+                </a>
+            </li>
+        @endforeach
+    </ul>
+
     <div class="row margin-top-15">
         <div class="col-md-12">
             <table class="table table-bordered table-hover table-striped">
@@ -109,9 +144,11 @@
                 <tr class="info">
                     <th width="50%">
                         Адреса
+                        ({{ $managementAddresses->count() }})
                     </th>
                     <th with="50%">
                         Типы обращений
+                        ({{ $managementTypes->count() }})
                     </th>
                 </tr>
                 </thead>
@@ -229,6 +266,8 @@
                 });
 
                 $( '.select2' ).select2();
+
+                $( '.datepicker' ).datepicker();
 
             })
 
