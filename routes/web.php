@@ -143,6 +143,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'sessions', 'Admin\SessionsController' );
         Route::resource( 'regions', 'Admin\RegionsController' );
 
+        Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
+
     });
 
 });

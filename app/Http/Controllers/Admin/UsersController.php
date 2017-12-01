@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Management;
+use App\Models\Region;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -72,8 +73,14 @@ class UsersController extends BaseController
 
         $roles = Role::orderBy( 'name' )->get();
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view('admin.users.create' )
-            ->with( 'roles', $roles );
+            ->with( 'roles', $roles )
+            ->with( 'regions', $regions );
 
     }
 
@@ -113,11 +120,17 @@ class UsersController extends BaseController
             ->get()
             ->pluck( 'name', 'id' );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view('admin.users.edit' )
             ->with( 'user', $user )
             ->with( 'perms_tree', $perms_tree )
             ->with( 'roles', $roles )
-            ->with( 'managements', $managements );
+            ->with( 'managements', $managements )
+            ->with( 'regions', $regions );
 
     }
 

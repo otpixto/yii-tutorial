@@ -37,6 +37,10 @@
                 <!-- PERSONAL INFO TAB -->
                 <div class="steps" id="step1">
                     <div class="form-group">
+                        {!! Form::label( 'regions', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'regions[]', $regions->pluck( 'name', 'id' ), \Input::old( 'regions' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион', 'multiple' ] ) !!}
+                    </div>
+                    <div class="form-group">
                         {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' => 'required' ] ) !!}
                     </div>

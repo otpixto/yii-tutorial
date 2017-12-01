@@ -55,7 +55,7 @@
                             Телефоны
                         </th>
                         <th class="text-center">
-                            Адреса
+                            Здания
                         </th>
                         <th class="text-center">
                             УО
@@ -77,10 +77,10 @@
                             <td>
                                 {{ $region->phones->implode( 'phone', ', ' ) }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {{ $region->addresses->count() }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {{ $region->managements->count() }}
                             </td>
                             <td class="text-right">

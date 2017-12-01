@@ -46,6 +46,17 @@ class Region extends BaseModel
 
     public function scopeMine ( $query )
     {
+        if ( ! \Auth::user() ) return false;
+        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        {
+            $query
+                ->whereIn( 'id', \Auth::user()->regions->pluck( 'id' ) );
+        }
+        return $query;
+    }
+
+    public function scopeCurrent ( $query )
+    {
         return $query
             ->where( 'domain', '=', \Request::getHost() );
     }

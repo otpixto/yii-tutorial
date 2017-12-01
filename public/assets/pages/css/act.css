@@ -5,3 +5,9 @@ body {
 p {
     font-size: 14pt;
 }
+
+@media print {
+    .container {
+        width:100%;
+    }
+}

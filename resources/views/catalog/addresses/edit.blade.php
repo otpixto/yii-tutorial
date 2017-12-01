@@ -11,133 +11,136 @@
 
 @section( 'content' )
 
-    {!! Form::model( $address, [ 'method' => 'put', 'route' => [ 'addresses.update', $address->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+    <div class="panel panel-default">
+        <div class="panel-body">
 
-    <div class="form-group">
+            {!! Form::model( $address, [ 'method' => 'put', 'route' => [ 'addresses.update', $address->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        <div class="col-xs-9">
-            {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'address', \Input::old( 'address', $address->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
-        </div>
+            <div class="form-group">
 
-        <div class="col-xs-3">
-            {!! Form::label( 'home', 'Здание', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'home', \Input::old( 'home', $address->home ), [ 'class' => 'form-control', 'placeholder' => 'Здание' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $address->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+                </div>
+
+                <div class="col-xs-9">
+                    {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'name', \Input::old( 'name', $address->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                </div>
+            </div>
+
+            {!! Form::close() !!}
+
         </div>
 
     </div>
 
-    <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#managements">
+                ЭО
+                <span class="badge" id="addresses-count">{{ $addressManagements->count() }}</span>
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#types">
+                Классификатор
+                <span class="badge" id="managements-count">{{ $addressTypes->count() }}</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="managements" class="tab-pane fade in active">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @if ( ! $addressManagements->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $addressManagements as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                {{ $r->name }}
+                            </a>
+                        </div>
+                    @endforeach
+                    <hr />
+                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.managements.add' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                    {!! Form::hidden( 'address_id', $address->id ) !!}
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            {!! Form::select( 'managements[]', $allowedManagements, null, [ 'class' => 'form-control select2', 'id' => 'management-add', 'multiple' ] ) !!}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                <input name="select_all_managements" id="select-all-managements" type="checkbox" value="1" />
+                                <span></span>
+                                Выбрать все
+                            </label>
+                            &nbsp;&nbsp;&nbsp;
+                            <button id="add-management" class="btn btn-success">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить ЭО
+                            </button>
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
         </div>
-    </div>
-
-    {!! Form::close() !!}
-
-    <div class="row margin-top-15">
-        <div class="col-md-12">
-            <table class="table table-bordered table-hover table-striped">
-                <thead>
-                    <tr class="info">
-                        <th width="50%">
-                            ЭО
-                            ({{ $addressManagements->count() }})
-                        </th>
-                        <th with="50%">
-                            Типы обращений
-                            ({{ $addressTypes->count() }})
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            @if ( ! $addressManagements->count() )
-                                @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                            @endif
-                            @foreach ( $addressManagements as $r )
-                                <div class="margin-bottom-5">
-                                    <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="address-management" data-address="{{ $address->id }}" data-management="{{ $r->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </a>
-                                    <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                        {{ $r->name }}
-                                    </a>
-                                </div>
-                            @endforeach
-                        </td>
-                        <td>
-                            @if ( ! $addressTypes->count() )
-                                @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                            @endif
-                            @foreach ( $addressTypes as $r )
-                                <div class="margin-bottom-5">
-                                    <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="address-type" data-address="{{ $address->id }}" data-type="{{ $r->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </a>
-                                    <a href="{{ route( 'types.edit', $r->id ) }}">
-                                        {{ $r->name }}
-                                    </a>
-                                </div>
-                            @endforeach
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td>
-                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.managements.add' ) ] ) !!}
-                            {!! Form::hidden( 'address_id', $address->id ) !!}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {!! Form::select( 'managements[]', $allowedManagements, null, [ 'class' => 'form-control select2', 'id' => 'management-add', 'multiple' ] ) !!}
-                                </div>
-                            </div>
-                            <div class="row margin-top-10">
-                                <div class="col-md-12">
-                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                        <input name="select_all_managements" id="select-all-managements" type="checkbox" value="1" />
-                                        <span></span>
-                                        Выбрать все
-                                    </label>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <button id="add-management" class="btn btn-success">
-                                        <i class="glyphicon glyphicon-plus"></i>
-                                        Добавить ЭО
-                                    </button>
-                                </div>
-                            </div>
-                            {!! Form::close() !!}
-                        </td>
-                        <td>
-                            {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ) ] ) !!}
-                            {!! Form::hidden( 'address_id', $address->id ) !!}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
-                                </div>
-                            </div>
-                            <div class="row margin-top-10">
-                                <div class="col-md-12 text-right">
-                                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                        <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
-                                        <span></span>
-                                        Выбрать все
-                                    </label>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <button id="add-management" class="btn btn-success">
-                                        <i class="glyphicon glyphicon-plus"></i>
-                                        Добавить Тип
-                                    </button>
-                                </div>
-                            </div>
-                            {!! Form::close() !!}
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-
+        <div id="types" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @if ( ! $addressTypes->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $addressTypes as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'types.edit', $r->id ) }}">
+                                {{ $r->name }}
+                            </a>
+                        </div>
+                    @endforeach
+                    <hr />
+                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'addresses.types.add' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                    {!! Form::hidden( 'address_id', $address->id ) !!}
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
+                                <span></span>
+                                Выбрать все
+                            </label>
+                            &nbsp;&nbsp;&nbsp;
+                            <button id="add-management" class="btn btn-success">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Тип
+                            </button>
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
         </div>
     </div>
 

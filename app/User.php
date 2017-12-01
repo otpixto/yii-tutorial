@@ -35,6 +35,9 @@ class User extends Authenticatable
     ];
 
     public static $rules_create = [
+        'regions' => [
+            'array',
+        ],
         'firstname' => [
             'required',
             'max:255',
@@ -74,6 +77,9 @@ class User extends Authenticatable
     ];
 
     public static $rules_edit = [
+        'regions' => [
+            'array',
+        ],
         'firstname' => [
             'required',
             'max:255',
@@ -142,6 +148,11 @@ class User extends Authenticatable
         $user = new User( $attributes );
         $user->save();
 
+        if ( ! empty( $attributes[ 'regions' ] ) )
+        {
+            $user->regions()->attach( $attributes[ 'regions' ] );
+        }
+
         return $user;
 
     }
@@ -155,6 +166,8 @@ class User extends Authenticatable
 
         $this->fill( $attributes );
         $this->save();
+
+        $this->regions()->sync( $attributes[ 'regions' ] ?? [] );
 
         return $this;
 

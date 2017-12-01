@@ -26,6 +26,7 @@ class AddressesController extends BaseController
     {
 
         $search = trim( \Input::get( 'search', '' ) );
+        $region = \Input::get( 'region' );
 
         $addresses = Address
             ::orderBy( 'name' );
@@ -37,12 +38,24 @@ class AddressesController extends BaseController
                 ->where( 'name', 'like', $s );
         }
 
+        if ( !empty( $region ) )
+        {
+            $addresses
+                ->where( 'region_id', '=', $region );
+        }
+
         $addresses = $addresses
             ->paginate( 30 )
             ->appends( compact( 'search' ) );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.addresses.index' )
-            ->with( 'addresses', $addresses );
+            ->with( 'addresses', $addresses )
+            ->with( 'regions', $regions );
 
     }
 
@@ -58,8 +71,14 @@ class AddressesController extends BaseController
 
         $managements = Management::orderBy( 'name' )->pluck( 'name', 'id' );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.addresses.create' )
-            ->with( 'managements', $managements );
+            ->with( 'managements', $managements )
+            ->with( 'regions', $regions );
     }
 
     /**
@@ -134,12 +153,18 @@ class AddressesController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.addresses.edit' )
             ->with( 'address', $address )
             ->with( 'addressManagements', $addressManagements )
             ->with( 'allowedManagements', $allowedManagements )
             ->with( 'allowedTypes', $allowedTypes )
-            ->with( 'addressTypes', $addressTypes );
+            ->with( 'addressTypes', $addressTypes )
+            ->with( 'regions', $regions );
 
     }
 

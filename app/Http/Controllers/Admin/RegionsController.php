@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Region;
+use App\Models\RegionPhone;
 use Illuminate\Http\Request;
 
 class RegionsController extends BaseController
@@ -99,6 +100,12 @@ class RegionsController extends BaseController
         return redirect()->route( 'regions.edit', $region->id )
             ->with( 'success', 'Регион успешно добавлен' );
 
+    }
+
+    public function delRegionPhone ( Request $request )
+    {
+        $RegionPhone = RegionPhone::find( $request->get( 'id' ) );
+        $RegionPhone->delete();
     }
 
 }

@@ -26,13 +26,12 @@ class CheckRegion
         }
         else
         {
-            $region = Region::mine()->first();
+            $region = Region::current()->first();
             if ( ! $region )
             {
                 return response( view('errors.404' ) );
             }
-            $user = \Auth::user();
-            if ( $user && $user->isActive() && ! $user->regions->where( 'id', $region->id )->count() )
+            if ( \Auth::user() && ! Region::mine()->where( 'id', $region->id )->count() )
             {
                 return response( view('errors.403' ) );
             }

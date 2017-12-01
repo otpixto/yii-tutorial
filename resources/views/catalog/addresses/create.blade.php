@@ -14,10 +14,17 @@
     {!! Form::open( [ 'url' => route( 'addresses.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
     <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+
+        <div class="col-xs-3">
+            {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
         </div>
+
+        <div class="col-xs-9">
+            {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+        </div>
+
     </div>
 
     <div class="form-group">

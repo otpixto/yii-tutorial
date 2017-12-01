@@ -41,6 +41,7 @@
                                 {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
                             </div>
                         </div>
+                        {!! Form::hidden( 'category', \Input::get( 'category' ) ) !!}
                         {!! Form::close() !!}
                     </div>
                 </div>

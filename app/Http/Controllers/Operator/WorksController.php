@@ -30,9 +30,8 @@ class WorksController extends BaseController
 
         if ( \Input::get( 'show' ) != 'all' )
         {
-            $now = Carbon::now()->toDateString();
             $works
-                ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] );
+                ->current();
         }
 
         if ( !empty( \Input::get( 'search' ) ) )

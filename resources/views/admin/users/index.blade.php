@@ -94,6 +94,9 @@
                                     Телефон
                                 </th>
                                 <th>
+                                    Регионы
+                                </th>
+                                <th>
                                     Роли
                                 </th>
                                 <th>
@@ -119,6 +122,15 @@
                                         <span class="small">
                                             {{ $user->getPhone() }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        @foreach ( $user->regions as $region )
+                                            <div class="small">
+                                                <a href="{{ route( 'regions.edit', $region->id ) }}">
+                                                    {{ $region->name }}
+                                                </a>
+                                            </div>
+                                        @endforeach
                                     </td>
                                     <td>
                                         @foreach ( $user->roles as $role )

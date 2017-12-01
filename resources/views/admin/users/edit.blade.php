@@ -42,6 +42,10 @@
                     {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.update', $user->id ] ] ) !!}
                     {!! Form::hidden( 'action', 'edit_personal' ) !!}
                     <div class="form-group">
+                        {!! Form::label( 'regions', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'regions[]', $regions->pluck( 'name', 'id' ), \Input::old( 'regions', $user->regions->pluck( 'id' ) ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион', 'multiple' ] ) !!}
+                    </div>
+                    <div class="form-group">
                         {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'lastname', \Input::old( 'lastname', $user->lastname ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
                     </div>

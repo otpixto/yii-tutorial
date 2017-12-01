@@ -11,235 +11,249 @@
 
 @section( 'content' )
 
-    {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Редактрировать</h3>
+        </div>
+        <div class="panel-body">
 
-    <div class="form-group">
-        <div class="col-xs-4">
-            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name', $management->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'phone', \Input::old( 'phone', $management->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'phone2', \Input::old( 'phone2', $management->phone2 ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
-        </div>
-    </div>
+            {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-    <div class="form-group">
-        <div class="col-xs-8">
-            {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'address', \Input::old( 'address', $management->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'schedule', 'График работы', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'schedule', \Input::old( 'schedule', $management->schedule ), [ 'class' => 'form-control', 'placeholder' => 'График работы' ] ) !!}
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-xs-4">
-            {!! Form::label( 'director', 'ФИО руководителя', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'director', \Input::old( 'director', $management->director ), [ 'class' => 'form-control', 'placeholder' => 'ФИО руководителя' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::email( 'email', \Input::old( 'email', $management->email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'site', 'Сайт', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'site', \Input::old( 'site', $management->site ), [ 'class' => 'form-control', 'placeholder' => 'Сайт' ] ) !!}
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="col-xs-4">
-            {!! Form::label( 'category_id', 'Категория ЭО', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'category_id', \App\Models\Management::$categories, \Input::old( 'category_id', $management->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория ЭО' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
-        </div>
-    </div>
-
-    <h3>Договор</h3>
-
-    <div class="form-group">
-        <div class="col-xs-4">
-            {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control', 'placeholder' => 'Заключен договор' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
-        </div>
-        <div class="col-xs-4">
-            {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
-            <div class="input-group">
-                {!! Form::text( 'contract_begin', $management->contract_begin, [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'contract_end', $management->contract_end, [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО' ] ) !!}
+            <div class="form-group">
+                <div class="col-xs-4">
+                    {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'name', \Input::old( 'name', $management->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'phone', \Input::old( 'phone', $management->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'phone2', \Input::old( 'phone2', $management->phone2 ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
+                </div>
             </div>
+
+            <div class="form-group">
+                <div class="col-xs-8">
+                    {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'address', \Input::old( 'address', $management->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'schedule', 'График работы', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'schedule', \Input::old( 'schedule', $management->schedule ), [ 'class' => 'form-control', 'placeholder' => 'График работы' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-4">
+                    {!! Form::label( 'director', 'ФИО руководителя', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'director', \Input::old( 'director', $management->director ), [ 'class' => 'form-control', 'placeholder' => 'ФИО руководителя' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::email( 'email', \Input::old( 'email', $management->email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'site', 'Сайт', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'site', \Input::old( 'site', $management->site ), [ 'class' => 'form-control', 'placeholder' => 'Сайт' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-4">
+                    {!! Form::label( 'category_id', 'Категория ЭО', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::select( 'category_id', \App\Models\Management::$categories, \Input::old( 'category_id', $management->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория ЭО' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
+                </div>
+            </div>
+
+            <h3>Договор</h3>
+
+            <div class="form-group">
+                <div class="col-xs-4">
+                    {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control', 'placeholder' => 'Заключен договор' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
+                    <div class="input-group">
+                        {!! Form::text( 'contract_begin', $management->contract_begin, [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ' ] ) !!}
+                        <span class="input-group-addon">-</span>
+                        {!! Form::text( 'contract_end', $management->contract_end, [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО' ] ) !!}
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                </div>
+            </div>
+
+            {!! Form::close() !!}
+
         </div>
+
     </div>
 
-
-    <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Оповещения в Telegram</h3>
         </div>
+        <div class="panel-body">
+
+            {!! Form::open( [ 'url' => route( 'managements.telegram' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+            <div class="form-group">
+                @if ( ! $management->telegram_code )
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-success" data-action="telegram-on" data-id="{{ $management->id }}">Подключить</button>
+                    </div>
+                @else
+                    <div class="col-xs-6">
+                        <button type="button" class="btn btn-danger" data-action="telegram-off" data-id="{{ $management->id }}">Отключить</button>
+                        <button type="button" class="btn btn-warning" data-action="telegram-gen" data-id="{{ $management->id }}">Сгенерировать пин-код</button>
+                    </div>
+                    <label class="col-xs-3 control-label">
+                        Пин-код
+                    </label>
+                    <div class="col-xs-3">
+                        <span class="form-control">
+                            {{ $management->telegram_code }}
+                        </span>
+                    </div>
+                @endif
+            </div>
+            {!! Form::close() !!}
+
+            <h3>
+                Подписки
+                ({{ $management->subscriptions->count() }})
+            </h3>
+
+            <ul class="list-group">
+                @foreach ( $management->subscriptions as $subscription )
+                    <li class="list-group-item">
+                        {{ $subscription->telegram_id }}
+                        <a href="" class="badge badge-danger">
+                            <i class="fa fa-remove"></i>
+                            отписать
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+
+        </div>
+
     </div>
 
-    {!! Form::close() !!}
-
-    <h3>Оповещения в Telegram</h3>
-
-    {!! Form::open( [ 'url' => route( 'managements.telegram' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
-    <div class="form-group">
-        @if ( ! $management->telegram_code )
-            <div class="col-xs-12">
-                <button type="button" class="btn btn-success" data-action="telegram-on" data-id="{{ $management->id }}">Подключить</button>
-            </div>
-        @else
-            <div class="col-xs-6">
-                <button type="button" class="btn btn-danger" data-action="telegram-off" data-id="{{ $management->id }}">Отключить</button>
-                <button type="button" class="btn btn-warning" data-action="telegram-gen" data-id="{{ $management->id }}">Сгенерировать пин-код</button>
-            </div>
-            <label class="col-xs-3 control-label">
-                Пин-код
-            </label>
-            <div class="col-xs-3">
-                <span class="form-control">
-                    {{ $management->telegram_code }}
-                </span>
-            </div>
-        @endif
-    </div>
-    {!! Form::close() !!}
-
-    <h3>
-        Подписки
-        ({{ $management->subscriptions->count() }})
-    </h3>
-
-    <ul class="list-group">
-        @foreach ( $management->subscriptions as $subscription )
-            <li class="list-group-item">
-                {{ $subscription->telegram_id }}
-                <a href="" class="badge badge-danger">
-                    <i class="fa fa-remove"></i>
-                    отписать
-                </a>
-            </li>
-        @endforeach
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#addresses">
+                Здания
+                <span class="badge" id="addresses-count">{{ $managementAddresses->count() }}</span>
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#types">
+                Классификатор
+                <span class="badge" id="managements-count">{{ $managementTypes->count() }}</span>
+            </a>
+        </li>
     </ul>
 
-    <div class="row margin-top-15">
-        <div class="col-md-12">
-            <table class="table table-bordered table-hover table-striped">
-                <thead>
-                <tr class="info">
-                    <th width="50%">
-                        Адреса
-                        ({{ $managementAddresses->count() }})
-                    </th>
-                    <th with="50%">
-                        Типы обращений
-                        ({{ $managementTypes->count() }})
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        @if ( ! $managementAddresses->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $managementAddresses as $r )
-                            <div class="margin-bottom-5">
-                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="management-address" data-management="{{ $management->id }}" data-address="{{ $r->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </a>
-                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </td>
-                    <td>
-                        @if ( ! $managementTypes->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $managementTypes as $r )
-                            <div class="margin-bottom-5">
-                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="management-type" data-management="{{ $management->id }}" data-type="{{ $r->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </a>
-                                <a href="{{ route( 'types.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td>
-                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.addresses.add' ) ] ) !!}
-                        {!! Form::hidden( 'management_id', $management->id ) !!}
-                        <div class="row">
-                            <div class="col-md-12">
-                                {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'id' => 'addresses-add', 'multiple' ] ) !!}
-                            </div>
+    <div class="tab-content">
+        <div id="addresses" class="tab-pane fade in active">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @if ( ! $managementAddresses->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $managementAddresses as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'addresses.edit', $r->id ) }}">
+                                {{ $r->getAddress() }}
+                            </a>
                         </div>
-                        <div class="row margin-top-10">
-                            <div class="col-md-12">
-                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                    <input name="select_all_addresses" id="select-all-addresses" type="checkbox" value="1" />
-                                    <span></span>
-                                    Выбрать все
-                                </label>
-                                &nbsp;&nbsp;&nbsp;
-                                <button id="add-management" class="btn btn-success">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    Добавить Адрес
-                                </button>
-                            </div>
+                    @endforeach
+                    <hr />
+                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.addresses.add' ) ] ) !!}
+                    {!! Form::hidden( 'management_id', $management->id ) !!}
+                    <div class="row">
+                        <div class="col-md-12">
+                            {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'id' => 'addresses-add', 'multiple' ] ) !!}
                         </div>
-                        {!! Form::close() !!}
-                    </td>
-                    <td>
-                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.types.add' ) ] ) !!}
-                        {!! Form::hidden( 'management_id', $management->id ) !!}
-                        <div class="row">
-                            <div class="col-md-12">
-                                {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
-                            </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <div class="col-md-12">
+                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                <input name="select_all_addresses" id="select-all-addresses" type="checkbox" value="1" />
+                                <span></span>
+                                Выбрать все
+                            </label>
+                            &nbsp;&nbsp;&nbsp;
+                            <button id="add-management" class="btn btn-success">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Адрес
+                            </button>
                         </div>
-                        <div class="row margin-top-10">
-                            <div class="col-md-12 text-right">
-                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                    <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
-                                    <span></span>
-                                    Выбрать все
-                                </label>
-                                &nbsp;&nbsp;&nbsp;
-                                <button id="add-management" class="btn btn-success">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    Добавить Тип
-                                </button>
-                            </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
+        </div>
+        <div id="types" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @if ( ! $managementTypes->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $managementTypes as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'types.edit', $r->id ) }}">
+                                {{ $r->name }}
+                            </a>
                         </div>
-                        {!! Form::close() !!}
-                    </td>
-                </tr>
-                </tfoot>
-            </table>
-
+                    @endforeach
+                    <hr />
+                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.types.add' ) ] ) !!}
+                    {!! Form::hidden( 'management_id', $management->id ) !!}
+                    <div class="row">
+                        <div class="col-md-12">
+                            {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
+                        </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <div class="col-md-12 text-right">
+                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
+                                <span></span>
+                                Выбрать все
+                            </label>
+                            &nbsp;&nbsp;&nbsp;
+                            <button id="add-management" class="btn btn-success">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Тип
+                            </button>
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
         </div>
     </div>
 

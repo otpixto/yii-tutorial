@@ -201,6 +201,13 @@ class Work extends BaseModel
             });
     }
 
+    public function scopeCurrent ( $query )
+    {
+        $now = Carbon::now()->toDateTimeString();
+        return $query
+            ->whereRaw( 'time_begin <= ? AND time_end >= ?', [ $now, $now ] );
+    }
+
     public function getCategory ()
     {
         return self::$categories[ $this->category_id ] ?? null;

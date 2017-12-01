@@ -211,7 +211,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         <dl>
-                            <dt>Заявка передана в ЭО:</dt>
+                            <dt>Заявка передана в УО:</dt>
                             <dd>{{ $dt_transferred ? $dt_transferred->format( 'd.m.Y H:i' ) : '-' }}</dd>
                         </dl>
                     </div>
@@ -350,7 +350,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note note-info">
-                            <b>Продолжительность работы ЭО в часах: </b>
+                            <b>Продолжительность работы УО в часах: </b>
                             {{ $execution_hours }}
                         </div>
                     </div>
@@ -361,7 +361,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
-                            <b>Оценка работы ЭО: </b>
+                            <b>Оценка работы УО: </b>
                             @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
                             @if ( $ticketManagement->rate_comment )
                                 <p>
@@ -373,11 +373,11 @@
                 </div>
             @endif
 
-            @if ( \Auth::user()->can( 'calls' ) && $ticket->call() && $ticket->call()->hasMp3() )
+            @if ( \Auth::user()->can( 'calls' ) && $ticket->cdr && $ticket->cdr->hasMp3() )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
-                            <a href="{{ $ticket->call()->getMp3() }}" target="_blank">
+                            <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
                                 <i class="fa fa-phone"></i>
                                 Запись разговора
                             </a>
@@ -454,10 +454,10 @@
                                 <dt>
                                     @if ( $ticket->managements()->mine()->count() > 1 )
                                         <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                            Эксплуатационная организация:
+                                            Управляющая организация:
                                         </a>
                                     @else
-                                        Эксплуатационная организация:
+                                        Управляющая организация:
                                     @endif
                                 </dt>
                                 <dd>
@@ -526,7 +526,7 @@
                     <div class="col-xs-12">
                         <div class="note">
                             <div class="bold">
-                                Эксплуатационные организации
+                                Управляющие организации
                             </div>
                             <div class="row">
                                 <div class="col-xs-5 bold small">
@@ -747,7 +747,7 @@
 				var line = $( this ).closest( 'tr' );
 				var id = $( this ).attr( 'data-delete-management' );
 				bootbox.confirm({
-					message: 'Вы уверены, что хотите убрать из заявки ЭО?',
+					message: 'Вы уверены, что хотите убрать из заявки УО?',
 					size: 'small',
 					buttons: {
 						confirm: {
@@ -836,7 +836,7 @@
                 var id = $( this ).attr( 'data-id' );
 
                 var dialog = bootbox.dialog({
-                    title: 'Оцените работу ЭО',
+                    title: 'Оцените работу УО',
                     message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
                 });
 

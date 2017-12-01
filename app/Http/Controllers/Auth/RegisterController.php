@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Region;
 use App\Traits\RegistersUsers;
 use App\User;
 use App\Http\Controllers\Controller;
@@ -58,6 +59,11 @@ class RegisterController extends Controller
      */
     protected function create( array $data )
     {
-        return User::create( $data );
+        $user = User::create( $data );
+        if ( Region::$current_region )
+        {
+            $user->regions()->attach( Region::$current_region->id );
+        }
+        return $user;
     }
 }

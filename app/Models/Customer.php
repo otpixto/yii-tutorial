@@ -12,6 +12,9 @@ class Customer extends BaseModel
 
     public static $name = 'Заявитель';
 
+    private $_calls = null;
+    private $_limit = null;
+
     public static $rules = [
         'firstname'             => 'required|max:191',
         'middlename'            => 'nullable|max:191',
@@ -53,31 +56,34 @@ class Customer extends BaseModel
 
     public function calls ( $limit = null )
     {
-        $cdr = Cdr
-            ::where( function ( $q )
-            {
-                return $q
-                    ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone ] );
-                if ( $this->phone2 )
-                {
-                    $q
-                        ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone2 ] );
-                }
-            })
-            ->answered()
-            ->incoming()
-            ->whereHas( 'queueLog', function ( $q )
-            {
-                return $q
-                    ->completed();
-            })
-            ->orderBy( 'uniqueid', 'desc' );
-        if ( $limit )
+        if ( is_null( $this->_calls ) || $this->_limit != $limit )
         {
-            $cdr->take( $limit );
+            $cdr = Cdr
+                ::where( function ( $q )
+                {
+                    return $q
+                        ->whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone ] );
+                    if ( $this->phone2 )
+                    {
+                        $q
+                            ->orWhereRaw( 'RIGHT( src, 10 ) = ?', [ $this->phone2 ] );
+                    }
+                })
+                ->answered()
+                ->incoming()
+                ->whereHas( 'queueLog', function ( $q )
+                {
+                    return $q
+                        ->completed();
+                })
+                ->orderBy( 'uniqueid', 'desc' );
+            if ( $limit )
+            {
+                $cdr->take( $limit );
+            }
+            $this->_calls = $cdr->get();
         }
-        $cdr = $cdr->get();
-        return $cdr;
+        return $this->_calls;
     }
 
     public static function create ( array $attributes = [] )

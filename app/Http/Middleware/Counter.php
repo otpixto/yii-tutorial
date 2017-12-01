@@ -26,8 +26,6 @@ class Counter
         if ( $user )
         {
 
-            $now = Carbon::now()->toDateString();
-
             if ( $user->can( 'tickets.counter' ) )
             {
 
@@ -59,7 +57,8 @@ class Counter
             if ( $user->can( 'works.counter' ) )
             {
                 $works_count = Work
-                    ::whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
+                    ::mine()
+                    ->current()
                     ->count();
             }
 
