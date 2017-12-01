@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\AddressManagement;
 use App\Models\Category;
 use App\Models\Management;
+use App\Models\Region;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -195,7 +196,15 @@ class AddressesController extends BaseController
                 'name AS text'
             )
             ->where( 'name', 'like', $q )
-            ->orderBy( 'name' )
+            ->orderBy( 'name' );
+
+        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        {
+            $addresses
+                ->where( 'region_id', '=', Region::$current_region->id ?? 0 );
+        }
+
+        $addresses = $addresses
             ->get();
 
         return $addresses;

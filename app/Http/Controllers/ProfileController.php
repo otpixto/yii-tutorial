@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
+use App\Models\Ticket;
 use App\Models\UserPhoneAuth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -126,6 +127,11 @@ class ProfileController extends Controller
 
     public function getTest ()
     {
+        set_time_limit(0);
+        $ticket = Ticket
+            ::whereNotNull('call_id' )
+            ->first();
+        dd( $ticket, $ticket->cdr );
         $asterisk = new Asterisk();
         dd( $asterisk->queues() );
     }

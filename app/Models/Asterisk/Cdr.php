@@ -10,8 +10,6 @@ class Cdr extends BaseModel
 
     protected $table = 'cdr';
 
-    private $_ticket = '-1';
-
     public function queueLog ()
     {
         return $this->belongsTo( 'App\Models\Asterisk\QueueLog', 'uniqueid', 'callid' );
@@ -47,17 +45,7 @@ class Cdr extends BaseModel
 
     public function ticket ()
     {
-        if ( $this->_ticket == '-1' )
-        {
-            $dt_from = Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) );
-            $dt_to = Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) );
-            $this->_ticket = Ticket
-                ::where( 'call_phone', '=', mb_substr( $this->src, -10 ) )
-                ->whereBetween( 'call_at', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
-                ->where( 'status_code', '!=', 'draft' )
-                ->first();
-        }
-        return $this->_ticket;
+        return $this->belongsTo( 'App\Models\Ticket', 'uniqueid', 'call_id' );
     }
 
     public function hasMp3 ()

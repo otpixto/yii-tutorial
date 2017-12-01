@@ -21,8 +21,6 @@ class Ticket extends BaseModel
 
     private $availableStatuses = null;
 
-    private $_call = '-1';
-
     public static $places = [
         1 => 'Помещение',
         2 => 'Здание',
@@ -194,27 +192,9 @@ class Ticket extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
-    public function call ()
+    public function cdr ()
     {
-        if ( $this->_call == '-1' )
-        {
-            if ( ! $this->call_phone || ! $this->call_at ) return null;
-            $dt_from = Carbon::parse( $this->call_at )->subSeconds( \Config::get( 'asterisk.tolerance' ) );
-            $dt_to = Carbon::parse( $this->call_at )->addSeconds( \Config::get( 'asterisk.tolerance' ) );
-            $this->_call = Cdr
-                ::whereRaw( 'RIGHT( src, 10 ) = ?', [ $this->call_phone ] )
-                ->answered()
-                ->incoming()
-                ->whereHas( 'queueLog', function ( $q )
-                {
-                    return $q
-                        ->completed();
-                })
-                ->whereBetween( 'calldate', [ $dt_from->toDateTimeString(), $dt_to->toDateTimeString() ] )
-                ->orderBy( 'id', 'desc' )
-                ->first();
-        }
-        return $this->_call;
+        return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'call_id', 'uniqueid' );
     }
 
     public function scopeNotFinaleStatuses ( $query )

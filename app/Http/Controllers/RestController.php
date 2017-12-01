@@ -59,13 +59,13 @@ class RestController extends Controller
             $draft->author_id = $session->user->id;
             $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
             $draft->call_phone = $draft->phone;
-            $draft->call_at = Carbon::now()->toDateTimeString();
+            $draft->call_id = $request->get( 'call_id' );
         }
         else
         {
             $draft->phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
             $draft->call_phone = $draft->phone;
-            $draft->call_at = Carbon::now()->toDateTimeString();
+            $draft->call_id = $request->get( 'call_id' );
         }
 
         $draft->save();

@@ -49,6 +49,9 @@
                             Наименование
                         </th>
                         <th>
+                            Домен
+                        </th>
+                        <th>
                             Телефоны
                         </th>
                         <th class="text-center">
@@ -67,6 +70,9 @@
                         <tr>
                             <td>
                                 {{ $region->name }}
+                            </td>
+                            <td>
+                                {{ $region->domain }}
                             </td>
                             <td>
                                 {{ $region->phones->implode( 'phone', ', ' ) }}

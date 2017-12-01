@@ -82,8 +82,7 @@ class RegionsController extends BaseController
 
         $this->validate( $request, Region::$rules );
 
-        $region->fill( $request->all() );
-        $region->save();
+        $region->edit( $request->all() );
 
         return redirect()->route( 'regions.edit', $region->id )
             ->with( 'success', 'Регион успешно отредактирован' );

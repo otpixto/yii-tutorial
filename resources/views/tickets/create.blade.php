@@ -176,7 +176,7 @@
         <div class="col-xs-7">
 
             {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( 'name', ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
 
         </div>
 

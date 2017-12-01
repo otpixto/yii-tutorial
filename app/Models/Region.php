@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\MessageBag;
+
 class Region extends BaseModel
 {
 
@@ -12,11 +14,14 @@ class Region extends BaseModel
     public static $current_region = null;
 
     public static $rules = [
-        'name'                  => 'required|string|max:255'
+        'name'                  => 'required|string|max:255',
+        'domain'                => 'required|string|max:100',
+        'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
     ];
 
     protected $fillable = [
         'name',
+        'domain',
     ];
 
     public function phones ()
@@ -43,6 +48,54 @@ class Region extends BaseModel
     {
         return $query
             ->where( 'domain', '=', \Request::getHost() );
+    }
+
+    public static function create ( array $attributes = [] )
+    {
+        $region = parent::create( $attributes );
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+            $res = $region->addPhone( $phone );
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+        }
+        return $region;
+    }
+
+    public function edit ( array $attributes = [] )
+    {
+        $region = parent::edit( $attributes );
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+            $res = $region->addPhone( $phone );
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+            $res->save();
+        }
+        return $region;
+    }
+
+    public function addPhone ( $phone )
+    {
+        $attributes = [
+            'region_id'     => $this->id,
+            'phone'         => $phone
+        ];
+        $validator = \Validator::make( $attributes, RegionPhone::$rules );
+        if ( $validator->fails() ) return $validator;
+        $regionPhone = RegionPhone::create( $attributes );
+        if ( $regionPhone instanceof MessageBag )
+        {
+            return $regionPhone;
+        }
+        $this->addLog( 'Добавлен телефон "' . $phone . '"' );
+        return $regionPhone;
     }
 
 }

@@ -11,15 +11,43 @@
 
 @section( 'content' )
 
-    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'customers.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
     <div class="form-group">
 
-        <div class="col-xs-12">
+        <div class="col-xs-6">
             {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
             {!! Form::text( 'name', \Input::old( 'name', $region->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
         </div>
+        <div class="col-xs-6">
+            {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'domain', \Input::old( 'domain', $region->domain ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
+        </div>
 
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Телефоны</h3>
+        </div>
+        <div class="panel-body">
+            @foreach ( $region->phones as $phone )
+                <div class="row margin-top-5 margin-bottom-5">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-xs btn-danger">
+                            <i class="fa fa-remove"></i>
+                        </button>
+                        {{ $phone->phone }}
+                    </div>
+                </div>
+            @endforeach
+            <div class="form-group">
+                <div class="col-xs-12">
+                    {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="form-group hidden-print">

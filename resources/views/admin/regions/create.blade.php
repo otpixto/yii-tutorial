@@ -11,56 +11,18 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'url' => route( 'customers.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+    {!! Form::open( [ 'url' => route( 'regions.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
     <div class="form-group">
 
-        <div class="col-xs-4">
-            {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
         </div>
 
-        <div class="col-xs-4">
-            {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя', 'required' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-
-        <div class="col-xs-4">
-            {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон', 'required' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'phone2', \Input::old( 'phone2' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-
-        <div class="col-xs-4">
-            {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'actual_address_id', [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'domain', \Input::old( 'domain' ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
         </div>
 
     </div>

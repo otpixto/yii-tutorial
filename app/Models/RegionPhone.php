@@ -11,7 +11,7 @@ class RegionPhone extends BaseModel
 
     public static $rules = [
         'region_id'             => 'required|integer',
-        'phone'                 => 'required|string|max:10'
+        'phone'                 => 'required|regex:/\d/|max:10'
     ];
 
     protected $fillable = [

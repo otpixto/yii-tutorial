@@ -15,11 +15,15 @@
                     <div class="error-actions">
                         <a href="/" class="btn btn-primary btn-lg">
                             <i class="glyphicon glyphicon-home"></i>
-                            На главную
+                            <span class="hidden-xs">
+								На главную
+							</span>
                         </a>
                         <a href="mailto:support@edska.ru" class="btn btn-default btn-lg">
                             <i class="glyphicon glyphicon-envelope"></i>
-                            Написать письмо
+                            <span class="hidden-xs">
+								Написать письмо
+							</span>
                         </a>
                     </div>
                 </div>
