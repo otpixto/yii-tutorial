@@ -29,7 +29,8 @@ class AddressesController extends BaseController
         $region = \Input::get( 'region' );
 
         $addresses = Address
-            ::orderBy( 'name' );
+            ::mine()
+            ->orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
@@ -202,23 +203,22 @@ class AddressesController extends BaseController
     public function search ( Request $request )
     {
 
-        $q = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+        $region_id = $request->get( 'region_id', Region::current()->first()->id );
 
         $addresses = Address
             ::select(
                 'id',
                 'name AS text'
             )
-            ->where( 'name', 'like', $q )
-            ->orderBy( 'name' );
-
-        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
-        {
-            $addresses
-                ->where( 'region_id', '=', Region::$current_region->id ?? 0 );
-        }
-
-        $addresses = $addresses
+            ->where( 'name', 'like', $s )
+            ->whereHas( 'region', function ( $q ) use ( $region_id )
+            {
+                return $q
+                    ->mine()
+                    ->where( 'id', '=', $region_id );
+            })
+            ->orderBy( 'name' )
             ->get();
 
         return $addresses;

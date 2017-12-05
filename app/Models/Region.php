@@ -60,8 +60,12 @@ class Region extends BaseModel
 
     public function scopeCurrent ( $query )
     {
-        return $query
-            ->where( 'domain', '=', \Request::getHost() );
+        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain )
+        {
+            $query
+                ->where( 'domain', '=', \Request::getHost() );
+        }
+        return $query;
     }
 
     public static function create ( array $attributes = [] )

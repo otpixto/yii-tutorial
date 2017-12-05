@@ -101,6 +101,7 @@ class Ticket extends BaseModel
     ];
 
     public static $rules = [
+        'region_id'                 => 'required|integer',
         'type_id'                   => 'required|integer',
         'address_id'                => 'required|integer',
         'actual_address_id'         => 'nullable|integer',
@@ -121,6 +122,7 @@ class Ticket extends BaseModel
     ];
 
     protected $fillable = [
+        'region_id',
         'type_id',
         'address_id',
         'actual_address_id',
@@ -142,6 +144,11 @@ class Ticket extends BaseModel
     public function managements ()
     {
         return $this->hasMany( 'App\Models\TicketManagement' );
+    }
+
+    public function region ()
+    {
+        return $this->belongsTo( 'App\Models\Region' );
     }
 
     public function address ()
@@ -208,14 +215,16 @@ class Ticket extends BaseModel
         return $query
             ->where( function ( $q ) use ( $ignoreStatuses )
             {
-                if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+                $q->whereHas( 'address', function ( $q2 )
                 {
-                    $q->whereHas( 'address', function ( $q2 )
-                    {
-                        return $q2
-                            ->where( 'region_id', '=', Region::$current_region->id ?? 0 );
-                    });
-                }
+                    return $q2
+                        ->whereHas( 'region', function ( $q3 )
+                        {
+                            return $q3
+                                ->mine()
+                                ->current();
+                        });
+                });
                 if ( \Auth::user()->can( 'tickets.all' ) )
                 {
                     $q

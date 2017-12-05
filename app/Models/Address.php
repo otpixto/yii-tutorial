@@ -43,7 +43,11 @@ class Address extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereIn( 'region_id', \Auth::user()->regions->pluck( 'id' ) );
+            ->whereHas( 'region', function ( $q )
+            {
+                return $q
+                    ->mine();
+            });
     }
 
 }

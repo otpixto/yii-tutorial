@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Management;
+use App\Models\Region;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
@@ -268,9 +269,15 @@ class TicketsController extends BaseController
 
         $draft = $this->createDraftIfNotExists();
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'draft', $draft )
+            ->with( 'regions', $regions )
             ->with( 'places', Ticket::$places );
     }
 

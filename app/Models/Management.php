@@ -88,7 +88,11 @@ class Management extends BaseModel
             ->whereHas( 'addresses', function ( $q )
             {
                 return $q
-                    ->whereIn( 'region_id', \Auth::user()->regions->pluck( 'id' ) );
+                    ->whereHas( 'region', function ( $q2 )
+                    {
+                        return $q2
+                            ->mine();
+                    });
             })
             ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );
     }

@@ -26,9 +26,16 @@
             </div>
 
             <div class="form-group">
+                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -564,6 +571,27 @@
                     minimumInputLength: 3,
                     minimumResultsForSearch: 30,
                     ajax: {
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
+
+                $( '#address_id' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val()
+                            };
+                        },
                         delay: 450,
                         processResults: function ( data, page )
                         {
