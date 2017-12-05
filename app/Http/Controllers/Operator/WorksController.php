@@ -84,7 +84,7 @@ class WorksController extends BaseController
                     'Кто сообщил'                   => $work->who,
                     'Основание'                     => $work->reason,
                     'Адрес работ'                   => $work->addresses->implode( 'name', '; ' ),
-                    'Тип работ'                     => $work->type->name,
+                    'Категория работ'               => $work->category->name,
                     'Исполнитель работ'             => $work->management->name,
                     'Состав работ'                  => $work->composition,
                     'Время начала работ'            => Carbon::parse( $work->time_begin )->format( 'd.m.y H:i' ),

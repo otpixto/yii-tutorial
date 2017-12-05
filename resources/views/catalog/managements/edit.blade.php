@@ -174,6 +174,14 @@
         <div id="addresses" class="tab-pane fade in active">
             <div class="panel panel-default">
                 <div class="panel-body">
+                    <div class="row margin-bottom-20">
+                        <div class="col-xs-12">
+                            <button id="add-addresses" data-id="{{ $management->id }}" class="btn btn-default">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Здания
+                            </button>
+                        </div>
+                    </div>
                     @if ( ! $managementAddresses->count() )
                         @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
                     @endif
@@ -187,35 +195,20 @@
                             </a>
                         </div>
                     @endforeach
-                    <hr />
-                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.addresses.add' ) ] ) !!}
-                    {!! Form::hidden( 'management_id', $management->id ) !!}
-                    <div class="row">
-                        <div class="col-md-12">
-                            {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'id' => 'addresses-add', 'multiple' ] ) !!}
-                        </div>
-                    </div>
-                    <div class="row margin-top-10">
-                        <div class="col-md-12">
-                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                <input name="select_all_addresses" id="select-all-addresses" type="checkbox" value="1" />
-                                <span></span>
-                                Выбрать все
-                            </label>
-                            &nbsp;&nbsp;&nbsp;
-                            <button id="add-management" class="btn btn-success">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить Адрес
-                            </button>
-                        </div>
-                    </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
         <div id="types" class="tab-pane fade">
             <div class="panel panel-default">
                 <div class="panel-body">
+                    <div class="row margin-bottom-20">
+                        <div class="col-xs-12">
+                            <button id="add-types" data-id="{{ $management->id }}" class="btn btn-default">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Классификатор
+                            </button>
+                        </div>
+                    </div>
                     @if ( ! $managementTypes->count() )
                         @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
                     @endif
@@ -229,29 +222,6 @@
                             </a>
                         </div>
                     @endforeach
-                    <hr />
-                    {!! Form::open( [ 'method' => 'post', 'url' => route( 'managements.types.add' ) ] ) !!}
-                    {!! Form::hidden( 'management_id', $management->id ) !!}
-                    <div class="row">
-                        <div class="col-md-12">
-                            {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'id' => 'types-add', 'multiple' ] ) !!}
-                        </div>
-                    </div>
-                    <div class="row margin-top-10">
-                        <div class="col-md-12 text-right">
-                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
-                                <span></span>
-                                Выбрать все
-                            </label>
-                            &nbsp;&nbsp;&nbsp;
-                            <button id="add-management" class="btn btn-success">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить Тип
-                            </button>
-                        </div>
-                    </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
@@ -283,6 +253,28 @@
 
                 $( '.datepicker' ).datepicker();
 
+            })
+
+            .on( 'click', '#add-types', function ( e )
+            {
+                e.preventDefault();
+                $.get( '{{ route( 'managements.types.add' ) }}', {
+                    id: $( this ).attr( 'data-id' )
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Добавить Классификатор', response, 'add-types-modal' );
+                });
+            })
+
+            .on( 'click', '#add-addresses', function ( e )
+            {
+                e.preventDefault();
+                $.get( '{{ route( 'managements.addresses.add' ) }}', {
+                    id: $( this ).attr( 'data-id' )
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Добавить Здания', response, 'add-addresses-modal' );
+                });
             })
 
             .on( 'click', '[data-delete="management-address"]', function ( e )

@@ -54,6 +54,7 @@
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
+                    {!! Form::hidden( 'show', \Input::get( 'show', null ) ) !!}
                     <tr class="info">
                         <th>
                              Номер сообщения
@@ -74,10 +75,10 @@
                             Состав работ
                         </th>
                         <th>
-                            &nbsp;Дата и время начала
+                            &nbsp;Дата начала
                         </th>
                         <th>
-                            &nbsp;Дата и время окончания (план)
+                            &nbsp;Дата окончания (план)
                         </th>
                         <th class="hidden-print">
                             &nbsp;
@@ -87,7 +88,7 @@
                         <td width="10%">
                             {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
                         </td>
-                        <td width="15%">
+                        <td width="10%">
                             {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                         </td>
                         <td width="15%">
@@ -96,19 +97,28 @@
                         <td width="15%">
                             {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
                         </td>
-                        <td width="15%">
+                        <td width="10%">
                             {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
                         </td>
-                        <td width="15%">
+                        <td width="10%">
                             {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
                         </td>
-                        <td colspan="2" width="10%">
-                            {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'Дата', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                        </td>
-                        <td class="text-right hidden-print">
-                            <button type="submit" class="btn btn-primary tooltips" title="Применить фильтр">
-                                <i class="fa fa-filter"></i>
-                            </button>
+                        <td colspan="3">
+                            <div class="row margin-top-10">
+                                <div class="col-lg-12 text-right">
+                                    <span class="text-muted small bold">
+                                        Фильтр:
+                                    </span>
+                                    <a href="{{ route( 'works.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
+                                        <i class="icon-close"></i>
+                                        Очистить
+                                    </a>
+                                    <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
+                                        <i class="icon-check"></i>
+                                        Применить
+                                    </button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {!! Form::close() !!}

@@ -106,24 +106,30 @@ Route::group( [ 'middleware' => 'auth' ], function ()
     Route::prefix( 'catalog' )->group( function ()
     {
 
-        Route::post( 'addresses/types/add', 'Catalog\AddressesController@addTypes' )->name( 'addresses.types.add' );
+        Route::get( 'addresses/types/add', 'Catalog\AddressesController@getAddTypes' )->name( 'addresses.types.add' );
+        Route::post( 'addresses/types/add', 'Catalog\AddressesController@postAddTypes' )->name( 'addresses.types.add' );
         Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );
-        Route::post( 'addresses/managements/add', 'Catalog\AddressesController@addManagements' )->name( 'addresses.managements.add' );
+        Route::get( 'addresses/managements/add', 'Catalog\AddressesController@getAddManagements' )->name( 'addresses.managements.add' );
+        Route::post( 'addresses/managements/add', 'Catalog\AddressesController@postAddManagements' )->name( 'addresses.managements.add' );
         Route::post( 'addresses/managements/del', 'Catalog\AddressesController@delManagement' )->name( 'addresses.managements.del' );
         Route::resource( 'addresses', 'Catalog\AddressesController' );
 
         Route::resource( 'categories', 'Catalog\CategoriesController' );
 
-        Route::post( 'types/addresses/add', 'Catalog\TypesController@addAddresses' )->name( 'types.addresses.add' );
+        Route::get( 'types/addresses/add', 'Catalog\TypesController@getAddAddresses' )->name( 'types.addresses.add' );
+        Route::post( 'types/addresses/add', 'Catalog\TypesController@postAddAddresses' )->name( 'types.addresses.add' );
         Route::post( 'types/addresses/del', 'Catalog\TypesController@delAddress' )->name( 'types.addresses.del' );
-        Route::post( 'types/managements/add', 'Catalog\TypesController@addManagements' )->name( 'types.managements.add' );
+        Route::get( 'types/managements/add', 'Catalog\TypesController@getAddManagements' )->name( 'types.managements.add' );
+        Route::post( 'types/managements/add', 'Catalog\TypesController@postAddManagements' )->name( 'types.managements.add' );
         Route::post( 'types/managements/del', 'Catalog\TypesController@delManagement' )->name( 'types.managements.del' );
         Route::resource( 'types', 'Catalog\TypesController' );
 
         Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
-        Route::post( 'managements/types/add', 'Catalog\ManagementsController@addTypes' )->name( 'managements.types.add' );
+        Route::get( 'managements/types/add', 'Catalog\ManagementsController@getAddTypes' )->name( 'managements.types.add' );
+        Route::post( 'managements/types/add', 'Catalog\ManagementsController@postAddTypes' )->name( 'managements.types.add' );
         Route::post( 'managements/types/del', 'Catalog\ManagementsController@delType' )->name( 'managements.types.del' );
-        Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@addAddresses' )->name( 'managements.addresses.add' );
+        Route::get( 'managements/addresses/add', 'Catalog\ManagementsController@getAddAddresses' )->name( 'managements.addresses.add' );
+        Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@postAddAddresses' )->name( 'managements.addresses.add' );
         Route::post( 'managements/addresses/del', 'Catalog\ManagementsController@delAddress' )->name( 'managements.addresses.del' );
         Route::resource( 'managements', 'Catalog\ManagementsController' );
 
@@ -141,8 +147,9 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'perms', 'Admin\PermsController' );
         Route::resource( 'logs', 'Admin\LogsController' );
         Route::resource( 'sessions', 'Admin\SessionsController' );
-        Route::resource( 'regions', 'Admin\RegionsController' );
 
+        Route::resource( 'regions', 'Admin\RegionsController' );
+        Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );
         Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
 
     });

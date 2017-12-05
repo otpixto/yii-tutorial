@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Region;
 use App\Models\RegionPhone;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class RegionsController extends BaseController
 {
@@ -97,9 +98,38 @@ class RegionsController extends BaseController
 
         $region = Region::create( $request->all() );
 
+        if ( $region instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $region );
+        }
+
+        $region->save();
+
         return redirect()->route( 'regions.edit', $region->id )
             ->with( 'success', 'Регион успешно добавлен' );
 
+    }
+
+    public function addRegionPhone ( Request $request, $id )
+    {
+        $this->validate( $request, Region::$rules_phone );
+        $region = Region::find( $id );
+        if ( ! $region )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+        $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+        $regionPhone = $region->addPhone( $phone );
+        if ( $regionPhone instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $regionPhone );
+        }
+        $regionPhone->save();
+        return redirect()->route( 'regions.edit', $region->id )
+            ->with( 'success', 'Телефон успешно добавлен' );
     }
 
     public function delRegionPhone ( Request $request )

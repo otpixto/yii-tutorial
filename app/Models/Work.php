@@ -52,9 +52,9 @@ class Work extends BaseModel
 		'time_end',
     ];
 
-    public function type ()
+    public function category ()
     {
-        return $this->belongsTo( 'App\Models\Type' );
+        return $this->belongsTo( 'App\Models\Category' );
     }
 
     public function addresses ()

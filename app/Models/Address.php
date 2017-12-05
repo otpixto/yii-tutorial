@@ -40,4 +40,10 @@ class Address extends BaseModel
         return $this->name;
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereIn( 'region_id', \Auth::user()->regions->pluck( 'id' ) );
+    }
+
 }

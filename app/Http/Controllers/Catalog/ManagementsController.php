@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\AddressManagement;
 use App\Models\Category;
 use App\Models\Management;
+use App\Models\Region;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -24,6 +25,7 @@ class ManagementsController extends BaseController
     {
 
         $search = trim( \Input::get( 'search', '' ) );
+        $region = \Input::get( 'region' );
 
         $managements = Management
             ::orderBy( 'name' );
@@ -37,8 +39,15 @@ class ManagementsController extends BaseController
                     return $q
                         ->where( 'name', 'like', $s )
                         ->orWhere( 'address', 'like', $s )
-                        ->orWhere( 'phone', 'like', $s );
+                        ->orWhere( 'phone', 'like', $s )
+                        ->orWhere( 'guid', 'like', $s );
                 });
+        }
+
+        if ( !empty( $region ) )
+        {
+            $managements
+                ->where( 'region_id', '=', $region );
         }
 
         if ( \Input::get( 'export' ) == 1 )
@@ -70,8 +79,14 @@ class ManagementsController extends BaseController
 
         $managements = $managements->paginate( 30 );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.managements.index' )
-            ->with( 'managements', $managements );
+            ->with( 'managements', $managements )
+            ->with( 'regions', $regions );
 
     }
 
@@ -137,19 +152,9 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $allowedAddresses = Address
-            ::whereNotIn( 'id', $management->addresses->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         $managementAddresses = $management->addresses()
             ->orderBy( 'name' )
             ->get();
-
-        $allowedTypes = Type
-            ::whereNotIn( 'id', $management->types->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
 
         $managementTypes = $management->types()
             ->orderBy( 'name' )
@@ -157,9 +162,7 @@ class ManagementsController extends BaseController
 
         return view( 'catalog.managements.edit' )
             ->with( 'management', $management )
-            ->with( 'allowedAddresses', $allowedAddresses )
             ->with( 'managementAddresses', $managementAddresses )
-            ->with( 'allowedTypes', $allowedTypes )
             ->with( 'managementTypes', $managementTypes );
 
     }
@@ -250,7 +253,58 @@ class ManagementsController extends BaseController
 
     }
 
-    public function addAddresses ( Request $request )
+    public function getAddAddresses ( Request $request )
+    {
+        $management = Management::find( $request->get( 'id' ) );
+        if ( ! $management )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'УО не найдена' );
+        }
+        $allowedAddresses = Address
+            ::mine()
+            ->whereNotIn( 'id', $management->addresses->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.managements.add_addresses' )
+            ->with( 'management', $management )
+            ->with( 'allowedAddresses', $allowedAddresses );
+    }
+
+    public function postAddAddresses ( Request $request )
+    {
+
+        $management = Management::find( $request->get( 'type_id' ) );
+        if ( ! $management )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+        $management->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function getAddTypes ( Request $request )
+    {
+        $management = Management::find( $request->get( 'id' ) );
+        if ( ! $management )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'УО не найдена' );
+        }
+        $allowedTypes = Type
+            ::whereNotIn( 'id', $management->types->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.managements.add_types' )
+            ->with( 'management', $management )
+            ->with( 'allowedTypes', $allowedTypes );
+    }
+
+    public function postAddTypes ( Request $request )
     {
 
         $management = Management::find( $request->get( 'management_id' ) );
@@ -259,10 +313,10 @@ class ManagementsController extends BaseController
             return redirect()->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
-        $management->addresses()->attach( $request->get( 'addresses', [] ) );
+        $management->types()->attach( $request->get( 'types', [] ) );
 
         return redirect()->back()
-            ->with( 'success', 'Адреса успешно добавлены' );
+            ->with( 'success', 'Типы успешно назначены' );
 
     }
 
@@ -279,22 +333,6 @@ class ManagementsController extends BaseController
 
         return redirect()->back()
             ->with( 'success', 'Адрес успешно удален' );
-
-    }
-
-    public function addTypes ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'management_id' ) );
-        if ( ! $management )
-        {
-            return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-        $management->types()->attach( $request->get( 'types', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Типы успешно назначены' );
 
     }
 

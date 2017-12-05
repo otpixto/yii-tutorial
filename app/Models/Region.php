@@ -15,8 +15,11 @@ class Region extends BaseModel
 
     public static $rules = [
         'name'                  => 'required|string|max:255',
-        'domain'                => 'required|string|max:100',
-        'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        'domain'                => 'required|string|max:100'
+    ];
+
+    public static $rules_phone = [
+        'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
     ];
 
     protected $fillable = [

@@ -67,7 +67,7 @@
                             </div>
                         </div>
                     @endforeach
-                    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                    {!! Form::open( [ 'url' => route( 'regions.phone.add', $region->id ), 'class' => 'form-horizontal submit-loading' ] ) !!}
                     <div class="form-group">
                         <div class="col-xs-12">
                             {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}

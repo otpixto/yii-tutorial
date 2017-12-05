@@ -100,8 +100,7 @@ class PermsController extends BaseController
 
         $this->validate( $request, Permission::getRules( $perm->code ) );
 
-        $perm->fill( $request->all() );
-        $perm->save();
+        $perm->edit( $request->all() );
 
         return redirect()->route( 'perms.edit', $perm->id )
             ->with( 'success', 'Роль успешно отредактирована' );

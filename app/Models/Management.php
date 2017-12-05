@@ -90,7 +90,7 @@ class Management extends BaseModel
                 return $q
                     ->whereIn( 'region_id', \Auth::user()->regions->pluck( 'id' ) );
             })
-            ->whereIn( 'id', \Auth::user()->managements->pluck( 'id' ) );
+            ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );
     }
 
     public static function create ( array $attributes = [] )

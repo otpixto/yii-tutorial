@@ -48,7 +48,8 @@ class TypesController extends BaseController
                 {
                     return $q
                         ->where( 'types.name', 'like', $s )
-                        ->orWhere( 'categories.name', 'like', $s );
+                        ->orWhere( 'categories.name', 'like', $s )
+                        ->orWhere( 'types.guid', 'like', $s );
                 });
         }
 
@@ -70,7 +71,7 @@ class TypesController extends BaseController
     public function create()
     {
 
-        Title::add( 'Добавить Тип обращений' );
+        Title::add( 'Добавить Классификатор' );
 
         $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
 
@@ -98,7 +99,7 @@ class TypesController extends BaseController
         $type->save();
 
         return redirect()->route( 'types.index' )
-            ->with( 'success', 'Тип успешно добавлен' );
+            ->with( 'success', 'Классификатор успешно добавлен' );
 
     }
 
@@ -122,29 +123,19 @@ class TypesController extends BaseController
     public function edit($id)
     {
 
-        Title::add( 'Редактировать Тип обращений' );
+        Title::add( 'Редактировать Классификатор' );
 
         $type = Type::find( $id );
 
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найдена' ] );
+                ->withErrors( [ 'Классификатор не найдена' ] );
         }
-
-        $allowedAddresses = Address
-            ::whereNotIn( 'id', $type->addresses->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
 
         $typeAddresses = $type->addresses()
             ->orderBy( 'name' )
             ->get();
-
-        $allowedManagements = Management
-            ::whereNotIn( 'id', $type->managements->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
 
         $typeManagements = $type->managements()
             ->orderBy( 'name' )
@@ -153,9 +144,7 @@ class TypesController extends BaseController
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
             ->with( 'categories', Category::orderBy( 'name' )->pluck( 'name', 'id' ) )
-            ->with( 'allowedAddresses', $allowedAddresses )
             ->with( 'typeAddresses', $typeAddresses )
-            ->with( 'allowedManagements', $allowedManagements )
             ->with( 'typeManagements', $typeManagements );
 
     }
@@ -175,7 +164,7 @@ class TypesController extends BaseController
         if ( !$type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найдена' ] );
+                ->withErrors( [ 'Классификатор не найдена' ] );
         }
 
         $this->validate( $request, Type::getRules( $type->id ) );
@@ -188,7 +177,7 @@ class TypesController extends BaseController
         }
 
         return redirect()->route( 'types.edit', $type->id )
-            ->with( 'success', 'Тип успешно отредактирован' );
+            ->with( 'success', 'Классификатор успешно отредактирован' );
 
     }
 
@@ -216,14 +205,66 @@ class TypesController extends BaseController
 
     }
 
-    public function addManagements ( Request $request )
+    public function getAddAddresses ( Request $request )
+    {
+        $type = Type::find( $request->get( 'id' ) );
+        if ( ! $type )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Классификатор не найден' );
+        }
+        $allowedAddresses = Address
+            ::mine()
+            ->whereNotIn( 'id', $type->addresses->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.types.add_addresses' )
+            ->with( 'type', $type )
+            ->with( 'allowedAddresses', $allowedAddresses );
+    }
+
+    public function postAddAddresses ( Request $request )
     {
 
         $type = Type::find( $request->get( 'type_id' ) );
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найден' ] );
+                ->withErrors( [ 'Классификатор не найден' ] );
+        }
+        $type->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function getAddManagements ( Request $request )
+    {
+        $type = Type::find( $request->get( 'id' ) );
+        if ( ! $type )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Классификатор не найден' );
+        }
+        $allowedManagements = Management
+            ::mine()
+            ->whereNotIn( 'id', $type->managements->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.types.add_managements' )
+            ->with( 'type', $type )
+            ->with( 'allowedManagements', $allowedManagements );
+    }
+
+    public function postAddManagements ( Request $request )
+    {
+
+        $type = Type::find( $request->get( 'type_id' ) );
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Классификатор не найден' ] );
         }
         $type->managements()->attach( $request->get( 'managements' ) );
 
@@ -239,28 +280,12 @@ class TypesController extends BaseController
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найден' ] );
+                ->withErrors( [ 'Классификатор не найден' ] );
         }
         $type->managements()->detach( $request->get( 'management_id' ) );
 
         return redirect()->back()
             ->with( 'success', 'Исполнитель успешно удален' );
-
-    }
-
-    public function addAddresses ( Request $request )
-    {
-
-        $type = Type::find( $request->get( 'type_id' ) );
-        if ( ! $type )
-        {
-            return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найден' ] );
-        }
-        $type->addresses()->attach( $request->get( 'addresses', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Адреса успешно назначены' );
 
     }
 
@@ -271,7 +296,7 @@ class TypesController extends BaseController
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Тип не найден' ] );
+                ->withErrors( [ 'Классификатор не найден' ] );
         }
         $type->addresses()->detach( $request->get( 'address_id' ) );
 

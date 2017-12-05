@@ -35,7 +35,8 @@ class AddressesController extends BaseController
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $addresses
-                ->where( 'name', 'like', $s );
+                ->where( 'name', 'like', $s )
+                ->orWhere( 'guid', 'like', $s );
         }
 
         if ( !empty( $region ) )
@@ -135,19 +136,9 @@ class AddressesController extends BaseController
                 ->withErrors( [ 'Адрес не найден' ] );
         }
 
-        $allowedManagements = Management
-            ::whereNotIn( 'id', $address->managements->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         $addressManagements = $address->managements()
             ->orderBy( 'name' )
             ->get();
-
-        $allowedTypes = Type
-            ::whereNotIn( 'id', $address->types->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
 
         $addressTypes = $address->types()
             ->orderBy( 'name' )
@@ -161,8 +152,6 @@ class AddressesController extends BaseController
         return view( 'catalog.addresses.edit' )
             ->with( 'address', $address )
             ->with( 'addressManagements', $addressManagements )
-            ->with( 'allowedManagements', $allowedManagements )
-            ->with( 'allowedTypes', $allowedTypes )
             ->with( 'addressTypes', $addressTypes )
             ->with( 'regions', $regions );
 
@@ -236,7 +225,25 @@ class AddressesController extends BaseController
 
     }
 
-    public function addManagements ( Request $request )
+    public function getAddManagements ( Request $request )
+    {
+        $address = Address::find( $request->get( 'id' ) );
+        if ( ! $address )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Адрес не найден' );
+        }
+        $allowedManagements = Management
+            ::mine()
+            ->whereNotIn( 'id', $address->managements->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.addresses.add_managements' )
+            ->with( 'address', $address )
+            ->with( 'allowedManagements', $allowedManagements );
+    }
+
+    public function postAddManagements ( Request $request )
     {
 
         $address = Address::find( $request->get( 'address_id' ) );
@@ -249,6 +256,39 @@ class AddressesController extends BaseController
 
         return redirect()->back()
             ->with( 'success', 'Исполнители успешно добавлены' );
+
+    }
+
+    public function getAddTypes ( Request $request )
+    {
+        $address = Address::find( $request->get( 'id' ) );
+        if ( ! $address )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Адрес не найден' );
+        }
+        $allowedTypes = Type
+            ::whereNotIn( 'id', $address->types->pluck( 'id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.addresses.add_types' )
+            ->with( 'address', $address )
+            ->with( 'allowedTypes', $allowedTypes );
+    }
+
+    public function postAddTypes ( Request $request )
+    {
+
+        $address = Address::find( $request->get( 'address_id' ) );
+        if ( !$address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
+        }
+        $address->types()->attach( $request->get( 'types', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Типы успешно назначены' );
 
     }
 
@@ -265,22 +305,6 @@ class AddressesController extends BaseController
 
         return redirect()->back()
             ->with( 'success', 'Исполнитель успешно удален' );
-
-    }
-
-    public function addTypes ( Request $request )
-    {
-
-        $address = Address::find( $request->get( 'address_id' ) );
-        if ( !$address )
-        {
-            return redirect()->route( 'addresses.index' )
-                ->withErrors( [ 'Адрес не найден' ] );
-        }
-        $address->types()->attach( $request->get( 'types', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Типы успешно назначены' );
 
     }
 

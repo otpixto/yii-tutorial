@@ -92,12 +92,15 @@
                                     Наименование
                                 </th>
                                 <th>
+                                    GUID
+                                </th>
+                                <th class="text-center">
                                     Необходим акт
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Платно
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Авария
                                 </th>
                                 <th class="text-right">
@@ -115,36 +118,27 @@
                                         {{ $type->name }}
                                     </td>
                                     <td>
+                                        {{ $type->guid }}
+                                    </td>
+                                    <td class="text-center">
                                         @if ( $type->need_act )
-                                            <span class="label label-success">
-                                                Да
-                                            </span>
+                                            @include( 'parts.yes' )
                                         @else
-                                            <span class="label label-danger">
-                                                Нет
-                                            </span>
+                                            @include( 'parts.no' )
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if ( $type->is_pay )
-                                            <span class="label label-success">
-                                                Да
-                                            </span>
+                                            @include( 'parts.yes' )
                                         @else
-                                            <span class="label label-danger">
-                                                Нет
-                                            </span>
+                                            @include( 'parts.no' )
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if ( $type->emergency )
-                                            <span class="label label-success">
-                                                Да
-                                            </span>
+                                            @include( 'parts.yes' )
                                         @else
-                                            <span class="label label-danger">
-                                                Нет
-                                            </span>
+                                            @include( 'parts.no' )
                                         @endif
                                     </td>
                                     <td class="text-right">

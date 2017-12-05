@@ -11,175 +11,148 @@
 
 @section( 'content' )
 
-    {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+    <div class="panel panel-default">
+        <div class="panel-body">
 
-    <div class="form-group">
+            {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        <div class="col-xs-6">
-            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-        </div>
+            <div class="form-group">
 
-        <div class="col-xs-6">
-            {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'category_id', $categories, \Input::old( 'category_id', $type->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
+                <div class="col-xs-6">
+                    {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                </div>
+
+                <div class="col-xs-6">
+                    {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::select( 'category_id', $categories, \Input::old( 'category_id', $type->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <div class="col-xs-6">
+                    {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', $type->period_acceptance ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                </div>
+
+                <div class="col-xs-6">
+                    {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::number( 'period_execution', \Input::old( 'period_execution', $type->period_execution ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <div class="col-xs-12">
+                    {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <div class="col-xs-4">
+                    {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                </div>
+
+                <div class="col-xs-4">
+                    {!! Form::label( 'is_pay', 'Платно', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                </div>
+
+                <div class="col-xs-4">
+                    {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
+                    {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-12">
+                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                </div>
+            </div>
+
+            {!! Form::close() !!}
+
         </div>
 
     </div>
 
-    <div class="form-group">
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#managements">
+                УО
+                <span class="badge" id="types-count">{{ $typeManagements->count() }}</span>
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#addresses">
+                Здания
+                <span class="badge" id="addresses-count">{{ $typeAddresses->count() }}</span>
+            </a>
+        </li>
+    </ul>
 
-        <div class="col-xs-6">
-            {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', $type->period_acceptance ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
-        </div>
-
-        <div class="col-xs-6">
-            {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::number( 'period_execution', \Input::old( 'period_execution', $type->period_execution ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-
-        <div class="col-xs-12">
-            {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-
-        <div class="col-xs-4">
-            {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'is_pay', 'Платно', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-        </div>
-
-        <div class="col-xs-4">
-            {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
-        </div>
-    </div>
-
-    {!! Form::close() !!}
-
-    <div class="row margin-top-15">
-        <div class="col-md-12">
-            <table class="table table-bordered table-hover table-striped">
-                <thead>
-                <tr class="info">
-                    <th width="50%">
-                        ЭО
-                        ({{ $typeManagements->count() }})
-                    </th>
-                    <th with="50%">
-                        Адреса
-                        ({{ $typeAddresses->count() }})
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        @if ( ! $typeManagements->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $typeManagements as $r )
-                            <div class="margin-bottom-5">
-                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="type-management" data-type="{{ $type->id }}" data-management="{{ $r->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </a>
-                                <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </td>
-                    <td>
-                        @if ( ! $typeAddresses->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $typeAddresses as $r )
-                            <div class="margin-bottom-5">
-                                <a href="javascript:;" class="btn btn-xs btn-danger" data-delete="type-address" data-type="{{ $type->id }}" data-address="{{ $r->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </a>
-                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td>
-                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'types.managements.add' ) ] ) !!}
-                        {!! Form::hidden( 'type_id', $type->id ) !!}
-                        <div class="row">
-                            <div class="col-md-12">
-                                {!! Form::select( 'managements[]', $allowedManagements, null, [ 'class' => 'form-control select2', 'id' => 'management-add', 'multiple' ] ) !!}
-                            </div>
+    <div class="tab-content">
+        <div id="managements" class="tab-pane fade in active">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row margin-bottom-20">
+                        <div class="col-xs-12">
+                            <button id="add-managements" data-id="{{ $type->id }}" class="btn btn-default">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить УО
+                            </button>
                         </div>
-                        <div class="row margin-top-10">
-                            <div class="col-md-12">
-                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                    <input name="select_all_managements" id="select-all-managements" type="checkbox" value="1" />
-                                    <span></span>
-                                    Выбрать все
-                                </label>
-                                &nbsp;&nbsp;&nbsp;
-                                <button id="add-management" class="btn btn-success">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    Добавить ЭО
-                                </button>
-                            </div>
+                    </div>
+                    @if ( ! $typeManagements->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $typeManagements as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                {{ $r->name }}
+                            </a>
                         </div>
-                        {!! Form::close() !!}
-                    </td>
-                    <td>
-                        {!! Form::open( [ 'method' => 'post', 'url' => route( 'types.addresses.add' ) ] ) !!}
-                        {!! Form::hidden( 'type_id', $type->id ) !!}
-                        <div class="row">
-                            <div class="col-md-12">
-                                {!! Form::select( 'addresses[]', $allowedAddresses, null, [ 'class' => 'form-control select2', 'id' => 'addresses-add', 'multiple' ] ) !!}
-                            </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <div id="addresses" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row margin-bottom-20">
+                        <div class="col-xs-12">
+                            <button id="add-addresses" data-id="{{ $type->id }}" class="btn btn-default">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                Добавить Здания
+                            </button>
                         </div>
-                        <div class="row margin-top-10">
-                            <div class="col-md-12 text-right">
-                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                    <input name="select_all_addresses" id="select-all-addresses" type="checkbox" value="1" />
-                                    <span></span>
-                                    Выбрать все
-                                </label>
-                                &nbsp;&nbsp;&nbsp;
-                                <button id="add-management" class="btn btn-success">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    Добавить Адрес
-                                </button>
-                            </div>
+                    </div>
+                    @if ( ! $typeAddresses->count() )
+                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @endif
+                    @foreach ( $typeAddresses as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'addresses.edit', $r->id ) }}">
+                                {{ $r->getAddress() }}
+                            </a>
                         </div>
-                        {!! Form::close() !!}
-                    </td>
-                </tr>
-                </tfoot>
-            </table>
-
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 
@@ -197,11 +170,34 @@
     <script type="text/javascript">
 
         $( document )
+
             .ready(function()
             {
 
                 $( '.select2' ).select2();
 
+            })
+
+            .on( 'click', '#add-addresses', function ( e )
+            {
+                e.preventDefault();
+                $.get( '{{ route( 'types.addresses.add' ) }}', {
+                    id: $( this ).attr( 'data-id' )
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Добавить Здания', response, 'add-addresses-modal' );
+                });
+            })
+
+            .on( 'click', '#add-managements', function ( e )
+            {
+                e.preventDefault();
+                $.get( '{{ route( 'types.managements.add' ) }}', {
+                    id: $( this ).attr( 'data-id' )
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Добавить УО', response, 'add-managements-modal' );
+                });
             })
 
             .on( 'click', '[data-delete="type-address"]', function ( e )
