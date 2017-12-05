@@ -84,17 +84,26 @@ class Management extends BaseModel
 
     public function scopeMine ( $query )
     {
-        return $query
-            ->whereHas( 'addresses', function ( $q )
-            {
-                return $q
-                    ->whereHas( 'region', function ( $q2 )
-                    {
-                        return $q2
-                            ->mine();
-                    });
-            })
-            ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );
+        if ( ! \Auth::user() ) return false;
+        if ( ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        {
+            $query
+                ->whereHas( 'addresses', function ( $q )
+                {
+                    return $q
+                        ->whereHas( 'region', function ( $q2 )
+                        {
+                            return $q2
+                                ->mine();
+                        });
+                });
+        }
+        if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+        {
+            $query
+                ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );
+        }
+        return $query;
     }
 
     public static function create ( array $attributes = [] )

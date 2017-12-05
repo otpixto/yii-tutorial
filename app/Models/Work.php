@@ -173,15 +173,18 @@ class Work extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
-        {
-            $query->whereHas( 'addresses', function ( $q2 )
+        $query
+            ->whereHas( 'addresses', function ( $q )
             {
-                return $q2
-                    ->where( 'region_id', '=', Region::$current_region->id ?? 0 );
+                return $q
+                    ->whereHas( 'region', function ( $q2 )
+                    {
+                        return $q2
+                            ->mine()
+                            ->current();
+                    });
             });
-        }
-        if ( \Auth::user()->hasRole( 'operator' ) || \Auth::user()->hasRole( 'control' ) )
+        if ( \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             return $query;
         }

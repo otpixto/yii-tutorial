@@ -103,6 +103,21 @@ class TicketsController extends BaseController
                         ->where( 'emergency', '=', 1 );
                 }
 
+                if ( !empty( $request->get( 'region_id' ) ) )
+                {
+                    $ticket
+                        ->where( function ( $q ) use ( $request )
+                        {
+                            return $q
+                                ->where( 'region_id', '=', $request->get( 'region_id' ) )
+                                ->orWhereHas( 'address', function ( $q2 ) use ( $request )
+                                {
+                                    return $q2
+                                        ->where( 'region_id', '=', $request->get( 'region_id' ) );
+                                });
+                        });
+                }
+
             });
 			
 		if ( !empty( $request->get( 'status_code' ) ) )
@@ -215,13 +230,19 @@ class TicketsController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'categories', Category::orderBy( 'name' )->get() )
-            ->with( 'managements', \Auth::user()->can( 'tickets.all' ) ? Management::orderBy( 'name' )->get() : Management::mine()->orderBy( 'name' )->get() )
+            ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
             ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'field_operator', $field_operator )
             ->with( 'field_management', $field_management )
+            ->with( 'regions', $regions )
             ->with( 'address', $address ?? null );
 
     }
