@@ -25,6 +25,7 @@ class UsersController extends BaseController
 
         $search = trim( \Input::get( 'search', '' ) );
         $role = trim( \Input::get( 'role', '' ) );
+        $region = trim( \Input::get( 'region', '' ) );
 
         if ( !empty( $role ) )
         {
@@ -50,18 +51,40 @@ class UsersController extends BaseController
                 });
         }
 
+        if ( ! empty( $region ) )
+        {
+            $users
+                ->whereHas( 'regions', function ( $q ) use ( $region )
+                {
+                    return $q
+                        ->mine()
+                        ->where( $q->getModel()->getTable() . '.id', '=', $region );
+                });
+        }
+        else if ( ! Region::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        {
+            $users
+                ->whereHas( 'regions', function ( $q )
+                {
+                    return $q
+                        ->mine();
+                });
+        }
+
         $users = $users->paginate( 30 );
 
-        //$user = $users->first();
-        //$perms = $user->getAllPermissions();
-        //dd( $user, $perms );
-
         $roles = Role::orderBy( 'name' )->get();
+
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
 
         return view('admin.users.index' )
             ->with( 'users', $users )
             ->with( 'roles', $roles )
             ->with( 'role', $role )
+            ->with( 'regions', $regions )
             ->with( 'search', $search );
 
     }

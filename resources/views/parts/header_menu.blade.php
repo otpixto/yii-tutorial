@@ -5,7 +5,9 @@
         <li class="dropdown more-dropdown @if ( Request::is( 'about' ) || Request::is( 'schedule*' ) ) selected @endif">
             <a href="{{ route( 'about' ) }}" class="text-uppercase">
                 <i class="fa fa-home"></i>
-                Главная
+                <span class="hidden-md">
+                    Главная
+                </span>
             </a>
             <ul class="dropdown-menu">
                 <li>
@@ -27,7 +29,9 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
-                    Заявки
+                    <span class="hidden-md">
+                        Заявки
+                    </span>
                     @if ( \Auth::user()->can( 'tickets.counter' ) )
                         @if ( \Session::get( 'tickets_count' ) > 0 )
                             <span class="badge badge-success bold">
@@ -69,7 +73,9 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
-                    Работы на сетях
+                    <span class="hidden-md">
+                        Работы на сетях
+                    </span>
                     @if ( ( \Auth::user()->admin || \Auth::user()->can( 'works.counter' ) ) && \Session::get( 'works_count' ) > 0 )
                         <span class="badge badge-danger bold">
                             {{ \Session::get( 'works_count' ) }}
@@ -99,7 +105,9 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'reports*' ) ) selected @endif">
                 <a {{--href="{{ route( 'reports.index' ) }}"--}} class="text-uppercase">
                     <i class="fa fa-bar-chart"></i>
-                    Отчеты
+                    <span class="hidden-md">
+                        Отчеты
+                    </span>
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->can( 'reports.managements' ) )
@@ -152,7 +160,9 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-edit"></i>
-                    Справочники
+                    <span class="hidden-md">
+                        Справочники
+                    </span>
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->can( 'catalog.customers.show' ) )
@@ -191,7 +201,9 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'admin*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>
-                    Администрирование
+                    <span class="hidden-md">
+                        Администрирование
+                    </span>
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show' ) )

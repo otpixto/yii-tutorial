@@ -53,17 +53,17 @@ class Region extends BaseModel
         if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain || ! \Auth::user()->can( 'supervisor.all_regions' ) )
         {
             $query
-                ->whereIn( 'id', \Auth::user()->regions->pluck( 'id' ) );
+                ->whereIn( $this->getTable() . '.id', \Auth::user()->regions->pluck( 'id' ) );
         }
         return $query;
     }
 
     public function scopeCurrent ( $query )
     {
-        if ( \Request::getHost() != \Session::get( 'settings' )->operator_domain )
+        if ( ! self::isOperatorUrl() )
         {
             $query
-                ->where( 'domain', '=', \Request::getHost() );
+                ->where( $this->getTable() . '.domain', '=', \Request::getHost() );
         }
         return $query;
     }
@@ -114,6 +114,11 @@ class Region extends BaseModel
         }
         $this->addLog( 'Добавлен телефон "' . $phone . '"' );
         return $regionPhone;
+    }
+
+    public static function isOperatorUrl ()
+    {
+        return ( \Request::getHost() == \Session::get( 'settings' )->operator_domain );
     }
 
 }
