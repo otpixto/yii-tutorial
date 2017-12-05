@@ -236,10 +236,15 @@ class TicketsController extends BaseController
 
         if ( ! $draft )
         {
+            $region = Region::getCurrent();
             $draft = new Ticket();
             $draft->status_code = 'draft';
             $draft->status_name = Ticket::$statuses[ 'draft' ];
             $draft->author_id = \Auth::user()->id;
+            if ( $region )
+            {
+                $draft->region_id = $region->id;
+            }
             $draft->save();
         }
 
