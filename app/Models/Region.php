@@ -121,4 +121,9 @@ class Region extends BaseModel
         return ( \Request::getHost() == \Session::get( 'settings' )->operator_domain );
     }
 
+    public static function getCurrent ()
+    {
+        return self::current()->first();
+    }
+
 }

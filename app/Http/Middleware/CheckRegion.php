@@ -16,7 +16,7 @@ class CheckRegion
      */
     public function handle ( $request, Closure $next )
     {
-        if ( $request->getHost() == \Session::get( 'settings' )->operator_domain )
+        if ( Region::isOperatorUrl() )
         {
             $user = \Auth::user();
             if ( $user && $user->isActive() && ! $user->can( 'supervisor.all_regions' ) )
@@ -26,7 +26,7 @@ class CheckRegion
         }
         else
         {
-            $region = Region::current()->first();
+            $region = Region::getCurrent();
             if ( ! $region )
             {
                 return response( view('errors.404' ) );

@@ -18,6 +18,8 @@ return [
 
     'driver' => env('MAIL_DRIVER', 'smtp'),
 
+    'support' => env('MAIL_SUPPORT', 'support@edska.ru'),
+
     /*
     |--------------------------------------------------------------------------
     | SMTP Host Address

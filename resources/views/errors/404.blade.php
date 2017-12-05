@@ -19,9 +19,9 @@
 								На главную
 							</span>
                         </a>
-                        <a href="mailto:support@edska.ru" class="btn btn-default btn-lg">
+                        <a href="mailto:{{ urlencode( \Config::get( 'mail.support' ) ) }}" class="btn btn-default btn-lg">
                             <i class="glyphicon glyphicon-envelope"></i>
-							<span class="hidden-xs">
+                            <span class="hidden-xs">
 								Написать письмо
 							</span>
                         </a>
