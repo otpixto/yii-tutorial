@@ -23,7 +23,7 @@
             </ul>
         </li>
 
-        @if ( \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call', 'tickets.closed', 'tickets.no_contract' ) )
+        @if ( \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
