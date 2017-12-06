@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.managements.create' ) || \Auth::user()->can( 'catalog.managements.export' ) )
+    @if ( \Auth::user()->canOne( [ 'catalog.managements.create', 'catalog.managements.export' ] ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-6">
                 @if ( \Auth::user()->can( 'catalog.managements.create' ) )

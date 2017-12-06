@@ -25,7 +25,7 @@
             </ul>
         </li>
 
-        @if ( \Auth::user()->can( 'tickets.show', 'tickets.create', 'tickets.call' ) )
+        @if ( \Auth::user()->canOne( [ 'tickets.show', 'tickets.create', 'tickets.call' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
@@ -69,7 +69,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->can( 'works.show', 'works.create', 'works.all' ) )
+        @if ( \Auth::user()->canOne( [ 'works.show', 'works.create', 'works.all' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
@@ -101,7 +101,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->can( 'reports.managements', 'reports.types', 'reports.rates', 'reports.map' ) )
+        @if ( \Auth::user()->canOne( [ 'reports.managements', 'reports.types', 'reports.rates', 'reports.map' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'reports*' ) ) selected @endif">
                 <a {{--href="{{ route( 'reports.index' ) }}"--}} class="text-uppercase">
                     <i class="fa fa-bar-chart"></i>
@@ -156,7 +156,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->can( 'catalog.managements.show', 'catalog.categories.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ) )
+        @if ( \Auth::user()->canOne( [ 'catalog.managements.show', 'catalog.categories.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-edit"></i>
@@ -197,7 +197,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show', 'admin.perms.show', 'admin.roles.show' ) )
+        @if ( \Auth::user()->admin || \Auth::user()->canOne( [ 'admin.users.show', 'admin.perms.show', 'admin.roles.show', 'admin.sessions.show', 'admin.logs' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'admin*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>

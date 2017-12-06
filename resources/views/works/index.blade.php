@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    @if( \Auth::user()->can( 'works.create' ) || \Auth::user()->can( 'works.export' ) )
+    @if( \Auth::user()->canOne( [ 'works.create', 'works.export' ] ) )
         <div class="row margin-bottom-15 hidden-print">
             <div class="col-xs-6">
                 @can( 'works.create' )

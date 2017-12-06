@@ -614,6 +614,11 @@
 
             })
 
+            .on( 'change', '#region_id', function ( e )
+            {
+                $( '#address_id' ).val( '' ).trigger( 'change' );
+            })
+
             .on( 'change', '.autosave', function ( e )
             {
                 var id = $( '#ticket_id' ).val();

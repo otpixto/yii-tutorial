@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Operator;
 use App\Classes\Title;
 use App\Models\Address;
 use App\Models\Management;
+use App\Models\Region;
 use App\Models\Type;
 use App\Models\Work;
 use Carbon\Carbon;
@@ -102,10 +103,16 @@ class WorksController extends BaseController
 
         $works = $works->paginate( 30 );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'works.index' )
             ->with( 'works', $works )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'regions', $regions )
             ->with( 'address', $address ?? null );
 
     }
@@ -129,9 +136,15 @@ class WorksController extends BaseController
                 ->get();
         }
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'works.create' )
             ->with( 'managements', Management::orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'regions', $regions )
             ->with( 'addresses', $addresses );
 
     }

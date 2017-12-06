@@ -17,9 +17,16 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( 'address_id[]', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id[]', $addresses->pluck( 'name', 'id' )->toArray(), $addresses->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работ', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
+                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'address_id', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'address_id[]', $addresses->pluck( 'name', 'id' )->toArray(), $addresses->pluck( 'id' ), [ 'class' => 'form-control', 'id' => 'address_id', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работ', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 
@@ -27,13 +34,6 @@
                 {!! Form::label( 'type_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -65,6 +65,13 @@
                 {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -277,6 +284,27 @@
                     }
                 });
 
+                $( '#address_id' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val()
+                            };
+                        },
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
+
                 $( '.datepicker' ).datepicker();
 
                 $( '.timepicker-24' ).timepicker({
@@ -294,6 +322,11 @@
                 {
                     ToggleMicrophone();
                 }
+            })
+
+            .on( 'change', '#region_id', function ( e )
+            {
+                $( '#address_id' ).val( '' ).trigger( 'change' );
             });
 
     </script>
