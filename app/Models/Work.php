@@ -23,6 +23,7 @@ class Work extends BaseModel
     ];
 
     public static $rules = [
+        'region_id'         => 'required|integer',
         'category_id'       => 'required|integer',
         'address_id'        => 'required|array',
         'management_id'     => 'required|integer',
@@ -41,6 +42,7 @@ class Work extends BaseModel
     ];
 
     protected $fillable = [
+        'region_id',
         'category_id',
         'management_id',
         'who',
