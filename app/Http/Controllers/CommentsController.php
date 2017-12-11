@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
@@ -44,31 +45,52 @@ class CommentsController extends Controller
         $comment = Comment::create( $request->all() );
         $comment->save();
 
-		if ( \Config::get( 'telegram.active' ) && $request->get( 'origin_model_name' ) == Ticket::class )
+        if ( \Config::get( 'telegram.active' ) )
         {
 
-            $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
-
-            $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
-
-            $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-            $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-            $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
-
-            $message .= PHP_EOL . $comment->text . PHP_EOL;
-
-            $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-            $ticket->sendTelegram( $message );
-
-            /*$group = $ticket->group()->where( 'id', '!=', $ticket->id )->get();
-            if ( $group->count() )
+            if ( $request->get( 'origin_model_name' ) == Ticket::class )
             {
-                foreach ( $group as $row )
+
+                $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
+
+                foreach ( $ticket->managements as $ticketManagement )
                 {
-                    $row->addComment( $comment->text );
+
+                    $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
+
+                    $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+                    $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                    $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
+
+                    $message .= PHP_EOL . $comment->text . PHP_EOL;
+
+                    $message .= PHP_EOL . route( 'tickets.show', $ticketManagement->getTicketNumber() ) . PHP_EOL;
+
+                    $ticketManagement->sendTelegram( $message );
+
                 }
-            }*/
+
+
+            }
+            else if ( $request->get( 'origin_model_name' ) == TicketManagement::class )
+            {
+
+                $ticketManagement = TicketManagement::find( $request->get( 'origin_model_id' ) );
+                $ticket = $ticketManagement->ticket;
+
+                $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
+
+                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
+
+                $message .= PHP_EOL . $comment->text . PHP_EOL;
+
+                $message .= PHP_EOL . route( 'tickets.show', $ticketManagement->getTicketNumber() ) . PHP_EOL;
+
+                $ticketManagement->sendTelegram( $message );
+
+            }
 
         }
 

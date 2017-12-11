@@ -17,9 +17,16 @@
         <div class="col-lg-6">
 
             <div class="form-group">
+                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id[]', $work->addresses->pluck( 'name', 'id' ), $work->addresses->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
+                    {!! Form::select( 'address_id[]', $work->addresses->pluck( 'name', 'id' ), $work->addresses->pluck( 'id' ), [ 'class' => 'form-control', 'id' => 'address_id', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 
@@ -27,13 +34,6 @@
                 {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::text( 'composition', \Input::old( 'composition', $work->composition ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -69,6 +69,13 @@
             </div>
 
             <div class="form-group">
+                {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::text( 'composition', \Input::old( 'composition', $work->composition ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::text( 'reason', \Input::old( 'reason', $work->reason ), [ 'class' => 'form-control', 'placeholder' => 'Основание', 'required' ] ) !!}
@@ -89,17 +96,17 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <div class="col-xs-12">
-                    <button type="submit" class="btn green btn-block btn-lg">
-                        <i class="fa fa-edit"></i>
-                        Сохранить
-                    </button>
-                </div>
-            </div>
-
         </div>
 
+    </div>
+
+    <div class="form-group">
+        <div class="col-xs-4">
+            <button type="submit" class="btn green btn-block btn-lg">
+                <i class="fa fa-edit"></i>
+                Сохранить
+            </button>
+        </div>
     </div>
 
     {!! Form::close() !!}
@@ -177,6 +184,27 @@
                     }
                 });
 
+                $( '#address_id' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val()
+                            };
+                        },
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
+
                 $( '.datepicker' ).datepicker();
 
                 $( '.timepicker-24' ).timepicker({
@@ -187,6 +215,11 @@
                 });
 
 
+            })
+
+            .on( 'change', '#region_id', function ( e )
+            {
+                $( '#address_id' ).val( '' ).trigger( 'change' );
             });
 
     </script>

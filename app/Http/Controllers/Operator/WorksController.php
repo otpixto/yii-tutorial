@@ -245,13 +245,17 @@ class WorksController extends BaseController
 
         $managements = Management::orderBy( 'name' )->get();
         $types = Type::orderBy( 'name' )->get();
-        $address = Address::find( $work->address_id );
+
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
         return view( 'works.edit' )
             ->with( 'work', $work )
             ->with( 'managements', $managements )
-            ->with( 'types', $types )
-            ->with( 'address', $address );
+            ->with( 'regions', $regions )
+            ->with( 'types', $types );
 
     }
 

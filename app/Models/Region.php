@@ -121,6 +121,11 @@ class Region extends BaseModel
         return ( \Request::getHost() == \Session::get( 'settings' )->operator_domain );
     }
 
+    public static function isNewsUrl ()
+    {
+        return ( \Request::getHost() == \Session::get( 'settings' )->news_domain );
+    }
+
     public static function getCurrent ()
     {
         return self::current()->first();

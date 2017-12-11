@@ -331,14 +331,14 @@ class TicketManagement extends BaseModel
                 $message = '<em>Добавлено обращение</em>' . PHP_EOL . PHP_EOL;
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL . PHP_EOL;
 
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
                 $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
                 $this->sendTelegram( $message );
 
@@ -349,14 +349,14 @@ class TicketManagement extends BaseModel
                 $message = '<em>Обращение передано повторно</em>' . PHP_EOL . PHP_EOL;
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL . PHP_EOL;
 
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
                 $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
                 $this->sendTelegram( $message );
 
@@ -374,16 +374,7 @@ class TicketManagement extends BaseModel
                     return $res;
                 }
 
-                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
-
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-                $this->sendTelegram( $message );
+                $this->sendTelegramChangeStatus();
 
                 break;
 				
@@ -404,7 +395,7 @@ class TicketManagement extends BaseModel
                 $message .= 'Исполнитель: ' . $this->executor . PHP_EOL;
                 $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
                 $this->sendTelegram( $message );
 
@@ -422,16 +413,7 @@ class TicketManagement extends BaseModel
                     return $res;
                 }
 
-                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
-
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-                $this->sendTelegram( $message );
+                $this->sendTelegramChangeStatus();
 
                 break;
 
@@ -449,16 +431,7 @@ class TicketManagement extends BaseModel
                     return $res;
                 }
 
-                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
-
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-                $this->sendTelegram( $message );
+                $this->sendTelegramChangeStatus();
 
                 break;
 
@@ -490,7 +463,7 @@ class TicketManagement extends BaseModel
                     }
                 }
 
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
+                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
                 $this->sendTelegram( $message );
 
@@ -509,16 +482,7 @@ class TicketManagement extends BaseModel
 
             case 'rejected':
 
-                $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
-
-                $message .= PHP_EOL . route( 'tickets.show', $ticket->id ) . PHP_EOL;
-
-                $this->sendTelegram( $message );
+                $this->sendTelegramChangeStatus();
 
                 break;
 
@@ -547,10 +511,28 @@ class TicketManagement extends BaseModel
         }
     }
 
-    public function sendTelegram ( $message = null )
+    private function sendTelegramChangeStatus ()
     {
 
-        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract ) return;
+        $ticket = $this->ticket;
+
+        $message = '<em>Изменен статус обращения</em>' . PHP_EOL . PHP_EOL;
+
+        $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
+        $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+        $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
+        $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
+
+        $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+
+        $this->sendTelegram( $message );
+
+    }
+
+    public function sendTelegram ( $message = null, $force = false )
+    {
+
+        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract || ( ! $force && in_array( $this->status_code, Ticket::$not_notify ) ) ) return;
 
         foreach ( $this->management->subscriptions as $subscription )
         {

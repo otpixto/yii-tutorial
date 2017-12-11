@@ -640,7 +640,7 @@ class Ticket extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->managements()->mine()->whereHas( 'management', function ( $q ){ return $q->where( 'has_contract', '=', 1 ); } )->count() )
+            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->managements()->mine()->count() )
             {
                 $this->can_comment = true;
             }
@@ -758,12 +758,6 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
-                $message = '<em>Обращение отменено</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Номер обращения: ' . $this->id . '</b>' . PHP_EOL;
-
-                $this->sendTelegram( $message );
-
                 break;
 
             case 'transferred':
@@ -815,37 +809,14 @@ class Ticket extends BaseModel
         }
     }
 
-    public function sendTelegram ( $message = null )
+    public function sendTelegram ( $message = null, $force = false )
     {
 
-        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || in_array( $this->status_code, self::$not_notify ) ) return;
+        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ( ! $force && in_array( $this->status_code, self::$not_notify ) ) ) return;
 
         foreach ( $this->managements as $ticketManagement )
         {
-            $management = $ticketManagement->management;
-            if ( ! $management->has_contract ) continue;
-            foreach ( $management->subscriptions as $subscription )
-            {
-                try
-                {
-                    \Telegram::sendMessage([
-                        'chat_id'                   => $subscription->telegram_id,
-                        'text'                      => $message,
-                        'parse_mode'                => 'html',
-                        'disable_web_page_preview'  => true
-                    ]);
-                }
-                catch ( TelegramResponseException $e )
-                {
-                    $errorData = $e->getResponseData();
-                    if ( $errorData['ok'] === false )
-                    {
-                        $subscription->addLog( 'Подписка удалена по причине "' . $errorData['description'] . '"' );
-                        $subscription->delete();
-                    }
-                }
-
-            }
+            $ticketManagement->sendTelegram( $message, $force );
         }
 
     }

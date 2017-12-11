@@ -2,6 +2,17 @@
 
 //Auth::routes();
 
+Route::domain( 'news.eds-juk.ru' )->group( function ()
+{
+    Route::get( '/', function ()
+    {
+        return redirect()->route( 'news.index' );
+    });
+});
+
+Route::resource( '/news', 'NewsController' );
+Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
+
 Route::any( '/404', 'ErrorsController@error404' )->name( '404' );
 Route::any( '/500', 'ErrorsController@error500' )->name( '500' );
 Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );

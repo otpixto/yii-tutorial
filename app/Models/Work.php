@@ -74,7 +74,7 @@ class Work extends BaseModel
 
         if ( !empty( $attributes['phone'] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+            $attributes['phone'] = mb_substr( preg_replace( '/\D/', '', $attributes['phone'] ), -10 );
         }
 
         $exp = explode( ':', $attributes['time_begin'] );
@@ -83,11 +83,17 @@ class Work extends BaseModel
         $exp = explode( ':', $attributes['time_end'] );
         $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1] );
 
-        $work = new Work( $attributes );
-        $work->author_id = Auth::user()->id;
-        $work->time_begin = $dt_begin->toDateTimeString();
-        $work->time_end = $dt_end->toDateTimeString();
+        $attributes['time_begin'] = $dt_begin->toDateTimeString();
+        $attributes['time_end'] = $dt_end->toDateTimeString();
+
+        $work = parent::create( $attributes );
         $work->save();
+
+        $res = $work->addLog( 'Добавлена работа на сетях' );
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
 
         $message = '<em>Добавлена работа на сетях</em>' . PHP_EOL . PHP_EOL;
 
@@ -107,12 +113,6 @@ class Work extends BaseModel
         $message .= PHP_EOL . route( 'works.edit', $work->id ) . PHP_EOL;
 
         $work->sendTelegram( $message );
-
-        $res = $work->addLog( 'Добавлена работа на сетях' );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
 
         return $work;
 
@@ -135,16 +135,7 @@ class Work extends BaseModel
         $attributes['time_begin'] = $dt_begin->toDateTimeString();
         $attributes['time_end'] = $dt_end->toDateTimeString();
 
-        $res = $this->saveLogs( $attributes );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-
-        $this->fill( $attributes );
-        $this->save();
-
-        return $this;
+        return parent::edit( $attributes );
 
     }
 
@@ -182,8 +173,7 @@ class Work extends BaseModel
                     ->whereHas( 'region', function ( $q2 )
                     {
                         return $q2
-                            ->mine()
-                            ->current();
+                            ->mine();
                     });
             });
         if ( \Auth::user()->can( 'supervisor.all_managements' ) )

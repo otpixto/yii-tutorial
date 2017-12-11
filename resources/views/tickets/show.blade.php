@@ -610,12 +610,12 @@
 
             @endif
 
-            @if ( $ticketManagement && \Auth::user()->can( 'tickets.comments' ) && ( $ticketManagement->comments->count() || $ticketManagement->ticket->comments->count() ) )
+            @if ( \Auth::user()->can( 'tickets.comments' ) && $comments->count() )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
                             <h4>Комментарии</h4>
-                            @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'created_at' ) ] )
+                            @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $comments ] )
                         </div>
                     </div>
                 </div>
@@ -625,6 +625,15 @@
                 <div class="row hidden-print">
                     <div class="col-xs-12">
                         <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
+                            <i class="fa fa-commenting"></i>
+                            Добавить комментарий
+                        </button>
+                    </div>
+                </div>
+            @elseif ( $ticket && $ticket->canComment() )
+                <div class="row hidden-print">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
                             <i class="fa fa-commenting"></i>
                             Добавить комментарий
                         </button>

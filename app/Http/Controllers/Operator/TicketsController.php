@@ -14,6 +14,7 @@ use App\Models\Type;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 
@@ -479,9 +480,19 @@ class TicketsController extends BaseController
 
         }
 
+        $comments = new Collection();
+        $comments = $comments->merge( $ticket->comments );
+        foreach ( $ticket->managements()->mine()->get() as $item )
+        {
+            $comments = $comments->merge( $item->comments );
+        }
+
+        $comments = $comments->sortBy( 'id' );
+
         return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
             ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
             ->with( 'dt_transferred', $dt_transferred ?? null )
@@ -535,6 +546,8 @@ class TicketsController extends BaseController
                 $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
             }
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+            $comments = $ticketManagement->comments;
+            $comments = $comments->merge( $ticketManagement->ticket->comments );
         }
         else
         {
@@ -545,6 +558,12 @@ class TicketsController extends BaseController
                 $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
             }
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+            $comments = new Collection();
+            $comments = $comments->merge( $ticket->comments );
+            foreach ( $ticket->managements()->mine()->get() as $item )
+            {
+                $comments = $comments->merge( $item->comments );
+            }
         }
 
         $dt_now = Carbon::now();
@@ -566,9 +585,12 @@ class TicketsController extends BaseController
 
         }
 
+        $comments = $comments->sortBy( 'id' );
+
         return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
             ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
             ->with( 'dt_transferred', $dt_transferred ?? null )
