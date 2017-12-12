@@ -51,9 +51,9 @@
                                 {{ date( 'H:i:s', mktime( 0, 0, $call->billsec ) ) }}
                             </td>
                             <td>
-                                @if ( $call->ticket() )
-                                    <a href="{{ route( 'tickets.show', $call->ticket()->id ) }}">
-                                        #{{ $call->ticket()->id }}
+                                @if ( $call->ticket )
+                                    <a href="{{ route( 'tickets.show', $call->ticket->id ) }}">
+                                        #{{ $call->ticket->id }}
                                     </a>
                                 @else
                                     -
