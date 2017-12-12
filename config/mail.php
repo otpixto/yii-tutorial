@@ -18,7 +18,7 @@ return [
 
     'driver' => env('MAIL_DRIVER', 'smtp'),
 
-    'support' => env('MAIL_SUPPORT', 'support@edska.ru'),
+    'support' => env('MAIL_SUPPORT', 'support@eds-region.ru'),
 
     /*
     |--------------------------------------------------------------------------
