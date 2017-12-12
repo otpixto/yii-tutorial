@@ -329,7 +329,18 @@ class ReportsController extends BaseController
             $data[ $date ] ++;
         }
 
-        if ( $date_from != $date_to )
+        if ( $date_from == $date_to )
+        {
+            for ( $i = 0; $i <= 23; $i ++ )
+            {
+                $date = mb_substr( '0' . $i . 'ч.', -4 );
+                if ( ! isset( $data[ $date ] ) )
+                {
+                    $data[ $date ] = 0;
+                }
+            }
+        }
+        else
         {
             $current_date = Carbon::parse( $date_from );
             while ( $current_date->format( 'd.m.Y' ) != $date_to )
@@ -398,7 +409,21 @@ class ReportsController extends BaseController
             }
         }
 
-        if ( $date_from != $date_to )
+        if ( $date_from == $date_to )
+        {
+            for ( $i = 0; $i <= 23; $i ++ )
+            {
+                $date = mb_substr( '0' . $i . 'ч.', -4 );
+                if ( ! isset( $data[ $date ] ) )
+                {
+                    $data[ $date ] = [
+                        'count' => 0,
+                        'duration' => 0
+                    ];
+                }
+            }
+        }
+        else
         {
             $current_date = Carbon::parse( $date_from );
             while ( $current_date->format( 'd.m.Y' ) != $date_to )
