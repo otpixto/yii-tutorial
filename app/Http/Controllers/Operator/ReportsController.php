@@ -307,7 +307,7 @@ class ReportsController extends BaseController
 
         if ( $date_from == $date_to )
         {
-            $format = 'G';
+            $format = 'Hч.';
         }
         else
         {
@@ -350,7 +350,7 @@ class ReportsController extends BaseController
 
         if ( $date_from == $date_to )
         {
-            $format = 'G';
+            $format = 'Hч.';
         }
         else
         {
