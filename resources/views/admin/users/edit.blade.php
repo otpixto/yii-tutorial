@@ -11,6 +11,16 @@
 
 @section( 'content' )
 
+    @if ( \Auth::user()->admin )
+        <div class="row">
+            <div class="col-xs-12 text-right">
+                <a href="{{ route( 'loginas', $user->id ) }}" class="btn btn-default">
+                    Залогиниться под этим пользователем
+                </a>
+            </div>
+        </div>
+    @endif
+
     <div class="portlet light">
 
         <div class="portlet-title tabbable-line">
@@ -35,6 +45,7 @@
         </div>
 
         <div class="portlet-body">
+
             <div class="tab-content">
 
                 <!-- PERSONAL INFO TAB -->

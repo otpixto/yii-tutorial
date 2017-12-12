@@ -11,108 +11,116 @@
 
 @section( 'content' )
 
-    <div class="panel panel-default">
-        <div class="panel-body">
+    @if ( \Auth::user()->can( 'catalog.addresses.edit' ) )
 
-            {!! Form::model( $address, [ 'method' => 'put', 'route' => [ 'addresses.update', $address->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+        <div class="panel panel-default">
+            <div class="panel-body">
 
-            <div class="form-group">
+                {!! Form::model( $address, [ 'method' => 'put', 'route' => [ 'addresses.update', $address->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-                <div class="col-xs-3">
-                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $address->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
-                </div>
+                <div class="form-group">
 
-                <div class="col-xs-9">
-                    {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::text( 'name', \Input::old( 'name', $address->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
-                </div>
-
-            </div>
-
-            <div class="form-group">
-                <div class="col-xs-12">
-                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
-                </div>
-            </div>
-
-            {!! Form::close() !!}
-
-        </div>
-
-    </div>
-
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a data-toggle="tab" href="#managements">
-                УО
-                <span class="badge" id="addresses-count">{{ $addressManagements->count() }}</span>
-            </a>
-        </li>
-        <li>
-            <a data-toggle="tab" href="#types">
-                Классификатор
-                <span class="badge" id="managements-count">{{ $addressTypes->count() }}</span>
-            </a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="managements" class="tab-pane fade in active">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row margin-bottom-20">
-                        <div class="col-xs-12">
-                            <button type="button" id="add-managements" data-id="{{ $address->id }}" class="btn btn-default">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить УО
-                            </button>
-                        </div>
+                    <div class="col-xs-3">
+                        {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $address->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
                     </div>
-                    @if ( ! $addressManagements->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $addressManagements as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                {{ $r->name }}
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-        <div id="types" class="tab-pane fade">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row margin-bottom-20">
-                        <div class="col-xs-12">
-                            <button type="button" id="add-types" data-id="{{ $address->id }}" class="btn btn-default">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить Классификатор
-                            </button>
-                        </div>
+
+                    <div class="col-xs-9">
+                        {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'name', \Input::old( 'name', $address->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
                     </div>
-                    @if ( ! $addressTypes->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $addressTypes as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'types.edit', $r->id ) }}">
-                                {{ $r->name }}
-                            </a>
+
+                </div>
+
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#managements">
+                    УО
+                    <span class="badge" id="addresses-count">{{ $addressManagements->count() }}</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#types">
+                    Классификатор
+                    <span class="badge" id="managements-count">{{ $addressTypes->count() }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="managements" class="tab-pane fade in active">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row margin-bottom-20">
+                            <div class="col-xs-12">
+                                <button type="button" id="add-managements" data-id="{{ $address->id }}" class="btn btn-default">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить УО
+                                </button>
+                            </div>
                         </div>
-                    @endforeach
+                        @if ( ! $addressManagements->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $addressManagements as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <div id="types" class="tab-pane fade">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row margin-bottom-20">
+                            <div class="col-xs-12">
+                                <button type="button" id="add-types" data-id="{{ $address->id }}" class="btn btn-default">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить Классификатор
+                                </button>
+                            </div>
+                        </div>
+                        @if ( ! $addressTypes->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $addressTypes as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'types.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+    @else
+
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+    @endif
 
 @endsection
 

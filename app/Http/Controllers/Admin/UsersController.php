@@ -20,6 +20,23 @@ class UsersController extends BaseController
         Title::add( 'Пользователи' );
     }
 
+    public function loginas ( Request $request, $id )
+    {
+        if ( ! \Auth::user()->admin )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'У вас недостаточно прав' ] );
+        }
+        $user = User::find( $id );
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+        \Auth::login( $user );
+        return redirect()->route( 'home' );
+    }
+
     public function index ()
     {
 

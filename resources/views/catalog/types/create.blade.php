@@ -11,57 +11,65 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'url' => route( 'types.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+    @if ( \Auth::user()->can( 'catalog.types.create' ) )
 
-    <div class="form-group">
+        {!! Form::open( [ 'url' => route( 'types.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        <div class="col-xs-6">
-            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+        <div class="form-group">
+
+            <div class="col-xs-6">
+                {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+            </div>
+
+            <div class="col-xs-6">
+                {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'category_id', $categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
+            </div>
+
         </div>
 
-        <div class="col-xs-6">
-            {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'category_id', $categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
+        <div class="form-group">
+
+            <div class="col-xs-6">
+                {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance' ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+            </div>
+
+            <div class="col-xs-6">
+                {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::number( 'period_execution', \Input::old( 'period_execution' ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+            </div>
+
         </div>
 
-    </div>
+        <div class="form-group">
 
-    <div class="form-group">
+            <div class="col-xs-8">
+                {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::text( 'season', \Input::old( 'season' ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
+            </div>
 
-        <div class="col-xs-6">
-            {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance' ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+            <div class="col-xs-4">
+                {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
+                <br />{!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act' ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+            </div>
+
         </div>
 
-        <div class="col-xs-6">
-            {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::number( 'period_execution', \Input::old( 'period_execution' ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+        <div class="form-group">
+            <div class="col-xs-12">
+                {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+            </div>
         </div>
 
-    </div>
+        {!! Form::close() !!}
 
-    <div class="form-group">
+    @else
 
-        <div class="col-xs-8">
-            {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'season', \Input::old( 'season' ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
-        </div>
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
 
-        <div class="col-xs-4">
-            {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
-            <br />{!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act' ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-        </div>
-
-    </div>
-
-    <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
-        </div>
-    </div>
-
-    {!! Form::close() !!}
+    @endif
 
 @endsection
 

@@ -10,128 +10,140 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
-        <div class="col-xs-12">
-            <a href="{{ route( 'addresses.create' ) }}" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-                Добавить здание
-            </a>
-        </div>
-    </div>
-
-    <div class="todo-ui">
-        <div class="todo-sidebar">
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption" data-toggle="collapse" data-target="#search">
-                        <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                    </div>
-                    <a href="{{ route( 'addresses.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
-                </div>
-                <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
-                    <div class="todo-project-list">
-                        {!! Form::open( [ 'method' => 'get' ] ) !!}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
-                            </div>
-                        </div>
-                        <div class="row margin-top-10">
-                            <div class="col-xs-12">
-                                {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                            </div>
-                        </div>
-                        {!! Form::hidden( 'region', \Input::get( 'region' ) ) !!}
-                        {!! Form::close() !!}
-                    </div>
-                </div>
-            </div>
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                        <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
-                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
-                    </div>
-                </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
-                    <div class="todo-project-list">
-                        <ul class="nav nav-stacked">
-                            @foreach ( $regions as $region )
-                                <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
-                                    <a href="?region={{ $region->id }}">
-                                        {{ $region->name }}
-                                        <span class="badge badge-info pull-right">
-                                            {{ $region->addresses->count() }}
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
+    @if ( \Auth::user()->can( 'catalog.addresses.create' ) )
+        <div class="row margin-bottom-15">
+            <div class="col-xs-12">
+                <a href="{{ route( 'addresses.create' ) }}" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Добавить здание
+                </a>
             </div>
         </div>
-        <!-- END TODO SIDEBAR -->
+    @endif
 
-        <!-- BEGIN CONTENT -->
-        <div class="todo-content">
-            <div class="portlet light ">
-                <div class="portlet-body">
+    @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
 
-                    @if ( $addresses->count() )
-
-                        {{ $addresses->render() }}
-
-                        <table class="table table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th>
-                                    Регион
-                                </th>
-                                <th>
-                                    Адрес
-                                </th>
-                                <th>
-                                    GUID
-                                </th>
-                                <th class="text-right">
-                                    &nbsp;
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ( $addresses as $address )
-                                <tr>
-                                    <td>
-                                        {{ $address->region->name ?? '-' }}
-                                    </td>
-                                    <td>
-                                        {{ $address->getAddress() }}
-                                    </td>
-                                    <td>
-                                        {{ $address->guid }}
-                                    </td>
-                                    <td class="text-right">
-                                        <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-info">
-                                            <i class="fa fa-edit"></i>
+        <div class="todo-ui">
+            <div class="todo-sidebar">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption" data-toggle="collapse" data-target="#search">
+                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
+                        </div>
+                        <a href="{{ route( 'addresses.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
+                        <div class="todo-project-list">
+                            {!! Form::open( [ 'method' => 'get' ] ) !!}
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-xs-12">
+                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
+                                </div>
+                            </div>
+                            {!! Form::hidden( 'region', \Input::get( 'region' ) ) !!}
+                            {!! Form::close() !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                            <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
+                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" style="height: auto;">
+                        <div class="todo-project-list">
+                            <ul class="nav nav-stacked">
+                                @foreach ( $regions as $region )
+                                    <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
+                                        <a href="?region={{ $region->id }}">
+                                            {{ $region->name }}
+                                            <span class="badge badge-info pull-right">
+                                                {{ $region->addresses->count() }}
+                                            </span>
                                         </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-
-                        {{ $addresses->render() }}
-
-                    @else
-                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                    @endif
-
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- END TODO SIDEBAR -->
+
+            <!-- BEGIN CONTENT -->
+            <div class="todo-content">
+                <div class="portlet light ">
+                    <div class="portlet-body">
+
+                        @if ( $addresses->count() )
+
+                            {{ $addresses->render() }}
+
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        Регион
+                                    </th>
+                                    <th>
+                                        Адрес
+                                    </th>
+                                    <th>
+                                        GUID
+                                    </th>
+                                    <th class="text-right">
+                                        &nbsp;
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ( $addresses as $address )
+                                    <tr>
+                                        <td>
+                                            {{ $address->region->name ?? '-' }}
+                                        </td>
+                                        <td>
+                                            {{ $address->getAddress() }}
+                                        </td>
+                                        <td>
+                                            {{ $address->guid }}
+                                        </td>
+                                        <td class="text-right">
+                                            @if ( \Auth::user()->can( 'catalog.addresses.edit' ) )
+                                                <a href="{{ route( 'addresses.edit', $address->id ) }}" class="btn btn-info">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+
+                            {{ $addresses->render() }}
+
+                        @else
+                            @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+            <!-- END CONTENT -->
         </div>
-        <!-- END CONTENT -->
-    </div>
+
+    @else
+
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+    @endif
 
 @endsection
 

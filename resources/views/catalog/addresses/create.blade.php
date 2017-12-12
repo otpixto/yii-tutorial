@@ -11,29 +11,37 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'url' => route( 'addresses.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+    @if ( \Auth::user()->can( 'catalog.addresses.create' ) )
 
-    <div class="form-group">
+        {!! Form::open( [ 'url' => route( 'addresses.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        <div class="col-xs-3">
-            {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+        <div class="form-group">
+
+            <div class="col-xs-3">
+                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+            </div>
+
+            <div class="col-xs-9">
+                {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+            </div>
+
         </div>
 
-        <div class="col-xs-9">
-            {!! Form::label( 'name', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+        <div class="form-group">
+            <div class="col-xs-12">
+                {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+            </div>
         </div>
 
-    </div>
+        {!! Form::close() !!}
 
-    <div class="form-group">
-        <div class="col-xs-12">
-            {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
-        </div>
-    </div>
+    @else
 
-    {!! Form::close() !!}
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+    @endif
 
 @endsection
 

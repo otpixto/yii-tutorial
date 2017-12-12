@@ -11,150 +11,158 @@
 
 @section( 'content' )
 
-    <div class="panel panel-default">
-        <div class="panel-body">
+    @if ( \Auth::user()->can( 'catalog.types.edit' ) )
 
-            {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+        <div class="panel panel-default">
+            <div class="panel-body">
 
-            <div class="form-group">
+                {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-                <div class="col-xs-6">
-                    {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                </div>
+                <div class="form-group">
 
-                <div class="col-xs-6">
-                    {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::select( 'category_id', $categories, \Input::old( 'category_id', $type->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
-                </div>
-
-            </div>
-
-            <div class="form-group">
-
-                <div class="col-xs-6">
-                    {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', $type->period_acceptance ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
-                </div>
-
-                <div class="col-xs-6">
-                    {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::number( 'period_execution', \Input::old( 'period_execution', $type->period_execution ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
-                </div>
-
-            </div>
-
-            <div class="form-group">
-
-                <div class="col-xs-12">
-                    {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
-                </div>
-
-            </div>
-
-            <div class="form-group">
-
-                <div class="col-xs-4">
-                    {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-                </div>
-
-                <div class="col-xs-4">
-                    {!! Form::label( 'is_pay', 'Платно', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-                </div>
-
-                <div class="col-xs-4">
-                    {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
-                    {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
-                </div>
-
-            </div>
-
-            <div class="form-group">
-                <div class="col-xs-12">
-                    {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
-                </div>
-            </div>
-
-            {!! Form::close() !!}
-
-        </div>
-
-    </div>
-
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a data-toggle="tab" href="#managements">
-                УО
-                <span class="badge" id="types-count">{{ $typeManagements->count() }}</span>
-            </a>
-        </li>
-        <li>
-            <a data-toggle="tab" href="#addresses">
-                Здания
-                <span class="badge" id="addresses-count">{{ $typeAddresses->count() }}</span>
-            </a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="managements" class="tab-pane fade in active">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row margin-bottom-20">
-                        <div class="col-xs-12">
-                            <button id="add-managements" data-id="{{ $type->id }}" class="btn btn-default">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить УО
-                            </button>
-                        </div>
+                    <div class="col-xs-6">
+                        {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                     </div>
-                    @if ( ! $typeManagements->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $typeManagements as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                {{ $r->name }}
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-        <div id="addresses" class="tab-pane fade">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row margin-bottom-20">
-                        <div class="col-xs-12">
-                            <button id="add-addresses" data-id="{{ $type->id }}" class="btn btn-default">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                Добавить Здания
-                            </button>
-                        </div>
+
+                    <div class="col-xs-6">
+                        {!! Form::label( 'category_id', 'Категория обращений', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'category_id', $categories, \Input::old( 'category_id', $type->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория обращений' ] ) !!}
                     </div>
-                    @if ( ! $typeAddresses->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $typeAddresses as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                                {{ $r->getAddress() }}
-                            </a>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-xs-6">
+                        {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', $type->period_acceptance ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                    </div>
+
+                    <div class="col-xs-6">
+                        {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::number( 'period_execution', \Input::old( 'period_execution', $type->period_execution ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-xs-12">
+                        {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'need_act', 'Необходим акт', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $type->need_act ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'is_pay', 'Платно', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#managements">
+                    УО
+                    <span class="badge" id="types-count">{{ $typeManagements->count() }}</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#addresses">
+                    Здания
+                    <span class="badge" id="addresses-count">{{ $typeAddresses->count() }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="managements" class="tab-pane fade in active">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row margin-bottom-20">
+                            <div class="col-xs-12">
+                                <button id="add-managements" data-id="{{ $type->id }}" class="btn btn-default">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить УО
+                                </button>
+                            </div>
                         </div>
-                    @endforeach
+                        @if ( ! $typeManagements->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $typeManagements as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <div id="addresses" class="tab-pane fade">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row margin-bottom-20">
+                            <div class="col-xs-12">
+                                <button id="add-addresses" data-id="{{ $type->id }}" class="btn btn-default">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    Добавить Здания
+                                </button>
+                            </div>
+                        </div>
+                        @if ( ! $typeAddresses->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $typeAddresses as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
+                                    {{ $r->getAddress() }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+    @else
+
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+    @endif
 
 @endsection
 
