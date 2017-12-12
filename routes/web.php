@@ -109,11 +109,13 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
         Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
         Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );
+        Route::get( 'works-map', 'Operator\ReportsController@worksMap' )->name( 'reports.works_map' );
     });
 
     Route::prefix( 'data' )->group( function ()
     {
         Route::get( 'addresses', 'Operator\DataController@addresses' )->name( 'data.addresses' );
+        Route::get( 'works-addresses', 'Operator\DataController@worksAddresses' )->name( 'data.works_addresses' );
     });
 
     Route::prefix( 'catalog' )->group( function ()

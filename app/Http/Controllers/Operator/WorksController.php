@@ -63,7 +63,11 @@ class WorksController extends BaseController
         if ( !empty( \Input::get( 'address_id' ) ) )
         {
             $works
-                ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                ->whereHas( 'addresses', function ( $q )
+                {
+                    return $q
+                        ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                });
             $address = Address::find( \Input::get( 'address_id' ) );
         }
 

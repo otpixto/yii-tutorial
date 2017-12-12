@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Models\Ticket;
 use App\Models\Management;
+use App\Models\Work;
 
 class DataController extends BaseController
 {
@@ -17,11 +18,7 @@ class DataController extends BaseController
     {
 
 		$res = Ticket
-			::whereHas( 'managements', function ( $q )
-			{
-				return $q
-					->whereIn( 'management_id', Management::mine()->pluck( 'id' ) );
-			})
+			::mine()
 			->whereDoesntHave( 'address', function ( $q )
 			{
 				return $q
@@ -66,6 +63,56 @@ class DataController extends BaseController
 		}
 		
 		return array_values( $data );
+
+    }
+
+    public function worksAddresses ()
+    {
+
+        $res = Work
+            ::mine()
+            ->whereDoesntHave( 'addresses', function ( $q )
+            {
+                return $q
+                    ->where( 'lon', '=', -1 )
+                    ->orWhere( 'lat', '=', -1 );
+            })
+            ->with( 'addresses' )
+            ->get();
+
+        $data = [];
+        foreach ( $res as $r )
+        {
+            foreach ( $r->addresses as $address )
+            {
+                if ( ! isset( $data[ $address->id ] ) )
+                {
+                    if ( ! $address->lon || ! $address->lat )
+                    {
+                        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $address->name ) ) );
+                        if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
+                        {
+                            $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
+                            $address->lon = $pos[0];
+                            $address->lat = $pos[1];
+                        }
+                        else
+                        {
+                            $address->lon = -1;
+                            $address->lat = -1;
+                        }
+                        $address->save();
+                    }
+                    $data[ $address->id ] = [ $address->id, $address->name, [ $address->lat, $address->lon ], 1 ];
+                }
+                else
+                {
+                    $data[ $address->id ][ 3 ] ++;
+                }
+            }
+        }
+
+        return array_values( $data );
 
     }
 

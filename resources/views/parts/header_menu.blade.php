@@ -166,6 +166,13 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'reports.works_map' ) )
+                        <li>
+                            <a href="{{ route( 'reports.works_map' ) }}">
+                                География работ на сетях
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
         @endif

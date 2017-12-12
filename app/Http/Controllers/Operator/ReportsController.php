@@ -298,6 +298,11 @@ class ReportsController extends BaseController
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
 
+        if ( Carbon::parse( $date_from )->timestamp > Carbon::parse( $date_to )->timestamp )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
+        }
+
         $res = Ticket
             ::mine()
             ->whereBetween( \DB::raw( 'DATE( created_at )' ), [ Carbon::parse( $date_from )->toDateString(), Carbon::parse( $date_to )->toDateString() ] )
@@ -324,6 +329,20 @@ class ReportsController extends BaseController
             $data[ $date ] ++;
         }
 
+        if ( $date_from != $date_to )
+        {
+            $current_date = Carbon::parse( $date_from );
+            while ( $current_date->format( 'd.m.Y' ) != $date_to )
+            {
+                $date = $current_date->format( 'd.m.Y' );
+                if ( ! isset( $data[ $date ] ) )
+                {
+                    $data[ $date ] = 0;
+                }
+                $current_date = $current_date->addDay();
+            }
+        }
+
         ksort( $data );
 
         return view( 'reports.tickets' )
@@ -338,6 +357,11 @@ class ReportsController extends BaseController
 
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
+
+        if ( Carbon::parse( $date_from )->timestamp > Carbon::parse( $date_to )->timestamp )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
+        }
 
         $res = Cdr
             ::incoming()
@@ -371,6 +395,23 @@ class ReportsController extends BaseController
             if ( $r->queueLog->isComplete() )
             {
                 $data[ $date ][ 'duration' ] += $r->duration;
+            }
+        }
+
+        if ( $date_from != $date_to )
+        {
+            $current_date = Carbon::parse( $date_from );
+            while ( $current_date->format( 'd.m.Y' ) != $date_to )
+            {
+                $date = $current_date->format( 'd.m.Y' );
+                if ( ! isset( $data[ $date ] ) )
+                {
+                    $data[ $date ] = [
+                        'count' => 0,
+                        'duration' => 0
+                    ];
+                }
+                $current_date = $current_date->addDay();
             }
         }
 
@@ -500,6 +541,12 @@ class ReportsController extends BaseController
     {
         Title::add( 'География обращений' );
         return view( 'reports.map' );
+    }
+
+    public function worksMap ()
+    {
+        Title::add( 'География работ на сетях' );
+        return view( 'reports.works_map' );
     }
 
 }

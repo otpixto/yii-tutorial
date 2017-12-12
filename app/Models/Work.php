@@ -173,7 +173,8 @@ class Work extends BaseModel
                     ->whereHas( 'region', function ( $q2 )
                     {
                         return $q2
-                            ->mine();
+                            ->mine()
+                            ->current();
                     });
             });
         if ( \Auth::user()->can( 'supervisor.all_managements' ) )
