@@ -48,7 +48,7 @@
             </thead>
             <tbody>
             @foreach ( $data as $date => $count )
-                <tr>
+                <tr @if ( ! $count ) class="text-muted" @endif>
                     <td data-field="date">
                         {{ $date }}
                     </td>
