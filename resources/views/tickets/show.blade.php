@@ -35,7 +35,7 @@
                                             {!! Form::hidden( 'model_id', $ticket->id ) !!}
                                             {!! Form::hidden( 'status_code', $status_code ) !!}
                                             {!! Form::hidden( 'comment', '' ) !!}
-                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
+                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary margin-bottom-10' ] ) !!}
                                             {!! Form::close() !!}
                                         @endforeach
                                     @endif
@@ -46,7 +46,7 @@
                                             {!! Form::hidden( 'model_id', $ticketManagement->id ) !!}
                                             {!! Form::hidden( 'status_code', $status_code ) !!}
                                             {!! Form::hidden( 'comment', '' ) !!}
-                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary' ] ) !!}
+                                            {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary margin-bottom-10' ] ) !!}
                                             {!! Form::close() !!}
                                         @endforeach
                                     @endif
