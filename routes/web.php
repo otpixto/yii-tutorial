@@ -104,6 +104,8 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
         Route::get( 'rates', 'Operator\ReportsController@rates' )->name( 'reports.rates' );
         Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
+        Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
+        Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
         Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
         Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
         Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );

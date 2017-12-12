@@ -181,7 +181,7 @@ trait AuthenticatesUsers
         ]);
         if ( $log instanceof MessageBag )
         {
-            return false;
+            return redirect()->back()->withErrors( $log );
         }
         $log->save();
         $this->guard()->logout();

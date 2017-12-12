@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
+use App\Models\Asterisk\Cdr;
 use App\Models\Category;
 use App\Models\Management;
 use App\Models\Ticket;
@@ -288,6 +289,97 @@ class ReportsController extends BaseController
     {
 
         Title::add( 'Отчет по адресам' );
+
+    }
+
+    public function tickets ( Request $request )
+    {
+
+        $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
+
+        $res = Ticket
+            ::mine()
+            ->whereBetween( \DB::raw( 'DATE( created_at )' ), [ Carbon::parse( $date_from )->toDateString(), Carbon::parse( $date_to )->toDateString() ] )
+            ->get();
+
+        $data = [];
+
+        if ( $date_from == $date_to )
+        {
+            $format = 'G';
+        }
+        else
+        {
+            $format = 'd.m.Y';
+        }
+
+        foreach ( $res as $r )
+        {
+            $date = $r->created_at->format( $format );
+            if ( ! isset( $data[ $date ] ) )
+            {
+                $data[ $date ] = 0;
+            }
+            $data[ $date ] ++;
+        }
+
+        ksort( $data );
+
+        return view( 'reports.tickets' )
+            ->with( 'data', $data )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
+
+    }
+
+    public function calls ( Request $request )
+    {
+
+        $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
+        $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
+
+        $res = Cdr
+            ::incoming()
+            ->whereBetween( \DB::raw( 'DATE( calldate )' ), [ Carbon::parse( $date_from )->toDateString(), Carbon::parse( $date_to )->toDateString() ] )
+            ->whereHas( 'queueLog' )
+            ->groupBy( 'uniqueid' )
+            ->get();
+
+        $data = [];
+
+        if ( $date_from == $date_to )
+        {
+            $format = 'G';
+        }
+        else
+        {
+            $format = 'd.m.Y';
+        }
+
+        foreach ( $res as $r )
+        {
+            $date = date( $format, strtotime( $r->calldate ) );
+            if ( ! isset( $data[ $date ] ) )
+            {
+                $data[ $date ] = [
+                    'count' => 0,
+                    'duration' => 0
+                ];
+            }
+            $data[ $date ][ 'count' ] ++;
+            if ( $r->queueLog->isComplete() )
+            {
+                $data[ $date ][ 'duration' ] += $r->duration;
+            }
+        }
+
+        ksort( $data );
+
+        return view( 'reports.calls' )
+            ->with( 'data', $data )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
 
     }
 

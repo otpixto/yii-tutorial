@@ -138,6 +138,20 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'reports.tickets' ) )
+                        <li>
+                            <a href="{{ route( 'reports.tickets' ) }}">
+                                Отчет по частоте заявок
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'reports.calls' ) )
+                        <li>
+                            <a href="{{ route( 'reports.calls' ) }}">
+                                Отчет по звонкам
+                            </a>
+                        </li>
+                    @endif
                     {{--@if ( \Auth::user()->admin || \Auth::user()->can( 'reports.summary' ) )
                         <li>
                             <a href="{{ route( 'reports.summary' ) }}">

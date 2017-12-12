@@ -12,6 +12,8 @@ class QueueLog extends BaseModel
 
     private $_operator = '-1';
 
+    public static $completeEvents = [ 'COMPLETEAGENT', 'COMPLETECALLER' ];
+
     public function cdr ()
     {
         return $this->hasMany( 'App\Models\Asterisk\Cdr', 'callid', 'uniqueid' );
@@ -20,7 +22,7 @@ class QueueLog extends BaseModel
     public function scopeCompleted ( $query )
     {
         return $query
-            ->whereIn( 'event', [ 'COMPLETEAGENT', 'COMPLETECALLER' ] );
+            ->whereIn( 'event', self::$completeEvents );
     }
 
     public function scopeAbandoned ( $query )
@@ -51,6 +53,11 @@ class QueueLog extends BaseModel
                 ->first();
         }
         return $this->_operator;
+    }
+
+    public function isComplete ()
+    {
+        return in_array( $this->event, self::$completeEvents );
     }
 
 }

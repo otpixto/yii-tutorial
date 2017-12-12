@@ -282,7 +282,10 @@ class TicketsController extends BaseController
     public function create ( Request $request )
     {
 
-        Title::add( 'Добавить заявку' );
+        $draft = $this->createDraftIfNotExists();
+
+        //Title::add( 'Добавить заявку' );
+        Title::add( 'Заявка #' . $draft->id . ' от ' . $draft->created_at->format( 'd.m.Y H:i' ) );
 
         $res = Type
             ::orderBy( 'name' )
@@ -293,8 +296,6 @@ class TicketsController extends BaseController
         {
             $types[ $r->category->name ][ $r->id ] = $r->name;
         }
-
-        $draft = $this->createDraftIfNotExists();
 
         $regions = Region
             ::mine()
