@@ -16,6 +16,10 @@ class CheckRegion
      */
     public function handle ( $request, Closure $next )
     {
+        if ( $request->isJson() )
+        {
+            return $next( $request );
+        }
         if ( Region::isOperatorUrl() )
         {
             $user = \Auth::user();
