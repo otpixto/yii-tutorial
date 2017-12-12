@@ -7,13 +7,22 @@ use App\Models\Log;
 use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\MessageBag;
 use Iphome\Permission\Traits\HasRoles;
+use App\Traits\Authorizable;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-class User extends Authenticatable
+class User extends Model implements
+    AuthenticatableContract,
+    AuthorizableContract,
+    CanResetPasswordContract
 {
-    use Notifiable, HasRoles;
+    use Notifiable, HasRoles, Authenticatable, Authorizable, CanResetPassword;
 
     public $availableStatuses = null;
 
