@@ -118,7 +118,7 @@ trait AuthenticatesUsers
         $log = Log::create([
             'model_id'      => $user->id,
             'model_name'    => get_class( $user ),
-            'text'          => 'Авторизовался с IP ' . $request->ip()
+            'text'          => 'Авторизовался с IP ' . $request->ip() . ' Host ' . $request->getHost()
         ]);
         if ( $log instanceof MessageBag )
         {
@@ -177,7 +177,7 @@ trait AuthenticatesUsers
         $log = Log::create([
             'model_id'      => $user->id,
             'model_name'    => get_class( $user ),
-            'text'          => 'Выход из системы с IP ' . $request->ip()
+            'text'          => 'Выход из системы с IP ' . $request->ip() . ' Host ' . $request->getHost()
         ]);
         if ( $log instanceof MessageBag )
         {
