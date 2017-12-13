@@ -218,7 +218,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->admin || \Auth::user()->canOne( [ 'admin.users.show', 'admin.perms.show', 'admin.roles.show', 'admin.sessions.show', 'admin.logs' ] ) )
+        @if ( \Auth::user()->admin || \Auth::user()->canOne( [ 'admin.users.show', 'admin.perms.show', 'admin.roles.show', 'admin.sessions.show', 'admin.logs', 'admin.calls' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'admin*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>
@@ -255,7 +255,7 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'calls.index' ) }}" class="nav-link">
                                 Телефонные звонки
