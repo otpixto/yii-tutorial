@@ -158,6 +158,7 @@ Route::group( [ 'middleware' => 'auth' ], function ()
         Route::resource( 'perms', 'Admin\PermsController' );
         Route::resource( 'logs', 'Admin\LogsController' );
         Route::resource( 'sessions', 'Admin\SessionsController' );
+        Route::resource( 'calls', 'Admin\CallsController' );
 
         Route::resource( 'regions', 'Admin\RegionsController' );
         Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );

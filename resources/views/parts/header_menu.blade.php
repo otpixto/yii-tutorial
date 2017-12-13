@@ -255,6 +255,13 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'calls' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'calls.index' ) }}" class="nav-link">
+                                Телефонные звонки
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'sessions.index' ) }}" class="nav-link">

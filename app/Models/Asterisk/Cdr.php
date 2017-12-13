@@ -10,6 +10,13 @@ class Cdr extends BaseModel
 
     protected $table = 'cdr';
 
+    public static $statuses = [
+        'ANSWERED'      => 'Успешно',
+        'NO ANSWER'     => 'Нет ответа',
+        'BUSY'          => 'Занято',
+        'FAILED'        => 'Безуспешно'
+    ];
+
     public function queueLog ()
     {
         return $this->belongsTo( 'App\Models\Asterisk\QueueLog', 'uniqueid', 'callid' );
@@ -57,6 +64,45 @@ class Cdr extends BaseModel
     public function getMp3 ()
     {
         return 'http://' . \Config::get( 'asterisk.ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
+    }
+
+    public function getCaller ( $html = false )
+    {
+        if ( mb_strlen( $this->src ) >= 10 )
+        {
+            $phone = mb_substr( $this->src, -10 );
+            if ( $html )
+            {
+                $phone = '<a href="tel:7' . $phone . '" class="inherit">' . $phone . '</a';
+            }
+        }
+        else
+        {
+            $phone = $this->src;
+        }
+        return $phone;
+    }
+
+    public function getAnswer ( $html = false )
+    {
+        if ( mb_strlen( $this->dst ) >= 10 )
+        {
+            $phone = mb_substr( $this->dst, -10 );
+            if ( $html )
+            {
+                $phone = '<a href="tel:7' . $phone . '" class="inherit">' . $phone . '</a';
+            }
+        }
+        else
+        {
+            $phone = $this->dst;
+        }
+        return $phone;
+    }
+
+    public function getStatus ()
+    {
+        return self::$statuses[ $this->disposition ] ?? '-';
     }
 
 }
