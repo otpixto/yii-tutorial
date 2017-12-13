@@ -7,6 +7,8 @@ use App\Models\Region;
 use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class RestController extends Controller
 {
@@ -14,6 +16,8 @@ class RestController extends Controller
     const REST_PASS = '4AZVdsDFTw';
 
     private $is_auth = false;
+
+    private $logs;
 
     private $errors = [
         100         => 'Авторизация провалена',
@@ -24,11 +28,14 @@ class RestController extends Controller
 
     public function __construct ()
     {
-        //
+        $this->logs = new Logger( 'REST' );
+        $this->logs->pushHandler( new StreamHandler( storage_path( '/logs/rest.log' ) ) );
     }
 
     public function createOrUpdateCallDraft ( Request $request )
     {
+
+        $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
 
         if ( ! $this->auth( $request ) )
         {
@@ -97,6 +104,7 @@ class RestController extends Controller
 
     private function error ( $code )
     {
+        $this->logs->addError( 'Ошибка', [ $code, $this->errors[ $code ] ] );
         return [
             'success'   => false,
             'code'      => $code,
@@ -106,6 +114,7 @@ class RestController extends Controller
 
     private function success ( $message )
     {
+        $this->logs->addInfo( 'Успешно', [ $message ] );
         return [
             'success'   => true,
             'message'   => $message
@@ -115,6 +124,7 @@ class RestController extends Controller
     private function auth ( Request $request )
     {
         if ( $this->is_auth ) return true;
+        $this->logs->addInfo( 'Авторизация', $request->all() );
         $hash = $request->get( 'hash', null );
         if ( !$hash ) return false;
         $data = $request->all();
