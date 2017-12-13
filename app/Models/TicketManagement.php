@@ -98,11 +98,18 @@ class TicketManagement extends BaseModel
 
     public function scopeMine ( $query, $ignoreStatuses = false )
     {
-        return $query->whereHas( 'ticket', function ( $q ) use ( $ignoreStatuses )
-        {
-            return $q
-                ->mine( $ignoreStatuses );
-        });
+        $query
+			->whereHas( 'ticket', function ( $q ) use ( $ignoreStatuses )
+			{
+				return $q
+					->mine( $ignoreStatuses );
+			});
+		if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+		{
+			$query
+				->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+		}
+		return $query;
     }
 
     public function scopeNotFinaleStatuses ( $query )
