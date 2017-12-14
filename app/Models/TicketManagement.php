@@ -347,7 +347,7 @@ class TicketManagement extends BaseModel
 
                 $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
-                $this->sendTelegram( $message );
+                $this->sendTelegram( $message, true );
 
                 break;
 
@@ -365,7 +365,7 @@ class TicketManagement extends BaseModel
 
                 $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
-                $this->sendTelegram( $message );
+                $this->sendTelegram( $message, true );
 
                 break;
 
@@ -404,7 +404,7 @@ class TicketManagement extends BaseModel
 
                 $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
-                $this->sendTelegram( $message );
+                $this->sendTelegram( $message, true );
 
                 break;
 				
@@ -472,7 +472,7 @@ class TicketManagement extends BaseModel
 
                 $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
-                $this->sendTelegram( $message );
+                $this->sendTelegram( $message, true );
 
                 break;
 
@@ -483,7 +483,7 @@ class TicketManagement extends BaseModel
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
 
-                $this->sendTelegram( $message );
+                $this->sendTelegram( $message, true );
 
                 break;
 
@@ -532,7 +532,7 @@ class TicketManagement extends BaseModel
 
         $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
 
-        $this->sendTelegram( $message );
+        $this->sendTelegram( $message, true );
 
     }
 
