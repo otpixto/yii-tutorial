@@ -224,61 +224,38 @@ class Asterisk
 
     }
 
+    /*
+     * return Array
+     * list = [ penalty, isBusy ]
+     */
+
     public function queues ( $parse = false )
     {
-        $packet = 'Action: Queues' . PHP_EOL . PHP_EOL;
+        $packet = 'Action: QueueStatus' . PHP_EOL . PHP_EOL;
         $result = $this->write( $packet );
+        dd( $result );
         if ( $parse )
         {
-            $exp1 = explode( "\r\n\r\n", $result );
-            $data = [];
-            foreach ( $exp1 as $e1 )
+            preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $result, $matches );
+            $count = count( $matches[ 0 ] );
+            $data = [
+                'list' => [],
+                'count' => $count,
+                'callers' => 0,
+                'busy' => 0
+            ];
+            for ( $i = 0; $i < $count; $i ++ )
             {
-                $e1 = mb_strtolower( $e1 );
-                $exp2 = explode( "\r\n", $e1 );
-                $first = array_shift( $exp2 );
-                $queue = strstr( $first, ' ', true );
-                if ( !empty( $queue ) )
+                $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
+                $data[ 'list' ][ $matches[ 2 ][ $i ] ] = [ (int) $matches[ 3 ][ $i ], $isFree ? 0 : 1 ];
+                if ( ! $isFree )
                 {
-                    $data[$queue] = [
-                        'list' => [],
-                        'count' => 0,
-                        'busy' => 0,
-                        'callers' => 0
-                    ];
-                }
-                foreach ( $exp2 as $e2 )
-                {
-                    $e2 = trim( $e2 );
-                    if ( $e2 == 'members:' ) continue;
-                    if ( mb_substr( $e2, 0, 4 ) == 'sip/' || mb_substr( $e2, 0, 6 ) == 'local/' )
-                    {
-                        if ( mb_substr( $e2, 0, 6 ) == 'local/' )
-                        {
-                            $exten = mb_substr( preg_replace( '/\D/', '', $e2 ), 2, 10 );
-                        }
-                        else
-                        {
-                            $exten = mb_substr( preg_replace( '/\D/', '', $e2 ), 0, 4 );
-                        }
-                        //if ( mb_strpos( $e2, '(busy)' ) )
-                        if ( mb_strpos( $e2, 'busy' ) )
-                        {
-                            $data[$queue]['busy'] ++;
-                            $data[$queue]['list'][$exten] = 0;
-                        }
-                        else
-                        {
-                            $data[$queue]['list'][$exten] = 1;
-                        }
-                        $data[$queue]['count'] ++;
-                    }
-                    else if ( !empty( $e1 ) && !empty( $e2 ) && !preg_match( '/callers/iu', $e2 ) )
-                    {
-                        $data[$queue]['callers'] ++;
-                    }
+                    $data[ 'busy' ] ++;
                 }
             }
+            preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
+            ksort( $data[ 'list' ] );
+            $data[ 'callers' ] = count( $matches[ 0 ] );
             return $data;
         }
         return $result;

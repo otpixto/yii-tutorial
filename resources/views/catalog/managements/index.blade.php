@@ -63,6 +63,30 @@
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                            <span class="caption-subject font-green-sharp bold uppercase">КАТЕГОРИИ</span>
+                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                        </div>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" style="height: auto;">
+                        <div class="todo-project-list">
+                            <ul class="nav nav-stacked">
+                                @foreach ( \App\Models\Management::$categories as $category_id => $name )
+                                    <li @if ( \Input::get( 'category' ) == $category_id ) class="active" @endif>
+                                        <a href="?category={{ $category_id }}">
+                                            {{ $name }}
+                                            <span class="badge badge-info pull-right">
+                                                {{ \App\Models\Management::category( $category_id )->count() }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
                             <span class="caption-subject font-green-sharp bold uppercase">РЕГИОНЫ</span>
                             <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
                         </div>
@@ -109,7 +133,7 @@
                                         Наименование
                                     </th>
                                     <th>
-                                        GUID
+                                        Адрес \ телефон(ы)
                                     </th>
                                     <th class="text-center">
                                         Есть договор
@@ -135,7 +159,12 @@
                                             {{ $management->name }}
                                         </td>
                                         <td>
-                                            {{ $management->guid }}
+                                            <div>
+                                                {{ $management->address }}
+                                            </div>
+                                            <div class="margin-top-10">
+                                                {!! $management->getPhones( true ) !!}
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if ( $management->has_contract )

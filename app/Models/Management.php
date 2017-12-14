@@ -82,6 +82,12 @@ class Management extends BaseModel
         return $this->belongsTo( 'App\Models\Region' );
     }
 
+    public function scopeCategory ( $query, $category_id )
+    {
+        return $query
+            ->where( 'category_id', '=', $category_id );
+    }
+
     public function scopeMine ( $query )
     {
         if ( ! \Auth::user() ) return false;
@@ -137,7 +143,7 @@ class Management extends BaseModel
         return $this;
     }
 
-    public static function telegramSubscribe ( $telegram_code, $telegram_id )
+    public static function telegramSubscribe ( $telegram_code, array $attributes = [] )
     {
         $management = self
             ::where( 'telegram_code', '=', $telegram_code )
@@ -147,7 +153,7 @@ class Management extends BaseModel
         {
             $managementSubscription = $management
                 ->subscriptions()
-                ->where( 'telegram_id', '=', $telegram_id )
+                ->where( 'telegram_id', '=', $attributes[ 'telegram_id' ] )
                 ->first();
             if ( $managementSubscription )
             {
@@ -155,11 +161,13 @@ class Management extends BaseModel
             }
             else
             {
-                $managementSubscription = ManagementSubscription::create([
-                    'management_id'     => $management->id,
-                    'telegram_id'       => $telegram_id
-                ]);
-                $managementSubscription->save();
+                $attributes[ 'management_id' ] = $management->id;
+                $res = ManagementSubscription::create( $attributes );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+                $res->save();
                 return true;
             }
         }
@@ -205,11 +213,11 @@ class Management extends BaseModel
             $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
             if ( $html )
             {
-                $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a>';
             }
             else
             {
-                $phones = $phone;
+                $phones .= $phone;
             }
         }
         if ( !empty( $this->phone2 ) )
@@ -218,7 +226,7 @@ class Management extends BaseModel
             $phones .= '; ';
             if ( $html )
             {
-                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone2 . '</a';
+                $phones .= ' <a href="tel:7' . $this->phone2 . '" class="inherit">' . $phone2 . '</a>';
             }
             else
             {

@@ -59,9 +59,9 @@ return [
     |
     */
     'commands' => [
-        \Telegram\Bot\Commands\HelpCommand::class,
-        \Telegram\Bot\Commands\StartCommand::class,
-        \Telegram\Bot\Commands\SubscribeCommand::class,
-        \Telegram\Bot\Commands\UnSubscribeCommand::class,
+        \Telegram\Commands\HelpCommand::class,
+        \Telegram\Commands\StartCommand::class,
+        \Telegram\Commands\SubscribeCommand::class,
+        \Telegram\Commands\UnSubscribeCommand::class,
     ],
 ];

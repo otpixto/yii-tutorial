@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
-use App\Models\Ticket;
 use App\Models\UserPhoneAuth;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -123,30 +120,6 @@ class ProfileController extends Controller
         \DB::commit();
         return redirect()->route( 'profile.phone_reg' )
             ->with( 'success', 'Телефон успешно разлогинен' );
-    }
-
-    public function getTest ()
-    {
-        set_time_limit(0);
-        $ticket = Ticket
-            ::whereNotNull('call_id' )
-            ->first();
-        dd( $ticket, $ticket->cdr );
-        $asterisk = new Asterisk();
-        dd( $asterisk->queues() );
-    }
-
-    public function getFix ( $number )
-    {
-
-        $asterisk = new Asterisk();
-        $asterisk->queueRemove( $number );
-        $phoneSession = PhoneSession::where( 'number', '=', $number )->first();
-        if ( $phoneSession )
-        {
-            $phoneSession->delete();
-        }
-
     }
 
 }

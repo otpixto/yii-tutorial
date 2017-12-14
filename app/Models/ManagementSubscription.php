@@ -12,11 +12,22 @@ class ManagementSubscription extends BaseModel
     public static $rules = [
         'management_id'         => 'required|integer',
         'telegram_id'           => 'required|integer',
+        'first_name'            => 'nullable|integer',
+        'last_name'             => 'nullable|integer',
+        'username'              => 'required|string',
+    ];
+
+    protected $nullable = [
+        'first_name',
+        'last_name',
     ];
 
     protected $fillable = [
         'management_id',
         'telegram_id',
+        'first_name',
+        'last_name',
+        'username',
     ];
 
     public function management ()

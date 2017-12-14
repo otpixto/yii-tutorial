@@ -26,22 +26,35 @@ class ManagementsController extends BaseController
 
         $search = trim( \Input::get( 'search', '' ) );
         $region = \Input::get( 'region' );
+        $category = \Input::get( 'category' );
 
         $managements = Management
             ::orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $managements
-                ->where( function ( $q ) use ( $s )
+                ->where( function ( $q ) use ( $search )
                 {
-                    return $q
+                    $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+                    $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
+                    $q
                         ->where( 'name', 'like', $s )
                         ->orWhere( 'address', 'like', $s )
-                        ->orWhere( 'phone', 'like', $s )
                         ->orWhere( 'guid', 'like', $s );
+                    if ( ! empty( $p ) )
+                    {
+                        $q
+                            ->orWhere( 'phone', '=', $p )
+                            ->orWhere( 'phone2', '=', $p );
+                    }
                 });
+        }
+
+        if ( !empty( $category ) )
+        {
+            $managements
+                ->category( $category );
         }
 
         if ( !empty( $region ) )
