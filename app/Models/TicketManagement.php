@@ -545,12 +545,22 @@ class TicketManagement extends BaseModel
         {
             try
             {
-                \Telegram::sendMessage([
+                $response = \Telegram::sendMessage([
                     'chat_id'                   => $subscription->telegram_id,
                     'text'                      => $message,
                     'parse_mode'                => 'html',
                     'disable_web_page_preview'  => true
                 ]);
+                $chat = $response->getChat();
+                if ( $chat )
+                {
+                    $attributes = [
+                        'first_name' => $chat->getFirstName() ?? null,
+                        'last_name' => $chat->getLastName() ?? null,
+                        'username' => $chat->getUsername()
+                    ];
+                    $subscription->edit( $attributes );
+                }
             }
             catch ( TelegramResponseException $e )
             {

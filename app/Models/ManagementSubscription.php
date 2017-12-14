@@ -35,4 +35,18 @@ class ManagementSubscription extends BaseModel
         return $this->belongsTo( 'App\Models\Management' );
     }
 
+    public function getName ()
+    {
+        $name = '';
+        if ( ! empty( $this->first_name ) )
+        {
+            $name .= ' ' . $this->first_name;
+        }
+        if ( ! empty( $this->last_name ) )
+        {
+            $name .= ' ' . $this->last_name;
+        }
+        return trim( $name );
+    }
+
 }
