@@ -145,8 +145,10 @@
                     @foreach ( $management->subscriptions as $subscription )
                         <li class="list-group-item">
                             {{ $subscription->getName() }}
-                            <strong>&#64;{{ $subscription->username }}</strong>
-                            <small>id:{{ $subscription->telegram_id }}</small>
+                            @if ( $subscription->username )
+                                <strong>&#64;{{ $subscription->username }}</strong>
+                            @endif
+                            <small>[{{ $subscription->telegram_id }}]</small>
                             <a href="" class="badge badge-danger">
                                 <i class="fa fa-remove"></i>
                                 отписать
