@@ -2,170 +2,179 @@
 
 //Auth::routes();
 
-Route::domain( 'news.eds-juk.ru' )->group( function ()
+Route::prefix( 'error' )->group( function ()
 {
-    Route::get( '/', function ()
-    {
-        return redirect()->route( 'news.index' );
-    });
+    Route::any( '404', 'ErrorsController@error404' )->name( '404' );
+    Route::any( '403', 'ErrorsController@error403' )->name( '403' );
+    Route::any( '500', 'ErrorsController@error500' )->name( '500' );
 });
 
-Route::resource( '/news', 'NewsController' );
-Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
-
-Route::any( '/404', 'ErrorsController@error404' )->name( '404' );
-Route::any( '/500', 'ErrorsController@error500' )->name( '500' );
-Route::get( '/test', 'ProfileController@getTest' )->name( 'test' );
-Route::get( '/fix/{number}', 'ProfileController@getFix' )->name( 'fix' );
-Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
-Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
+Route::group( [ 'middleware' => 'api' ], function ()
+{
+    Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
+    Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
+});
 
 Route::prefix( 'ais' )->group( function ()
 {
     Route::get( 'test', 'External\AisController@test' )->name( 'ais.test' );
 });
 
-Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
-Route::post( 'login', 'Auth\LoginController@login' );
-Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
-
-// Registration Routes...
-Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
-Route::post( 'register', 'Auth\RegisterController@register' );
-
-// Password Reset Routes...
-Route::get( 'forgot', 'Auth\ForgotPasswordController@showLinkRequestForm' )->name( 'forgot' );
-Route::post( 'forgot', 'Auth\ForgotPasswordController@sendResetLinkEmail' )->name( 'password.email' );
-Route::get( 'reset/{token}', 'Auth\ResetPasswordController@showResetForm' )->name( 'reset' );
-Route::post( 'reset', 'Auth\ResetPasswordController@reset' );
-
-Route::group( [ 'middleware' => 'auth' ], function ()
+Route::group( [ 'middleware' => 'web' ], function ()
 {
 
-    Route::get( '/', 'HomeController@index' )->name( 'home' );
-    Route::get( '/about', 'HomeController@about' )->name( 'about' );
+    Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
+    Route::post( 'login', 'Auth\LoginController@login' );
+    Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
 
-    Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
+    // Registration Routes...
+    Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
+    Route::post( 'register', 'Auth\RegisterController@register' );
 
-    Route::get( '/profile/phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
-    Route::get( '/profile/phone-reg', 'ProfileController@getPhoneReg' )->name( 'profile.phone_reg' );
-    Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
-    Route::get( '/profile/phone-confirm', 'ProfileController@getPhoneConfirm' )->name( 'profile.phone_confirm' );
-    Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
-    Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
+    // Password Reset Routes...
+    Route::get( 'forgot', 'Auth\ForgotPasswordController@showLinkRequestForm' )->name( 'forgot' );
+    Route::post( 'forgot', 'Auth\ForgotPasswordController@sendResetLinkEmail' )->name( 'password.email' );
+    Route::get( 'reset/{token}', 'Auth\ResetPasswordController@showResetForm' )->name( 'reset' );
+    Route::post( 'reset', 'Auth\ResetPasswordController@reset' );
 
-	Route::get( '/tickets/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
-    Route::post( '/tickets/{id}/add-management', 'Operator\TicketsController@postAddManagement' );
-	Route::post( '/tickets/del-management', 'Operator\TicketsController@postDelManagement' )->name( 'tickets.del_management' );
-    Route::get( '/tickets/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
-    Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
+    Route::resource( '/news', 'NewsController' );
+    Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
 
-    Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
-    Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
-    Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
-    Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
-    Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
-    Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
-    Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-    Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
-	Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
-    Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
-    Route::post( '/tickets', 'Operator\TicketsController@export' );
-    Route::resource( '/tickets', 'Operator\TicketsController' );
-    Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
-    Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
-
-	Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
-	Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
-
-    Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
-    Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
-
-    Route::post( '/managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
-    Route::post( '/types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
-
-    Route::get( '/addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
-    Route::get( '/binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
-
-    Route::get( '/customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
-    Route::get( '/customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
-
-    Route::get( '/works/search', 'Operator\WorksController@search' )->name( 'works.search' );
-    Route::resource( '/works', 'Operator\WorksController' );
-    Route::resource( '/schedule', 'Operator\ScheduleController' );
-
-    Route::prefix( 'reports' )->group( function ()
-    {
-        Route::get( 'index', 'Operator\ReportsController@index' )->name( 'reports.index' );
-        Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
-        Route::get( 'rates', 'Operator\ReportsController@rates' )->name( 'reports.rates' );
-        Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
-        Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
-        Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
-        Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
-        Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
-        Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );
-        Route::get( 'works-map', 'Operator\ReportsController@worksMap' )->name( 'reports.works_map' );
-    });
-
-    Route::prefix( 'data' )->group( function ()
-    {
-        Route::get( 'addresses', 'Operator\DataController@addresses' )->name( 'data.addresses' );
-        Route::get( 'works-addresses', 'Operator\DataController@worksAddresses' )->name( 'data.works_addresses' );
-    });
-
-    Route::prefix( 'catalog' )->group( function ()
+    Route::group( [ 'middleware' => 'auth' ], function ()
     {
 
-        Route::get( 'addresses/types/add', 'Catalog\AddressesController@getAddTypes' )->name( 'addresses.types.add' );
-        Route::post( 'addresses/types/add', 'Catalog\AddressesController@postAddTypes' )->name( 'addresses.types.add' );
-        Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );
-        Route::get( 'addresses/managements/add', 'Catalog\AddressesController@getAddManagements' )->name( 'addresses.managements.add' );
-        Route::post( 'addresses/managements/add', 'Catalog\AddressesController@postAddManagements' )->name( 'addresses.managements.add' );
-        Route::post( 'addresses/managements/del', 'Catalog\AddressesController@delManagement' )->name( 'addresses.managements.del' );
-        Route::resource( 'addresses', 'Catalog\AddressesController' );
+        Route::get( '/', 'HomeController@index' )->name( 'home' );
+        Route::get( '/about', 'HomeController@about' )->name( 'about' );
 
-        Route::resource( 'categories', 'Catalog\CategoriesController' );
+        Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
 
-        Route::get( 'types/addresses/add', 'Catalog\TypesController@getAddAddresses' )->name( 'types.addresses.add' );
-        Route::post( 'types/addresses/add', 'Catalog\TypesController@postAddAddresses' )->name( 'types.addresses.add' );
-        Route::post( 'types/addresses/del', 'Catalog\TypesController@delAddress' )->name( 'types.addresses.del' );
-        Route::get( 'types/managements/add', 'Catalog\TypesController@getAddManagements' )->name( 'types.managements.add' );
-        Route::post( 'types/managements/add', 'Catalog\TypesController@postAddManagements' )->name( 'types.managements.add' );
-        Route::post( 'types/managements/del', 'Catalog\TypesController@delManagement' )->name( 'types.managements.del' );
-        Route::resource( 'types', 'Catalog\TypesController' );
+        Route::get( '/profile/phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
+        Route::get( '/profile/phone-reg', 'ProfileController@getPhoneReg' )->name( 'profile.phone_reg' );
+        Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
+        Route::get( '/profile/phone-confirm', 'ProfileController@getPhoneConfirm' )->name( 'profile.phone_confirm' );
+        Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
+        Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
 
-        Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
-        Route::get( 'managements/types/add', 'Catalog\ManagementsController@getAddTypes' )->name( 'managements.types.add' );
-        Route::post( 'managements/types/add', 'Catalog\ManagementsController@postAddTypes' )->name( 'managements.types.add' );
-        Route::post( 'managements/types/del', 'Catalog\ManagementsController@delType' )->name( 'managements.types.del' );
-        Route::get( 'managements/addresses/add', 'Catalog\ManagementsController@getAddAddresses' )->name( 'managements.addresses.add' );
-        Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@postAddAddresses' )->name( 'managements.addresses.add' );
-        Route::post( 'managements/addresses/del', 'Catalog\ManagementsController@delAddress' )->name( 'managements.addresses.del' );
-        Route::resource( 'managements', 'Catalog\ManagementsController' );
+        Route::get( '/tickets/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
+        Route::post( '/tickets/{id}/add-management', 'Operator\TicketsController@postAddManagement' );
+        Route::post( '/tickets/del-management', 'Operator\TicketsController@postDelManagement' )->name( 'tickets.del_management' );
+        Route::get( '/tickets/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
+        Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
 
-        Route::resource( 'customers', 'Catalog\CustomersController' );
+        Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
+        Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
+        Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
+        Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+        Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
+        Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
+        Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
+        Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
+        Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
+        Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
+        Route::post( '/tickets', 'Operator\TicketsController@export' );
+        Route::resource( '/tickets', 'Operator\TicketsController' );
+        Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
+        Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
+
+        Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
+        Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
+
+        Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
+        Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
+
+        Route::post( '/managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
+        Route::post( '/types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
+
+        Route::get( '/addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
+        Route::get( '/binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
+
+        Route::get( '/customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
+        Route::get( '/customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
+
+        Route::get( '/works/search', 'Operator\WorksController@search' )->name( 'works.search' );
+        Route::resource( '/works', 'Operator\WorksController' );
+        Route::resource( '/schedule', 'Operator\ScheduleController' );
+
+        Route::prefix( 'reports' )->group( function ()
+        {
+            Route::get( 'index', 'Operator\ReportsController@index' )->name( 'reports.index' );
+            Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
+            Route::get( 'rates', 'Operator\ReportsController@rates' )->name( 'reports.rates' );
+            Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
+            Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
+            Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
+            Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
+            Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
+            Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );
+            Route::get( 'works-map', 'Operator\ReportsController@worksMap' )->name( 'reports.works_map' );
+        });
+
+        Route::prefix( 'data' )->group( function ()
+        {
+            Route::get( 'addresses', 'Operator\DataController@addresses' )->name( 'data.addresses' );
+            Route::get( 'works-addresses', 'Operator\DataController@worksAddresses' )->name( 'data.works_addresses' );
+        });
+
+        Route::prefix( 'catalog' )->group( function ()
+        {
+
+            Route::get( 'addresses/types/add', 'Catalog\AddressesController@getAddTypes' )->name( 'addresses.types.add' );
+            Route::post( 'addresses/types/add', 'Catalog\AddressesController@postAddTypes' )->name( 'addresses.types.add' );
+            Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );
+            Route::get( 'addresses/managements/add', 'Catalog\AddressesController@getAddManagements' )->name( 'addresses.managements.add' );
+            Route::post( 'addresses/managements/add', 'Catalog\AddressesController@postAddManagements' )->name( 'addresses.managements.add' );
+            Route::post( 'addresses/managements/del', 'Catalog\AddressesController@delManagement' )->name( 'addresses.managements.del' );
+            Route::resource( 'addresses', 'Catalog\AddressesController' );
+
+            Route::resource( 'categories', 'Catalog\CategoriesController' );
+
+            Route::get( 'types/addresses/add', 'Catalog\TypesController@getAddAddresses' )->name( 'types.addresses.add' );
+            Route::post( 'types/addresses/add', 'Catalog\TypesController@postAddAddresses' )->name( 'types.addresses.add' );
+            Route::post( 'types/addresses/del', 'Catalog\TypesController@delAddress' )->name( 'types.addresses.del' );
+            Route::get( 'types/managements/add', 'Catalog\TypesController@getAddManagements' )->name( 'types.managements.add' );
+            Route::post( 'types/managements/add', 'Catalog\TypesController@postAddManagements' )->name( 'types.managements.add' );
+            Route::post( 'types/managements/del', 'Catalog\TypesController@delManagement' )->name( 'types.managements.del' );
+            Route::resource( 'types', 'Catalog\TypesController' );
+
+            Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
+            Route::get( 'managements/types/add', 'Catalog\ManagementsController@getAddTypes' )->name( 'managements.types.add' );
+            Route::post( 'managements/types/add', 'Catalog\ManagementsController@postAddTypes' )->name( 'managements.types.add' );
+            Route::post( 'managements/types/del', 'Catalog\ManagementsController@delType' )->name( 'managements.types.del' );
+            Route::get( 'managements/addresses/add', 'Catalog\ManagementsController@getAddAddresses' )->name( 'managements.addresses.add' );
+            Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@postAddAddresses' )->name( 'managements.addresses.add' );
+            Route::post( 'managements/addresses/del', 'Catalog\ManagementsController@delAddress' )->name( 'managements.addresses.del' );
+            Route::resource( 'managements', 'Catalog\ManagementsController' );
+
+            Route::resource( 'customers', 'Catalog\CustomersController' );
+
+        });
+
+        Route::prefix( 'admin' )->group( function ()
+        {
+
+            //Route::get( '/', 'AdminController@getIndex' )->name( 'admin' );
+
+            Route::resource( 'users', 'Admin\UsersController' );
+            Route::resource( 'roles', 'Admin\RolesController' );
+            Route::resource( 'perms', 'Admin\PermsController' );
+            Route::resource( 'logs', 'Admin\LogsController' );
+            Route::resource( 'sessions', 'Admin\SessionsController' );
+            Route::resource( 'calls', 'Admin\CallsController' );
+
+            Route::resource( 'regions', 'Admin\RegionsController' );
+            Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );
+            Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
+
+            Route::get( 'loginas/{id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
+
+        });
 
     });
 
-    Route::prefix( 'admin' )->group( function ()
-    {
+});
 
-        //Route::get( '/', 'AdminController@getIndex' )->name( 'admin' );
-
-        Route::resource( 'users', 'Admin\UsersController' );
-        Route::resource( 'roles', 'Admin\RolesController' );
-        Route::resource( 'perms', 'Admin\PermsController' );
-        Route::resource( 'logs', 'Admin\LogsController' );
-        Route::resource( 'sessions', 'Admin\SessionsController' );
-        Route::resource( 'calls', 'Admin\CallsController' );
-
-        Route::resource( 'regions', 'Admin\RegionsController' );
-        Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );
-        Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
-
-        Route::get( 'loginas/{id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
-
-    });
-
+Route::prefix( 'asterisk' )->group( function ()
+{
+    Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
+    Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
 });

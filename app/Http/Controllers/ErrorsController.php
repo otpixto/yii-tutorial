@@ -17,6 +17,11 @@ class ErrorsController extends Controller
         return view( 'errors.404' );
     }
 
+    public function error403 ()
+    {
+        return view( 'errors.403' );
+    }
+
     public function error500 ()
     {
         return view( 'errors.500' );

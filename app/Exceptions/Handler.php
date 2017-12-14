@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Models\Region;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -44,7 +45,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+        if ( ! Region::isSystemUrl() )
+        {
+            return parent::render($request, $exception);
+        }
+        else
+        {
+            return response( view( 'errors.403' ) );
+        }
     }
 
     /**
@@ -59,7 +67,6 @@ class Handler extends ExceptionHandler
         if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
-
         return redirect()->guest(route('login'));
     }
 }
