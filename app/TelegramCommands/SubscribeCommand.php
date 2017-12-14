@@ -1,6 +1,6 @@
 <?php
 
-namespace Telegram\Commands;
+namespace App\Telegram\Bot\Commands;
 
 use App\Models\Management;
 use Illuminate\Support\MessageBag;
