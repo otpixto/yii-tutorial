@@ -373,7 +373,7 @@
                 </div>
             @endif
 
-            @if ( \Auth::user()->can( 'calls' ) && $ticket->cdr && $ticket->cdr->hasMp3() )
+            @if ( ( \Auth::user()->can( 'calls.all' ) || ( \Auth::user()->can( 'calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="note">
