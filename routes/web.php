@@ -15,10 +15,11 @@ Route::group( [ 'middleware' => 'api' ], function ()
     Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
 });
 
-Route::prefix( 'ais' )->group( function ()
+/*Route::prefix( 'ais' )->group( function ()
 {
     Route::get( 'test', 'External\AisController@test' )->name( 'ais.test' );
-});
+    Route::get( 'sync', 'External\AisController@sync' )->name( 'ais.sync' );
+});*/
 
 Route::group( [ 'middleware' => 'web' ], function ()
 {

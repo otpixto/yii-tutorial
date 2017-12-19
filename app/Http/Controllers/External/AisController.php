@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\External;
 
+use App\Classes\Gzhi;
+use App\Models\Address;
+use App\Models\Region;
+use Illuminate\Support\MessageBag;
 use Webpatser\Uuid\Uuid;
 
 class AisController extends BaseController
@@ -22,35 +26,6 @@ class AisController extends BaseController
 
         $date = self::getDate();
 
-        /*$data = [
-            'Header' => [
-                'OrgGUID' => '2EC69678-BD7D-11E7-990B-616CC9FAB898',
-                'PackGUID' => 'de78000d-7b18-4bbc-8bdf-2b67f5baf60f',
-                'PackDate' => date( 'Y-m-d' ) . 'T' . date( 'H:i:s' )
-            ],
-            'Appeal' => [
-                'AppealGUID' => '53C144D6-C46D-11E7-B5A7-EC105E66D70E',
-                'TransportGUID' => '573ED042-C46D-11E7-B64D-B1452EC1DEBC',
-                'AppealInformation' => [
-                    'CreationDate' => date( 'Y-m-d' ) . 'T' . date( 'H:i:s' ),
-                    'Status' => 30,
-                    'Initiator' => [
-                        'FIO' => 'Скабелин Дмитрий Сергеевич',
-                        'Mail' => 'dima@ip-home.net',
-                        'Phone' => '79647269122'
-                    ],
-                    'TypeAppeal' => 10,
-                    'TypeWorkGUID' => '19A16311-EBF0-4E27-8F64-D470868A5457',
-                    'AddressGUID' => '510B6D36-BA52-11E7-BC29-FE5F11EEAB0E',
-                    'Text' => 'Проверка интеграции',
-                    'OrgGUID' => '357FC670-BB06-11E7-9583-B5CD11EEAB0E',
-                    'NumberReg' => 1,
-                    'DateReg' => date( 'Y-m-d' ),
-                    'DatePlan' => date( 'Y-m-d' ) . 'T' . date( 'H:i:s' )
-                ]
-            ]
-        ];*/
-
         $orgGuid = '2EC69678-BD7D-11E7-990B-616CC9FAB898';
         $username = 'user_omsu1';
         $password = '6p1484p3';
@@ -59,9 +34,40 @@ class AisController extends BaseController
         $addressGuid = 'A6BD8EF6-BA54-11E7-8E30-FE5F11EEAB0E';
         $ukGuid = '355F5138-BB06-11E7-9583-B5CD11EEAB0E';
 
-        $url = 'https://test-gzhi.eiasmo.ru/eds-service';
-
         $text = 'Проверка связи';
+
+        $data = [
+            'Header' => [],
+            'Body' => [
+                'Header' => [
+                    'OrgGUID' => $orgGuid,
+                    'PackGUID' => Uuid::generate(),
+                    'PackDate' => $date
+                ],
+                'Appeal' => [
+                    'AppealGUID' => Uuid::generate(),
+                    'TransportGUID' => Uuid::generate(),
+                    'AppealInformation' => [
+                        'CreationDate' => $date,
+                        'Status' => 30,
+                        'Initiator' => [
+                            'FIO' => 'Скабелин Дмитрий Сергеевич',
+                            'Phone' => '79647269122'
+                        ],
+                        'TypeAppeal' => 10,
+                        'TypeWorkGUID' => $typeGuid,
+                        'AddressGUID' => $addressGuid,
+                        'Text' => $text,
+                        'OrgGUID' => $ukGuid,
+                        'NumberReg' => rand( 100, 9999 ),
+                        'DateReg' => date( 'Y-m-d' ),
+                        'DatePlan' => $date
+                    ]
+                ]
+            ]
+        ];
+
+        /*$url = 'https://test-gzhi.eiasmo.ru/eds-service';
 
         $xml = '<?xml version="1.0" encoding="utf-8"?>
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
@@ -97,7 +103,7 @@ class AisController extends BaseController
             </soapenv:Body>
         </soapenv:Envelope>';
 
-        $xml = trim( $xml );
+        $xml = trim( $xml );*/
 
         //echo $xml;
         //die;
@@ -115,7 +121,7 @@ class AisController extends BaseController
         try
         {
 
-            $curl = curl_init();
+            /*$curl = curl_init();
             curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
             curl_setopt( $curl, CURLOPT_URL, $url );
             curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
@@ -134,13 +140,13 @@ class AisController extends BaseController
             curl_close( $curl );
 
             //dd( $status_code );
-            dd( $response );
+            dd( $response );*/
 
-            /*$client = new \SoapClient(
+            $client = new \SoapClient(
                 //'https://test-gzhi.eiasmo.ru/eds-service/eds.wsdl',
-                'https://dev.eds-juk.ru/ais/eds.wsdl',
+                'https://juk.eds-juk.ru/ais/eds.wsdl',
                 array(
-                    'login' => $login,
+                    'login' => $username,
                     'password' => $password,
                     'connection_timeout' => 30,
                     'trace' => 1,
@@ -155,7 +161,7 @@ class AisController extends BaseController
 
             $response = $client->ImportAppealData( $data );
             //$response = $client->GetNsiDS();
-            //dd( $response );*/
+            dd( $response );
 
         }
         catch ( \Exception $e )
@@ -166,6 +172,39 @@ class AisController extends BaseController
         {
             dd( $e );
         }*/
+
+    }
+
+    public function sync ()
+    {
+
+        $region_id = 5;
+
+        $region = Region::find( $region_id );
+
+        $client = new Gzhi( $region->getGzhiConfig() );
+
+        try
+        {
+            $response = $client->GetResult( 'b0019410-e4cd-11e7-82b7-05d37e8c944e' );
+            foreach ( $response->Addresses as $address )
+            {
+                $res = Address::create([
+                    'guid'          => $address->AddressGUID,
+                    'region_id'     => $region_id,
+                    'name'          => $address->AddressName
+                ]);
+                if ( $res instanceof MessageBag )
+                {
+                    dd( $res );
+                }
+                $res->save();
+            }
+        }
+        catch ( \SoapFault $e )
+        {
+            dd( $client->getLastRequest(), $e->faultstring . ':' . $e->faultcode );
+        }
 
     }
 

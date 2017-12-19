@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\GzhiConfig;
 use Illuminate\Support\MessageBag;
 
 class Region extends BaseModel
@@ -134,6 +135,11 @@ class Region extends BaseModel
     public static function getCurrent ()
     {
         return self::current()->first();
+    }
+
+    public function getGzhiConfig ()
+    {
+        return new GzhiConfig( $this );
     }
 
 }

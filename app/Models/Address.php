@@ -10,11 +10,17 @@ class Address extends BaseModel
     public static $name = 'Адрес';
 
     public static $rules = [
+        'guid'                  => 'unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
         'region_id'             => 'required|integer',
         'name'                  => 'required|string|max:255',
     ];
 
+    protected $nullable = [
+        'guid'
+    ];
+
     protected $fillable = [
+        'guid',
         'region_id',
         'name',
     ];

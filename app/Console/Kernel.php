@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\ImportAddress;
+use App\Console\Commands\Sync;
 use App\Console\ParseAddress;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -16,7 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         ImportAddress::class,
-        ParseAddress::class
+        ParseAddress::class,
+        Sync::class
     ];
 
     /**
