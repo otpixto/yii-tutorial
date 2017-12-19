@@ -10,7 +10,7 @@ class Type extends BaseModel
 
     protected $table = 'types';
 
-    public static $name = 'Тип обращения';
+    public static $name = 'Классификатор';
 
     protected $fillable = [
         'name',

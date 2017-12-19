@@ -88,7 +88,7 @@
                     </thead>
                     <tbody>
                     @foreach ( $sessions as $session )
-                        <tr @if ( ! $session->deleted_at ) class="success" @endif>
+                        <tr @if ( ! $session->closed_at ) class="success" @endif>
                             <td>
                                 {!! $session->user->getFullName() !!}
                             </td>
@@ -98,15 +98,15 @@
                             <td>
                                 {{ $session->created_at->format( 'd.m.Y H:i' ) }}
                             </td>
-                            @if ( $session->deleted_at )
+                            @if ( $session->closed_at )
                                 <td>
-                                    {{ $session->deleted_at->format( 'd.m.Y H:i' ) }}
+                                    {{ $session->closed_at->format( 'd.m.Y H:i' ) }}
                                 </td>
                                 <td>
-                                    @if ( $session->deleted_at->diffInDays( $session->created_at ) >= 1 )
-                                        {{ $session->deleted_at->diffInDays( $session->created_at ) }} д.
+                                    @if ( $session->closed_at->diffInDays( $session->created_at ) >= 1 )
+                                        {{ $session->closed_at->diffInDays( $session->created_at ) }} д.
                                     @endif
-                                    {{ date( 'H:i:s', mktime( 0, 0, $session->deleted_at->diffInSeconds( $session->created_at ) ) ) }}
+                                    {{ date( 'H:i:s', mktime( 0, 0, $session->closed_at->diffInSeconds( $session->created_at ) ) ) }}
                                 </td>
                             @else
                                 <td colspan="2">

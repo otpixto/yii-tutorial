@@ -41,6 +41,11 @@
                 <li>
                     <a href="#access" data-toggle="tab">Права доступа</a>
                 </li>
+                @if ( \Auth::user()->can( 'admin.logs' ) )
+                    <li>
+                        <a href="#logs" data-toggle="tab">Логи</a>
+                    </li>
+                @endif
             </ul>
         </div>
 
@@ -181,6 +186,19 @@
                     {!! Form::close() !!}
                 </div>
                 <!-- END PRIVACY SETTINGS TAB -->
+
+                @if ( \Auth::user()->can( 'admin.logs' ) )
+                    <!-- LOGS TAB -->
+                    <div class="tab-pane" id="logs">
+                        <a href="{{ route( 'logs.index', [ 'author_id' => $user->id ] ) }}" class="btn btn-default" target="_blank">
+                            Действия пользователя
+                        </a>
+                        <a href="{{ route( 'logs.index', [ 'model_name' => \App\User::class, 'model_id' => $user->id ] ) }}" class="btn btn-default" target="_blank">
+                            Действия над пользователем
+                        </a>
+                    </div>
+                    <!-- END LOGS TAB -->
+                @endif
 
             </div>
         </div>

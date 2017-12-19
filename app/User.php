@@ -6,6 +6,7 @@ use App\Classes\Asterisk;
 use App\Models\Log;
 use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\MessageBag;
 use Iphome\Permission\Traits\HasRoles;
@@ -25,6 +26,8 @@ class User extends Model implements
     use Notifiable, HasRoles, Authenticatable, Authorizable, CanResetPassword;
 
     public $availableStatuses = null;
+
+    public static $name = 'Пользователь';
 
     protected $nullable = [
         'company',
@@ -145,7 +148,13 @@ class User extends Model implements
      */
     public function phoneSession ()
     {
-        return $this->hasOne( 'App\Models\PhoneSession' );
+        return $this->hasOne( 'App\Models\PhoneSession' )
+            ->whereNull( 'closed_at' );
+    }
+
+    public function phoneSessions ()
+    {
+        return $this->hasMany( 'App\Models\PhoneSession' );
     }
 
     public static function create ( array $attributes = [] )
@@ -284,7 +293,7 @@ class User extends Model implements
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
-        $this->phoneSession->delete();
+        $this->phoneSession->close();
         \Cookie::forget( 'phone' );
     }
 

@@ -11,7 +11,7 @@ class TicketManagement extends BaseModel
 
     protected $table = 'tickets_managements';
 
-    public static $name = 'ЭО заявки';
+    public static $name = 'Заявка УО';
 
     private $history = [];
 

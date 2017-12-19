@@ -4,11 +4,19 @@ namespace App\Models;
 
 use App\Classes\Asterisk;
 use App\Models\Asterisk\Cdr;
+use Carbon\Carbon;
 
 class PhoneSession extends BaseModel
 {
 
     protected $table = 'phone_sessions';
+
+    protected $dates = [
+        'closed_at',
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
 
     private $_calls = null;
     private $_limit = null;
@@ -56,6 +64,12 @@ class PhoneSession extends BaseModel
             $this->_calls = $calls->get();
         }
         return $this->_calls;
+    }
+
+    public function close ()
+    {
+        $this->closed_at = Carbon::now()->toDateTimeString();
+        $this->save();
     }
 
 }

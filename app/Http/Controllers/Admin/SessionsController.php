@@ -25,8 +25,7 @@ class SessionsController extends BaseController
     {
 
         $sessions = PhoneSession
-            ::withTrashed()
-            ->orderBy( 'id', 'desc' );
+            ::orderBy( 'id', 'desc' );
 
         if ( ! empty( $request->get( 'operator' ) ) )
         {
@@ -44,14 +43,14 @@ class SessionsController extends BaseController
         {
             $dt = Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString();
             $sessions
-                ->whereRaw( 'DATE( created_at ) >= ? AND ( deleted_at IS NULL OR DATE( deleted_at ) >= ? )', [ $dt, $dt ] );
+                ->whereRaw( 'DATE( created_at ) >= ? AND ( closed_at IS NULL OR DATE( closed_at ) >= ? )', [ $dt, $dt ] );
         }
 
         if ( ! empty( $request->get( 'date_to' ) ) )
         {
             $dt = Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString();
             $sessions
-                ->whereRaw( 'DATE( created_at ) <= ? AND DATE( deleted_at ) <= ?', [ $dt, $dt ] );
+                ->whereRaw( 'DATE( created_at ) <= ? AND DATE( closed_at ) <= ?', [ $dt, $dt ] );
         }
 
         $sessions = $sessions
@@ -108,9 +107,7 @@ class SessionsController extends BaseController
     public function show ( $id )
     {
 
-        $session = PhoneSession
-            ::withTrashed()
-            ->find( $id );
+        $session = PhoneSession::find( $id );
 
         if ( ! $session )
         {
