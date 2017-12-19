@@ -26,6 +26,7 @@ class Management extends BaseModel
     ];
 
     public static $rules = [
+        'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
         'name'                  => 'required|string|max:255',
         'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -34,6 +35,7 @@ class Management extends BaseModel
     ];
 
     protected $nullable = [
+        'guid',
         'phone',
         'phone2',
         'director',

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:tns="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" targetNamespace="http://ais-gzhi.ru/schema/integration/eds/" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0.1">
 	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
 	<xs:element name="getNsiDSRequest">
@@ -41,9 +42,7 @@
 							</xs:element>
 							<xs:element name="Accomodation" type="tns:GUIDType">
 								<xs:annotation>
-									<xs:documentation>
-										Помещения по дому (Указывается AddressGUID дома, возвращается список помещений)
-									</xs:documentation>
+									<xs:documentation>Помещения по дому (Указывается AddressGUID дома, возвращается список помещений)</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="Addresses">
@@ -146,6 +145,11 @@
 															</xs:annotation>
 														</xs:element>
 													</xs:choice>
+													<xs:element name="FlatNum" type="tns:String255Type" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Номер квартиры (помещения) в доме</xs:documentation>
+														</xs:annotation>
+													</xs:element>
 													<xs:element name="Text" type="tns:String1000NotEmptyType">
 														<xs:annotation>
 															<xs:documentation>Текст обращения в заявке</xs:documentation>
@@ -153,7 +157,7 @@
 													</xs:element>
 													<xs:element name="OrgGUID" type="tns:GUIDType">
 														<xs:annotation>
-															<xs:documentation>Организация – исполнитель заявки</xs:documentation>
+															<xs:documentation>Организация – исполнитель заявки </xs:documentation>
 														</xs:annotation>
 													</xs:element>
 													<xs:element name="NumberReg" type="tns:String255NotEmptyType">
@@ -189,9 +193,7 @@
 																</xs:element>
 																<xs:element name="ProlongComments" type="tns:String1000Type" minOccurs="0">
 																	<xs:annotation>
-																		<xs:documentation>
-																			Комментарии к причине переноса даты исполнения заявки
-																		</xs:documentation>
+																		<xs:documentation>Комментарии к причине переноса даты исполнения заявки</xs:documentation>
 																	</xs:annotation>
 																</xs:element>
 															</xs:all>
@@ -319,7 +321,7 @@
 	</xs:element>
 	<xs:element name="getStateDSRequest">
 		<xs:annotation>
-			<xs:documentation>Запрос о состоянии пакета</xs:documentation>
+			<xs:documentation>Запрос о состоянии пакета  </xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:complexContent>
@@ -338,7 +340,7 @@
 	</xs:element>
 	<xs:element name="getStateDSResult">
 		<xs:annotation>
-			<xs:documentation>Ответ о состоянии пакета</xs:documentation>
+			<xs:documentation>Ответ о состоянии пакета </xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:complexContent>
@@ -358,8 +360,10 @@
 						</xs:element>
 						<xs:element name="PackState">
 							<xs:annotation>
-								<xs:documentation>
-									Ответ на запрос о состоянии запрашиваемого пакета: 10	Получено 20	В обработке 30	Обработан
+								<xs:documentation>Ответ на запрос о состоянии запрашиваемого пакета:
+									10	Получено
+									20	В обработке
+									30	Обработан
 								</xs:documentation>
 							</xs:annotation>
 							<xs:simpleType>
@@ -373,9 +377,7 @@
 						</xs:element>
 						<xs:element name="ERRORS" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
-								<xs:documentation>
-									Сообщения об ошибках, возникшие после обработки запрашиваемого пакета
-								</xs:documentation>
+								<xs:documentation>Сообщения об ошибках, возникшие после обработки запрашиваемого пакета</xs:documentation>
 							</xs:annotation>
 							<xs:complexType>
 								<xs:complexContent>
@@ -441,6 +443,7 @@
 						<xs:documentation>Классификатор типа работ</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+
 				<xs:element name="Orgs" type="tns:OrgSCType" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Реестр организаций</xs:documentation>
@@ -459,9 +462,7 @@
 						<xs:sequence>
 							<xs:element name="AddressGUID" type="tns:GUIDType">
 								<xs:annotation>
-									<xs:documentation>
-										Глобальный уникальный идентификатор адресного объекта в АИС ГЖИ
-									</xs:documentation>
+									<xs:documentation>Глобальный уникальный идентификатор адресного объекта в АИС ГЖИ</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="Accomodations" type="tns:AccomodationType" maxOccurs="unbounded">
@@ -597,8 +598,10 @@
 			</xs:element>
 			<xs:element name="Seasonality">
 				<xs:annotation>
-					<xs:documentation>
-						Сезонность выполнения работ: Вне зависимости от сезона Зимний период Летний период
+					<xs:documentation>Сезонность выполнения работ:
+						Вне зависимости от сезона
+						Зимний период
+						Летний период
 					</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
@@ -706,16 +709,12 @@
 		<xs:sequence>
 			<xs:element name="AddressGUID" type="tns:GUIDType">
 				<xs:annotation>
-					<xs:documentation>
-						Глобальный уникальный идентификатор адресного объекта в АИС ГЖИ
-					</xs:documentation>
+					<xs:documentation>Глобальный уникальный идентификатор адресного объекта в АИС ГЖИ</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FIASAddressGUID" type="tns:GUIDType" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>
-						Глобальный уникальный идентификатор адресного объекта по ФИАС
-					</xs:documentation>
+					<xs:documentation>Глобальный уникальный идентификатор адресного объекта по ФИАС</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="AddressType" type="tns:String255NotEmptyType">
@@ -848,9 +847,7 @@
 			<xs:choice>
 				<xs:element name="LivingApartment" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>
-							Жилое помещение (Квартира в МКД или блок в ЖД блокированной застройки)
-						</xs:documentation>
+						<xs:documentation>Жилое помещение (Квартира в МКД или блок в ЖД блокированной застройки)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -919,9 +916,7 @@
 			</xs:choice>
 			<xs:element name="IsCommonAppartment" type="xs:boolean" minOccurs="0" fixed="true">
 				<xs:annotation>
-					<xs:documentation>
-						Помещение, составляющее общее имущество в многоквартирном доме
-					</xs:documentation>
+					<xs:documentation>Помещение, составляющее общее имущество в многоквартирном доме</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -942,7 +937,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="4000"/>
+						<xs:maxLength value="4000" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -953,7 +948,7 @@
 			<xs:documentation>Сообщение об ошибках</xs:documentation>
 		</xs:annotation>
 	</xs:element>
-	<!-- Базовые типы -->
+	<!--Базовые типы-->
 	<xs:complexType name="BaseType">
 		<xs:annotation>
 			<xs:documentation>Базовый тип бизнес-сообщения с подписью</xs:documentation>
@@ -972,9 +967,7 @@
 			<xs:all>
 				<xs:element name="OrgGUID" type="tns:GUIDType">
 					<xs:annotation>
-						<xs:documentation>
-							Уникальный идентификатор поставщика информации в АИС ГЖИ
-						</xs:documentation>
+						<xs:documentation>Уникальный идентификатор поставщика информации в АИС ГЖИ</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="PackGUID" type="tns:GUIDType">
@@ -992,9 +985,7 @@
 	</xs:element>
 	<xs:attribute name="version" type="xs:string">
 		<xs:annotation>
-			<xs:documentation>
-				Версия элемента, начиная с которой поддерживается совместимость
-			</xs:documentation>
+			<xs:documentation>Версия элемента, начиная с которой поддерживается совместимость</xs:documentation>
 		</xs:annotation>
 	</xs:attribute>
 	<xs:simpleType name="OGRNType">
@@ -1054,9 +1045,7 @@
 	</xs:element>
 	<xs:element name="AppealGUID" type="tns:GUIDType">
 		<xs:annotation>
-			<xs:documentation>
-				Уникальный идентификатор Заявки на обслуживание, присвоенный ему в ИС-Источнике
-			</xs:documentation>
+			<xs:documentation>Уникальный идентификатор Заявки на обслуживание, присвоенный ему в ИС-Источнике</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:simpleType name="GUIDType">
@@ -1123,9 +1112,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="String255NotEmptyType">
 		<xs:annotation>
-			<xs:documentation>
-				Скалярный тип. Строка не более 255 символов и не менее одного символа.
-			</xs:documentation>
+			<xs:documentation>Скалярный тип. Строка не более 255 символов и не менее одного символа.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:minLength value="1"/>
@@ -1151,9 +1138,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="String1000NotEmptyType">
 		<xs:annotation>
-			<xs:documentation>
-				Скалярный тип. Строка не более 1000 символов и не менее одного символа.
-			</xs:documentation>
+			<xs:documentation>Скалярный тип. Строка не более 1000 символов и не менее одного символа.</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:minLength value="1"/>

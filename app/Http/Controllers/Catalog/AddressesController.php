@@ -92,7 +92,13 @@ class AddressesController extends BaseController
     public function store(Request $request)
     {
 
-        $this->validate( $request, Address::$rules );
+        $rules = [
+            'guid'                  => 'nullable|unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'region_id'             => 'required|integer',
+            'name'                  => 'required|string|max:255',
+        ];
+
+        $this->validate( $request, $rules );
 
         $address = Address::create( $request->all() );
         if ( $address instanceof MessageBag )

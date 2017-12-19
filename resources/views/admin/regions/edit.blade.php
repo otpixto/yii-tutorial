@@ -87,6 +87,49 @@
 
     </div>
 
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">АИС ГЖИ</h3>
+                </div>
+                <div class="panel-body">
+
+                    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                    <div class="form-group">
+
+                        <div class="col-xs-4">
+                            {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'guid', \Input::old( 'guid', $region->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        </div>
+                        <div class="col-xs-4">
+                            {!! Form::label( 'username', 'Логин', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'username', \Input::old( 'username', $region->username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
+                        </div>
+                        <div class="col-xs-4">
+                            {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'password', \Input::old( 'password', $region->password ), [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
+                        </div>
+
+                    </div>
+
+                    <div class="form-group hidden-print">
+                        <div class="col-xs-12">
+                            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                        </div>
+                    </div>
+
+                    {!! Form::close() !!}
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
     <ul class="nav nav-tabs">
         <li class="active">
             <a data-toggle="tab" href="#addresses">

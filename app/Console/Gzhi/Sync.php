@@ -71,6 +71,12 @@ class Sync extends Command
 
         $client = new Gzhi( $region->getGzhiConfig() );
 
+        $rules = [
+            'guid'                  => 'nullable|unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'region_id'             => 'required|integer',
+            'name'                  => 'required|string|max:255',
+        ];
+
         try
         {
 
@@ -89,7 +95,7 @@ class Sync extends Command
                     'region_id'     => $region->id,
                     'name'          => $address->AddressName
                 ];
-                $v = \Validator::make( $attributes, Address::$rules );
+                $v = \Validator::make( $attributes, $rules );
                 if ( $v->fails() )
                 {
                     /*foreach ( $v->errors()->all() as $error )

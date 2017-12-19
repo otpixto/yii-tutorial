@@ -14,16 +14,16 @@ class Region extends BaseModel
 
     public static $current_region = null;
 
-    public static $rules = [
-        'name'                  => 'required|string|max:255',
-        'domain'                => 'required|string|max:100'
-    ];
-
-    public static $rules_phone = [
-        'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+    protected $nullable = [
+        'guid',
+        'username',
+        'password',
     ];
 
     protected $fillable = [
+        'guid',
+        'username',
+        'password',
         'name',
         'domain',
     ];

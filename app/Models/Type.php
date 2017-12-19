@@ -12,6 +12,10 @@ class Type extends BaseModel
 
     public static $name = 'Классификатор';
 
+    protected $nullable = [
+        'guid',
+    ];
+
     protected $fillable = [
         'name',
         'category_id',
@@ -87,6 +91,7 @@ class Type extends BaseModel
             'period_acceptance' => 'numeric',
             'period_execution'  => 'numeric',
             'need_act'          => 'boolean',
+            'guid'                  => 'nullable|unique:types,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
         ];
     }
 

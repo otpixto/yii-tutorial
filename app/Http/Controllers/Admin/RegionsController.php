@@ -82,7 +82,21 @@ class RegionsController extends BaseController
                 ->withErrors( [ 'Регион не найден' ] );
         }
 
-        $this->validate( $request, Region::$rules );
+        $rules = [
+            'guid'                  => 'nullable|unique:regions,guid,' . $region->id . ',id|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username'              => 'nullable|string|max:50',
+            'password'              => 'nullable|string|max:50',
+        ];
+
+        if ( $request->has( 'name' ) || $request->has( 'domain' ) )
+        {
+            $rules += [
+                'name'                  => 'required|string|max:255',
+                'domain'                => 'required|string|max:100',
+            ];
+        }
+
+        $this->validate( $request, $rules );
 
         $region->edit( $request->all() );
 
@@ -94,7 +108,15 @@ class RegionsController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, Region::$rules );
+        $rules = [
+            'guid'                  => 'nullable|unique:regions,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username'              => 'nullable|string|max:50',
+            'password'              => 'nullable|string|max:50',
+            'name'                  => 'required|string|max:255',
+            'domain'                => 'required|string|max:100',
+        ];
+
+        $this->validate( $request, $rules );
 
         $region = Region::create( $request->all() );
 
@@ -113,7 +135,10 @@ class RegionsController extends BaseController
 
     public function addRegionPhone ( Request $request, $id )
     {
-        $this->validate( $request, Region::$rules_phone );
+        $rules = [
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        ];
+        $this->validate( $request, $rules );
         $region = Region::find( $id );
         if ( ! $region )
         {
