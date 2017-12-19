@@ -13,8 +13,6 @@ use Monolog\Logger;
 class RestController extends Controller
 {
 
-    const REST_PASS = '4AZVdsDFTw';
-
     private $is_auth = false;
 
     private $logs;
@@ -135,7 +133,7 @@ class RestController extends Controller
         {
             $arr[] = $key . '=' . $val;
         }
-        $arr[] = self::REST_PASS;
+        $arr[] = \Config::get( 'rest.password' );
         $hash = mb_strtolower( $hash );
         $_hash = mb_strtolower( md5( implode( '|', $arr ) ) );
         $status = $hash == $_hash;
