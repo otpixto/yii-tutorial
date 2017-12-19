@@ -41,7 +41,8 @@ class RestController extends Controller
         }
 
         $session = PhoneSession
-            ::where( 'number', '=', $request->get( 'number' ) )
+			::notClosed()
+            ->where( 'number', '=', $request->get( 'number' ) )
             ->first();
         if ( ! $session )
         {

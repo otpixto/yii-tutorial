@@ -65,6 +65,12 @@ class PhoneSession extends BaseModel
         }
         return $this->_calls;
     }
+	
+	public function scopeNotClosed ( $query )
+	{
+		return $query
+			->whereNotNull( 'closed_at' );
+	}
 
     public function close ()
     {
