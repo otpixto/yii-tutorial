@@ -72,31 +72,12 @@ class Region extends BaseModel
     public static function create ( array $attributes = [] )
     {
         $region = parent::create( $attributes );
-        if ( !empty( $attributes['phone'] ) )
-        {
-            $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
-            $res = $region->addPhone( $phone );
-            if ( $res instanceof MessageBag )
-            {
-                return $res;
-            }
-        }
         return $region;
     }
 
     public function edit ( array $attributes = [] )
     {
         $region = parent::edit( $attributes );
-        if ( !empty( $attributes['phone'] ) )
-        {
-            $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
-            $res = $region->addPhone( $phone );
-            if ( $res instanceof MessageBag )
-            {
-                return $res;
-            }
-            $res->save();
-        }
         return $region;
     }
 
