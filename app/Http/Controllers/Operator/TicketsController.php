@@ -496,7 +496,7 @@ class TicketsController extends BaseController
 
         $comments = $comments->sortBy( 'id' );
 
-        if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count )
+        if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
         {
             $ticketCalls = $ticket->calls()->actual()->get();
         }
