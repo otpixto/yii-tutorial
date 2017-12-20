@@ -88,7 +88,7 @@
                 @if ( \Auth::user()->can( 'catalog.customers.tickets' )) )
                     <li class="active">
                         <a data-toggle="tab" href="#tickets">
-                            Обращения
+                            Заявки
                             <span class="badge" id="tickets-count">{{ $customer->tickets->count() }}</span>
                         </a>
                     </li>
