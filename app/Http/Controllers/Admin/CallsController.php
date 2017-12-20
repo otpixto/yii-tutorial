@@ -20,8 +20,7 @@ class CallsController extends BaseController
     {
 
         $calls = Cdr
-            ::orderBy( 'id', 'desc' )
-            ->whereIn( 'dcontext', [ 'incoming', 'outgoing' ] );
+            ::orderBy( 'id', 'desc' );
 
         if ( ! empty( $request->get( 'status' ) ) )
         {
@@ -34,11 +33,15 @@ class CallsController extends BaseController
             case 'incoming':
                 $calls
                     ->incoming();
-            break;
+                break;
             case 'outgoing':
                 $calls
                     ->outgoing();
-            break;
+                break;
+            default:
+                $calls
+                    ->whereIn( 'dcontext', [ 'incoming', 'outgoing' ] );
+                break;
         }
 
         if ( ! empty( $request->get( 'caller' ) ) )

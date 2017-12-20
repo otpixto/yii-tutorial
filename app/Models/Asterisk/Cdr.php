@@ -32,7 +32,7 @@ class Cdr extends BaseModel
     public function scopeOutgoing ( $query )
     {
         return $query
-            ->where( 'dcontext', '!=', 'incoming' );
+            ->where( 'dcontext', '=', 'outgoing' );
     }
 
     public function scopeAnswered ( $query )
