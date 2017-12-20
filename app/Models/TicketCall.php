@@ -44,4 +44,17 @@ class TicketCall extends BaseModel
         return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'call_id', 'uniqueid' );
     }
 
+    public function scopeActual ( $query )
+    {
+        return $query
+            ->whereNotNull( 'call_id' )
+            ->whereHas( 'cdr' );
+    }
+
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->where( 'author_id', '=', \Auth::user()->id );
+    }
+
 }

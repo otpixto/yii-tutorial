@@ -496,9 +496,23 @@ class TicketsController extends BaseController
 
         $comments = $comments->sortBy( 'id' );
 
+        if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count )
+        {
+            $ticketCalls = $ticket->calls()->actual()->get();
+        }
+        else if ( \Auth::user()->can( 'calls.my' ) && $ticket->calls()->actual()->mine()->count() )
+        {
+            $ticketCalls = $ticket->calls()->actual()->mine()->get();
+        }
+        else
+        {
+            $ticketCalls = new Collection();
+        }
+
         return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
             ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
@@ -594,9 +608,23 @@ class TicketsController extends BaseController
 
         $comments = $comments->sortBy( 'id' );
 
+        if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count )
+        {
+            $ticketCalls = $ticket->calls()->actual()->get();
+        }
+        else if ( \Auth::user()->can( 'calls.my' ) && $ticket->calls()->actual()->mine()->count() )
+        {
+            $ticketCalls = $ticket->calls()->actual()->mine()->get();
+        }
+        else
+        {
+            $ticketCalls = new Collection();
+        }
+
         return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
             ->with( 'dt_execution_expire', $dt_execution_expire ?? null )

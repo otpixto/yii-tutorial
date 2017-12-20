@@ -378,12 +378,32 @@
                     <div class="col-xs-12">
                         <div class="note">
                             <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
-                                <i class="fa fa-phone"></i>
-                                Запись разговора
+                                <i class="fa fa-chevron-circle-down text-success"></i>
+                                Входящий вызов
                             </a>
                         </div>
                     </div>
                 </div>
+            @endif
+
+            @if ( $ticketCalls->count() )
+                @foreach ( $ticketCalls as $ticketCall )
+                    @if ( $ticketCall->cdr->hasMp3() )
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="note">
+                                    <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
+                                        <i class="fa fa-chevron-circle-up text-danger"></i>
+                                        Исходящий вызов
+                                        <span class="text-muted small">
+                                            {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
             @endif
 
         </div>

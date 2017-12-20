@@ -199,6 +199,11 @@ class Ticket extends BaseModel
             ->where( 'model_name', '=', get_class( $this ) );
     }
 
+    public function calls ()
+    {
+        return $this->hasMany( 'App\Models\TicketCall' );
+    }
+
     public function cdr ()
     {
         return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'call_id', 'uniqueid' );
