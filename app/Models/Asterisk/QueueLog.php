@@ -16,7 +16,7 @@ class QueueLog extends BaseModel
 
     public function cdr ()
     {
-        return $this->hasMany( 'App\Models\Asterisk\Cdr', 'callid', 'uniqueid' );
+        return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'callid', 'uniqueid' );
     }
 
     public function scopeCompleted ( $query )
@@ -45,8 +45,8 @@ class QueueLog extends BaseModel
                 {
                     return $q
                         ->where( 'number', '=', $this->number() )
-                        ->where( 'created_at', '<=', Carbon::parse( $this->time )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
-                        ->where( 'closed_at', '>=', Carbon::parse( $this->time )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                        ->where( 'created_at', '<=', Carbon::parse( $this->cdr->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
+                        ->where( 'closed_at', '>=', Carbon::parse( $this->cdr->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
                 })
                 ->first();
         }
