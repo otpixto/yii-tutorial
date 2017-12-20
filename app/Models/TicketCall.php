@@ -47,8 +47,7 @@ class TicketCall extends BaseModel
     public function scopeActual ( $query )
     {
         return $query
-            ->whereNotNull( 'call_id' )
-            ->whereHas( 'cdr' );
+            ->whereNotNull( 'call_id' );
     }
 
     public function scopeMine ( $query )
