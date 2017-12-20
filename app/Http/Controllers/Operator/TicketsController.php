@@ -1167,6 +1167,11 @@ class TicketsController extends BaseController
     public function search ( Request $request )
     {
 
+        if ( ! \Auth::user()->can( 'catalog.customers.tickets' ) )
+        {
+            return null;
+        }
+
         $customer = Customer::find( $request->get( 'customer_id' ) );
 
         $tickets = Ticket
