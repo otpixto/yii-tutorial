@@ -85,7 +85,7 @@
         @if ( \Auth::user()->canOne( [ 'catalog.customers.tickets', 'catalog.customers.calls' ] ) )
 
             <ul class="nav nav-tabs">
-                @if ( \Auth::user()->can( 'catalog.customers.tickets' )) )
+                @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
                     <li class="active">
                         <a data-toggle="tab" href="#tickets">
                             Заявки
@@ -93,7 +93,7 @@
                         </a>
                     </li>
                 @endif
-                @if ( \Auth::user()->can( 'catalog.customers.calls' )) )
+                @if ( \Auth::user()->can( 'catalog.customers.calls' ) )
                     <li>
                         <a data-toggle="tab" href="#calls">
                             Звонки
