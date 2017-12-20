@@ -44,7 +44,7 @@ class UserPhoneAuth extends BaseModel
         $v = Validator::make ( $attributes, $rules );
         if ( $v->fails () ) return $v->messages ();
 
-        if ( \Auth::user()->phoneSession )
+        if ( \Auth::user()->openPhoneSession )
         {
             return new MessageBag([ 'Пользовательский телефон уже зарегистрирован' ]);
         }

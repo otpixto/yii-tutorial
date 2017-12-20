@@ -148,8 +148,13 @@ class User extends Model implements
      */
     public function phoneSession ()
     {
+        return $this->hasOne( 'App\Models\PhoneSession' );
+    }
+
+    public function openPhoneSession ()
+    {
         return $this->hasOne( 'App\Models\PhoneSession' )
-            ->whereNull( 'closed_at' );
+            ->notClosed();
     }
 
     public function phoneSessions ()
@@ -284,16 +289,16 @@ class User extends Model implements
 
     public function phoneSessionUnreg ()
     {
-        if ( ! $this->phoneSession )
+        if ( ! $this->openPhoneSession )
         {
             return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
         }
         $asterisk = new Asterisk();
-        if ( ! $asterisk->queueRemove( $this->phoneSession->number ) )
+        if ( ! $asterisk->queueRemove( $this->openPhoneSession->number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
-        $this->phoneSession->close();
+        $this->openPhoneSession->close();
         \Cookie::forget( 'phone' );
     }
 

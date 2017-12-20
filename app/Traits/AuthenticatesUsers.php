@@ -166,7 +166,7 @@ trait AuthenticatesUsers
     {
         $user = $this->guard()->user();
         \DB::beginTransaction();
-        if ( $user && $user->phoneSession )
+        if ( $user && $user->openPhoneSession )
         {
             $res = $user->phoneSessionUnreg();
             if ( $res instanceof MessageBag )

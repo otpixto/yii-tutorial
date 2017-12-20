@@ -29,6 +29,18 @@ class CallsController extends BaseController
                 ->where( 'disposition', '=', $request->get( 'status' ) );
         }
 
+        switch ( $request->get( 'context' ) )
+        {
+            case 'incoming':
+                $calls
+                    ->incoming();
+            break;
+            case 'outgoing':
+                $calls
+                    ->outgoing();
+            break;
+        }
+
         if ( ! empty( $request->get( 'caller' ) ) )
         {
             $caller = mb_substr( preg_replace( '/\D/', '', $request->get( 'caller' ) ), - 10 );

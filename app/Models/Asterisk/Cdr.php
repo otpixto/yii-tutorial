@@ -3,6 +3,7 @@
 namespace App\Models\Asterisk;
 
 use App\Models\Ticket;
+use App\User;
 use Carbon\Carbon;
 
 class Cdr extends BaseModel
@@ -26,6 +27,12 @@ class Cdr extends BaseModel
     {
         return $query
             ->where( 'dcontext', '=', 'incoming' );
+    }
+
+    public function scopeOutgoing ( $query )
+    {
+        return $query
+            ->where( 'dcontext', '!=', 'incoming' );
     }
 
     public function scopeAnswered ( $query )
@@ -66,38 +73,49 @@ class Cdr extends BaseModel
         return 'http://' . \Config::get( 'asterisk.ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
     }
 
-    public function getCaller ( $html = false )
+    public function getCaller ()
     {
-        if ( mb_strlen( $this->src ) >= 10 )
+        $res = null;
+        if ( $this->dcontext != 'incoming' && mb_strlen( $this->src ) == 2 )
         {
-            $phone = mb_substr( $this->src, -10 );
-            if ( $html )
+            $datetime = Carbon::parse( $this->calldate )->toDateTimeString();
+            $caller = User
+                ::whereHas( 'phoneSession', function ( $q ) use ( $datetime )
+                {
+                    return $q
+                        ->where( 'number', '=', $this->src )
+                        ->where( 'created_at', '<=', $datetime )
+                        ->where( 'closed_at', '>=', $datetime );
+                })
+                ->first();
+            if ( $caller )
             {
-                $phone = '<a href="tel:7' . $phone . '" class="inherit">' . $phone . '</a';
+                $res = $this->src . ' (' .$caller->getShortName() . ')';
             }
         }
-        else
+        if ( ! $res )
         {
-            $phone = $this->src;
+            $res = mb_substr( $this->src, -10 );
         }
-        return $phone;
+        return $res;
     }
 
     public function getAnswer ( $html = false )
     {
-        if ( mb_strlen( $this->dst ) >= 10 )
+        $res = null;
+        if ( $this->dcontext == 'incoming' )
         {
-            $phone = mb_substr( $this->dst, -10 );
-            if ( $html )
+            $queueLog = $this->queueLog()->completed()->first();
+            if ( $queueLog && $queueLog->operator() )
             {
-                $phone = '<a href="tel:7' . $phone . '" class="inherit">' . $phone . '</a';
+                $res = $queueLog->number() . ' (' . $queueLog->operator()->getShortName() . ')';
             }
         }
-        else
+        if ( ! $res )
         {
-            $phone = $this->dst;
+            $res = mb_substr( $this->dst, -10 );
         }
-        return $phone;
+        return $res;
     }
 
     public function getStatus ()

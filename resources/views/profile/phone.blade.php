@@ -17,7 +17,7 @@
             </div>
             <div class="col-xs-6">
                 <span class="form-control">
-                    {{ \Auth::user()->phoneSession->number }}
+                    {{ \Auth::user()->openPhoneSession->number }}
                 </span>
             </div>
         </div>
@@ -28,7 +28,7 @@
             </div>
             <div class="col-xs-6">
                 <span class="form-control">
-                    {{ \Auth::user()->phoneSession->created_at->format( 'd.m.Y H:i' ) }}
+                    {{ \Auth::user()->openPhoneSession->created_at->format( 'd.m.Y H:i' ) }}
                 </span>
             </div>
         </div>

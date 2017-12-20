@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PhoneSession;
-use App\Models\Region;
 use App\Models\Ticket;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;

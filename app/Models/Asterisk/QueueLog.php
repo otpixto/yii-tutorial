@@ -45,10 +45,9 @@ class QueueLog extends BaseModel
                 ::whereHas( 'phoneSession', function ( $q ) use ( $datetime )
                 {
                     return $q
-                        ->withTrashed()
                         ->where( 'number', '=', $this->number() )
                         ->where( 'created_at', '<=', $datetime )
-                        ->where( 'deleted_at', '>=', $datetime );
+                        ->where( 'closed_at', '>=', $datetime );
                 })
                 ->first();
         }

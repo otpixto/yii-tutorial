@@ -9,8 +9,6 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use Iphome\Permission\Models\Permission;
-use Iphome\Permission\Models\Role;
 
 class SessionsController extends BaseController
 {
@@ -176,6 +174,12 @@ class SessionsController extends BaseController
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( [ 'Сессия не найдена' ] );
+        }
+        else if ( $phoneSession->closed_at )
+        {
+            return redirect()
+                ->route( 'sessions.index' )
+                ->withErrors( [ 'Сессия уже закрыта' ] );
         }
         \DB::beginTransaction();
         $log = $phoneSession->addLog( 'Телефонная сессия завершена' );

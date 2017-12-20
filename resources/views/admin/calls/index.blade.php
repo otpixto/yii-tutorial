@@ -38,6 +38,9 @@
             <div class="col-md-3 col-xs-4">
                 {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
             </div>
+            <div class="col-md-3 col-xs-4">
+                {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2', 'placeholder' => 'Направление' ] ) !!}
+            </div>
         </div>
 
         <div class="form-group">
@@ -58,7 +61,7 @@
 
                 @if ( $calls->count() )
 
-                    <table class="table table-striped">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th class="text-center">
@@ -76,11 +79,14 @@
                                 <th>
                                     Статус
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Длительность
                                 </th>
                                 <th>
                                     Запись
+                                </th>
+                                <th class="text-right">
+                                    Заявка
                                 </th>
                             </tr>
                         </thead>
@@ -88,10 +94,10 @@
                         @foreach ( $calls as $call )
                             <tr>
                                 <td>
-                                    {{ $call->calldate }}
+                                    {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
                                 </td>
                                 <td>
-                                    {!! $call->getCaller( true ) !!}
+                                    {!! $call->getCaller() !!}
                                 </td>
                                 <td>
                                     @if ( $call->dcontext == 'incoming' )
@@ -101,13 +107,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {!! $call->getAnswer( true ) !!}
+                                    {!! $call->getAnswer() !!}
                                 </td>
                                 <td>
                                     {{ $call->getStatus() }}
                                 </td>
                                 @if ( $call->billsec > 0 )
-                                    <td>
+                                    <td class="text-center">
                                         {{ date( 'H:i:s', mktime( 0, 0, $call->billsec ) ) }}
                                     </td>
                                     <td>
@@ -123,9 +129,16 @@
                                     </td>
                                 @else
                                     <td colspan="2">
-                                        -
+                                        &nbsp;
                                     </td>
                                 @endif
+                                <td class="text-right">
+                                    @if ( $call->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

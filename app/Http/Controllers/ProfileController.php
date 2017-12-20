@@ -21,7 +21,7 @@ class ProfileController extends Controller
     public function getPhone ()
     {
 
-        if ( ! \Auth::user()->phoneSession )
+        if ( ! \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -34,7 +34,7 @@ class ProfileController extends Controller
 
     public function getPhoneReg ()
     {
-        if ( \Auth::user()->phoneSession )
+        if ( \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone' );
         }
@@ -64,7 +64,7 @@ class ProfileController extends Controller
         {
             return redirect()->route( 'profile.phone_reg' );
         }
-        if ( \Auth::user()->phoneSession )
+        if ( \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone' );
         }
@@ -106,7 +106,7 @@ class ProfileController extends Controller
     public function postPhoneUnreg ()
     {
         \DB::beginTransaction();
-        $log = \Auth::user()->phoneSession->addLog( 'Телефонная сессия завершена' );
+        $log = \Auth::user()->openPhoneSession->addLog( 'Телефонная сессия завершена' );
         if ( $log instanceof MessageBag )
         {
             return redirect()->back()

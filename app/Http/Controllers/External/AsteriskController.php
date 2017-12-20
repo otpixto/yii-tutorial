@@ -26,10 +26,13 @@ class AsteriskController extends BaseController
 
         $asterisk = new Asterisk();
         $asterisk->queueRemove( $number );
-        $phoneSession = PhoneSession::where( 'number', '=', $number )->first();
+        $phoneSession = PhoneSession
+            ::where( 'number', '=', $number )
+            ->notClosed()
+            ->first();
         if ( $phoneSession )
         {
-            $phoneSession->delete();
+            $phoneSession->close();
         }
 
     }
