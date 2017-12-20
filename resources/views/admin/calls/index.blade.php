@@ -36,10 +36,10 @@
         <div class="form-group">
             {!! Form::label( 'status', 'Статус', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
-                {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
+                {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
             <div class="col-md-3 col-xs-4">
-                {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2', 'placeholder' => 'Направление' ] ) !!}
+                {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
         </div>
 
