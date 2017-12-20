@@ -99,7 +99,7 @@ class Cdr extends BaseModel
         return $res;
     }
 
-    public function getAnswer ( $html = false )
+    public function getAnswer ()
     {
         $res = null;
         if ( $this->dcontext == 'incoming' )
