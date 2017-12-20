@@ -46,7 +46,12 @@ class QueueLog extends BaseModel
                     return $q
                         ->where( 'number', '=', $this->number() )
                         ->where( 'created_at', '<=', Carbon::parse( $this->time )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
-                        ->where( 'closed_at', '>=', Carbon::parse( $this->time )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                        ->where( function ( $q2 )
+                        {
+                            return $q2
+                                ->whereNull( 'closed_at' )
+                                ->orWhere( 'closed_at', '>=', Carbon::parse( $this->time )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                        });
                 })
                 ->first();
         }

@@ -84,11 +84,17 @@ class Cdr extends BaseModel
                     return $q
                         ->where( 'number', '=', $this->src )
                         ->where( 'created_at', '<=', Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
-                        ->where( 'closed_at', '>=', Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                        ->where( function ( $q2 )
+                        {
+                            return $q2
+                                ->whereNull( 'closed_at' )
+                                ->orWhere( 'closed_at', '>=', Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                        });
                 })
                 ->first();
             if ( $caller )
             {
+                dd( $caller );
                 $res = $this->src . ' (' .$caller->getShortName() . ')';
             }
         }
