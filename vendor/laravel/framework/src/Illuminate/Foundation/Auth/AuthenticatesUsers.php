@@ -155,7 +155,7 @@ trait AuthenticatesUsers
     public function logout(Request $request)
     {
         $user = $this->guard()->user();
-        if ( $user && $user->phoneSession )
+        if ( $user && $user->openPhoneSession )
         {
             $res = $user->phoneSessionUnreg();
             if ( $res instanceof MessageBag )
