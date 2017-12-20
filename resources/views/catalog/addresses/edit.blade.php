@@ -76,7 +76,7 @@
                         @endif
                         @foreach ( $addressManagements as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="address-management" data-address="{{ $address->id }}" data-management="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'managements.edit', $r->id ) }}">
@@ -103,7 +103,7 @@
                         @endif
                         @foreach ( $addressTypes as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="address-type" data-address="{{ $address->id }}" data-type="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'types.edit', $r->id ) }}">

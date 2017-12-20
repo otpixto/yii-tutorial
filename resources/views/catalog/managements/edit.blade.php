@@ -193,7 +193,7 @@
                         @endif
                         @foreach ( $managementAddresses as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="management-address" data-management="{{ $management->id }}" data-address="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'addresses.edit', $r->id ) }}">
@@ -220,7 +220,7 @@
                         @endif
                         @foreach ( $managementTypes as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="management-type" data-management="{{ $management->id }}" data-type="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'types.edit', $r->id ) }}">
@@ -242,11 +242,13 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>

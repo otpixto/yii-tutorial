@@ -118,7 +118,7 @@
                         @endif
                         @foreach ( $typeManagements as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="type-management" data-type="{{ $type->id }}" data-management="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'managements.edit', $r->id ) }}">
@@ -145,7 +145,7 @@
                         @endif
                         @foreach ( $typeAddresses as $r )
                             <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
+                                <button type="button" class="btn btn-xs btn-danger" data-delete="type-address" data-type="{{ $type->id }}" data-address="{{ $r->id }}">
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'addresses.edit', $r->id ) }}">
