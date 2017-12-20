@@ -69,7 +69,7 @@ class PhoneSession extends BaseModel
 	public function scopeNotClosed ( $query )
 	{
 		return $query
-			->whereNotNull( 'closed_at' );
+			->whereNull( 'closed_at' );
 	}
 
     public function close ()
