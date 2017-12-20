@@ -94,7 +94,6 @@ class Cdr extends BaseModel
                 ->first();
             if ( $caller )
             {
-                dd( $caller );
                 $res = $this->src . ' (' .$caller->getShortName() . ')';
             }
         }
