@@ -104,7 +104,7 @@ class Cdr extends BaseModel
         $res = null;
         if ( $this->dcontext == 'incoming' )
         {
-            $queueLog = $this->queueLog()->completed()->first();
+            $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
             if ( $queueLog && $queueLog->operator() )
             {
                 $res = $queueLog->number() . ' (' . $queueLog->operator()->getShortName() . ')';
