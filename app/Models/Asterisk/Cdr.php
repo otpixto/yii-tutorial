@@ -78,14 +78,13 @@ class Cdr extends BaseModel
         $res = null;
         if ( $this->dcontext != 'incoming' && mb_strlen( $this->src ) == 2 )
         {
-            $datetime = Carbon::parse( $this->calldate )->toDateTimeString();
             $caller = User
-                ::whereHas( 'phoneSession', function ( $q ) use ( $datetime )
+                ::whereHas( 'phoneSession', function ( $q )
                 {
                     return $q
                         ->where( 'number', '=', $this->src )
-                        ->where( 'created_at', '<=', $datetime )
-                        ->where( 'closed_at', '>=', $datetime );
+                        ->where( 'created_at', '<=', Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
+                        ->where( 'closed_at', '>=', Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
                 })
                 ->first();
             if ( $caller )

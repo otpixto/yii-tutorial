@@ -40,14 +40,13 @@ class QueueLog extends BaseModel
     {
         if ( $this->_operator == '-1' )
         {
-            $datetime = Carbon::parse( $this->time )->toDateTimeString();
             $this->_operator = User
-                ::whereHas( 'phoneSession', function ( $q ) use ( $datetime )
+                ::whereHas( 'phoneSession', function ( $q )
                 {
                     return $q
                         ->where( 'number', '=', $this->number() )
-                        ->where( 'created_at', '<=', $datetime )
-                        ->where( 'closed_at', '>=', $datetime );
+                        ->where( 'created_at', '<=', Carbon::parse( $this->time )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
+                        ->where( 'closed_at', '>=', Carbon::parse( $this->time )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
                 })
                 ->first();
         }
