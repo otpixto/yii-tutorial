@@ -840,17 +840,31 @@ class Ticket extends BaseModel
     public function createCall ( $phone )
     {
         if ( ! \Auth::user()->openPhoneSession ) return;
-        $res = TicketCall::create([
-            'ticket_id'     => $this->id,
-            'call_phone'    => $phone,
-            'agent_number'  => \Auth::user()->openPhoneSession->number
-        ]);
-        if ( $res instanceof MessageBag )
+        $ticketCall = TicketCall
+            ::whereNull( 'call_id' )
+            ->where( 'ticket_id', '=', $this->id )
+            ->where( 'call_phone', '=', $phone )
+            ->where( 'agent_number', '=', \Auth::user()->openPhoneSession->number )
+            ->first();
+        if ( $ticketCall )
         {
-            return $res;
+            $ticketCall->created_at = Carbon::now()->toDateTimeString();
+            $ticketCall->save();
         }
-        $res->save();
-        return $res;
+        else
+        {
+            $ticketCall = TicketCall::create([
+                'ticket_id'     => $this->id,
+                'call_phone'    => $phone,
+                'agent_number'  => \Auth::user()->openPhoneSession->number
+            ]);
+            if ( $ticketCall instanceof MessageBag )
+            {
+                return $ticketCall;
+            }
+            $ticketCall->save();
+        }
+        return $ticketCall;
     }
 
 }
