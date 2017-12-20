@@ -11,7 +11,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin )
+    @if ( \Auth::user()->admin && \Auth::user()->id != $user->id )
         <div class="row">
             <div class="col-xs-12 text-right">
                 <a href="{{ route( 'loginas', $user->id ) }}" class="btn btn-default">
