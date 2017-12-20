@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\Asterisk\Cdr;
+use App\Models\TicketCall;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
-use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class Ticket extends BaseModel
 {
@@ -18,6 +17,7 @@ class Ticket extends BaseModel
     private $can_edit = null;
     private $can_comment = null;
     private $can_group = null;
+    private $can_call = null;
 
     private $availableStatuses = null;
 
@@ -636,6 +636,22 @@ class Ticket extends BaseModel
         return $this->can_edit;
     }
 
+    public function canCall ()
+    {
+        if ( is_null( $this->can_call ) )
+        {
+            if ( \Auth::user()->can( 'phone' ) && \Auth::user()->openPhoneSession )
+            {
+                $this->can_call = true;
+            }
+            else
+            {
+                $this->can_call = false;
+            }
+        }
+        return $this->can_call;
+    }
+
     public function canComment ()
     {
         if ( is_null( $this->can_comment ) )
@@ -819,6 +835,22 @@ class Ticket extends BaseModel
             $ticketManagement->sendTelegram( $message, $force );
         }
 
+    }
+
+    public function createCall ( $phone )
+    {
+        if ( ! \Auth::user()->openPhoneSession ) return;
+        $res = TicketCall::create([
+            'ticket_id'     => $this->id,
+            'call_phone'    => $phone,
+            'agent_number'  => \Auth::user()->openPhoneSession->number
+        ]);
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
+        $res->save();
+        return $res;
     }
 
 }

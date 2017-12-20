@@ -200,6 +200,76 @@ $( document )
 
 	})
 
+	.on ( 'click', '[data-action="ticket-call"]', function ( e )
+	{
+
+        e.preventDefault();
+
+        var phones = $( this ).attr( 'data-phones' ).replace( ';', ',' ).split( ',' );
+        var ticket_id = $( this ).attr( 'data-ticket' );
+
+        if ( phones.length > 1 )
+		{
+            inputOptions = [];
+			for ( var i = 0; i < phones.length; i ++ )
+			{
+                inputOptions.push({
+                    text: phones[ i ],
+                    value: phones[ i ].replace( /\D/g, '' ).substr( -10 )
+				});
+			}
+            var dialog = bootbox.prompt({
+                title: 'Выберите номер для совершения звонка',
+                inputType: 'select',
+                inputOptions: inputOptions,
+				callback: function ( phone )
+				{
+                    $.post( '/asterisk/call',
+                        {
+                            phone: phone,
+                            ticket_id: ticket_id
+                        },
+                        function ( response )
+                        {
+                            console.log( response );
+                        });
+				}
+            });
+		}
+		else
+		{
+            bootbox.confirm({
+                message: 'Вы уверены, что хотите позвонить по номеру ' + phones[ 0 ] + '?',
+                buttons: {
+                    confirm: {
+                        label: 'Да',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Нет',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function ( result )
+				{
+                    if ( result )
+					{
+                        $.post( '/asterisk/call',
+                            {
+                                phone: phones[ 0 ].replace( /\D/g, '' ).substr( -10 ),
+                                ticket_id: ticket_id
+                            },
+                            function ( response )
+                            {
+                                console.log( response );
+                            });
+					}
+                }
+            });
+		}
+
+	})
+
 	.on ( 'click', '[data-action="comment"]', function ( e )
 	{
 

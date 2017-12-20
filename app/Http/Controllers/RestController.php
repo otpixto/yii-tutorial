@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PhoneSession;
 use App\Models\Ticket;
+use App\Models\TicketCall;
 use Illuminate\Http\Request;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -19,7 +20,8 @@ class RestController extends Controller
         100         => 'Авторизация провалена',
         101         => 'Авторизованный телефон не найден',
         102         => 'Пользователь отключен',
-        103         => 'Для данного пользователя уже создан черновик'
+        103         => 'Для данного пользователя уже создан черновик',
+        104         => 'Запись о звонке не найдена в БД'
     ];
 
     public function __construct ()
@@ -94,6 +96,34 @@ class RestController extends Controller
         }
 
         $draft->save();
+
+        return $this->success( '' );
+
+    }
+
+    public function ticketCall ( Request $request )
+    {
+
+        $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
+
+        if ( ! $this->auth( $request ) )
+        {
+            return $this->error( 100 );
+        }
+
+        $ticketCall = TicketCall
+            ::whereNull( 'call_id' )
+            ->where( 'agent_number', '=', $request->get( 'agent_number' ) )
+            ->where( 'call_phone', '=', $request->get( 'call_phone' ) )
+            ->first();
+
+        if ( ! $ticketCall )
+        {
+            return $this->error( 104 );
+        }
+
+        $ticketCall->call_id = $request->get( 'call_id' );
+        $ticketCall->save();
 
         return $this->success( '' );
 

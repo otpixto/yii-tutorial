@@ -119,6 +119,7 @@ class Asterisk
 
         $packet = 'Action: originate' . PHP_EOL;
         $packet .= 'Channel: ' . $channel . PHP_EOL;
+        $packet .= 'MaxRetries: 1' . PHP_EOL;
         $packet .= 'Context: ' . $context . PHP_EOL;
         $packet .= 'Exten: ' . $number . PHP_EOL;
         $packet .= 'Priority: ' . $priority . PHP_EOL;
@@ -140,7 +141,7 @@ class Asterisk
     public function connectTwo ( $number1, $number2 )
     {
 
-        return ( $this->originate( $number2, $number1 ) && $this->originate( $number1, $number2 ) && $this->bridge( $number1, $number2 ) );
+        return ( $this->originate( $number1, $number2 ) && $this->originate( $number2, $number1 ) && $this->bridge( $number1, $number2 ) );
 
     }
 

@@ -4,28 +4,30 @@ namespace App\Http\Controllers\External;
 
 use App\Classes\Asterisk;
 use App\Models\PhoneSession;
+use App\Models\Ticket;
+use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class AsteriskController extends BaseController
 {
 
+    private $asterisk;
+
     public function __construct ()
     {
+        $this->asterisk = new Asterisk();
         parent::__construct();
     }
 
     public function queues ()
     {
-
-        $asterisk = new Asterisk();
-        return $asterisk->queues( true );
-
+        return $this->asterisk->queues( true );
     }
 
     public function remove ( $number )
     {
 
-        $asterisk = new Asterisk();
-        $asterisk->queueRemove( $number );
+        $this->asterisk->queueRemove( $number );
         $phoneSession = PhoneSession
             ::where( 'number', '=', $number )
             ->notClosed()
@@ -33,6 +35,30 @@ class AsteriskController extends BaseController
         if ( $phoneSession )
         {
             $phoneSession->close();
+        }
+
+    }
+
+    public function call ( Request $request )
+    {
+        if ( ! \Auth::user()->can( 'phone' ) || ! \Auth::user()->openPhoneSession ) return;
+
+        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
+
+        $ticket = Ticket::find( $request->get( 'ticket_id' ) );
+
+        if ( ! $ticket || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
+
+        $ticketCall = $ticket->createCall( $phone );
+
+        if ( $ticketCall instanceof MessageBag )
+        {
+            dd( $ticketCall );
+        }
+
+        if ( ! $this->asterisk->connectTwo( \Auth::user()->openPhoneSession->number, $phone, $ticketCall->id ) )
+        {
+            dd( $this->asterisk->last_result );
         }
 
     }

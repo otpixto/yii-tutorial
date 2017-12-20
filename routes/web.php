@@ -13,6 +13,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
 {
     Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
     Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
+    Route::post( '/rest/ticket-call', 'RestController@ticketCall' );
 });
 
 /*Route::prefix( 'ais' )->group( function ()
@@ -172,10 +173,11 @@ Route::group( [ 'middleware' => 'web' ], function ()
 
     });
 
-});
+    Route::prefix( 'asterisk' )->group( function ()
+    {
+        Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
+        Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
+        Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
+    });
 
-Route::prefix( 'asterisk' )->group( function ()
-{
-    Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
-    Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
 });
