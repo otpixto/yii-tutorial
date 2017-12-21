@@ -218,7 +218,7 @@ $( document )
                     value: phones[ i ].replace( /\D/g, '' ).substr( -10 )
 				});
 			}
-            var dialog = bootbox.prompt({
+            bootbox.prompt({
                 title: 'Выберите номер для совершения звонка',
                 inputType: 'select',
                 inputOptions: inputOptions,

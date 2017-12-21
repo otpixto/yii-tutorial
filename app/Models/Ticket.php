@@ -854,7 +854,6 @@ class Ticket extends BaseModel
         if ( $ticketCall )
         {
             $ticketCall->created_at = Carbon::now()->toDateTimeString();
-            $ticketCall->save();
         }
         else
         {
@@ -867,8 +866,8 @@ class Ticket extends BaseModel
             {
                 return $ticketCall;
             }
-            $ticketCall->save();
         }
+        $ticketCall->save();
         return $ticketCall;
     }
 
