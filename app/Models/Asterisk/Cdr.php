@@ -62,6 +62,11 @@ class Cdr extends BaseModel
         return $this->belongsTo( 'App\Models\Ticket', 'uniqueid', 'call_id' );
     }
 
+    public function ticketCall ()
+    {
+        return $this->belongsTo( 'App\Models\TicketCall', 'uniqueid', 'call_id' );
+    }
+
     public function hasMp3 ()
     {
         $headers = @get_headers( $this->getMp3() );
@@ -75,7 +80,7 @@ class Cdr extends BaseModel
 
     public function getCaller ()
     {
-        $res = null;
+        $res = mb_substr( $this->src, -11 );
         if ( $this->dcontext != 'incoming' && mb_strlen( $this->src ) == 2 )
         {
             $caller = User
@@ -94,12 +99,8 @@ class Cdr extends BaseModel
                 ->first();
             if ( $caller )
             {
-                $res = $this->src . ' (' .$caller->getShortName() . ')';
+                $res .= ' (' .$caller->getShortName() . ')';
             }
-        }
-        if ( ! $res )
-        {
-            $res = mb_substr( $this->src, -10 );
         }
         return $res;
     }
@@ -117,7 +118,7 @@ class Cdr extends BaseModel
         }
         if ( ! $res )
         {
-            $res = mb_substr( $this->dst, -10 );
+            $res = mb_substr( $this->dst, -11 );
         }
         return $res;
     }

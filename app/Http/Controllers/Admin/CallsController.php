@@ -20,7 +20,13 @@ class CallsController extends BaseController
     {
 
         $calls = Cdr
-            ::orderBy( 'id', 'desc' );
+            ::orderBy( 'id', 'desc' )
+            ->where( 'dst', '!=', 's' )
+            ->select(
+                '*',
+                \DB::raw( 'REPLACE( src, \'79295070506\', \'88005503115\' ) src' ),
+                \DB::raw( 'REPLACE( dst, \'79295070506\', \'88005503115\' ) dst' )
+            );
 
         if ( ! empty( $request->get( 'status' ) ) )
         {
@@ -48,14 +54,14 @@ class CallsController extends BaseController
         {
             $caller = mb_substr( preg_replace( '/\D/', '', $request->get( 'caller' ) ), - 10 );
             $calls
-                ->where( \DB::raw( 'RIGHT( src, 10 )' ), '=', $caller );
+                ->where( \DB::raw( 'RIGHT( REPLACE( src, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $caller );
         }
 
         if ( ! empty( $request->get( 'answer' ) ) )
         {
             $answer = mb_substr( preg_replace( '/\D/', '', $request->get( 'answer' ) ), - 10 );
             $calls
-                ->where( \DB::raw( 'RIGHT( dst, 10 )' ), '=', $answer );
+                ->where( \DB::raw( 'RIGHT( REPLACE( dst, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $answer );
         }
 
         if ( ! empty( $request->get( 'date_from' ) ) )

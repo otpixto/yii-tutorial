@@ -133,8 +133,12 @@
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    @if ( $call->ticket )
+                                    @if ( $call->dcontext == 'incoming' && $call->ticket )
                                         <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    @elseif ( $call->dcontext == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticketCall->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticketCall->ticket->id }}">
                                             <i class="fa fa-chevron-right"></i>
                                         </a>
                                     @endif
