@@ -388,7 +388,7 @@
 
             @if ( $ticketCalls->count() )
                 @foreach ( $ticketCalls as $ticketCall )
-                    @if ( $ticketCall->cdr->hasMp3() )
+                    @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="note">
