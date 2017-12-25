@@ -206,7 +206,7 @@ class TicketsController extends BaseController
                     'Текст обращения'       => $ticket->text,
                     'ФИО заявителя'         => $ticket->getName(),
                     'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                    'Адрес проживания'      => $ticket->customer->getAddress(),
+                    'Адрес проживания'      => $ticket->customer ? $ticket->customer->getAddress() : '',
                 ];
                 if ( $field_operator )
                 {
