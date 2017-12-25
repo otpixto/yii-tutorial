@@ -84,6 +84,11 @@ class Management extends BaseModel
         return $this->belongsTo( 'App\Models\Region' );
     }
 
+    public function users ()
+    {
+        return $this->belongsToMany( 'App\User', 'users_managements' );
+    }
+
     public function scopeCategory ( $query, $category_id )
     {
         return $query

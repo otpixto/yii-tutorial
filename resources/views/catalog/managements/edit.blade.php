@@ -107,55 +107,88 @@
 
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Оповещения в Telegram</h3>
-            </div>
-            <div class="panel-body">
+        <div class="row">
 
-                {!! Form::open( [ 'url' => route( 'managements.telegram' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
-                <div class="form-group">
-                    @if ( ! $management->telegram_code )
-                        <div class="col-xs-12">
-                            <button type="button" class="btn btn-success" data-action="telegram-on" data-id="{{ $management->id }}">Подключить</button>
-                        </div>
-                    @else
-                        <div class="col-xs-6">
-                            <button type="button" class="btn btn-danger" data-action="telegram-off" data-id="{{ $management->id }}">Отключить</button>
-                            <button type="button" class="btn btn-warning" data-action="telegram-gen" data-id="{{ $management->id }}">Сгенерировать пин-код</button>
-                        </div>
-                        <label class="col-xs-3 control-label">
-                            Пин-код
-                        </label>
-                        <div class="col-xs-3">
+            <div class="col-lg-6">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Оповещения в Telegram</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::open( [ 'url' => route( 'managements.telegram' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        <div class="form-group">
+                            @if ( ! $management->telegram_code )
+                                <div class="col-xs-12">
+                                    <button type="button" class="btn btn-success" data-action="telegram-on" data-id="{{ $management->id }}">Подключить</button>
+                                </div>
+                            @else
+                                <div class="col-xs-6">
+                                    <button type="button" class="btn btn-danger" data-action="telegram-off" data-id="{{ $management->id }}">Отключить</button>
+                                    <button type="button" class="btn btn-warning" data-action="telegram-gen" data-id="{{ $management->id }}">Сгенерировать пин-код</button>
+                                </div>
+                                <label class="col-xs-3 control-label">
+                                    Пин-код
+                                </label>
+                                <div class="col-xs-3">
                             <span class="form-control">
                                 {{ $management->telegram_code }}
                             </span>
-                        </div>
-                    @endif
-                </div>
-                {!! Form::close() !!}
-
-                <h3>
-                    Подписки
-                    ({{ $management->subscriptions->count() }})
-                </h3>
-
-                <ul class="list-group">
-                    @foreach ( $management->subscriptions as $subscription )
-                        <li class="list-group-item">
-                            {{ $subscription->getName() }}
-                            @if ( $subscription->username )
-                                <strong>&#64;{{ $subscription->username }}</strong>
+                                </div>
                             @endif
-                            <small>[{{ $subscription->telegram_id }}]</small>
-                            <a href="" class="badge badge-danger">
-                                <i class="fa fa-remove"></i>
-                                отписать
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+                        </div>
+                        {!! Form::close() !!}
+
+                        <h3>
+                            Подписки
+                            ({{ $management->subscriptions->count() }})
+                        </h3>
+
+                        <ul class="list-group">
+                            @foreach ( $management->subscriptions as $subscription )
+                                <li class="list-group-item">
+                                    {{ $subscription->getName() }}
+                                    @if ( $subscription->username )
+                                        <strong>&#64;{{ $subscription->username }}</strong>
+                                    @endif
+                                    <small>[{{ $subscription->telegram_id }}]</small>
+                                    <a href="" class="badge badge-danger">
+                                        <i class="fa fa-remove"></i>
+                                        отписать
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Пользователи</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            @foreach ( $management->users as $user )
+                                @if ( \Auth::user()->can( 'admin.users.edit' ) )
+                                    <a href="{{ route( 'users.edit', $user->id ) }}" class="list-group-item">
+                                        {!! $user->getFullName() !!}
+                                    </a>
+                                @else
+                                    <li class="list-group-item">
+                                        {!! $user->getFullName() !!}
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
 
             </div>
 
