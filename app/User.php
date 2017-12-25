@@ -230,7 +230,7 @@ class User extends Model implements
         {
             return '<b class="text-info">[Оператор ЕДС]</b>';
         }
-        elseif ( $this->hasRole( 'management' ) && $this->company )
+        elseif ( $this->company )
         {
             return '<b class="text-info">[' . $this->company . ']</b>';
         }
@@ -246,19 +246,24 @@ class User extends Model implements
 
     public function getFullName ()
     {
+        $return = $this->getName();
         if ( $this->hasRole( 'control' ) )
         {
-            return '<i>[Контролирующий]</i> ' . $this->getName();
+            $return = '<i>[Контролирующий]</i> ' . $return;
         }
         else if ( $this->hasRole( 'operator' ) )
         {
-            return '<i>[Оператор ЕДС]</i> ' . $this->getName();
+            $return = '<i>[Оператор ЕДС]</i> ' . $return;
         }
-        elseif ( $this->hasRole( 'management' ) && $this->managements->count() )
+        else if ( $this->company )
         {
-            return '<i>[' . ( $this->company ?? $this->managements()->first()->name ) . ']</i> ' . $this->getName();
+            $return = '<i>[' . $this->company . ']</i> ' . $return;
         }
-        return '';
+        else if ( $this->hasRole( 'management' ) && $this->managements->count() )
+        {
+            $return = '<i>[' . $this->managements()->first()->name . '] ' . $return;
+        }
+        return $return;
     }
 
     public function getAvailableStatuses ( $with_names = false )
