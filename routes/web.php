@@ -4,9 +4,9 @@
 
 Route::prefix( 'error' )->group( function ()
 {
-    Route::any( '404', 'ErrorsController@error404' )->name( '404' );
-    Route::any( '403', 'ErrorsController@error403' )->name( '403' );
-    Route::any( '500', 'ErrorsController@error500' )->name( '500' );
+    Route::any( '404', 'ErrorsController@error404' )->name( 'error.404' );
+    Route::any( '403', 'ErrorsController@error403' )->name( 'error.403' );
+    Route::any( '500', 'ErrorsController@error500' )->name( 'error.500' );
 });
 
 Route::group( [ 'middleware' => 'api' ], function ()
@@ -16,7 +16,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
     Route::post( '/rest/ticket-call', 'RestController@ticketCall' );
 });
 
-Route::group( [ 'middleware' => 'web' ], function ()
+Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
 {
 
     Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );

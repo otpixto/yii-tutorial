@@ -25,7 +25,7 @@ class CheckRegion
             $user = \Auth::user();
             if ( $user && $user->isActive() && ! $user->can( 'supervisor.all_regions' ) )
             {
-                return response( view('errors.403' ) );
+                return redirect()->route( 'error.403' );
             }
         }
         else
@@ -37,7 +37,7 @@ class CheckRegion
             }
             if ( \Auth::user() && ! Region::mine()->where( 'id', $region->id )->count() )
             {
-                return response( view('errors.403' ) );
+                return redirect()->route( 'error.403' );
             }
             Region::$current_region = $region;
         }

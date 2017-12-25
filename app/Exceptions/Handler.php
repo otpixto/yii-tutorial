@@ -43,15 +43,15 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render( $request, Exception $exception )
     {
-        if ( ! Region::isSystemUrl() )
+        if ( Region::isSystemUrl() )
         {
-            return parent::render($request, $exception);
+            return redirect()->route( 'error.403' );
         }
         else
         {
-            return response( view( 'errors.403' ) );
+            return parent::render( $request, $exception );
         }
     }
 
