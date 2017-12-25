@@ -261,7 +261,7 @@ class User extends Model implements
         }
         else if ( $this->hasRole( 'management' ) && $this->managements->count() )
         {
-            $return = '<i>[' . $this->managements()->first()->name . '] ' . $return;
+            $return = '<i>[' . $this->managements()->first()->name . ']</i> ' . $return;
         }
         return $return;
     }
