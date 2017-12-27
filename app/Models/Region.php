@@ -51,7 +51,7 @@ class Region extends BaseModel
     public function scopeMine ( $query )
     {
         if ( ! \Auth::user() ) return false;
-        if ( ! Region::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        if ( ! self::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_regions' ) )
         {
             $query
                 ->whereIn( $this->getTable() . '.id', \Auth::user()->regions->pluck( 'id' ) );
