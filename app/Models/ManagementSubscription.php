@@ -79,7 +79,7 @@ class ManagementSubscription extends BaseModel
             $errorData = $e->getResponseData();
             if ( $errorData['ok'] === false )
             {
-                $this->addLog( 'Подписка удалена по причине "' . $errorData['description'] . '"' );
+                $this->addLog( 'Подписка прекращена по причине "' . $errorData['description'] . '"' );
                 $this->delete();
             }
             return false;
