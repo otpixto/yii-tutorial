@@ -22,11 +22,11 @@ class AddressesController extends BaseController
         Title::add( 'Здания' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
-        $region = \Input::get( 'region' );
+        $search = trim( $request->get( 'search', '' ) );
+        $region = $request->get( 'region' );
 
         $addresses = Address
             ::mine()
@@ -48,7 +48,7 @@ class AddressesController extends BaseController
 
         $addresses = $addresses
             ->paginate( 30 )
-            ->appends( compact( 'search' ) );
+            ->appends( $request->all() );
 
         $regions = Region
             ::mine()

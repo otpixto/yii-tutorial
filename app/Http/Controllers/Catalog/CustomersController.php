@@ -18,10 +18,10 @@ class CustomersController extends BaseController
         Title::add( 'Заявители' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
 
         $customers = Customer
             ::orderBy( 'lastname' )
@@ -65,7 +65,9 @@ class CustomersController extends BaseController
             })->export( 'xls' );
         }
 
-        $customers = $customers->paginate( 30 );
+        $customers = $customers
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         return view( 'catalog.customers.index' )
             ->with( 'customers', $customers );

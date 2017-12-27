@@ -37,12 +37,12 @@ class UsersController extends BaseController
         return redirect()->route( 'home' );
     }
 
-    public function index ()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
-        $role = trim( \Input::get( 'role', '' ) );
-        $region = trim( \Input::get( 'region', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
+        $role = trim( $request->get( 'role', '' ) );
+        $region = trim( $request->get( 'region', '' ) );
 
         if ( !empty( $role ) )
         {
@@ -88,7 +88,9 @@ class UsersController extends BaseController
                 });
         }
 
-        $users = $users->paginate( 30 );
+        $users = $users
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         $roles = Role::orderBy( 'name' )->get();
 

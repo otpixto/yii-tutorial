@@ -19,12 +19,12 @@ class ManagementsController extends BaseController
         Title::add( 'Управляющие организации' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
-        $region = \Input::get( 'region' );
-        $category = \Input::get( 'category' );
+        $search = trim( $request->get( 'search', '' ) );
+        $region = $request->get( 'region' );
+        $category = $request->get( 'category' );
 
         $managements = Management
             ::orderBy( 'name' );
@@ -88,7 +88,9 @@ class ManagementsController extends BaseController
             })->export( 'xls' );
         }
 
-        $managements = $managements->paginate( 30 );
+        $managements = $managements
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         $regions = Region
             ::mine()

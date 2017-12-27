@@ -16,10 +16,10 @@ class PermsController extends BaseController
         Title::add( 'Права' );
     }
 
-    public function index ()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
 
         if ( !empty( $search ) )
         {
@@ -34,7 +34,8 @@ class PermsController extends BaseController
                 })
                 ->orderBy( 'code' )
                 ->orderBy( 'name' )
-                ->paginate( 30 );
+                ->paginate( 30 )
+                ->appends( $request->all() );
         }
         else
         {

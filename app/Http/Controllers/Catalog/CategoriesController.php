@@ -16,10 +16,10 @@ class CategoriesController extends BaseController
         Title::add( 'Категории обращений' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
 
         $categories = Category
             ::orderBy( 'name' );
@@ -35,7 +35,9 @@ class CategoriesController extends BaseController
                 });
         }
 
-        $categories = $categories->paginate( 30 );
+        $categories = $categories
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         return view( 'catalog.categories.index' )
             ->with( 'categories', $categories );

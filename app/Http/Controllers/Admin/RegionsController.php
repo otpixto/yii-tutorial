@@ -17,10 +17,10 @@ class RegionsController extends BaseController
         Title::add( 'Регионы' );
     }
 
-    public function index ()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
 
         $regions = Region
             ::orderBy( 'name' );
@@ -32,7 +32,9 @@ class RegionsController extends BaseController
                 ->where( 'name', 'like', $s );
         }
 
-        $regions = $regions->paginate( 30 );
+        $regions = $regions
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         return view('admin.regions.index' )
             ->with( 'regions', $regions );

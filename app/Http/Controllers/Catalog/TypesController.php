@@ -19,11 +19,11 @@ class TypesController extends BaseController
         Title::add( 'Классификатор' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
-        $category = trim( \Input::get( 'category', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
+        $category = trim( $request->get( 'category', '' ) );
 
         $types = Type
             ::select(
@@ -53,7 +53,9 @@ class TypesController extends BaseController
                 });
         }
 
-        $types = $types->paginate( 30 );
+        $types = $types
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         $categories = Category::orderBy( 'name' )->get();
 

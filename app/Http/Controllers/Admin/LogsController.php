@@ -54,7 +54,9 @@ class LogsController extends BaseController
                 ->where( 'author_id', '=', $request->get( 'author_id' ) );
         }
 
-        $logs = $logs->paginate( 30 );
+        $logs = $logs
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         $res = Log
             ::select(

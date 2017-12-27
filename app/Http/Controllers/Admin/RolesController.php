@@ -16,10 +16,10 @@ class RolesController extends BaseController
         Title::add( 'Роли' );
     }
 
-    public function index ()
+    public function index ( Request $request )
     {
 
-        $search = trim( \Input::get( 'search', '' ) );
+        $search = trim( $request->get( 'search', '' ) );
 
         $roles = Role
             ::orderBy( 'code' );
@@ -36,7 +36,9 @@ class RolesController extends BaseController
                 });
         }
 
-        $roles = $roles->paginate( 30 );
+        $roles = $roles
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         return view('admin.roles.index' )
             ->with( 'roles', $roles );
