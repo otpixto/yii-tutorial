@@ -35,8 +35,7 @@ class AddressesController extends BaseController
 
         $addresses = Address
             ::mine()
-            ->orderBy( 'name' )
-            ->whereIn( 'region_id', $regions->pluck( 'id' ) );
+            ->orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
