@@ -28,9 +28,15 @@ class AddressesController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $region = $request->get( 'region' );
 
+        $regions = Region
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         $addresses = Address
             ::mine()
-            ->orderBy( 'name' );
+            ->orderBy( 'name' )
+            ->whereIn( 'region_id', $regions->pluck( 'id' ) );
 
         if ( !empty( $search ) )
         {
@@ -49,11 +55,6 @@ class AddressesController extends BaseController
         $addresses = $addresses
             ->paginate( 30 )
             ->appends( $request->all() );
-
-        $regions = Region
-            ::mine()
-            ->orderBy( 'name' )
-            ->get();
 
         return view( 'catalog.addresses.index' )
             ->with( 'addresses', $addresses )
