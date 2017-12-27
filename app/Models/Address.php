@@ -42,16 +42,13 @@ class Address extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( ! \Auth::user()->can( 'supervisor.all_regions' ) )
-        {
-            $query
-                ->whereHas( 'region', function ( $q )
-                {
-                    return $q
-                        ->mine();
-                });
-        }
-        return $query;
+        return $query
+            ->whereHas( 'region', function ( $q )
+            {
+                return $q
+                    ->mine()
+                    ->current();
+            });
     }
 
 }
