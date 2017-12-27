@@ -401,7 +401,7 @@ class ManagementsController extends BaseController
         $subscription = ManagementSubscription::find( $request->get( 'id' ) );
         if ( $subscription )
         {
-            if ( $subscription->sendTelegram( '<i>Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена</i>' ) )
+            if ( $subscription->sendTelegram( '<em>Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена</em>' ) )
             {
                 $subscription->addLog( 'Подписка удалена' );
                 $subscription->delete();
