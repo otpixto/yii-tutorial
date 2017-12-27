@@ -21,10 +21,7 @@ class BaseModel extends Model
         'deleted_at'
     ];
 
-    public function getModelName ()
-    {
-        return self::$name ?? null;
-    }
+    protected $guarded = [];
 
     public function addComment ( $text )
     {
