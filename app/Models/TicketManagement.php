@@ -543,34 +543,7 @@ class TicketManagement extends BaseModel
 
         foreach ( $this->management->subscriptions as $subscription )
         {
-            try
-            {
-                $response = \Telegram::sendMessage([
-                    'chat_id'                   => $subscription->telegram_id,
-                    'text'                      => $message,
-                    'parse_mode'                => 'html',
-                    'disable_web_page_preview'  => true
-                ]);
-                $chat = $response->getChat();
-                if ( $chat )
-                {
-                    $attributes = [
-                        'first_name' => $chat->getFirstName() ?? null,
-                        'last_name' => $chat->getLastName() ?? null,
-                        'username' => $chat->getUsername()
-                    ];
-                    $subscription->edit( $attributes );
-                }
-            }
-            catch ( TelegramResponseException $e )
-            {
-                $errorData = $e->getResponseData();
-                if ( $errorData['ok'] === false )
-                {
-                    $subscription->addLog( 'Подписка удалена по причине "' . $errorData['description'] . '"' );
-                    $subscription->delete();
-                }
-            }
+            $subscription->sendTelegram( $message );
         }
 
     }

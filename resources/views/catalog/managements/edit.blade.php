@@ -142,26 +142,27 @@
                         </div>
                         {!! Form::close() !!}
 
-                        <h3>
-                            Подписки
-                            ({{ $management->subscriptions->count() }})
-                        </h3>
-
-                        <ul class="list-group">
-                            @foreach ( $management->subscriptions as $subscription )
-                                <li class="list-group-item">
-                                    {{ $subscription->getName() }}
-                                    @if ( $subscription->username )
-                                        <strong>&#64;{{ $subscription->username }}</strong>
-                                    @endif
-                                    <small>[{{ $subscription->telegram_id }}]</small>
-                                    <a href="" class="badge badge-danger">
-                                        <i class="fa fa-remove"></i>
-                                        отписать
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
+                        @if ( $management->telegram_code )
+                            <h3>
+                                Подписки
+                                ({{ $management->subscriptions->count() }})
+                            </h3>
+                            <ul class="list-group">
+                                @foreach ( $management->subscriptions as $subscription )
+                                    <li class="list-group-item" data-subscribe="{{ $subscription->id }}">
+                                        {{ $subscription->getName() }}
+                                        @if ( $subscription->username )
+                                            <strong>&#64;{{ $subscription->username }}</strong>
+                                        @endif
+                                        <small>[{{ $subscription->telegram_id }}]</small>
+                                        <a href="javascript:;" class="badge badge-danger" data-action="unsubscribe" data-id="{{ $subscription->id }}">
+                                            <i class="fa fa-remove"></i>
+                                            отписать
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
 
                     </div>
 
@@ -510,6 +511,42 @@
                                 action: 'gen'
                             }, function (response) {
                                 window.location.reload();
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-action="unsubscribe"]', function ( e ) {
+
+                e.preventDefault();
+
+                var id = $(this).attr( 'data-id' );
+
+                bootbox.confirm({
+                    message: 'Вы уверены, что хотите отменить подписку?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            $( '[data-subscribe="' + id + '"]' ).remove();
+
+                            $.post( '{{ route( 'managements.unsubscribe' ) }}', {
+                                id: id
                             });
 
                         }

@@ -37,7 +37,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
-        'eds' => [
+        'srm' => [
             'check.region',
             'counter',
         ],

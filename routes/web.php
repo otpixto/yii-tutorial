@@ -11,12 +11,22 @@ Route::prefix( 'error' )->group( function ()
 
 Route::group( [ 'middleware' => 'api' ], function ()
 {
+
     Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
-    Route::post( '/rest/call', 'RestController@createOrUpdateCallDraft' );
-    Route::post( '/rest/ticket-call', 'RestController@ticketCall' );
+
+    Route::prefix( 'rest' )->group( function ()
+    {
+
+        Route::any( '/', 'RestController@index' );
+
+        Route::post( 'call', 'RestController@createOrUpdateCallDraft' );
+        Route::post( 'ticket-call', 'RestController@ticketCall' );
+
+    });
+
 });
 
-Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
+Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 {
 
     Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
@@ -32,31 +42,25 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
     Route::post( 'forgot', 'Auth\ForgotPasswordController@sendResetLinkEmail' )->name( 'password.email' );
     Route::get( 'reset/{token}', 'Auth\ResetPasswordController@showResetForm' )->name( 'reset' );
     Route::post( 'reset', 'Auth\ResetPasswordController@reset' );
-
     Route::resource( '/news', 'NewsController' );
     Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
 
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
-
         Route::get( '/', 'HomeController@index' )->name( 'home' );
         Route::get( '/about', 'HomeController@about' )->name( 'about' );
-
         Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
-
         Route::get( '/profile/phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
         Route::get( '/profile/phone-reg', 'ProfileController@getPhoneReg' )->name( 'profile.phone_reg' );
         Route::post( '/profile/phone-reg', 'ProfileController@postPhoneReg' );
         Route::get( '/profile/phone-confirm', 'ProfileController@getPhoneConfirm' )->name( 'profile.phone_confirm' );
         Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
         Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
-
         Route::get( '/tickets/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
         Route::post( '/tickets/{id}/add-management', 'Operator\TicketsController@postAddManagement' );
         Route::post( '/tickets/del-management', 'Operator\TicketsController@postDelManagement' )->name( 'tickets.del_management' );
         Route::get( '/tickets/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
         Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
-
         Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
         Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
         Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
@@ -71,22 +75,16 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
         Route::resource( '/tickets', 'Operator\TicketsController' );
         Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
         Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
-
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
-
         Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
         Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
-
         Route::post( '/managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
         Route::post( '/types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
-
         Route::get( '/addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
         Route::get( '/binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
-
         Route::get( '/customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
         Route::get( '/customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
-
         Route::get( '/works/search', 'Operator\WorksController@search' )->name( 'works.search' );
         Route::resource( '/works', 'Operator\WorksController' );
         Route::resource( '/schedule', 'Operator\ScheduleController' );
@@ -113,7 +111,6 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
 
         Route::prefix( 'catalog' )->group( function ()
         {
-
             Route::get( 'addresses/types/add', 'Catalog\AddressesController@getAddTypes' )->name( 'addresses.types.add' );
             Route::post( 'addresses/types/add', 'Catalog\AddressesController@postAddTypes' )->name( 'addresses.types.add' );
             Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );
@@ -121,9 +118,7 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
             Route::post( 'addresses/managements/add', 'Catalog\AddressesController@postAddManagements' )->name( 'addresses.managements.add' );
             Route::post( 'addresses/managements/del', 'Catalog\AddressesController@delManagement' )->name( 'addresses.managements.del' );
             Route::resource( 'addresses', 'Catalog\AddressesController' );
-
             Route::resource( 'categories', 'Catalog\CategoriesController' );
-
             Route::get( 'types/addresses/add', 'Catalog\TypesController@getAddAddresses' )->name( 'types.addresses.add' );
             Route::post( 'types/addresses/add', 'Catalog\TypesController@postAddAddresses' )->name( 'types.addresses.add' );
             Route::post( 'types/addresses/del', 'Catalog\TypesController@delAddress' )->name( 'types.addresses.del' );
@@ -131,7 +126,7 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
             Route::post( 'types/managements/add', 'Catalog\TypesController@postAddManagements' )->name( 'types.managements.add' );
             Route::post( 'types/managements/del', 'Catalog\TypesController@delManagement' )->name( 'types.managements.del' );
             Route::resource( 'types', 'Catalog\TypesController' );
-
+            Route::post( 'managements/unsubscribe', 'Catalog\ManagementsController@unsubscribe' )->name( 'managements.unsubscribe' );
             Route::post( 'managements/telegram', 'Catalog\ManagementsController@telegram' )->name( 'managements.telegram' );
             Route::get( 'managements/types/add', 'Catalog\ManagementsController@getAddTypes' )->name( 'managements.types.add' );
             Route::post( 'managements/types/add', 'Catalog\ManagementsController@postAddTypes' )->name( 'managements.types.add' );
@@ -140,29 +135,22 @@ Route::group( [ 'middleware' => [ 'web', 'eds' ] ], function ()
             Route::post( 'managements/addresses/add', 'Catalog\ManagementsController@postAddAddresses' )->name( 'managements.addresses.add' );
             Route::post( 'managements/addresses/del', 'Catalog\ManagementsController@delAddress' )->name( 'managements.addresses.del' );
             Route::resource( 'managements', 'Catalog\ManagementsController' );
-
             Route::resource( 'customers', 'Catalog\CustomersController' );
-
         });
 
         Route::prefix( 'admin' )->group( function ()
         {
-
             //Route::get( '/', 'AdminController@getIndex' )->name( 'admin' );
-
             Route::resource( 'users', 'Admin\UsersController' );
             Route::resource( 'roles', 'Admin\RolesController' );
             Route::resource( 'perms', 'Admin\PermsController' );
             Route::resource( 'logs', 'Admin\LogsController' );
             Route::resource( 'sessions', 'Admin\SessionsController' );
             Route::resource( 'calls', 'Admin\CallsController' );
-
             Route::resource( 'regions', 'Admin\RegionsController' );
             Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );
             Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
-
             Route::get( 'loginas/{id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
-
         });
 
     });

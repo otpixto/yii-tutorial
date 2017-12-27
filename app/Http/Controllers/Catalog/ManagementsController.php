@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Address;
-use App\Models\AddressManagement;
-use App\Models\Category;
 use App\Models\Management;
+use App\Models\ManagementSubscription;
 use App\Models\Region;
 use App\Models\Type;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class ManagementsController extends BaseController
 {
@@ -287,7 +285,7 @@ class ManagementsController extends BaseController
     public function postAddAddresses ( Request $request )
     {
 
-        $management = Management::find( $request->get( 'type_id' ) );
+        $management = Management::find( $request->get( 'management_id' ) );
         if ( ! $management )
         {
             return redirect()->back()
@@ -394,6 +392,20 @@ class ManagementsController extends BaseController
         }
 
         $management->save();
+
+    }
+
+    public function unsubscribe ( Request $request )
+    {
+
+        $subscription = ManagementSubscription::find( $request->get( 'id' ) );
+        if ( $subscription )
+        {
+            if ( $subscription->sendTelegram( 'Ваша подписка прекращена' ) )
+            {
+                $subscription->delete();
+            }
+        }
 
     }
 

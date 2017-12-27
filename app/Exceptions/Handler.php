@@ -45,14 +45,7 @@ class Handler extends ExceptionHandler
      */
     public function render( $request, Exception $exception )
     {
-        if ( Region::isSystemUrl() )
-        {
-            return redirect()->route( 'error.403' );
-        }
-        else
-        {
-            return parent::render( $request, $exception );
-        }
+        return parent::render( $request, $exception );
     }
 
     /**

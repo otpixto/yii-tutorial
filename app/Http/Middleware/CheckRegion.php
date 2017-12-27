@@ -22,8 +22,7 @@ class CheckRegion
         }
         else if ( Region::isOperatorUrl() )
         {
-            $user = \Auth::user();
-            if ( $user && $user->isActive() && ! $user->can( 'supervisor.all_regions' ) )
+            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->can( 'supervisor.all_regions' ) )
             {
                 return redirect()->route( 'error.403' );
             }
@@ -35,7 +34,7 @@ class CheckRegion
             {
                 return response( view('errors.404' ) );
             }
-            if ( \Auth::user() && ! Region::mine()->where( 'id', $region->id )->count() )
+            if ( \Auth::user() && \Auth::user()->isActive() && ! Region::mine()->where( 'id', $region->id )->count() )
             {
                 return redirect()->route( 'error.403' );
             }

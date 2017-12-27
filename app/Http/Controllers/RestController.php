@@ -21,13 +21,18 @@ class RestController extends Controller
         101         => 'Авторизованный телефон не найден',
         102         => 'Пользователь отключен',
         103         => 'Для данного пользователя уже создан черновик',
-        104         => 'Запись о звонке не найдена в БД'
+        104         => 'Запись о звонке не найдена в БД',
     ];
 
     public function __construct ()
     {
         $this->logs = new Logger( 'REST' );
         $this->logs->pushHandler( new StreamHandler( storage_path( '/logs/rest.log' ) ) );
+    }
+
+    public function index ()
+    {
+
     }
 
     public function createOrUpdateCallDraft ( Request $request )
