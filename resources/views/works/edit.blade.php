@@ -16,12 +16,14 @@
 
         <div class="col-lg-6">
 
-            <div class="form-group">
-                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+            @if ( $regions->count() > 1 )
+                <div class="form-group">
+                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    <div class="col-xs-9">
+                        {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -48,12 +50,22 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ', 'required' ] ) !!}
+                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
-                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ', 'required' ] ) !!}
+                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (план.)', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-5">
+                    {!! Form::text( 'date_end_fact', \Input::old( 'date_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y' ) : null ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (факт.)' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_end_fact', \Input::old( 'time_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'H:i' ) : null ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (факт.)' ] ) !!}
                 </div>
             </div>
 
@@ -100,20 +112,19 @@
 
     </div>
 
-    <div class="form-group">
-        <div class="col-xs-4">
+    <div class="row margin-top-10">
+        <div class="col-lg-6 margin-bottom-10">
             <button type="submit" class="btn green btn-block btn-lg">
                 <i class="fa fa-edit"></i>
                 Сохранить
             </button>
         </div>
-    </div>
-
-    {!! Form::close() !!}
-
-    <div class="row margin-top-10">
-        <div class="col-xs-12">
+        <div class="col-lg-6">
             <div class="note">
+                <button type="button" class="btn blue btn-lg pull-right" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
+                    <i class="fa fa-comment"></i>
+                    Добавить комментарий
+                </button>
                 <h4>Комментарии</h4>
                 @if ( $work->comments->count() )
                     @include( 'parts.comments', [ 'comments' => $work->comments ] )
@@ -122,14 +133,7 @@
         </div>
     </div>
 
-    <div class="row margin-top-10">
-        <div class="col-xs-12">
-            <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
-                <i class="fa fa-comment"></i>
-                Добавить комментарий
-            </button>
-        </div>
-    </div>
+    {!! Form::close() !!}
 
 @endsection
 
@@ -211,9 +215,9 @@
                     autoclose: true,
                     minuteStep: 5,
                     showSeconds: false,
-                    showMeridian: false
+                    showMeridian: false,
+                    defaultTime: false
                 });
-
 
             })
 

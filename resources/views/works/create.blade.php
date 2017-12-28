@@ -16,12 +16,14 @@
 
         <div class="col-lg-6">
 
-            <div class="form-group">
-                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+            @if ( $regions->count() > 1 )
+                <div class="form-group">
+                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    <div class="col-xs-9">
+                        {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -48,12 +50,12 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::text( 'date_end', \Input::old( 'date_end', date( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ', 'required' ] ) !!}
+                    {!! Form::text( 'date_end', \Input::old( 'date_end', date( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
-                    {!! Form::text( 'time_end', \Input::old( 'time_end' ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ', 'required' ] ) !!}
+                    {!! Form::text( 'time_end', \Input::old( 'time_end' ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (план.)', 'required' ] ) !!}
                 </div>
             </div>
 

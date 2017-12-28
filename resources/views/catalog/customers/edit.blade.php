@@ -20,6 +20,25 @@
 
                 <div class="form-group">
 
+                    <div class="col-xs-3">
+                        {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $customer->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'actual_address_id', $customer->actualAddress ? $customer->actualAddress->pluck( 'name', 'id' ) : [], $customer->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
                     <div class="col-xs-4">
                         {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'lastname', \Input::old( 'lastname', $customer->lastname ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
@@ -52,20 +71,6 @@
                     <div class="col-xs-4">
                         {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::email( 'email', \Input::old( 'email', $customer->email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-
-                    <div class="col-xs-4">
-                        {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'actual_address_id', $customer->actualAddress ? $customer->actualAddress->pluck( 'name', 'id' ) : [], $customer->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required' ] ) !!}
-                    </div>
-
-                    <div class="col-xs-4">
-                        {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
                     </div>
 
                 </div>

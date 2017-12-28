@@ -33,83 +33,146 @@
 
     @if ( \Auth::user()->can( 'catalog.customers.show' ) )
 
-        <div class="row hidden-print">
-            <div class="col-xs-12">
-                {!! Form::open( [ 'method' => 'get' ] ) !!}
-                <div class="input-group">
-                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa fa-search"></i>
-                            Поиск
-                        </button>
-                    </span>
+        <div class="todo-ui">
+            <div class="todo-sidebar">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption" data-toggle="collapse" data-target="#search">
+                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
+                        </div>
+                        <a href="{{ route( 'customers.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                    </div>
+                    <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
+                        <div class="todo-project-list">
+                            {!! Form::open( [ 'method' => 'get' ] ) !!}
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-xs-12">
+                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
+                                </div>
+                            </div>
+                            {!! Form::hidden( 'region', \Input::get( 'region' ) ) !!}
+                            {!! Form::close() !!}
+                        </div>
+                    </div>
                 </div>
-                {!! Form::close() !!}
-            </div>
-        </div>
 
-        <div class="row margin-top-15">
-            <div class="col-xs-12">
-
-                @if ( $customers->count() )
-
-                    {{ $customers->render() }}
-
-                    <table class="table table-hover table-striped">
-                        <thead>
-                        <tr>
-                            <th>
-                                ФИО
-                            </th>
-                            <th>
-                                Телефон(ы)
-                            </th>
-                            <th>
-                                Адрес
-                            </th>
-                            <th>
-                                E-mail
-                            </th>
-                            <th class="text-right">
-                                &nbsp;
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ( $customers as $customer )
-                            <tr>
-                                <td>
-                                    {{ $customer->getName() }}
-                                </td>
-                                <td>
-                                    {{ $customer->getPhones() }}
-                                </td>
-                                <td>
-                                    {{ $customer->getAddress() }}
-                                </td>
-                                <td>
-                                    {{ $customer->email }}
-                                </td>
-                                <td class="text-right">
-                                    @if ( \Auth::user()->can( 'catalog.customers.edit' ) )
-                                        <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-info">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-
-                    {{ $customers->render() }}
-
-                @else
-                    @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                @if ( $regions->count() > 1 )
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                                <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
+                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body todo-project-list-content" style="height: auto;">
+                            <div class="todo-project-list">
+                                <ul class="nav nav-stacked">
+                                    @foreach ( $regions as $region )
+                                        <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
+                                            <a href="?region={{ $region->id }}">
+                                                {{ $region->name }}
+                                                <span class="badge badge-info pull-right">
+                                                    {{ $region->customers->count() }}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 @endif
 
             </div>
+            <!-- END TODO SIDEBAR -->
+
+            <!-- BEGIN CONTENT -->
+            <div class="todo-content">
+                <div class="portlet light ">
+                    <div class="portlet-body">
+
+                        @if ( $customers->count() )
+
+                            {{ $customers->render() }}
+
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    @if ( $regions->count() > 1 )
+                                        <th>
+                                            Регион
+                                        </th>
+                                    @endif
+                                    <th>
+                                        ФИО
+                                    </th>
+                                    <th>
+                                        Телефон(ы)
+                                    </th>
+                                    <th>
+                                        Адрес
+                                    </th>
+                                    @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
+                                        <th class="text-center">
+                                            Заявки
+                                        </th>
+                                    @endif
+                                    <th class="text-right">
+                                        &nbsp;
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ( $customers as $customer )
+                                    <tr>
+                                        @if ( $regions->count() > 1 )
+                                            <td>
+                                                {{ $customer->region->name }}
+                                            </td>
+                                        @endif
+                                        <td>
+                                            {{ $customer->getName() }}
+                                        </td>
+                                        <td>
+                                            {{ $customer->getPhones() }}
+                                        </td>
+                                        <td>
+                                            {{ $customer->getAddress() }}
+                                        </td>
+                                        @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" class="badge badge-{{ $customer->tickets->count() ? 'info' : 'default' }} bold">
+                                                    {{ $customer->tickets->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
+                                        <td class="text-right">
+                                            @if ( \Auth::user()->can( 'catalog.customers.edit' ) )
+                                                <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-info">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+
+                            {{ $customers->render() }}
+
+                        @else
+                            @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+            <!-- END CONTENT -->
         </div>
 
     @else

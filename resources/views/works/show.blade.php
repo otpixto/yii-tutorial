@@ -53,10 +53,19 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Дата окончания работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y H:i' ) : '-' }}
                     </span>
                 </div>
             </div>

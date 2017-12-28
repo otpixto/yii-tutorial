@@ -51,7 +51,7 @@ class WorksController extends BaseController
         {
             $works
                 ->whereRaw( 'DATE( time_begin ) <= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] )
-                ->whereRaw( 'DATE( time_end ) >= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] );
+                ->whereRaw( 'DATE( time_end_fact ) >= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] );
         }
 
         if ( !empty( \Input::get( 'type_id' ) ) )
@@ -77,7 +77,7 @@ class WorksController extends BaseController
                 ->where( 'management_id', '=', \Input::get( 'management_id' ) );
         }
 
-        if ( \Input::get( 'export' ) == 1 && ( \Auth::user()->admin || \Auth::user()->can( 'works.export' ) ) )
+        if ( \Input::get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
         {
             $works = $works->get();
             $data = [];
@@ -109,6 +109,7 @@ class WorksController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
@@ -142,11 +143,12 @@ class WorksController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
         return view( 'works.create' )
-            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'regions', $regions )
             ->with( 'addresses', $addresses );
@@ -191,7 +193,7 @@ class WorksController extends BaseController
 
         \DB::commit();
 
-        return redirect()->route( 'works.index' )
+        return redirect()->route( 'works.edit', $work->id )
             ->with( 'success', 'Сообщение успешно добавлено' );
 
     }
@@ -252,6 +254,7 @@ class WorksController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 

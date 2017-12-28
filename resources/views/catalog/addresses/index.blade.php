@@ -50,30 +50,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                            <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
-                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+
+                @if ( $regions->count() > 1 )
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                                <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
+                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body todo-project-list-content" style="height: auto;">
+                            <div class="todo-project-list">
+                                <ul class="nav nav-stacked">
+                                    @foreach ( $regions as $region )
+                                        <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
+                                            <a href="?region={{ $region->id }}">
+                                                {{ $region->name }}
+                                                <span class="badge badge-info pull-right">
+                                                    {{ $region->addresses->count() }}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
-                        <div class="todo-project-list">
-                            <ul class="nav nav-stacked">
-                                @foreach ( $regions as $region )
-                                    <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
-                                        <a href="?region={{ $region->id }}">
-                                            {{ $region->name }}
-                                            <span class="badge badge-info pull-right">
-                                                {{ $region->addresses->count() }}
-                                            </span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                @endif
+
             </div>
             <!-- END TODO SIDEBAR -->
 
@@ -89,14 +93,19 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th>
-                                        Регион
-                                    </th>
+                                    @if ( $regions->count() > 1 )
+                                        <th width="10%">
+                                            Регион
+                                        </th>
+                                    @endif
                                     <th>
                                         Адрес
                                     </th>
-                                    <th>
-                                        GUID
+                                    <th class="text-center">
+                                        УО
+                                    </th>
+                                    <th class="text-center">
+                                        Классификатор
                                     </th>
                                     <th class="text-right">
                                         &nbsp;
@@ -106,14 +115,23 @@
                                 <tbody>
                                 @foreach ( $addresses as $address )
                                     <tr>
-                                        <td>
-                                            {{ $address->region->name ?? '-' }}
-                                        </td>
+                                        @if ( $regions->count() > 1 )
+                                            <td>
+                                                {{ $address->region->name ?? '-' }}
+                                            </td>
+                                        @endif
                                         <td>
                                             {{ $address->getAddress() }}
                                         </td>
-                                        <td>
-                                            {{ $address->guid }}
+                                        <td class="text-center">
+                                            <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements->count() ? 'info' : 'default' }} bold">
+                                                {{ $address->managements->count() }}
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route( 'types.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->types->count() ? 'info' : 'default' }} bold">
+                                                {{ $address->types->count() }}
+                                            </a>
                                         </td>
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.addresses.edit' ) )

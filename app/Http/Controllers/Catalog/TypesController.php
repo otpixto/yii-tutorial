@@ -24,6 +24,7 @@ class TypesController extends BaseController
 
         $search = trim( $request->get( 'search', '' ) );
         $category = trim( $request->get( 'category', '' ) );
+        $address = trim( $request->get( 'address', '' ) );
 
         $types = Type
             ::select(
@@ -50,6 +51,16 @@ class TypesController extends BaseController
                         ->where( 'types.name', 'like', $s )
                         ->orWhere( 'categories.name', 'like', $s )
                         ->orWhere( 'types.guid', 'like', $s );
+                });
+        }
+
+        if ( !empty( $address ) )
+        {
+            $types
+                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                {
+                    return $q
+                        ->where( 'address_id', '=', $address );
                 });
         }
 
@@ -136,10 +147,12 @@ class TypesController extends BaseController
         }
 
         $typeAddresses = $type->addresses()
+            ->mine()
             ->orderBy( 'name' )
             ->get();
 
         $typeManagements = $type->managements()
+            ->mine()
             ->orderBy( 'name' )
             ->get();
 

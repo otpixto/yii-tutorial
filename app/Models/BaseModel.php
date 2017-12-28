@@ -21,7 +21,9 @@ class BaseModel extends Model
         'deleted_at'
     ];
 
-    protected $guarded = [];
+    protected $guarded = [
+        'id'
+    ];
 
     public function addComment ( $text )
     {
@@ -32,6 +34,10 @@ class BaseModel extends Model
             'origin_model_name'		    => get_class( $this ),
             'text'                      => $text
         ]);
+        if ( $comment instanceof MessageBag )
+        {
+            return $comment;
+        }
         $comment->save();
         $res = $comment->addLog( 'Добавлен комментарий' );
         if ( $res instanceof MessageBag )
@@ -48,6 +54,10 @@ class BaseModel extends Model
             'model_name'	=> get_class( $this ),
             'text'          => $text
         ]);
+        if ( $tag instanceof MessageBag )
+        {
+            return $tag;
+        }
         $tag->save();
         $res = $tag->addLog( 'Добавлен тег' );
         if ( $res instanceof MessageBag )
@@ -114,6 +124,10 @@ class BaseModel extends Model
         {
             $new->author_id = Auth::user()->id;
         }
+        if ( Schema::hasColumn( $new->getTable(), 'region_id' ) && ! $new->region_id && Region::getCurrent() )
+        {
+            $new->region_id = Region::$current_region->id;
+        }
         return $new;
     }
 
@@ -134,7 +148,7 @@ class BaseModel extends Model
         $oldValues = $this->getAttributes();
         foreach ( $newValues as $field => $val )
         {
-            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val ) continue;
+            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val || in_array( $field, $this->guarded ) ) continue;
             $log = $this->saveLog( $field, $oldValues[ $field ], $val );
             if ( $log instanceof MessageBag )
             {

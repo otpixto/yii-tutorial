@@ -16,6 +16,7 @@ class Customer extends BaseModel
     private $_limit = null;
 
     public static $rules = [
+        'region_id'             => 'nullable|integer',
         'firstname'             => 'required|max:191',
         'middlename'            => 'nullable|max:191',
         'lastname'              => 'required|max:191',
@@ -27,6 +28,7 @@ class Customer extends BaseModel
     ];
 
     protected $nullable = [
+        'region_id',
         'email',
 		'middlename',
 		'actual_address_id',
@@ -34,6 +36,7 @@ class Customer extends BaseModel
     ];
 
     protected $fillable = [
+        'region_id',
         'firstname',
         'middlename',
         'lastname',
@@ -52,6 +55,11 @@ class Customer extends BaseModel
     public function actualAddress ()
     {
         return $this->belongsTo( 'App\Models\Address' );
+    }
+
+    public function region ()
+    {
+        return $this->belongsTo( 'App\Models\Region' );
     }
 
     public function calls ( $limit = null )
@@ -86,6 +94,17 @@ class Customer extends BaseModel
         return $this->_calls;
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereHas( 'region', function ( $q )
+            {
+                return $q
+                    ->mine()
+                    ->current();
+            });
+    }
+
     public static function create ( array $attributes = [] )
     {
         $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
@@ -100,8 +119,11 @@ class Customer extends BaseModel
 	
 	public function edit ( array $attributes = [] )
     {
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
-        if ( !empty( $attributes['phone2'] ) )
+        if ( ! empty( $attributes['phone'] ) )
+        {
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        }
+        if ( ! empty( $attributes['phone2'] ) )
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }

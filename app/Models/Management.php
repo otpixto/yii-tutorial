@@ -26,6 +26,7 @@ class Management extends BaseModel
     ];
 
     public static $rules = [
+        'region_id'             => 'required|integer',
         'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
         'name'                  => 'required|string|max:255',
         'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -47,6 +48,7 @@ class Management extends BaseModel
     ];
 
     protected $fillable = [
+        'region_id',
         'name',
         'address',
         'phone',
@@ -98,19 +100,17 @@ class Management extends BaseModel
     public function scopeMine ( $query )
     {
         if ( ! \Auth::user() ) return false;
-        if ( ! \Auth::user()->can( 'supervisor.all_regions' ) )
-        {
-            $query
-                ->whereHas( 'addresses', function ( $q )
-                {
-                    return $q
-                        ->whereHas( 'region', function ( $q2 )
-                        {
-                            return $q2
-                                ->mine();
-                        });
-                });
-        }
+        $query
+            ->whereHas( 'addresses', function ( $q )
+            {
+                return $q
+                    ->whereHas( 'region', function ( $q2 )
+                    {
+                        return $q2
+                            ->mine()
+                            ->current();
+                    });
+            });
         if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query

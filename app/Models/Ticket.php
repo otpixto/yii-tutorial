@@ -92,6 +92,7 @@ class Ticket extends BaseModel
     ];
 
     protected $nullable = [
+        'region_id',
         'customer_id',
         'phone2',
         'flat',
@@ -101,7 +102,7 @@ class Ticket extends BaseModel
     ];
 
     public static $rules = [
-        'region_id'                 => 'required|integer',
+        'region_id'                 => 'nullable|integer',
         'type_id'                   => 'required|integer',
         'address_id'                => 'required|integer',
         'actual_address_id'         => 'nullable|integer',
@@ -215,6 +216,13 @@ class Ticket extends BaseModel
             ->whereNotIn( 'status_code', self::$final_statuses );
     }
 
+    public function scopeDraft ( $query, $user_id = null )
+    {
+        return $query
+            ->where( 'author_id', '=', $user_id ?: \Auth::user()->id )
+            ->where( 'status_code', '=', 'draft' );
+    }
+
     public function scopeMine ( $query, $ignoreStatuses = false )
     {
         return $query
@@ -324,20 +332,36 @@ class Ticket extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
-        if ( !empty( $attributes['phone2'] ) )
-        {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
-        }
+        $ticket = self::draft()->first();
 
-        $ticket = new Ticket( $attributes );
-        $ticket->author_id = Auth::user()->id;
-        $ticket->save();
-
-        $res = $ticket->addLog( 'Добавлена заявка' );
-        if ( $res instanceof MessageBag )
+        if ( ! $ticket )
         {
-            return $res;
+
+            if ( !empty( $attributes['phone'] ) )
+            {
+                $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+            }
+
+            if ( !empty( $attributes['phone2'] ) )
+            {
+                $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            }
+
+            $ticket = parent::create( $attributes );
+            if ( $ticket instanceof MessageBag )
+            {
+                return $ticket;
+            }
+            $ticket->status_code = 'draft';
+            $ticket->status_name = self::$statuses[ 'draft' ];
+            $ticket->save();
+
+            $res = $ticket->addLog( 'Создан черновик' );
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+
         }
 
         return $ticket;
@@ -346,13 +370,13 @@ class Ticket extends BaseModel
 	
 	public function edit ( array $attributes = [] )
 	{
-        if ( !empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes['phone'] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
         }
-        if ( !empty( $attributes['phone2'] ) )
+        if ( ! empty( $attributes['phone2'] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone2'] ) ), -10 );
+            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
 		if ( $this->status_code != 'draft' )
 		{
@@ -393,7 +417,18 @@ class Ticket extends BaseModel
                 }
 			}
 		}
-		$this->save();
+
+		if ( ( isset( $attributes[ 'lastname' ] ) || isset( $attributes[ 'firstname' ] ) || isset( $attributes[ 'middlename' ] ) || isset( $attributes[ 'actual_address_id' ] ) || isset( $attributes[ 'actual_flat' ] ) || isset( $attributes[ 'phone' ] ) || isset( $attributes[ 'phone2' ] ) ) && $this->customer )
+        {
+            $res = $this->customer->edit( $attributes );
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+        }
+
+        $this->save();
+
 		return $this;
 	}
 

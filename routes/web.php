@@ -66,6 +66,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
         Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
         Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
+        Route::post( '/tickets/add-tag', 'Operator\TicketsController@addTag' )->name( 'tickets.add-tag' );
+        Route::post( '/tickets/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
         Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
         Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
         Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );

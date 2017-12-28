@@ -239,6 +239,7 @@ class TicketsController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
@@ -254,32 +255,6 @@ class TicketsController extends BaseController
 
     }
 
-    public function createDraftIfNotExists ()
-    {
-
-        $draft = Ticket
-            ::where( 'author_id', '=', \Auth::user()->id )
-            ->where( 'status_code', '=', 'draft' )
-            ->first();
-
-        if ( ! $draft )
-        {
-            $region = Region::getCurrent();
-            $draft = new Ticket();
-            $draft->status_code = 'draft';
-            $draft->status_name = Ticket::$statuses[ 'draft' ];
-            $draft->author_id = \Auth::user()->id;
-            if ( $region )
-            {
-                $draft->region_id = $region->id;
-            }
-            $draft->save();
-        }
-
-        return $draft;
-
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -288,7 +263,12 @@ class TicketsController extends BaseController
     public function create ( Request $request )
     {
 
-        $draft = $this->createDraftIfNotExists();
+        $draft = Ticket::create();
+
+        if ( $draft instanceof MessageBag )
+        {
+            return redirect()->route( 'tickets.index' )->withErrors( $draft );
+        }
 
         //Title::add( 'Добавить заявку' );
         Title::add( 'Заявка #' . $draft->id . ' от ' . $draft->created_at->format( 'd.m.Y H:i' ) );
@@ -305,6 +285,7 @@ class TicketsController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
@@ -335,8 +316,7 @@ class TicketsController extends BaseController
 		\DB::beginTransaction();
 
         $draft = Ticket
-            ::where( 'author_id', '=', \Auth::user()->id )
-            ->where( 'status_code', '=', 'draft' )
+            ::draft()
             ->first();
 
         if ( $draft )
@@ -348,18 +328,16 @@ class TicketsController extends BaseController
         else
         {
             $ticket = Ticket::create( $request->all() );
-            if ( $ticket instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $ticket );
-            }
         }
 
-        if ( !empty( $request->get( 'customer_id' ) ) )
+        if ( $ticket instanceof MessageBag )
         {
-            $customer = Customer
-                ::where( 'id', '=', $request->get( 'customer_id' ) )
-                ->first();
-            $customer->edit( $request->all() );
+            return redirect()->back()->withErrors( $ticket );
+        }
+
+        if ( $ticket->customer )
+        {
+            $ticket->customer->edit( $request->all() );
         }
         else
         {
@@ -1170,6 +1148,40 @@ class TicketsController extends BaseController
         $ticket->edit([
             $request->get( 'field' ) => $request->get( 'value' )
         ]);
+        switch ( $request->get( 'field' ) )
+        {
+            case 'tags':
+                $tags = explode( ',', $request->get( 'value' ) );
+                foreach ( $tags as $tag )
+                {
+                    $tag = trim( $tag );
+                    if ( empty( $tag ) || $ticket->tags()->where( 'text', '=', $tag )->count() ) continue;
+                    $ticket->addTag( $tag );
+                }
+                break;
+            default:
+
+                break;
+        }
+
+    }
+
+    public function addTag ( Request $request )
+    {
+        $ticket = Ticket::find( $request->id );
+        if ( ! $ticket ) return;
+        $tag = trim( $request->get( 'tag', '' ) );
+        if ( empty( $tag ) || $ticket->tags()->where( 'text', '=', $tag )->count() ) return;
+        $ticket->addTag( $tag );
+    }
+
+    public function delTag ( Request $request )
+    {
+        $ticket = Ticket::find( $request->id );
+        if ( ! $ticket ) return;
+        $tag = $ticket->tags()->where( 'text', '=', trim( $request->get( 'tag', '' ) ) )->first();
+        if ( ! $tag ) return;
+        $tag->delete();
     }
 
     public function cancel ( Request $request, $id )

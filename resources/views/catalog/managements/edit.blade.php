@@ -22,55 +22,74 @@
                 {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
                 <div class="form-group">
+
+                    <div class="col-xs-3">
+                        {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $management->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-9">
+                        {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'address', \Input::old( 'address', $management->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
                     <div class="col-xs-4">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $management->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                     </div>
+
                     <div class="col-xs-4">
                         {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'phone', \Input::old( 'phone', $management->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
                     </div>
+
                     <div class="col-xs-4">
                         {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'phone2', \Input::old( 'phone2', $management->phone2 ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
                     </div>
+
                 </div>
 
                 <div class="form-group">
-                    <div class="col-xs-8">
-                        {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'address', \Input::old( 'address', $management->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
-                    </div>
-                    <div class="col-xs-4">
-                        {!! Form::label( 'schedule', 'График работы', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'schedule', \Input::old( 'schedule', $management->schedule ), [ 'class' => 'form-control', 'placeholder' => 'График работы' ] ) !!}
-                    </div>
-                </div>
 
-                <div class="form-group">
                     <div class="col-xs-4">
                         {!! Form::label( 'director', 'ФИО руководителя', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'director', \Input::old( 'director', $management->director ), [ 'class' => 'form-control', 'placeholder' => 'ФИО руководителя' ] ) !!}
                     </div>
+
                     <div class="col-xs-4">
                         {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::email( 'email', \Input::old( 'email', $management->email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
                     </div>
+
                     <div class="col-xs-4">
                         {!! Form::label( 'site', 'Сайт', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'site', \Input::old( 'site', $management->site ), [ 'class' => 'form-control', 'placeholder' => 'Сайт' ] ) !!}
                     </div>
+
                 </div>
 
                 <div class="form-group">
+
                     <div class="col-xs-4">
                         {!! Form::label( 'category_id', 'Категория ЭО', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'category_id', \App\Models\Management::$categories, \Input::old( 'category_id', $management->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория ЭО' ] ) !!}
                     </div>
+
                     <div class="col-xs-4">
                         {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
                     </div>
+
+                    <div class="col-xs-4">
+                        {!! Form::label( 'schedule', 'График работы', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'schedule', \Input::old( 'schedule', $management->schedule ), [ 'class' => 'form-control', 'placeholder' => 'График работы' ] ) !!}
+                    </div>
+
                 </div>
 
                 <h3>Договор</h3>

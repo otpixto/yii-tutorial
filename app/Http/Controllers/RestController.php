@@ -61,8 +61,7 @@ class RestController extends Controller
         $user = $session->user;
 
         $draft = Ticket
-            ::where( 'author_id', '=', $user->id )
-            ->where( 'status_code', '=', 'draft' )
+            ::draft( $user->id )
             ->first();
 
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );

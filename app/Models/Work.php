@@ -23,7 +23,7 @@ class Work extends BaseModel
     ];
 
     public static $rules = [
-        'region_id'         => 'required|integer',
+        'region_id'         => 'nullable|integer',
         'category_id'       => 'required|integer',
         'address_id'        => 'required|array',
         'management_id'     => 'required|integer',
@@ -34,10 +34,14 @@ class Work extends BaseModel
         'time_begin'        => 'required|date_format:G:i',
         'date_end'          => 'required|date_format:d.m.Y',
         'time_end'          => 'required|date_format:G:i',
+        'date_end_fact'     => 'nullable|date_format:d.m.Y',
+        'time_end_fact'     => 'nullable|date_format:G:i',
         'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
     ];
 
     protected $nullable = [
+        'time_end_fact',
+        'region_id',
         'phone',
     ];
 
@@ -52,6 +56,7 @@ class Work extends BaseModel
         'phone',
 		'time_begin',
 		'time_end',
+        'time_end_fact',
     ];
 
     public function category ()
@@ -72,16 +77,27 @@ class Work extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
-        if ( !empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes['phone'] ) )
         {
             $attributes['phone'] = mb_substr( preg_replace( '/\D/', '', $attributes['phone'] ), -10 );
         }
 
         $exp = explode( ':', $attributes['time_begin'] );
-        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1] );
+        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1], 0 );
 
         $exp = explode( ':', $attributes['time_end'] );
-        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1] );
+        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1], 0 );
+
+        if ( ! empty( $attributes['time_end_fact'] ) )
+        {
+            $exp = explode( ':', $attributes['time_end_fact'] );
+            $dt_end_fact = Carbon::parse( $attributes['date_end_fact'] )->setTime( $exp[0], $exp[1], 0 );
+            $attributes['time_end_fact'] = $dt_end_fact->toDateTimeString();
+        }
+        else
+        {
+            $attributes['time_end_fact'] = null;
+        }
 
         $attributes['time_begin'] = $dt_begin->toDateTimeString();
         $attributes['time_end'] = $dt_end->toDateTimeString();
@@ -131,6 +147,17 @@ class Work extends BaseModel
 
         $exp = explode( ':', $attributes['time_end'] );
         $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1], 0 );
+
+        if ( ! empty( $attributes['time_end_fact'] ) )
+        {
+            $exp = explode( ':', $attributes['time_end_fact'] );
+            $dt_end_fact = Carbon::parse( $attributes['date_end_fact'] )->setTime( $exp[0], $exp[1], 0 );
+            $attributes['time_end_fact'] = $dt_end_fact->toDateTimeString();
+        }
+        else
+        {
+            $attributes['time_end_fact'] = null;
+        }
 
         $attributes['time_begin'] = $dt_begin->toDateTimeString();
         $attributes['time_end'] = $dt_end->toDateTimeString();
@@ -199,9 +226,13 @@ class Work extends BaseModel
 
     public function scopeCurrent ( $query )
     {
-        $now = Carbon::now()->toDateTimeString();
         return $query
-            ->whereRaw( 'time_begin <= ? AND time_end >= ?', [ $now, $now ] );
+            ->where( function ( $q )
+            {
+                return $q
+                    ->whereNull( 'time_end_fact' )
+                    ->orWhere( 'time_end_fact', '>=', Carbon::now()->toDateTimeString() );
+            });
     }
 
     public function getCategory ()
@@ -213,12 +244,18 @@ class Work extends BaseModel
     {
         $dt_now = Carbon::now();
         $dt_begin = Carbon::parse( $this->time_begin );
-        $dt_end = Carbon::parse( $this->time_end );
-        if ( $dt_begin->timestamp <= $dt_now->timestamp && $dt_now->timestamp <= $dt_end->timestamp )
+        if ( $this->isExpired() )
         {
-            return 'warning';
+            return 'danger';
         }
-        return 'text-muted';
+        else if ( $dt_begin->timestamp > $dt_now->timestamp )
+        {
+            return 'text-muted';
+        }
+        else
+        {
+            return '';
+        }
     }
 
     public function sendTelegram ( $message = null )
@@ -236,6 +273,18 @@ class Work extends BaseModel
             ]);
         }
 
+    }
+
+    public function isExpired ()
+    {
+        if ( ! $this->time_end_fact )
+        {
+            return Carbon::parse( $this->time_end )->timestamp <= Carbon::now()->timestamp;
+        }
+        else
+        {
+            return Carbon::parse( $this->time_end )->timestamp > Carbon::parse( $this->time_end_fact )->timestamp;
+        }
     }
 
 }

@@ -75,7 +75,7 @@
                                         <a href="?category={{ $category_id }}">
                                             {{ $name }}
                                             <span class="badge badge-info pull-right">
-                                                {{ \App\Models\Management::category( $category_id )->count() }}
+                                                {{ \App\Models\Management::mine()->category( $category_id )->count() }}
                                             </span>
                                         </a>
                                     </li>
@@ -84,30 +84,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                            <span class="caption-subject font-green-sharp bold uppercase">РЕГИОНЫ</span>
-                            <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+
+                @if ( $regions->count() > 1 )
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                                <span class="caption-subject font-green-sharp bold uppercase">РЕГИОНЫ</span>
+                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body todo-project-list-content" style="height: auto;">
+                            <div class="todo-project-list">
+                                <ul class="nav nav-stacked">
+                                    @foreach ( $regions as $region )
+                                        <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
+                                            <a href="?region={{ $region->id }}">
+                                                {{ $region->name }}
+                                                <span class="badge badge-info pull-right">
+                                                    {{ $region->managements->count() }}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
-                        <div class="todo-project-list">
-                            <ul class="nav nav-stacked">
-                                @foreach ( $regions as $region )
-                                    <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
-                                        <a href="?region={{ $region->id }}">
-                                            {{ $region->name }}
-                                            <span class="badge badge-info pull-right">
-                                                {{ $region->managements->count() }}
-                                            </span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                @endif
+
             </div>
             <!-- END TODO SIDEBAR -->
 
@@ -123,22 +127,24 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th>
-                                        Регион
-                                    </th>
-                                    <th>
+                                    @if ( $regions->count() > 1 )
+                                        <th width="10%">
+                                            Регион
+                                        </th>
+                                    @endif
+                                    <th width="10%">
                                         Категория
                                     </th>
-                                    <th>
+                                    <th width="20%">
                                         Наименование
                                     </th>
                                     <th>
                                         Адрес \ телефон(ы)
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center" width="80">
                                         Есть договор
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center" width="80">
                                         Оповещения в Telegram
                                     </th>
                                     <th class="text-right">
@@ -149,9 +155,11 @@
                                 <tbody>
                                 @foreach ( $managements as $management )
                                     <tr>
-                                        <td>
-                                            {{ $management->region->name }}
-                                        </td>
+                                        @if ( $regions->count() > 1 )
+                                            <td>
+                                                {{ $management->region->name }}
+                                            </td>
+                                        @endif
                                         <td>
                                             {{ $management->getCategory() }}
                                         </td>

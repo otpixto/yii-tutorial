@@ -15,7 +15,7 @@
             <div class="col-xs-12">
                 <a href="{{ route( 'types.create' ) }}" class="btn btn-success">
                     <i class="fa fa-plus"></i>
-                    Добавить тип обращений
+                    Добавить классификатор
                 </a>
             </div>
         </div>
@@ -89,22 +89,19 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    <th>
+                                    <th width="20%">
                                         Категория
                                     </th>
                                     <th>
                                         Наименование
                                     </th>
-                                    <th>
-                                        GUID
-                                    </th>
-                                    <th class="text-center">
+                                    <th class="text-center" width="150">
                                         Необходим акт
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center" width="80">
                                         Платно
                                     </th>
-                                    <th class="text-center">
+                                    <th class="text-center" width="80">
                                         Авария
                                     </th>
                                     <th class="text-right">
@@ -120,9 +117,6 @@
                                         </td>
                                         <td>
                                             {{ $type->name }}
-                                        </td>
-                                        <td>
-                                            {{ $type->guid }}
                                         </td>
                                         <td class="text-center">
                                             @if ( $type->need_act )

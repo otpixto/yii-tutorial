@@ -172,10 +172,14 @@
                                 </div>
                             </div>
                             <div class="row margin-top-10">
-                                <div class="col-lg-6">
-                                    {!! Form::select( 'region_id', [ null => ' -- все -- ' ] + $regions->toArray(), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Регион' ] ) !!}
-                                </div>
-                                <div class="col-lg-6 text-right">
+                                @if ( $regions->count() > 1)
+                                    <div class="col-lg-6">
+                                        {!! Form::select( 'region_id', [ null => ' -- все -- ' ] + $regions->toArray(), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Регион' ] ) !!}
+                                    </div>
+                                    <div class="col-lg-6 text-right">
+                                @else
+                                    <div class="col-lg-12 text-right">
+                                @endif
                                     <span class="text-muted small bold">
                                         Фильтр:
                                     </span>

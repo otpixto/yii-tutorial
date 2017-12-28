@@ -77,11 +77,8 @@
                         <th>
                             &nbsp;Дата начала
                         </th>
-                        <th>
-                            &nbsp;Дата окончания (план)
-                        </th>
-                        <th class="hidden-print">
-                            &nbsp;
+                        <th colspan="3">
+                            &nbsp;Дата окончания (План.|Факт.)
                         </th>
                     </tr>
                     <tr class="info hidden-print">
@@ -103,8 +100,8 @@
                         <td width="10%">
                             {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
                         </td>
-                        <td colspan="3">
-                            <div class="row margin-top-10">
+                        <td colspan="4">
+                            <div class="row">
                                 <div class="col-lg-12 text-right">
                                     <span class="text-muted small bold">
                                         Фильтр:

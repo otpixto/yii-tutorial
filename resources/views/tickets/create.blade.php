@@ -25,12 +25,14 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+            @if ( $regions->count() > 1 )
+                <div class="form-group">
+                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    <div class="col-xs-9">
+                        {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -183,7 +185,7 @@
         <div class="col-xs-7">
 
             {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( 'name', ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( 'text', ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
 
         </div>
 
@@ -323,7 +325,8 @@
             $( '#customers-list .list-group' ).empty();
 
             $.get( '{{ route( 'customers.search' ) }}', {
-                phone: phone
+                phone: phone,
+                region_id: $( '#region_id' ).val()
             }, function ( response )
             {
                 if ( response )
@@ -332,10 +335,10 @@
                     if ( $( '#customer_id' ).val() == '' )
                     {
                         $( '#customers-select' ).removeAttr( 'disabled' ).attr( 'class', 'btn btn-warning' );
-                        if ( $( '[data-action="customers-select"]' ).length == 1 )
-                        {
-                            $( '[data-action="customers-select"]' ).trigger( 'click' );
-                        }
+                        // if ( $( '[data-action="customers-select"]' ).length == 1 )
+                        // {
+                        //     $( '[data-action="customers-select"]' ).trigger( 'click' );
+                        // }
                     }
                 }
                 else
@@ -558,6 +561,28 @@
 
             .ready( function ()
             {
+
+                $( '#tags' ).on( 'itemAdded', function ( e )
+                {
+                    var id = $( '#ticket_id' ).val();
+                    var tag = e.item;
+                    if ( ! id || ! tag ) return;
+                    $.post( '{{ route( 'tickets.add-tag' ) }}', {
+                        id: id,
+                        tag: tag
+                    });
+                });
+
+                $( '#tags' ).on( 'itemRemoved', function ( e )
+                {
+                    var id = $( '#ticket_id' ).val();
+                    var tag = e.item;
+                    if ( ! id || ! tag ) return;
+                    $.post( '{{ route( 'tickets.del-tag' ) }}', {
+                        id: id,
+                        tag: tag
+                    });
+                });
 
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'

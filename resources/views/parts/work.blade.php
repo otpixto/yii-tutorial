@@ -1,4 +1,4 @@
-<tr class="{{ \Input::get( 'show' ) == 'all' ? $work->getClass() : '' }}">
+<tr class="{{ $work->getClass() }}">
     <td>
         #{{ $work->id }}
     </td>
@@ -27,7 +27,14 @@
     <td>
         {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
     </td>
-    <td class="text-right hidden-print">
+    <td>
+        @if ( $work->time_end_fact )
+            {{ \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y H:i' ) }}
+        @else
+            -
+        @endif
+    </td>
+    <td class="text-right hidden-print" width="30">
         <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-lg btn-primary">
             <i class="fa fa-chevron-right"></i>
         </a>
@@ -35,7 +42,7 @@
 </tr>
 @if ( $work->comments->count() )
     <tr>
-        <td colspan="9">
+        <td colspan="10">
             <div class="note note-info">
                 @include( 'parts.comments', [ 'comments' => $work->comments ] )
             </div>

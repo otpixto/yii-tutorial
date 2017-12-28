@@ -43,6 +43,11 @@ class Region extends BaseModel
         return $this->hasMany( 'App\Models\Management' );
     }
 
+    public function customers ()
+    {
+        return $this->hasMany( 'App\Models\Customer' );
+    }
+
     public function users ()
     {
         return $this->belongsToMany( 'App\User', 'users_regions' );
@@ -115,7 +120,8 @@ class Region extends BaseModel
 
     public static function getCurrent ()
     {
-        return self::current()->first();
+        self::$current_region = ! self::isOperatorUrl() ? self::current()->first() : null;
+        return self::$current_region;
     }
 
     public function getGzhiConfig ()

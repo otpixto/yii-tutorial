@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Management;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -22,9 +23,11 @@ class CustomersController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
+        $region = $request->get( 'region' );
 
         $customers = Customer
-            ::orderBy( 'lastname' )
+            ::mine()
+            ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
             ->orderBy( 'middlename' );
 
@@ -41,6 +44,12 @@ class CustomersController extends BaseController
                         ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) )
                         ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) );
                 });
+        }
+
+        if ( !empty( $region ) )
+        {
+            $customers
+                ->where( 'region_id', '=', $region );
         }
 
         if ( \Input::get( 'export' ) == 1 )
@@ -65,12 +74,19 @@ class CustomersController extends BaseController
             })->export( 'xls' );
         }
 
+        $regions = Region
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+
         $customers = $customers
             ->paginate( 30 )
             ->appends( $request->all() );
 
         return view( 'catalog.customers.index' )
-            ->with( 'customers', $customers );
+            ->with( 'customers', $customers )
+            ->with( 'regions', $regions );
 
     }
 
@@ -82,7 +98,13 @@ class CustomersController extends BaseController
     public function create()
     {
         Title::add( 'Добавить заявителя' );
-        return view( 'catalog.customers.create' );
+        $regions = Region
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+        return view( 'catalog.customers.create' )
+            ->with( 'regions', $regions );
     }
 
     /**
@@ -136,9 +158,16 @@ class CustomersController extends BaseController
         $calls = $customer->calls( 30 );
         $tickets = $customer->tickets()->paginate( 30 );
 
+        $regions = Region
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
             ->with( 'tickets', $tickets )
+            ->with( 'regions', $regions )
             ->with( 'calls', $calls );
 
     }
@@ -190,6 +219,7 @@ class CustomersController extends BaseController
     {
 
         $phone = mb_substr( preg_replace( '/[^0-9]/', '', $request->get( 'phone' ) ), -10 );
+        $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $customers = Customer
             ::where( function ( $q ) use ( $phone )
@@ -200,7 +230,15 @@ class CustomersController extends BaseController
             })
             ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
-            ->orderBy( 'middlename' )
+            ->orderBy( 'middlename' );
+
+        if ( $region_id )
+        {
+            $customers
+                ->where( 'region_id', '=', $region_id );
+        }
+
+        $customers = $customers
             ->get();
 
         if ( $customers->count() )

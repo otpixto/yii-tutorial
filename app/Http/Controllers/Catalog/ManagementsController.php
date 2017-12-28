@@ -25,9 +25,11 @@ class ManagementsController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $region = $request->get( 'region' );
         $category = $request->get( 'category' );
+        $address = $request->get( 'address' );
 
         $managements = Management
-            ::orderBy( 'name' );
+            ::mine()
+            ->orderBy( 'name' );
 
         if ( !empty( $search ) )
         {
@@ -59,6 +61,16 @@ class ManagementsController extends BaseController
         {
             $managements
                 ->where( 'region_id', '=', $region );
+        }
+
+        if ( !empty( $address ) )
+        {
+            $managements
+                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                {
+                    return $q
+                        ->where( 'address_id', '=', $address );
+                });
         }
 
         if ( \Input::get( 'export' ) == 1 )
@@ -94,6 +106,7 @@ class ManagementsController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->get();
 
@@ -111,7 +124,13 @@ class ManagementsController extends BaseController
     public function create()
     {
         Title::add( 'Добавить УО' );
-        return view( 'catalog.managements.create' );
+        $regions = Region
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+        return view( 'catalog.managements.create' )
+            ->with( 'regions', $regions );
     }
 
     /**
@@ -166,6 +185,7 @@ class ManagementsController extends BaseController
         }
 
         $managementAddresses = $management->addresses()
+            ->mine()
             ->orderBy( 'name' )
             ->get();
 
@@ -173,10 +193,17 @@ class ManagementsController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
+        $regions = Region
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+
         return view( 'catalog.managements.edit' )
             ->with( 'management', $management )
             ->with( 'managementAddresses', $managementAddresses )
-            ->with( 'managementTypes', $managementTypes );
+            ->with( 'managementTypes', $managementTypes )
+            ->with( 'regions', $regions );
 
     }
 
@@ -236,6 +263,7 @@ class ManagementsController extends BaseController
             ->whereHas( 'addresses', function ( $q ) use ( $address_id, $type_id )
             {
                 return $q
+                    ->mine()
                     ->where( 'address_id', '=', $address_id )
                     ->whereHas( 'types', function ( $q2 ) use ( $type_id )
                     {

@@ -30,6 +30,7 @@ class AddressesController extends BaseController
 
         $regions = Region
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->get();
 
@@ -210,21 +211,24 @@ class AddressesController extends BaseController
     {
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
-        $region_id = $request->get( 'region_id', Region::current()->first()->id );
+        $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $addresses = Address
-            ::select(
+            ::mine()
+            ->select(
                 'id',
                 'name AS text'
             )
             ->where( 'name', 'like', $s )
-            ->whereHas( 'region', function ( $q ) use ( $region_id )
-            {
-                return $q
-                    ->mine()
-                    ->where( 'id', '=', $region_id );
-            })
-            ->orderBy( 'name' )
+            ->orderBy( 'name' );
+
+        if ( $region_id )
+        {
+            $addresses
+                ->where( 'region_id', '=', $region_id );
+        }
+
+        $addresses = $addresses
             ->get();
 
         return $addresses;
