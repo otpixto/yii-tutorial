@@ -337,7 +337,7 @@ class TicketManagement extends BaseModel
 
             case 'transferred':
 
-                $message = '<em>Добавлена заявка</em>' . PHP_EOL . PHP_EOL;
+                $message = '<em>Поступила заявка</em>' . PHP_EOL . PHP_EOL;
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL . PHP_EOL;
