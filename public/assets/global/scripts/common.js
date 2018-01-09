@@ -200,6 +200,16 @@ $( document )
 
 	})
 
+	.on ( 'click', '#tickets-new-show', function ( e )
+	{
+
+        e.preventDefault();
+
+        $( '#tickets .tickets.hidden' ).removeClass( 'hidden' );
+        $( '#tickets-new-message' ).addClass( 'hidden' );
+
+	})
+
 	.on ( 'click', '[data-action="ticket-call"]', function ( e )
 	{
 

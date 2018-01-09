@@ -13,6 +13,8 @@ use App\Models\TicketManagement;
 use App\Models\Type;
 use App\User;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
@@ -255,6 +257,60 @@ class TicketsController extends BaseController
 
     }
 
+    public function line ( Request $request, $id )
+    {
+
+        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
+        $field_management = \Auth::user()->can( 'tickets.field_management' );
+
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->where( 'id', '=', $id )
+            ->with(
+                'comments',
+                'ticket',
+                'management'
+            )
+            ->first();
+
+        if ( ! $ticketManagement ) return;
+
+        return view( 'parts.ticket' )
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'ticket', $ticketManagement->ticket )
+            ->with( 'field_operator', $field_operator )
+            ->with( 'field_management', $field_management )
+            ->with( 'hide', $request->get( 'hide', false ) );
+
+    }
+
+    public function comments ( Request $request, $id )
+    {
+
+        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
+        $field_management = \Auth::user()->can( 'tickets.field_management' );
+
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->where( 'id', '=', $id )
+            ->with(
+                'comments',
+                'ticket',
+                'management'
+            )
+            ->first();
+
+        if ( ! $ticketManagement ) return;
+
+        return view( 'parts.ticket_comments' )
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'ticket', $ticketManagement->ticket )
+            ->with( 'field_operator', $field_operator )
+            ->with( 'field_management', $field_management )
+            ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -348,6 +404,8 @@ class TicketsController extends BaseController
 
         $status_code = 'no_contract';
 
+        $client = new Client();
+
         foreach ( $request->get( 'managements', [] ) as $manament_id )
         {
 
@@ -386,6 +444,13 @@ class TicketsController extends BaseController
                         ->withErrors( $res );
                 }
             }
+
+            $client->post('https://system.eds-region.ru:8443/stream', [
+                RequestOptions::JSON => [
+                    'action' => 'create',
+                    'id' => $ticketManagement->id
+                ]
+            ]);
 
         }
 

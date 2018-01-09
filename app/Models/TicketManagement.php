@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 
@@ -320,6 +323,15 @@ class TicketManagement extends BaseModel
         {
             return $res;
         }
+
+        $client = new Client();
+
+        $client->post('https://system.eds-region.ru:8443/stream', [
+            RequestOptions::JSON => [
+                'action' => 'update',
+                'id' => $this->id
+            ]
+        ]);
 
         \DB::commit();
 

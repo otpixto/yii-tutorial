@@ -198,7 +198,14 @@
                 </thead>
                 {!! Form::close() !!}
                 {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
-                <tbody>
+                <tbody id="tickets">
+                    <tr id="tickets-new-message" class="hidden">
+                        <td colspan="7">
+                            <button type="button" class="btn btn-warning btn-block btn-lg" id="tickets-new-show">
+                                Добавлены новые заявки <span class="badge bold" id="tickets-new-count">2</span>
+                            </button>
+                        </td>
+                    </tr>
                 @if ( $ticketManagements->count() )
                     @foreach ( $ticketManagements as $ticketManagement )
                         @include( 'parts.ticket', [ 'ticketManagement' => $ticketManagement ] )

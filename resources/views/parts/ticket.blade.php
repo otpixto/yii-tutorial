@@ -1,6 +1,6 @@
-<tr @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) class="text-muted opacity" @elseif ( $ticketManagement->ticket->emergency ) class="danger" @endif>
+<tr class="tickets @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) text-muted opacity @elseif ( $ticketManagement->ticket->emergency ) danger @endif @if ( isset( $hide ) && $hide ) hidden @endif" id="ticket-{{ $ticketManagement->id }}">
     <td>
-        <div class="mt-element-ribbon" id="ticket-status-{{ $ticketManagement->getTicketNumber() }}">
+        <div class="mt-element-ribbon">
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticketManagement->getClass() }}">
                 <div class="ribbon-sub ribbon-clip ribbon-round"></div>
                 <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="color-inherit">
@@ -61,18 +61,4 @@
         </a>
     </td>
 </tr>
-@if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->count() )
-    <tr @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) class="text-muted opacity" @endif>
-        <td colspan="{{ ( 5 + ( $field_operator ? 1 : 0 ) + ( $field_management ? 1 : 0 ) ) }}">
-            @if ( $ticketManagement->rate_comment )
-                <div class="note note-danger">
-                    <span class="small text-muted">Комментарий к оценке:</span>
-                    {{ $ticketManagement->rate_comment }}
-                </div>
-            @endif
-            <div class="note note-info">
-                @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
-            </div>
-        </td>
-    </tr>
-@endif
+@include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )

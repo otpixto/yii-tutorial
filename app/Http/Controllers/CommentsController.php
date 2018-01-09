@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
@@ -45,15 +47,17 @@ class CommentsController extends Controller
         $comment = Comment::create( $request->all() );
         $comment->save();
 
-        if ( \Config::get( 'telegram.active' ) )
+        $client = new Client();
+
+        if ( $request->get( 'origin_model_name' ) == Ticket::class )
         {
 
-            if ( $request->get( 'origin_model_name' ) == Ticket::class )
+            $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
+
+            foreach ( $ticket->managements as $ticketManagement )
             {
 
-                $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
-
-                foreach ( $ticket->managements as $ticketManagement )
+                if ( \Config::get( 'telegram.active' ) )
                 {
 
                     $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
@@ -70,12 +74,25 @@ class CommentsController extends Controller
 
                 }
 
+                $client->post('https://system.eds-region.ru:8443/stream', [
+                    RequestOptions::JSON => [
+                        'action' => 'comment',
+                        'id' => $ticketManagement->id
+                    ]
+                ]);
 
             }
-            else if ( $request->get( 'origin_model_name' ) == TicketManagement::class )
+
+
+        }
+        else if ( $request->get( 'origin_model_name' ) == TicketManagement::class )
+        {
+
+            $ticketManagement = TicketManagement::find( $request->get( 'origin_model_id' ) );
+
+            if ( \Config::get( 'telegram.active' ) )
             {
 
-                $ticketManagement = TicketManagement::find( $request->get( 'origin_model_id' ) );
                 $ticket = $ticketManagement->ticket;
 
                 $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
@@ -91,6 +108,13 @@ class CommentsController extends Controller
                 $ticketManagement->sendTelegram( $message );
 
             }
+
+            $client->post('https://system.eds-region.ru:8443/stream', [
+                RequestOptions::JSON => [
+                    'action' => 'comment',
+                    'id' => $ticketManagement->id
+                ]
+            ]);
 
         }
 
