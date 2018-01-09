@@ -59,6 +59,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
         Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
 
+        Route::resource( '/tickets', 'Operator\TicketsController' );
+
         Route::prefix( 'tickets' )->group( function ()
         {
 
@@ -85,8 +87,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( '/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
 
         });
-
-        Route::resource( '/tickets', 'Operator\TicketsController' );
 
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
