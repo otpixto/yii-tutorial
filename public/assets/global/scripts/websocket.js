@@ -43,6 +43,8 @@ socket
         switch ( data.action )
         {
             case 'create':
+                var line = $( '#ticket-' + data.id );
+                if ( line.length ) return;
                 $.post( '/tickets/line/' + data.id,
                     {
                         hide: true
