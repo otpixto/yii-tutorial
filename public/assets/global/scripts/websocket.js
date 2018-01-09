@@ -96,7 +96,7 @@ socket
                 break;
             case 'comment':
                 var line = $( '#ticket-' + data.id );
-                if ( ! line.length ) return;
+                if ( ! line.length || line.hasClass( 'hidden' ) ) return;
                 $.post( '/tickets/comments/' + data.id,
                     function ( response )
                     {
