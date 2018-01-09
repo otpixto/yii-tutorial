@@ -367,6 +367,13 @@ class TicketManagement extends BaseModel
                     ]
                 ]);
 
+                $client->post('https://system.eds-region.ru:8443/stream', [
+                    RequestOptions::JSON => [
+                        'action' => 'update',
+                        'id' => $this->id
+                    ]
+                ]);
+
                 break;
 
             case 'transferred_again':

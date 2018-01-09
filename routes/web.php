@@ -82,7 +82,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
         Route::post( '/tickets/line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
         Route::post( '/tickets/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
-        
+
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
 

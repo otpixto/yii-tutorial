@@ -406,6 +406,7 @@ class TicketsController extends BaseController
         }
 
         $status_code = 'no_contract';
+        $client = new Client();
 
         foreach ( $request->get( 'managements', [] ) as $manament_id )
         {
@@ -445,6 +446,13 @@ class TicketsController extends BaseController
                         ->withErrors( $res );
                 }
             }
+
+            $client->post('https://system.eds-region.ru:8443/stream', [
+                RequestOptions::JSON => [
+                    'action' => 'create',
+                    'id' => $ticketManagement->id
+                ]
+            ]);
 
         }
 
