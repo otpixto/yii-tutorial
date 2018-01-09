@@ -343,7 +343,14 @@ class TicketManagement extends BaseModel
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
-                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
+                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL . PHP_EOL;
+
+                $message .= 'Период на принятие заявки в работу, час: ' . $ticket->type->period_acceptance . PHP_EOL;
+                $message .= 'Период на исполнение, час: ' . $ticket->type->period_execution . PHP_EOL;
+                $message .= 'Сезонность устранения: ' . $ticket->type->season . PHP_EOL . PHP_EOL;
+
+                $message .= 'Платно: ' . ( $ticket->type->is_pay ? 'Да' : 'Нет' ) . PHP_EOL;
+                $message .= 'Требуется акт: ' . ( $ticket->type->need_act ? 'Да' : 'Нет' ) . PHP_EOL;
 
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
@@ -361,7 +368,14 @@ class TicketManagement extends BaseModel
                 $message .= 'Текст проблемы: ' . $ticket->text . PHP_EOL . PHP_EOL;
 
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
-                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
+                $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL . PHP_EOL;
+
+                $message .= 'Период на принятие заявки в работу, час: ' . $ticket->type->period_acceptance . PHP_EOL;
+                $message .= 'Период на исполнение, час: ' . $ticket->type->period_execution . PHP_EOL;
+                $message .= 'Сезонность устранения: ' . $ticket->type->season . PHP_EOL . PHP_EOL;
+
+                $message .= 'Платно: ' . ( $ticket->type->is_pay ? 'Да' : 'Нет' ) . PHP_EOL;
+                $message .= 'Требуется акт: ' . ( $ticket->type->need_act ? 'Да' : 'Нет' ) . PHP_EOL;
 
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
