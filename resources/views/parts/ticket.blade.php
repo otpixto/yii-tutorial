@@ -61,4 +61,6 @@
         </a>
     </td>
 </tr>
-@include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
+@if ( ! isset( $hideComments ) || ! $hideComments )
+    @include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
+@endif

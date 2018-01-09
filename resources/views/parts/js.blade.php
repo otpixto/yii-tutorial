@@ -21,6 +21,6 @@
 <script src="/assets/global/plugins/jquery-cookie-1.4.1/jquery.cookie.js"></script>
 <script src="/assets/global/scripts/common.js?v8" type="text/javascript"></script>
 <script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/websocket.js?v2" type="text/javascript"></script>
+<script src="/assets/global/scripts/websocket.js?v3" type="text/javascript"></script>
 <!-- END THEME LAYOUT SCRIPTS -->
 @yield( 'js' )

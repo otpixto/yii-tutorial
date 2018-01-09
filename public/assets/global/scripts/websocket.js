@@ -76,6 +76,9 @@ socket
                 var line = $( '#ticket-' + data.id );
                 if ( ! line.length ) return;
                 $.post( '/tickets/line/' + data.id,
+                    {
+                        hideComments: true
+                    },
                     function ( response )
                     {
                         if ( ! response ) return;

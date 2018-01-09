@@ -280,7 +280,8 @@ class TicketsController extends BaseController
             ->with( 'ticket', $ticketManagement->ticket )
             ->with( 'field_operator', $field_operator )
             ->with( 'field_management', $field_management )
-            ->with( 'hide', $request->get( 'hide', false ) );
+            ->with( 'hide', $request->get( 'hide', false ) )
+            ->with( 'hideComments', $request->get( 'hideComments', false ) );
 
     }
 
@@ -404,8 +405,6 @@ class TicketsController extends BaseController
 
         $status_code = 'no_contract';
 
-        $client = new Client();
-
         foreach ( $request->get( 'managements', [] ) as $manament_id )
         {
 
@@ -444,13 +443,6 @@ class TicketsController extends BaseController
                         ->withErrors( $res );
                 }
             }
-
-            $client->post('https://system.eds-region.ru:8443/stream', [
-                RequestOptions::JSON => [
-                    'action' => 'create',
-                    'id' => $ticketManagement->id
-                ]
-            ]);
 
         }
 
@@ -821,6 +813,20 @@ class TicketsController extends BaseController
 		}
 		
 		$ticket->edit( $request->all() );
+
+		$client = new Client();
+
+		foreach ( $ticket->managements as $ticketManagement )
+        {
+
+            $client->post('https://system.eds-region.ru:8443/stream', [
+                RequestOptions::JSON => [
+                    'action' => 'update',
+                    'id' => $ticketManagement->id
+                ]
+            ]);
+
+        }
 		
 		return redirect()
             ->route( 'tickets.show', $ticket->id )
