@@ -59,12 +59,12 @@ class CommentsController extends Controller
                     $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
 
                     $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                    $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                    $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
                     $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
 
                     $message .= PHP_EOL . $comment->text . PHP_EOL;
 
-                    $message .= PHP_EOL . route( 'tickets.show', $ticketManagement->getTicketNumber() ) . PHP_EOL;
+                    $message .= PHP_EOL . $ticketManagement->getUrl() . PHP_EOL;
 
                     $ticketManagement->sendTelegram( $message );
 
@@ -81,12 +81,12 @@ class CommentsController extends Controller
                 $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип обращения: ' . $ticket->type->name . PHP_EOL;
+                $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
                 $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
 
                 $message .= PHP_EOL . $comment->text . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $ticketManagement->getTicketNumber() ) . PHP_EOL;
+                $message .= PHP_EOL . $ticketManagement->getUrl() . PHP_EOL;
 
                 $ticketManagement->sendTelegram( $message );
 
