@@ -345,7 +345,7 @@ class TicketManagement extends BaseModel
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
                 $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+                $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -363,7 +363,7 @@ class TicketManagement extends BaseModel
                 $message .= 'ФИО заявителя: ' . $ticket->getName() . PHP_EOL;
                 $message .= 'Телефон(ы) заявителя: ' . $ticket->getPhones() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+                $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -402,7 +402,7 @@ class TicketManagement extends BaseModel
                 $message .= 'Исполнитель: ' . $this->executor . PHP_EOL;
                 $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
-                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+                $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -470,7 +470,7 @@ class TicketManagement extends BaseModel
                     }
                 }
 
-                $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+            $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -530,7 +530,7 @@ class TicketManagement extends BaseModel
         $message .= 'Статус обращения: ' . $this->status_name . PHP_EOL;
         $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
 
-        $message .= PHP_EOL . route( 'tickets.show', $this->getTicketNumber() ) . PHP_EOL;
+        $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
         $this->sendTelegram( $message, true );
 
@@ -546,6 +546,22 @@ class TicketManagement extends BaseModel
             $subscription->sendTelegram( $message );
         }
 
+    }
+
+    public function getUrl ( $regionDomain = true )
+    {
+        if ( $regionDomain )
+        {
+            if ( ! $this->management || ! $this->management->region || ! $this->management->region->domain ) return null;
+            $url = \Config::get( 'app.ssl' ) ? 'https://' : 'http://';
+            $url .= $this->management->region->domain;
+            $url .= route( 'tickets.show', $this->getTicketNumber(), false );
+        }
+        else
+        {
+            $url = route( 'tickets.show', $this->getTicketNumber() );
+        }
+        return $url;
     }
 
 }
