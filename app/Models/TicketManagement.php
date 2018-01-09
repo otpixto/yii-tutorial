@@ -22,8 +22,6 @@ class TicketManagement extends BaseModel
 
     private $availableStatuses = null;
 
-    private $old_status_name = null;
-
     public static $workflow = [
         'transferred' => [
             'accepted',
@@ -516,7 +514,6 @@ class TicketManagement extends BaseModel
     {
         if ( $this->ticket->status_code != $this->status_code && ( count( $apply_statuses ) == 0 || in_array( $this->ticket->status_code, $apply_statuses ) ) )
         {
-            $this->old_status_name = $this->status_name;
             $res = $this->ticket->changeStatus( $this->status_code, true );
             if ( $res instanceof MessageBag )
             {
@@ -536,12 +533,7 @@ class TicketManagement extends BaseModel
         $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
         $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL . PHP_EOL;
 
-        if ( $this->old_status_name )
-        {
-            $message .= 'Прежний статус: ' . $this->old_status_name . PHP_EOL;
-        }
-
-        $message .= 'Новый статус: ' . $this->status_name . PHP_EOL;
+        $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
         $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
