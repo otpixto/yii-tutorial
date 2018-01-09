@@ -59,35 +59,30 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/profile/phone-confirm', 'ProfileController@postPhoneConfirm' );
         Route::post( '/profile/phone-unreg', 'ProfileController@postPhoneUnreg' )->name( 'profile.phone_unreg' );
 
+        Route::get( '/tickets/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
+        Route::post( '/tickets/{id}/add-management', 'Operator\TicketsController@postAddManagement' );
+        Route::post( '/tickets/del-management', 'Operator\TicketsController@postDelManagement' )->name( 'tickets.del_management' );
+        Route::get( '/tickets/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
+        Route::post( '/tickets/rate', 'Operator\TicketsController@postRateForm' );
+        Route::post( '/tickets/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
+        Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
+        Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
+        Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+        Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
+        Route::post( '/tickets/add-tag', 'Operator\TicketsController@addTag' )->name( 'tickets.add-tag' );
+        Route::post( '/tickets/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
+        Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
+        Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
+        Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
+        Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
+        Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
+        Route::post( '/tickets', 'Operator\TicketsController@export' );
         Route::resource( '/tickets', 'Operator\TicketsController' );
-
-        Route::prefix( 'tickets' )->group( function ()
-        {
-
-            Route::get( '/{id}/add-management', 'Operator\TicketsController@getAddManagement' )->name( 'tickets.add_management' );
-            Route::post( '/{id}/add-management', 'Operator\TicketsController@postAddManagement' );
-            Route::post( '/del-management', 'Operator\TicketsController@postDelManagement' )->name( 'tickets.del_management' );
-            Route::get( '/rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
-            Route::post( '/rate', 'Operator\TicketsController@postRateForm' );
-            Route::post( '/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
-            Route::get( '/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
-            Route::get( '/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
-            Route::get( '/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
-            Route::get( '/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
-            Route::post( '/add-tag', 'Operator\TicketsController@addTag' )->name( 'tickets.add-tag' );
-            Route::post( '/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
-            Route::get( '/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
-            Route::post( '/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::post( '/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
-            Route::post( '/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
-            Route::post( '/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
-            Route::get( '/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
-            Route::get( '/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
-            Route::post( '/line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
-            Route::post( '/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
-
-        });
-
+        Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
+        Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
+        Route::post( '/tickets/line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
+        Route::post( '/tickets/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
+        
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
 

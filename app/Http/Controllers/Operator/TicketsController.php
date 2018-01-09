@@ -275,12 +275,14 @@ class TicketsController extends BaseController
 
         if ( ! $ticketManagement ) return;
 
+        $hide = $ticketManagement->ticket->author_id == \Auth::user()->id ? false : $request->get( 'hide', false );
+
         return view( 'parts.ticket' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'ticket', $ticketManagement->ticket )
             ->with( 'field_operator', $field_operator )
             ->with( 'field_management', $field_management )
-            ->with( 'hide', $request->get( 'hide', false ) )
+            ->with( 'hide', $hide )
             ->with( 'hideComments', $request->get( 'hideComments', false ) );
 
     }
