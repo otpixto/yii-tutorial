@@ -466,12 +466,12 @@ class TicketManagement extends BaseModel
 
                 $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
-                if ( $ticket->rate )
+                if ( $this->rate )
                 {
-                    $message .= 'Оценка: ' . $ticket->rate . PHP_EOL;
-                    if ( $ticket->rate_comment )
+                    $message .= 'Оценка: ' . $this->rate . PHP_EOL;
+                    if ( $this->rate_comment )
                     {
-                        $message .= 'Комментарий: ' . $ticket->rate_comment . PHP_EOL;
+                        $message .= 'Комментарий: ' . $this->rate_comment . PHP_EOL;
                     }
                 }
 
