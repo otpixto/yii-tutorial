@@ -46,7 +46,7 @@ socket
         }
         $.bootstrapGrowl( message, {
             ele: 'body',
-            type: 'warning',
+            type: 'info',
             offset: {from: 'bottom', amount: 20},
             align: 'left',
             width: 350,
