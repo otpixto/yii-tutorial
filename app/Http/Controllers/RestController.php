@@ -46,7 +46,7 @@ class RestController extends Controller
             return $this->error( 100 );
         }
 
-        $call_phone = mb_substr( $request->get( 'call_phone' ) );
+        $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
 
         $customer = Customer
             ::where( 'phone', '=', $call_phone )
