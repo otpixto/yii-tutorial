@@ -31,7 +31,7 @@ class SubscriptionsCommand extends Command
             $text = '';
             foreach ( $subs as $i => $sub )
             {
-                $text .= ( ++ $i ) . ' ' . $sub->management->name . PHP_EOL;
+                $text .= ( ++ $i ) . '. ' . $sub->management->name . PHP_EOL;
             }
         }
         else
