@@ -305,12 +305,22 @@ class TicketsController extends BaseController
 
         if ( ! $ticketManagement ) return;
 
-        return view( 'parts.ticket_comments' )
-            ->with( 'ticketManagement', $ticketManagement )
-            ->with( 'ticket', $ticketManagement->ticket )
-            ->with( 'field_operator', $field_operator )
-            ->with( 'field_management', $field_management )
-            ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+        if ( $request->get( 'commentsOnly', false ) )
+        {
+            return view( 'parts.comments' )
+                ->with( 'ticketManagement', $ticketManagement )
+                ->with( 'ticket', $ticketManagement->ticket )
+                ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+        }
+        else
+        {
+            return view( 'parts.ticket_comments' )
+                ->with( 'ticketManagement', $ticketManagement )
+                ->with( 'ticket', $ticketManagement->ticket )
+                ->with( 'field_operator', $field_operator )
+                ->with( 'field_management', $field_management )
+                ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+        }
 
     }
 
@@ -450,7 +460,8 @@ class TicketsController extends BaseController
             $client->post('https://system.eds-region.ru:8443/stream', [
                 RequestOptions::JSON => [
                     'action' => 'create',
-                    'id' => $ticketManagement->id
+                    'id' => $ticketManagement->id,
+                    'ticket_id' => $ticket->id
                 ]
             ]);
 
@@ -832,7 +843,8 @@ class TicketsController extends BaseController
             $client->post('https://system.eds-region.ru:8443/stream', [
                 RequestOptions::JSON => [
                     'action' => 'update',
-                    'id' => $ticketManagement->id
+                    'id' => $ticketManagement->id,
+                    'ticket_id' => $ticket->id
                 ]
             ]);
 

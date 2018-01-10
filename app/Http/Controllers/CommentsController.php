@@ -77,7 +77,8 @@ class CommentsController extends Controller
                 $client->post('https://system.eds-region.ru:8443/stream', [
                     RequestOptions::JSON => [
                         'action' => 'comment',
-                        'id' => $ticketManagement->id
+                        'id' => $ticketManagement->id,
+                        'ticket_id' => $ticket->id
                     ]
                 ]);
 
@@ -112,7 +113,8 @@ class CommentsController extends Controller
             $client->post('https://system.eds-region.ru:8443/stream', [
                 RequestOptions::JSON => [
                     'action' => 'comment',
-                    'id' => $ticketManagement->id
+                    'id' => $ticketManagement->id,
+                    'ticket_id' => $ticket->id
                 ]
             ]);
 

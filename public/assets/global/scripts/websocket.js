@@ -92,54 +92,93 @@ socket
                 );
                 break;
             case 'update':
-                var line = $( '#ticket-' + data.id );
-                if ( ! line.length ) return;
-                $.post( '/tickets/line/' + data.id,
+                if ( $( '#ticket-id' ).length )
+                {
+                    if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
+                    $( '#ticket-show' ).load( window.location.href + ' #ticket-show', function ()
                     {
-                        hideComments: true
-                    },
-                    function ( response )
-                    {
-                        if ( ! response ) return;
-                        var newLine = $( response );
-                        line.replaceWith( newLine );
-                        newLine.pulsate({
-                            repeat: 3,
-                            speed: 500,
-                            color: '#F1C40F',
-                            glow: true,
-                            reach: 15
-                        });
-                    }
-                );
-                break;
-            case 'comment':
-                var line = $( '#ticket-' + data.id );
-                if ( ! line.length || line.hasClass( 'hidden' ) ) return;
-                $.post( '/tickets/comments/' + data.id,
-                    function ( response )
-                    {
-                        if ( ! response ) return;
-                        var comments = $( '#ticket-comments-' + data.id );
-                        var newComments = $( response );
-                        if ( ! comments.length )
+                        // без этого быдлядства не обошлось...
+                        $( '#ticket-show' ).replaceWith( $( '#ticket-show #ticket-show' ) );
+                    });
+                }
+                else
+                {
+                    var line = $( '#ticket-' + data.id );
+                    if ( ! line.length ) return;
+                    $.post( '/tickets/line/' + data.id,
                         {
-                            newComments.insertAfter( line );
-                        }
-                        else
+                            hideComments: true
+                        },
+                        function ( response )
                         {
-                            comments.replaceWith( newComments );
-                        }
-                        newComments
-                            .pulsate({
+                            if ( ! response ) return;
+                            var newLine = $( response );
+                            line.replaceWith( newLine );
+                            newLine.pulsate({
                                 repeat: 3,
                                 speed: 500,
                                 color: '#F1C40F',
                                 glow: true,
                                 reach: 15
                             });
-                    }
-                );
+                        }
+                    );
+                }
+                break;
+            case 'comment':
+                if ( $( '#ticket-id' ).length )
+                {
+                    if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
+                    $.post( '/tickets/comments/' + data.id,
+                        {
+                            commentsOnly: true
+                        },
+                        function ( response )
+                        {
+                            if ( ! response ) return;
+                            var comments = $( '#ticket-comments' );
+                            comments
+                                .removeAttr( 'class' )
+                                .html( response )
+                                .pulsate({
+                                    repeat: 3,
+                                    speed: 500,
+                                    color: '#F1C40F',
+                                    glow: true,
+                                    reach: 15
+                                });
+                        }
+                    );
+                }
+                else
+                {
+                    var line = $( '#ticket-' + data.id );
+                    if ( ! line.length || line.hasClass( 'hidden' ) ) return;
+                    $.post( '/tickets/comments/' + data.id,
+                        function ( response )
+                        {
+                            if ( ! response ) return;
+                            var comments = $( '#ticket-comments-' + data.id );
+                            var newComments = $( response );
+                            if ( ! comments.length )
+                            {
+                                newComments.insertAfter( line );
+                            }
+                            else
+                            {
+                                comments.replaceWith( newComments );
+                            }
+                            newComments
+                                .pulsate({
+                                    repeat: 3,
+                                    speed: 500,
+                                    color: '#F1C40F',
+                                    glow: true,
+                                    reach: 15
+                                });
+                        }
+                    );
+                }
                 break;
         }
     });

@@ -5,9 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class TicketManagement extends BaseModel
 {
@@ -363,14 +361,8 @@ class TicketManagement extends BaseModel
                 $client->post('https://system.eds-region.ru:8443/stream', [
                     RequestOptions::JSON => [
                         'action' => 'create',
-                        'id' => $this->id
-                    ]
-                ]);
-
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
+                        'id' => $this->id,
+                        'ticket_id' => $ticket->id
                     ]
                 ]);
 
@@ -399,13 +391,6 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
-
                 break;
 
             case 'accepted':
@@ -421,13 +406,6 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
-
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
 
                 break;
 				
@@ -453,13 +431,6 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
-
                 break;
 				
             case 'completed_with_act':
@@ -475,13 +446,6 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
-
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
 
                 break;
 
@@ -500,13 +464,6 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
-
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
 
                 break;
 
@@ -544,13 +501,6 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
-
                 break;
 
             case 'cancel':
@@ -563,25 +513,11 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
-
                 break;
 
             case 'rejected':
 
                 $this->sendTelegramChangeStatus();
-
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'update',
-                        'id' => $this->id
-                    ]
-                ]);
 
                 break;
 
@@ -595,6 +531,14 @@ class TicketManagement extends BaseModel
                 return $res;
             }
         }
+
+        $client->post('https://system.eds-region.ru:8443/stream', [
+            RequestOptions::JSON => [
+                'action' => 'update',
+                'id' => $this->id,
+                'ticket_id' => $ticket->id
+            ]
+        ]);
 
     }
 
