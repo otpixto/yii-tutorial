@@ -35,7 +35,25 @@ socket
 
     .on( 'call', function ( data )
     {
-        console.log( data );
+        var message = '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-action="pickup" data-phone="' + data.call_phone + '">Ответить</button></h4>';
+        if ( data.address )
+        {
+            message += '<div class="small">' + data.address + '</div>';
+        }
+        if ( data.name )
+        {
+            message += '<div class="small">' + data.name + '</div>';
+        }
+        $.bootstrapGrowl( message, {
+            ele: 'body',
+            type: 'warning',
+            offset: {from: 'bottom', amount: 20},
+            align: 'left',
+            width: 350,
+            delay: 10000,
+            allow_dismiss: true,
+            stackup_spacing: 10
+        });
     })
 
     .on( 'stream', function ( data )
