@@ -60,7 +60,8 @@ class ManagementSubscription extends BaseModel
                 'chat_id'                   => $this->telegram_id,
                 'text'                      => $message,
                 'parse_mode'                => 'html',
-                'disable_web_page_preview'  => true
+                'disable_web_page_preview'  => true,
+                'reply_markup'              => \Telegram::replyKeyboardHide()
             ]);
             $chat = $response->getChat();
             if ( $chat )
