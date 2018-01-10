@@ -36,13 +36,13 @@ socket
     .on( 'call', function ( data )
     {
         var message = '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-action="pickup" data-phone="' + data.call_phone + '">Ответить</button></h4>';
-        if ( data.address )
+        if ( data.message.address )
         {
-            message += '<div class="small">' + data.address + '</div>';
+            message += '<div class="small">' + data.message.address + '</div>';
         }
-        if ( data.name )
+        if ( data.message.name )
         {
-            message += '<div class="small">' + data.name + '</div>';
+            message += '<div class="small">' + data.message.name + '</div>';
         }
         $.bootstrapGrowl( message, {
             ele: 'body',
