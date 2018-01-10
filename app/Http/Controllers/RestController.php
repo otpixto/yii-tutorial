@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\PhoneSession;
 use App\Models\Ticket;
 use App\Models\TicketCall;
@@ -22,12 +23,14 @@ class RestController extends Controller
         102         => 'Пользователь отключен',
         103         => 'Для данного пользователя уже создан черновик',
         104         => 'Запись о звонке не найдена в БД',
+        105         => 'Заявитель не найден',
     ];
 
-    public function __construct ()
+    public function __construct ( Request $request )
     {
         $this->logs = new Logger( 'REST' );
         $this->logs->pushHandler( new StreamHandler( storage_path( '/logs/rest.log' ) ) );
+        $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
     }
 
     public function index ()
@@ -35,10 +38,38 @@ class RestController extends Controller
 
     }
 
-    public function createOrUpdateCallDraft ( Request $request )
+    public function customer ( Request $request )
     {
 
-        $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
+        if ( ! $this->auth( $request ) )
+        {
+            return $this->error( 100 );
+        }
+
+        $call_phone = mb_substr( $request->get( 'call_phone' ) );
+
+        $customer = Customer
+            ::where( 'phone', '=', $call_phone )
+            ->orWhere( 'phone2', '=', $call_phone )
+            ->orderBy( 'id', 'desc' )
+            ->first();
+
+        if ( ! $customer )
+        {
+            return $this->error( 105 );
+        }
+
+        $response = [
+            'address' => $customer->getAddress(),
+            'name' => $customer->getName()
+        ];
+
+        return $this->success( $response );
+
+    }
+
+    public function createOrUpdateCallDraft ( Request $request )
+    {
 
         if ( ! $this->auth( $request ) )
         {
@@ -108,8 +139,6 @@ class RestController extends Controller
     public function ticketCall ( Request $request )
     {
 
-        $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
-
         if ( ! $this->auth( $request ) )
         {
             return $this->error( 100 );
@@ -145,7 +174,7 @@ class RestController extends Controller
 
     private function success ( $message )
     {
-        $this->logs->addInfo( 'Успешно', [ $message ] );
+        $this->logs->addInfo( 'Успешно', is_array( $message ) ? $message : [ $message ] );
         return [
             'success'   => true,
             'message'   => $message

@@ -33,8 +33,9 @@ socket
         $( '#call-phone' ).text( '' );
     })
 
-    .on( 'call', function ( phone )
+    .on( 'call', function ( data )
     {
+        console.log( data );
     })
 
     .on( 'stream', function ( data )

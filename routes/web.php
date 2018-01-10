@@ -20,6 +20,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::any( '/', 'RestController@index' );
 
         Route::post( 'call', 'RestController@createOrUpdateCallDraft' );
+        Route::post( 'customer', 'RestController@customer' );
         Route::post( 'ticket-call', 'RestController@ticketCall' );
 
     });
