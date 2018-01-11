@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendStream;
 use App\Models\File;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
@@ -47,8 +46,6 @@ class CommentsController extends Controller
         $comment = Comment::create( $request->all() );
         $comment->save();
 
-        $client = new Client();
-
         if ( $request->get( 'origin_model_name' ) == Ticket::class )
         {
 
@@ -74,13 +71,7 @@ class CommentsController extends Controller
 
                 }
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'comment',
-                        'id' => $ticketManagement->id,
-                        'ticket_id' => $ticket->id
-                    ]
-                ]);
+                $this->dispatch( new SendStream( 'comment', $ticketManagement ) );
 
             }
 
@@ -110,13 +101,7 @@ class CommentsController extends Controller
 
             }
 
-            $client->post('https://system.eds-region.ru:8443/stream', [
-                RequestOptions::JSON => [
-                    'action' => 'comment',
-                    'id' => $ticketManagement->id,
-                    'ticket_id' => $ticket->id
-                ]
-            ]);
+            $this->dispatch( new SendStream( 'comment', $ticketManagement ) );
 
         }
 

@@ -3,10 +3,12 @@
 namespace App;
 
 use App\Classes\Asterisk;
+use App\Jobs\SendEmail;
 use App\Models\Log;
 use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
 use Carbon\Carbon;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\MessageBag;
 use Iphome\Permission\Traits\HasRoles;
@@ -23,7 +25,7 @@ class User extends Model implements
     AuthorizableContract,
     CanResetPasswordContract
 {
-    use Notifiable, HasRoles, Authenticatable, Authorizable, CanResetPassword;
+    use Notifiable, HasRoles, Authenticatable, Authorizable, CanResetPassword, DispatchesJobs;
 
     public $availableStatuses = null;
 
@@ -370,6 +372,11 @@ class User extends Model implements
     public function isActive ()
     {
         return $this->admin || $this->active;
+    }
+
+    public function sendEmail ( $message, $url = null )
+    {
+        $this->dispatch( new SendEmail( $this, $message, $url ) );
     }
 
 }

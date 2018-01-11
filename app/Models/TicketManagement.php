@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Jobs\SendStream;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\MessageBag;
 
 class TicketManagement extends BaseModel
 {
+
+    use DispatchesJobs;
 
     protected $table = 'tickets_managements';
 
@@ -16,7 +18,6 @@ class TicketManagement extends BaseModel
 
     private $history = [];
 
-    private $can_edit = null;
 	private $can_comment = null;
     private $can_upload_act = null;
     private $can_print_act = null;
@@ -330,7 +331,6 @@ class TicketManagement extends BaseModel
     {
 
         $ticket = $this->ticket;
-        $client = new Client();
 
         switch ( $this->status_code )
         {
@@ -358,13 +358,7 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
-                $client->post('https://system.eds-region.ru:8443/stream', [
-                    RequestOptions::JSON => [
-                        'action' => 'create',
-                        'id' => $this->id,
-                        'ticket_id' => $ticket->id
-                    ]
-                ]);
+                $this->dispatch( new SendStream( 'create', $this ) );
 
                 break;
 
@@ -532,13 +526,7 @@ class TicketManagement extends BaseModel
             }
         }
 
-        $client->post('https://system.eds-region.ru:8443/stream', [
-            RequestOptions::JSON => [
-                'action' => 'update',
-                'id' => $this->id,
-                'ticket_id' => $ticket->id
-            ]
-        ]);
+        $this->dispatch( new SendStream( 'update', $this ) );
 
     }
 

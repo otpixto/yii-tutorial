@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Operator;
 
-use App\Classes\Title;
 use App\Http\Controllers\Controller;
 
 class BaseController extends Controller

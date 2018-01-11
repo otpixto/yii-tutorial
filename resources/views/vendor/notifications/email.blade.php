@@ -3,43 +3,31 @@
 @if (! empty($greeting))
 # {{ $greeting }}
 @else
-@if ($level == 'error')
-# Произошла ошибка!
-@else
 # Здравствуйте!
-@endif
 @endif
 
 {{-- Intro Lines --}}
+@isset($introLines)
 @foreach ($introLines as $line)
 {{ $line }}
 
 @endforeach
+@endisset
 
 {{-- Action Button --}}
 @isset($actionText)
-<?php
-    switch ($level) {
-        case 'success':
-            $color = 'green';
-            break;
-        case 'error':
-            $color = 'red';
-            break;
-        default:
-            $color = 'blue';
-    }
-?>
 @component('mail::button', ['url' => $actionUrl, 'color' => $color])
 {{ $actionText }}
 @endcomponent
 @endisset
 
 {{-- Outro Lines --}}
+@isset($outroLines)
 @foreach ($outroLines as $line)
 {{ $line }}
 
 @endforeach
+@endisset
 
 {{-- Salutation --}}
 @if (! empty($salutation))

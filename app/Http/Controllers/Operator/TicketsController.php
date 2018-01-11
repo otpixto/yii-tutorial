@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
+use App\Jobs\SendStream;
 use App\Models\Address;
 use App\Models\Category;
 use App\Models\Customer;
@@ -13,8 +14,6 @@ use App\Models\TicketManagement;
 use App\Models\Type;
 use App\User;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
@@ -416,7 +415,6 @@ class TicketsController extends BaseController
         }
 
         $status_code = 'no_contract';
-        $client = new Client();
 
         foreach ( $request->get( 'managements', [] ) as $manament_id )
         {
@@ -457,13 +455,7 @@ class TicketsController extends BaseController
                 }
             }
 
-            $client->post('https://system.eds-region.ru:8443/stream', [
-                RequestOptions::JSON => [
-                    'action' => 'create',
-                    'id' => $ticketManagement->id,
-                    'ticket_id' => $ticket->id
-                ]
-            ]);
+            $this->dispatch( new SendStream( 'create', $ticketManagement ) );
 
         }
 
@@ -835,19 +827,9 @@ class TicketsController extends BaseController
 		
 		$ticket->edit( $request->all() );
 
-		$client = new Client();
-
 		foreach ( $ticket->managements as $ticketManagement )
         {
-
-            $client->post('https://system.eds-region.ru:8443/stream', [
-                RequestOptions::JSON => [
-                    'action' => 'update',
-                    'id' => $ticketManagement->id,
-                    'ticket_id' => $ticket->id
-                ]
-            ]);
-
+            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
         }
 		
 		return redirect()

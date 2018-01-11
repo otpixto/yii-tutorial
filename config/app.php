@@ -187,6 +187,8 @@ return [
 
         Telegram\Bot\Laravel\TelegramServiceProvider::class,
 
+        \App\Providers\StreamServiceProvider::class,
+
     ],
 
     /*
@@ -243,6 +245,8 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
         'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
+
+        'Stream' => \App\Facades\Stream::class,
 
     ],
 
