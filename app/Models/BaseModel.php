@@ -119,7 +119,7 @@ class BaseModel extends Model
             }
         }
         $new = new static( $attributes );
-        if ( Schema::hasColumn( $new->getTable(), 'author_id' ) )
+        if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && \Auth::user() )
         {
             $new->author_id = \Auth::user()->id;
         }
