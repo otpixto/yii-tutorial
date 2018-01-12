@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\MessageBag;
 
@@ -122,7 +121,7 @@ class BaseModel extends Model
         $new = new static( $attributes );
         if ( Schema::hasColumn( $new->getTable(), 'author_id' ) )
         {
-            $new->author_id = Auth::user()->id;
+            $new->author_id = \Auth::user()->id;
         }
         if ( Schema::hasColumn( $new->getTable(), 'region_id' ) && ! $new->region_id && Region::getCurrent() )
         {
