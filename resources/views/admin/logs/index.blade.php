@@ -96,7 +96,9 @@
                             {{ $log->model_id }}
                         </td>
                         <td>
-                            {!! $log->author->getFullName() !!}
+                            @if ( $log->author )
+                                {!! $log->author->getFullName() !!}
+                            @endif
                         </td>
                         <td>
                             {{ $log->text }}
