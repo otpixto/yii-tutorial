@@ -181,8 +181,13 @@ class AddressesController extends BaseController
             return redirect()->route( 'addresses.index' )
                 ->withErrors( [ 'Адрес не найден' ] );
         }
+		
+		$rules = [
+            'region_id'             => 'required|integer',
+            'name'                  => 'required|string|max:255',
+        ];
 
-        $this->validate( $request, Address::$rules );
+        $this->validate( $request, $rules );
 
         $res = $address->edit( $request->all() );
         if ( $res instanceof MessageBag )
