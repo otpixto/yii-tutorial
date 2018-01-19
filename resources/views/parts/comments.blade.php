@@ -13,11 +13,18 @@
 				<span class="media-buttons">
 					@if ( isset( $ticketManagement ) && $ticketManagement->canComment() )
 						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
-						<i class="fa fa-commenting pull-left"></i>
-						<span class="visible-lg pull-right">
-							ответить
-						</span>
-					</button>
+							<i class="fa fa-commenting pull-left"></i>
+							<span class="visible-lg pull-right">
+								ответить
+							</span>
+						</button>
+					@elseif ( isset( $ticket ) && $ticket->canComment() )
+						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+							<i class="fa fa-commenting pull-left"></i>
+							<span class="visible-lg pull-right">
+								ответить
+							</span>
+						</button>
 					@endif
 					@if ( \Auth::user()->can( 'tickets.comments_delete' ) )
 						<button type="button" class="btn btn-xs btn-danger hidden-print" data-action="comment_delete" data-id="{{ $comment->id }}">
