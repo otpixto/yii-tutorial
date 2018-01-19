@@ -232,7 +232,7 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_comment ) )
         {
-            if ( \Auth::user()->can( 'tickets.comment_add' ) && $this->management->has_contract )
+            if ( \Auth::user()->can( 'tickets.comment_add' ) )
             {
                 $this->can_comment = true;
             }
