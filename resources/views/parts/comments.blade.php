@@ -11,7 +11,7 @@
 					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
 				</span>
 				<span class="media-buttons">
-					@if ( \Auth::user()->can( 'tickets.comment_add' ) )
+					@if ( isset( $ticketManagement ) && $ticketManagement->canComment() )
 						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
 						<i class="fa fa-commenting pull-left"></i>
 						<span class="visible-lg pull-right">
