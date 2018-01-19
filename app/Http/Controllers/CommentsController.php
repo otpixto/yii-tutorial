@@ -133,6 +133,7 @@ class CommentsController extends Controller
             $comment = Comment::find( $comment_id );
             if ( $comment )
             {
+                $comment->addLog( 'Комментарий удален' );
                 $comment->delete();
             }
         }
