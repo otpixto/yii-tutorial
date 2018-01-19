@@ -71,6 +71,7 @@ class DataController extends BaseController
 
         $res = Work
             ::mine()
+            ->current()
             ->whereDoesntHave( 'addresses', function ( $q )
             {
                 return $q
