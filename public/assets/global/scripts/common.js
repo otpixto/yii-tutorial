@@ -308,6 +308,25 @@ $( document )
 	
 	})
 
+    .on ( 'click', '[data-action="comment_delete"]', function ( e )
+    {
+
+        e.preventDefault();
+
+        if ( ! confirm ( 'Вы уверены, что хотите удалить комментарий?' ) ) return;
+
+        var comment_id = $( this ).attr( 'data-id' );
+
+        if ( ! comment_id ) return;
+
+        $( '#comment-' + comment_id ).remove();
+
+        $.post( '/comment/delete', {
+            comment_id: comment_id
+        });
+
+    })
+
     .on ( 'click', '[data-action="file"]', function ( e )
     {
 

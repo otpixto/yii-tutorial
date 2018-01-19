@@ -124,4 +124,19 @@ class CommentsController extends Controller
 		
     }
 
+    public function delete ( Request $request )
+    {
+
+        $comment_id = (int) $request->get( 'comment_id', 0 );
+        if ( $comment_id && \Auth::user()->can( 'tickets.comments_delete' ) )
+        {
+            $comment = Comment::find( $comment_id );
+            if ( $comment )
+            {
+                $comment->delete();
+            }
+        }
+
+    }
+
 }

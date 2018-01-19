@@ -86,6 +86,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
+        Route::post( '/comment/delete', 'CommentsController@delete' )->name( 'comments.delete' );
 
         Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
         Route::post( '/file', 'FilesController@store' )->name( 'files.store' );

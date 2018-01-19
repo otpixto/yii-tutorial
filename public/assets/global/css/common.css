@@ -12,3 +12,7 @@
 .datepicker {
     z-index: 999999;
 }
+
+.media-buttons {
+    margin-left: 15px;
+}
