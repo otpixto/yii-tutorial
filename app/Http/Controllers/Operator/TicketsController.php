@@ -437,8 +437,9 @@ class TicketsController extends BaseController
         }
 
         $status_code = 'no_contract';
+        $managements = $request->get( 'managements', [] );
 
-        foreach ( $request->get( 'managements', [] ) as $manament_id )
+        foreach ( $managements as $manament_id )
         {
 
             $ticketManagement = TicketManagement::create([
@@ -502,7 +503,7 @@ class TicketsController extends BaseController
 		\DB::commit();
 
         return redirect()
-            ->route( 'tickets.show', $ticket->id )
+            ->route( 'tickets.show', count( $managements ) == 1 ? $ticketManagement->getTicketNumber() : $ticket->id )
             ->with( 'success', 'Заявка успешно добавлена' );
 
     }

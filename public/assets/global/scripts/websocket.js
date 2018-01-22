@@ -1,4 +1,4 @@
-var socket = io( '//system.eds-region.ru:8443', { secure: true } );
+var socket = io( 'https://system.eds-region.ru:8443', { secure: true } );
 var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 
 socket
