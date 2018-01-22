@@ -71,7 +71,7 @@
                             @if ( isset( $data[ $category->id ], $data[ $category->id ][ $management->id ] ) )
                                 {{ $data[ $category->id ][ $management->id ][ 'closed' ] }}
                                 /
-                                <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'category_id' => $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" class="bold">
+                                <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" class="bold">
                                     {{ $data[ $category->id ][ $management->id ][ 'total' ] }}
                                 </a>
                             @else
@@ -83,7 +83,7 @@
                         @if ( isset( $data[ 'category-' . $category->id ] ) )
                             {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
                             /
-                            <a href="{{ route( 'tickets.index', [ 'category_id' => $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                            <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
                                 {{ $data[ 'category-' . $category->id ][ 'total' ] }}
                             </a>
                         @else
