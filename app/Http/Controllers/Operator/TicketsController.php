@@ -83,14 +83,24 @@ class TicketsController extends BaseController
                         ->where( 'author_id', '=', $request->get( 'operator_id' ) );
                 }
 
-                if ( !empty( $request->get( 'category_id' ) ) )
+                if ( !empty( $request->get( 'type' ) ) )
                 {
-                    $ticket
-                        ->whereHas( 'type', function ( $q ) use ( $request )
-                        {
-                            return $q
-                                ->where( 'category_id', '=', $request->get( 'category_id' ) );
-                        });
+                    list ( $type, $id ) = explode( '-', $request->get( 'type' ) );
+                    switch ( $type )
+                    {
+                        case 'category':
+                            $ticket
+                                ->whereHas( 'type', function ( $q ) use ( $id )
+                                {
+                                    return $q
+                                        ->where( 'category_id', '=', $id );
+                                });
+                            break;
+                        case 'type':
+                            $ticket
+                                ->where( 'type_id', '=', $id );
+                            break;
+                    }
                 }
 
                 if ( !empty( $request->get( 'address_id' ) ) )
@@ -244,9 +254,21 @@ class TicketsController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
+        $res = Category::orderBy( 'name' )->get();
+        $types = [];
+        foreach ( $res as $r )
+        {
+            $types[ 'category-' . $r->id ] = $r->name;
+            $res2 = $r->types()->orderBy( 'name' )->get();
+            foreach ( $res2 as $r2 )
+            {
+                $types[ 'type-' . $r2->id ] = $r2->name;
+            }
+        }
+
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'categories', Category::orderBy( 'name' )->get() )
+            ->with( 'types', $types )
             ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
             ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
             ->with( 'field_operator', $field_operator )

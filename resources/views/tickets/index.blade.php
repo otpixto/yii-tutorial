@@ -148,7 +148,7 @@
                         <td>
                             <div class="row">
                                 <div class="col-lg-12">
-                                    {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->pluck( 'name', 'id' )->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
+                                    {!! Form::select( 'type', [ null => ' -- все -- ' ] + $types, \Input::old( 'type' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
                                 </div>
                             </div>
                             <div class="row margin-top-10">
