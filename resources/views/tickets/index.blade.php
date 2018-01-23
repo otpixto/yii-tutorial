@@ -55,7 +55,7 @@
                         <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
                             {{ $status_name }}
                             <span class="badge bold">
-                                {{ \App\Models\TicketManagement::mine()->where( 'status_code', '=', $status_code )->count() }}
+                                {{ \App\Models\TicketManagement::getCountByStatus( $status_code ) }}
                             </span>
                         </a>
                     @endif
@@ -137,12 +137,12 @@
                         </td>
                         @if ( $field_operator )
                             <td>
-                                {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators->pluck( 'lastname', 'id' )->toArray(), \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
+                                {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators, \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
                             </td>
                         @endif
                         @if ( $field_management )
                             <td>
-                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'УО' ] ) !!}
+                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements, \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'УО' ] ) !!}
                             </td>
                         @endif
                         <td>

@@ -14,4 +14,15 @@ class BaseController extends Controller
         Title::add( 'Справочник' );
     }
 
+    protected function clearCache ()
+    {
+        \Cache::tags( 'catalog' )->flush();
+    }
+
+    public function clearCacheAndRedirect ()
+    {
+        $this->clearCache();
+        return redirect()->back()->with( 'success', 'Кеш успешно сброшен' );
+    }
+
 }

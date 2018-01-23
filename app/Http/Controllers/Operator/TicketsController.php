@@ -59,7 +59,7 @@ class TicketsController extends BaseController
                         ->where( 'group_uuid', '=', $request->get( 'group' ) );
                 }
 
-                if ( !empty( $exp_number[0] ) )
+                if ( isset( $exp_number[0] ) && !empty( $exp_number[0] ) )
                 {
                     $ticket
                         ->where( 'id', '=', $exp_number[0] );
@@ -161,7 +161,7 @@ class TicketsController extends BaseController
             $address = Address::find( $request->get( 'address_id' ) );
         }
 
-        if ( !empty( $exp_number[1] ) )
+        if ( isset( $exp_number[1] ) && !empty( $exp_number[1] ) )
         {
             $ticketManagements
                 ->where( 'id', '=', $exp_number[1] );
@@ -254,23 +254,56 @@ class TicketsController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        $res = Category::orderBy( 'name' )->get();
-        $types = [];
-        foreach ( $res as $r )
+        if ( \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->has( 'types' ) )
         {
-            $types[ 'category-' . $r->id ] = $r->name;
-            $res2 = $r->types()->orderBy( 'name' )->get();
-            foreach ( $res2 as $r2 )
+            $types = \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->get( 'types' );
+        }
+        else
+        {
+            $res = Category::orderBy( 'name' )->get();
+            $types = [];
+            foreach ( $res as $r )
             {
-                $types[ 'type-' . $r2->id ] = $r2->name;
+                $types[ 'category-' . $r->id ] = $r->name;
+                $res2 = $r->types()->orderBy( 'name' )->get();
+                foreach ( $res2 as $r2 )
+                {
+                    $types[ 'type-' . $r2->id ] = $r2->name;
+                }
             }
+            \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->put( 'ticket.types', $types, \Config::get( 'cache.time' ) );
+        }
+
+        if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'managements.' . \Auth::user()->id ) )
+        {
+            $managements = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'managements.' . \Auth::user()->id );
+        }
+        else
+        {
+            $managements = Management::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
+            \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'managements.' . \Auth::user()->id, $managements, \Config::get( 'cache.time' ) );
+        }
+
+        if ( \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->has( 'operators.' . \Auth::user()->id ) )
+        {
+            $operators = \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->get( 'operators.' . \Auth::user()->id );
+        }
+        else
+        {
+            $res = Ticket::mine()->groupBy( 'author_id' )->get();
+            foreach ( $res as $r )
+            {
+                $operators[ $r->author_id ] = $r->author->getShortName();
+            }
+            asort( $operators );
+            \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->put( 'operators.' . \Auth::user()->id, $operators, \Config::get( 'cache.time' ) );
         }
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'types', $types )
-            ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
-            ->with( 'operators', User::role( 'operator' )->orderBy( 'lastname' )->get() )
+            ->with( 'managements', $managements )
+            ->with( 'operators', $operators )
             ->with( 'field_operator', $field_operator )
             ->with( 'field_management', $field_management )
             ->with( 'regions', $regions )
@@ -311,9 +344,6 @@ class TicketsController extends BaseController
     public function comments ( Request $request, $id )
     {
 
-        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
-        $field_management = \Auth::user()->can( 'tickets.field_management' );
-
         $ticketManagement = TicketManagement
             ::mine()
             ->where( 'id', '=', $id )
@@ -338,8 +368,6 @@ class TicketsController extends BaseController
             return view( 'parts.ticket_comments' )
                 ->with( 'ticketManagement', $ticketManagement )
                 ->with( 'ticket', $ticketManagement->ticket )
-                ->with( 'field_operator', $field_operator )
-                ->with( 'field_management', $field_management )
                 ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
         }
 
@@ -854,10 +882,19 @@ class TicketsController extends BaseController
         {
             $this->dispatch( new SendStream( 'update', $ticketManagement ) );
         }
-		
-		return redirect()
-            ->route( 'tickets.show', $ticket->id )
-            ->with( 'success', 'Заявка успешно отредактирована' );
+
+        $success = 'Заявка успешно отредактирована';
+
+        if ( $request->ajax() )
+        {
+            return compact( 'success' );
+        }
+        else
+        {
+            return redirect()
+                ->route( 'tickets.show', $ticket->id )
+                ->with( 'success', $success );
+        }
 		
     }
 
@@ -1326,6 +1363,12 @@ class TicketsController extends BaseController
                 ->with( 'customer', $customer );
         }
 
+    }
+
+    public function clearCache ()
+    {
+        \Cache::tags( 'ticket' )->flush();
+        return redirect()->route( 'tickets.index' )->with( 'success', 'Кеш успешно сброшен' );
     }
 	
 }

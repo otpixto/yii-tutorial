@@ -107,13 +107,15 @@ class Customer extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        if ( !empty( $attributes['phone'] ) )
+        {
+            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+        }
         if ( !empty( $attributes['phone2'] ) )
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
-        $customer = new Customer( $attributes );
-        $customer->save();
+        $customer = parent::create( $attributes );
         return $customer;
     }
 	
@@ -127,14 +129,7 @@ class Customer extends BaseModel
         {
             $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
         }
-        $res = $this->saveLogs( $attributes );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-        $this->fill( $attributes );
-        $this->save();
-        return $this;
+        return parent::edit( $attributes );
     }
 
     public function getName ()

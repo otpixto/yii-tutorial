@@ -119,6 +119,14 @@ class CustomersController extends BaseController
         $this->validate( $request, Customer::$rules );
 
         $customer = Customer::create( $request->all() );
+        if ( $customer instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $customer );
+        }
+        $customer->save();
+
+        self::clearCache();
 
         return redirect()->route( 'customers.index' )
             ->with( 'success', 'Заявитель успешно добавлен' );
@@ -198,6 +206,8 @@ class CustomersController extends BaseController
             return redirect()->back()
                 ->withErrors( $res );
         }
+
+        self::clearCache();
 
         return redirect()->route( 'customers.edit', $customer->id )
             ->with( 'success', 'Заявитель успешно отредактирован' );

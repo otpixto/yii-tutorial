@@ -9,6 +9,7 @@ use App\Models\ManagementSubscription;
 use App\Models\Region;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class ManagementsController extends BaseController
 {
@@ -142,12 +143,27 @@ class ManagementsController extends BaseController
     public function store(Request $request)
     {
 
-        $rules = Management::$rules;
-        //$rules['services'] = 'nullable|in:' . implode( ',', Management::$services );
+        $rules = [
+            'region_id'             => 'required|integer',
+            'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|string|max:255',
+            'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'email'                 => 'nullable|email',
+            'site'                  => 'nullable|url',
+        ];
 
         $this->validate( $request, $rules );
 
         $management = Management::create( $request->all() );
+        if ( $management instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $management );
+        }
+        $management->save();
+
+        self::clearCache();
 
         return redirect()->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно добавлена' );
@@ -225,12 +241,26 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $rules = Management::$rules;
-        //$rules['services'] = 'nullable|in:' . implode( ',', Management::$services );
+        $rules = [
+            'region_id'             => 'required|integer',
+            'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|string|max:255',
+            'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'email'                 => 'nullable|email',
+            'site'                  => 'nullable|url',
+        ];
 
         $this->validate( $request, $rules );
 
-        $management->edit( $request->all() );
+        $res = $management->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        self::clearCache();
 
         return redirect()->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );

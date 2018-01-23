@@ -270,7 +270,11 @@ class User extends Model implements
 
     public function getAvailableStatuses ( $with_names = false )
     {
-        if ( is_null( $this->availableStatuses ) )
+        if ( \Cache::tags( [ 'dynamic', 'users' ] )->has( 'user.availableStatuses.' . $this->id ) )
+        {
+            $this->availableStatuses = \Cache::tags( [ 'dynamic', 'users' ] )->get( 'user.availableStatuses.' . $this->id );
+        }
+        else if ( is_null( $this->availableStatuses ) )
         {
             $perms = $this->getAllPermissions();
             $this->availableStatuses = [];
@@ -283,6 +287,7 @@ class User extends Model implements
                     $this->availableStatuses[ $status_code ] = Ticket::$statuses[ $status_code ];
                 }
             }
+            \Cache::tags( [ 'dynamic', 'users' ] )->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
         }
         if ( ! $with_names )
         {
@@ -372,6 +377,12 @@ class User extends Model implements
     public function isActive ()
     {
         return $this->admin || $this->active;
+    }
+
+    public function scopeActive ( $query )
+    {
+        return $query
+            ->where( 'active', '=', 1 );
     }
 
     public function sendEmail ( $message, $url = null )

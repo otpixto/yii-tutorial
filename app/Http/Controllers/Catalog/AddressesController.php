@@ -109,6 +109,8 @@ class AddressesController extends BaseController
         }
         $address->save();
 
+        self::clearCache();
+
         return redirect()->route( 'addresses.index' )
             ->with( 'success', 'Адрес успешно добавлен' );
 
@@ -195,6 +197,8 @@ class AddressesController extends BaseController
             return redirect()->back()
                 ->withErrors( $res );
         }
+
+        self::clearCache();
 
         return redirect()->route( 'addresses.edit', $address->id )
             ->with( 'success', 'Адрес успешно отредактирован' );

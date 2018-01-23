@@ -45,9 +45,9 @@ var Modal = {
 			'</div>';
 			var _modal = $( html ).attr( 'data-id', id );
 			_modal.appendTo( '#modals' );
-			callback.call( Modal, _modal );
 		}
 
+        callback.call( Modal, _modal );
 		_modal.modal( 'show' );
 		
 	},
@@ -200,6 +200,60 @@ $( document )
 
 	})
 
+    .on ( 'submit', 'form.ajax', function ( e )
+    {
+    	if ( ! connected ) return;
+        e.preventDefault();
+        var that = $( this );
+        var method = $( this ).attr( 'method' ).toLowerCase();
+        var url = $( this ).attr( 'action' );
+        var data = $( this ).serialize();
+        var modal = that.closest( '.modal' );
+        if ( modal.length )
+        {
+        	modal.find( ':submit' ).attr( 'disabled', 'disabled' ).addClass( 'loading' );
+        }
+        switch ( method )
+		{
+			case 'post':
+				$.post( url, data, function ( response )
+				{
+					that.trigger( 'callback', response );
+				});
+				break;
+			case 'get':
+                $.get( url, data, function ( response )
+                {
+                    that.trigger( 'callback', response );
+                });
+				break;
+		}
+    })
+
+	.on ( 'callback', 'form.ajax', function ( e, response )
+	{
+        var modal = $( this ).closest( '.modal' );
+        if ( modal.length )
+        {
+            modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
+            modal.modal( 'hide' );
+        }
+        if ( response && response.success )
+		{
+            App.alert({
+                container: '#success-message', // alerts parent container(by default placed after the page breadcrumbs)
+                place: 'append', // append or prepent in container
+                type: 'success',  // alert's type
+                message: response.success,  // alert's message
+                close: true, // make alert closable
+                reset: false, // close all previouse alerts first
+                focus: true, // auto scroll to the alert after shown
+                closeInSeconds: 5, // auto close after defined seconds
+                icon: 'fa fa-check' // put icon before the message
+            });
+		}
+	})
+
 	.on ( 'click', '#tickets-new-show', function ( e )
 	{
 
@@ -303,7 +357,7 @@ $( document )
             with_file: with_file
 		}, function ( response )
 		{
-			Modal.createSimple( title || 'Добавить комментарий', response, 'comment' );
+			Modal.createSimple( title || 'Добавить комментарий', response, 'create-comment' );
 		});
 	
 	})
@@ -371,9 +425,8 @@ $( document )
 
     .on ( 'submit', '.submit-loading', function ( e )
     {
-
         $( this ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
-
+        $( this ).closest( '.modal' ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
     })
 
     .on ( 'submit', '[data-confirm]', function ( e )

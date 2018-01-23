@@ -46,10 +46,10 @@ class CommentsController extends Controller
         $comment = Comment::create( $request->all() );
         $comment->save();
 
-        if ( $request->get( 'origin_model_name' ) == Ticket::class )
+        if ( $comment->origin_model_name == Ticket::class )
         {
 
-            $ticket = Ticket::find( $request->get( 'origin_model_id' ) );
+            $ticket = $comment->parentOriginal;
 
             foreach ( $ticket->managements as $ticketManagement )
             {
@@ -77,10 +77,10 @@ class CommentsController extends Controller
 
 
         }
-        else if ( $request->get( 'origin_model_name' ) == TicketManagement::class )
+        else if ( $comment->origin_model_name == TicketManagement::class )
         {
 
-            $ticketManagement = TicketManagement::find( $request->get( 'origin_model_id' ) );
+            $ticketManagement = $comment->parentOriginal;
 
             if ( \Config::get( 'telegram.active' ) )
             {
@@ -120,7 +120,16 @@ class CommentsController extends Controller
             }
         }
 
-		return redirect()->back()->with( 'success', 'Комментарий добавлен' );
+        $success = 'Комментарий успешно добавлен';
+
+        if ( $request->ajax() )
+        {
+            return compact( 'success' );
+        }
+        else
+        {
+            return redirect()->back()->with( 'success', $success );
+        }
 		
     }
 
@@ -133,6 +142,10 @@ class CommentsController extends Controller
             $comment = Comment::find( $comment_id );
             if ( $comment )
             {
+                if ( $comment->origin_model_name == TicketManagement::class && $comment->parentOriginal )
+                {
+                    $this->dispatch( new SendStream( 'comment', $comment->parentOriginal ) );
+                }
                 $comment->addLog( 'Комментарий удален' );
                 $comment->delete();
             }

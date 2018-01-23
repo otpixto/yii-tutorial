@@ -1,4 +1,4 @@
-{!! Form::open( [ 'class' => 'form-horizontal submit-loading' ] ) !!}
+{!! Form::open( [ 'class' => 'form-horizontal submit-loading ajax' ] ) !!}
 {!! Form::hidden( 'id', $ticket->id ) !!}
 <div class="form-group">
 	{!! Form::label( 'management_id', 'ЭО', [ 'class' => 'control-label col-xs-4' ] ) !!}

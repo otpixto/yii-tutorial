@@ -1,11 +1,13 @@
 var socket = io( 'https://system.eds-region.ru:8443', { secure: true } );
 var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
+var connected = false;
 
 socket
 
     .on( 'connect', function ()
     {
         console.log( 'socket connected' );
+        connected = true;
         if ( number )
         {
             socket.emit( 'number', number );

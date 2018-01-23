@@ -299,6 +299,24 @@ class TicketManagement extends BaseModel
                 ->withErrors( $log );
         }
 
+        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code ) )
+        {
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->decrement( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code );
+        }
+        else
+        {
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code, self::getCountByStatus( $this->status_code ), \Config::get( 'cache.time' ) );
+        }
+
+        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $status_code ) )
+        {
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->increment( 'ticket.status.' . \Auth::user()->id . '.' . $status_code );
+        }
+        else
+        {
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $status_code, self::getCountByStatus( $status_code ), \Config::get( 'cache.time' ) );
+        }
+
         $this->status_code = $status_code;
         $this->status_name = Ticket::$statuses[ $status_code ];
         $this->save();
@@ -587,6 +605,20 @@ class TicketManagement extends BaseModel
             $url = route( 'tickets.show', $this->getTicketNumber() );
         }
         return $url;
+    }
+
+    public static function getCountByStatus ( $status_code )
+    {
+        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $status_code ) )
+        {
+            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( 'ticket.status.' . \Auth::user()->id . '.' . $status_code );
+        }
+        else
+        {
+            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $status_code, $count, \Config::get( 'cache.time' ) );
+        }
+        return $count;
     }
 
 }

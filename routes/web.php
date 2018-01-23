@@ -78,6 +78,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
         Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
         Route::post( '/tickets', 'Operator\TicketsController@export' );
+        Route::get( '/tickets/clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
         Route::resource( '/tickets', 'Operator\TicketsController' );
         Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
         Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
@@ -129,6 +130,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::prefix( 'catalog' )->group( function ()
         {
+            Route::get( 'clear-cache', 'Catalog\BaseController@clearCacheAndRedirect' )->name( 'catalog.clear_cache' );
             Route::get( 'addresses/types/add', 'Catalog\AddressesController@getAddTypes' )->name( 'addresses.types.add' );
             Route::post( 'addresses/types/add', 'Catalog\AddressesController@postAddTypes' )->name( 'addresses.types.add' );
             Route::post( 'addresses/types/del', 'Catalog\AddressesController@delType' )->name( 'addresses.types.del' );

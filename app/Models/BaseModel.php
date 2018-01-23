@@ -95,6 +95,12 @@ class BaseModel extends Model
         return $this->belongsTo( $this->model_name, 'model_id' );
     }
 
+    public function parentOriginal ()
+    {
+        if ( ! Schema::hasColumn( $this->getTable(), 'origin_model_name' ) ) return null;
+        return $this->belongsTo( $this->origin_model_name, 'origin_model_id' );
+    }
+
     public function childs ()
     {
         $model_name = get_class( $this );

@@ -74,6 +74,8 @@ class CategoriesController extends BaseController
         }
         $category->save();
 
+        self::clearCache();
+
         return redirect()->route( 'categories.index' )
             ->with( 'success', 'Категория успешно добавлена' );
 
@@ -132,6 +134,8 @@ class CategoriesController extends BaseController
             return redirect()->back()
                 ->withErrors( $res );
         }
+
+        self::clearCache();
 
         return redirect()->route( 'categories.edit', $category->id )
             ->with( 'success', 'Категория успешно отредактирована' );

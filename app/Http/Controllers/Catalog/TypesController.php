@@ -111,6 +111,8 @@ class TypesController extends BaseController
         }
         $type->save();
 
+        self::clearCache();
+
         return redirect()->route( 'types.index' )
             ->with( 'success', 'Классификатор успешно добавлен' );
 
@@ -190,6 +192,8 @@ class TypesController extends BaseController
             return redirect()->route( 'types.index' )
                 ->withErrors( $res );
         }
+
+        self::clearCache();
 
         return redirect()->route( 'types.edit', $type->id )
             ->with( 'success', 'Классификатор успешно отредактирован' );

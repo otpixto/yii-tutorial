@@ -1,4 +1,4 @@
-{!! Form::model( $ticket, [ 'method' => 'put', 'route' => [ 'tickets.update', $ticket->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+{!! Form::model( $ticket, [ 'method' => 'put', 'route' => [ 'tickets.update', $ticket->id ], 'class' => 'form-horizontal submit-loading ajax' ] ) !!}
 {!! Form::hidden( 'id', $ticket->id ) !!}
 <div class="form-group">
 	{!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label col-xs-4' ] ) !!}
