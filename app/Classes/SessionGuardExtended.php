@@ -18,7 +18,10 @@ class SessionGuardExtended extends SessionGuard
                 return redirect()->back()->withErrors( $log );
             }
         }
-        parent::login( $user, $remember );
+        $this->updateSession( $user->getAuthIdentifier() );
+        $this->fireLoginEvent( $user, $remember );
+        $this->setUser( $user );
+        #parent::login( $user, $remember );
     }
 
     public function logout ()

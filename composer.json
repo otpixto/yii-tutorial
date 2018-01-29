@@ -14,7 +14,7 @@
         "php": ">=5.6.4",
         "iphome/laravel-permission": "dev-master",
         "irazasyed/telegram-bot-sdk": "^2.0",
-        "laravel/framework": "5.4.33",
+        "laravel/framework": "~5.4.33",
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "~5.0",
         "maatwebsite/excel": "^2.1",
@@ -47,11 +47,9 @@
             "php artisan key:generate"
         ],
         "post-install-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postInstall",
             "php artisan optimize"
         ],
         "post-update-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
             "php artisan optimize"
         ]
     },
