@@ -1,7 +1,3 @@
-<div class="alert alert-info">
-    Заявитель:
-    <b>{{ $customer->getName() }}</b>
-</div>
 <table class="table table-hover table-striped table-condensed">
     <thead>
         <tr>
@@ -16,9 +12,6 @@
             </th>
             <th>
                 Адрес проблемы
-            </th>
-            <th>
-                Текст заявки
             </th>
         </tr>
     </thead>
@@ -36,28 +29,19 @@
                 </span>
             </td>
             <td>
-                <span class="small">
+                <div class="small bold">
+                    {{ $ticket->type->category->name }}
+                </div>
+                <div class="small">
                     {{ $ticket->type->name }}
-                </span>
+                </div>
             </td>
             <td>
                 <span class="small">
-                    {{ $ticket->getAddress() }}
-                </span>
-            </td>
-            <td>
-                <span class="small">
-                    {{ $ticket->text }}
+                    {{ $ticket->getAddress( true ) }}
                 </span>
             </td>
         </tr>
     @endforeach
     </tbody>
 </table>
-@can ( 'tickets.customer_tickets' )
-    <div class="margin-top-10">
-        <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" target="_blank" class="btn btn-primary">
-            Показать все заявки заявителя
-        </a>
-    </div>
-@endcan

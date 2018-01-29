@@ -49,7 +49,7 @@ class Customer extends BaseModel
 
     public function tickets ()
     {
-        return $this->hasMany( 'App\Models\Ticket' );
+        return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
     }
 
     public function actualAddress ()
@@ -105,15 +105,25 @@ class Customer extends BaseModel
             });
     }
 
+    public function scopeName ( $query, $firstname, $middlename, $lastname )
+    {
+        return $query
+            ->where( 'firstname', '=', $firstname )
+            ->where( 'middlename', '=', $middlename )
+            ->where( 'lastname', '=', $lastname );
+    }
+
     public static function create ( array $attributes = [] )
     {
-        if ( !empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+            $attributes[ 'phone' ] = str_replace( '+7', '', $attributes[ 'phone' ] );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
         }
-        if ( !empty( $attributes['phone2'] ) )
+        if ( ! empty( $attributes[ 'phone2' ] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
+            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
         }
         $customer = parent::create( $attributes );
         return $customer;
@@ -121,13 +131,13 @@ class Customer extends BaseModel
 	
 	public function edit ( array $attributes = [] )
     {
-        if ( ! empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
         }
-        if ( ! empty( $attributes['phone2'] ) )
+        if ( ! empty( $attributes[ 'phone2' ] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
         }
         return parent::edit( $attributes );
     }

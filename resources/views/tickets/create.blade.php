@@ -82,41 +82,31 @@
             <div class="form-group ">
                 {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave', 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Телефоны', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-4">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
+                {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave customer-autocomplete', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
                 </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave', 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                <div class="col-xs-1 text-right">
-                    @if ( ! empty( \Input::old( 'customer_id', $draft->customer_id ?? null ) ) )
-                        <button type="button" class="btn btn-danger" id="customers-clear">
-                            <i class="fa fa-user"></i>
-                        </button>
-                    @else
-                        <button type="button" class="btn btn-default" disabled="disabled" id="customers-select">
-                            <i class="fa fa-user"></i>
-                        </button>
-                    @endif
+                {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave customer-autocomplete', 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control select2-ajax autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -240,7 +230,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                     <h4 class="modal-title text-warning bold">
                         <i class="fa fa-support"></i>
-                        Заявки заявителя
+                        Заявки с номера заявителя
                     </h4>
                 </div>
                 <div class="modal-body" id="customer_tickets">
@@ -282,6 +272,7 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
@@ -293,6 +284,7 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
@@ -304,61 +296,21 @@
     <script type="text/javascript">
 
         var streamer = new ya.speechkit.SpeechRecognition();
+        var timers = {};
 
-        function SearchCustomers ( obj )
+        function GetTickets ()
         {
 
-            var phone = $( '#phone' ).val();
+            var phone = $.trim( $( '#phone' ).val() );
 
-            if ( /_/.test( phone ) )
+            if ( ! phone || /_/.test( phone ) )
             {
-                $( '#customers' ).empty();
-                $( '#customers-select' ).attr( 'disabled', 'disabled' ).attr( 'class', 'btn btn-default' );
                 return;
             }
 
-            if ( obj )
-            {
-                obj.trigger( 'change' );
-            }
-
-            $( '#customers-list .list-group' ).empty();
-
-            $.get( '{{ route( 'customers.search' ) }}', {
+            $.get( '{{ route( 'tickets.search' ) }}', {
                 phone: phone,
                 region_id: $( '#region_id' ).val()
-            }, function ( response )
-            {
-                if ( response )
-                {
-                    $( '#customers' ).html( response );
-                    if ( $( '#customer_id' ).val() == '' )
-                    {
-                        $( '#customers-select' ).removeAttr( 'disabled' ).attr( 'class', 'btn btn-warning' );
-                        // if ( $( '[data-action="customers-select"]' ).length == 1 )
-                        // {
-                        //     $( '[data-action="customers-select"]' ).trigger( 'click' );
-                        // }
-                    }
-                }
-                else
-                {
-                    $( '#customers' ).empty();
-                    $( '#customers-select' ).attr( 'disabled', 'disabled' ).attr( 'class', 'btn btn-default' );
-                }
-            });
-
-        };
-
-        function SearchTickets ()
-        {
-
-            var customer_id = $( '#customer_id' ).val();
-
-            if ( ! customer_id ) return;
-
-            $.get( '{{ route( 'tickets.search' ) }}', {
-                customer_id: customer_id
             }, function ( response )
             {
                 if ( response )
@@ -562,6 +514,24 @@
             .ready( function ()
             {
 
+                $( '.customer-autocomplete' ).autocomplete({
+                    source: function ( request, response )
+                    {
+                        var r = {};
+                        r.param = this.element[0].name;
+                        r.value = request.term;
+                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data, status, xhr )
+                        {
+                            response( data );
+                        });
+                    },
+                    minLength: 2,
+                    select: function ( event, ui )
+                    {
+                        $( this ).blur();
+                    }
+                });
+
                 $( '#tags' ).on( 'itemAdded', function ( e )
                 {
                     var id = $( '#ticket_id' ).val();
@@ -606,7 +576,7 @@
                     }
                 });
 
-                $( '#address_id' ).select2({
+                $( '#address_id, #actual_address_id' ).select2({
                     minimumInputLength: 3,
                     minimumResultsForSearch: 30,
                     ajax: {
@@ -630,12 +600,7 @@
                 GetTypeInfo();
                 GetManagements();
                 GetWorks();
-                SearchCustomers();
-                SearchTickets();
-
-                @if ( $draft->phone )
-                    $( '#phone' ).trigger( 'change' );
-                @endif
+                GetTickets();
 
             })
 
@@ -648,23 +613,22 @@
             {
                 var id = $( '#ticket_id' ).val();
                 if ( ! id ) return;
-                var field = $( this ).attr( 'name' );
-                var value = $( this ).is( '[type="checkbox"]' ) ? ( $( this ).is( ':checked' ) ? 1 : 0 ) : $( this ).val();
-                $.post( '{{ route( 'tickets.save' ) }}', {
-                    id: id,
-                    field: field,
-                    value: value
-                });
-            })
-
-            .on( 'change', '#customer_id', function ( e )
-            {
-                SearchTickets();
-            })
-
-            .on( 'keyup', '#phone', function ( e )
-            {
-                SearchCustomers( $( this ) );
+                var that = $( this );
+                if ( timers[ that.attr( 'name' ) ] )
+                {
+                    window.clearTimeout( timers[ that.attr( 'name' ) ] );
+                }
+                timers[ that.attr( 'name' ) ] = window.setTimeout( function ()
+                {
+                    timers[ that.attr( 'name' ) ] = null;
+                    var field = that.attr( 'name' );
+                    var value = that.is( '[type="checkbox"]' ) ? ( that.is( ':checked' ) ? 1 : 0 ) : that.val();
+                    $.post( '{{ route( 'tickets.save' ) }}', {
+                        id: id,
+                        field: field,
+                        value: value
+                    });
+                }, 500 );
             })
 
             .on( 'keydown', function ( e )
@@ -673,122 +637,6 @@
                 {
                     ToggleMicrophone();
                 }
-            })
-
-            .on( 'click', '#customers-select', function ( e )
-            {
-                e.preventDefault();
-                $( '#customers-modal' ).modal( 'show' );
-            })
-
-            .on( 'click', '#customers-clear', function ( e )
-            {
-
-                e.preventDefault();
-
-                var that = $( this );
-
-                bootbox.confirm({
-                    message: 'Очистить поля заявителя?',
-                    size: 'small',
-                    buttons: {
-                        confirm: {
-                            label: '<i class="fa fa-check"></i> Да',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: '<i class="fa fa-times"></i> Нет',
-                            className: 'btn-danger'
-                        }
-                    },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
-
-                            $( '#firstname, #middlename, #lastname, #customer_id, #actual_address_id, #phone2, #actual_flat' ).val( '' ).trigger( 'change' );
-                            $( '#actual_address_id' ).trigger( 'change' );
-                            $( '#phone' ).removeAttr( 'readonly' );
-                            that.attr( 'id', 'customers-select' ).attr( 'class', 'btn btn-warning' );
-
-                        }
-                    }
-                });
-
-            })
-
-            .on( 'click', '[data-action="customers-select"]', function ( e )
-            {
-
-                e.preventDefault();
-
-                var that = $( this );
-
-                function setValue ()
-                {
-
-                    $( '#customers-modal' ).modal( 'hide' );
-
-                    var address_id = that.attr( 'data-address-id' );
-                    var address = that.attr( 'data-address' );
-
-                    $( '#firstname' ).val( that.attr( 'data-firstname' ) ).trigger( 'change' );
-                    $( '#middlename' ).val( that.attr( 'data-middlename' ) ).trigger( 'change' );
-                    $( '#lastname' ).val( that.attr( 'data-lastname' ) ).trigger( 'change' );
-                    $( '#actual_address_id' ).append( $( '<option></option>' ).val( address_id ).text( address ) ).val( address_id ).trigger( 'change' );
-                    $( '#actual_flat' ).val( that.attr( 'data-flat' ) ).trigger( 'change' );
-
-                    $( '#phone' ).attr( 'readonly', 'readonly' );
-
-                    if ( $( '#phone2' ).val() == '' )
-                    {
-                        if ( $( '#phone' ).val().replace( /\D/g, '' ).substr( -10 ) == that.attr( 'data-phone2' ) )
-                        {
-                            $( '#phone2' ).val( that.attr( 'data-phone' ) ).trigger( 'change' );
-                        }
-                        else
-                        {
-                            $( '#phone2' ).val( that.attr( 'data-phone2' ) ).trigger( 'change' );
-                        }
-                    }
-
-                    $( '#customer_id' ).val( that.attr( 'data-id' ) ).trigger( 'change' );
-
-                    $( '#customers-select' ).attr( 'class', 'btn btn-danger' ).attr( 'id', 'customers-clear' );
-
-                };
-
-                if ( $( '[data-action="customers-select"]' ).length == 1 )
-                {
-                    setValue();
-                }
-                else
-                {
-                    bootbox.confirm({
-                        message: 'Заполнить поля заявителя выбранными данными?',
-                        size: 'small',
-                        buttons: {
-                            confirm: {
-                                label: '<i class="fa fa-check"></i> Да',
-                                className: 'btn-success'
-                            },
-                            cancel: {
-                                label: '<i class="fa fa-times"></i> Нет',
-                                className: 'btn-danger'
-                            }
-                        },
-                        callback: function ( result )
-                        {
-                            if ( result )
-                            {
-
-                                setValue();
-
-                            }
-                        }
-                    });
-                }
-
             })
 
             .on( 'change', '#type_id', function ( e )
@@ -804,6 +652,52 @@
             .on( 'change', '#address_id', function ( e )
             {
                 GetWorks();
+            })
+
+            .on( 'change', '#fistname, #middlename, #lastname', function ( e )
+            {
+                var param = 'phone_by_name';
+                if ( timers[ param ] )
+                {
+                    window.clearTimeout( timers[ param ] );
+                }
+                timers[ param ] = window.setTimeout( function ()
+                {
+                    timers[ param ] = null;
+                    var firstname = $.trim( $( '#firstname' ).val() );
+                    var middlename = $.trim( $( '#middlename' ).val() );
+                    var lastname = $.trim( $( '#lastname' ).val() );
+                    if ( firstname != '' && middlename != '' && lastname != '' )
+                    {
+                        var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
+                        if ( ! phone )
+                        {
+                            var r = {};
+                            r.param = param;
+                            r.firstname = firstname;
+                            r.middlename = middlename;
+                            r.lastname = lastname;
+                            $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( response )
+                            {
+                                $( '#phone' )
+                                    .val( response.phone )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            });
+                        }
+                    }
+                }, 500 );
+            })
+
+            .on( 'change', '#phone', function ()
+            {
+                GetTickets();
             });
 
     </script>

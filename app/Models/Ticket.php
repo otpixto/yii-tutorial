@@ -174,7 +174,7 @@ class Ticket extends BaseModel
 
     public function customer ()
     {
-        return $this->belongsTo( 'App\Models\Customer' );
+        return $this->belongsTo( 'App\Models\Customer', 'phone', 'phone' );
     }
 
     public function childs ()
@@ -337,14 +337,15 @@ class Ticket extends BaseModel
         if ( ! $ticket )
         {
 
-            if ( !empty( $attributes['phone'] ) )
+            if ( ! empty( $attributes[ 'phone' ] ) )
             {
-                $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+                $attributes[ 'phone' ] = str_replace( '+7', '', $attributes[ 'phone' ] );
+                $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
             }
-
-            if ( !empty( $attributes['phone2'] ) )
+            if ( ! empty( $attributes[ 'phone2' ] ) )
             {
-                $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+                $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
+                $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
             }
 
             $ticket = parent::create( $attributes );
@@ -370,13 +371,15 @@ class Ticket extends BaseModel
 	
 	public function edit ( array $attributes = [] )
 	{
-        if ( ! empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone'] ), -10 );
+            $attributes[ 'phone' ] = str_replace( '+7', '', $attributes[ 'phone' ] );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
         }
-        if ( ! empty( $attributes['phone2'] ) )
+        if ( ! empty( $attributes[ 'phone2' ] ) )
         {
-            $attributes['phone2'] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes['phone2'] ), -10 );
+            $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
+            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
         }
 		if ( $this->status_code != 'draft' )
 		{

@@ -50,7 +50,11 @@ class TicketsController extends BaseController
                 if ( $customer_id )
                 {
                     $ticket
-                        ->where( 'customer_id', '=', $customer_id );
+                        ->whereHas( 'customer', function ( $q ) use ( $customer_id )
+                        {
+                            return $q
+                                ->where( 'id', '=', $customer_id );
+                        });
                 }
 
                 if ( !empty( $request->get( 'group' ) ) )
@@ -460,8 +464,7 @@ class TicketsController extends BaseController
         else
         {
             $customer = Customer::create( $request->all() );
-            $ticket->customer_id = $customer->id;
-            $ticket->save();
+            $customer->save();
         }
 
         $status_code = 'no_contract';
@@ -1280,9 +1283,6 @@ class TicketsController extends BaseController
     {
         $ticket = Ticket::find( $request->id );
         if ( ! $ticket ) return;
-        $ticket->edit([
-            $request->get( 'field' ) => $request->get( 'value' )
-        ]);
         switch ( $request->get( 'field' ) )
         {
             case 'tags':
@@ -1295,7 +1295,13 @@ class TicketsController extends BaseController
                 }
                 break;
             default:
-
+                $res = $ticket->edit([
+                    $request->get( 'field' ) => $request->get( 'value' )
+                ]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
                 break;
         }
 
@@ -1347,10 +1353,11 @@ class TicketsController extends BaseController
             return null;
         }
 
-        $customer = Customer::find( $request->get( 'customer_id' ) );
+        $phone = str_replace( '+7', '', $request->get( 'phone' ) );
+        $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
 
         $tickets = Ticket
-            ::where( 'customer_id', '=', $customer->id )
+            ::where( 'phone', '=', $phone )
             ->where( 'status_code', '!=', 'draft' )
             ->orderBy( 'id', 'desc' )
             ->take( 10 )
@@ -1359,8 +1366,7 @@ class TicketsController extends BaseController
         if ( $tickets->count() )
         {
             return view( 'tickets.select' )
-                ->with( 'tickets', $tickets )
-                ->with( 'customer', $customer );
+                ->with( 'tickets', $tickets );
         }
 
     }

@@ -141,7 +141,34 @@ class CustomersController extends BaseController
      */
     public function show($id)
     {
-        //
+        if ( $id == 'fix' )
+        {
+            $customers = Customer
+                ::whereRaw( 'LENGTH( phone ) < 10' )
+                ->get();
+            foreach ( $customers as $customer )
+            {
+                $customer->delete();
+            }
+            $customers = Customer
+                ::orderBy( 'id', 'desc' )
+                ->get();
+            foreach ( $customers as $customer )
+            {
+                $_customers = Customer
+                    ::where( 'phone', '=', $customer->phone )
+                    ->where( 'id', '!=', $customer->id )
+                    ->get();
+                if ( $_customers->count() )
+                {
+                    foreach( $_customers as $_customer )
+                    {
+                        $_customer->delete();
+                    }
+                }
+            }
+        }
+        return redirect()->route( 'customers.index' );
     }
 
     /**
@@ -228,19 +255,48 @@ class CustomersController extends BaseController
     public function search ( Request $request )
     {
 
-        $phone = mb_substr( preg_replace( '/[^0-9]/', '', $request->get( 'phone' ) ), -10 );
+        $param = $request->get( 'param' );
+        $value = trim( $request->get( 'value', '' ) );
         $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
-        $customers = Customer
-            ::where( function ( $q ) use ( $phone )
-            {
-                return $q
-                    ->where( 'phone', '=', $phone )
-                    ->orWhere( 'phone2', '=', $phone );
-            })
-            ->orderBy( 'lastname' )
-            ->orderBy( 'firstname' )
-            ->orderBy( 'middlename' );
+        switch ( $param )
+        {
+            case 'phone':
+            case 'phone2':
+                $value = str_replace( '+7', '', $value );
+                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
+                $union = Customer
+                    ::select( 'phone2' . ' as label' )
+                    ->where( 'phone2', 'like', $value . '%' );
+                $customers = Customer
+                    ::select( 'phone' . ' as label' )
+                    ->where( 'phone', 'like', $value . '%' )
+                    ->union( $union );
+                break;
+            case 'lastname':
+            case 'middlename':
+            case 'firstname':
+                $customers = Customer
+                    ::select( $param . ' as label' )
+                    ->where( $param, 'like', $value . '%' );
+                break;
+            case 'phone_by_name':
+                $firstname = trim( $request->get( 'firstname', '' ) );
+                $middlename = trim( $request->get( 'middlename', '' ) );
+                $lastname = trim( $request->get( 'lastname', '' ) );
+                $customer = Customer
+                    ::name( $firstname, $middlename, $lastname )
+                    ->select(
+                        'phone',
+                        'phone2'
+                    )
+                    ->get();
+                return $customer->count() == 1 ? $customer->first() : [];
+                break;
+            default:
+                return [];
+                break;
+        }
 
         if ( $region_id )
         {
@@ -249,13 +305,10 @@ class CustomersController extends BaseController
         }
 
         $customers = $customers
+            ->distinct( 'label' )
             ->get();
 
-        if ( $customers->count() )
-        {
-            return view( 'catalog.customers.select' )
-                ->with( 'customers', $customers );
-        }
+        return $customers;
 
     }
 
