@@ -520,7 +520,7 @@
                         var r = {};
                         r.param = this.element[0].name;
                         r.value = request.term;
-                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data, status, xhr )
+                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data )
                         {
                             response( data );
                         });
@@ -528,7 +528,7 @@
                     minLength: 2,
                     select: function ( event, ui )
                     {
-                        $( this ).blur();
+                        $( this ).trigger( 'change' );
                     }
                 });
 
@@ -600,7 +600,8 @@
                 GetTypeInfo();
                 GetManagements();
                 GetWorks();
-                GetTickets();
+
+                $( '#phone' ).trigger( 'change' );
 
             })
 
@@ -676,6 +677,7 @@
                         r.lastname = lastname;
                         $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( response )
                         {
+                            if ( ! response ) return;
                             var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
                             var actual_address_id = $( '#actual_address_id' ).val();
                             var actual_flat = $( '#actual_flat' ).val();
@@ -694,7 +696,6 @@
                             }
                             if ( ! actual_address_id && response.actual_address_id )
                             {
-                                var newOption = new Option( response.actual_address.name, response.actual_address_id, false, false );
                                 $( '#actual_address_id' )
                                     .append(
                                         $( '<option>' )
@@ -732,6 +733,101 @@
             .on( 'change', '#phone', function ()
             {
                 GetTickets();
+                var param = 'name_by_phone';
+                if ( timers[ param ] )
+                {
+                    window.clearTimeout( timers[ param ] );
+                }
+                timers[ param ] = window.setTimeout( function ()
+                {
+                    timers[ param ] = null;
+                    var firstname = $.trim( $( '#firstname' ).val() );
+                    var middlename = $.trim( $( '#middlename' ).val() );
+                    var lastname = $.trim( $( '#lastname' ).val() );
+                    var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
+                    var actual_address_id = $( '#actual_address_id' ).val();
+                    var actual_flat = $( '#actual_flat' ).val();
+                    if ( ! firstname || ! middlename || ! lastname || ! actual_address_id || ! actual_flat )
+                    {
+                        var r = {};
+                        r.param = param;
+                        r.phone = phone;
+                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( response )
+                        {
+                            if ( ! response ) return;
+                            if ( ! firstname && response.firstname )
+                            {
+                                $( '#firstname' )
+                                    .val( response.firstname )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! middlename && response.middlename )
+                            {
+                                $( '#middlename' )
+                                    .val( response.middlename )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! lastname && response.lastname )
+                            {
+                                $( '#lastname' )
+                                    .val( response.lastname )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! actual_address_id && response.actual_address_id )
+                            {
+                                $( '#actual_address_id' )
+                                    .append(
+                                        $( '<option>' )
+                                            .val( response.actual_address_id )
+                                            .text( response.actual_address.name )
+                                    )
+                                    .val( response.actual_address_id )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! actual_flat && response.actual_flat )
+                            {
+                                $( '#actual_flat' )
+                                    .val( response.actual_flat )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                        });
+                    }
+                }, 500 );
             });
 
     </script>

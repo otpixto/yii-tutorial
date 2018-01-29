@@ -290,8 +290,12 @@ class CustomersController extends BaseController
                         'phone',
                         'actual_address_id',
                         'actual_flat'
-                    )
-                    ->get();
+                    );
+                if ( $region_id )
+                {
+                    $customers
+                        ->where( 'region_id', '=', $region_id );
+                }
                 if ( $customers->count() == 1 )
                 {
                     $customer = $customers->first();
@@ -300,6 +304,30 @@ class CustomersController extends BaseController
                 else
                 {
                     $customer = [];
+                }
+                return $customer;
+                break;
+            case 'name_by_phone':
+                $value = str_replace( '+7', '', $request->get( 'phone', '' ) );
+                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
+                $customer = Customer
+                    ::where( 'phone', '=', $value )
+                    ->select(
+                        'firstname',
+                        'middlename',
+                        'lastname',
+                        'actual_address_id',
+                        'actual_flat'
+                    );
+                if ( $region_id )
+                {
+                    $customer
+                        ->where( 'region_id', '=', $region_id );
+                }
+                $customer = $customer->first();
+                if ( $customer )
+                {
+                    $customer->actualAddress;
                 }
                 return $customer;
                 break;
