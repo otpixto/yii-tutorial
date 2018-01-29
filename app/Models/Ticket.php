@@ -388,6 +388,14 @@ class Ticket extends BaseModel
 			{
 				return $res;
 			}
+            if ( ( isset( $attributes[ 'lastname' ] ) || isset( $attributes[ 'firstname' ] ) || isset( $attributes[ 'middlename' ] ) || isset( $attributes[ 'actual_address_id' ] ) || isset( $attributes[ 'actual_flat' ] ) || isset( $attributes[ 'phone' ] ) || isset( $attributes[ 'phone2' ] ) ) && $this->customer )
+            {
+                $res = $this->customer->edit( $attributes );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+            }
 		}
         $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
@@ -420,15 +428,6 @@ class Ticket extends BaseModel
                 }
 			}
 		}
-
-		if ( ( isset( $attributes[ 'lastname' ] ) || isset( $attributes[ 'firstname' ] ) || isset( $attributes[ 'middlename' ] ) || isset( $attributes[ 'actual_address_id' ] ) || isset( $attributes[ 'actual_flat' ] ) || isset( $attributes[ 'phone' ] ) || isset( $attributes[ 'phone2' ] ) ) && $this->customer )
-        {
-            $res = $this->customer->edit( $attributes );
-            if ( $res instanceof MessageBag )
-            {
-                return $res;
-            }
-        }
 
         $this->save();
 

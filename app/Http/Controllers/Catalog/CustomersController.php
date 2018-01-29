@@ -284,14 +284,24 @@ class CustomersController extends BaseController
                 $firstname = trim( $request->get( 'firstname', '' ) );
                 $middlename = trim( $request->get( 'middlename', '' ) );
                 $lastname = trim( $request->get( 'lastname', '' ) );
-                $customer = Customer
+                $customers = Customer
                     ::name( $firstname, $middlename, $lastname )
                     ->select(
                         'phone',
-                        'phone2'
+                        'actual_address_id',
+                        'actual_flat'
                     )
                     ->get();
-                return $customer->count() == 1 ? $customer->first() : [];
+                if ( $customers->count() == 1 )
+                {
+                    $customer = $customers->first();
+                    $customer->actualAddress;
+                }
+                else
+                {
+                    $customer = [];
+                }
+                return $customer;
                 break;
             default:
                 return [];
