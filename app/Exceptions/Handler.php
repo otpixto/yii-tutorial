@@ -2,10 +2,11 @@
 
 namespace App\Exceptions;
 
-use App\Models\Region;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -23,29 +24,24 @@ class Handler extends ExceptionHandler
         \Illuminate\Validation\ValidationException::class,
     ];
 
-    /**
-     * Report or log an exception.
-     *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-     *
-     * @param  \Exception  $exception
-     * @return void
-     */
-    public function report(Exception $exception)
-    {
-        parent::report($exception);
-    }
 
-    /**
-     * Render an exception into an HTTP response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
-     */
-    public function render( $request, Exception $exception )
+    public function render($request, Exception $e)
     {
-        return parent::render( $request, $exception );
+        $e = $this->prepareException($e);
+
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        } elseif ($e instanceof AuthenticationException) {
+            return $this->unauthenticated($request, $e);
+        } elseif ($e instanceof ValidationException) {
+            return $this->convertValidationExceptionToResponse($e, $request);
+        } elseif ($e instanceof InactiveException) {
+            \Auth::guard()->logout();
+            return redirect()->route( 'login' )
+                ->withErrors( [ $e->getMessage() ] );
+        }
+
+        return $this->prepareResponse($request, $e);
     }
 
     /**

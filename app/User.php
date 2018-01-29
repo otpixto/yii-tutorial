@@ -7,7 +7,6 @@ use App\Jobs\SendEmail;
 use App\Models\Log;
 use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
-use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\MessageBag;
@@ -360,13 +359,17 @@ class User extends Model implements
         }
     }
 
-    public function addLog ( $text )
+    public function addLog ( $text, $author_id = null )
     {
         $log = Log::create([
             'model_id'      => $this->id,
             'model_name'    => get_class( $this ),
             'text'          => $text
         ]);
+        if ( $author_id )
+        {
+            $log->author_id = $author_id;
+        }
         if ( $log instanceof MessageBag )
         {
             return $log;
@@ -382,7 +385,8 @@ class User extends Model implements
     public function scopeActive ( $query )
     {
         return $query
-            ->where( 'active', '=', 1 );
+            ->where( 'active', '=', 1 )
+            ->orWhere( 'admin', '=', 1 );
     }
 
     public function sendEmail ( $message, $url = null )

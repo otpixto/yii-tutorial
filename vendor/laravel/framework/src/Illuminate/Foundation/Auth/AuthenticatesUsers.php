@@ -4,7 +4,6 @@ namespace Illuminate\Foundation\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\MessageBag;
 
 trait AuthenticatesUsers
 {
@@ -141,7 +140,7 @@ trait AuthenticatesUsers
      *
      * @return string
      */
-    public function username ()
+    public function username()
     {
         return 'email';
     }
@@ -154,19 +153,11 @@ trait AuthenticatesUsers
      */
     public function logout(Request $request)
     {
-        $user = $this->guard()->user();
-        if ( $user && $user->openPhoneSession )
-        {
-            $res = $user->phoneSessionUnreg();
-            if ( $res instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $res );
-            }
-        }
         $this->guard()->logout();
-        $request->session()->flush();
-        $request->session()->regenerate();
-        return redirect('/login');
+
+        $request->session()->invalidate();
+
+        return redirect('/');
     }
 
     /**
