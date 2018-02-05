@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
@@ -17,6 +18,10 @@ trait RegistersUsers
      */
     public function showRegistrationForm()
     {
+        if ( Region::isOperatorUrl() )
+        {
+            return redirect()->route( 'login' );
+        }
         return view('auth.register' );
     }
 
@@ -28,12 +33,13 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {
+        if ( Region::isOperatorUrl() )
+        {
+            return redirect()->route( 'login' );
+        }
         $this->validator($request->all())->validate();
-
         event(new Registered($user = $this->create($request->all())));
-
         $this->guard()->login($user);
-
         return $this->registered($request, $user)
             ?: redirect($this->redirectPath());
     }
