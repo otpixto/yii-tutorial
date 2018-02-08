@@ -74,7 +74,7 @@ class Sync extends Command
         $rules = [
             'guid'                  => 'nullable|unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'region_id'             => 'required|integer',
-            'name'                  => 'required|string|max:255',
+            'name'                  => 'required|string|max:255|unique:addresses,name',
         ];
 
         try
