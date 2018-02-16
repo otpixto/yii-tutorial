@@ -94,7 +94,7 @@ socket
                 );
                 break;
             case 'update':
-                if ( $( '#ticket-id' ).length )
+                if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
                     $( '#ticket-show' ).load( window.location.href + ' #ticket-show', function ()

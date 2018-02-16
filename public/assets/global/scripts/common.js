@@ -213,31 +213,28 @@ $( document )
         {
         	modal.find( ':submit' ).attr( 'disabled', 'disabled' ).addClass( 'loading' );
         }
-        switch ( method )
-		{
-			case 'post':
-				$.post( url, data, function ( response )
-				{
-					that.trigger( 'callback', response );
-				});
-				break;
-			case 'get':
-                $.get( url, data, function ( response )
-                {
-                    that.trigger( 'callback', response );
-                });
-				break;
-		}
+        $.ajax({
+            url: url,
+            data: data,
+            method: method,
+            success: function ( response )
+            {
+                modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
+                modal.modal( 'hide' );
+                that.trigger( 'success', response );
+            },
+            error: function ( response )
+            {
+                modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
+                modal.modal( 'hide' );
+                that.trigger( 'errors', response );
+            },
+            cache: false
+        });
     })
 
-	.on ( 'callback', 'form.ajax', function ( e, response )
+	.on ( 'success', 'form.ajax', function ( e, response )
 	{
-        var modal = $( this ).closest( '.modal' );
-        if ( modal.length )
-        {
-            modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
-            modal.modal( 'hide' );
-        }
         if ( response && response.success )
 		{
             App.alert({
@@ -253,6 +250,27 @@ $( document )
             });
 		}
 	})
+
+    .on ( 'errors', 'form.ajax', function ( e, response )
+    {
+        if ( response && response.responseJSON )
+        {
+            $.each( response.responseJSON, function ( i, error )
+            {
+                App.alert({
+                    container: '#errors-message', // alerts parent container(by default placed after the page breadcrumbs)
+                    place: 'append', // append or prepent in container
+                    type: 'danger',  // alert's type
+                    message: error,  // alert's message
+                    close: true, // make alert closable
+                    reset: false, // close all previouse alerts first
+                    focus: true, // auto scroll to the alert after shown
+                    closeInSeconds: 5, // auto close after defined seconds
+                    icon: 'fa fa-close' // put icon before the message
+                });
+            });
+        }
+    })
 
 	.on ( 'click', '#tickets-new-show', function ( e )
 	{

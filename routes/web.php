@@ -118,8 +118,14 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
             Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
             Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
-            Route::get( 'map', 'Operator\ReportsController@map' )->name( 'reports.map' );
-            Route::get( 'works-map', 'Operator\ReportsController@worksMap' )->name( 'reports.works_map' );
+        });
+
+        Route::prefix( 'maps' )->group( function ()
+        {
+            Route::get( 'tickets', 'Maps\MapsController@tickets' )->name( 'maps.tickets' );
+            Route::get( 'works', 'Maps\MapsController@works' )->name( 'maps.works' );
+            Route::resource( 'zones', 'Maps\ZonesController' );
+            Route::post( 'zones/load', 'Maps\ZonesController@load' )->name( 'zones.load' );
         });
 
         Route::prefix( 'data' )->group( function ()

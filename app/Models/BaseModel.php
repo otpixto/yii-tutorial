@@ -108,6 +108,11 @@ class BaseModel extends Model
             ->where( 'model_name', '=', $model_name );
     }
 
+    public function region ()
+    {
+        return $this->belongsTo( 'App\Models\Region' );
+    }
+
     public function author ()
     {
         return $this->belongsTo( 'App\User' );
@@ -115,7 +120,7 @@ class BaseModel extends Model
 
     public static function create ( array $attributes = [] )
     {
-        if ( isset( $attributes['model_name'], $attributes['model_id'] ) )
+        if ( isset( $attributes[ 'model_name' ], $attributes[ 'model_id' ] ) )
         {
             $model = new $attributes['model_name'];
             $exists = $model->where( 'id', '=', $attributes['model_id'] )->first();

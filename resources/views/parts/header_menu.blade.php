@@ -2,29 +2,6 @@
 <div class="nav-collapse collapse navbar-collapse navbar-responsive-collapse">
     <ul class="nav navbar-nav">
 
-        <li class="dropdown more-dropdown @if ( Request::is( 'about' ) || Request::is( 'schedule*' ) ) selected @endif">
-            <a href="{{ route( 'about' ) }}" class="text-uppercase">
-                <i class="fa fa-home"></i>
-                <span class="hidden-md">
-                    Главная
-                </span>
-            </a>
-            <ul class="dropdown-menu">
-                <li>
-                    <a href="{{ route( 'about' ) }}">
-                        О компании
-                    </a>
-                </li>
-                @if ( \Auth::user()->can( 'schedule' ) )
-                    <li>
-                        <a href="{{ route( 'schedule.index' ) }}">
-                            График работы операторов
-                        </a>
-                    </li>
-                @endif
-            </ul>
-        </li>
-
         @if ( \Auth::user()->canOne( [ 'tickets.show', 'tickets.create', 'tickets.call' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
@@ -159,20 +136,40 @@
                             </a>
                         </li>
                     @endif--}}
-					@if ( \Auth::user()->can( 'reports.map' ) )
-                        <li>
-                            <a href="{{ route( 'reports.map' ) }}">
-                                География обращений
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->can( 'reports.works_map' ) )
-                        <li>
-                            <a href="{{ route( 'reports.works_map' ) }}">
-                                География работ на сетях
-                            </a>
-                        </li>
-                    @endif
+                </ul>
+            </li>
+        @endif
+
+        @if ( \Auth::user()->canOne( [ 'maps.zones.show', 'maps.zones.edit', 'maps.tickets', 'maps.works' ] ) )
+            <li class="dropdown more-dropdown @if ( Request::is( 'maps*' ) ) selected @endif">
+                <a href="javascript:;" class="text-uppercase">
+                    <i class="fa fa-map"></i>
+                    <span class="hidden-md">
+                        Карты
+                    </span>
+                </a>
+                <ul class="dropdown-menu">
+                @if ( \Auth::user()->can( 'maps.tickets' ) )
+                    <li>
+                        <a href="{{ route( 'maps.tickets' ) }}">
+                            География обращений
+                        </a>
+                    </li>
+                @endif
+                @if ( \Auth::user()->can( 'maps.works' ) )
+                    <li>
+                        <a href="{{ route( 'maps.works' ) }}">
+                            География работ на сетях
+                        </a>
+                    </li>
+                @endif
+                @if ( \Auth::user()->canOne( [ 'maps.zones.show', 'maps.zones.edit' ] ) )
+                    <li>
+                        <a href="{{ route( 'zones.index' ) }}">
+                            Зоны обслуживания
+                        </a>
+                    </li>
+                @endif
                 </ul>
             </li>
         @endif
@@ -223,7 +220,7 @@
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>
                     <span class="hidden-md">
-                        Администрирование
+                        Админ
                     </span>
                 </a>
                 <ul class="dropdown-menu">
