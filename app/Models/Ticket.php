@@ -73,12 +73,12 @@ class Ticket extends BaseModel
     public static $workflow = [
         'draft' => [
             'created',
-            'no_contract',
+            #'no_contract',
         ],
         'created' => [
             'transferred',
             'cancel',
-            'no_contract',
+            #'no_contract',
         ],
         'transferred' => [
             'cancel',
