@@ -104,7 +104,7 @@ class PermsController extends BaseController
         $perm->edit( $request->all() );
 
         return redirect()->route( 'perms.edit', $perm->id )
-            ->with( 'success', 'Роль успешно отредактирована' );
+            ->with( 'success', 'Права успешно отредактированы' );
 
     }
 
