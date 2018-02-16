@@ -174,7 +174,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->canOne( [ 'catalog.managements.show', 'catalog.categories.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ] ) )
+        @if ( \Auth::user()->canOne( [ 'catalog.managements.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ] ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-edit"></i>
