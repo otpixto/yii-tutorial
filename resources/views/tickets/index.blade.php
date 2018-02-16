@@ -211,30 +211,6 @@
                         @include( 'parts.ticket', [ 'ticketManagement' => $ticketManagement ] )
                     @endforeach
                     </tbody>
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'tickets.group' ) || \Auth::user()->can( 'tickets.delete' ) )
-                        <tfoot class="hidden-print">
-                            <tr>
-                                <th colspan="{{ 2 + ( $field_operator ? 1 : 0 ) }}" class="text-right">
-                                    Действия с выделенными
-                                </th>
-                                <td colspan="{{ 4 + ( $field_management ? 1 : 0 ) }}">
-                                    @can ( 'tickets.group' )
-                                        <button type="submit" name="action" value="group" class="btn btn-default">
-                                            Группировать
-                                        </button>
-                                        <button type="submit" name="action" value="ungroup" class="btn btn-default">
-                                            Разгруппировать
-                                        </button>
-                                    @endcan
-                                    @can ( 'tickets.delete' )
-                                        <button type="submit" name="action" value="delete" class="btn btn-danger hidden">
-                                            Удалить
-                                        </button>
-                                    @endcan
-                                </td>
-                            </tr>
-                        </tfoot>
-                    @endif
                     {!! Form::close() !!}
                 @else
                     </tbody>
