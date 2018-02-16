@@ -59,6 +59,7 @@ class Management extends BaseModel
         'site',
         'services',
         'category_id',
+        'has_contract',
     ];
 
     public function addresses ()
@@ -90,6 +91,11 @@ class Management extends BaseModel
     {
         return $this->belongsToMany( 'App\User', 'users_managements' );
     }
+	
+	public function author ()
+    {
+        return $this->belongsTo( 'App\User' );
+    }
 
     public function scopeCategory ( $query, $category_id )
     {
@@ -101,16 +107,21 @@ class Management extends BaseModel
     {
         if ( ! \Auth::user() ) return false;
         $query
-            ->whereHas( 'addresses', function ( $q )
-            {
-                return $q
-                    ->whereHas( 'region', function ( $q2 )
-                    {
-                        return $q2
-                            ->mine()
-                            ->current();
-                    });
-            });
+			->where( function ( $q )
+			{
+				return $q
+					->where( 'author_id', '=', \Auth::user()->id )
+					->orWhereHas( 'addresses', function ( $addresses )
+					{
+						return $addresses
+							->whereHas( 'region', function ( $region )
+							{
+								return $region
+									->mine()
+									->current();
+							});
+					});
+			});
         if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query
