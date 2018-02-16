@@ -25,6 +25,9 @@ class TicketManagement extends BaseModel
     private $availableStatuses = null;
 
     public static $workflow = [
+        'created' => [
+            'no_contract',
+        ],
         'transferred' => [
             'accepted',
             'rejected',
