@@ -71,10 +71,9 @@ class CommentsController extends Controller
 
                 }
 
-                $this->dispatch( new SendStream( 'comment', $ticketManagement ) );
-
             }
 
+            $this->dispatch( new SendStream( 'comment', $ticket ) );
 
         }
         else if ( $comment->origin_model_name == TicketManagement::class )

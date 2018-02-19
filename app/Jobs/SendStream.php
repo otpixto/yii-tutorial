@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Ticket;
 use App\Models\TicketManagement;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -14,17 +15,17 @@ class SendStream implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $action;
-    protected $ticketManagement;
+    protected $object;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct ( $action, TicketManagement $ticketManagement )
+    public function __construct ( $action, $object )
     {
         $this->action = $action;
-        $this->ticketManagement = $ticketManagement;
+        $this->object = $object;
     }
 
     /**
@@ -36,7 +37,23 @@ class SendStream implements ShouldQueue
     {
         try
         {
-            \Stream::send( $this->action, $this->ticketManagement );
+            switch ( get_class( $this->object ) )
+            {
+                case Ticket::class:
+                    $data = [
+                        'action' => $this->action,
+                        'ticket_id' => $this->object->id
+                    ];
+                    break;
+                case TicketManagement::class:
+                    $data = [
+                        'action' => $this->action,
+                        'ticket_id' => $this->object->ticket->id,
+                        'ticket_management_id' => $this->object->id
+                    ];
+                    break;
+            }
+            \Stream::send( $data );
         }
         catch ( \Exception $e )
         {

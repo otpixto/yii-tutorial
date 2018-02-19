@@ -61,12 +61,13 @@ socket
     .on( 'stream', function ( data )
     {
         if ( ! data || ! data.action ) return;
+        //console.log( data );
         switch ( data.action )
         {
             case 'create':
-                var line = $( '#ticket-' + data.id );
+                var line = $( '#ticket-management-' + data.ticket_management_id );
                 if ( line.length ) return;
-                $.post( '/tickets/line/' + data.id,
+                $.post( '/tickets/line/' + data.ticket_management_id,
                     {
                         hide: true
                     },
@@ -100,14 +101,17 @@ socket
                     $( '#ticket-show' ).load( window.location.href + ' #ticket-show', function ()
                     {
                         // без этого быдлядства не обошлось...
-                        $( '#ticket-show' ).replaceWith( $( '#ticket-show #ticket-show' ) );
+                        if ( $( '#ticket-show #ticket-show' ).length )
+                        {
+                            $( '#ticket-show' ).replaceWith( $( '#ticket-show #ticket-show' ) );
+                        }
                     });
                 }
-                else
+                else if ( data.ticket_management_id )
                 {
-                    var line = $( '#ticket-' + data.id );
+                    var line = $( '#ticket-management-' + data.ticket_management_id );
                     if ( ! line.length ) return;
-                    $.post( '/tickets/line/' + data.id,
+                    $.post( '/tickets/line/' + data.ticket_management_id,
                         {
                             hideComments: true
                         },
@@ -126,12 +130,40 @@ socket
                         }
                     );
                 }
+                else
+                {
+                    var lines = $( '[data-ticket="' + data.ticket_id + '"]' );
+                    if ( ! lines.length ) return;
+                    lines.each( function()
+                    {
+                        var line = $( this );
+                        var ticket_management_id = line.attr( 'data-ticket-management' );
+                        $.post( '/tickets/line/' + ticket_management_id,
+                            {
+                                hideComments: true
+                            },
+                            function ( response )
+                            {
+                                if ( ! response ) return;
+                                var newLine = $( response );
+                                line.replaceWith( newLine );
+                                newLine.pulsate({
+                                    repeat: 3,
+                                    speed: 500,
+                                    color: '#F1C40F',
+                                    glow: true,
+                                    reach: 15
+                                });
+                            }
+                        );
+                    });
+                }
                 break;
             case 'comment':
-                if ( $( '#ticket-id' ).length )
+                if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
-                    $.post( '/tickets/comments/' + data.id,
+                    $.post( '/tickets/comments/' + data.ticket_management_id,
                         {
                             commentsOnly: true
                         },
@@ -152,15 +184,15 @@ socket
                         }
                     );
                 }
-                else
+                else if ( data.ticket_management_id )
                 {
-                    var line = $( '#ticket-' + data.id );
+                    var line = $( '#ticket-management-' + data.ticket_management_id );
                     if ( ! line.length || line.hasClass( 'hidden' ) ) return;
-                    $.post( '/tickets/comments/' + data.id,
+                    $.post( '/tickets/comments/' + data.ticket_management_id,
                         function ( response )
                         {
                             if ( ! response ) return;
-                            var comments = $( '#ticket-comments-' + data.id );
+                            var comments = $( '#ticket-comments-' + data.ticket_management_id );
                             var newComments = $( response );
                             if ( ! comments.length )
                             {

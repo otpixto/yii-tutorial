@@ -469,6 +469,7 @@ class TicketsController extends BaseController
 
         $status_code = 'no_contract';
         $managements = $request->get( 'managements', [] );
+        $managements_count = 0;
 
         foreach ( $managements as $manament_id )
         {
@@ -511,6 +512,8 @@ class TicketsController extends BaseController
 
             $this->dispatch( new SendStream( 'create', $ticketManagement ) );
 
+            $managements_count ++;
+
         }
 
 		if ( count( $request->get( 'tags', [] ) ) )
@@ -534,7 +537,7 @@ class TicketsController extends BaseController
 		\DB::commit();
 
         return redirect()
-            ->route( 'tickets.show', count( $managements ) == 1 ? $ticketManagement->getTicketNumber() : $ticket->id )
+            ->route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id )
             ->with( 'success', 'Заявка успешно добавлена' );
 
     }
@@ -611,7 +614,9 @@ class TicketsController extends BaseController
             $ticketCalls = new Collection();
         }
 
-        return view( 'tickets.show' )
+        $view = $request->ajax() ? 'parts.ticket_info' : 'tickets.show';
+
+        return view( $view )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
             ->with( 'ticketCalls', $ticketCalls )
@@ -881,10 +886,7 @@ class TicketsController extends BaseController
 		
 		$ticket->edit( $request->all() );
 
-		foreach ( $ticket->managements as $ticketManagement )
-        {
-            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
-        }
+        $this->dispatch( new SendStream( 'update', $ticket ) );
 
         $success = 'Заявка успешно отредактирована';
 
