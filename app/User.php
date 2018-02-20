@@ -133,6 +133,11 @@ class User extends BaseModel implements
         'remember_token',
     ];
 
+    public function customer ()
+    {
+        return $this->belongsTo( 'App\Models\Customer', 'phone', 'phone' );
+    }
+
     public function managements ()
     {
         return $this->belongsToMany( 'App\Models\Management', 'users_managements' );

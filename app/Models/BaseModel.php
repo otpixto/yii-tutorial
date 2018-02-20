@@ -130,7 +130,7 @@ class BaseModel extends Model
             }
         }
         $new = new static( $attributes );
-        if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && \Auth::user() )
+        if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && ! $new->author_id && \Auth::user() )
         {
             $new->author_id = \Auth::user()->id;
         }
@@ -176,9 +176,10 @@ class BaseModel extends Model
         }
     }
 
-    public function addLog ( $text )
+    public function addLog ( $text, $author_id = null )
     {
         $log = Log::create([
+            'author_id'     => $author_id,
             'model_id'      => $this->id,
             'model_name'    => get_class( $this ),
             'text'          => $text

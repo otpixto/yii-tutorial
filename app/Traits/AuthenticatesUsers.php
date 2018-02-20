@@ -2,10 +2,8 @@
 
 namespace App\Traits;
 
-use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\MessageBag;
 
 trait AuthenticatesUsers
 {

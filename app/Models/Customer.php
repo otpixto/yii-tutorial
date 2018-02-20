@@ -47,6 +47,11 @@ class Customer extends BaseModel
         'email',
     ];
 
+    public function user ()
+    {
+        return $this->belongsTo( 'App\User', 'phone', 'phone' );
+    }
+
     public function tickets ()
     {
         return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
