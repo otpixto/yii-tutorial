@@ -4,7 +4,7 @@ namespace App;
 
 use App\Classes\Asterisk;
 use App\Jobs\SendEmail;
-use App\Models\Log;
+use App\Models\BaseModel;
 use App\Models\Ticket;
 use App\Notifications\MailResetPasswordToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -13,13 +13,12 @@ use Illuminate\Support\MessageBag;
 use Iphome\Permission\Traits\HasRoles;
 use App\Traits\Authorizable;
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-class User extends Model implements
+class User extends BaseModel implements
     AuthenticatableContract,
     AuthorizableContract,
     CanResetPasswordContract
@@ -41,7 +40,6 @@ class User extends Model implements
         'firstname',
         'middlename',
         'lastname',
-        'phone',
         'email',
         'company',
         'password',
@@ -49,6 +47,7 @@ class User extends Model implements
 
     public static $rules_create = [
         'regions' => [
+            'required',
             'array',
         ],
         'firstname' => [
@@ -64,7 +63,7 @@ class User extends Model implements
             'max:255',
         ],
         'phone' => [
-            'nullable',
+            'required',
             'max:18',
             'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         ],
@@ -166,15 +165,29 @@ class User extends Model implements
     public static function create ( array $attributes = [] )
     {
 
-        $attributes['password'] = bcrypt( $attributes['password'] );
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+        $attributes[ 'password' ] = bcrypt( $attributes[ 'password' ] );
+        $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
 
-        $user = new User( $attributes );
+        $user = User
+            ::where( 'phone', $attributes[ 'phone' ] )
+            ->first();
+
+        if ( $user )
+        {
+            return new MessageBag( [ 'Пользователь с таким номером телефона уже создан' ] );
+        }
+
+        $user = parent::create( $attributes );
         $user->save();
 
         if ( ! empty( $attributes[ 'regions' ] ) )
         {
             $user->regions()->attach( $attributes[ 'regions' ] );
+        }
+
+        if ( ! empty( $attributes[ 'roles' ] ) )
+        {
+            $user->assignRole( $attributes[ 'roles' ] );
         }
 
         return $user;
@@ -184,12 +197,14 @@ class User extends Model implements
     public function edit ( array $attributes = [] )
     {
 
-        $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+        $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
 
-        $this->saveLogs( $attributes );
+        $res = parent::edit( $attributes );
 
-        $this->fill( $attributes );
-        $this->save();
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
 
         $this->regions()->sync( $attributes[ 'regions' ] ?? [] );
 
@@ -334,47 +349,6 @@ class User extends Model implements
     public function sendPasswordResetNotification ( $token )
     {
         $this->notify( new MailResetPasswordToken( $token ) );
-    }
-
-    public function saveLogs ( array $newValues = [] )
-    {
-        $oldValues = $this->getAttributes();
-        foreach ( $newValues as $field => $val )
-        {
-            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val ) continue;
-            $log = $this->saveLog( $field, $oldValues[ $field ], $val );
-            if ( $log instanceof MessageBag )
-            {
-                return $log;
-            }
-        }
-    }
-
-    public function saveLog ( $field, $oldValue, $newValue )
-    {
-        $log = $this->addLog( '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"' );
-        if ( $log instanceof MessageBag )
-        {
-            return $log;
-        }
-    }
-
-    public function addLog ( $text, $author_id = null )
-    {
-        $log = Log::create([
-            'model_id'      => $this->id,
-            'model_name'    => get_class( $this ),
-            'text'          => $text
-        ]);
-        if ( $author_id )
-        {
-            $log->author_id = $author_id;
-        }
-        if ( $log instanceof MessageBag )
-        {
-            return $log;
-        }
-        $log->save();
     }
 
     public function isActive ()

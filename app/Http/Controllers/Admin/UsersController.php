@@ -133,7 +133,13 @@ class UsersController extends BaseController
 
         $user = User::create( $request->all() );
 
-        $user->syncRoles( $request->get( 'roles', [] ) );
+        if ( $user instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors( $user );
+        }
 
         return redirect()->route( 'users.edit', $user->id )
             ->with( 'success', 'Пользователь успешно создан' );
@@ -181,9 +187,10 @@ class UsersController extends BaseController
 
         $user = User::find( $id );
 
-        if ( !$user )
+        if ( ! $user )
         {
-            return redirect()->route( 'users.index' )
+            return redirect()
+                ->route( 'users.index' )
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
 

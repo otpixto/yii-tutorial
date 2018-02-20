@@ -35,18 +35,18 @@
                 {!! Form::open( [ 'url' => route( 'users.store' ) ] ) !!}
 
                 <!-- PERSONAL INFO TAB -->
-                <div class="steps" id="step1">
+                <div class="steps" id="step1" data-step="1">
                     <div class="form-group">
                         {!! Form::label( 'regions', 'Регион', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'regions[]', $regions->pluck( 'name', 'id' ), \Input::old( 'regions' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион', 'multiple' ] ) !!}
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия', 'required' => 'required' ] ) !!}
+                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя', 'required' => 'required' ] ) !!}
+                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
@@ -63,15 +63,15 @@
                 <!-- END PERSONAL INFO TAB -->
 
                 <!-- PASSWORD TAB -->
-                <div class="steps hidden" id="step2">
+                <div class="steps hidden" id="step2" data-step="2">
                     <div class="form-group">
                         {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail', 'required' => 'required' ] ) !!}
+                        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
                         <div class="input-group">
-                            {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль', 'required' => 'required' ] ) !!}
+                            {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
                             <span class="input-group-btn">
                                 <button id="genpassword" class="btn btn-info" type="button">
                                     <i class="fa fa-arrow-left fa-fw"></i>
@@ -82,7 +82,7 @@
                     </div>
                     <div class="form-group">
                         {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль', 'required' => 'required' ] ) !!}
+                        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
                     </div>
                     <div class="margiv-top-10">
                         {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
@@ -92,7 +92,7 @@
                 <!-- END PASSWORD TAB -->
 
                 <!-- PRIVACY SETTINGS TAB -->
-                <div class="steps hidden" id="step3">
+                <div class="steps hidden" id="step3" data-step="3">
 
                     <div class="caption caption-md">
                         <i class="icon-globe theme-font hide"></i>
@@ -127,12 +127,16 @@
 
 @section( 'css' )
     <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section( 'js' )
 
     <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
@@ -143,6 +147,8 @@
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
+
+                $( '.select2' ).select2();
 
             })
 

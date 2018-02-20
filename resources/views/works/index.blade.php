@@ -9,134 +9,140 @@
 
 @section( 'content' )
 
-    @if( \Auth::user()->canOne( [ 'works.create', 'works.export' ] ) )
-        <div class="row margin-bottom-15 hidden-print">
-            <div class="col-xs-6">
-                @can( 'works.create' )
-                    <a href="{{ route( 'works.create' ) }}" class="btn btn-success btn-lg">
-                        <i class="fa fa-plus"></i>
-                        Добавить сообщение
-                    </a>
-                @endcan
-            </div>
-            <div class="col-xs-6 text-right">
-                @can( 'works.export' )
-                    <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                        <i class="fa fa-download"></i>
-                        Выгрузить в Excel
-                    </a>
-                @endcan
-            </div>
-        </div>
-    @endcan
+    @if ( \Auth::user()->canOne( [ 'works.show', 'works.all' ] ) )
 
-    <div class="row hidden-print">
-        <div class="col-xs-12">
-            {!! Form::open( [ 'method' => 'get' ] ) !!}
-                <div class="input-group">
-                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa fa-search"></i>
-                            Поиск
-                        </button>
-                    </span>
+        @if( \Auth::user()->canOne( [ 'works.create', 'works.export' ] ) )
+            <div class="row margin-bottom-15 hidden-print">
+                <div class="col-xs-6">
+                    @can( 'works.create' )
+                        <a href="{{ route( 'works.create' ) }}" class="btn btn-success btn-lg">
+                            <i class="fa fa-plus"></i>
+                            Добавить сообщение
+                        </a>
+                    @endcan
                 </div>
-            {!! Form::close() !!}
+                <div class="col-xs-6 text-right">
+                    @can( 'works.export' )
+                        <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                            <i class="fa fa-download"></i>
+                            Выгрузить в Excel
+                        </a>
+                    @endcan
+                </div>
+            </div>
+        @endcan
+
+        <div class="row hidden-print">
+            <div class="col-xs-12">
+                {!! Form::open( [ 'method' => 'get' ] ) !!}
+                    <div class="input-group">
+                        {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fa fa-search"></i>
+                                Поиск
+                            </button>
+                        </span>
+                    </div>
+                {!! Form::close() !!}
+            </div>
         </div>
-    </div>
 
-    <div class="row margin-top-15">
-        <div class="col-xs-12">
+        <div class="row margin-top-15">
+            <div class="col-xs-12">
 
-            {{ $works->render() }}
+                {{ $works->render() }}
 
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
-                    {!! Form::hidden( 'show', \Input::get( 'show', null ) ) !!}
-                    <tr class="info">
-                        <th>
-                             Номер сообщения
-                        </th>
-                        <th>
-                            Основание
-                        </th>
-                        <th>
-                            Адрес работ
-                        </th>
-                        <th>
-                            Категория
-                        </th>
-                        <th>
-                            Исполнитель работ
-                        </th>
-                        <th>
-                            Состав работ
-                        </th>
-                        <th>
-                            &nbsp;Дата начала
-                        </th>
-                        <th colspan="3">
-                            &nbsp;Дата окончания (План.|Факт.)
-                        </th>
-                    </tr>
-                    <tr class="info hidden-print">
-                        <td width="10%">
-                            {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
-                        </td>
-                        <td width="10%">
-                            {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
-                        </td>
-                        <td width="15%">
-                            {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
-                        </td>
-                        <td width="15%">
-                            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
-                        </td>
-                        <td width="10%">
-                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
-                        </td>
-                        <td width="10%">
-                            {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
-                        </td>
-                        <td colspan="4">
-                            <div class="row">
-                                <div class="col-lg-12 text-right">
-                                    <span class="text-muted small bold">
-                                        Фильтр:
-                                    </span>
-                                    <a href="{{ route( 'works.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
-                                        <i class="icon-close"></i>
-                                        Очистить
-                                    </a>
-                                    <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
-                                        <i class="icon-check"></i>
-                                        Применить
-                                    </button>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
+                        {!! Form::hidden( 'show', \Input::get( 'show', null ) ) !!}
+                        <tr class="info">
+                            <th>
+                                 Номер сообщения
+                            </th>
+                            <th>
+                                Основание
+                            </th>
+                            <th>
+                                Адрес работ
+                            </th>
+                            <th>
+                                Категория
+                            </th>
+                            <th>
+                                Исполнитель работ
+                            </th>
+                            <th>
+                                Состав работ
+                            </th>
+                            <th>
+                                &nbsp;Дата начала
+                            </th>
+                            <th colspan="3">
+                                &nbsp;Дата окончания (План.|Факт.)
+                            </th>
+                        </tr>
+                        <tr class="info hidden-print">
+                            <td width="10%">
+                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+                            </td>
+                            <td width="10%">
+                                {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
+                            </td>
+                            <td width="15%">
+                                {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
+                            </td>
+                            <td width="15%">
+                                {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+                            </td>
+                            <td width="10%">
+                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
+                            </td>
+                            <td width="10%">
+                                {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
+                            </td>
+                            <td colspan="4">
+                                <div class="row">
+                                    <div class="col-lg-12 text-right">
+                                        <span class="text-muted small bold">
+                                            Фильтр:
+                                        </span>
+                                        <a href="{{ route( 'works.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
+                                            <i class="icon-close"></i>
+                                            Очистить
+                                        </a>
+                                        <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
+                                            <i class="icon-check"></i>
+                                            Применить
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {!! Form::close() !!}
-                </thead>
-                @if ( $works->count() )
-                    <tbody>
-                    @foreach ( $works as $work )
-                        @include( 'parts.work', [ 'work' => $work ] )
-                    @endforeach
-                    </tbody>
+                            </td>
+                        </tr>
+                        {!! Form::close() !!}
+                    </thead>
+                    @if ( $works->count() )
+                        <tbody>
+                        @foreach ( $works as $work )
+                            @include( 'parts.work', [ 'work' => $work ] )
+                        @endforeach
+                        </tbody>
+                    @endif
+                </table>
+
+                {{ $works->render() }}
+
+                @if ( ! $works->count() )
+                    @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                 @endif
-            </table>
 
-            {{ $works->render() }}
-
-            @if ( ! $works->count() )
-                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-            @endif
-
+            </div>
         </div>
-    </div>
+
+    @else
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+    @endif
 
 @endsection
 

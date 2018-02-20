@@ -32,6 +32,7 @@ class Ticket extends BaseModel
     public static $statuses = [
         'draft'					            => 'Черновик',
         'created'                           => 'Принято оператором ЕДС',
+        'from_lk'                           => 'Поступило из ЛК',
         'transferred'                       => 'Передано в УО',
         'transferred_again'                 => 'Передано в УО повторно',
         'accepted'                          => 'Принято к исполнению',
@@ -50,6 +51,7 @@ class Ticket extends BaseModel
     public static $not_notify = [
         'draft',
         'created',
+        'from_lk',
         'cancel',
         'completed_with_act',
         'completed_without_act',
@@ -73,12 +75,14 @@ class Ticket extends BaseModel
     public static $workflow = [
         'draft' => [
             'created',
-            #'no_contract',
         ],
         'created' => [
             'transferred',
             'cancel',
-            #'no_contract',
+        ],
+        'from_lk' => [
+            'transferred',
+            'cancel',
         ],
         'transferred' => [
             'cancel',
