@@ -282,7 +282,7 @@ class User extends BaseModel implements
         return $return;
     }
 
-    public function getAvailableStatuses ( $with_names = false )
+    public function getAvailableStatuses ( $with_names = false, $sort = false )
     {
         if ( \Cache::tags( [ 'dynamic', 'users' ] )->has( 'user.availableStatuses.' . $this->id ) )
         {
@@ -305,12 +305,17 @@ class User extends BaseModel implements
         }
         if ( ! $with_names )
         {
-            return array_keys( $this->availableStatuses );
+            $res = array_keys( $this->availableStatuses );
         }
         else
         {
-            return $this->availableStatuses;
+            $res = $this->availableStatuses;
         }
+        if ( $sort )
+        {
+            asort( $res );
+        }
+        return $res;
     }
 
     public function phoneSessionUnreg ()

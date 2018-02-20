@@ -52,7 +52,7 @@
             <div class="col-xs-12">
                 <div class="note note-default">
                     <p class="text-muted small bold">Быстрый фильтр по статусам:</p>
-                    @foreach ( \Auth::user()->getAvailableStatuses( true ) as $status_code => $status_name )
+                    @foreach ( \Auth::user()->getAvailableStatuses( true, true ) as $status_code => $status_name )
                         @if ( $status_code != 'draft' )
                             <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
                                 {{ $status_name }}
@@ -111,7 +111,7 @@
                             <td>
                                 <div class="row">
                                     <div class="col-lg-12">
-                                        {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
+                                        {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( true, true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                     </div>
                                 </div>
                                 <div class="row margin-top-10">

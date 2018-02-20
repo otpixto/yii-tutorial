@@ -70,7 +70,7 @@ class PermsController extends BaseController
 
         $perm = Permission::find( $id );
 
-        if ( !$perm )
+        if ( ! $perm )
         {
             return redirect()->route( 'admin.permissions' )
                 ->withErrors( [ 'Права не найдены' ] );
@@ -93,7 +93,7 @@ class PermsController extends BaseController
 
         $perm = Permission::find( $id );
 
-        if ( !$perm )
+        if ( ! $perm )
         {
             return redirect()->route( 'perms.index' )
                 ->withErrors( [ 'Права не найдены' ] );
@@ -101,7 +101,13 @@ class PermsController extends BaseController
 
         $this->validate( $request, Permission::getRules( $perm->code ) );
 
-        $perm->edit( $request->all() );
+        $res = $perm->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( $res );
+        }
 
         return redirect()->route( 'perms.edit', $perm->id )
             ->with( 'success', 'Права успешно отредактированы' );
@@ -115,13 +121,14 @@ class PermsController extends BaseController
 
         $perm = Permission::create( $request->all() );
 
-        if ( !empty( $request['roles'] ) )
+        if ( ! empty( $request[ 'roles' ] ) )
         {
-            foreach ( $request['roles'] as $code )
+            foreach ( $request[ 'roles' ] as $code )
             {
                 $role = Role::findByCode( $code );
                 $role->givePermissionTo( $perm->code );
             }
+            $this->clearCache( 'users' );
         }
 
         return redirect()->route( 'perms.edit', $perm->id )

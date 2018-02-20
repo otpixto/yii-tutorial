@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 use Iphome\Permission\Models\Permission;
 use Iphome\Permission\Models\Role;
 
@@ -57,7 +58,7 @@ class RolesController extends BaseController
 
         $role = Role::find( $id );
 
-        if ( !$role )
+        if ( ! $role )
         {
             return redirect()->route( 'roles.index' )
                 ->withErrors( [ 'Роль не найдена' ] );
@@ -90,7 +91,7 @@ class RolesController extends BaseController
 
         $role = Role::find( $id );
 
-        if ( !$role )
+        if ( ! $role )
         {
             return redirect()->route( 'roles.index' )
                 ->withErrors( [ 'Роль не найдена' ] );
@@ -98,10 +99,17 @@ class RolesController extends BaseController
 
         $this->validate( $request, Role::getRules( $role->code ) );
 
-        $role->fill( $request->all() );
-        $role->save();
+        $res = $role->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( $res );
+        }
 
         $role->syncPermissions( $request->get( 'perms', [] ) );
+
+        $this->clearCache( 'users' );
 
         return redirect()->route( 'roles.edit', $role->id )
             ->with( 'success', 'Роль успешно отредактирована' );
