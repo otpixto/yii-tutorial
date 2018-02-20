@@ -63,7 +63,7 @@ class User extends BaseModel implements
             'max:255',
         ],
         'phone' => [
-            'required',
+            'nullable',
             'max:18',
             'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         ],
@@ -166,15 +166,17 @@ class User extends BaseModel implements
     {
 
         $attributes[ 'password' ] = bcrypt( $attributes[ 'password' ] );
-        $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
 
-        $user = User
-            ::where( 'phone', $attributes[ 'phone' ] )
-            ->first();
-
-        if ( $user )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            return new MessageBag( [ 'Пользователь с таким номером телефона уже создан' ] );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
+            $user = User
+                ::where( 'phone', $attributes[ 'phone' ] )
+                ->first();
+            if ( $user )
+            {
+                return new MessageBag( [ 'Пользователь с таким номером телефона уже создан' ] );
+            }
         }
 
         $user = parent::create( $attributes );
