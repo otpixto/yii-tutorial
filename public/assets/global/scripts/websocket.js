@@ -111,6 +111,7 @@ socket
                 {
                     var line = $( '#ticket-management-' + data.ticket_management_id );
                     if ( ! line.length ) return;
+                    var isHidden = line.hasClass( 'hidden' );
                     $.post( '/tickets/line/' + data.ticket_management_id,
                         {
                             hideComments: true
@@ -120,13 +121,20 @@ socket
                             if ( ! response ) return;
                             var newLine = $( response );
                             line.replaceWith( newLine );
-                            newLine.pulsate({
-                                repeat: 3,
-                                speed: 500,
-                                color: '#F1C40F',
-                                glow: true,
-                                reach: 15
-                            });
+                            if ( isHidden )
+                            {
+                                newLine.addClass( 'hidden' );
+                            }
+                            else
+                            {
+                                newLine.pulsate({
+                                    repeat: 3,
+                                    speed: 500,
+                                    color: '#F1C40F',
+                                    glow: true,
+                                    reach: 15
+                                });
+                            }
                         }
                     );
                 }
@@ -137,6 +145,7 @@ socket
                     lines.each( function()
                     {
                         var line = $( this );
+                        var isHidden = line.hasClass( 'hidden' );
                         var ticket_management_id = line.attr( 'data-ticket-management' );
                         $.post( '/tickets/line/' + ticket_management_id,
                             {
@@ -147,13 +156,20 @@ socket
                                 if ( ! response ) return;
                                 var newLine = $( response );
                                 line.replaceWith( newLine );
-                                newLine.pulsate({
-                                    repeat: 3,
-                                    speed: 500,
-                                    color: '#F1C40F',
-                                    glow: true,
-                                    reach: 15
-                                });
+                                if ( isHidden )
+                                {
+                                    newLine.addClass( 'hidden' );
+                                }
+                                else
+                                {
+                                    newLine.pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                                }
                             }
                         );
                     });

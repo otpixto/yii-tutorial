@@ -22,6 +22,6 @@
 <script src="/assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/common.js?v11" type="text/javascript"></script>
 <script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/websocket.js?11" type="text/javascript"></script>
+<script src="/assets/global/scripts/websocket.js?12" type="text/javascript"></script>
 <!-- END THEME LAYOUT SCRIPTS -->
 @yield( 'js' )
