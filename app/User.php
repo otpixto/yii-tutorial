@@ -40,6 +40,7 @@ class User extends BaseModel implements
         'firstname',
         'middlename',
         'lastname',
+        'phone',
         'email',
         'company',
         'password',
@@ -204,7 +205,10 @@ class User extends BaseModel implements
     public function edit ( array $attributes = [] )
     {
 
-        $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
+        if ( ! empty( $attributes[ 'phone' ] ) )
+        {
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
+        }
 
         $res = parent::edit( $attributes );
 
