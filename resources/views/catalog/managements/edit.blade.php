@@ -28,7 +28,12 @@
                         {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $management->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
                     </div>
 
-                    <div class="col-xs-9">
+                    <div class="col-xs-4">
+                        {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'address_id', $management->addressRelation ? $management->addressRelation->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $management->address_id ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес офиса', 'data-allow-clear' => true ] ) !!}
+                    </div>
+
+                    <div class="col-xs-5">
                         {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'address', \Input::old( 'address', $management->address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
                     </div>
@@ -324,6 +329,27 @@
                 $( '.select2' ).select2();
 
                 $( '.datepicker' ).datepicker();
+
+                $( '#address_id' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val()
+                            };
+                        },
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
 
             })
 

@@ -27,6 +27,7 @@ class Management extends BaseModel
 
     public static $rules = [
         'region_id'             => 'required|integer',
+        'address_id'            => 'nullable|integer',
         'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
         'name'                  => 'required|string|max:255',
         'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -36,6 +37,7 @@ class Management extends BaseModel
     ];
 
     protected $nullable = [
+        'address_id',
         'guid',
         'phone',
         'phone2',
@@ -49,8 +51,8 @@ class Management extends BaseModel
 
     protected $fillable = [
         'region_id',
+        'address_id',
         'name',
-        'address',
         'phone',
         'phone2',
         'director',
@@ -65,6 +67,11 @@ class Management extends BaseModel
     public function addresses ()
     {
         return $this->belongsToMany( 'App\Models\Address', 'managements_addresses' );
+    }
+
+    public function addressRelation ()
+    {
+        return $this->belongsTo( 'App\Models\Address', 'address_id', 'id' );
     }
 
     public function types ()
@@ -110,7 +117,22 @@ class Management extends BaseModel
 			->where( function ( $q )
 			{
 				return $q
-					->where( 'author_id', '=', \Auth::user()->id )
+                    ->whereHas( 'region', function ( $region )
+                    {
+                        return $region
+                            ->mine()
+                            ->current();
+                    })
+                    ->orWhereHas( 'addressRelation', function ( $address )
+                    {
+                        return $address
+                            ->whereHas( 'region', function ( $region )
+                            {
+                                return $region
+                                    ->mine()
+                                    ->current();
+                            });
+                    })
 					->orWhereHas( 'addresses', function ( $addresses )
 					{
 						return $addresses

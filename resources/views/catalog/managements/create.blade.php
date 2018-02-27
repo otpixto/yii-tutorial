@@ -23,8 +23,8 @@
             </div>
 
             <div class="col-xs-9">
-                {!! Form::label( 'address', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::text( 'address', \Input::old( 'address' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса' ] ) !!}
+                {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'address_id', [], \Input::old( 'address_id' ), [ 'class' => 'form-control', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес офиса', 'data-allow-clear' => true ] ) !!}
             </div>
 
         </div>
@@ -122,6 +122,27 @@
                 });
 
                 $( '.select2' ).select2();
+
+                $( '#address_id' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val()
+                            };
+                        },
+                        delay: 450,
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
+                });
 
             });
 
