@@ -145,7 +145,7 @@ class TypesController extends BaseController
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найдена' ] );
+                ->withErrors( [ 'Классификатор не найден' ] );
         }
 
         $typeAddresses = $type->addresses()
@@ -181,7 +181,7 @@ class TypesController extends BaseController
         if ( !$type )
         {
             return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найдена' ] );
+                ->withErrors( [ 'Классификатор не найден' ] );
         }
 
         $this->validate( $request, Type::getRules( $type->id ) );
