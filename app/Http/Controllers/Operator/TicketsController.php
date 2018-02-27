@@ -295,6 +295,7 @@ class TicketsController extends BaseController
         else
         {
             $res = Ticket::mine()->groupBy( 'author_id' )->get();
+            $operators = [];
             foreach ( $res as $r )
             {
                 $operators[ $r->author_id ] = $r->author->getShortName();
