@@ -85,7 +85,7 @@ class ManagementsController extends BaseController
                     'Услуги'                => $management->services,
                     'Наименование'          => $management->name,
                     'Телефон(ы)'            => $management->getPhones(),
-                    'Адрес'                 => $management->address,
+                    'Адрес'                 => $management->address->name ?? '',
                     'График работы'         => $management->schedule,
                     'ФИО руководителя'      => $management->director,
                     'E-mail'                => $management->email,
