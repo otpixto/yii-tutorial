@@ -17,10 +17,10 @@
                     {{ $management->name }}
                 </div>
                 <div class="col-md-3">
-                    {{ $management->phone ?? '&nbsp;' }}
+                    {!! $management->getPhones( true ) !!}
                 </div>
                 <div class="col-md-5">
-                    {{ $management->address ?? '&nbsp;' }}
+                    {{ $management->address->name ?? '&nbsp;' }}
                 </div>
                 @if ( ! $management->has_contract )
                     <div class="col-md-12">

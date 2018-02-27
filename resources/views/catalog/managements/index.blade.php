@@ -167,9 +167,11 @@
                                             {{ $management->name }}
                                         </td>
                                         <td>
-                                            <div>
-                                                {{ $management->address }}
-                                            </div>
+                                            @if ( $management->address )
+                                                <div>
+                                                    {{ $management->address->name }}
+                                                </div>
+                                            @endif
                                             <div class="margin-top-10">
                                                 {!! $management->getPhones( true ) !!}
                                             </div>

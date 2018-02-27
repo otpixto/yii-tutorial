@@ -69,9 +69,9 @@ class Management extends BaseModel
         return $this->belongsToMany( 'App\Models\Address', 'managements_addresses' );
     }
 
-    public function addressRelation ()
+    public function address ()
     {
-        return $this->belongsTo( 'App\Models\Address', 'address_id', 'id' );
+        return $this->belongsTo( 'App\Models\Address' );
     }
 
     public function types ()
@@ -114,36 +114,22 @@ class Management extends BaseModel
     {
         if ( ! \Auth::user() ) return false;
         $query
-			->where( function ( $q )
-			{
-				return $q
+            ->whereHas( 'region', function ( $region )
+            {
+                return $region
+                    ->mine()
+                    ->current();
+            })
+            ->orWhereHas( 'address', function ( $address )
+            {
+                return $address
                     ->whereHas( 'region', function ( $region )
                     {
                         return $region
                             ->mine()
                             ->current();
-                    })
-                    ->orWhereHas( 'addressRelation', function ( $address )
-                    {
-                        return $address
-                            ->whereHas( 'region', function ( $region )
-                            {
-                                return $region
-                                    ->mine()
-                                    ->current();
-                            });
-                    })
-					->orWhereHas( 'addresses', function ( $addresses )
-					{
-						return $addresses
-							->whereHas( 'region', function ( $region )
-							{
-								return $region
-									->mine()
-									->current();
-							});
-					});
-			});
+                    });
+            });
         if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query

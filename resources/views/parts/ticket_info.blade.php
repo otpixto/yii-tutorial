@@ -479,9 +479,11 @@
                             <dd>
                                 {{ $ticketManagement->management->phone }}
                             </dd>
-                            <dd class="small">
-                                {{ $ticketManagement->management->address }}
-                            </dd>
+                            @if ( $ticketManagement->management->address )
+                                <dd class="small">
+                                    {{ $ticketManagement->management->address->name }}
+                                </dd>
+                            @endif
                         </dl>
                     </div>
                 </div>
