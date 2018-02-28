@@ -145,6 +145,9 @@
                                         Адреса
                                     </th>
                                     <th class="text-center">
+                                        Классификатор
+                                    </th>
+                                    <th class="text-center">
                                         GUID
                                     </th>
                                     <th class="text-center" width="80">
@@ -185,6 +188,11 @@
                                         <td class="text-center">
                                             <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses->count() ? 'info' : 'default' }} bold">
                                                 {{ $management->addresses->count() }}
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route( 'types.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->types->count() ? 'info' : 'default' }} bold">
+                                                {{ $management->types->count() }}
                                             </a>
                                         </td>
                                         <td class="text-center">
