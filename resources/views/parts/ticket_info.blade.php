@@ -574,9 +574,11 @@
                                         <dd class="small">
                                             {{ $_ticketManagement->management->getPhones() }}
                                         </dd>
-                                        <dd class="small">
-                                            {{ $_ticketManagement->management->address }}
-                                        </dd>
+										@if ( $_ticketManagement->management->address )
+											<dd class="small">
+												{{ $_ticketManagement->management->address->name }}
+											</dd>
+										@endif
                                     </dl>
                                 </div>
                                 <div class="col-xs-4">
