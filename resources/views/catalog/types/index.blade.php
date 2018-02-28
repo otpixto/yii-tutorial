@@ -95,6 +95,12 @@
                                     <th>
                                         Наименование
                                     </th>
+                                    <th class="text-center">
+                                        УО
+                                    </th>
+                                    <th class="text-center">
+                                        GUID
+                                    </th>
                                     <th class="text-center" width="150">
                                         Необходим акт
                                     </th>
@@ -117,6 +123,18 @@
                                         </td>
                                         <td>
                                             {{ $type->name }}
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements->count() ? 'info' : 'default' }} bold">
+                                                {{ $type->managements->count() }}
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            @if ( $type->guid )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             @if ( $type->need_act )

@@ -27,6 +27,7 @@ class ManagementsController extends BaseController
         $region = $request->get( 'region' );
         $category = $request->get( 'category' );
         $address = $request->get( 'address' );
+        $type = $request->get( 'type' );
 
         $managements = Management
             ::mine()
@@ -71,6 +72,16 @@ class ManagementsController extends BaseController
                 {
                     return $q
                         ->where( 'address_id', '=', $address );
+                });
+        }
+
+        if ( !empty( $type ) )
+        {
+            $managements
+                ->whereHas( 'types', function ( $q ) use ( $type )
+                {
+                    return $q
+                        ->where( 'type_id', '=', $type );
                 });
         }
 
@@ -243,7 +254,7 @@ class ManagementsController extends BaseController
 
         $rules = [
             'region_id'             => 'required|integer',
-            'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'guid'                  => 'nullable|unique:managements,guid,' . $management->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -294,12 +305,7 @@ class ManagementsController extends BaseController
             {
                 return $q
                     ->mine()
-                    ->where( 'address_id', '=', $address_id )
-                    ->whereHas( 'types', function ( $q2 ) use ( $type_id )
-                    {
-                        return $q2
-                            ->where( 'type_id', '=', $type_id );
-                    });
+                    ->where( 'address_id', '=', $address_id );
             })
             ->get();
 

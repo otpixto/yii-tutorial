@@ -101,7 +101,16 @@ class TypesController extends BaseController
     public function store(Request $request)
     {
 
-        $this->validate( $request, Type::getRules() );
+        $rules = [
+            'guid'                  => 'nullable|unique:types,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|unique:types,name|string|max:255',
+            'category_id'           => 'required|integer',
+            'period_acceptance'     => 'numeric',
+            'period_execution'      => 'numeric',
+            'need_act'              => 'boolean',
+        ];
+
+        $this->validate( $request, $rules );
 
         $type = Type::create( $request->all() );
         if ( $type instanceof MessageBag )
@@ -148,11 +157,6 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $typeAddresses = $type->addresses()
-            ->mine()
-            ->orderBy( 'name' )
-            ->get();
-
         $typeManagements = $type->managements()
             ->mine()
             ->orderBy( 'name' )
@@ -161,7 +165,6 @@ class TypesController extends BaseController
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
             ->with( 'categories', Category::orderBy( 'name' )->pluck( 'name', 'id' ) )
-            ->with( 'typeAddresses', $typeAddresses )
             ->with( 'typeManagements', $typeManagements );
 
     }
@@ -184,7 +187,16 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $this->validate( $request, Type::getRules( $type->id ) );
+        $rules = [
+            'guid'                  => 'nullable|unique:types,guid,' . $type->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|unique:types,name,' . $type->id . '|string|max:255',
+            'category_id'           => 'required|integer',
+            'period_acceptance'     => 'numeric',
+            'period_execution'      => 'numeric',
+            'need_act'              => 'boolean',
+        ];
+
+        $this->validate( $request, $rules );
 
         $res = $type->edit( $request->all() );
         if ( $res instanceof MessageBag )
@@ -221,40 +233,6 @@ class TypesController extends BaseController
         $type->category_name = $type->category->name;
 
         return $type;
-
-    }
-
-    public function getAddAddresses ( Request $request )
-    {
-        $type = Type::find( $request->get( 'id' ) );
-        if ( ! $type )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Классификатор не найден' );
-        }
-        $allowedAddresses = Address
-            ::mine()
-            ->whereNotIn( 'id', $type->addresses->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.types.add_addresses' )
-            ->with( 'type', $type )
-            ->with( 'allowedAddresses', $allowedAddresses );
-    }
-
-    public function postAddAddresses ( Request $request )
-    {
-
-        $type = Type::find( $request->get( 'type_id' ) );
-        if ( ! $type )
-        {
-            return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
-        }
-        $type->addresses()->attach( $request->get( 'addresses', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Адреса успешно назначены' );
 
     }
 
@@ -305,22 +283,6 @@ class TypesController extends BaseController
 
         return redirect()->back()
             ->with( 'success', 'Исполнитель успешно удален' );
-
-    }
-
-    public function delAddress ( Request $request )
-    {
-
-        $type = Type::find( $request->get( 'type_id' ) );
-        if ( ! $type )
-        {
-            return redirect()->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
-        }
-        $type->addresses()->detach( $request->get( 'address_id' ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Адрес успешно удален' );
 
     }
 

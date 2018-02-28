@@ -113,6 +113,14 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+
+                    <div class="col-xs-12">
+                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                    </div>
+
+                </div>
 
                 <div class="form-group">
                     <div class="col-xs-12">

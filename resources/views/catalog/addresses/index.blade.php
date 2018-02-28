@@ -105,7 +105,7 @@
                                         УО
                                     </th>
                                     <th class="text-center">
-                                        Классификатор
+                                        GUID
                                     </th>
                                     <th class="text-right">
                                         &nbsp;
@@ -129,9 +129,11 @@
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'types.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->types->count() ? 'info' : 'default' }} bold">
-                                                {{ $address->types->count() }}
-                                            </a>
+                                            @if ( $address->guid )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
                                         </td>
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.addresses.edit' ) )

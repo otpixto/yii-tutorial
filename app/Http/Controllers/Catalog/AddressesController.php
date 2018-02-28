@@ -27,6 +27,7 @@ class AddressesController extends BaseController
 
         $search = trim( $request->get( 'search', '' ) );
         $region = $request->get( 'region' );
+        $management = $request->get( 'management' );
 
         $regions = Region
             ::mine()
@@ -50,6 +51,16 @@ class AddressesController extends BaseController
         {
             $addresses
                 ->where( 'region_id', '=', $region );
+        }
+
+        if ( !empty( $management ) )
+        {
+            $addresses
+                ->whereHas( 'managements', function ( $q ) use ( $management )
+                {
+                    return $q
+                        ->where( 'management_id', '=', $management );
+                });
         }
 
         $addresses = $addresses
@@ -150,10 +161,6 @@ class AddressesController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
-        $addressTypes = $address->types()
-            ->orderBy( 'name' )
-            ->get();
-
         $regions = Region
             ::mine()
             ->orderBy( 'name' )
@@ -162,7 +169,6 @@ class AddressesController extends BaseController
         return view( 'catalog.addresses.edit' )
             ->with( 'address', $address )
             ->with( 'addressManagements', $addressManagements )
-            ->with( 'addressTypes', $addressTypes )
             ->with( 'regions', $regions );
 
     }
@@ -185,6 +191,7 @@ class AddressesController extends BaseController
         }
 		
 		$rules = [
+            'guid'                  => 'nullable|unique:addresses,guid,' . $address->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'region_id'             => 'required|integer',
             'name'                  => 'required|string|max:255',
         ];
@@ -278,39 +285,6 @@ class AddressesController extends BaseController
 
     }
 
-    public function getAddTypes ( Request $request )
-    {
-        $address = Address::find( $request->get( 'id' ) );
-        if ( ! $address )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Адрес не найден' );
-        }
-        $allowedTypes = Type
-            ::whereNotIn( 'id', $address->types->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.addresses.add_types' )
-            ->with( 'address', $address )
-            ->with( 'allowedTypes', $allowedTypes );
-    }
-
-    public function postAddTypes ( Request $request )
-    {
-
-        $address = Address::find( $request->get( 'address_id' ) );
-        if ( !$address )
-        {
-            return redirect()->route( 'addresses.index' )
-                ->withErrors( [ 'Адрес не найден' ] );
-        }
-        $address->types()->attach( $request->get( 'types', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Типы успешно назначены' );
-
-    }
-
     public function delManagement ( Request $request )
     {
 
@@ -324,22 +298,6 @@ class AddressesController extends BaseController
 
         return redirect()->back()
             ->with( 'success', 'Исполнитель успешно удален' );
-
-    }
-
-    public function delType ( Request $request )
-    {
-
-        $address = Address::find( $request->get( 'address_id' ) );
-        if ( !$address )
-        {
-            return redirect()->route( 'addresses.index' )
-                ->withErrors( [ 'Адрес не найден' ] );
-        }
-        $address->types()->detach( $request->get( 'type_id' ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Тип успешно удален' );
 
     }
 

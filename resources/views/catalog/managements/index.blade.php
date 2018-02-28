@@ -141,6 +141,12 @@
                                     <th>
                                         Адрес \ телефон(ы)
                                     </th>
+                                    <th class="text-center">
+                                        Адреса
+                                    </th>
+                                    <th class="text-center">
+                                        GUID
+                                    </th>
                                     <th class="text-center" width="80">
                                         Есть договор
                                     </th>
@@ -175,6 +181,18 @@
                                             <div class="margin-top-10">
                                                 {!! $management->getPhones( true ) !!}
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses->count() ? 'info' : 'default' }} bold">
+                                                {{ $management->addresses->count() }}
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            @if ( $management->guid )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             @if ( $management->has_contract )

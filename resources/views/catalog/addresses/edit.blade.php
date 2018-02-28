@@ -33,6 +33,15 @@
                 </div>
 
                 <div class="form-group">
+
+                    <div class="col-xs-12">
+                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'guid', \Input::old( 'guid', $address->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
                     <div class="col-xs-12">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
@@ -49,12 +58,6 @@
                 <a data-toggle="tab" href="#managements">
                     УО
                     <span class="badge" id="addresses-count">{{ $addressManagements->count() }}</span>
-                </a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#types">
-                    Классификатор
-                    <span class="badge" id="managements-count">{{ $addressTypes->count() }}</span>
                 </a>
             </li>
         </ul>
@@ -80,33 +83,6 @@
                                     <i class="fa fa-remove"></i>
                                 </button>
                                 <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            <div id="types" class="tab-pane fade">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="row margin-bottom-20">
-                            <div class="col-xs-12">
-                                <button type="button" id="add-types" data-id="{{ $address->id }}" class="btn btn-default">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    Добавить Классификатор
-                                </button>
-                            </div>
-                        </div>
-                        @if ( ! $addressTypes->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $addressTypes as $r )
-                            <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger" data-delete="address-type" data-address="{{ $address->id }}" data-type="{{ $r->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </button>
-                                <a href="{{ route( 'types.edit', $r->id ) }}">
                                     {{ $r->name }}
                                 </a>
                             </div>

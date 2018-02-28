@@ -24,11 +24,6 @@ class Address extends BaseModel
         return $this->belongsToMany( 'App\Models\Management', 'managements_addresses' );
     }
 
-    public function types ()
-    {
-        return $this->belongsToMany( 'App\Models\Type', 'addresses_types' );
-    }
-
     public function region ()
     {
         return $this->belongsTo( 'App\Models\Region' );

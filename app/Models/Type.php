@@ -74,25 +74,4 @@ class Type extends BaseModel
         return $this;
     }
 
-    public static function getRules ( $ignore = null )
-    {
-        $unique = Rule::unique( 'types' );
-        if ( $ignore )
-        {
-            $unique->ignore( $ignore, 'id' );
-        }
-        return [
-            'name' => [
-                'required',
-                'max:255',
-                $unique
-            ],
-            'category_id' => 'required|integer',
-            'period_acceptance' => 'numeric',
-            'period_execution'  => 'numeric',
-            'need_act'          => 'boolean',
-            'guid'                  => 'nullable|unique:types,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-        ];
-    }
-
 }
