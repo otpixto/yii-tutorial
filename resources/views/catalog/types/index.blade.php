@@ -95,9 +95,11 @@
                                     <th>
                                         Наименование
                                     </th>
-                                    <th class="text-center">
-                                        УО
-                                    </th>
+                                    @if ( \Auth::user()->can( 'catalog.managements.show' ) )
+                                        <th class="text-center">
+                                            УО
+                                        </th>
+                                    @endif
                                     <th class="text-center">
                                         GUID
                                     </th>
@@ -124,11 +126,13 @@
                                         <td>
                                             {{ $type->name }}
                                         </td>
-                                        <td class="text-center">
-                                            <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
-                                                {{ $type->managements()->mine()->count() }}
-                                            </a>
-                                        </td>
+                                        @if ( \Auth::user()->can( 'catalog.managements.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $type->managements()->mine()->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         <td class="text-center">
                                             @if ( $type->guid )
                                                 @include( 'parts.yes' )

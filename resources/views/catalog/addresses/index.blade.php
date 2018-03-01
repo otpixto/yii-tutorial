@@ -101,9 +101,11 @@
                                     <th>
                                         Адрес
                                     </th>
-                                    <th class="text-center">
-                                        УО
-                                    </th>
+                                    @if ( \Auth::user()->can( 'catalog.managements.show' ) )
+                                        <th class="text-center">
+                                            УО
+                                        </th>
+                                    @endif
                                     <th class="text-center">
                                         GUID
                                     </th>
@@ -123,11 +125,13 @@
                                         <td>
                                             {{ $address->getAddress() }}
                                         </td>
-                                        <td class="text-center">
-                                            <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements()->mine()->count() ? 'info' : 'default' }} bold">
-                                                {{ $address->managements()->mine()->count() }}
-                                            </a>
-                                        </td>
+                                        @if ( \Auth::user()->can( 'catalog.managements.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $address->managements()->mine()->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         <td class="text-center">
                                             @if ( $address->guid )
                                                 @include( 'parts.yes' )

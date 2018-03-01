@@ -141,12 +141,16 @@
                                     <th>
                                         Адрес \ телефон(ы)
                                     </th>
-                                    <th class="text-center">
-                                        Адреса
-                                    </th>
-                                    <th class="text-center">
-                                        Классификатор
-                                    </th>
+                                    @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
+                                        <th class="text-center">
+                                            Адреса
+                                        </th>
+                                    @endif
+                                    @if ( \Auth::user()->can( 'catalog.types.show' ) )
+                                        <th class="text-center">
+                                            Классификатор
+                                        </th>
+                                    @endif
                                     <th class="text-center">
                                         GUID
                                     </th>
@@ -185,16 +189,20 @@
                                                 {!! $management->getPhones( true ) !!}
                                             </div>
                                         </td>
-                                        <td class="text-center">
-                                            <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses()->mine()->count() ? 'info' : 'default' }} bold">
-                                                {{ $management->addresses()->mine()->count() }}
-                                            </a>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="{{ route( 'types.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->types->count() ? 'info' : 'default' }} bold">
-                                                {{ $management->types->count() }}
-                                            </a>
-                                        </td>
+                                        @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses()->mine()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $management->addresses()->mine()->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
+                                        @if ( \Auth::user()->can( 'catalog.types.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'types.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->types->count() ? 'info' : 'default' }} bold">
+                                                    {{ $management->types->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         <td class="text-center">
                                             @if ( $management->guid )
                                                 @include( 'parts.yes' )
