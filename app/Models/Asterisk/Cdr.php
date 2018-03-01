@@ -2,6 +2,7 @@
 
 namespace App\Models\Asterisk;
 
+use App\Models\Region;
 use App\Models\Ticket;
 use App\User;
 use Carbon\Carbon;
@@ -55,6 +56,16 @@ class Cdr extends BaseModel
             ->where( 'src', 'not like', '499%' )
             ->where( 'src', 'not like', '8495%' )
             ->where( 'src', 'not like', '8499%' );
+    }
+
+    public function scopeMine ( $query )
+    {
+        if ( Region::getCurrent() )
+        {
+            $query
+                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Region::$current_region->phones->pluck( 'phone' ) );
+        }
+        return $query;
     }
 
     public function ticket ()

@@ -16,11 +16,7 @@ class CheckRegion
      */
     public function handle ( $request, Closure $next )
     {
-        if ( Region::isSystemUrl() )
-        {
-            return $next( $request );
-        }
-        else if ( Region::isOperatorUrl() )
+        if ( Region::isOperatorUrl() )
         {
             if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->can( 'supervisor.all_regions' ) )
             {

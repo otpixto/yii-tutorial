@@ -77,14 +77,17 @@
 
                     $.get( '/data/works-addresses', function ( response )
                     {
-                        $.each( response, function ( address_id, val )
+                        if ( response.length )
                         {
-                            clusterer.add( new ymaps.Placemark( val[2], getPointData(val), getPointOptions()) );
-                        });
-                        myMap.geoObjects.add(clusterer);
-                        myMap.setBounds(clusterer.getBounds(), {
-                            checkZoomRange: true
-                        });
+                            $.each( response, function ( address_id, val )
+                            {
+                                clusterer.add( new ymaps.Placemark( val[2], getPointData(val), getPointOptions()) );
+                            });
+                            myMap.geoObjects.add(clusterer);
+                            myMap.setBounds(clusterer.getBounds(), {
+                                checkZoomRange: true
+                            });
+                        }
                         $( '#map' ).css( 'opacity', 1 );
                         $( '#loading' ).addClass( 'hidden' );
                     });

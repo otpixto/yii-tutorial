@@ -5,9 +5,9 @@
     <a href="">
         <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
         <p>
-            @if ( \Request::getHost() == \Session::get( 'settings' )->operator_domain )
+            @if ( \App\Models\Region::isOperatorUrl() )
                 <span class="text-danger">Оператор</span>
-            @else
+            @elseif ( \App\Models\Region::getCurrent() )
                 {{ \App\Models\Region::$current_region->name }}
             @endif
         </p>

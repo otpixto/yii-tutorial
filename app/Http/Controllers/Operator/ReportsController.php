@@ -376,6 +376,7 @@ class ReportsController extends BaseController
 
         $res = Cdr
             ::incoming()
+            ->mine()
             ->whereBetween( \DB::raw( 'DATE( calldate )' ), [ Carbon::parse( $date_from )->toDateString(), Carbon::parse( $date_to )->toDateString() ] )
             ->whereHas( 'queueLog' )
             ->groupBy( 'uniqueid' )

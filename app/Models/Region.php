@@ -105,17 +105,32 @@ class Region extends BaseModel
 
     public static function isOperatorUrl ()
     {
-        return ( \Request::getHost() == \Session::get( 'settings' )->operator_domain );
+        return self::subDomainIs( 'operator' );
     }
 
     public static function isSystemUrl ()
     {
-        return ( \Request::getHost() == \Session::get( 'settings' )->system_domain );
+        return self::subDomainIs( 'system' );
     }
 
-    public static function isNewsUrl ()
+    public static function getSubDomain ()
     {
-        return ( \Request::getHost() == \Session::get( 'settings' )->news_domain );
+        $exp = explode( '.', \Request::getHost() );
+        if ( count( $exp ) < 3 ) return null;
+        return $exp[ 0 ];
+    }
+
+    public static function subDomainIs ( ... $subDomains )
+    {
+        $subDomain = self::getSubDomain();
+        foreach ( $subDomains as $_subDomain )
+        {
+            if ( $subDomain == config( 'domain.' . $_subDomain, $_subDomain ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function getCurrent ()

@@ -612,14 +612,15 @@ class TicketManagement extends BaseModel
 
     public static function getCountByStatus ( $status_code )
     {
-        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $status_code ) )
+        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
+        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
         {
-            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( 'ticket.status.' . \Auth::user()->id . '.' . $status_code );
+            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( $key );
         }
         else
         {
             $count = self::mine()->where( 'status_code', '=', $status_code )->count();
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $status_code, $count, \Config::get( 'cache.time' ) );
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
         }
         return $count;
     }

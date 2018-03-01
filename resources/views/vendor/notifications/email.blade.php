@@ -16,7 +16,7 @@
 
 {{-- Action Button --}}
 @isset($actionText)
-@component('mail::button', ['url' => $actionUrl, 'color' => $color])
+@component('mail::button', ['url' => $actionUrl, 'color' => $color ?? null ])
 {{ $actionText }}
 @endcomponent
 @endisset
