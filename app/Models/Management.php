@@ -114,20 +114,24 @@ class Management extends BaseModel
     {
         if ( ! \Auth::user() ) return false;
         $query
-            ->whereHas( 'region', function ( $region )
+            ->where( function ( $q )
             {
-                return $region
-                    ->mine()
-                    ->current();
-            })
-            ->orWhereHas( 'address', function ( $address )
-            {
-                return $address
+                return $q
                     ->whereHas( 'region', function ( $region )
                     {
                         return $region
                             ->mine()
                             ->current();
+                    })
+                    ->orWhereHas( 'address', function ( $address )
+                    {
+                        return $address
+                            ->whereHas( 'region', function ( $region )
+                            {
+                                return $region
+                                    ->mine()
+                                    ->current();
+                            });
                     });
             });
         if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
