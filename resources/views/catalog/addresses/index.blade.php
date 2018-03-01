@@ -124,8 +124,8 @@
                                             {{ $address->getAddress() }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements->count() ? 'info' : 'default' }} bold">
-                                                {{ $address->managements->count() }}
+                                            <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                {{ $address->managements()->mine()->count() }}
                                             </a>
                                         </td>
                                         <td class="text-center">

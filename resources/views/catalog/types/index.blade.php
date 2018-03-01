@@ -125,8 +125,8 @@
                                             {{ $type->name }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements->count() ? 'info' : 'default' }} bold">
-                                                {{ $type->managements->count() }}
+                                            <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                {{ $type->managements()->mine()->count() }}
                                             </a>
                                         </td>
                                         <td class="text-center">

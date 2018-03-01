@@ -146,8 +146,8 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" class="badge badge-{{ $customer->tickets->count() ? 'info' : 'default' }} bold">
-                                                    {{ $customer->tickets->count() }}
+                                                <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $customer->tickets()->mine()->count() }}
                                                 </a>
                                             </td>
                                         @endif

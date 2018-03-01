@@ -186,8 +186,8 @@
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses->count() ? 'info' : 'default' }} bold">
-                                                {{ $management->addresses->count() }}
+                                            <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses()->mine()->count() ? 'info' : 'default' }} bold">
+                                                {{ $management->addresses()->mine()->count() }}
                                             </a>
                                         </td>
                                         <td class="text-center">
