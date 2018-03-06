@@ -862,7 +862,7 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
-        $res = $ticketManagement->saveWorks( $request->get( 'works' ) );
+        $res = $ticketManagement->saveWorks( $request->get( 'works', [] ) );
         if ( $res instanceof MessageBag )
         {
             return redirect()
