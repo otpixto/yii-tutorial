@@ -14,12 +14,6 @@ class TicketManagementWork extends BaseModel
         'name',
         'quantity',
     ];
-	
-	public static $rules = [
-        'ticket_management_id'	    => 'required|integer',
-        'name'				        => 'required|string',
-        'quantity'				    => 'required|integer|min:1',
-    ];
 
     public function ticketManagement ()
     {

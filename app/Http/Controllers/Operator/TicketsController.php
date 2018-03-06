@@ -862,6 +862,14 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
+        $rules = [
+            'works.*.ticket_management_id'	    => 'required_without:works.*.id|integer',
+            'works.*.name'				        => 'required|string',
+            'works.*.quantity'				    => 'required|numeric|min:1',
+        ];
+
+        $this->validate( $request, $rules );
+
         $res = $ticketManagement->saveWorks( $request->get( 'works', [] ) );
         if ( $res instanceof MessageBag )
         {
