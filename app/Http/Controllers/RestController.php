@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\PhoneSession;
+use App\Models\Region;
 use App\Models\Ticket;
 use App\Models\TicketCall;
 use Illuminate\Http\Request;
@@ -98,9 +99,8 @@ class RestController extends Controller
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
         $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
 
-        $region = $user
-            ->regions()
-            ->mine()
+        $region = Region
+            ::mine( $user )
             ->whereHas( 'phones', function ( $q ) use ( $phone_office )
             {
                 return $q

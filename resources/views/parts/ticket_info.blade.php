@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-lg-6">
 
-        @if ( $ticketManagement && \Auth::user()->can( 'tickets.rate' ) && $ticketManagement->status_code == 'closed_with_confirm' )
+        @if ( $ticketManagement && $ticketManagement->canRate() )
             <div class="row hidden-print">
                 <div class="col-xs-12">
                     @include( 'parts.rate_form', [ 'ticketManagement' => $ticketManagement ] )
@@ -9,35 +9,22 @@
             </div>
         @endif
 
-        @if ( $ticket->getAvailableStatuses() || ( $ticketManagement && $ticketManagement->getAvailableStatuses() ) )
+        @if ( count( $availableStatuses ) )
             <div class="row hidden-print">
                 <div class="col-xs-12">
                     <div class="note note-info">
                         <dl>
                             <dt>Сменить статус:</dt>
                             <dd>
-                                @if ( $ticket->getAvailableStatuses() )
-                                    @foreach( $ticket->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticket->id ), 'data-status' => $status_code, 'data-id' => $ticket->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
-                                        {!! Form::hidden( 'model_name', get_class( $ticket ) ) !!}
-                                        {!! Form::hidden( 'model_id', $ticket->id ) !!}
-                                        {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::hidden( 'comment', '' ) !!}
-                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
-                                        {!! Form::close() !!}
-                                    @endforeach
-                                @endif
-                                @if ( $ticketManagement && $ticketManagement->getAvailableStatuses() )
-                                    @foreach( $ticketManagement->getAvailableStatuses() as $status_code => $status_name )
-                                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement->getTicketNumber() ), 'data-status' => $status_code, 'data-id' => $ticketManagement->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $status_name . '"?' ] ) !!}
-                                        {!! Form::hidden( 'model_name', get_class( $ticketManagement ) ) !!}
-                                        {!! Form::hidden( 'model_id', $ticketManagement->id ) !!}
-                                        {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::hidden( 'comment', '' ) !!}
-                                        {!! Form::submit( $status_name, [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
-                                        {!! Form::close() !!}
-                                    @endforeach
-                                @endif
+                                @foreach( $availableStatuses as $status_code => $availableStatus )
+                                    {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
+                                    {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
+                                    {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
+                                    {!! Form::hidden( 'status_code', $status_code ) !!}
+                                    {!! Form::hidden( 'comment', '' ) !!}
+                                    {!! Form::submit( $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
+                                    {!! Form::close() !!}
+                                @endforeach
                             </dd>
                         </dl>
                     </div>
@@ -114,26 +101,29 @@
                         <dd>
                             @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
                                 <span class="badge badge-warning bold">
-                                            Платно
-                                        </span>
+                                    Платно
+                                </span>
                                 &nbsp;
                             @endif
                             @if ( $ticket->emergency )
                                 <span class="badge badge-danger bold">
-                                            Авария
-                                        </span>
+                                    <i class="icon-fire"></i>
+                                    Авария
+                                </span>
                                 &nbsp;
                             @endif
                             @if ( $ticket->urgently )
                                 <span class="badge badge-danger bold">
-                                            Срочно
-                                        </span>
+                                    <i class="icon-speedometer"></i>
+                                    Срочно
+                                </span>
                                 &nbsp;
                             @endif
                             @if ( $ticket->dobrodel )
                                 <span class="badge badge-danger bold">
-                                            Добродел
-                                        </span>
+                                    <i class="icon-heart"></i>
+                                    Добродел
+                                </span>
                             @endif
                             @if ( $ticket->group_uuid )
                                 <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
@@ -493,7 +483,7 @@
                             <dl>
                                 <dt>Исполнитель:</dt>
                                 <dd>
-                                    {{ $ticketManagement->executor }}
+                                    {{ $ticketManagement->executor->name }}
                                 </dd>
                             </dl>
                         </div>
@@ -582,7 +572,9 @@
                                     </dl>
                                 </div>
                                 <div class="col-xs-4">
-                                    {{ $_ticketManagement->executor ?? '-' }}
+                                    <span class="small text-info bold">
+                                        {{ $_ticketManagement->executor ? $_ticketManagement->executor->name : '-' }}
+                                    </span>
                                 </div>
                                 <div class="col-xs-3 text-right">
                                             <span class="badge badge-{{ $_ticketManagement->getClass() }} bold">
@@ -625,6 +617,92 @@
                 </div>
             </div>
 
+        @endif
+
+        @if ( $ticketManagement && \Auth::user()->can( 'tickets.works.show' ) )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note note-info">
+                        <h4>Выполненные работы</h4>
+                        <div class="row margin-bottom-10">
+                            <label class="col-xs-9 control-label text-muted">Наименование</label>
+                            <label class="col-xs-2 control-label text-muted">Кол-во</label>
+                        </div>
+                        @if ( \Auth::user()->can( 'tickets.works.edit' ) )
+                            {!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading' ] ) !!}
+                            <div class="mt-repeater">
+                                <div data-repeater-list="works">
+                                    @if ( $ticketManagement->works->count() )
+                                        @foreach ( $ticketManagement->works as $work )
+                                            <div data-repeater-item="" class="row margin-bottom-10">
+                                                <div class="col-xs-9">
+                                                    {!! Form::hidden( 'id', $work->id ) !!}
+                                                    <input type="text" name="name" placeholder="Наименование" value="{{ $work->name }}" class="form-control" required="required" />
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    <input type="text" name="quantity" placeholder="Кол-во" class="form-control" value="{{ $work->quantity }}" required="required" />
+                                                </div>
+                                                <div class="col-xs-1 text-right hidden-print">
+                                                    <button type="button" data-repeater-delete="" class="btn btn-danger">
+                                                        <i class="fa fa-close"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div data-repeater-item="" class="row margin-bottom-10 hidden-print">
+                                            <div class="col-xs-9">
+                                                {!! Form::hidden( 'id', null ) !!}
+                                                <input type="text" name="name" placeholder="Наименование" class="form-control" required="required" />
+                                            </div>
+                                            <div class="col-xs-2">
+                                                <input type="text" name="quantity" placeholder="Кол-во" class="form-control" value="1" required="required" />
+                                            </div>
+                                            <div class="col-xs-1 text-right hidden-print">
+                                                <button type="button" data-repeater-delete="" class="btn btn-danger">
+                                                    <i class="fa fa-close"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                                <hr class="hidden-print" />
+                                <div class="row hidden-print">
+                                    <div class="col-xs-6">
+                                        <button type="button" data-repeater-create="" class="btn btn-sm btn-default mt-repeater-add">
+                                            <i class="fa fa-plus"></i>
+                                            Добавить
+                                        </button>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fa fa-check"></i>
+                                            Сохранить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {!! Form::close() !!}
+                        @else
+                            @if ( $ticketManagement->works->count() )
+                                @foreach ( $ticketManagement->works as $work )
+                                    <div class="row margin-bottom-10">
+                                        <div class="col-xs-9">
+                                            {{ $work->name }}
+                                        </div>
+                                        <div class="col-xs-2">
+                                            {{ $work->quantity }}
+                                        </div>
+                                    </div>
+                                    <hr />
+                                @endforeach
+                            @else
+                                <div class="small text-danger">Выполненных работ нет</div>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+            </div>
         @endif
 
         @if ( \Auth::user()->can( 'tickets.comments' ) )

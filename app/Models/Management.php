@@ -64,6 +64,11 @@ class Management extends BaseModel
         'has_contract',
     ];
 
+    public function executors ()
+    {
+        return $this->hasMany( 'App\Models\Executor' );
+    }
+
     public function addresses ()
     {
         return $this->belongsToMany( 'App\Models\Address', 'managements_addresses' );

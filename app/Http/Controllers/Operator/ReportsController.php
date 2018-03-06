@@ -28,10 +28,11 @@ class ReportsController extends BaseController
     public function managements ( Request $request )
     {
 
-        Title::add( 'Отчет по количеству заявок' );
+        Title::add( 'Отчет по исполнителям' );
 
         $date_from = $request->get( 'date_from', Carbon::now()->subMonth()->startOfMonth()->format( 'd.m.Y' ) );
         $date_to = $request->get( 'date_to', Carbon::now()->subMonth()->endOfMonth()->format( 'd.m.Y' ) );
+        $management_id = $request->get( 'management_id' );
 
         $data = [
             'total' => 0,
@@ -44,9 +45,20 @@ class ReportsController extends BaseController
 
         $managements = Management
             ::mine()
+            ->orderBy( 'name' )
             ->get();
 
-        foreach ( $managements as $management )
+        if ( $management_id )
+        {
+            $res = $managements
+                ->where( 'id', $management_id );
+        }
+        else
+        {
+            $res = $managements;
+        }
+
+        foreach ( $res as $management )
         {
 
             $data[ $management->id ] = [
@@ -118,7 +130,7 @@ class ReportsController extends BaseController
         if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
         {
             $print_data = [];
-            foreach ( $managements as $management )
+            foreach ( $res as $management )
             {
                 $print_data[] = [
                     'Нименование ЭО'                => $management->name,
@@ -144,7 +156,8 @@ class ReportsController extends BaseController
             ->with( 'data', $data )
             ->with( 'managements', $managements )
             ->with( 'date_from', $date_from )
-            ->with( 'date_to', $date_to );
+            ->with( 'date_to', $date_to )
+            ->with( 'management_id', $management_id );
 
     }
 
@@ -285,7 +298,7 @@ class ReportsController extends BaseController
 
     }
 
-    public function addresses ()
+    public function addresses ( Request $request )
     {
 
         Title::add( 'Отчет по адресам' );
@@ -555,11 +568,6 @@ class ReportsController extends BaseController
             ->with( 'managements', $managements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
-
-    }
-
-    public function summary ()
-    {
 
     }
 

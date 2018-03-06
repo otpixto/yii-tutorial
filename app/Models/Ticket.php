@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\TicketCall;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
@@ -242,34 +243,27 @@ class Ticket extends BaseModel
                                 ->current();
                         });
                 });
-                if ( \Auth::user()->can( 'tickets.all' ) )
+                if ( \Auth::user()->can( 'tickets.show' ) )
                 {
-                    $q
-                        ->where( function ( $q2 )
-                        {
-                            return $q2
-                                ->where( 'author_id', '=', \Auth::user()->id )
-                                ->orWhere( 'status_code', '!=', 'draft' );
-                        });
-                }
-                else if ( \Auth::user()->can( 'tickets.show' ) )
-                {
-                    if ( ! $ignoreStatuses )
+                    if ( ! $ignoreStatuses && ! \Auth::user()->can( 'supervisor.all_statuses' ) )
                     {
                         $q
-                            ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses() );
+                            ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                     }
-                    $q
-                        ->where( function ( $q2 )
-                        {
-                            return $q2
-                                ->whereHas( 'managements', function ( $q3 )
-                                {
-                                    return $q3
-                                        ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
-                                })
-                                ->orWhere( 'author_id', '=', \Auth::user()->id );
-                        });
+                    if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+                    {
+                        $q
+                            ->where( function ( $q2 )
+                            {
+                                return $q2
+                                    ->where( 'author_id', '=', \Auth::user()->id )
+                                    ->orWhereHas( 'managements', function ( $q3 )
+                                    {
+                                        return $q3
+                                            ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+                                    });
+                            });
+                    }
                 }
                 else
                 {
@@ -487,25 +481,45 @@ class Ticket extends BaseModel
         return $phones;
     }
 
-    public function getAvailableStatuses ()
+    public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {
         if ( is_null( $this->availableStatuses ) )
         {
-            $user_statuses = \Auth::user()->getAvailableStatuses();
+            $user_statuses = \Auth::user()->getAvailableStatuses( $perm_for );
             $this->availableStatuses = [];
-            if ( \Auth::user()->can( 'tickets.status' ) )
+            if ( \Auth::user()->can( 'supervisor.all_statuses' ) )
+            {
+                $this->availableStatuses = $user_statuses;
+            }
+            else if ( \Auth::user()->can( 'tickets.status' ) )
             {
                 $workflow = self::$workflow[ $this->status_code ] ?? [];
                 foreach ( $workflow as $status_code )
                 {
                     if ( in_array( $status_code, $user_statuses ) )
                     {
-                        $this->availableStatuses[ $status_code ] = self::$statuses[ $status_code ];
+                        $this->availableStatuses[] = $status_code;
                     }
                 }
             }
         }
-        return $this->availableStatuses;
+        $res = [];
+        if ( $with_names )
+        {
+            foreach ( $this->availableStatuses as $status_code )
+            {
+                $res[ $status_code ] = Ticket::$statuses[ $status_code ];
+            }
+        }
+        else
+        {
+            $res = $this->availableStatuses;
+        }
+        if ( $sort )
+        {
+            asort( $res );
+        }
+        return $res;
     }
 
     public function getAddress ( $with_place = false )
@@ -538,6 +552,17 @@ class Ticket extends BaseModel
             $addr .= ', кв. ' . $this->actual_flat;
         }
         return $addr;
+    }
+
+    public function getComments ()
+    {
+        $comments = new Collection();
+        $comments = $comments->merge( $this->comments );
+        foreach ( $this->managements as $item )
+        {
+            $comments = $comments->merge( $item->comments );
+        }
+        return $comments->sortBy( 'id' );
     }
 
     public function getPlace ()

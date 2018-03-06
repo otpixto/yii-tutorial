@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\GzhiConfig;
+use App\User;
 use Illuminate\Support\MessageBag;
 
 class Region extends BaseModel
@@ -53,13 +54,14 @@ class Region extends BaseModel
         return $this->belongsToMany( 'App\User', 'users_regions' );
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, User $user = null )
     {
-        if ( ! \Auth::user() ) return false;
-        if ( ! self::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        if ( ! $user ) $user = \Auth::user();
+        if ( ! $user ) return false;
+        if ( ! self::subDomainIs( 'operator', 'system' ) || ! $user->can( 'supervisor.all_regions' ) )
         {
             $query
-                ->whereIn( $this->getTable() . '.id', \Auth::user()->regions->pluck( 'id' ) );
+                ->whereIn( $this->getTable() . '.id', $user->regions->pluck( 'id' ) );
         }
         return $query;
     }

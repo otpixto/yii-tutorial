@@ -21,6 +21,7 @@ class TicketManagement extends BaseModel
 	private $can_comment = null;
     private $can_upload_act = null;
     private $can_print_act = null;
+    private $can_rate = null;
 
     private $availableStatuses = null;
 
@@ -85,6 +86,16 @@ class TicketManagement extends BaseModel
         'status_name',
     ];
 
+    public function works ()
+    {
+        return $this->hasMany( 'App\Models\TicketManagementWork' );
+    }
+
+    public function executor ()
+    {
+        return $this->belongsTo( 'App\Models\Executor' );
+    }
+
     public function management ()
     {
         return $this->belongsTo( 'App\Models\Management' );
@@ -123,25 +134,89 @@ class TicketManagement extends BaseModel
             ->whereNotIn( 'status_code', Ticket::$final_statuses );
     }
 
-    public function getAvailableStatuses ()
+    public function saveWorks ( array $works = [] )
+    {
+        $ids = [];
+        foreach ( $works as $work )
+        {
+            if ( ! empty( $work[ 'id' ] ) )
+            {
+                $ticketManagementWork = TicketManagementWork::find( $work[ 'id' ] );
+                if ( ! $ticketManagementWork )
+                {
+                    return new MessageBag( [ 'Работа не найдена' ] );
+                }
+                $res = $ticketManagementWork->edit( $work );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+            }
+            else
+            {
+                $ticketManagementWork = $this->createWork( $work );
+                if ( $ticketManagementWork instanceof MessageBag )
+                {
+                    return $ticketManagementWork;
+                }
+            }
+            $ids[] = $ticketManagementWork->id;
+        }
+        TicketManagementWork::whereNotIn( 'id', $ids )->delete();
+        return true;
+    }
+
+    public function createWork ( array $attributes = [] )
+    {
+        $attributes[ 'ticket_management_id' ] = $this->id;
+        $ticketManagementWork = TicketManagementWork::create( $attributes );
+        if ( $ticketManagementWork instanceof MessageBag )
+        {
+            return $ticketManagementWork;
+        }
+        $ticketManagementWork->save();
+        return $ticketManagementWork;
+    }
+
+    public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {
         if ( is_null( $this->availableStatuses ) )
         {
-            $user_statuses = \Auth::user()->getAvailableStatuses();
+            $user_statuses = \Auth::user()->getAvailableStatuses( $perm_for );
             $this->availableStatuses = [];
-            if ( \Auth::user()->can( 'tickets.status' ) )
+            if ( \Auth::user()->can( 'supervisor.all_statuses' ) )
+            {
+                $this->availableStatuses = $user_statuses;
+            }
+            else if ( \Auth::user()->can( 'tickets.status' ) )
             {
                 $workflow = self::$workflow[ $this->status_code ] ?? [];
                 foreach ( $workflow as $status_code )
                 {
                     if ( in_array( $status_code, $user_statuses ) )
                     {
-                        $this->availableStatuses[ $status_code ] = Ticket::$statuses[ $status_code ];
+                        $this->availableStatuses[] = $status_code;
                     }
                 }
             }
         }
-        return $this->availableStatuses;
+        $res = [];
+        if ( $with_names )
+        {
+            foreach ( $this->availableStatuses as $status_code )
+            {
+                $res[ $status_code ] = Ticket::$statuses[ $status_code ];
+            }
+        }
+        else
+        {
+            $res = $this->availableStatuses;
+        }
+        if ( $sort )
+        {
+            asort( $res );
+        }
+        return $res;
     }
 
     public function getStatusHistory ( $status_code )
@@ -229,6 +304,22 @@ class TicketManagement extends BaseModel
     public function getTicketNumber ()
     {
         return $this->ticket_id . '/' . $this->id;
+    }
+
+    public function canRate ()
+    {
+        if ( is_null( $this->can_rate ) )
+        {
+            if ( \Auth::user()->can( 'tickets.rate' ) && ! $this->rate && in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'closed_with_confirm' ] ) )
+            {
+                $this->can_rate = true;
+            }
+            else
+            {
+                $this->can_rate = false;
+            }
+        }
+        return $this->can_rate;
     }
 	
 	public function canComment ()
@@ -440,7 +531,7 @@ class TicketManagement extends BaseModel
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
                 $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL . PHP_EOL;
 
-                $message .= 'Исполнитель: ' . $this->executor . PHP_EOL;
+                $message .= 'Исполнитель: ' . $this->executor->name . PHP_EOL;
 
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
@@ -466,7 +557,7 @@ class TicketManagement extends BaseModel
 
             case 'waiting':
 
-                $this->executor = null;
+                $this->executor_id = null;
                 $this->save();
 
                 $res = $this->changeTicketStatus([

@@ -17,20 +17,29 @@
         @endif
     </td>
     <td>
-        {{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}
+        <span class="small">
+            {{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}
+        </span>
     </td>
     @if ( $field_operator )
         <td>
-            <span class="{{ $ticketManagement->ticket->author->id == \Auth::user()->id ? 'mark' : '' }}">
+            <span class="{{ $ticketManagement->ticket->author->id == \Auth::user()->id ? 'mark' : '' }} small">
                 {{ $ticketManagement->ticket->author->getShortName() }}
             </span>
         </td>
     @endif
-    @if ( $field_management )
-        <td>
-            {{ $ticketManagement->management->name }}
-        </td>
-    @endif
+    <td>
+        @if ( $field_management )
+            <div>
+                {{ $ticketManagement->management->name }}
+            </div>
+        @endif
+        @if ( $ticketManagement->executor )
+            <div class="small text-info">
+                {{ $ticketManagement->executor->name }}
+            </div>
+        @endif
+    </td>
     <td>
         @if ( $ticketManagement->ticket->type )
             <div class="bold">
@@ -40,11 +49,39 @@
                 {{ $ticketManagement->ticket->type->name }}
             </div>
         @endif
-        @if ( $ticketManagement->ticket->emergency )
-            <h3 class="margin-top-15 text-danger bold">
-                <i class="icon-fire"></i>
-                Авария
-            </h3>
+        <div class="margin-top-15">
+            @if ( $ticketManagement->ticket->emergency )
+                <span class="badge badge-danger bold">
+                    <i class="icon-fire"></i>
+                    Авария
+                </span>
+            @endif
+            @if ( $ticketManagement->ticket->dobrodel )
+                <span class="badge badge-danger bold">
+                    <i class="icon-heart"></i>
+                    Добродел
+                </span>
+            @endif
+            @if ( $ticketManagement->ticket->from_lk )
+                <span class="badge badge-danger bold">
+                    <i class="icon-user-follow"></i>
+                    Из ЛК
+                </span>
+            @endif
+        </div>
+        @if ( \Auth::user()->can( 'tickets.works.show' ) && $ticketManagement->works->count() )
+            <hr />
+            <div class="bold">
+                Выполненные работы:
+            </div>
+            <ol class="list-unstyled">
+            @foreach ( $ticketManagement->works as $work )
+                <li class="small">
+                    {{ $work->name }}
+                    [{{ $work->quantity }}]
+                </li>
+            @endforeach
+            </ol>
         @endif
     </td>
     <td>
@@ -62,5 +99,5 @@
     </td>
 </tr>
 @if ( ! isset( $hideComments ) || ! $hideComments )
-    @include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) ] )
+    @include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->ticket->getComments() ] )
 @endif

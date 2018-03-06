@@ -22,9 +22,17 @@
         <div class="col-xs-3">
             {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-xs-3">
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'management_id', 'Исполнитель', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'management_id', $managements->count() ? [ 0 => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray() : [], $management_id, [ 'class' => 'select2 form-control' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            @if ( \Auth::user()->admin || \Auth::user()->can( 'reports.export' ) )
+            @if ( \Auth::user()->can( 'reports.export' ) )
                 {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
             @endif
         </div>
@@ -33,7 +41,7 @@
 
     @if ( $data[ 'total' ] )
 
-        <div id="chartdiv" style="min-height: {{ $managements->count() * 50 }}px;" class="hidden-print"></div>
+        <div id="chartdiv" style="min-height: {{ ( $management_id ? 150 : $managements->count() * 50 ) }}px;" class="hidden-print"></div>
 
         <table class="table table-striped sortable" id="data">
             <thead>
@@ -71,48 +79,50 @@
             </thead>
             <tbody>
             @foreach ( $managements as $management )
-                <tr>
-                    <td data-field="name">
-                        {{ $management->name }}
-                    </td>
-                    <td class="text-center info bold">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
-                            {{ $data[ $management->id ][ 'total' ] }}
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="canceled">
-                            {{ $data[ $management->id ][ 'canceled' ] }}
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="not_verified">
-                            {{ $data[ $management->id ][ 'not_verified' ] }}
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_with_confirm">
-                            {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_without_confirm">
-                            {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
-                        </a>
-                    </td>
-                    <td data-field="closed" class="text-center info bold">
-                        {{ $data[ $management->id ][ 'closed' ] }}
-                    </td>
-                    <td class="text-right" data-field="percent" style="width: 40px;">
-                        {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
-                    </td>
-                    <td class="hidden-print" style="width: 15%;">
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
+                @if ( isset( $data[ $management->id ] ) )
+                    <tr>
+                        <td data-field="name">
+                            {{ $management->name }}
+                        </td>
+                        <td class="text-center info bold">
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                                {{ $data[ $management->id ][ 'total' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="canceled">
+                                {{ $data[ $management->id ][ 'canceled' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="not_verified">
+                                {{ $data[ $management->id ][ 'not_verified' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_with_confirm">
+                                {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_without_confirm">
+                                {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
+                            </a>
+                        </td>
+                        <td data-field="closed" class="text-center info bold">
+                            {{ $data[ $management->id ][ 'closed' ] }}
+                        </td>
+                        <td class="text-right" data-field="percent" style="width: 40px;">
+                            {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
+                        </td>
+                        <td class="hidden-print" style="width: 15%;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                @endif
             @endforeach
             </tbody>
             <tfoot>
@@ -166,6 +176,8 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -179,6 +191,7 @@
 
 @section( 'js' )
 
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -196,6 +209,8 @@
         $( document )
             .ready(function()
             {
+
+                $( '.select2' ).select2();
 
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',

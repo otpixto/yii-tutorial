@@ -293,7 +293,7 @@ class User extends BaseModel implements
         return $return;
     }
 
-    public function getAvailableStatuses ( $with_names = false, $sort = false )
+    public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {
         if ( \Cache::tags( [ 'dynamic', 'users' ] )->has( 'user.availableStatuses.' . $this->id ) )
         {
@@ -301,26 +301,32 @@ class User extends BaseModel implements
         }
         else if ( is_null( $this->availableStatuses ) )
         {
-            $perms = $this->getAllPermissions();
+            $res = $this->getAllPermissions();
             $this->availableStatuses = [];
-            foreach ( $perms as $perm )
+            foreach ( $res as $r )
             {
-                if ( str_is( 'tickets.statuses.*', $perm->code ) )
+                if ( preg_match( '/tickets.statuses\.(.*)\.(.*)/i', $r->code, $matches ) )
                 {
-                    $status_code = str_replace( 'tickets.statuses.', '', $perm->code );
+                    $status_code = $matches[ 1 ];
+                    $_perm = $matches[ 2 ];
                     if ( ! isset( Ticket::$statuses[ $status_code ] ) ) continue;
-                    $this->availableStatuses[ $status_code ] = Ticket::$statuses[ $status_code ];
+                    $this->availableStatuses[ $_perm ][] = $status_code;
                 }
             }
             \Cache::tags( [ 'dynamic', 'users' ] )->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
         }
-        if ( ! $with_names )
+        $statuses = $this->availableStatuses[ $perm_for ] ?? [];
+        $res = [];
+        if ( $with_names )
         {
-            $res = array_keys( $this->availableStatuses );
+            foreach ( $statuses as $status_code )
+            {
+                $res[ $status_code ] = Ticket::$statuses[ $status_code ];
+            }
         }
         else
         {
-            $res = $this->availableStatuses;
+            $res = $statuses;
         }
         if ( $sort )
         {

@@ -52,7 +52,7 @@
             <div class="col-xs-12">
                 <div class="note note-default">
                     <p class="text-muted small bold">Быстрый фильтр по статусам:</p>
-                    @foreach ( \Auth::user()->getAvailableStatuses( true, true ) as $status_code => $status_name )
+                    @foreach ( \Auth::user()->getAvailableStatuses( 'show', true, true ) as $status_code => $status_name )
                         @if ( $status_code != 'draft' )
                             <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
                                 {{ $status_name }}
@@ -95,13 +95,17 @@
                                     Оператор
                                 </th>
                             @endif
-                            @if ( $field_management )
-                                <th width="200">
-                                    УО
-                                </th>
-                            @endif
                             <th width="200">
-                                Категория и тип заявки
+                                @if ( $field_management )
+                                    УО \
+                                @endif
+                                Исполнитель
+                            </th>
+                            <th width="300">
+                                Тип заявки
+                                @if ( \Auth::user()->can( 'tickets.works.show' ) )
+                                    \ Выполненные работы
+                                @endif
                             </th>
                             <th colspan="2">
                                 Адрес проблемы
@@ -111,7 +115,7 @@
                             <td>
                                 <div class="row">
                                     <div class="col-lg-12">
-                                        {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( true, true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
+                                        {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( 'show', true, true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
                                     </div>
                                 </div>
                                 <div class="row margin-top-10">
@@ -122,17 +126,39 @@
                                         {!! Form::select( 'rate', [ 0 => '-', 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5 ], \Input::old( 'rate' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Оценка' ] ) !!}
                                     </div>
                                 </div>
+                                <div class="row margin-top-10">
+                                    <div class="col-lg-12">
+                                        <label class="mt-checkbox mt-checkbox-outline">
+                                            Просрочено на принятие
+                                            {!! Form::checkbox( 'overdue_acceptance', 1, \Input::old( 'overdue_acceptance' ) ) !!}
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <label class="mt-checkbox mt-checkbox-outline">
+                                            Просрочено на исполнение
+                                            {!! Form::checkbox( 'overdue_execution', 1, \Input::old( 'overdue_execution' ) ) !!}
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                <div class="date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
-                                        </div>
-                                    </div>
-                                    <div class="row margin-top-10">
-                                        <div class="col-lg-12">
-                                            {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="date-picker input-daterange" data-date-format="dd.mm.yyyy">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
+                                                </div>
+                                            </div>
+                                            <div class="row margin-top-10">
+                                                <div class="col-lg-12">
+                                                    {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -142,11 +168,20 @@
                                     {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators, \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
                                 </td>
                             @endif
-                            @if ( $field_management )
-                                <td>
-                                    {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements, \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'УО' ] ) !!}
-                                </td>
-                            @endif
+                            <td>
+                                @if ( $field_management )
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements, \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'УО' ] ) !!}
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="row margin-top-10">
+                                    <div class="col-lg-12">
+                                        {!! Form::select( 'executor_id', [ null => ' -- все -- ' ] + $executors, \Input::old( 'executor_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель' ] ) !!}
+                                    </div>
+                                </div>
+                            </td>
                             <td>
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -159,6 +194,26 @@
                                             <i class="icon-fire"></i>
                                             Авария
                                             {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <label class="mt-checkbox mt-checkbox-outline">
+                                            <i class="icon-heart"></i>
+                                            Добродел
+                                            {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel' ) ) !!}
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <label class="mt-checkbox mt-checkbox-outline">
+                                            <i class="icon-user-follow"></i>
+                                            Из ЛК
+                                            {!! Form::checkbox( 'from_lk', 1, \Input::old( 'from_lk' ) ) !!}
                                             <span></span>
                                         </label>
                                     </div>

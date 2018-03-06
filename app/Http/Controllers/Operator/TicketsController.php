@@ -7,12 +7,12 @@ use App\Jobs\SendStream;
 use App\Models\Address;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Executor;
 use App\Models\Management;
 use App\Models\Region;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -41,7 +41,7 @@ class TicketsController extends BaseController
             ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number, $customer_id )
             {
 
-                if ( !empty( $request->get( 'search' ) ) )
+                if ( ! empty( $request->get( 'search' ) ) )
                 {
                     $ticket
                         ->fastSearch( $request->get( 'search' ) );
@@ -57,7 +57,7 @@ class TicketsController extends BaseController
                         });
                 }
 
-                if ( !empty( $request->get( 'group' ) ) )
+                if ( ! empty( $request->get( 'group' ) ) )
                 {
                     $ticket
                         ->where( 'group_uuid', '=', $request->get( 'group' ) );
@@ -69,13 +69,13 @@ class TicketsController extends BaseController
                         ->where( 'id', '=', $exp_number[0] );
                 }
 
-                if ( !empty( $request->get( 'period_from' ) ) )
+                if ( ! empty( $request->get( 'period_from' ) ) )
                 {
                     $ticket
                         ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'period_from' ) )->toDateTimeString() ] );
                 }
 
-                if ( !empty( $request->get( 'period_to' ) ) )
+                if ( ! empty( $request->get( 'period_to' ) ) )
                 {
                     $ticket
                         ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'period_to' ) )->toDateTimeString() ] );
@@ -87,7 +87,7 @@ class TicketsController extends BaseController
                         ->where( 'author_id', '=', $request->get( 'operator_id' ) );
                 }
 
-                if ( !empty( $request->get( 'type' ) ) )
+                if ( ! empty( $request->get( 'type' ) ) )
                 {
                     list ( $type, $id ) = explode( '-', $request->get( 'type' ) );
                     switch ( $type )
@@ -107,25 +107,49 @@ class TicketsController extends BaseController
                     }
                 }
 
-                if ( !empty( $request->get( 'address_id' ) ) )
+                if ( ! empty( $request->get( 'address_id' ) ) )
                 {
                     $ticket
                         ->where( 'address_id', '=', $request->get( 'address_id' ) );
                 }
 
-                if ( !empty( $request->get( 'flat' ) ) )
+                if ( ! empty( $request->get( 'flat' ) ) )
                 {
                     $ticket
                         ->where( 'flat', '=', $request->get( 'flat' ) );
                 }
 
-                if ( !empty( $request->get( 'emergency' ) ) )
+                if ( ! empty( $request->get( 'emergency' ) ) )
                 {
                     $ticket
                         ->where( 'emergency', '=', 1 );
                 }
 
-                if ( !empty( $request->get( 'region_id' ) ) )
+                if ( ! empty( $request->get( 'dobrodel' ) ) )
+                {
+                    $ticket
+                        ->where( 'dobrodel', '=', 1 );
+                }
+
+                if ( ! empty( $request->get( 'from_lk' ) ) )
+                {
+                    $ticket
+                        ->where( 'from_lk', '=', 1 );
+                }
+
+                if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
+                {
+                    $ticket
+                        ->where( 'overdue_acceptance', '=', 1 );
+                }
+
+                if ( ! empty( $request->get( 'overdue_execution' ) ) )
+                {
+                    $ticket
+                        ->where( 'overdue_execution', '=', 1 );
+                }
+
+                if ( ! empty( $request->get( 'region_id' ) ) )
                 {
                     $ticket
                         ->where( function ( $q ) use ( $request )
@@ -142,13 +166,13 @@ class TicketsController extends BaseController
 
             });
 			
-		if ( !empty( $request->get( 'status_code' ) ) )
+		if ( ! empty( $request->get( 'status_code' ) ) )
 		{
 			$ticketManagements
 				->where( 'status_code', '=', $request->get( 'status_code' ) );
 		}
 
-        if ( !empty( $request->get( 'rate' ) ) )
+        if ( ! empty( $request->get( 'rate' ) ) )
         {
             $ticketManagements
                 ->where( 'rate', '=', $request->get( 'rate' ) );
@@ -160,7 +184,7 @@ class TicketsController extends BaseController
                 ->whereIn( 'status_code', $statuses );
         }
 
-        if ( !empty( $request->get( 'address_id' ) ) )
+        if ( ! empty( $request->get( 'address_id' ) ) )
         {
             $address = Address::find( $request->get( 'address_id' ) );
         }
@@ -171,10 +195,16 @@ class TicketsController extends BaseController
                 ->where( 'id', '=', $exp_number[1] );
         }
 
-        if ( $field_management && !empty( $request->get( 'management_id' ) ) )
+        if ( ! empty( $request->get( 'management_id' ) ) )
         {
             $ticketManagements
                 ->where( 'management_id', '=', $request->get( 'management_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'executor_id' ) ) )
+        {
+            $ticketManagements
+                ->where( 'executor_id', '=', $request->get( 'executor_id' ) );
         }
 
         switch ( $request->get( 'show' ) )
@@ -278,40 +308,57 @@ class TicketsController extends BaseController
             \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->put( 'ticket.types', $types, \Config::get( 'cache.time' ) );
         }
 
-        if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'managements.' . \Auth::user()->id ) )
+        if ( $field_management )
         {
-            $managements = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'managements.' . \Auth::user()->id );
-        }
-        else
-        {
-            $managements = Management::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
-            \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'managements.' . \Auth::user()->id, $managements, \Config::get( 'cache.time' ) );
+            if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'managements.' . \Auth::user()->id ) )
+            {
+                $managements = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'managements.' . \Auth::user()->id );
+            }
+            else
+            {
+                $managements = Management::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
+                \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'managements.' . \Auth::user()->id, $managements, \Config::get( 'cache.time' ) );
+            }
         }
 
-        if ( \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->has( 'operators.' . \Auth::user()->id ) )
+        if ( $field_operator )
         {
-            $operators = \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->get( 'operators.' . \Auth::user()->id );
+            if ( \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->has( 'operators.' . \Auth::user()->id ) )
+            {
+                $operators = \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->get( 'operators.' . \Auth::user()->id );
+            }
+            else
+            {
+                $res = Ticket::mine()->groupBy( 'author_id' )->get();
+                $operators = [];
+                foreach ( $res as $r )
+                {
+                    $operators[ $r->author_id ] = $r->author->getShortName();
+                }
+                asort( $operators );
+                \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->put( 'operators.' . \Auth::user()->id, $operators, \Config::get( 'cache.time' ) );
+            }
+        }
+
+        if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'executors.' . \Auth::user()->id ) )
+        {
+            $executors = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'executors.' . \Auth::user()->id );
         }
         else
         {
-            $res = Ticket::mine()->groupBy( 'author_id' )->get();
-            $operators = [];
-            foreach ( $res as $r )
-            {
-                $operators[ $r->author_id ] = $r->author->getShortName();
-            }
-            asort( $operators );
-            \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->put( 'operators.' . \Auth::user()->id, $operators, \Config::get( 'cache.time' ) );
+            $executors = Executor::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
+            \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'executors.' . \Auth::user()->id, $executors, \Config::get( 'cache.time' ) );
         }
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'types', $types )
-            ->with( 'managements', $managements )
-            ->with( 'operators', $operators )
-            ->with( 'field_operator', $field_operator )
-            ->with( 'field_management', $field_management )
-            ->with( 'regions', $regions )
+            ->with( 'managements', $managements ?? [] )
+            ->with( 'executors', $executors ?? [] )
+            ->with( 'operators', $operators ?? [] )
+            ->with( 'field_operator', $field_operator ?? false )
+            ->with( 'field_management', $field_management ?? false )
+            ->with( 'regions', $regions ?? [] )
             ->with( 'address', $address ?? null );
 
     }
@@ -549,14 +596,16 @@ class TicketsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show ( Request $request, $id )
+    public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
         $status_transferred = null;
         $status_accepted = null;
         $status_completed = null;
 
-        $ticket = Ticket::mine()->find( $id );
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
 
         if ( ! $ticket )
         {
@@ -565,14 +614,37 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
-        if ( $ticket->status_code != 'cancel' && $ticket->status_code != 'no_contract' )
-        {
-            $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-            $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-            $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-        }
+        $comments = $ticket->getComments();
 
-        Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+        if ( $ticket_management_id )
+        {
+            $ticketManagement = $ticket
+                ->managements()
+                ->find( $ticket_management_id );
+            if ( ! $ticketManagement )
+            {
+                return redirect()
+                    ->route( 'tickets.index' )
+                    ->withErrors( [ 'Заявка не найдена' ] );
+            }
+            if ( ! in_array( $ticketManagement->status_code, Ticket::$without_time ) )
+            {
+                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
+            Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+        }
+        else
+        {
+            if ( ! in_array($ticket->status_code , Ticket::$without_time ) )
+            {
+                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
+                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
+                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
+            }
+            Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+        }
 
         $dt_now = Carbon::now();
 
@@ -593,15 +665,6 @@ class TicketsController extends BaseController
 
         }
 
-        $comments = new Collection();
-        $comments = $comments->merge( $ticket->comments );
-        foreach ( $ticket->managements()->mine()->get() as $item )
-        {
-            $comments = $comments->merge( $item->comments );
-        }
-
-        $comments = $comments->sortBy( 'id' );
-
         if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
         {
             $ticketCalls = $ticket->calls()->actual()->get();
@@ -615,11 +678,30 @@ class TicketsController extends BaseController
             $ticketCalls = new Collection();
         }
 
-        $view = $request->ajax() ? 'parts.ticket_info' : 'tickets.show';
+        $availableStatuses = [];
+        $model_name = get_class( $ticket );
+        $model_id = $ticket->id;
+        $url = route( 'tickets.status', $ticket->id );
+        foreach ( $ticket->getAvailableStatuses( 'edit', true, true ) as $status_code => $status_name )
+        {
+            $availableStatuses[ $status_code ] = compact( 'status_name', 'model_name', 'model_id', 'url' );
+        }
 
-        return view( $view )
+        if ( isset( $ticketManagement ) )
+        {
+            $model_name = get_class( $ticketManagement );
+            $model_id = $ticketManagement->id;
+            $url = route( 'tickets.status', $ticketManagement->getTicketNumber() );
+            foreach ( $ticketManagement->getAvailableStatuses( 'edit', true, true ) as $status_code => $status_name )
+            {
+                $availableStatuses[ $status_code ] = compact( 'status_name', 'model_name', 'model_id', 'url' );
+            }
+        }
+
+        return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'availableStatuses', $availableStatuses )
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
@@ -657,6 +739,8 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
+        $comments = $ticket->getComments();
+
         if ( $ticket_management_id )
         {
             $ticketManagement = $ticket
@@ -675,8 +759,6 @@ class TicketsController extends BaseController
                 $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
             }
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
-            $comments = $ticketManagement->comments;
-            $comments = $comments->merge( $ticketManagement->ticket->comments );
         }
         else
         {
@@ -687,12 +769,6 @@ class TicketsController extends BaseController
                 $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
             }
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
-            $comments = new Collection();
-            $comments = $comments->merge( $ticket->comments );
-            foreach ( $ticket->managements()->mine()->get() as $item )
-            {
-                $comments = $comments->merge( $item->comments );
-            }
         }
 
         $dt_now = Carbon::now();
@@ -714,8 +790,6 @@ class TicketsController extends BaseController
 
         }
 
-        $comments = $comments->sortBy( 'id' );
-
         if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
         {
             $ticketCalls = $ticket->calls()->actual()->get();
@@ -729,9 +803,30 @@ class TicketsController extends BaseController
             $ticketCalls = new Collection();
         }
 
+        $availableStatuses = [];
+        $model_name = get_class( $ticket );
+        $model_id = $ticket->id;
+        $url = route( 'tickets.status', $ticket->id );
+        foreach ( $ticket->getAvailableStatuses( 'edit', true, true ) as $status_code => $status_name )
+        {
+            $availableStatuses[ $status_code ] = compact( 'status_name', 'model_name', 'model_id', 'url' );
+        }
+
+        if ( isset( $ticketManagement ) )
+        {
+            $model_name = get_class( $ticketManagement );
+            $model_id = $ticketManagement->id;
+            $url = route( 'tickets.status', $ticketManagement->getTicketNumber() );
+            foreach ( $ticketManagement->getAvailableStatuses( 'edit', true, true ) as $status_code => $status_name )
+            {
+                $availableStatuses[ $status_code ] = compact( 'status_name', 'model_name', 'model_id', 'url' );
+            }
+        }
+
         return view( 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'availableStatuses', $availableStatuses )
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
             ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
@@ -744,13 +839,50 @@ class TicketsController extends BaseController
 
     }
 
+    public function saveWork ( Request $request, $ticket_id, $ticket_management_id = null )
+    {
+
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
+        if ( ! $ticket )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $ticketManagement = $ticket
+            ->managements()
+            ->find( $ticket_management_id );
+        if ( ! $ticketManagement )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $res = $ticketManagement->saveWorks( $request->get( 'works' ) );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors( $res );
+        }
+
+        return redirect()
+            ->back()
+            ->with( 'success', 'Выполненные работы успешно сохранены' );
+
+    }
+
     public function history ( Request $request, $ticket_id, $ticket_management_id )
     {
 
         $ticket = Ticket
             ::mine()
             ->find( $ticket_id );
-
         if ( ! $ticket )
         {
             return redirect()
@@ -979,47 +1111,6 @@ class TicketsController extends BaseController
 
     }
 
-    public function setExecutor ( Request $request )
-    {
-
-        $ticketManagement = TicketManagement
-            ::mine()
-            ->find( $request->get( 'id' ) );
-
-        if ( ! $ticketManagement )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-
-        \DB::beginTransaction();
-
-        $ticketManagement->executor = $request->get( 'executor' );
-        $ticketManagement->save();
-
-        $res = $ticketManagement->changeStatus( 'assigned', true );
-
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $res );
-        }
-
-        $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $ticketManagement->executor . '"' );
-
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $res );
-        }
-
-        \DB::commit();
-
-        return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
-
-    }
-
     public function action ( Request $request )
     {
 
@@ -1172,7 +1263,6 @@ class TicketsController extends BaseController
         $ticketManagement = $ticket
             ->managements()
             ->find( $ticket_management_id );
-
         if ( ! $ticketManagement )
         {
             return redirect()
@@ -1180,8 +1270,15 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
+        $works = $ticketManagement->works;
+
+        $lines = 5 - $works->count();
+        if ( $lines < 0 ) $lines = 0;
+
         return view( 'tickets.act' )
-            ->with( 'ticketManagement', $ticketManagement );
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'works', $works )
+            ->with( 'lines', $lines );
 
     }
 	
@@ -1228,6 +1325,83 @@ class TicketsController extends BaseController
 		$ticketManagement->delete();
     }
 
+    public function getExecutorForm ( Request $request )
+    {
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        if ( ! $ticketManagement )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Заявка не найдена' );
+        }
+        $management = $ticketManagement->management;
+        $executors = [ null => 'Выбрать из списка' ] + $management->executors->pluck( 'name', 'id' )->toArray();
+        return view( 'parts.executor_form' )
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'management', $management )
+            ->with( 'executors', $executors );
+    }
+
+    public function postExecutorForm ( Request $request )
+    {
+        $this->validate( $request, [
+            'executor_id'       => 'required_without:executor_name|nullable|integer',
+            'executor_name'     => 'required_without:executor_id|string',
+        ]);
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        if ( ! $ticketManagement )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+        \DB::beginTransaction();
+        if ( $request->get( 'executor_id' ) )
+        {
+            $executor = Executor::find( $request->get( 'executor_id' ) );
+            if ( ! $executor )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Исполнитель не найден' ] );
+            }
+        }
+        else if ( $request->get( 'executor_name' ) )
+        {
+            $executor = $ticketManagement->management->executors()->where( 'name', '=', $request->get( 'executor_name' ) )->first();
+            if ( ! $executor )
+            {
+                $executor = Executor::create([
+                    'management_id'     => $ticketManagement->management->id,
+                    'name'              => $request->get( 'executor_name' )
+                ]);
+                if ( $executor instanceof MessageBag )
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors( $executor );
+                }
+                $executor->save();
+
+            }
+        }
+        $ticketManagement->executor_id = $executor->id;
+        $ticketManagement->save();
+        $res = $ticketManagement->changeStatus( 'assigned', true );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+        $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $executor->name . '"' );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+        \DB::commit();
+        return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
+    }
+
     public function getRateForm ( Request $request )
     {
         $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
@@ -1242,7 +1416,8 @@ class TicketsController extends BaseController
                 ->with( 'error', 'По данной заявке уже имеется оценка' );
         }
         return view( 'parts.rate_form' )
-            ->with( 'ticketManagement', $ticketManagement );
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'closed_with_confirm', 1 );
     }
 
     public function postRateForm ( Request $request )
@@ -1257,7 +1432,7 @@ class TicketsController extends BaseController
         \DB::beginTransaction();
         $ticketManagement->rate = $request->get( 'rate' );
         $ticketManagement->rate_comment = $request->get( 'comment', null );
-        if ( $ticketManagement->status_code != 'closed_with_confirm' )
+        if ( $request->get( 'closed_with_confirm' ) == 1 && $ticketManagement->status_code != 'closed_with_confirm' )
         {
             $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
             if ( $res instanceof MessageBag )

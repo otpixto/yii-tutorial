@@ -42,8 +42,12 @@ class ManagementsController extends BaseController
                     $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
                     $q
                         ->where( 'name', 'like', $s )
-                        ->orWhere( 'address', 'like', $s )
-                        ->orWhere( 'guid', 'like', $s );
+                        ->orWhere( 'guid', 'like', $s )
+                        ->orWhereHas( 'address', function ( $q2 ) use ( $s )
+                        {
+                            return $q2
+                                ->where( 'name', 'like', $s );
+                        });
                     if ( ! empty( $p ) )
                     {
                         $q
@@ -328,6 +332,24 @@ class ManagementsController extends BaseController
             ->with( 'managements', $managements )
             ->with( 'selected', $selected );
 
+    }
+
+    public function executors ( Request $request )
+    {
+        $management = Management::find( $request->get( 'management_id' ) );
+        if ( ! $management )
+        {
+            return false;
+        }
+        $res = [];
+        foreach ( $management->executors as $executor )
+        {
+            $res[] = [
+                'text' => $executor->name,
+                'value' => $executor->id,
+            ];
+        }
+        return $res;
     }
 
     public function getAddAddresses ( Request $request )

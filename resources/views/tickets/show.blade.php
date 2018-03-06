@@ -17,6 +17,7 @@
     </div>
 
 	{!! Form::hidden( 'ticket_id', $ticket->id, [ 'id' => 'ticket-id' ] ) !!}
+    {!! Form::hidden( 'management_id', isset( $ticketManagement ) ? $ticketManagement->management_id : null, [ 'id' => 'management-id' ] ) !!}
 
 @endsection
 
@@ -37,6 +38,7 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/jquery-repeater/jquery.repeater.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
@@ -45,6 +47,32 @@
     <script type="text/javascript">
 
         $( document )
+
+            .ready( function ()
+            {
+
+                $( '.mt-repeater' ).repeater({
+                    show: function ()
+                    {
+                        $( this ).slideDown();
+                    },
+                    hide: function ( deleteElement )
+                    {
+                        if ( confirm( 'Уверены, что хотите удалить строку?' ) )
+                        {
+                            $( this ).slideUp( deleteElement );
+                        }
+                    },
+                    ready: function ( setIndexes )
+                    {
+
+                    },
+                    defaultValues: {
+                        count: 1
+                    }
+                });
+
+            })
 
             .on( 'click', '[data-rate]', function ( e )
             {
@@ -172,33 +200,21 @@
 
                 var id = $( this ).attr( 'data-id' );
 
-                bootbox.prompt({
-                    title: 'Введите ФИО и должность назначенного исполнителя',
-                    inputType: 'textarea',
-                    callback: function ( result )
+                var dialog = bootbox.dialog({
+                    title: 'Выберите исполнителя',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+                });
+
+                dialog.init( function ()
+                {
+                    $.get( '{{ route( 'tickets.executor' ) }}', {
+                        id: id
+                    }, function ( response )
                     {
-                        if ( ! result )
-                        {
-                            alert( 'Действие отменено!' );
-                        }
-                        else
-                        {
-                            $.post( '{{ route( 'tickets.executor' ) }}', {
-                                id: id,
-                                executor: result
-                            }, function ( response )
-                            {
-                                bootbox.alert({
-                                    message: 'Исполнитель успешно назначен',
-                                    size: 'small',
-                                    callback: function ()
-                                    {
-                                        window.location.reload();
-                                    }
-                                })
-                            });
-                        }
-                    }
+                        dialog.find( '.bootbox-body' ).html( response );
+                        dialog.removeAttr( 'tabindex' );
+                        dialog.find( '.select2' ).select2();
+                    });
                 });
 
             })

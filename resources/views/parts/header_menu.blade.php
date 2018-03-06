@@ -90,11 +90,11 @@
                     @if ( \Auth::user()->can( 'reports.managements' ) )
                         <li>
                             <a href="{{ route( 'reports.managements' ) }}">
-                                Отчет по количеству заявок
+                                Отчет по исполнителям
                             </a>
                         </li>
                     @endif
-                    {{--@if ( \Auth::user()->admin || \Auth::user()->can( 'reports.addresses' ) )
+                    {{--@if ( \Auth::user()->can( 'reports.addresses' ) )
                         <li>
                             <a href="{{ route( 'reports.addresses' ) }}">
                                 Отчет по адресам
@@ -129,13 +129,6 @@
                             </a>
                         </li>
                     @endif
-                    {{--@if ( \Auth::user()->admin || \Auth::user()->can( 'reports.summary' ) )
-                        <li>
-                            <a href="{{ route( 'reports.summary' ) }}">
-                                Суммарные показатели
-                            </a>
-                        </li>
-                    @endif--}}
                 </ul>
             </li>
         @endif

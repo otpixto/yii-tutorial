@@ -37,12 +37,18 @@ class CustomersController extends BaseController
             $customers
                 ->where( function ( $q ) use ( $s, $search )
                 {
+                    $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
                     return $q
                         ->where( 'firstname', 'like', $s )
                         ->orWhere( 'middlename', 'like', $s )
                         ->orWhere( 'lastname', 'like', $s )
-                        ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) )
-                        ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) );
+                        ->orWhere( 'phone', '=', $p )
+                        ->orWhere( 'phone2', '=', $p )
+                        ->orWhereHas( 'actualAddress', function ( $q2 ) use ( $s )
+                        {
+                            return $q2
+                                ->where( 'name', 'like', $s );
+                        });
                 });
         }
 

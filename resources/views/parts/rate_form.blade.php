@@ -1,13 +1,14 @@
-@if ( ! $ticketManagement->rate )
+@if ( $ticketManagement->canRate() )
     {!! Form::open( [ 'url' => route( 'tickets.rate' ), 'id' => 'rate-form' ] ) !!}
     {!! Form::hidden( 'id', $ticketManagement->id ) !!}
     {!! Form::hidden( 'comment', null ) !!}
     {!! Form::hidden( 'rate', null ) !!}
+    {!! Form::hidden( 'closed_with_confirm', $closed_with_confirm ?? 0 ) !!}
     {!! Form::close() !!}
     <div class="note note-info">
         <dl>
             <dt>
-                Оценка работы ЭО:
+                Оценка работы УО:
             </dt>
             <dd>
                 <button type="button" class="btn btn-danger btn-lg bold" data-rate="1">

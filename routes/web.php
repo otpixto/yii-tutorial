@@ -74,13 +74,15 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/tickets/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
         Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
         Route::post( '/tickets/change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-        Route::post( '/tickets/set-executor', 'Operator\TicketsController@setExecutor' )->name( 'tickets.executor' );
+        Route::get( '/tickets/executor', 'Operator\TicketsController@getExecutorForm' )->name( 'tickets.executor' );
+        Route::post( '/tickets/executor', 'Operator\TicketsController@postExecutorForm' )->name( 'tickets.executor' );
         Route::post( '/tickets/comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
         Route::post( '/tickets/action', 'Operator\TicketsController@action' )->name( 'tickets.action' );
         Route::post( '/tickets', 'Operator\TicketsController@export' );
         Route::get( '/tickets/clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
         Route::resource( '/tickets', 'Operator\TicketsController' );
         Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
+        Route::post( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@saveWork' )->name( 'tickets.save_work' );
         Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
         Route::post( '/tickets/line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
         Route::post( '/tickets/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
@@ -93,6 +95,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
 
         Route::post( '/managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
+        Route::get( '/managements/executors', 'Catalog\ManagementsController@executors' )->name( 'managements.executors' );
 
         Route::post( '/types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
 
@@ -114,10 +117,10 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
             Route::get( 'rates', 'Operator\ReportsController@rates' )->name( 'reports.rates' );
             Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
+            Route::get( 'executors', 'Operator\ReportsController@executors' )->name( 'reports.executors' );
             Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
             Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
             Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
-            Route::get( 'summary', 'Operator\ReportsController@summary' )->name( 'reports.summary' );
         });
 
         Route::prefix( 'maps' )->group( function ()
