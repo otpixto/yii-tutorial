@@ -245,7 +245,7 @@ class Ticket extends BaseModel
                 });
                 if ( \Auth::user()->can( 'tickets.show' ) )
                 {
-                    if ( ! $ignoreStatuses && ! \Auth::user()->can( 'supervisor.all_statuses' ) )
+                    if ( ! $ignoreStatuses && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                     {
                         $q
                             ->whereIn( 'status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
@@ -487,7 +487,7 @@ class Ticket extends BaseModel
         {
             $user_statuses = \Auth::user()->getAvailableStatuses( $perm_for );
             $this->availableStatuses = [];
-            if ( \Auth::user()->can( 'supervisor.all_statuses' ) )
+            if ( \Auth::user()->can( 'supervisor.all_statuses.' . $perm_for ) )
             {
                 $this->availableStatuses = $user_statuses;
             }

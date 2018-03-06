@@ -184,7 +184,7 @@ class TicketManagement extends BaseModel
         {
             $user_statuses = \Auth::user()->getAvailableStatuses( $perm_for );
             $this->availableStatuses = [];
-            if ( \Auth::user()->can( 'supervisor.all_statuses' ) )
+            if ( \Auth::user()->can( 'supervisor.all_statuses.' . $perm_for ) )
             {
                 $this->availableStatuses = $user_statuses;
             }
