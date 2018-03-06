@@ -136,6 +136,10 @@ class TicketManagement extends BaseModel
 
     public function saveWorks ( array $works = [] )
     {
+        if ( ! count( $works ) )
+        {
+            $this->works()->delete();
+        }
         $ids = [];
         foreach ( $works as $work )
         {
@@ -162,7 +166,7 @@ class TicketManagement extends BaseModel
             }
             $ids[] = $ticketManagementWork->id;
         }
-        TicketManagementWork::whereNotIn( 'id', $ids )->delete();
+        $this->works()->whereNotIn( 'id', $ids )->delete();
         return true;
     }
 
