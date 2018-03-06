@@ -81,11 +81,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::post( '/tickets', 'Operator\TicketsController@export' );
         Route::get( '/tickets/clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
         Route::post( '/tickets/line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
-        Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
-        Route::post( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@saveWork' )->name( 'tickets.save_work' );
         Route::get( '/tickets/history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
         Route::post( '/tickets/comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
         Route::resource( '/tickets', 'Operator\TicketsController' );
+        Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
+        Route::post( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@saveWork' )->name( 'tickets.save_work' );
 
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
