@@ -185,24 +185,26 @@
             </div>
         @endif
 
-        <div class="row">
-            <div class="col-xs-6">
-                <div class="note">
-                    <dl>
-                        <dt>Заявка передана в УО:</dt>
-                        <dd>{{ $ticket->transferred_at ?? '-' }}</dd>
-                    </dl>
+        @if ( $ticket->transferred_at )
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Заявка передана в УО:</dt>
+                            <dd>{{ $ticket->transferred_at->format( 'd.m.Y H:i' ) }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Оператор ЕДС:</dt>
+                            <dd>{{ $ticket->author->getName() }}</dd>
+                        </dl>
+                    </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="note">
-                    <dl>
-                        <dt>Оператор ЕДС:</dt>
-                        <dd>{{ $ticket->author->getName() }}</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
+        @endif
 
         @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
             <div class="row">
