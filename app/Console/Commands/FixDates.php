@@ -53,8 +53,11 @@ class FixDates extends Command
             $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->sortByDesc( 'id' )->first();
             if ( ! $status_transferred ) continue;
             $ticket->transferred_at = $status_transferred->created_at->format( 'Y-m-d H:i:s' );
-            $ticket->deadline_acceptance = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 )->format( 'Y-m-d H:i:s' );
-            $ticket->deadline_execution = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 )->format( 'Y-m-d H:i:s' );
+            if ( $ticket->type )
+            {
+                $ticket->deadline_acceptance = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 )->format( 'Y-m-d H:i:s' );
+                $ticket->deadline_execution = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 )->format( 'Y-m-d H:i:s' );
+            }
             $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->sortByDesc( 'id' )->first();
             $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )->sortByDesc( 'id' )->first();
             if ( $status_accepted )
