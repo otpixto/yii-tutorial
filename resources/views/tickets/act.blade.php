@@ -82,53 +82,55 @@
             Выполненные работы
         </h3>
 
-        <p>
-            <table class="table table-striped">
-                <tr>
-                    <th with="85%">
-                        Наименование
-                    </th>
-                    <th>
-                        Кол-во
-                    </th>
-                </tr>
-            @foreach ( $works as $work )
-                <tr>
-                    <td>
-                        {{ $work->name }}
-                    </td>
-                    <td>
-                        {{ $work->quantity }}
-                    </td>
-                </tr>
-            @endforeach
-            @for ( $i = 0; $i < $lines; $i ++ )
-                <tr>
-                    <td>
-                        &nbsp;
-                    </td>
-                    <td>
-                        &nbsp;
-                    </td>
-                </tr>
-            @endfor
-            </table>
-        </p>
+        <table class="table table-striped">
+            <tr>
+                <th with="85%">
+                    Наименование
+                </th>
+                <th>
+                    Кол-во
+                </th>
+            </tr>
+        @foreach ( $works as $work )
+            <tr>
+                <td>
+                    {{ $work->name }}
+                </td>
+                <td>
+                    {{ $work->quantity }}
+                </td>
+            </tr>
+        @endforeach
+        @for ( $i = 0; $i < $lines; $i ++ )
+            <tr>
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+        @endfor
+        </table>
 
-        <p>
+        <p class="text-right bold">
             Устранено:
         </p>
 
-        <p>
-            Дата __________ ФИО Исполнителя _____________________________________ Подпись ______________
+        <p class="text-right">
+            ФИО Исполнителя __________________________________________________________ Подпись __________________
         </p>
 
-        <p>
+        <p class="text-right bold">
             Принял:
         </p>
 
-        <p>
-            Дата __________ ФИО Заявителя ________________________________________ Подпись ______________
+        <p class="text-right">
+            ФИО Заявителя __________________________________________________________ Подпись __________________
+        </p>
+
+        <p class="text-right">
+            Дата ____________________________
         </p>
 
     </div>
