@@ -23,7 +23,7 @@
     <link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
     <!-- END THEME GLOBAL STYLES -->
     <!-- BEGIN PAGE LEVEL STYLES -->
-    <link href="/assets/pages/css/act.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/pages/css/act.css?v2" rel="stylesheet" type="text/css" />
     <!-- END PAGE LEVEL STYLES -->
 </head>
 <!-- END HEAD -->
