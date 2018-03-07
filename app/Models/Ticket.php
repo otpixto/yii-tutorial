@@ -22,6 +22,17 @@ class Ticket extends BaseModel
 
     private $availableStatuses = null;
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'transferred_at',
+        'accepted_at',
+        'completed_at',
+        'deadline_acceptance',
+        'deadline_execution',
+    ];
+
     public static $places = [
         1 => 'Помещение',
         2 => 'Здание',
@@ -327,6 +338,11 @@ class Ticket extends BaseModel
             ->whereNull( 'parent_id' );
     }
 
+    public function isFinalStatus ()
+    {
+        return in_array( $this->status_code, self::$final_statuses );
+    }
+
     public static function create ( array $attributes = [] )
     {
 
@@ -581,17 +597,9 @@ class Ticket extends BaseModel
             case 'accepted':
             case 'assigned':
 
-                if ( $this->type->period_acceptance )
+                if ( $this->deadline_execution && ( $this->completed_at ?? $now )->timestamp > $this->deadline_execution->timestamp )
                 {
-
-                    $dt = Carbon::parse( $this->created_at );
-                    $dt->addSeconds( $this->type->period_acceptance * 60 * 60 );
-
-                    if ( $now->timestamp > $dt->timestamp )
-                    {
-                        return 'color-red';
-                    }
-
+                    return 'color-red';
                 }
 
                 return 'color-green';
@@ -624,18 +632,9 @@ class Ticket extends BaseModel
             case 'transferred':
             case 'transferred_again':
 
-                if ( $this->type->period_acceptance )
+                if ( $this->deadline_acceptance && ( $this->accepted_at ?? $now )->timestamp > $this->deadline_acceptance->timestamp )
                 {
-                    $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                    if ( $status_transferred )
-                    {
-                        $dt = $status_transferred->created_at;
-                        $dt->addMinutes( $this->type->period_acceptance * 60 );
-                        if ( $now->timestamp > $dt->timestamp )
-                        {
-                            return 'danger';
-                        }
-                    }
+                    return 'danger';
                 }
 
                 return 'warning';
@@ -645,21 +644,10 @@ class Ticket extends BaseModel
             case 'accepted':
             case 'assigned':
 
-                /*if ( $this->type->period_execution )
+                if ( $this->deadline_execution && ( $this->completed_at ?? $now )->timestamp > $this->deadline_execution->timestamp )
                 {
-
-                    $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
-                    if ( $status_accepted )
-                    {
-                        $dt = $status_accepted->created_at;
-                        $dt->addMinutes( $this->type->period_execution * 60 );
-                        if ( $now->timestamp > $dt->timestamp )
-                        {
-                            return 'danger';
-                        }
-                    }
-
-                }*/
+                    return 'danger';
+                }
 
                 return 'success';
 
@@ -856,6 +844,55 @@ class Ticket extends BaseModel
                 {
                     return $res;
                 }
+
+                $transferred_at = Carbon::now();
+
+                $this->transferred_at = $transferred_at->toDateTimeString();
+
+                if ( $this->type )
+                {
+                    $this->deadline_acceptance = $transferred_at->addMinutes( $this->type->period_acceptance * 60 );
+                    $this->deadline_execution = $transferred_at->addMinutes( $this->type->period_execution * 60 );
+                }
+
+                $this->save();
+
+                break;
+
+            case 'transferred_again':
+
+                $transferred_at = Carbon::now();
+
+                $this->transferred_at = $transferred_at->toDateTimeString();
+
+                if ( $this->type )
+                {
+                    $this->deadline_acceptance = $transferred_at->addMinutes( $this->type->period_acceptance * 60 );
+                    $this->deadline_execution = $transferred_at->addMinutes( $this->type->period_execution * 60 );
+                }
+
+                $this->save();
+
+                break;
+
+            case 'accepted':
+
+                $this->accepted_at = Carbon::now()->toDateTimeString();
+                $this->save();
+
+                break;
+
+            case 'completed_with_act':
+            case 'completed_without_act':
+            case 'not_verified':
+
+                $transferred_at = $this->transferred_at;
+                $completed_at = Carbon::now();
+
+                $this->completed_at = $completed_at->toDateTimeString();
+                $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+
+                $this->save();
 
                 break;
 

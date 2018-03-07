@@ -140,13 +140,13 @@ class TicketsController extends BaseController
                 if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
                 {
                     $ticket
-                        ->where( 'overdue_acceptance', '=', 1 );
+                        ->whereRaw( 'deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
                 }
 
                 if ( ! empty( $request->get( 'overdue_execution' ) ) )
                 {
                     $ticket
-                        ->where( 'overdue_execution', '=', 1 );
+                        ->whereRaw( 'deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
                 }
 
                 if ( ! empty( $request->get( 'region_id' ) ) )
@@ -599,10 +599,6 @@ class TicketsController extends BaseController
     public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $status_transferred = null;
-        $status_accepted = null;
-        $status_completed = null;
-
         $ticket = Ticket
             ::mine()
             ->find( $ticket_id );
@@ -627,42 +623,11 @@ class TicketsController extends BaseController
                     ->route( 'tickets.index' )
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
-            if ( ! in_array( $ticketManagement->status_code, Ticket::$without_time ) )
-            {
-                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
         }
         else
         {
-            if ( ! in_array($ticket->status_code , Ticket::$without_time ) )
-            {
-                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
-        }
-
-        $dt_now = Carbon::now();
-
-        if ( $status_transferred )
-        {
-
-            $dt_acceptance_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 );
-            $dt_execution_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 );
-
-            $dt_transferred = $status_transferred->created_at ?? null;
-            $dt_accepted = $status_accepted->created_at ?? null;
-            $dt_completed = $status_completed->created_at ?? null;
-
-            if ( $dt_completed )
-            {
-                $execution_hours = number_format( $dt_completed->diffInMinutes( $dt_transferred ) / 60, 2, '.', '' );
-            }
-
         }
 
         if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
@@ -704,12 +669,7 @@ class TicketsController extends BaseController
             ->with( 'availableStatuses', $availableStatuses )
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
-            ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
-            ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
-            ->with( 'dt_transferred', $dt_transferred ?? null )
-            ->with( 'dt_accepted', $dt_accepted ?? null )
-            ->with( 'dt_completed', $dt_completed ?? null )
-            ->with( 'dt_now', $dt_now )
+            ->with( 'dt_now', Carbon::now() )
             ->with( 'execution_hours', $execution_hours ?? null );
 
     }
@@ -724,10 +684,6 @@ class TicketsController extends BaseController
     public function open ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $status_transferred = null;
-        $status_accepted = null;
-        $status_completed = null;
-
         $ticket = Ticket
             ::mine()
             ->find( $ticket_id );
@@ -752,42 +708,11 @@ class TicketsController extends BaseController
                     ->route( 'tickets.index' )
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
-            if ( ! in_array( $ticketManagement->status_code, Ticket::$without_time ) )
-            {
-                $status_transferred = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticketManagement->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticketManagement->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
         }
         else
         {
-            if ( ! in_array($ticket->status_code , Ticket::$without_time ) )
-            {
-                $status_transferred = $ticket->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                $status_accepted = $ticket->statusesHistory->where( 'status_code', 'accepted' )->first();
-                $status_completed = $ticket->statusesHistory->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act' ] )->first();
-            }
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
-        }
-
-        $dt_now = Carbon::now();
-
-        if ( $status_transferred )
-        {
-
-            $dt_acceptance_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_acceptance * 60 );
-            $dt_execution_expire = $status_transferred->created_at->addMinutes( $ticket->type->period_execution * 60 );
-
-            $dt_transferred = $status_transferred->created_at ?? null;
-            $dt_accepted = $status_accepted->created_at ?? null;
-            $dt_completed = $status_completed->created_at ?? null;
-
-            if ( $dt_completed )
-            {
-                $execution_hours = number_format( $dt_completed->diffInMinutes( $dt_transferred ) / 60, 2, '.', '' );
-            }
-
         }
 
         if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
@@ -829,13 +754,7 @@ class TicketsController extends BaseController
             ->with( 'availableStatuses', $availableStatuses )
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
-            ->with( 'dt_acceptance_expire', $dt_acceptance_expire ?? null )
-            ->with( 'dt_execution_expire', $dt_execution_expire ?? null )
-            ->with( 'dt_transferred', $dt_transferred ?? null )
-            ->with( 'dt_accepted', $dt_accepted ?? null )
-            ->with( 'dt_completed', $dt_completed ?? null )
-            ->with( 'dt_now', $dt_now )
-            ->with( 'execution_hours', $execution_hours ?? null );
+            ->with( 'dt_now', Carbon::now() );
 
     }
 
@@ -1353,7 +1272,7 @@ class TicketsController extends BaseController
     {
         $this->validate( $request, [
             'executor_id'       => 'required_without:executor_name|nullable|integer',
-            'executor_name'     => 'required_without:executor_id|string',
+            'executor_name'     => 'required_without:executor_id|nullable',
         ]);
         $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
         if ( ! $ticketManagement )

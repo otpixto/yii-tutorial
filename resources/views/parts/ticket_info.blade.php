@@ -190,7 +190,7 @@
                 <div class="note">
                     <dl>
                         <dt>Заявка передана в УО:</dt>
-                        <dd>{{ $dt_transferred ? $dt_transferred->format( 'd.m.Y H:i' ) : '-' }}</dd>
+                        <dd>{{ $ticket->transferred_at ?? '-' }}</dd>
                     </dl>
                 </div>
             </div>
@@ -204,132 +204,85 @@
             </div>
         </div>
 
-        @if ( $dt_acceptance_expire && $dt_execution_expire )
+        @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
             <div class="row">
                 <div class="col-xs-6">
-                    @if ( $dt_accepted )
-                        <div class="note note-{{ $dt_accepted->timestamp > $dt_acceptance_expire->timestamp ? 'danger' : 'success' }}">
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <dl>
-                                        <dt>Принять до:</dt>
-                                        <dd>
-                                            {{ $dt_acceptance_expire->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
-                                </div>
+                    <div class="note note-{{ ( $ticket->accepted_at ?? $dt_now )->timestamp > $ticket->deadline_acceptance->timestamp ? 'danger' : 'success' }}">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <dl>
+                                    <dt>Принять до:</dt>
+                                    <dd>
+                                        {{ $ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+                                    </dd>
+                                </dl>
+                            </div>
+                            @if ( $ticket->accepted_at )
                                 <div class="col-xs-6">
                                     <dl>
                                         <dt>Принято:</dt>
                                         <dd>
-                                            {{ $dt_accepted->format( 'd.m.Y H:i' ) }}
+                                            {{ $ticket->accepted_at->format( 'd.m.Y H:i' ) }}
                                         </dd>
                                     </dl>
                                 </div>
-                            </div>
-                            @if ( $dt_accepted->timestamp > $dt_acceptance_expire->timestamp )
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                                <span class="badge badge-danger">
-                                                    <i class="fa fa-warning"></i>
-                                                    Просрочено
-                                                </span>
-                                    </div>
-                                </div>
                             @endif
                         </div>
-                    @else
-                        <div class="note {{ $dt_now->timestamp > $dt_acceptance_expire->timestamp ? 'note-danger' : '' }}">
+                        @if ( ( $ticket->accepted_at ?? $dt_now )->timestamp > $ticket->deadline_acceptance->timestamp )
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <dl>
-                                        <dt>Принять до:</dt>
-                                        <dd>
-                                            {{ $dt_acceptance_expire->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
+                                    <span class="badge badge-danger">
+                                        <i class="fa fa-warning"></i>
+                                        Просрочено
+                                    </span>
                                 </div>
                             </div>
-                            @if ( $dt_now->timestamp > $dt_acceptance_expire->timestamp )
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                                <span class="badge badge-danger">
-                                                    <i class="fa fa-warning"></i>
-                                                    Просрочено
-                                                </span>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
                 <div class="col-xs-6">
-                    @if ( $dt_completed )
-                        <div class="note note-{{ $dt_completed->timestamp > $dt_execution_expire->timestamp ? 'danger' : 'success' }}">
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <dl>
-                                        <dt>Выполнить до:</dt>
-                                        <dd>
-                                            {{ $dt_execution_expire->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
-                                </div>
+                    <div class="note note-{{ ( $ticket->completed_at ?? $dt_now )->timestamp > $ticket->deadline_execution->timestamp ? 'danger' : 'success' }}">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <dl>
+                                    <dt>Выполнить до:</dt>
+                                    <dd>
+                                        {{ $ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+                                    </dd>
+                                </dl>
+                            </div>
+                            @if ( $ticket->completed_at )
                                 <div class="col-xs-6">
                                     <dl>
                                         <dt>Выполнено:</dt>
                                         <dd>
-                                            {{ $dt_completed->format( 'd.m.Y H:i' ) }}
+                                            {{ $ticket->completed_at->format( 'd.m.Y H:i' ) }}
                                         </dd>
                                     </dl>
                                 </div>
-                            </div>
-                            @if ( $dt_completed->timestamp > $dt_execution_expire->timestamp )
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                                <span class="badge badge-danger">
-                                                    <i class="fa fa-warning"></i>
-                                                    Просрочено
-                                                </span>
-                                    </div>
-                                </div>
                             @endif
                         </div>
-                    @else
-                        <div class="note {{ $dt_now->timestamp > $dt_execution_expire->timestamp ? 'note-danger' : '' }}">
+                        @if ( ( $ticket->completed_at ?? $dt_now )->timestamp > $ticket->deadline_execution->timestamp )
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <dl>
-                                        <dt>Выполнить до:</dt>
-                                        <dd>
-                                            {{ $dt_execution_expire->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
+                                    <span class="badge badge-danger">
+                                        <i class="fa fa-warning"></i>
+                                        Просрочено
+                                    </span>
                                 </div>
                             </div>
-                            @if ( $dt_now->timestamp > $dt_execution_expire->timestamp )
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                                <span class="badge badge-danger">
-                                                    <i class="fa fa-warning"></i>
-                                                    Просрочено
-                                                </span>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
+                        @endif
+                    </div>
                 </div>
             </div>
         @endif
 
-        @if ( $execution_hours )
+        @if ( ! is_null( $ticket->duration_work ) )
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note note-info">
                         <b>Продолжительность работы УО в часах: </b>
-                        {{ $execution_hours }}
+                        {{ $ticket->duration_work }}
                     </div>
                 </div>
             </div>

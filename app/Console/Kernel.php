@@ -2,9 +2,8 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ImportAddress;
+use App\Console\Commands\FixDates;
 use App\Console\Commands\Sync;
-use App\Console\ParseAddress;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -16,9 +15,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        ImportAddress::class,
-        ParseAddress::class,
-        Sync::class
+        Sync::class,
+        FixDates::class,
     ];
 
     /**
@@ -27,10 +25,9 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule ( Schedule $schedule )
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+         //
     }
 
     /**
@@ -38,8 +35,8 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
+    protected function commands ()
     {
-        require base_path('routes/console.php');
+        //require base_path('routes/console.php');
     }
 }

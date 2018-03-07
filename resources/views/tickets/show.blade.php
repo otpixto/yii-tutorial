@@ -222,6 +222,8 @@
             .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
             {
 
+                if ( $( '#rate' ).length ) return;
+
                 e.preventDefault();
                 pe.preventDefault();
 
