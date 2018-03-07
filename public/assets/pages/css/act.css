@@ -1,5 +1,9 @@
-@media print {
-    .container {
-        width:100%;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+}
+
+p {
+    margin: 15px 0;
 }
