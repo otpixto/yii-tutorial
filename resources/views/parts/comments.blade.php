@@ -11,14 +11,7 @@
 					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
 				</span>
 				<span class="media-buttons">
-					@if ( isset( $ticketManagement ) && $ticketManagement->canComment() )
-						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
-							<i class="fa fa-commenting pull-left"></i>
-							<span class="visible-lg pull-right">
-								ответить
-							</span>
-						</button>
-					@elseif ( isset( $ticket ) && $ticket->canComment() )
+					@if ( $ticket->canComment() )
 						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
 							<i class="fa fa-commenting pull-left"></i>
 							<span class="visible-lg pull-right">
@@ -53,7 +46,7 @@
 				</div>
 			@endif
 			@if ( $comment->childs->count() )
-				@include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $comment->childs ] )
+				@include( 'parts.comments', [ 'ticket' => $ticket, 'ticketManagement' => $ticketManagement ?? null, 'comments' => $comment->childs ] )
 			@endif
 		</div>
 	</div>

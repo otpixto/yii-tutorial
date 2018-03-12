@@ -179,7 +179,7 @@ socket
                 if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
-                    $.post( '/tickets/comments/' + data.ticket_management_id,
+                    $.post( '/tickets/comments/' + data.ticket_id,
                         {
                             commentsOnly: true
                         },
@@ -200,24 +200,16 @@ socket
                         }
                     );
                 }
-                else if ( data.ticket_management_id )
+                else
                 {
-                    var line = $( '#ticket-management-' + data.ticket_management_id );
-                    if ( ! line.length || line.hasClass( 'hidden' ) ) return;
-                    $.post( '/tickets/comments/' + data.ticket_management_id,
+                    var lines = $( '[data-ticket-comments="' + data.ticket_id + '"]:visible' );
+                    if ( ! lines.length ) return;
+                    $.post( '/tickets/comments/' + data.ticket_id,
                         function ( response )
                         {
                             if ( ! response ) return;
-                            var comments = $( '#ticket-comments-' + data.ticket_management_id );
                             var newComments = $( response );
-                            if ( ! comments.length )
-                            {
-                                newComments.insertAfter( line );
-                            }
-                            else
-                            {
-                                comments.replaceWith( newComments );
-                            }
+                            lines.replaceWith( newComments );
                             newComments
                                 .pulsate({
                                     repeat: 3,

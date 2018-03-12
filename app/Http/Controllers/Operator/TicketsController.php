@@ -396,31 +396,24 @@ class TicketsController extends BaseController
     public function comments ( Request $request, $id )
     {
 
-        $ticketManagement = TicketManagement
+        $ticket = Ticket
             ::mine()
             ->where( 'id', '=', $id )
-            ->with(
-                'comments',
-                'ticket',
-                'management'
-            )
             ->first();
 
-        if ( ! $ticketManagement ) return;
+        if ( ! $ticket ) return;
 
         if ( $request->get( 'commentsOnly', false ) )
         {
             return view( 'parts.comments' )
-                ->with( 'ticketManagement', $ticketManagement )
-                ->with( 'ticket', $ticketManagement->ticket )
-                ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+                ->with( 'ticket', $ticket )
+                ->with( 'comments', $ticket->getComments() );
         }
         else
         {
             return view( 'parts.ticket_comments' )
-                ->with( 'ticketManagement', $ticketManagement )
-                ->with( 'ticket', $ticketManagement->ticket )
-                ->with( 'comments', $ticketManagement->comments->merge( $ticketManagement->ticket->comments )->sortBy( 'id' ) );
+                ->with( 'ticket', $ticket )
+                ->with( 'comments', $ticket->getComments() );
         }
 
     }

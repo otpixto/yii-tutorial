@@ -411,6 +411,7 @@ class Ticket extends BaseModel
                 }
             }
 		}
+        $change_type = ( ! empty( $attributes[ 'type_id' ] ) && $this->type_id != $attributes[ 'type_id' ] );
         $this->fill( $attributes );
 		if ( isset( $attributes['param'] ) && $attributes['param'] == 'mark' )
 		{
@@ -444,6 +445,21 @@ class Ticket extends BaseModel
 		}
 
         $this->save();
+
+		if ( $change_type && $this->type )
+        {
+            if ( $this->transferred_at )
+            {
+                $transferred_at = $this->transferred_at;
+                $this->deadline_acceptance = $this->type->period_acceptance ? $transferred_at->addMinutes( $this->type->period_acceptance * 60 ) : $transferred_at;
+                $this->deadline_execution = $this->type->period_execution ? $transferred_at->addMinutes( $this->type->period_execution * 60 ) : $transferred_at;
+            }
+            if ( $this->type->emergency )
+            {
+                $this->emergency = $this->type->emergency;
+            }
+            $this->save();
+        }
 
 		return $this;
 	}
@@ -851,8 +867,8 @@ class Ticket extends BaseModel
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $transferred_at->addMinutes( $this->type->period_acceptance * 60 );
-                    $this->deadline_execution = $transferred_at->addMinutes( $this->type->period_execution * 60 );
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $transferred_at->addMinutes( $this->type->period_acceptance * 60 ) : $transferred_at;
+                    $this->deadline_execution = $this->type->period_execution ? $transferred_at->addMinutes( $this->type->period_execution * 60 ) : $transferred_at;
                 }
 
                 $this->save();
@@ -867,8 +883,8 @@ class Ticket extends BaseModel
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $transferred_at->addMinutes( $this->type->period_acceptance * 60 );
-                    $this->deadline_execution = $transferred_at->addMinutes( $this->type->period_execution * 60 );
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $transferred_at->addMinutes( $this->type->period_acceptance * 60 ) : $transferred_at;
+                    $this->deadline_execution = $this->type->period_execution ? $transferred_at->addMinutes( $this->type->period_execution * 60 ) : $transferred_at;
                 }
 
                 $this->save();

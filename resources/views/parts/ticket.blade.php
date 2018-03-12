@@ -99,5 +99,5 @@
     </td>
 </tr>
 @if ( ! isset( $hideComments ) || ! $hideComments )
-    @include( 'parts.ticket_comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->ticket->getComments() ] )
+    @include( 'parts.ticket_comments', [ 'ticket' => $ticketManagement->ticket, 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->ticket->getComments() ] )
 @endif

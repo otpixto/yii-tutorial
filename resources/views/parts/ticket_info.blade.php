@@ -667,7 +667,7 @@
                         <h4>Комментарии</h4>
                         @if ( $comments->count() )
                             <div id="ticket-comments">
-                                @include( 'parts.comments', [ 'ticketManagement' => $ticketManagement, 'comments' => $comments ] )
+                                @include( 'parts.comments', [ 'ticket' => $ticket, 'ticketManagement' => $ticketManagement, 'comments' => $comments ] )
                             </div>
                         @else
                             <div class="small text-danger" id="ticket-comments">Комментарии отсутствуют</div>
@@ -677,16 +677,7 @@
             </div>
         @endif
 
-        @if ( $ticketManagement && $ticketManagement->canComment() )
-            <div class="row hidden-print">
-                <div class="col-xs-12">
-                    <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-origin-model-name="{{ get_class( $ticketManagement ) }}" data-origin-model-id="{{ $ticketManagement->id }}" data-file="1">
-                        <i class="fa fa-commenting"></i>
-                        Добавить комментарий
-                    </button>
-                </div>
-            </div>
-        @elseif ( $ticket && $ticket->canComment() )
+        @if ( $ticket && $ticket->canComment() )
             <div class="row hidden-print">
                 <div class="col-xs-12">
                     <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
