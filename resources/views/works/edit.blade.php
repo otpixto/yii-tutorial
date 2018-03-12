@@ -119,18 +119,22 @@
                 Сохранить
             </button>
         </div>
-        <div class="col-lg-6">
-            <div class="note">
-                <button type="button" class="btn blue btn-lg pull-right" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
-                    <i class="fa fa-comment"></i>
-                    Добавить комментарий
-                </button>
-                <h4>Комментарии</h4>
-                @if ( $work->comments->count() )
-                    @include( 'parts.comments', [ 'comments' => $work->comments ] )
-                @endif
+        @if ( \Auth::user()->can( 'works.comments' ) )
+            <div class="col-lg-6">
+                <div class="note">
+                    @if ( $work->canComment() )
+                        <button type="button" class="btn blue btn-lg pull-right" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
+                            <i class="fa fa-comment"></i>
+                            Добавить комментарий
+                        </button>
+                    @endif
+                    <h4>Комментарии</h4>
+                    @if ( $work->comments->count() )
+                        @include( 'parts.comments', [ 'origin' => $work, 'comments' => $work->comments ] )
+                    @endif
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 
     {!! Form::close() !!}

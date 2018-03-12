@@ -287,4 +287,9 @@ class Work extends BaseModel
         }
     }
 
+    public function canComment ()
+    {
+        return \Auth::user()->can( 'works.comments_add' );
+    }
+
 }

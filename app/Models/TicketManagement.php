@@ -18,7 +18,6 @@ class TicketManagement extends BaseModel
 
     private $history = [];
 
-	private $can_comment = null;
     private $can_upload_act = null;
     private $can_print_act = null;
     private $can_rate = null;
@@ -325,22 +324,6 @@ class TicketManagement extends BaseModel
         }
         return $this->can_rate;
     }
-	
-	public function canComment ()
-    {
-        if ( is_null( $this->can_comment ) )
-        {
-            if ( \Auth::user()->can( 'tickets.comment_add' ) )
-            {
-                $this->can_comment = true;
-            }
-            else
-            {
-                $this->can_comment = false;
-            }
-        }
-        return $this->can_comment;
-    }
 
     public function canPrintAct ()
     {
@@ -397,23 +380,8 @@ class TicketManagement extends BaseModel
                 ->withErrors( $log );
         }
 
-        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code ) )
-        {
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->decrement( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code );
-        }
-        else
-        {
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $this->status_code, self::getCountByStatus( $this->status_code ), \Config::get( 'cache.time' ) );
-        }
-
-        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( 'ticket.status.' . \Auth::user()->id . '.' . $status_code ) )
-        {
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->increment( 'ticket.status.' . \Auth::user()->id . '.' . $status_code );
-        }
-        else
-        {
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( 'ticket.status.' . \Auth::user()->id . '.' . $status_code, self::getCountByStatus( $status_code ), \Config::get( 'cache.time' ) );
-        }
+        $this->decrementCountByStatus( $this->status_code );
+        $this->incrementCountByStatus( $status_code );
 
         $this->status_code = $status_code;
         $this->status_name = Ticket::$statuses[ $status_code ];
@@ -705,12 +673,42 @@ class TicketManagement extends BaseModel
         return $url;
     }
 
-    public static function getCountByStatus ( $status_code )
+    public static function getCountByStatus ( $status_code, $force = false )
     {
         $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
-        if ( \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
+        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
         {
             $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( $key );
+        }
+        else
+        {
+            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
+        }
+        return $count;
+    }
+
+    public static function decrementCountByStatus ( $status_code, $force = false )
+    {
+        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
+        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
+        {
+            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->decrement( $key );
+        }
+        else
+        {
+            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
+        }
+        return $count;
+    }
+
+    public static function incrementCountByStatus ( $status_code, $force = false )
+    {
+        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
+        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
+        {
+            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->increment( $key );
         }
         else
         {

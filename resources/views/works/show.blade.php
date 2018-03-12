@@ -116,25 +116,29 @@
 
     {!! Form::close() !!}
 
-    <div class="row margin-top-10">
-        <div class="col-xs-12">
-            <div class="note">
-                <h4>Комментарии</h4>
-                @if ( $work->comments->count() )
-                    @include( 'parts.comments', [ 'comments' => $work->comments ] )
-                @endif
+    @if ( \Auth::user()->can( 'works.comments' ) )
+        <div class="row margin-top-10">
+            <div class="col-xs-12">
+                <div class="note">
+                    <h4>Комментарии</h4>
+                    @if ( $work->comments->count() )
+                        @include( 'parts.comments', [ 'origin' => $work, 'comments' => $work->comments ] )
+                    @endif
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 
-    <div class="row margin-top-10">
-        <div class="col-xs-12">
-            <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
-                <i class="fa fa-comment"></i>
-                Добавить комментарий
-            </button>
+    @if ( $work->canComment() )
+        <div class="row margin-top-10">
+            <div class="col-xs-12">
+                <button type="button" class="btn blue btn-lg" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
+                    <i class="fa fa-comment"></i>
+                    Добавить комментарий
+                </button>
+            </div>
         </div>
-    </div>
+    @endif
 
     {!! Form::close() !!}
 

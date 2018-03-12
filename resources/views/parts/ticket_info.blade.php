@@ -667,7 +667,7 @@
                         <h4>Комментарии</h4>
                         @if ( $comments->count() )
                             <div id="ticket-comments">
-                                @include( 'parts.comments', [ 'ticket' => $ticket, 'ticketManagement' => $ticketManagement, 'comments' => $comments ] )
+                                @include( 'parts.comments', [ 'origin' => $ticket, 'comments' => $comments ] )
                             </div>
                         @else
                             <div class="small text-danger" id="ticket-comments">Комментарии отсутствуют</div>

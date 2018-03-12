@@ -8,7 +8,7 @@
 		@endif
 		@if ( \Auth::user()->can( 'tickets.comments' ) && $comments->count() )
 			<div class="note note-info">
-				@include( 'parts.comments', [ 'ticket' => $ticket, 'ticketManagement' => $ticketManagement ?? null, 'comments' => $comments ] )
+				@include( 'parts.comments', [ 'origin' => $ticket, 'comments' => $comments ] )
 			</div>
 		@endif
 	</td>

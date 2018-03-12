@@ -16,7 +16,6 @@ class Ticket extends BaseModel
     public static $name = 'Заявка';
 
     private $can_edit = null;
-    private $can_comment = null;
     private $can_group = null;
     private $can_call = null;
 
@@ -727,22 +726,6 @@ class Ticket extends BaseModel
         return $this->can_call;
     }
 
-    public function canComment ()
-    {
-        if ( is_null( $this->can_comment ) )
-        {
-            if ( \Auth::user()->can( 'tickets.comment_add' ) )
-            {
-                $this->can_comment = true;
-            }
-            else
-            {
-                $this->can_comment = false;
-            }
-        }
-        return $this->can_comment;
-    }
-
     public function canGroup ()
     {
         if ( is_null( $this->can_group ) )
@@ -988,6 +971,11 @@ class Ticket extends BaseModel
         }
         $ticketCall->save();
         return $ticketCall;
+    }
+
+    public function canComment ()
+    {
+        return \Auth::user()->can( 'tickets.comments_add' );
     }
 
 }

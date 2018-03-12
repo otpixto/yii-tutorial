@@ -191,4 +191,9 @@ class BaseModel extends Model
         $log->save();
     }
 
+    public function canComment ()
+    {
+        return false;
+    }
+
 }

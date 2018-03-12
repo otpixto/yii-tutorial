@@ -44,7 +44,7 @@
     <tr>
         <td colspan="10">
             <div class="note note-info">
-                @include( 'parts.comments', [ 'comments' => $work->comments ] )
+                @include( 'parts.comments', [ 'origin' => $work, 'comments' => $work->comments ] )
             </div>
         </td>
     </tr>
