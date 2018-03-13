@@ -74,8 +74,8 @@ socket
                     function ( response )
                     {
                         if ( ! response ) return;
-                        $( response ).insertAfter( '#tickets-new-message' );
-                        var count = $( '#tickets .tickets.hidden' ).length;
+                        $( response ).addClass( 'new' ).insertAfter( '#tickets-new-message' );
+                        var count = $( '#tickets .tickets.new.hidden' ).length;
                         $( '#tickets-new-count' ).text( count );
                         if ( count )
                         {
@@ -202,7 +202,8 @@ socket
                 }
                 else
                 {
-                    var lines = $( '[data-ticket-comments="' + data.ticket_id + '"]:visible' );
+                    var lines = $( '[data-ticket-comments="' + data.ticket_id + '"]' );
+                    var isHidden = $( '[data-ticket="' + data.ticket_id + '"]' ).hasClass( 'hidden' );
                     if ( ! lines.length ) return;
                     $.post( '/tickets/comments/' + data.ticket_id,
                         function ( response )
@@ -210,6 +211,14 @@ socket
                             if ( ! response ) return;
                             var newComments = $( response );
                             lines.replaceWith( newComments );
+                            if ( isHidden )
+                            {
+                                newComments.addClass( 'hidden' );
+                            }
+                            else
+                            {
+                                newComments.removeClass( 'hidden' );
+                            }
                             newComments
                                 .pulsate({
                                     repeat: 3,

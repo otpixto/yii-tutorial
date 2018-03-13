@@ -1,4 +1,4 @@
-<tr @if ( $ticket->isFinalStatus() ) class="text-muted opacity" @endif data-ticket-comments="{{ $ticket->id }}">
+<tr class="comments @if ( $ticket->isFinalStatus() ) text-muted opacity @endif @if( ! $comments->count() ) hidden @endif" data-ticket-comments="{{ $ticket->id }}">
 	<td colspan="{{ ( 6 + ( \Auth::user()->can( 'tickets.field_operator' ) ? 1 : 0 ) ) }}">
 		@if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
 			<div class="note note-danger">

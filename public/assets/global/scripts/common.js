@@ -277,7 +277,8 @@ $( document )
 
         e.preventDefault();
 
-        $( '#tickets .tickets.hidden' ).removeClass( 'hidden' );
+        $( '#tickets .tickets.new.hidden' ).removeClass( 'hidden' ).removeClass( 'new' );
+        $( '#tickets .comments.new.hidden' ).removeClass( 'hidden' ).removeClass( 'new' );
         $( '#tickets-new-message' ).addClass( 'hidden' );
 
 	})

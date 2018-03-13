@@ -411,7 +411,7 @@ class TicketsController extends BaseController
         if ( $request->get( 'commentsOnly', false ) )
         {
             return view( 'parts.comments' )
-                ->with( 'ticket', $ticket )
+                ->with( 'origin', $ticket )
                 ->with( 'comments', $ticket->getComments() );
         }
         else
