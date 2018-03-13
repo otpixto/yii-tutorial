@@ -112,6 +112,7 @@ socket
                     var line = $( '#ticket-management-' + data.ticket_management_id );
                     if ( ! line.length ) return;
                     var isHidden = line.hasClass( 'hidden' );
+                    var isNew = line.hasClass( 'new' );
                     $.post( '/tickets/line/' + data.ticket_management_id,
                         {
                             hideComments: true
@@ -121,6 +122,10 @@ socket
                             if ( ! response ) return;
                             var newLine = $( response );
                             line.replaceWith( newLine );
+                            if ( isNew )
+                            {
+                                newLine.addClass( 'new' );
+                            }
                             if ( isHidden )
                             {
                                 newLine.addClass( 'hidden' );
@@ -146,6 +151,7 @@ socket
                     {
                         var line = $( this );
                         var isHidden = line.hasClass( 'hidden' );
+                        var isNew = line.hasClass( 'new' );
                         var ticket_management_id = line.attr( 'data-ticket-management' );
                         $.post( '/tickets/line/' + ticket_management_id,
                             {
@@ -156,6 +162,10 @@ socket
                                 if ( ! response ) return;
                                 var newLine = $( response );
                                 line.replaceWith( newLine );
+                                if ( isNew )
+                                {
+                                    newLine.addClass( 'new' );
+                                }
                                 if ( isHidden )
                                 {
                                     newLine.addClass( 'hidden' );
@@ -204,6 +214,7 @@ socket
                 {
                     var lines = $( '[data-ticket-comments="' + data.ticket_id + '"]' );
                     var isHidden = $( '[data-ticket="' + data.ticket_id + '"]' ).hasClass( 'hidden' );
+                    var isNew = $( '[data-ticket="' + data.ticket_id + '"]' ).hasClass( 'new' );
                     if ( ! lines.length ) return;
                     $.post( '/tickets/comments/' + data.ticket_id,
                         function ( response )
@@ -218,6 +229,14 @@ socket
                             else
                             {
                                 newComments.removeClass( 'hidden' );
+                            }
+                            if ( isNew )
+                            {
+                                newComments.addClass( 'new' );
+                            }
+                            else
+                            {
+                                newComments.removeClass( 'new' );
                             }
                             newComments
                                 .pulsate({
