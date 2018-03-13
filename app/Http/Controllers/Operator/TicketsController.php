@@ -65,13 +65,13 @@ class TicketsController extends BaseController
                 if ( ! empty( $request->get( 'group' ) ) )
                 {
                     $ticket
-                        ->where( 'group_uuid', '=', $request->get( 'group' ) );
+                        ->where( Ticket::getTableName() . '.group_uuid', '=', $request->get( 'group' ) );
                 }
 
                 if ( isset( $exp_number[0] ) && !empty( $exp_number[0] ) )
                 {
                     $ticket
-                        ->where( 'id', '=', $exp_number[0] );
+                        ->where( Ticket::getTableName() . '.id', '=', $exp_number[0] );
                 }
 
                 if ( ! empty( $request->get( 'period_from' ) ) )
@@ -89,7 +89,7 @@ class TicketsController extends BaseController
                 if ( $field_operator && !empty( $request->get( 'operator_id' ) ) )
                 {
                     $ticket
-                        ->where( 'author_id', '=', $request->get( 'operator_id' ) );
+                        ->where( Ticket::getTableName() . '.author_id', '=', $request->get( 'operator_id' ) );
                 }
 
                 if ( ! empty( $request->get( 'type' ) ) )
@@ -107,7 +107,7 @@ class TicketsController extends BaseController
                             break;
                         case 'type':
                             $ticket
-                                ->where( 'type_id', '=', $id );
+                                ->where( Ticket::getTableName() . '.type_id', '=', $id );
                             break;
                     }
                 }
@@ -115,43 +115,43 @@ class TicketsController extends BaseController
                 if ( ! empty( $request->get( 'address_id' ) ) )
                 {
                     $ticket
-                        ->where( 'address_id', '=', $request->get( 'address_id' ) );
+                        ->where( Ticket::getTableName() . '.address_id', '=', $request->get( 'address_id' ) );
                 }
 
                 if ( ! empty( $request->get( 'flat' ) ) )
                 {
                     $ticket
-                        ->where( 'flat', '=', $request->get( 'flat' ) );
+                        ->where( Ticket::getTableName() . '.flat', '=', $request->get( 'flat' ) );
                 }
 
                 if ( ! empty( $request->get( 'emergency' ) ) )
                 {
                     $ticket
-                        ->where( 'emergency', '=', 1 );
+                        ->where( Ticket::getTableName() . '.emergency', '=', 1 );
                 }
 
                 if ( ! empty( $request->get( 'dobrodel' ) ) )
                 {
                     $ticket
-                        ->where( 'dobrodel', '=', 1 );
+                        ->where( Ticket::getTableName() . '.dobrodel', '=', 1 );
                 }
 
                 if ( ! empty( $request->get( 'from_lk' ) ) )
                 {
                     $ticket
-                        ->where( 'from_lk', '=', 1 );
+                        ->where( Ticket::getTableName() . '.from_lk', '=', 1 );
                 }
 
                 if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
                 {
                     $ticket
-                        ->whereRaw( 'deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
+                        ->whereRaw( Ticket::getTableName() . '.deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
                 }
 
                 if ( ! empty( $request->get( 'overdue_execution' ) ) )
                 {
                     $ticket
-                        ->whereRaw( 'deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
+                        ->whereRaw( Ticket::getTableName() . '.deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
                 }
 
                 if ( ! empty( $request->get( 'region_id' ) ) )
@@ -160,7 +160,7 @@ class TicketsController extends BaseController
                         ->where( function ( $q ) use ( $request )
                         {
                             return $q
-                                ->where( 'region_id', '=', $request->get( 'region_id' ) )
+                                ->where( Ticket::getTableName() . '.region_id', '=', $request->get( 'region_id' ) )
                                 ->orWhereHas( 'address', function ( $q2 ) use ( $request )
                                 {
                                     return $q2
@@ -174,19 +174,19 @@ class TicketsController extends BaseController
 		if ( ! empty( $request->get( 'status_code' ) ) )
 		{
 			$ticketManagements
-				->where( 'status_code', '=', $request->get( 'status_code' ) );
+				->where( TicketManagement::getTableName() . '.status_code', '=', $request->get( 'status_code' ) );
 		}
 
         if ( ! empty( $request->get( 'rate' ) ) )
         {
             $ticketManagements
-                ->where( 'rate', '=', $request->get( 'rate' ) );
+                ->where( TicketManagement::getTableName() . '.rate', '=', $request->get( 'rate' ) );
         }
 
         if ( $statuses )
         {
             $ticketManagements
-                ->whereIn( 'status_code', $statuses );
+                ->whereIn( TicketManagement::getTableName() . '.status_code', $statuses );
         }
 
         if ( ! empty( $request->get( 'address_id' ) ) )
@@ -197,19 +197,19 @@ class TicketsController extends BaseController
         if ( isset( $exp_number[1] ) && !empty( $exp_number[1] ) )
         {
             $ticketManagements
-                ->where( 'id', '=', $exp_number[1] );
+                ->where( TicketManagement::getTableName() . '.id', '=', $exp_number[1] );
         }
 
         if ( ! empty( $request->get( 'management_id' ) ) )
         {
             $ticketManagements
-                ->where( 'management_id', '=', $request->get( 'management_id' ) );
+                ->where( TicketManagement::getTableName() . '.management_id', '=', $request->get( 'management_id' ) );
         }
 
         if ( ! empty( $request->get( 'executor_id' ) ) )
         {
             $ticketManagements
-                ->where( 'executor_id', '=', $request->get( 'executor_id' ) );
+                ->where( TicketManagement::getTableName() . '.executor_id', '=', $request->get( 'executor_id' ) );
         }
 
         switch ( $request->get( 'show' ) )
