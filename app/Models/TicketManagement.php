@@ -122,7 +122,7 @@ class TicketManagement extends BaseModel
 		if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
 		{
 			$query
-				->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+				->whereIn( self::getTableName() . '.management_id', \Auth::user()->managements->pluck( 'id' ) );
 		}
 		return $query;
     }

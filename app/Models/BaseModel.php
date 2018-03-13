@@ -24,6 +24,11 @@ class BaseModel extends Model
         'id'
     ];
 
+    public static function getTableName ()
+    {
+        return with( new static )->getTable();
+    }
+
     public function addComment ( $text )
     {
         $comment = Comment::create([

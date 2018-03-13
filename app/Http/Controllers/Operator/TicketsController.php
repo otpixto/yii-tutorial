@@ -38,6 +38,11 @@ class TicketsController extends BaseController
 
         $ticketManagements = TicketManagement
             ::mine()
+            ->select(
+                'tickets_managements.*',
+                'tickets.completed_at'
+            )
+            ->join( 'tickets', 'tickets.id', '=', 'tickets_managements.ticket_id' )
             ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number, $customer_id )
             {
 
@@ -211,17 +216,17 @@ class TicketsController extends BaseController
         {
             case 'call':
                 $ticketManagements
-                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
-                    ->orderBy( 'id', 'asc' );
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                    ->orderBy( 'completed_at', 'asc' );
                 break;
             case 'not_processed':
                 $ticketManagements
-                    ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'transferred', 'transferred_again' ] )
                     ->orderBy( 'id', 'desc' );
                 break;
             case 'not_completed':
                 $ticketManagements
-                    ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
                     ->orderBy( 'id', 'desc' );
                 break;
             default:
