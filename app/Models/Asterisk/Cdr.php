@@ -12,6 +12,10 @@ class Cdr extends BaseModel
 
     protected $table = 'cdr';
 
+    protected $dates = [
+        'calldate'
+    ];
+
     public static $statuses = [
         'ANSWERED'      => 'Успешно',
         'NO ANSWER'     => 'Нет ответа',

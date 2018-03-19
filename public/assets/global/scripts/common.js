@@ -198,6 +198,16 @@ $( document )
             $( '#call-phone' ).text( phone );
 		}
 
+		$( '.form-control:hidden' ).css( 'width', '100%' );
+
+        $( '.toggle' ).each( function ()
+        {
+            if ( ! $( this ).hasClass( '_collapse' ) && ! $( this ).hasClass( '_expand' ) )
+            {
+                $( this ).addClass( '_collapse' );
+            }
+        });
+
 	})
 
     .on ( 'submit', 'form.ajax', function ( e )
@@ -432,6 +442,12 @@ $( document )
 		$( '#modals [data-id="' + $( this ).attr( 'data-modal-submit' ) + '"] form' ).submit();
 	
 	})
+
+    .on ( 'click', '.toggle', function ( e )
+    {
+        e.preventDefault();
+        $( this ).toggleClass( '_collapse' ).toggleClass( '_expand' );
+    })
 
     .on ( 'click', '[data-toggle]', function ( e )
     {

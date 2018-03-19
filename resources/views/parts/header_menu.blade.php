@@ -87,20 +87,13 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->can( 'reports.managements' ) )
+                    @if ( \Auth::user()->can( 'reports.tickets' ) )
                         <li>
-                            <a href="{{ route( 'reports.managements' ) }}">
-                                Отчет по исполнителям
+                            <a href="{{ route( 'reports.tickets' ) }}">
+                                Отчет по заявкам
                             </a>
                         </li>
                     @endif
-                    {{--@if ( \Auth::user()->can( 'reports.addresses' ) )
-                        <li>
-                            <a href="{{ route( 'reports.addresses' ) }}">
-                                Отчет по адресам
-                            </a>
-                        </li>
-                    @endif--}}
                     @if ( \Auth::user()->can( 'reports.types' ) )
                         <li>
                             <a href="{{ route( 'reports.types' ) }}">
@@ -115,17 +108,24 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->can( 'reports.tickets' ) )
+                    @if ( \Auth::user()->can( 'reports.executors' ) )
                         <li>
-                            <a href="{{ route( 'reports.tickets' ) }}">
-                                Отчет по частоте заявок
+                            <a href="{{ route( 'reports.executors' ) }}">
+                                Отчет по исполнителям
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->can( 'reports.calls' ) )
+                    @if ( \Auth::user()->can( 'reports.addresses' ) )
                         <li>
-                            <a href="{{ route( 'reports.calls' ) }}">
-                                Отчет по звонкам
+                            <a href="{{ route( 'reports.addresses' ) }}">
+                                Отчет по адресам
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'reports.operators' ) )
+                        <li>
+                            <a href="{{ route( 'reports.operators' ) }}">
+                                Отчет по операторам
                             </a>
                         </li>
                     @endif

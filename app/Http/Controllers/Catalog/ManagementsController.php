@@ -341,15 +341,7 @@ class ManagementsController extends BaseController
         {
             return false;
         }
-        $res = [];
-        foreach ( $management->executors as $executor )
-        {
-            $res[] = [
-                'text' => $executor->name,
-                'value' => $executor->id,
-            ];
-        }
-        return $res;
+        return $management->executors;
     }
 
     public function getAddAddresses ( Request $request )

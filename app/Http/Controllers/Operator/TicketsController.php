@@ -1206,6 +1206,40 @@ class TicketsController extends BaseController
             ->with( 'lines', $lines );
 
     }
+
+    public function waybill ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.waybill' ) )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Доступ запрещен' ] );
+        }
+
+        $ids = explode( ',', $request->get( 'ids', '' ) );
+        if ( ! count( $ids ) )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявки не выбраны' ] );
+        }
+
+        $ticketManagements = TicketManagement
+            ::mine()
+            ->whereIn( 'id', $ids )
+            ->get();
+        if ( ! $ticketManagements->count() )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявки не найдены' ] );
+        }
+
+        return view( 'tickets.waybill' )
+            ->with( 'ticketManagements', $ticketManagements );
+
+    }
 	
 	public function getAddManagement ( Request $request, $id )
     {

@@ -69,6 +69,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::get( '/tickets/cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
         Route::get( '/tickets/call', 'Operator\TicketsController@call' )->name( 'tickets.call' );
         Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+        Route::get( '/tickets/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
         Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
         Route::post( '/tickets/add-tag', 'Operator\TicketsController@addTag' )->name( 'tickets.add-tag' );
         Route::post( '/tickets/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
@@ -114,12 +115,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::prefix( 'reports' )->group( function ()
         {
             Route::get( 'index', 'Operator\ReportsController@index' )->name( 'reports.index' );
-            Route::get( 'managements', 'Operator\ReportsController@managements' )->name( 'reports.managements' );
+            Route::get( 'executors', 'Operator\ReportsController@executors' )->name( 'reports.executors' );
             Route::get( 'rates', 'Operator\ReportsController@rates' )->name( 'reports.rates' );
             Route::get( 'addresses', 'Operator\ReportsController@addresses' )->name( 'reports.addresses' );
-            Route::get( 'executors', 'Operator\ReportsController@executors' )->name( 'reports.executors' );
             Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
-            Route::get( 'calls', 'Operator\ReportsController@calls' )->name( 'reports.calls' );
+            Route::get( 'operators', 'Operator\ReportsController@operators' )->name( 'reports.operators' );
             Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
         });
 

@@ -10,150 +10,154 @@
 @section( 'content' )
 
     <p class="visible-print">
-        за период с {{ $date_from }} по {{ $date_to }}
+        за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </p>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-xs-3">
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'managements[]', $managements->count() ? $managements->pluck( 'name', 'id' )->toArray() : [], \Input::get( 'managements' ), [ 'class' => 'select2 form-control', 'multiple' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    @if ( $data['total'] )
+    <div id="chartdiv" style="min-height: {{ 50 + ( $categories->count() * 35 ) }}px;" class="hidden-print"></div>
 
-        <div id="chartdiv" style="min-height: {{ $categories->count() * 30 }}px;" class="hidden-print"></div>
-
-        <div class="row">
-            <div class="col-lg-6">
-                <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
-            </div>
-            <div class="col-lg-6">
-                <div id="piediv2" style="min-height: 500px;" class="hidden-print"></div>
-            </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
         </div>
+        <div class="col-lg-6">
+            <div id="piediv2" style="min-height: 500px;" class="hidden-print"></div>
+        </div>
+    </div>
 
-        <table class="table table-striped sortable" id="data">
-            <thead>
+    <table class="table table-striped sortable" id="data">
+        <thead>
+        <tr>
+            <th>
+                Тип проблемы \ Нименование УО
+            </th>
+            @foreach ( $managements2 as $management )
+                <th class="text-center">
+                    {{ $management->name }}
+                </th>
+            @endforeach
+            <th class="text-center info bold">
+                Всего
+            </th>
+            <th class="text-center" colspan="2">
+                Процент выполнения
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach ( $categories as $category )
             <tr>
-                <th>
-                    Тип проблемы \ Нименование УО
-                </th>
-                @foreach ( $managements as $management )
-                    <th class="text-center">
-                        {{ $management->name }}
-                    </th>
-                @endforeach
-                <th class="text-center info bold">
-                    Всего
-                </th>
-                <th class="text-center" colspan="2">
-                    Процент выполнения
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach ( $categories as $category )
-                <tr>
-                    <td data-field="category">
-                        {{ $category->name }}
-                    </td>
-                    @foreach ( $managements as $management )
-                        <td class="text-center">
-                            @if ( isset( $data[ $category->id ], $data[ $category->id ][ $management->id ] ) )
-                                {{ $data[ $category->id ][ $management->id ][ 'closed' ] }}
-                                /
-                                <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" class="bold">
-                                    {{ $data[ $category->id ][ $management->id ][ 'total' ] }}
-                                </a>
-                            @else
-                                0 / 0
-                            @endif
-                        </td>
-                    @endforeach
-                    <td class="text-center info bold">
-                        @if ( isset( $data[ 'category-' . $category->id ] ) )
-                            {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
+                <td data-field="category">
+                    {{ $category->name }}
+                </td>
+                @foreach ( $managements2 as $management )
+                    <td class="text-center">
+                        @if ( isset( $data[ $category->id ], $data[ $category->id ][ $management->id ] ) )
+                            {{ $data[ $category->id ][ $management->id ][ 'closed' ] }}
                             /
-                            <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
-                                {{ $data[ 'category-' . $category->id ][ 'total' ] }}
+                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" class="bold">
+                                {{ $data[ $category->id ][ $management->id ][ 'total' ] }}
                             </a>
                         @else
                             0 / 0
                         @endif
                     </td>
-                    <td class="text-right">
-                        <span data-field="percent">
-                            @if ( isset( $data[ 'category-' . $category->id ] ) )
-                                {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}
-                            @else
-                                0
-                            @endif
-                        </span>
-                        %
-                    </td>
-                    <td class="hidden-print hidden-md">
-                        @if ( isset( $data[ 'category-' . $category->id ] ) )
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%">
-                                </div>
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th class="text-right">
-                        Всего:
-                    </th>
-                    @foreach ( $managements as $management )
-                        <th class="text-center">
-                            @if ( isset( $data[ 'management-' . $management->id ] ) )
-                                {{ $data[ 'management-' . $management->id ][ 'closed' ] }}
-                                /
-                                <span data-management="{{ $management->name }}">
-                                    {{ $data[ 'management-' . $management->id ][ 'total' ] }}
-                                </span>
-                            @else
-                                0 / 0
-                            @endif
-                        </th>
-                    @endforeach
-                    <th class="text-center warning bold">
-                        {{ $data[ 'closed' ] }}
+                @endforeach
+                <td class="text-center info bold">
+                    @if ( isset( $data[ 'category-' . $category->id ] ) )
+                        {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
                         /
-                        {{ $data[ 'total' ] }}
-                    </th>
-                    <th class="text-right" style="width: 30px;">
-                        {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%
-                    </th>
-                    <th style="width: 15%;" class="hidden-print hidden-md">
+                        <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                            {{ $data[ 'category-' . $category->id ][ 'total' ] }}
+                        </a>
+                    @else
+                        0 / 0
+                    @endif
+                </td>
+                <td class="text-right">
+                    <span data-field="percent">
+                        @if ( isset( $data[ 'category-' . $category->id ] ) )
+                            {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}
+                        @else
+                            0
+                        @endif
+                    </span>
+                    %
+                </td>
+                <td class="hidden-print hidden-md">
+                    @if ( isset( $data[ 'category-' . $category->id ] ) )
                         <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%">
                             </div>
                         </div>
+                    @endif
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th class="text-right">
+                    Всего:
+                </th>
+                @foreach ( $managements2 as $management )
+                    <th class="text-center">
+                        @if ( isset( $data[ 'management-' . $management->id ] ) )
+                            {{ $data[ 'management-' . $management->id ][ 'closed' ] }}
+                            /
+                            <span data-management="{{ $management->name }}">
+                                {{ $data[ 'management-' . $management->id ][ 'total' ] }}
+                            </span>
+                        @else
+                            0 / 0
+                        @endif
                     </th>
-                </tr>
-            </tfoot>
-        </table>
-
-    @else
-        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
-    @endif
+                @endforeach
+                <th class="text-center warning bold">
+                    {{ $data[ 'closed' ] }}
+                    /
+                    {{ $data[ 'total' ] }}
+                </th>
+                <th class="text-right" style="width: 30px;">
+                    {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%
+                </th>
+                <th style="width: 15%;" class="hidden-print hidden-md">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%">
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
 
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -166,6 +170,7 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -185,6 +190,8 @@
                $( '.datepicker' ).datepicker({
                    format: 'dd.mm.yyyy',
                });
+
+               $( '.select2' ).select2();
 
                 var dataProvider = [];
                 var dataProviderPie = [];

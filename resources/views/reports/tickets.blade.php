@@ -10,63 +10,165 @@
 @section( 'content' )
 
     <p class="visible-print">
-        за период с {{ $date_from }} по {{ $date_to }}
+        за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </p>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-xs-3">
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'managements[]', $managements->count() ? $managements->pluck( 'name', 'id' )->toArray() : [], \Input::get( 'managements' ), [ 'class' => 'select2 form-control', 'multiple' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            @if ( \Auth::user()->can( 'reports.export' ) )
-                {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
-            @endif
         </div>
     </div>
     {!! Form::close() !!}
 
-    @if ( count( $data ) )
+    <div id="chartdiv" style="min-height: {{ 50 + ( $managements2->count() * 35 ) }}px;" class="hidden-print"></div>
 
-        <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
-
-        <table class="table table-striped sortable" id="data">
-            <thead>
+    <table class="table table-striped sortable" id="data">
+        <thead>
+            <tr>
+                <th rowspan="3">
+                    Нименование УО
+                </th>
+                <th class="text-center info bold" rowspan="2">
+                    Поступило заявок
+                </th>
+                <th class="text-center" colspan="5">
+                    Закрыто заявок
+                </th>
+            </tr>
+            <tr>
+                <th class="text-center">
+                    Отменено Заявителем
+                </th>
+                <th class="text-center">
+                    Проблема не подтверждена
+                </th>
+                <th class="text-center">
+                    С подтверждением
+                </th>
+                <th class="text-center">
+                    Без подтверждения
+                </th>
+                <th class="text-center info bold">
+                    Всего
+                </th>
+                <th colspan="2" class="text-center">
+                    Процент выполнения
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach ( $managements2 as $management )
+            @if ( isset( $data[ $management->id ] ) )
                 <tr>
-                    <th rowspan="3">
-                        Дата \ время
-                    </th>
-                    <th class="text-center info bold">
-                        Поступило заявок
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach ( $data as $date => $count )
-                <tr @if ( ! $count ) class="text-muted" @endif>
-                    <td data-field="date">
-                        {{ $date }}
+                    <td data-field="name">
+                        {{ $management->name }}
                     </td>
-                    <td class="text-center info bold" data-field="count">
-                        {{ $count }}
+                    <td class="text-center info bold">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                            {{ $data[ $management->id ][ 'total' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="canceled">
+                            {{ $data[ $management->id ][ 'canceled' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="not_verified">
+                            {{ $data[ $management->id ][ 'not_verified' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_with_confirm">
+                            {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_without_confirm">
+                            {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
+                        </a>
+                    </td>
+                    <td data-field="closed" class="text-center info bold">
+                        {{ $data[ $management->id ][ 'closed' ] }}
+                    </td>
+                    <td class="text-right" data-field="percent" style="width: 40px;">
+                        {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
+                    </td>
+                    <td class="hidden-print" style="width: 15%;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
+                            </div>
+                        </div>
                     </td>
                 </tr>
-            @endforeach
-            </tbody>
-        </table>
-
-    @else
-        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
-    @endif
+            @endif
+        @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th class="text-right">
+                    Всего:
+                </th>
+                <th class="text-center warning">
+                    {{ $data['total'] }}
+                </th>
+                <th class="text-center">
+                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                        {{ $data['canceled'] }}
+                    </a>
+                </th>
+                <th class="text-center">
+                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                        {{ $data['not_verified'] }}
+                    </a>
+                </th>
+                <th class="text-center">
+                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                        {{ $data['closed_with_confirm'] }}
+                    </a>
+                </th>
+                <th class="text-center">
+                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                        {{ $data['closed_without_confirm'] }}
+                    </a>
+                </th>
+                <th class="text-center warning">
+                    {{ $data['closed'] }}
+                </th>
+                <th class="text-right">
+                    {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%
+                </th>
+                <th class="hidden-print">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%">
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
 
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -80,6 +182,7 @@
 
 @section( 'js' )
 
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -98,6 +201,8 @@
             .ready(function()
             {
 
+                $( '.select2' ).select2();
+
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',
                 });
@@ -108,60 +213,56 @@
                 {
 
                     dataProvider.push({
-                        'date': $.trim( $( this ).find( '[data-field="date"]' ).text() ),
-                        'count': $.trim( $( this ).find( '[data-field="count"]' ).text() )
+                        'name': $.trim( $( this ).find( '[data-field="name"]' ).text() ),
+                        'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
+                        'closed': $.trim( $( this ).find( '[data-field="closed"]' ).text() ),
                     });
 
                 });
 
                 var chart = AmCharts.makeChart("chartdiv", {
-                    "type": "serial",
-                    "theme": "light",
-                    "legend": {
-                        "equalWidths": false,
-                        "useGraphSettings": true,
-                        "valueAlign": "left",
-                        "valueWidth": 120
-                    },
                     "dataProvider": dataProvider,
-                    "valueAxes": [
-                        {
-                            "id": "count",
-                            "axisAlpha": 0,
-                            "gridAlpha": 0,
-                            "position": "left",
-                            "title": "Количество заявок"
-                        }
-                    ],
                     "graphs": [
                         {
-                            "balloonText": "[[value]]",
-                            "fillAlphas": 0.7,
-                            "legendPeriodValueText": "Всего: [[value.sum]]",
-                            "legendValueText": "[[value]]",
-                            "title": "Количество заявок",
+                            "balloonText": "Поступило: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "total",
+                            "lineAlpha": 0.2,
+                            "title": "Всего",
                             "type": "column",
-                            "valueField": "count",
-                            "valueAxis": "count"
+                            "valueField": "total"
+                        },
+                        {
+                            "balloonText": "Закрыто: [[value]]",
+                            "fillAlphas": 0.8,
+                            "id": "closed",
+                            "lineAlpha": 0.2,
+                            "title": "Закрыто",
+                            "type": "column",
+                            "valueField": "closed"
                         }
                     ],
-                    "chartCursor": {
-                        "categoryBalloonDateFormat": "DD.MM.YYYY",
-                        "cursorAlpha": 0.1,
-                        "cursorColor":"#000000",
-                        "fullWidth":true,
-                        "valueBalloonsEnabled": false,
-                        "zoomable": false
-                    },
-                    "dataDateFormat": "DD.MM.YYYY",
-                    "categoryField": "date",
+                    "type": "serial",
+                    "theme": "light",
+                    "categoryField": "name",
+                    "rotate": true,
+                    "startDuration": 1,
                     "categoryAxis": {
                         "gridPosition": "start",
-                        "labelRotation": dataProvider.length > 24 ? 60 : 0
+                        "position": "left"
                     },
-                    "export": {
-                        "enabled": true
-                    }
+                    "trendLines": [],
+                    "guides": [],
+                    "valueAxes": [
+                        {
+                            "id": "ValueAxis-1",
+                            "position": "top",
+                            "axisAlpha": 0
+                        }
+                    ],
+                    "allLabels": [],
+                    "balloon": {},
+                    "titles": [],
                 });
 
             });

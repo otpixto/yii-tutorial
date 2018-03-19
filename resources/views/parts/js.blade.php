@@ -20,7 +20,7 @@
 <script src="/assets/layouts/layout5/scripts/layout.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/jquery-cookie-1.4.1/jquery.cookie.js"></script>
 <script src="/assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/common.js?v12" type="text/javascript"></script>
+<script src="/assets/global/scripts/common.js?v13" type="text/javascript"></script>
 <script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/websocket.js?15" type="text/javascript"></script>
 <!-- END THEME LAYOUT SCRIPTS -->

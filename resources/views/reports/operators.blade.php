@@ -10,23 +10,20 @@
 @section( 'content' )
 
     <p class="visible-print">
-        за период с {{ $date_from }} по {{ $date_to }}
+        за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </p>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            @if ( \Auth::user()->can( 'reports.export' ) )
-                {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
-            @endif
         </div>
     </div>
     {!! Form::close() !!}
@@ -47,19 +44,25 @@
                     <th class="text-center">
                         Длительность разговоров
                     </th>
+                    <th class="text-center info bold">
+                        Создано заявок
+                    </th>
                 </tr>
             </thead>
             <tbody>
             @foreach ( $data as $date => $arr )
-                <tr @if ( ! $arr[ 'count' ] ) class="text-muted" @endif>
+                <tr @if ( ! $arr[ 'calls' ] && ! $arr[ 'tickets' ] ) class="text-muted" @endif>
                     <td data-field="date">
                         {{ $date }}
                     </td>
-                    <td class="text-center info bold" data-field="count">
-                        {{ $arr[ 'count' ] }}
+                    <td class="text-center info bold" data-field="calls">
+                        {{ $arr[ 'calls' ] }}
                     </td>
                     <td class="text-center" data-field="duration" data-value="{{ $arr[ 'duration' ] }}">
                         {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'duration' ] ) ) }}
+                    </td>
+                    <td class="text-center info bold" data-field="tickets">
+                        {{ $arr[ 'tickets' ] }}
                     </td>
                 </tr>
             @endforeach
@@ -115,8 +118,9 @@
 
                     dataProvider.push({
                         'date': $.trim( $( this ).find( '[data-field="date"]' ).text() ),
-                        'count': $.trim( $( this ).find( '[data-field="count"]' ).text() ),
+                        'calls': $.trim( $( this ).find( '[data-field="calls"]' ).text() ),
                         'duration': $.trim( $( this ).find( '[data-field="duration"]' ).attr( 'data-value' ) ),
+                        'tickets': $.trim( $( this ).find( '[data-field="tickets"]' ).text() ),
                     });
 
                 });
@@ -137,7 +141,7 @@
                             "axisAlpha": 0,
                             "gridAlpha": 0,
                             "position": "left",
-                            "title": "Количество звонков"
+                            "title": "Количество"
                         },
                         {
                             "id": "duration",
@@ -151,8 +155,8 @@
                             "gridAlpha": 0,
                             "position": "right",
                             "title": "Длительность разговора"
-                        }
-                        ],
+                        },
+                    ],
                     "graphs": [{
                         "balloonText": "[[value]]",
                         "fillAlphas": 0.7,
@@ -160,7 +164,7 @@
                         "legendValueText": "[[value]]",
                         "title": "Количество звонков",
                         "type": "column",
-                        "valueField": "count",
+                        "valueField": "calls",
                         "valueAxis": "count"
                     }, {
                         "dashLengthField": "duration",
@@ -169,6 +173,15 @@
                         "fillAlphas": 0,
                         "valueField": "duration",
                         "valueAxis": "duration"
+                    },{
+                        "balloonText": "[[value]]",
+                        "fillAlphas": 0.7,
+                        "legendPeriodValueText": "Всего: [[value.sum]]",
+                        "legendValueText": "[[value]]",
+                        "title": "Количество заявок",
+                        "type": "column",
+                        "valueField": "tickets",
+                        "valueAxis": "count"
                     }],
                     "chartCursor": {
                         "categoryBalloonDateFormat": "DD.MM.YYYY",

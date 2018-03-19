@@ -9,7 +9,16 @@
             </div>
         </div>
         <div class="clearfix"></div>
-            <b>#{{ $ticketManagement->ticket->id }}</b><span class="text-muted small">/{{ $ticketManagement->id }}</span>
+        @if ( \Auth::user()->can( 'tickets.waybill' ) )
+            <label class="mt-checkbox mt-checkbox-outline">
+                {!! Form::checkbox( 'ids[]', $ticketManagement->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
+                <input type="checkbox" >
+                <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
+                <span></span>
+            </label>
+        @else
+            <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
+        @endif
         @if ( $ticketManagement->rate )
             <span class="pull-right">
                 @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )

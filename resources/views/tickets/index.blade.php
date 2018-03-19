@@ -50,18 +50,27 @@
 
         <div class="row margin-top-15 hidden-print">
             <div class="col-xs-12">
-                <div class="note note-default">
-                    <p class="text-muted small bold">Быстрый фильтр по статусам:</p>
-                    @foreach ( \Auth::user()->getAvailableStatuses( 'show', true, true ) as $status_code => $status_name )
-                        @if ( $status_code != 'draft' )
-                            <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
-                                {{ $status_name }}
-                                <span class="badge bold">
+                <div class="portlet box blue-hoki">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            Быстрый фильтр по статусам
+                        </div>
+                        <div class="tools">
+                            <a href="javascript:;" class="expand" data-original-title="Показать\Скрыть" title="Показать\Скрыть"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body portlet-collapsed">
+                        @foreach ( \Auth::user()->getAvailableStatuses( 'show', true, true ) as $status_code => $status_name )
+                            @if ( $status_code != 'draft' )
+                                <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
+                                    {{ $status_name }}
+                                    <span class="badge bold">
                                     {{ \App\Models\TicketManagement::getCountByStatus( $status_code ) }}
                                 </span>
-                            </a>
-                        @endif
-                    @endforeach
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,10 +79,10 @@
             <div class="col-xs-12">
 
                 <div class="row">
-                    <div class="col-xs-8">
+                    <div class="col-md-8">
                         {{ $ticketManagements->render() }}
                     </div>
-                    <div class="col-xs-4 text-right margin-top-10 margin-bottom-10">
+                    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
                         <span class="label label-info">
                             Найдено: <b>{{ $ticketManagements->total() }}</b>
                         </span>
@@ -109,9 +118,10 @@
                             </th>
                             <th colspan="2">
                                 Адрес проблемы
+                                <a href="javascript:;" class="pull-right toggle _expand" data-toggle="#filters">&nbsp;</a>
                             </th>
                         </tr>
-                        <tr class="info hidden-print">
+                        <tr class="info hidden-print" style="display: none;" id="filters">
                             <td>
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -283,6 +293,17 @@
             </div>
         </div>
 
+        @if ( \Auth::user()->can( 'tickets.waybill' ) )
+            <div id="controls" style="display: none;">
+                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get' ] ) !!}
+                {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                <button type="submit" class="btn btn-default btn-lg">
+                    Скачать накладные (<span id="ids-count">0</span>)
+                </button>
+                {!! Form::close(); !!}
+            </div>
+        @endif
+
     @else
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
     @endif
@@ -298,6 +319,17 @@
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
     <style>
+        #controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 9999999;
+            background: #2f373e;
+            padding: 15px 0;
+            text-align: center;
+        }
         .alert, .mt-element-ribbon, .note {
             margin-bottom: 0;
         }
@@ -318,6 +350,9 @@
         .opacity {
             opacity: 0.5;
         }
+        .portlet {
+            margin-bottom: 0;
+        }
     </style>
 @endsection
 
@@ -331,7 +366,29 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+        function checkTicketCheckbox ()
+        {
+            var ids = [];
+            $( '.ticket-checkbox:checked' ).each( function ()
+            {
+                ids.push( $( this ).val() );
+            });
+            $( '#ids-count' ).text( ids.length );
+            if ( ids.length )
+            {
+                $( '#controls' ).fadeIn( 300 );
+                $( '#ids' ).val( ids.join( ',' ) );
+            }
+            else
+            {
+                $( '#controls' ).fadeOut( 300 );
+                $( '#ids' ).val( '' );
+            }
+        };
+
         $( document )
+
             .ready( function ()
             {
 
@@ -358,6 +415,10 @@
                     }
                 });
 
-            });
+                checkTicketCheckbox();
+
+            })
+
+            .on( 'change', '.ticket-checkbox', checkTicketCheckbox );
     </script>
 @endsection

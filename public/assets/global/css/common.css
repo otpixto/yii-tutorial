@@ -16,3 +16,17 @@
 .media-buttons {
     margin-left: 15px;
 }
+
+.toggle {
+    width: 14px;
+    height: 16px;
+    text-decoration: none !important;
+}
+
+.toggle._collapse {
+    background-image: url(../img/portlet-collapse-icon.png);
+}
+
+.toggle._expand {
+    background-image: url(../img/portlet-expand-icon.png);
+}
