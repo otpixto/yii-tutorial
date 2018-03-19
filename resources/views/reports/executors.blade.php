@@ -9,92 +9,164 @@
 
 @section( 'content' )
 
-    <p class="visible-print">
-        за период с {{ $date_from }} по {{ $date_to }}
-    </p>
-
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to, [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
         </div>
-        <div class="col-xs-3">
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'management_id', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + ( $managements->count() ? $managements->pluck( 'name', 'id' )->toArray() : [] ), \Input::get( 'management_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+        </div>
+    </div>
+    <div id="executor_block" class="form-group @if ( ! $executor ) hidden @endif">
+        {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'executor_id', [ null => ' -- выберите из списка -- ' ] + ( $executors->count() ? $executors->pluck( 'name', 'id' )->toArray() : [] ), \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            @if ( \Auth::user()->can( 'reports.export' ) )
-                {!! Form::submit( 'Выгрузить', [ 'class' => 'btn btn-info', 'name' => 'export' ] ) !!}
-            @endif
         </div>
     </div>
     {!! Form::close() !!}
 
-    @if ( count( $data ) )
+    @if ( $management || $executor )
 
-        <div id="chartdiv" style="min-height: 500px;" class="hidden-print"></div>
+        <div class="visible-print title">
+            Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
+            Исполнитель
+            @if ( $management )
+                {{ $management->name }}
+            @endif
+            @if ( $executor )
+                {{ $executor->name }}
+            @endif
+        </div>
 
-        <table class="table table-striped sortable" id="data">
-            <thead>
+        @if ( $ticketManagements->count() )
+
+            <table class="table table-striped sortable" id="data">
+                <thead>
                 <tr>
-                    <th rowspan="3">
-                        Дата \ время
+                    <th>
+                        № заявки
                     </th>
-                    <th class="text-center info bold">
-                        Поступило заявок
+                    <th>
+                        Дата создания
+                    </th>
+                    <th>
+                        Адрес заявки
+                    </th>
+                    <th>
+                        Категория и тип
+                    </th>
+                    <th>
+                        Выполненные работы
+                    </th>
+                    <th>
+                        Статус заявки
+                    </th>
+                    <th>
+                        Дата
+                    </th>
+                    <th>
+                        Оценка
                     </th>
                 </tr>
-            </thead>
-            <tbody>
-            @foreach ( $data as $date => $count )
-                <tr @if ( ! $count ) class="text-muted" @endif>
-                    <td data-field="date">
-                        {{ $date }}
-                    </td>
-                    <td class="text-center info bold" data-field="count">
-                        {{ $count }}
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                @foreach ( $ticketManagements as $ticketManagement )
+                    <tr>
+                        <td>
+                            {{ $ticketManagement->getTicketNumber() }}
+                        </td>
+                        <td>
+                            {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
+                        </td>
+                        <td>
+                            {{ $ticketManagement->ticket->getAddress( true ) }}
+                        </td>
+                        <td>
+                            @if ( $ticketManagement->ticket->type )
+                                <div>
+                                    {{ $ticketManagement->ticket->type->category->name }}
+                                </div>
+                                <div>
+                                    {{ $ticketManagement->ticket->type->name }}
+                                </div>
+                            @endif
+                        </td>
+                        <td>
+                            <ol class="list-unstyled">
+                                @foreach ( $ticketManagement->works as $work )
+                                    <li>
+                                        {{ $work->name }}
+                                        [{{ $work->quantity }}]
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </td>
+                        <td>
+                            {{ $ticketManagement->status_name }}
+                        </td>
+                        <td>
+                            {{ $ticketManagement->ticket->completed_at }}
+                        </td>
+                        <td>
+                            {{ $ticketManagement->rate }}
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        @else
+            @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
+        @endif
 
-    @else
-        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
     @endif
 
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
             margin-bottom: 0 !important;
         }
-        .table tfoot th, .table tfoot td {
-            padding: 8px !important;
+        @media print {
+            td, th {
+                font-size: 9px !important;
+            }
+            .breadcrumbs {
+                display: none;
+            }
+            .title {
+                font-weight: bold;
+                margin: 10px 0;
+            }
         }
     </style>
 @endsection
 
 @section( 'js' )
 
-    <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/radar.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/themes/light.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/themes/patterns.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amcharts/themes/chalk.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/ammap/ammap.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/ammap/maps/js/worldLow.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/amcharts/amstockcharts/amstock.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
 
         $( document )
+
             .ready(function()
             {
 
@@ -102,66 +174,33 @@
                     format: 'dd.mm.yyyy',
                 });
 
-                var dataProvider = [];
+                $( '.select2' ).select2();
 
-                $( '#data tbody tr' ).each( function ()
+            })
+
+            .on( 'change', '#management_id', function ()
+            {
+
+                var management_id = $( this ).val();
+
+                $( '#executor_block' ).removeClass( 'hidden' );
+                $( '#executor_id' ).html(
+                    $( '<option>' ).val( '0' ).text( 'Загрузка...' )
+                );
+
+                $.get( '{{ route( 'managements.executors' ) }}', {
+                    management_id: management_id
+                }, function ( response )
                 {
-
-                    dataProvider.push({
-                        'date': $.trim( $( this ).find( '[data-field="date"]' ).text() ),
-                        'count': $.trim( $( this ).find( '[data-field="count"]' ).text() )
+                    $( '#executor_id' ).html(
+                        $( '<option>' ).val( '0' ).text( response.length ? ' -- выберите из списка -- ' : 'Ничего не найдено' )
+                    );
+                    $.each( response, function ( i, val )
+                    {
+                        $( '#executor_id' ).append(
+                            $( '<option>' ).val( val.id ).text( val.name )
+                        );
                     });
-
-                });
-
-                var chart = AmCharts.makeChart("chartdiv", {
-                    "type": "serial",
-                    "theme": "light",
-                    "legend": {
-                        "equalWidths": false,
-                        "useGraphSettings": true,
-                        "valueAlign": "left",
-                        "valueWidth": 120
-                    },
-                    "dataProvider": dataProvider,
-                    "valueAxes": [
-                        {
-                            "id": "count",
-                            "axisAlpha": 0,
-                            "gridAlpha": 0,
-                            "position": "left",
-                            "title": "Количество заявок"
-                        }
-                    ],
-                    "graphs": [
-                        {
-                            "balloonText": "[[value]]",
-                            "fillAlphas": 0.7,
-                            "legendPeriodValueText": "Всего: [[value.sum]]",
-                            "legendValueText": "[[value]]",
-                            "title": "Количество заявок",
-                            "type": "column",
-                            "valueField": "count",
-                            "valueAxis": "count"
-                        }
-                    ],
-                    "chartCursor": {
-                        "categoryBalloonDateFormat": "DD.MM.YYYY",
-                        "cursorAlpha": 0.1,
-                        "cursorColor":"#000000",
-                        "fullWidth":true,
-                        "valueBalloonsEnabled": false,
-                        "zoomable": false
-                    },
-                    "dataDateFormat": "DD.MM.YYYY",
-                    "categoryField": "date",
-                    "categoryAxis": {
-                        "gridPosition": "start",
-                        "labelRotation": dataProvider.length > 24 ? 60 : 0
-                    },
-                    "export": {
-                        "enabled": true
-                    }
                 });
 
             });
