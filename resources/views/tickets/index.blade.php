@@ -298,7 +298,7 @@
                 {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get' ] ) !!}
                 {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
                 <button type="submit" class="btn btn-default btn-lg">
-                    Скачать накладные (<span id="ids-count">0</span>)
+                    Распечатать наряд-заказы (<span id="ids-count">0</span>)
                 </button>
                 {!! Form::close(); !!}
             </div>

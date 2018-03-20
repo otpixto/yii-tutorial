@@ -23,6 +23,9 @@
         .pagebreak {
             page-break-after: always;
         }
+        h3, h4 {
+            margin: 15px 0;
+        }
     </style>
     <!-- END PAGE LEVEL STYLES -->
 </head>
@@ -36,12 +39,12 @@
         @foreach ( $ticketManagements as $ticketManagement )
 
             <div>
-                <h3 class="pull-left margin-top-5 margin-bottom-5">
+                <h3 class="pull-left">
                     {{ $ticketManagement->management->name }}
                 </h3>
-                <h3 class="pull-right margin-top-5 margin-bottom-5">
-                    Заказ-наряд № {{ $ticketManagement->id }}
-                </h3>
+                <h4 class="pull-right">
+                    Наряд-заказ по заявке № {{ $ticketManagement->getTicketNumber() }}
+                </h4>
             </div>
 
             <div class="clearfix"></div>
@@ -70,9 +73,7 @@
                 Подпись заявителя ______________________________________________________________
             </div>
 
-            <div class="margin-top-15">
-                <hr class="margin-top-5 margin-bottom-5" />
-            </div>
+            <hr />
 
             @if ( ++ $i == 4 )
                 <div class="pagebreak"></div>
@@ -82,6 +83,10 @@
         @endforeach
 
     </div>
+
+    <script>
+        window.print();
+    </script>
 
 </body>
 </html>

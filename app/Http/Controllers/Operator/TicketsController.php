@@ -1210,6 +1210,8 @@ class TicketsController extends BaseController
     public function waybill ( Request $request )
     {
 
+        Title::set( 'Наряд-заказ' );
+
         if ( ! \Auth::user()->can( 'tickets.waybill' ) )
         {
             return redirect()
