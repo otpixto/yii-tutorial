@@ -295,7 +295,7 @@
 
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <div id="controls" style="display: none;">
-                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get' ] ) !!}
+                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get', 'target' => '_blank' ] ) !!}
                 {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
                 <button type="submit" class="btn btn-default btn-lg">
                     Распечатать наряд-заказы (<span id="ids-count">0</span>)
