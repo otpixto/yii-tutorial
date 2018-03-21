@@ -22,62 +22,84 @@ class WorksController extends BaseController
         Title::add( 'Работы на сетях' );
     }
 
-    public function index()
+    public function index ( Request $request )
     {
 
         $works = Work
             ::mine()
             ->orderBy( 'id', 'desc' );
 
-        if ( \Input::get( 'show' ) != 'all' )
+        if ( $request->get( 'show' ) != 'all' )
         {
             $works
                 ->current();
         }
 
-        if ( !empty( \Input::get( 'search' ) ) )
+        if ( ! empty( $request->get( 'search' ) ) )
         {
             $works
-                ->fastSearch( \Input::get( 'search' ) );
+                ->fastSearch( $request->get( 'search' ) );
         }
 
-        if ( !empty( \Input::get( 'id' ) ) )
+        if ( ! empty( $request->get( 'id' ) ) )
         {
             $works
-                ->where( 'id', '=', \Input::get( 'id' ) );
+                ->where( 'id', '=', $request->get( 'id' ) );
         }
 
-        if ( !empty( \Input::get( 'date' ) ) )
+        if ( ! empty( $request->get( 'category_id' ) ) )
         {
             $works
-                ->whereRaw( 'DATE( time_begin ) <= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] )
-                ->whereRaw( 'DATE( time_end_fact ) >= ?', [ Carbon::parse( \Input::get( 'date' ) )->toDateString() ] );
+                ->where( 'category_id', '=', $request->get( 'category_id' ) );
         }
 
-        if ( !empty( \Input::get( 'type_id' ) ) )
+        if ( ! empty( $request->get( 'composition' ) ) )
         {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
             $works
-                ->where( 'type_id', '=', \Input::get( 'type_id' ) );
+                ->where( 'composition', 'like', $q );
         }
 
-        if ( !empty( \Input::get( 'address_id' ) ) )
+        if ( ! empty( $request->get( 'reason' ) ) )
+        {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
+            $works
+                ->where( 'reason', 'like', $q );
+        }
+
+        if ( ! empty( $request->get( 'date' ) ) )
+        {
+            $dt = Carbon::parse( $request->get( 'date' ) )->toDateString();
+            $works
+                ->whereRaw( 'DATE( time_begin ) <= ?', [ $dt ] )
+                ->whereRaw( 'DATE( time_end_fact ) >= ?', [ $dt ] );
+        }
+
+        if ( !empty( $request->get( 'type_id' ) ) )
         {
             $works
-                ->whereHas( 'addresses', function ( $q )
+                ->where( 'type_id', '=', $request->get( 'type_id' ) );
+        }
+
+        if ( !empty( $request->get( 'address_id' ) ) )
+        {
+            $address_id = $request->get( 'address_id' );
+            $works
+                ->whereHas( 'addresses', function ( $q ) use ( $address_id )
                 {
                     return $q
-                        ->where( 'address_id', '=', \Input::get( 'address_id' ) );
+                        ->where( 'address_id', '=', $address_id );
                 });
-            $address = Address::find( \Input::get( 'address_id' ) );
+            $address = Address::find( $address_id );
         }
 
-        if ( !empty( \Input::get( 'management_id' ) ) )
+        if ( !empty( $request->get( 'management_id' ) ) )
         {
             $works
-                ->where( 'management_id', '=', \Input::get( 'management_id' ) );
+                ->where( 'management_id', '=', $request->get( 'management_id' ) );
         }
 
-        if ( \Input::get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
+        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
         {
             $works = $works->get();
             $data = [];
@@ -105,7 +127,9 @@ class WorksController extends BaseController
             })->export( 'xls' );
         }
 
-        $works = $works->paginate( 30 );
+        $works = $works
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         $regions = Region
             ::mine()
