@@ -638,48 +638,33 @@ class Ticket extends BaseModel
 
     public function getClass ()
     {
-
         $now = Carbon::now();
-
         switch ( $this->status_code )
         {
-
             case 'transferred':
             case 'transferred_again':
-
                 if ( $this->deadline_acceptance && ( $this->accepted_at ?? $now )->timestamp > $this->deadline_acceptance->timestamp )
                 {
                     return 'danger';
                 }
-
                 return 'warning';
-
                 break;
-
             case 'accepted':
             case 'assigned':
-
                 if ( $this->deadline_execution && ( $this->completed_at ?? $now )->timestamp > $this->deadline_execution->timestamp )
                 {
                     return 'danger';
                 }
-
                 return 'success';
-
                 break;
-
             case 'not_verified':
             case 'cancel':
             case 'no_contract':
-
+            case 'rejected':
                 return 'danger';
-
                 break;
-
         }
-
         return '';
-
     }
 
     public function getStatus ( $html = false )

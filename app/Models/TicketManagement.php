@@ -241,7 +241,18 @@ class TicketManagement extends BaseModel
 
     public function getClass ()
     {
-        return $this->ticket->getClass();
+        switch ( $this->status_code )
+        {
+            case 'not_verified':
+            case 'cancel':
+            case 'no_contract':
+            case 'rejected':
+                return 'danger';
+                break;
+            default:
+                return $this->ticket->getClass();
+                break;
+        }
     }
 
     public function getTicketNumber ()
