@@ -38,11 +38,6 @@ class TicketsController extends BaseController
 
         $ticketManagements = TicketManagement
             ::mine()
-            ->select(
-                'tickets_managements.*',
-                'tickets.completed_at'
-            )
-            ->join( 'tickets', 'tickets.id', '=', 'tickets_managements.ticket_id' )
             ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number, $customer_id )
             {
 
@@ -216,6 +211,11 @@ class TicketsController extends BaseController
         {
             case 'call':
                 $ticketManagements
+                    ->select(
+                        'tickets_managements.*',
+                        'tickets.completed_at'
+                    )
+                    ->join( 'tickets', 'tickets.id', '=', 'tickets_managements.ticket_id' )
                     ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                     ->orderBy( 'completed_at', 'asc' );
                 break;
@@ -286,7 +286,7 @@ class TicketsController extends BaseController
                 'ticket.type.category',
                 'management'
             )
-            ->paginate( 30 )
+            ->paginate( 15 )
             ->appends( $request->all() );
 
         $regions = Region
