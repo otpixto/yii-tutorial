@@ -15,8 +15,8 @@
     {!! Form::model( $role, [ 'method' => 'put', 'id' => 'role-edit-form' ] ) !!}
 
     <div class="margin-top-10">
-        <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-default">
-            Назад
+        <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info">
+            Редактировать
         </a>
         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
     </div>
