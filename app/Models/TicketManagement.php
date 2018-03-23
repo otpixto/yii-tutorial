@@ -241,70 +241,7 @@ class TicketManagement extends BaseModel
 
     public function getClass ()
     {
-
-        $now = Carbon::now();
-
-        switch ( $this->status_code )
-        {
-
-            case 'transferred':
-            case 'transferred_again':
-
-                if ( $this->ticket->type->period_acceptance )
-                {
-
-                    $status_transferred = $this->statusesHistory->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )->first();
-                    if ( $status_transferred )
-                    {
-                        $dt = $status_transferred->created_at;
-                        $dt->addMinutes( $this->ticket->type->period_acceptance * 60 );
-                        if ( $now->timestamp > $dt->timestamp )
-                        {
-                            return 'danger';
-                        }
-                    }
-
-                }
-
-                return 'warning';
-
-                break;
-
-            case 'accepted':
-            case 'assigned':
-
-                /*if ( $this->ticket->type->period_execution )
-                {
-
-                    $status_accepted = $this->statusesHistory->where( 'status_code', 'accepted' )->first();
-                    if ( $status_accepted )
-                    {
-                        $dt = $status_accepted->created_at;
-                        $dt->addMinutes( $this->ticket->type->period_execution * 60 );
-                        if ( $now->timestamp > $dt->timestamp )
-                        {
-                            return 'danger';
-                        }
-                    }
-
-                }*/
-
-                return 'success';
-
-                break;
-
-            case 'not_verified':
-            case 'cancel':
-            case 'no_contract':
-
-                return 'danger';
-
-                break;
-
-        }
-
-        return '';
-
+        return $this->ticket->getClass();
     }
 
     public function getTicketNumber ()

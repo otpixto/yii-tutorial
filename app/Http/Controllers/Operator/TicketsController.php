@@ -282,6 +282,8 @@ class TicketsController extends BaseController
             ->with(
                 'comments',
                 'ticket',
+                'ticket.type',
+                'ticket.type.category',
                 'management'
             )
             ->paginate( 30 )
@@ -299,16 +301,12 @@ class TicketsController extends BaseController
         }
         else
         {
-            $res = Category::orderBy( 'name' )->get();
+            $res = Type::with( 'category' )->get()->sortBy( 'name' );
             $types = [];
             foreach ( $res as $r )
             {
-                $types[ 'category-' . $r->id ] = $r->name;
-                $res2 = $r->types()->orderBy( 'name' )->get();
-                foreach ( $res2 as $r2 )
-                {
-                    $types[ 'type-' . $r2->id ] = $r2->name;
-                }
+                $types[ 'category-' . $r->category->id ] = $r->category->name;
+                $types[ 'type-' . $r->id ] = $r->name;
             }
             \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->put( 'ticket.types', $types, \Config::get( 'cache.time' ) );
         }
