@@ -31,6 +31,7 @@
                 <div class="portlet-body todo-project-list-content" style="height: auto;">
                     <div class="todo-project-list">
                         {!! Form::open( [ 'method' => 'get' ] ) !!}
+                        {!! Form::hidden( 'guard', $guard ) !!}
                         <div class="row">
                             <div class="col-xs-12">
                                 {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
@@ -53,6 +54,16 @@
             <div class="portlet light ">
                 <div class="portlet-body">
 
+                    <ul class="nav nav-tabs">
+                        @foreach ( $guards as $_guard )
+                            <li role="presentation" @if ( $_guard == $guard ) class="active" @endif>
+                                <a href="?guard={{ $_guard }}">
+                                    {{ $_guard }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
                     @if ( $perms_tree )
                         <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j2_1" aria-busy="false" aria-selected="false">
                             <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
@@ -72,9 +83,6 @@
                                     <th>
                                         Код
                                     </th>
-                                    <th>
-                                        Guard
-                                    </th>
                                     <th class="text-right">
                                         &nbsp;
                                     </th>
@@ -88,9 +96,6 @@
                                     </td>
                                     <td>
                                         {{ $perm->code }}
-                                    </td>
-                                    <td>
-                                        {{ $perm->guard_name }}
                                     </td>
                                     <td class="text-right">
                                         <a href="{{ route( 'perms.edit', $perm->id ) }}" class="btn btn-info">

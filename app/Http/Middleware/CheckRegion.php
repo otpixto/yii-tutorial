@@ -18,7 +18,7 @@ class CheckRegion
     {
         if ( Region::isOperatorUrl() )
         {
-            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->can( 'supervisor.all_regions' ) )
+            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
             {
                 return redirect()->route( 'error.403' );
             }

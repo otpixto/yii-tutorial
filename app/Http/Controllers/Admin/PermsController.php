@@ -20,6 +20,7 @@ class PermsController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
+        $guard = $request->get( 'guard', config( 'auth.defaults.guard' ) );
 
         if ( !empty( $search ) )
         {
@@ -29,9 +30,9 @@ class PermsController extends BaseController
                 {
                     return $q
                         ->where( 'code', 'like', $s )
-                        ->orWhere( 'name', 'like', $s )
-                        ->orWhere( 'guard_name', 'like', $s );
+                        ->orWhere( 'name', 'like', $s );
                 })
+                ->where( 'guard', '=', $guard )
                 ->orderBy( 'code' )
                 ->orderBy( 'name' )
                 ->paginate( 30 )
@@ -39,12 +40,14 @@ class PermsController extends BaseController
         }
         else
         {
-            $perms_tree = Permission::getTree();
+            $perms_tree = Permission::getTree( $guard );
         }
 
         return view('admin.perms.index' )
             ->with( 'perms', $perms ?? null )
-            ->with( 'perms_tree', $perms_tree ?? null );
+            ->with( 'perms_tree', $perms_tree ?? null )
+            ->with( 'guard', $guard )
+            ->with( 'guards', $this->getGuards() );
 
     }
 

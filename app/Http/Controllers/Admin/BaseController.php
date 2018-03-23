@@ -20,9 +20,10 @@ class BaseController extends Controller
     {
         if ( $flush || is_null( $this->guards ) )
         {
-            foreach ( config( 'auth.guards' ) as $guard => $_ )
+            $guards = \DB::table( 'guards' )->get();
+            foreach ( $guards as $guard )
             {
-                $this->guards[ $guard ] = $guard;
+                $this->guards[ $guard->guard ] = $guard->guard;
             }
         }
         return $this->guards;

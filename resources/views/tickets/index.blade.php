@@ -9,9 +9,9 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->canOne( [ 'tickets.show', 'tickets.all' ] ) )
+    @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-        @if( \Auth::user()->canOne( [ 'tickets.create', 'tickets.export' ] ) )
+        @if( \Auth::user()->canOne( 'tickets.create', 'tickets.export' ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
                     @if( \Auth::user()->can( 'tickets.create' ) )

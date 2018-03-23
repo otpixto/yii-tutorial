@@ -24,12 +24,12 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label( 'guard_name', 'Guard', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', $perm->guard_name ), [ 'class' => 'form-control' ] ) !!}
+        {!! Form::label( 'guard', 'Guard', [ 'class' => 'control-label' ] ) !!}
+        {!! Form::select( 'guard', $guards, \Input::old( 'guard', $perm->guard ), [ 'class' => 'form-control' ] ) !!}
     </div>
 
     <div class="margin-top-10">
-        {!! Form::submit( 'Редактировать', [ 'class' => 'btn green' ] ) !!}
+        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
     </div>
 
     {!! Form::close() !!}

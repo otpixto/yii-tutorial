@@ -87,7 +87,7 @@
 
         </div>
 
-        @if ( \Auth::user()->canOne( [ 'catalog.customers.tickets', 'catalog.customers.calls' ] ) )
+        @if ( \Auth::user()->canOne( 'catalog.customers.tickets', 'catalog.customers.calls' ) )
 
             <ul class="nav nav-tabs">
                 @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )

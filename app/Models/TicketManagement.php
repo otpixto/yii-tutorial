@@ -171,7 +171,10 @@ class TicketManagement extends BaseModel
 
     public function createWork ( array $attributes = [] )
     {
-        $attributes[ 'ticket_management_id' ] = $this->id;
+        if ( empty( $attributes[ 'ticket_management_id' ] ) )
+        {
+            $attributes[ 'ticket_management_id' ] = $this->id;
+        }
         $ticketManagementWork = TicketManagementWork::create( $attributes );
         if ( $ticketManagementWork instanceof MessageBag )
         {

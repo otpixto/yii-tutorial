@@ -780,7 +780,6 @@ class TicketsController extends BaseController
         }
 
         $rules = [
-            'works.*.ticket_management_id'	    => 'required_without:works.*.id|integer',
             'works.*.name'				        => 'required|string',
             'works.*.quantity'				    => 'required|numeric|min:1',
         ];

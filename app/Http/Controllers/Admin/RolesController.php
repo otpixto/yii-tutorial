@@ -21,9 +21,11 @@ class RolesController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
+        $guard = $request->get( 'guard', config( 'auth.defaults.guard' ) );
 
         $roles = Role
-            ::orderBy( 'code' );
+            ::where( 'guard', '=', $guard )
+            ->orderBy( 'code' );
 
         if ( !empty( $search ) )
         {
@@ -42,7 +44,9 @@ class RolesController extends BaseController
             ->appends( $request->all() );
 
         return view('admin.roles.index' )
-            ->with( 'roles', $roles );
+            ->with( 'roles', $roles )
+            ->with( 'guard', $guard )
+            ->with( 'guards', $this->getGuards() );
 
     }
 
@@ -64,12 +68,30 @@ class RolesController extends BaseController
                 ->withErrors( [ 'Роль не найдена' ] );
         }
 
-        $perms_tree = Permission::getTree();
-
         return view('admin.roles.edit' )
             ->with( 'role', $role )
-            ->with( 'perms_tree', $perms_tree )
             ->with( 'guards', $this->getGuards() );
+
+    }
+
+    public function perms ( $id )
+    {
+
+        Title::add( 'Права доступа' );
+
+        $role = Role::find( $id );
+
+        if ( ! $role )
+        {
+            return redirect()->route( 'roles.index' )
+                ->withErrors( [ 'Роль не найдена' ] );
+        }
+
+        $perms_tree = Permission::getTree( $role->guard );
+
+        return view('admin.roles.perms' )
+            ->with( 'role', $role )
+            ->with( 'perms_tree', $perms_tree );
 
     }
 
@@ -107,12 +129,28 @@ class RolesController extends BaseController
                 ->withErrors( $res );
         }
 
+        return redirect()->route( 'roles.edit', $role->id )
+            ->with( 'success', 'Роль успешно отредактирована' );
+
+    }
+
+    public function updatePerms ( Request $request, $id )
+    {
+
+        $role = Role::find( $id );
+
+        if ( ! $role )
+        {
+            return redirect()->route( 'roles.index' )
+                ->withErrors( [ 'Роль не найдена' ] );
+        }
+
         $role->syncPermissions( $request->get( 'perms', [] ) );
 
         $this->clearCache( 'users' );
 
-        return redirect()->route( 'roles.edit', $role->id )
-            ->with( 'success', 'Роль успешно отредактирована' );
+        return redirect()->route( 'roles.perms', $role->id )
+            ->with( 'success', 'Права успешно отредактированы' );
 
     }
 

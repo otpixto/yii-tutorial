@@ -25,8 +25,8 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label( 'guard_name', 'Guard', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::select( 'guard_name', $guards, \Input::old( 'guard_name', config( 'defaults.guard' ) ), [ 'class' => 'form-control' ] ) !!}
+        {!! Form::label( 'guard', 'Guard', [ 'class' => 'control-label' ] ) !!}
+        {!! Form::select( 'guard', $guards, \Input::old( 'guard', config( 'defaults.guard' ) ), [ 'class' => 'form-control' ] ) !!}
     </div>
 
     <div class="caption caption-md">

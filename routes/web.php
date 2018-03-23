@@ -180,6 +180,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'regions/{id}/phone-add', 'Admin\RegionsController@addRegionPhone' )->name( 'regions.phone.add' );
             Route::post( 'regions/phone-del', 'Admin\RegionsController@delRegionPhone' )->name( 'regions.phone.del' );
             Route::get( 'loginas/{id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
+            Route::get( 'roles/{id}/perms', 'Admin\RolesController@perms' )->name( 'roles.perms' );
+            Route::put( 'roles/{id}/perms', 'Admin\RolesController@updatePerms' );
         });
 
     });

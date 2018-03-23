@@ -9,9 +9,9 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->canOne( [ 'works.show', 'works.all' ] ) )
+    @if ( \Auth::user()->canOne( 'works.show', 'works.all' ) )
 
-        @if( \Auth::user()->canOne( [ 'works.create', 'works.export' ] ) )
+        @if( \Auth::user()->canOne( 'works.create', 'works.export' ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
                     @can( 'works.create' )

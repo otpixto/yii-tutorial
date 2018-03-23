@@ -31,6 +31,7 @@
                 <div class="portlet-body todo-project-list-content" style="height: auto;">
                     <div class="todo-project-list">
                         {!! Form::open( [ 'method' => 'get' ] ) !!}
+                        {!! Form::hidden( 'guard', $guard ) !!}
                         <div class="row">
                             <div class="col-xs-12">
                                 {!! Form::text( 'search', $search ?? null, [ 'class' => 'form-control' ] ) !!}
@@ -53,6 +54,16 @@
             <div class="portlet light ">
                 <div class="portlet-body">
 
+                    <ul class="nav nav-tabs">
+                        @foreach ( $guards as $_guard )
+                            <li role="presentation" @if ( $_guard == $guard ) class="active" @endif>
+                                <a href="?guard={{ $_guard }}">
+                                    {{ $_guard }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
                     @if ( $roles->count() )
 
                         {{ $roles->render() }}
@@ -65,9 +76,6 @@
                                 </th>
                                 <th>
                                     Код
-                                </th>
-                                <th>
-                                    Guard
                                 </th>
                                 <th class="text-right">
                                     &nbsp;
@@ -83,12 +91,12 @@
                                     <td>
                                         {{ $role->code }}
                                     </td>
-                                    <td>
-                                        {{ $role->guard_name }}
-                                    </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info">
+                                        <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info tooltips" title="Редактировать">
                                             <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="{{ route( 'roles.perms', $role->id ) }}" class="btn btn-warning tooltips" title="Права доступа">
+                                            <i class="fa fa-unlock-alt"></i>
                                         </a>
                                     </td>
                                 </tr>
