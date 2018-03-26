@@ -284,7 +284,10 @@ class TicketsController extends BaseController
                 'ticket',
                 'ticket.type',
                 'ticket.type.category',
-                'management'
+				'ticket.address',
+				'ticket.author',
+                'management',
+				'works'
             )
             ->paginate( 15 )
             ->appends( $request->all() );
