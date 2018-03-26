@@ -1,44 +1,51 @@
 <?php
-
 namespace App\Traits;
-
-use Iphome\Permission\Exceptions\PermissionDoesNotExist;
-
+use Illuminate\Contracts\Auth\Access\Gate;
 trait Authorizable
 {
-
-    public function can ( $permission ) : bool
+    /**
+     * Determine if the entity has a given ability.
+     *
+     * @param  string  $ability
+     * @param  array|mixed  $arguments
+     * @return bool
+     */
+    public function can ( $ability, $arguments = [] ) : bool
     {
-        try
-        {
-            return $this->hasPermissionTo( $permission, $this->getGuard() );
-        }
-        catch ( PermissionDoesNotExist $e )
-        {
-            return false;
-        }
+        return app( Gate::class )->forUser( $this )->check( $ability, $arguments );
     }
-
-    public function canOne ( ... $permissions ) : bool
+	
+    public function canOne ( ... $abilities ) : bool
     {
-        foreach ( $permissions as $permission )
+        foreach ( $abilities as $ability )
         {
-            if ( $this->can( $permission ) )
+            if ( $this->can( $ability ) )
             {
                 return true;
             }
         }
         return false;
     }
-
-    public function cant ( $permission ) : bool
+    /**
+     * Determine if the entity does not have a given ability.
+     *
+     * @param  string  $ability
+     * @param  array|mixed  $arguments
+     * @return bool
+     */
+    public function cant ( $ability, $arguments = [] ) : bool
     {
-        return ! $this->can( $permission );
+        return ! $this->can( $ability, $arguments );
     }
-
-    public function cannot ( $permission ) : bool
+    /**
+     * Determine if the entity does not have a given ability.
+     *
+     * @param  string  $ability
+     * @param  array|mixed  $arguments
+     * @return bool
+     */
+    public function cannot ( $ability, $arguments = [] ) : bool
     {
-        return $this->cant( $permission );
+        return $this->cant($ability, $arguments);
     }
-
 }
