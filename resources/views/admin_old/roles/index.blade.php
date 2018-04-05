@@ -10,16 +10,14 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.create' ) )
-        <div class="row margin-bottom-15">
-            <div class="col-xs-12">
-                <a href="{{ route( 'roles.create' ) }}" class="btn btn-success">
-                    <i class="fa fa-plus"></i>
-                    Создать роль
-                </a>
-            </div>
+    <div class="row margin-bottom-15">
+        <div class="col-xs-12">
+            <a href="{{ route( 'roles.create' ) }}" class="btn btn-success">
+                <i class="fa fa-plus"></i>
+                Создать роль
+            </a>
         </div>
-    @endif
+    </div>
 
     <div class="todo-ui">
         <div class="todo-sidebar">
@@ -94,14 +92,12 @@
                                         {{ $role->code }}
                                     </td>
                                     <td class="text-right">
-                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.edit' ) )
-                                            <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info tooltips" title="Редактировать">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="{{ route( 'roles.perms', $role->id ) }}" class="btn btn-warning tooltips" title="Права доступа">
-                                                <i class="fa fa-unlock-alt"></i>
-                                            </a>
-                                        @endif
+                                        <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info tooltips" title="Редактировать">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="{{ route( 'roles.perms', $role->id ) }}" class="btn btn-warning tooltips" title="Права доступа">
+                                            <i class="fa fa-unlock-alt"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach

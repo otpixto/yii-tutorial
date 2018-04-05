@@ -11,28 +11,34 @@
 
 @section( 'content' )
 
-    {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ] ] ) !!}
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.edit' ) )
 
-    <div class="form-group">
-        {!! Form::label( 'code', 'Код', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::text( 'code', \Input::old( 'code', $perm->code ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
-    </div>
+        {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ] ] ) !!}
 
-    <div class="form-group">
-        {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::text( 'name', \Input::old( 'name', $perm->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-    </div>
+        <div class="form-group">
+            {!! Form::label( 'code', 'Код', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'code', \Input::old( 'code', $perm->code ), [ 'class' => 'form-control', 'placeholder' => 'Код' ] ) !!}
+        </div>
 
-    <div class="form-group">
-        {!! Form::label( 'guard', 'Guard', [ 'class' => 'control-label' ] ) !!}
-        {!! Form::select( 'guard', $guards, \Input::old( 'guard', $perm->guard ), [ 'class' => 'form-control' ] ) !!}
-    </div>
+        <div class="form-group">
+            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'name', \Input::old( 'name', $perm->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+        </div>
 
-    <div class="margin-top-10">
-        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
-    </div>
+        <div class="form-group">
+            {!! Form::label( 'guard', 'Guard', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'guard', $guards, \Input::old( 'guard', $perm->guard ), [ 'class' => 'form-control' ] ) !!}
+        </div>
 
-    {!! Form::close() !!}
+        <div class="margin-top-10">
+            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+        </div>
+
+        {!! Form::close() !!}
+
+    @else
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+    @endif
 
 @endsection
 

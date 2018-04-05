@@ -11,117 +11,123 @@
 
 @section( 'content' )
 
-    <div class="portlet light">
-        <div class="portlet-body">
-            <div class="tab-content">
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.create' ) )
 
-                <div class="mt-element-step">
-                    <div class="row step-line">
-                        <div class="col-md-4 mt-step-col first active">
-                            <div class="mt-step-number bg-white">1</div>
-                            <div class="mt-step-title uppercase font-grey-cascade">Персональные данные</div>
-                        </div>
-                        <div class="col-md-4 mt-step-col">
-                            <div class="mt-step-number bg-white">2</div>
-                            <div class="mt-step-title uppercase font-grey-cascade">Логин и пароль</div>
-                        </div>
-                        <div class="col-md-4 mt-step-col last">
-                            <div class="mt-step-number bg-white">3</div>
-                            <div class="mt-step-title uppercase font-grey-cascade">Права доступа</div>
-                        </div>
-                    </div>
-                </div>
+        <div class="portlet light">
+            <div class="portlet-body">
+                <div class="tab-content">
 
-                {!! Form::open( [ 'url' => route( 'users.store' ) ] ) !!}
-
-                <!-- PERSONAL INFO TAB -->
-                <div class="steps" id="step1" data-step="1">
-                    <div class="form-group">
-                        {!! Form::label( 'regions', 'Регион', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'regions[]', $regions->pluck( 'name', 'id' ), \Input::old( 'regions' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион', 'multiple' ] ) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
-                    </div>
-                    <div class="margiv-top-10">
-                        {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
-                    </div>
-                </div>
-                <!-- END PERSONAL INFO TAB -->
-
-                <!-- PASSWORD TAB -->
-                <div class="steps hidden" id="step2" data-step="2">
-                    <div class="form-group">
-                        {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
-                        <div class="input-group">
-                            {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
-                            <span class="input-group-btn">
-                                <button id="genpassword" class="btn btn-info" type="button">
-                                    <i class="fa fa-arrow-left fa-fw"></i>
-                                    случайный
-                                </button>
-                            </span>
+                    <div class="mt-element-step">
+                        <div class="row step-line">
+                            <div class="col-md-4 mt-step-col first active">
+                                <div class="mt-step-number bg-white">1</div>
+                                <div class="mt-step-title uppercase font-grey-cascade">Персональные данные</div>
+                            </div>
+                            <div class="col-md-4 mt-step-col">
+                                <div class="mt-step-number bg-white">2</div>
+                                <div class="mt-step-title uppercase font-grey-cascade">Логин и пароль</div>
+                            </div>
+                            <div class="col-md-4 mt-step-col last">
+                                <div class="mt-step-number bg-white">3</div>
+                                <div class="mt-step-title uppercase font-grey-cascade">Права доступа</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
+
+                    {!! Form::open( [ 'url' => route( 'users.store' ) ] ) !!}
+
+                    <!-- PERSONAL INFO TAB -->
+                    <div class="steps" id="step1" data-step="1">
+                        <div class="form-group">
+                            {!! Form::label( 'regions', 'Регион', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::select( 'regions[]', $regions->pluck( 'name', 'id' ), \Input::old( 'regions' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион', 'multiple' ] ) !!}
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'firstname', 'Имя', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'firstname', \Input::old( 'firstname' ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'middlename', \Input::old( 'middlename' ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'phone', \Input::old( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                        </div>
+                        <div class="margiv-top-10">
+                            {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
+                        </div>
                     </div>
-                    <div class="margiv-top-10">
-                        {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
-                        {!! Form::button( 'Назад', [ 'class' => 'btn red', 'data-step' => 'prev' ] ) !!}
+                    <!-- END PERSONAL INFO TAB -->
+
+                    <!-- PASSWORD TAB -->
+                    <div class="steps hidden" id="step2" data-step="2">
+                        <div class="form-group">
+                            {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::email( 'email', \Input::old( 'email' ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
+                            <div class="input-group">
+                                {!! Form::password( 'password', [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
+                                <span class="input-group-btn">
+                                    <button id="genpassword" class="btn btn-info" type="button">
+                                        <i class="fa fa-arrow-left fa-fw"></i>
+                                        случайный
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {!! Form::label( 'password_confirmation', 'Повторите пароль', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::password( 'password_confirmation', [ 'class' => 'form-control', 'placeholder' => 'Повторите пароль' ] ) !!}
+                        </div>
+                        <div class="margiv-top-10">
+                            {!! Form::button( 'Далее', [ 'class' => 'btn green', 'data-step' => 'next' ] ) !!}
+                            {!! Form::button( 'Назад', [ 'class' => 'btn red', 'data-step' => 'prev' ] ) !!}
+                        </div>
                     </div>
+                    <!-- END PASSWORD TAB -->
+
+                    <!-- PRIVACY SETTINGS TAB -->
+                    <div class="steps hidden" id="step3" data-step="3">
+
+                        <div class="caption caption-md">
+                            <i class="icon-globe theme-font hide"></i>
+                            <span class="caption-subject font-blue-madison bold uppercase">Выберите роли</span>
+                        </div>
+
+                        <div class="mt-checkbox-list">
+                            @foreach ( $roles as $_role )
+                                <label class="mt-checkbox mt-checkbox-outline">
+                                    {{ $_role->name }}
+                                    {!! Form::checkbox( 'roles[]', $_role->code ) !!}
+                                    <span></span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <!--end profile-settings-->
+                        <div class="margin-top-10">
+                            {!! Form::submit( 'Создать', [ 'class' => 'btn green' ] ) !!}
+                            {!! Form::button( 'Назад', [ 'class' => 'btn red', 'data-step' => 'prev' ] ) !!}
+                        </div>
+                    </div>
+                    <!-- END PRIVACY SETTINGS TAB -->
+
+                    {!! Form::close() !!}
+
                 </div>
-                <!-- END PASSWORD TAB -->
-
-                <!-- PRIVACY SETTINGS TAB -->
-                <div class="steps hidden" id="step3" data-step="3">
-
-                    <div class="caption caption-md">
-                        <i class="icon-globe theme-font hide"></i>
-                        <span class="caption-subject font-blue-madison bold uppercase">Выберите роли</span>
-                    </div>
-
-                    <div class="mt-checkbox-list">
-                        @foreach ( $roles as $_role )
-                            <label class="mt-checkbox mt-checkbox-outline">
-                                {{ $_role->name }}
-                                {!! Form::checkbox( 'roles[]', $_role->code ) !!}
-                                <span></span>
-                            </label>
-                        @endforeach
-                    </div>
-
-                    <!--end profile-settings-->
-                    <div class="margin-top-10">
-                        {!! Form::submit( 'Создать', [ 'class' => 'btn green' ] ) !!}
-                        {!! Form::button( 'Назад', [ 'class' => 'btn red', 'data-step' => 'prev' ] ) !!}
-                    </div>
-                </div>
-                <!-- END PRIVACY SETTINGS TAB -->
-
-                {!! Form::close() !!}
-
             </div>
         </div>
-    </div>
+
+    @else
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+    @endif
 
 @endsection
 

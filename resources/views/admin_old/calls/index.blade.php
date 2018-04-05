@@ -10,29 +10,19 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
-
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.create' ) )
-            <div class="row margin-bottom-15">
-                <div class="col-xs-12">
-                    <a href="{{ route( 'sessions.create' ) }}" class="btn btn-success">
-                        <i class="fa fa-plus"></i>
-                        Добавить в очередь
-                    </a>
-                </div>
-            </div>
-        @endif
+    @if ( \Auth::user()->can( 'admin.calls' ) )
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">
-            {!! Form::label( 'operator', 'Оператор', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
+            {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
-                {!! Form::select( 'operator', [ 0 => ' -- все --' ] + $operators, \Input::get( 'operator' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Оператор' ] ) !!}
+                {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кто звонит' ] ) !!}
             </div>
             <div class="col-md-3 col-xs-4">
-                {!! Form::text( 'number', \Input::get( 'number' ), [ 'class' => 'form-control', 'placeholder' => 'Номер', 'maxlength' => '10' ] ) !!}
+                {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кому звонят' ] ) !!}
             </div>
         </div>
+
         <div class="form-group">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
@@ -42,6 +32,17 @@
                 {!! Form::text( 'date_to', \Input::get( 'date_to' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
             </div>
         </div>
+
+        <div class="form-group">
+            {!! Form::label( 'status', 'Статус', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
+            <div class="col-md-3 col-xs-4">
+                {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2' ] ) !!}
+            </div>
+            <div class="col-md-3 col-xs-4">
+                {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2' ] ) !!}
+            </div>
+        </div>
+
         <div class="form-group">
             <div class="col-xs-offset-4 col-md-offset-3 col-md-2 col-xs-4">
                 <button type="submit" class="btn btn-primary btn-block">
@@ -56,76 +57,91 @@
         <div class="row margin-top-15">
             <div class="col-xs-12">
 
-                {{ $sessions->render() }}
+                {{ $calls->render() }}
 
-                @if ( $sessions->count() )
+                @if ( $calls->count() )
 
-                    <table class="table table-striped">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th colspan="2" class="text-center">
-                                    Оператор
+                                <th class="text-center">
+                                    Дата звонка
                                 </th>
-                                <th rowspan="2">
-                                    Начало сессии
+                                <th>
+                                    Кто
                                 </th>
-                                <th rowspan="2">
-                                    Окончание сессии
-                                </th>
-                                <th rowspan="2">
-                                    Длительность
-                                </th>
-                                <th rowspan="2">
+                                <th>
                                     &nbsp;
                                 </th>
-                            </tr>
-                            <tr>
                                 <th>
-                                    ФИО
+                                    Кому
                                 </th>
                                 <th>
-                                    Номер
+                                    Статус
+                                </th>
+                                <th class="text-center">
+                                    Длительность
+                                </th>
+                                <th>
+                                    Запись
+                                </th>
+                                <th class="text-right">
+                                    Заявка
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach ( $sessions as $session )
-                            <tr @if ( ! $session->closed_at ) class="success" @endif>
+                        @foreach ( $calls as $call )
+                            <tr>
                                 <td>
-                                    {!! $session->user->getFullName() !!}
+                                    {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
                                 </td>
                                 <td>
-                                    {{ $session->number }}
+                                    {!! $call->getCaller() !!}
                                 </td>
                                 <td>
-                                    {{ $session->created_at->format( 'd.m.Y H:i' ) }}
+                                    @if ( $call->dcontext == 'incoming' )
+                                        <i class="fa fa-chevron-circle-down text-success tooltips" title="Входящий"></i>
+                                    @else
+                                        <i class="fa fa-chevron-circle-up text-danger tooltips" title="Исходящий"></i>
+                                    @endif
                                 </td>
-                                @if ( $session->closed_at )
-                                    <td>
-                                        {{ $session->closed_at->format( 'd.m.Y H:i' ) }}
+                                <td>
+                                    {!! $call->getAnswer() !!}
+                                </td>
+                                <td>
+                                    {{ $call->getStatus() }}
+                                </td>
+                                @if ( $call->billsec > 0 )
+                                    <td class="text-center">
+                                        {{ date( 'H:i:s', mktime( 0, 0, $call->billsec ) ) }}
                                     </td>
                                     <td>
-                                        @if ( $session->closed_at->diffInDays( $session->created_at ) >= 1 )
-                                            {{ $session->closed_at->diffInDays( $session->created_at ) }} д.
+                                        @if ( $call->hasMp3() )
+                                            <a href="{{ $call->getMp3() }}" target="_blank">
+                                                {{ $call->getMp3() }}
+                                            </a>
+                                        @else
+                                            <span class="text-danger">
+                                                Запись не найдена
+                                            </span>
                                         @endif
-                                        {{ date( 'H:i:s', mktime( 0, 0, $session->closed_at->diffInSeconds( $session->created_at ) ) ) }}
                                     </td>
                                 @else
                                     <td colspan="2">
-                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.close' ) )
-                                            {!! Form::model( $session, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $session->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="fa fa-close"></i>
-                                                Завершить сессию
-                                            </button>
-                                            {!! Form::close() !!}
-                                        @endif
+                                        &nbsp;
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    <a href="{{ route( 'sessions.show', $session->id ) }}" class="btn btn-lg btn-primary tooltips" title="Просмотр сессии">
-                                        <i class="fa fa-chevron-right"></i>
-                                    </a>
+                                    @if ( $call->dcontext == 'incoming' && $call->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    @elseif ( $call->dcontext == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticketCall->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticketCall->ticket->id }}">
+                                            <i class="fa fa-chevron-right"></i>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -136,7 +152,7 @@
                     @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                 @endif
 
-                {{ $sessions->render() }}
+                {{ $calls->render() }}
 
             </div>
         </div>
@@ -165,6 +181,7 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
     <script type="text/javascript">
 
@@ -173,10 +190,12 @@
             .ready( function ()
             {
 
-                $( '.select2' ).select2();
-
                 $( '.date-picker' ).datepicker({
                     format: 'dd.mm.yyyy'
+                });
+
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
                 });
 
             });

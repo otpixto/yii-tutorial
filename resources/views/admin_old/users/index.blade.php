@@ -10,16 +10,14 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.create' ) )
-        <div class="row margin-bottom-15">
-            <div class="col-xs-12">
-                <a href="{{ route( 'users.create' ) }}" class="btn btn-success">
-                    <i class="fa fa-plus"></i>
-                    Создать пользователя
-                </a>
-            </div>
+    <div class="row margin-bottom-15">
+        <div class="col-xs-12">
+            <a href="{{ route( 'users.create' ) }}" class="btn btn-success">
+                <i class="fa fa-plus"></i>
+                Создать пользователя
+            </a>
         </div>
-    @endif
+    </div>
 
     <div class="todo-ui">
         <div class="todo-sidebar">
@@ -179,11 +177,9 @@
                                         @endif
                                     </td>
                                     <td class="text-right">
-                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.edit' ) )
-                                            <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                        @endif
+                                        <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach

@@ -11,35 +11,29 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.create' ) )
+    {!! Form::open( [ 'url' => route( 'regions.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        {!! Form::open( [ 'url' => route( 'regions.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+    <div class="form-group">
 
-        <div class="form-group">
-
-            <div class="col-xs-6">
-                {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-            </div>
-
-            <div class="col-xs-6">
-                {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::text( 'domain', \Input::old( 'domain' ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
-            </div>
-
+        <div class="col-xs-6">
+            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
         </div>
 
-        <div class="form-group">
-            <div class="col-xs-12">
-                {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
-            </div>
+        <div class="col-xs-6">
+            {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::text( 'domain', \Input::old( 'domain' ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
         </div>
 
-        {!! Form::close() !!}
+    </div>
 
-    @else
-        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
-    @endif
+    <div class="form-group">
+        <div class="col-xs-12">
+            {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+        </div>
+    </div>
+
+    {!! Form::close() !!}
 
 @endsection
 

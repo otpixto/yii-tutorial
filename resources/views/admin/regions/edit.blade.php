@@ -11,180 +11,186 @@
 
 @section( 'content' )
 
-    <div class="row">
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.edit' ) )
 
-        <div class="col-lg-6">
+        <div class="row">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Редактрировать</h3>
-                </div>
-                <div class="panel-body">
+            <div class="col-lg-6">
 
-                    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
-                    <div class="form-group">
-
-                        <div class="col-xs-6">
-                            {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'name', \Input::old( 'name', $region->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                        </div>
-                        <div class="col-xs-6">
-                            {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'domain', \Input::old( 'domain', $region->domain ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
-                        </div>
-
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Редактрировать</h3>
                     </div>
+                    <div class="panel-body">
 
-                    <div class="form-group hidden-print">
-                        <div class="col-xs-12">
-                            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                        {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                        <div class="form-group">
+
+                            <div class="col-xs-6">
+                                {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'name', \Input::old( 'name', $region->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                            </div>
+                            <div class="col-xs-6">
+                                {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'domain', \Input::old( 'domain', $region->domain ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
+                            </div>
+
                         </div>
-                    </div>
 
-                    {!! Form::close() !!}
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-6">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Телефоны</h3>
-                </div>
-                <div class="panel-body">
-                    @foreach ( $region->phones as $phone )
-                        <div class="row margin-top-5 margin-bottom-5">
+                        <div class="form-group hidden-print">
                             <div class="col-xs-12">
-                                <button type="button" class="btn btn-xs btn-danger" data-delete-phone="{{ $phone->id }}">
-                                    <i class="fa fa-remove"></i>
-                                </button>
-                                {{ $phone->phone }}
+                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                         </div>
-                    @endforeach
-                    {!! Form::open( [ 'url' => route( 'regions.phone.add', $region->id ), 'class' => 'form-horizontal submit-loading' ] ) !!}
-                    <div class="form-group">
-                        <div class="col-xs-12">
-                            {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
-                        </div>
-                    </div>
-                    <div class="form-group hidden-print">
-                        <div class="col-xs-12">
-                            {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
-                        </div>
-                    </div>
-                    {!! Form::close() !!}
-                </div>
-            </div>
 
-        </div>
-
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">АИС ГЖИ</h3>
-                </div>
-                <div class="panel-body">
-
-                    {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
-                    <div class="form-group">
-
-                        <div class="col-xs-4">
-                            {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'guid', \Input::old( 'guid', $region->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
-                        </div>
-                        <div class="col-xs-4">
-                            {!! Form::label( 'username', 'Логин', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'username', \Input::old( 'username', $region->username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
-                        </div>
-                        <div class="col-xs-4">
-                            {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'password', \Input::old( 'password', $region->password ), [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
-                        </div>
+                        {!! Form::close() !!}
 
                     </div>
-
-                    <div class="form-group hidden-print">
-                        <div class="col-xs-12">
-                            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
-                        </div>
-                    </div>
-
-                    {!! Form::close() !!}
 
                 </div>
 
             </div>
 
-        </div>
-    </div>
+            <div class="col-lg-6">
 
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a data-toggle="tab" href="#addresses">
-                Здания
-                <span class="badge" id="addresses-count">{{ $region->addresses->count() }}</span>
-            </a>
-        </li>
-        <li>
-            <a data-toggle="tab" href="#managements">
-                УО
-                <span class="badge" id="managements-count">{{ $region->managements->count() }}</span>
-            </a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="addresses" class="tab-pane fade in active">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    @if ( ! $region->addresses->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $region->addresses as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                                {{ $r->getAddress() }}
-                            </a>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Телефоны</h3>
+                    </div>
+                    <div class="panel-body">
+                        @foreach ( $region->phones as $phone )
+                            <div class="row margin-top-5 margin-bottom-5">
+                                <div class="col-xs-12">
+                                    <button type="button" class="btn btn-xs btn-danger" data-delete-phone="{{ $phone->id }}">
+                                        <i class="fa fa-remove"></i>
+                                    </button>
+                                    {{ $phone->phone }}
+                                </div>
+                            </div>
+                        @endforeach
+                        {!! Form::open( [ 'url' => route( 'regions.phone.add', $region->id ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                            </div>
                         </div>
-                    @endforeach
+                        <div class="form-group hidden-print">
+                            <div class="col-xs-12">
+                                {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">АИС ГЖИ</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.update', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                        <div class="form-group">
+
+                            <div class="col-xs-4">
+                                {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'guid', \Input::old( 'guid', $region->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                            </div>
+                            <div class="col-xs-4">
+                                {!! Form::label( 'username', 'Логин', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'username', \Input::old( 'username', $region->username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
+                            </div>
+                            <div class="col-xs-4">
+                                {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'password', \Input::old( 'password', $region->password ), [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
+                            </div>
+
+                        </div>
+
+                        <div class="form-group hidden-print">
+                            <div class="col-xs-12">
+                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                        </div>
+
+                        {!! Form::close() !!}
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#addresses">
+                    Здания
+                    <span class="badge" id="addresses-count">{{ $region->addresses->count() }}</span>
+                </a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#managements">
+                    УО
+                    <span class="badge" id="managements-count">{{ $region->managements->count() }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="addresses" class="tab-pane fade in active">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        @if ( ! $region->addresses->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $region->addresses as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
+                                    {{ $r->getAddress() }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <div id="managements" class="tab-pane fade">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        @if ( ! $region->managements->count() )
+                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                        @endif
+                        @foreach ( $region->managements as $r )
+                            <div class="margin-bottom-5">
+                                <button type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-remove"></i>
+                                </button>
+                                <a href="{{ route( 'managements.edit', $r->id ) }}">
+                                    {{ $r->name }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="managements" class="tab-pane fade">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    @if ( ! $region->managements->count() )
-                        @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                    @endif
-                    @foreach ( $region->managements as $r )
-                        <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                {{ $r->name }}
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
+
+    @else
+        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+    @endif
 
 @endsection
 

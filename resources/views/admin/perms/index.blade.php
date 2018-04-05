@@ -10,14 +10,16 @@
 
 @section( 'content' )
 
-    <div class="row margin-bottom-15">
-        <div class="col-xs-12">
-            <a href="{{ route( 'perms.create' ) }}" class="btn btn-success">
-                <i class="fa fa-plus"></i>
-                Создать права
-            </a>
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.create' ) )
+        <div class="row margin-bottom-15">
+            <div class="col-xs-12">
+                <a href="{{ route( 'perms.create' ) }}" class="btn btn-success">
+                    <i class="fa fa-plus"></i>
+                    Создать права
+                </a>
+            </div>
         </div>
-    </div>
+    @endif
 
     <div class="todo-ui">
         <div class="todo-sidebar">
@@ -98,9 +100,11 @@
                                         {{ $perm->code }}
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route( 'perms.edit', $perm->id ) }}" class="btn btn-info">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
+                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.edit' ) )
+                                            <a href="{{ route( 'perms.edit', $perm->id ) }}" class="btn btn-info">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

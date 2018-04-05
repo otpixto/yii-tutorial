@@ -10,16 +10,14 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.create' ) )
-        <div class="row margin-bottom-15">
-            <div class="col-xs-12">
-                <a href="{{ route( 'roles.create' ) }}" class="btn btn-success">
-                    <i class="fa fa-plus"></i>
-                    Создать роль
-                </a>
-            </div>
+    <div class="row margin-bottom-15">
+        <div class="col-xs-12">
+            <a href="{{ route( 'perms.create' ) }}" class="btn btn-success">
+                <i class="fa fa-plus"></i>
+                Создать права
+            </a>
         </div>
-    @endif
+    </div>
 
     <div class="todo-ui">
         <div class="todo-sidebar">
@@ -28,7 +26,7 @@
                     <div class="caption">
                         <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                     </div>
-                    <a href="{{ route( 'roles.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                    <a href="{{ route( 'perms.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                 </div>
                 <div class="portlet-body todo-project-list-content" style="height: auto;">
                     <div class="todo-project-list">
@@ -66,49 +64,50 @@
                         @endforeach
                     </ul>
 
-                    @if ( $roles->count() )
+                    @if ( $perms_tree )
+                        <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j2_1" aria-busy="false" aria-selected="false">
+                            <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
+                                @include( 'admin.perms.tree', [ 'tree' => $perms_tree ] )
+                            </ul>
+                        </div>
+                    @elseif ( $perms->count() )
 
-                        {{ $roles->render() }}
+                        {{ $perms->render() }}
 
                         <table class="table table-hover table-striped">
                             <thead>
-                            <tr>
-                                <th>
-                                    Наименование
-                                </th>
-                                <th>
-                                    Код
-                                </th>
-                                <th class="text-right">
-                                    &nbsp;
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        Наименование
+                                    </th>
+                                    <th>
+                                        Код
+                                    </th>
+                                    <th class="text-right">
+                                        &nbsp;
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @foreach ( $roles as $role )
+                            @foreach ( $perms as $perm )
                                 <tr>
                                     <td>
-                                        {{ $role->name }}
+                                        {{ $perm->name }}
                                     </td>
                                     <td>
-                                        {{ $role->code }}
+                                        {{ $perm->code }}
                                     </td>
                                     <td class="text-right">
-                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.edit' ) )
-                                            <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info tooltips" title="Редактировать">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="{{ route( 'roles.perms', $role->id ) }}" class="btn btn-warning tooltips" title="Права доступа">
-                                                <i class="fa fa-unlock-alt"></i>
-                                            </a>
-                                        @endif
+                                        <a href="{{ route( 'perms.edit', $perm->id ) }}" class="btn btn-info">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
 
-                        {{ $roles->render() }}
+                        {{ $perms->render() }}
 
                     @else
                         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
@@ -124,4 +123,36 @@
 
 @section( 'css' )
     <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/jstree/dist/themes/default/style.min.css" rel="stylesheet" type="text/css" />
+@endsection
+
+@section( 'js' )
+    <script src="/assets/global/plugins/jstree/dist/jstree.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        $( document )
+
+            .ready( function ()
+            {
+
+                @if ( $perms_tree )
+
+                    $('#tree').jstree({
+                        'plugins': [],
+                        "core": {
+                            "themes":{
+                                "icons":false
+                            }
+                        }
+                    })
+                    .bind('select_node.jstree', function( e, data )
+                    {
+                        window.location.href = data.node.a_attr.href;
+                    });
+
+                @endif
+
+            });
+
+    </script>
 @endsection

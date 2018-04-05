@@ -10,16 +10,14 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.create' ) )
-        <div class="row margin-bottom-15 hidden-print">
-            <div class="col-xs-12">
-                <a href="{{ route( 'regions.create' ) }}" class="btn btn-success btn-lg">
-                    <i class="fa fa-plus"></i>
-                    Добавить регион
-                </a>
-            </div>
+    <div class="row margin-bottom-15 hidden-print">
+        <div class="col-xs-12">
+            <a href="{{ route( 'regions.create' ) }}" class="btn btn-success btn-lg">
+                <i class="fa fa-plus"></i>
+                Добавить регион
+            </a>
         </div>
-    @endif
+    </div>
 
     <div class="row hidden-print">
         <div class="col-xs-12">
@@ -86,11 +84,9 @@
                                 {{ $region->managements->count() }}
                             </td>
                             <td class="text-right">
-                                @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.edit' ) )
-                                    <a href="{{ route( 'regions.edit', $region->id ) }}" class="btn btn-info">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                @endif
+                                <a href="{{ route( 'regions.edit', $region->id ) }}" class="btn btn-info">
+                                    <i class="fa fa-edit"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach
