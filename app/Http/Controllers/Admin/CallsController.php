@@ -19,6 +19,9 @@ class CallsController extends BaseController
     public function index ( Request $request )
     {
 
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now() ) );
+        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+
         $calls = Cdr
             ::orderBy( 'id', 'desc' )
             ->where( 'dst', '!=', 's' )
@@ -64,18 +67,16 @@ class CallsController extends BaseController
                 ->where( \DB::raw( 'RIGHT( REPLACE( dst, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $answer );
         }
 
-        if ( ! empty( $request->get( 'date_from' ) ) )
+        if ( ! empty( $date_from ) )
         {
-            $date_from = Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString();
             $calls
-                ->where( \DB::raw( 'DATE( calldate )' ), '>=', $date_from );
+                ->where( \DB::raw( 'DATE( calldate )' ), '>=', $date_from->toDateString() );
         }
 
-        if ( ! empty( $request->get( 'date_to' ) ) )
+        if ( ! empty( $date_to ) )
         {
-            $date_to = Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString();
             $calls
-                ->where( \DB::raw( 'DATE( calldate )' ), '<=', $date_to );
+                ->where( \DB::raw( 'DATE( calldate )' ), '<=', $date_to->toDateString() );
         }
 
         $calls = $calls
@@ -87,7 +88,9 @@ class CallsController extends BaseController
             ->appends( $request->all() );
 
         return view('admin.calls.index' )
-            ->with( 'calls', $calls );
+            ->with( 'calls', $calls )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
 
     }
 

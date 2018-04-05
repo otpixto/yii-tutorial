@@ -26,10 +26,10 @@
         <div class="form-group">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
-                {!! Form::text( 'date_from', \Input::get( 'date_from' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
+                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
             </div>
             <div class="col-md-3 col-xs-4">
-                {!! Form::text( 'date_to', \Input::get( 'date_to' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
+                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
             </div>
         </div>
 
