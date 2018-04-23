@@ -77,27 +77,27 @@
                     {{ $data[ $management->id ][ 'total' ] }}
                 </td>
                 <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 1, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="1">
+                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 1, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="1">
                         {{ $data[ $management->id ][ 'rate-1' ] }}
                     </a>
                 </td>
                 <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 2, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="2">
+                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 2, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="2">
                         {{ $data[ $management->id ][ 'rate-2' ] }}
                     </a>
                 </td>
                 <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 3, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="3">
+                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 3, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="3">
                         {{ $data[ $management->id ][ 'rate-3' ] }}
                     </a>
                 </td>
                 <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 4, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="4">
+                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 4, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="4">
                         {{ $data[ $management->id ][ 'rate-4' ] }}
                     </a>
                 </td>
                 <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 5, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="5">
+                    <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'rate' => 5, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="5">
                         {{ $data[ $management->id ][ 'rate-5' ] }}
                     </a>
                 </td>
