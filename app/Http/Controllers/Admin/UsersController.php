@@ -220,7 +220,7 @@ class UsersController extends BaseController
                 $user->syncPermissions( $request->get( 'perms', [] ) );
                 $user->active = $request->get( 'active', 0 );
                 $user->save();
-                \Cache::tags( 'users' )->forget( 'user.availableStatuses.' . $user->id );
+                $this->clearCache();
                 break;
             default:
                 return redirect()->back()->withInput()->withErrors( [ 'Некорректное действие' ] );

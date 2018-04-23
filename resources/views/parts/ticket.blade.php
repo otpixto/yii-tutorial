@@ -94,12 +94,17 @@
         @endif
     </td>
     <td>
-        {{ $ticketManagement->ticket->getAddress() }}
-        @if ( $ticketManagement->ticket->getPlace() )
-            <span class="small text-muted">
+        <div>
+            {{ $ticketManagement->ticket->getAddress() }}
+            @if ( $ticketManagement->ticket->getPlace() )
+                <span class="small text-muted">
                 ({{ $ticketManagement->ticket->getPlace() }})
             </span>
-        @endif
+            @endif
+        </div>
+        <div class="small text-info">
+            {{ $ticketManagement->ticket->getName() }}
+        </div>
     </td>
     <td class="text-right hidden-print">
         <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-lg btn-{{ in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ? 'info' : 'primary' }} tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">

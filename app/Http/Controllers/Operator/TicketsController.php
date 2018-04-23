@@ -28,24 +28,51 @@ class TicketsController extends BaseController
         Title::add( 'Реестр заявок' );
     }
 
-    public function index ( Request $request, $statuses = null, $customer_id = null )
+    public function index ( Request $request, $statuses = [], $customer_id = null )
     {
 
         $field_operator = \Auth::user()->can( 'tickets.field_operator' );
         $field_management = \Auth::user()->can( 'tickets.field_management' );
 
-        $exp_number = explode( '/', $request->get( 'id', '' ) );
+        $types = null;
+
+        if ( \Auth::user()->can( 'tickets.search' ) )
+        {
+
+            $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
+
+            if ( ! count( $statuses ) && ! empty( $request->get( 'statuses' ) ) )
+            {
+                $statuses = explode( ',', $request->get( 'statuses' ) );
+            }
+
+            if ( \Cache::tags( [ 'catalog', 'tickets' ] )->has( 'types' ) )
+            {
+                $availableTypes = \Cache::tags( [ 'catalog', 'tickets' ] )->get( 'types' );
+            }
+            else
+            {
+                $res = Type::with( 'category' )->get()->sortBy( 'name' );
+                $availableTypes = [];
+                foreach ( $res as $r )
+                {
+                    $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+                }
+                \Cache::tags( [ 'catalog', 'tickets' ] )->put( 'types', $availableTypes, \Config::get( 'cache.time' ) );
+            }
+
+            $types = [];
+            if ( ! empty( $request->get( 'types' ) ) )
+            {
+                $types = explode( ',', $request->get( 'types' ) );
+            }
+
+        }
 
         $ticketManagements = TicketManagement
             ::mine()
-            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $exp_number, $customer_id )
+            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $customer_id, $types )
             {
-
-                if ( ! empty( $request->get( 'search' ) ) )
-                {
-                    $ticket
-                        ->fastSearch( $request->get( 'search' ) );
-                }
 
                 if ( $customer_id )
                 {
@@ -63,10 +90,83 @@ class TicketsController extends BaseController
                         ->where( Ticket::getTableName() . '.group_uuid', '=', $request->get( 'group' ) );
                 }
 
-                if ( isset( $exp_number[0] ) && !empty( $exp_number[0] ) )
+                if ( \Auth::user()->can( 'tickets.search' ) )
+                {
+
+                    if ( count( $types ) )
+                    {
+                        $ticket
+                            ->whereIn( Ticket::getTableName() . '.type_id', $types );
+                    }
+
+                    if ( ! empty( $request->get( 'phone' ) ) )
+                    {
+                        $p = str_replace( '+7', '', $request->get( 'phone' ) );
+                        $p = preg_replace( '/[^0-9_]/', '', $p );
+                        $p = '%' . mb_substr( $p, - 10 ) . '%';
+                        $ticket
+                            ->where( function ( $q ) use ( $p )
+                            {
+                                return $q
+                                    ->where( Ticket::getTableName() . '.phone', 'like', $p )
+                                    ->orWhere( Ticket::getTableName() . '.phone2', 'like', $p );
+                            });
+                    }
+
+                    if ( ! empty( $request->get( 'firstname' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.firstname', 'like', '%' . str_replace( ' ', '%', $request->get( 'firstname' ) ) . '%' );
+                    }
+
+                    if ( ! empty( $request->get( 'middlename' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.middlename', 'like', '%' . str_replace( ' ', '%', $request->get( 'middlename' ) ) . '%' );
+                    }
+
+                    if ( ! empty( $request->get( 'lastname' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.lastname', 'like', '%' . str_replace( ' ', '%', $request->get( 'lastname' ) ) . '%' );
+                    }
+
+                    if ( ! empty( $request->get( 'emergency' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.emergency', '=', 1 );
+                    }
+
+                    if ( ! empty( $request->get( 'dobrodel' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.dobrodel', '=', 1 );
+                    }
+
+                    if ( ! empty( $request->get( 'from_lk' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::getTableName() . '.from_lk', '=', 1 );
+                    }
+
+                    if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::getTableName() . '.deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
+                    }
+
+                    if ( ! empty( $request->get( 'overdue_execution' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::getTableName() . '.deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
+                    }
+
+                }
+
+                if ( ! empty( $request->get( 'ticket_id' ) ) )
                 {
                     $ticket
-                        ->where( Ticket::getTableName() . '.id', '=', $exp_number[0] );
+                        ->where( Ticket::getTableName() . '.id', '=', $request->get( 'ticket_id' ) );
                 }
 
                 if ( ! empty( $request->get( 'period_from' ) ) )
@@ -87,26 +187,6 @@ class TicketsController extends BaseController
                         ->where( Ticket::getTableName() . '.author_id', '=', $request->get( 'operator_id' ) );
                 }
 
-                if ( ! empty( $request->get( 'type' ) ) )
-                {
-                    list ( $type, $id ) = explode( '-', $request->get( 'type' ) );
-                    switch ( $type )
-                    {
-                        case 'category':
-                            $ticket
-                                ->whereHas( 'type', function ( $q ) use ( $id )
-                                {
-                                    return $q
-                                        ->where( 'category_id', '=', $id );
-                                });
-                            break;
-                        case 'type':
-                            $ticket
-                                ->where( Ticket::getTableName() . '.type_id', '=', $id );
-                            break;
-                    }
-                }
-
                 if ( ! empty( $request->get( 'address_id' ) ) )
                 {
                     $ticket
@@ -119,34 +199,16 @@ class TicketsController extends BaseController
                         ->where( Ticket::getTableName() . '.flat', '=', $request->get( 'flat' ) );
                 }
 
-                if ( ! empty( $request->get( 'emergency' ) ) )
+                if ( ! empty( $request->get( 'actual_address_id' ) ) )
                 {
                     $ticket
-                        ->where( Ticket::getTableName() . '.emergency', '=', 1 );
+                        ->where( Ticket::getTableName() . '.actual_address_id', '=', $request->get( 'actual_address_id' ) );
                 }
 
-                if ( ! empty( $request->get( 'dobrodel' ) ) )
+                if ( ! empty( $request->get( 'actual_flat' ) ) )
                 {
                     $ticket
-                        ->where( Ticket::getTableName() . '.dobrodel', '=', 1 );
-                }
-
-                if ( ! empty( $request->get( 'from_lk' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::getTableName() . '.from_lk', '=', 1 );
-                }
-
-                if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::getTableName() . '.deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
-                }
-
-                if ( ! empty( $request->get( 'overdue_execution' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::getTableName() . '.deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
+                        ->where( Ticket::getTableName() . '.actual_flat', '=', $request->get( 'actual_flat' ) );
                 }
 
                 if ( ! empty( $request->get( 'region_id' ) ) )
@@ -165,12 +227,12 @@ class TicketsController extends BaseController
                 }
 
             });
-			
-		if ( ! empty( $request->get( 'status_code' ) ) )
-		{
-			$ticketManagements
-				->where( TicketManagement::getTableName() . '.status_code', '=', $request->get( 'status_code' ) );
-		}
+
+        if ( count( $statuses ) )
+        {
+            $ticketManagements
+                ->whereIn( TicketManagement::getTableName() . '.status_code', $statuses );
+        }
 
         if ( ! empty( $request->get( 'rate' ) ) )
         {
@@ -186,15 +248,21 @@ class TicketsController extends BaseController
 
         if ( ! empty( $request->get( 'address_id' ) ) )
         {
-            $address = Address::find( $request->get( 'address_id' ) );
+            $address = Address::where( 'id', $request->get( 'address_id' ) )->pluck( 'name', 'id' );
         }
 
-        if ( isset( $exp_number[1] ) && !empty( $exp_number[1] ) )
+        if ( ! empty( $request->get( 'actual_address_id' ) ) )
+        {
+            $actual_address = Address::where( 'id', $request->get( 'actual_address_id' ) )->pluck( 'name', 'id' );
+        }
+
+        if ( ! empty( $request->get( 'ticket_management_id' ) ) )
         {
             $ticketManagements
-                ->where( TicketManagement::getTableName() . '.id', '=', $exp_number[1] );
+                ->where( TicketManagement::getTableName() . '.id', '=', $request->get( 'ticket_management_id' ) );
         }
 
+        if ( ! empty( $request->get( 'management_id' ) ) )
         if ( ! empty( $request->get( 'management_id' ) ) )
         {
             $ticketManagements
@@ -298,74 +366,36 @@ class TicketsController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        if ( \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->has( 'types' ) )
-        {
-            $types = \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->get( 'types' );
-        }
-        else
-        {
-            $res = Type::with( 'category' )->get()->sortBy( 'name' );
-            $types = [];
-            foreach ( $res as $r )
-            {
-                $types[ 'category-' . $r->category->id ] = $r->category->name;
-                $types[ 'type-' . $r->id ] = $r->name;
-            }
-            \Cache::tags( [ 'static', 'catalog', 'ticket' ] )->put( 'ticket.types', $types, \Config::get( 'cache.time' ) );
-        }
 
-        if ( $field_management )
+        if ( \Auth::user()->can( 'tickets.search' ) )
         {
-            if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'managements.' . \Auth::user()->id ) )
-            {
-                $managements = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'managements.' . \Auth::user()->id );
-            }
-            else
-            {
-                $managements = Management::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
-                \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'managements.' . \Auth::user()->id, $managements, \Config::get( 'cache.time' ) );
-            }
-        }
 
-        if ( $field_operator )
-        {
-            if ( \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->has( 'operators.' . \Auth::user()->id ) )
+            if ( ! count( $types ) )
             {
-                $operators = \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->get( 'operators.' . \Auth::user()->id );
-            }
-            else
-            {
-                $res = Ticket::mine()->groupBy( 'author_id' )->get();
-                $operators = [];
-                foreach ( $res as $r )
+                foreach ( $availableTypes as $category )
                 {
-                    $operators[ $r->author_id ] = $r->author->getShortName();
+                    $types = array_merge( $types, array_keys( $category ) );
                 }
-                asort( $operators );
-                \Cache::tags( [ 'dynamic', 'users', 'ticket' ] )->put( 'operators.' . \Auth::user()->id, $operators, \Config::get( 'cache.time' ) );
             }
-        }
 
-        if ( \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->has( 'executors.' . \Auth::user()->id ) )
-        {
-            $executors = \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->get( 'executors.' . \Auth::user()->id );
-        }
-        else
-        {
-            $executors = Executor::mine()->orderBy( 'name' )->get()->pluck( 'name', 'id' )->toArray();
-            \Cache::tags( [ 'dynamic', 'catalog', 'ticket' ] )->put( 'executors.' . \Auth::user()->id, $executors, \Config::get( 'cache.time' ) );
+            if ( ! count( $statuses ) )
+            {
+                $statuses = array_keys( $availableStatuses );
+            }
+
         }
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
+            ->with( 'availableTypes', $availableTypes )
             ->with( 'types', $types )
-            ->with( 'managements', $managements ?? [] )
-            ->with( 'executors', $executors ?? [] )
-            ->with( 'operators', $operators ?? [] )
             ->with( 'field_operator', $field_operator ?? false )
             ->with( 'field_management', $field_management ?? false )
             ->with( 'regions', $regions ?? [] )
-            ->with( 'address', $address ?? null );
+            ->with( 'address', $address ?? [] )
+            ->with( 'actual_address', $actual_address ?? [] )
+            ->with( 'availableStatuses', $availableStatuses ?? [] )
+            ->with( 'statuses', $statuses ?? [] );
 
     }
 
@@ -1510,9 +1540,66 @@ class TicketsController extends BaseController
 
     }
 
+    public function filter ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.search' ) )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Доступ запрещен' ] );
+        }
+
+        $data = $request->all();
+
+        unset( $data[ '_token' ] );
+
+        foreach ( $data as $key => $val )
+        {
+            if ( empty( $val ) )
+            {
+                unset( $data[ $key ] );
+            }
+        }
+
+        if ( isset( $data[ 'statuses' ] ) )
+        {
+            if ( ! count( $data[ 'statuses' ] ) || count( $data[ 'statuses' ] ) == count( \Auth::user()->getAvailableStatuses( 'show' ) ) )
+            {
+                unset( $data[ 'statuses' ] );
+            }
+            else
+            {
+                $data[ 'statuses' ] = implode( ',', $data[ 'statuses' ] );
+            }
+        }
+
+        if ( isset( $data[ 'types' ] ) )
+        {
+            if ( ! count( $data[ 'types' ] ) || count( $data[ 'types' ] ) == Type::count() )
+            {
+                unset( $data[ 'types' ] );
+            }
+            else
+            {
+                $data[ 'types' ] = implode( ',', $data[ 'types' ] );
+            }
+        }
+
+        if ( isset( $data[ 'phone' ] ) )
+        {
+            $data[ 'phone' ] = str_replace( '+7', '', $data[ 'phone' ] );
+            $data[ 'phone' ] = preg_replace( '/[^0-9_]/', '', $data[ 'phone' ] );
+        }
+
+        return redirect()
+            ->route( 'tickets.index', $data );
+
+    }
+
     public function clearCache ()
     {
-        \Cache::tags( 'ticket' )->flush();
+        \Cache::tags( 'tickets' )->flush();
         return redirect()->route( 'tickets.index' )->with( 'success', 'Кеш успешно сброшен' );
     }
 	

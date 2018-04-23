@@ -71,6 +71,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::get( '/tickets/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
         Route::get( '/tickets/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
         Route::get( '/tickets/search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
+        Route::post( '/tickets/filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );
         Route::post( '/tickets/add-tag', 'Operator\TicketsController@addTag' )->name( 'tickets.add-tag' );
         Route::post( '/tickets/del-tag', 'Operator\TicketsController@delTag' )->name( 'tickets.del-tag' );
         Route::get( '/tickets/{customer_id}/customer_tickets', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customer_tickets' );
@@ -87,6 +88,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::resource( '/tickets', 'Operator\TicketsController' );
         Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@open' )->name( 'tickets.open' );
         Route::post( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@saveWork' )->name( 'tickets.save_work' );
+        Route::get( 'clear-cache', 'Operator\BaseController@clearCacheAndRedirect' )->name( 'tickets.clear_cache' );
 
         Route::get( '/comment', 'CommentsController@form' )->name( 'comments.form' );
         Route::post( '/comment', 'CommentsController@store' )->name( 'comments.store' );
@@ -169,7 +171,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::prefix( 'admin' )->group( function ()
         {
-            //Route::get( '/', 'AdminController@getIndex' )->name( 'admin' );
+            Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
             Route::resource( 'users', 'Admin\UsersController' );
             Route::resource( 'roles', 'Admin\RolesController' );
             Route::resource( 'perms', 'Admin\PermsController' );

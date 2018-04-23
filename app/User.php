@@ -295,9 +295,9 @@ class User extends BaseModel implements
 
     public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {
-        if ( \Cache::tags( [ 'dynamic', 'users' ] )->has( 'user.availableStatuses.' . $this->id ) )
+        if ( \Cache::tags( 'users' )->has( 'user.availableStatuses.' . $this->id ) )
         {
-            $this->availableStatuses = \Cache::tags( [ 'dynamic', 'users' ] )->get( 'user.availableStatuses.' . $this->id );
+            $this->availableStatuses = \Cache::tags( 'users' )->get( 'user.availableStatuses.' . $this->id );
         }
         else if ( is_null( $this->availableStatuses ) )
         {
@@ -313,7 +313,7 @@ class User extends BaseModel implements
                     $this->availableStatuses[ $_perm ][] = $status_code;
                 }
             }
-            \Cache::tags( [ 'dynamic', 'users' ] )->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
+            \Cache::tags( 'users' )->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
         }
         $statuses = $this->availableStatuses[ $perm_for ] ?? [];
         $res = [];

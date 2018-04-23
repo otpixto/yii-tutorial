@@ -32,50 +32,192 @@
             </div>
         @endif
 
-        <div class="row hidden-print">
-            <div class="col-xs-12">
-                {!! Form::open( [ 'method' => 'get' ] ) !!}
-                    <div class="input-group">
-                        {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-primary btn-lg">
+        @if ( \Auth::user()->can( 'tickets.search' ) )
+            <div class="row margin-top-15 hidden-print">
+                <div class="col-xs-12">
+                    <div class="portlet box blue-hoki">
+                        <div class="portlet-title">
+                            <div class="caption">
                                 <i class="fa fa-search"></i>
-                                Поиск
-                            </button>
-                        </span>
-                    </div>
-                {!! Form::close() !!}
-            </div>
-        </div>
-
-        <div class="row margin-top-15 hidden-print">
-            <div class="col-xs-12">
-                <div class="portlet box blue-hoki">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            Быстрый фильтр по статусам
+                                ПОИСК
+                            </div>
+                            <div class="tools">
+                                <a href="javascript:;" class="{{ ! Input::get( 'search' ) ? 'expand' : 'collapse' }}" data-original-title="Показать\Скрыть" title="Показать\Скрыть"> </a>
+                            </div>
                         </div>
-                        <div class="tools">
-                            <a href="javascript:;" class="expand" data-original-title="Показать\Скрыть" title="Показать\Скрыть"> </a>
-                        </div>
-                    </div>
-                    <div class="portlet-body portlet-collapsed">
-                        @foreach ( \Auth::user()->getAvailableStatuses( 'show', true, true ) as $status_code => $status_name )
-                            @if ( $status_code != 'draft' )
-                                <a href="{{ route( 'tickets.index', compact( 'status_code' ) ) }}" class="margin-bottom-10 btn btn-{{ $status_code == \Input::get( 'status_code' ) ? 'info' : 'default' }}">
-                                    {{ $status_name }}
-                                    <span class="badge bold">
-                                    {{ \App\Models\TicketManagement::getCountByStatus( $status_code ) }}
-                                </span>
-                                </a>
+                        <div class="portlet-body {{ ! Input::get( 'search' ) ? 'portlet-collapsed' : '' }}">
+                            {!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading', 'url' => route( 'tickets.filter' ) ] ) !!}
+                            {!! Form::hidden( 'search', 1 ) !!}
+                            @if ( $regions->count() > 1)
+                                <div class="row margin-top-10">
+                                    <h4 class="col-md-2">
+                                        Регион
+                                    </h4>
+                                    <div class="col-md-3">
+                                        {!! Form::select( 'region_id', $regions->toArray(), \Input::get( 'region_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все', 'id' => 'region_id' ] ) !!}
+                                    </div>
+                                </div>
                             @endif
-                        @endforeach
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Номер заявки
+                                </h4>
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">#</span>
+                                        {!! Form::text( 'ticket_id', \Input::get( 'ticket_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
+                                        <span class="input-group-addon">/</span>
+                                        {!! Form::text( 'ticket_management_id', \Input::get( 'ticket_management_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Статус(ы)
+                                </h4>
+                                <div class="col-md-10">
+                                    <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="statuses" name="statuses[]">
+                                        @foreach ( $availableStatuses as $status_code => $status_name )
+                                            <option value="{{ $status_code }}" @if ( in_array( $status_code, $statuses ) ) selected="selected" @endif>
+                                                {{ $status_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Классификатор
+                                </h4>
+                                <div class="col-md-10">
+                                    <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="types" name="types[]">
+                                        @foreach ( $availableTypes as $category => $arr )
+                                            <optgroup label="{{ $category }}">
+                                                @foreach ( $arr as $type_id => $type_name )
+                                                    <option value="{{ $type_id }}" @if ( in_array( $type_id, $types ) ) selected="selected" @endif>
+                                                        {{ $type_name }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Адрес проблемы
+                                </h4>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-xs-10">
+                                            {!! Form::select( 'address_id', $address, \Input::get( 'address_id' ), [ 'id' => 'address_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">кв.</span>
+                                                {!! Form::text( 'flat', \Input::get( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <h4 class="col-md-2">
+                                    ФИО заявителя
+                                </h4>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            {!! Form::text( 'lastname', \Input::get( 'lastname' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Фамилия' ] ) !!}
+                                        </div>
+                                        <div class="col-xs-4">
+                                            {!! Form::text( 'firstname', \Input::get( 'firstname' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Имя' ] ) !!}
+                                        </div>
+                                        <div class="col-xs-4">
+                                            {!! Form::text( 'middlename', \Input::get( 'middlename' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Отчество' ] ) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Адрес заявителя
+                                </h4>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-xs-10">
+                                            {!! Form::select( 'actual_address_id', $actual_address, \Input::get( 'actual_address_id' ), [ 'id' => 'actual_address_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес заявителя' ] ) !!}
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">кв.</span>
+                                                {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <h4 class="col-md-2">
+                                    Телефон заявителя
+                                </h4>
+                                <div class="col-md-3">
+                                    {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <div class="icheck-inline">
+                                        <label>
+                                            {!! Form::checkbox( 'overdue_acceptance', 1, \Input::get( 'overdue_acceptance' ), [ 'class' => 'icheck' ] ) !!}
+                                            Просрочено на принятие
+                                        </label>
+                                        <label>
+                                            {!! Form::checkbox( 'overdue_execution', 1, \Input::get( 'overdue_execution' ), [ 'class' => 'icheck' ] ) !!}
+                                            Просрочено на исполнение
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <div class="icheck-inline">
+                                        <label>
+                                            {!! Form::checkbox( 'emergency', 1, \Input::get( 'emergency' ), [ 'class' => 'icheck' ] ) !!}
+                                            <i class="icon-fire"></i>
+                                            Авария
+                                        </label>
+                                        <label>
+                                            {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}
+                                            <i class="icon-heart"></i>
+                                            Добродел
+                                        </label>
+                                        <label>
+                                            {!! Form::checkbox( 'from_lk', 1, \Input::get( 'from_lk' ), [ 'class' => 'icheck' ] ) !!}
+                                            <i class="icon-user-follow"></i>
+                                            Из ЛК
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="margin-top-15">
+                                {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+                                @if ( Input::get( 'search' ) )
+                                    <a href="{{ route( 'tickets.index' ) }}" class="btn btn-default">
+                                        Сбросить фильтр
+                                    </a>
+                                @endif
+                            </div>
+                            {!! Form::close() !!}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
 
-        <div class="row margin-top-15">
+        <div class="row margin-top-15" id="result">
             <div class="col-xs-12">
 
                 <div class="row">
@@ -90,7 +232,6 @@
                 </div>
 
                 <table class="table table-striped table-bordered table-hover">
-                    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
                     <thead>
                         <tr class="info">
                             <th width="250">
@@ -111,159 +252,16 @@
                                 Исполнитель
                             </th>
                             <th width="300">
-                                Тип заявки
+                                Классификатор
                                 @if ( \Auth::user()->can( 'tickets.works.show' ) )
                                     \ Выполненные работы
                                 @endif
                             </th>
                             <th colspan="2">
-                                Адрес проблемы
-                                <a href="javascript:;" class="pull-right toggle _expand" data-toggle="#filters">&nbsp;</a>
+                                Адрес проблемы \ Заявитель
                             </th>
                         </tr>
-                        <tr class="info hidden-print" style="display: none;" id="filters">
-                            <td>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        {!! Form::select( 'status_code', [ null => ' -- все -- ' ] + \Auth::user()->getAvailableStatuses( 'show', true, true ), \Input::old( 'status_code' ), [ 'class' => 'form-control select2', 'placeholder' => 'Статус' ] ) !!}
-                                    </div>
-                                </div>
-                                <div class="row margin-top-10">
-                                    <div class="col-lg-8">
-                                        {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
-                                    </div>
-                                    <div class="col-lg-4">
-                                        {!! Form::select( 'rate', [ 0 => '-', 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5 ], \Input::old( 'rate' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Оценка' ] ) !!}
-                                    </div>
-                                </div>
-                                <div class="row margin-top-10">
-                                    <div class="col-lg-12">
-                                        <label class="mt-checkbox mt-checkbox-outline">
-                                            Просрочено на принятие
-                                            {!! Form::checkbox( 'overdue_acceptance', 1, \Input::old( 'overdue_acceptance' ) ) !!}
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <label class="mt-checkbox mt-checkbox-outline">
-                                            Просрочено на исполнение
-                                            {!! Form::checkbox( 'overdue_execution', 1, \Input::old( 'overdue_execution' ) ) !!}
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="date-picker input-daterange" data-date-format="dd.mm.yyyy">
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    {!! Form::text( 'period_from', \Input::old( 'period_from' ), [ 'class' => 'form-control', 'placeholder' => 'ОТ' ] ) !!}
-                                                </div>
-                                            </div>
-                                            <div class="row margin-top-10">
-                                                <div class="col-lg-12">
-                                                    {!! Form::text( 'period_to', \Input::old( 'period_to' ), [ 'class' => 'form-control', 'placeholder' => 'ДО' ] ) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            @if ( $field_operator )
-                                <td>
-                                    {!! Form::select( 'operator_id', [ null => ' -- все -- ' ] + $operators, \Input::old( 'operator_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Оператор' ] ) !!}
-                                </td>
-                            @endif
-                            <td>
-                                @if ( $field_management )
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements, \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'УО' ] ) !!}
-                                        </div>
-                                    </div>
-                                @endif
-                                <div class="row margin-top-10">
-                                    <div class="col-lg-12">
-                                        {!! Form::select( 'executor_id', [ null => ' -- все -- ' ] + $executors, \Input::old( 'executor_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель' ] ) !!}
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        {!! Form::select( 'type', [ null => ' -- все -- ' ] + $types, \Input::old( 'type' ), [ 'class' => 'form-control select2', 'placeholder' => 'Тип заявки' ] ) !!}
-                                    </div>
-                                </div>
-                                <div class="row margin-top-10">
-                                    <div class="col-lg-12">
-                                        <label class="mt-checkbox mt-checkbox-outline">
-                                            <i class="icon-fire"></i>
-                                            Авария
-                                            {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ) ) !!}
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <label class="mt-checkbox mt-checkbox-outline">
-                                            <i class="icon-heart"></i>
-                                            Добродел
-                                            {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel' ) ) !!}
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <label class="mt-checkbox mt-checkbox-outline">
-                                            <i class="icon-user-follow"></i>
-                                            Из ЛК
-                                            {!! Form::checkbox( 'from_lk', 1, \Input::old( 'from_lk' ) ) !!}
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </td>
-                            <td colspan="2">
-                                <div class="row">
-                                    <div class="col-lg-7">
-                                        {!! Form::select( 'address_id', [ null => ' -- все -- ' ] + ( $address ? $address->pluck( 'name', 'id' )->toArray() : [] ), \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проблемы', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true ] ) !!}
-                                    </div>
-                                    <div class="col-lg-5">
-                                        {!! Form::text( 'flat', \Input::old( 'flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
-                                    </div>
-                                </div>
-                                <div class="row margin-top-10">
-                                    @if ( $regions->count() > 1)
-                                        <div class="col-lg-6">
-                                            {!! Form::select( 'region_id', [ null => ' -- все -- ' ] + $regions->toArray(), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Регион' ] ) !!}
-                                        </div>
-                                        <div class="col-lg-6 text-right">
-                                    @else
-                                        <div class="col-lg-12 text-right">
-                                    @endif
-                                        <span class="text-muted small bold">
-                                            Фильтр:
-                                        </span>
-                                        <a href="{{ route( 'tickets.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
-                                            <i class="icon-close"></i>
-                                            Очистить
-                                        </a>
-                                        <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
-                                            <i class="icon-check"></i>
-                                            Применить
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
                     </thead>
-                    {!! Form::close() !!}
                     {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                     <tbody id="tickets">
                         <tr id="tickets-new-message" class="hidden">
@@ -311,6 +309,8 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
@@ -357,9 +357,12 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
@@ -406,6 +409,14 @@
                     allowClear: true,
                     ajax: {
                         delay: 450,
+                        cache: true,
+                        data: function ( term, page )
+                        {
+                            return {
+                                q: term.term,
+                                region_id: $( '#region_id' ).val() || null
+                            };
+                        },
                         processResults: function ( data, page )
                         {
                             return {
@@ -417,8 +428,53 @@
 
                 checkTicketCheckbox();
 
+                $( '.mt-multiselect' ).multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
+                });
+
+                $( '.customer-autocomplete' ).autocomplete({
+                    source: function ( request, response )
+                    {
+                        var r = {};
+                        r.param = this.element[0].name;
+                        r.value = request.term;
+                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data )
+                        {
+                            response( data );
+                        });
+                    },
+                    minLength: 2,
+                    select: function ( event, ui )
+                    {
+                        $( this ).trigger( 'change' );
+                    }
+                });
+
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
+
             })
 
-            .on( 'change', '.ticket-checkbox', checkTicketCheckbox );
+            .on( 'change', '.ticket-checkbox', checkTicketCheckbox )
+
+            .on( 'change', '#region_id', function ( e )
+            {
+                $( '#address_id, #actual_address_id' ).val( '' ).trigger( 'change' );
+            });
+
     </script>
 @endsection

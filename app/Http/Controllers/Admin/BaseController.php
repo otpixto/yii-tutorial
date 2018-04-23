@@ -29,14 +29,14 @@ class BaseController extends Controller
         return $this->guards;
     }
 
-    protected function clearCache ( $tags )
+    protected function clearCache ()
     {
-        \Cache::tags( $tags )->flush();
+        \Cache::flush();
     }
 
-    public function clearCacheAndRedirect ( $tags )
+    public function clearCacheAndRedirect ()
     {
-        $this->clearCache( $tags );
+        $this->clearCache();
         return redirect()->back()->with( 'success', 'Кеш успешно сброшен' );
     }
 

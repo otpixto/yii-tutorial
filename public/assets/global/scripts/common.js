@@ -460,8 +460,21 @@ $( document )
 
     .on ( 'submit', '.submit-loading', function ( e )
     {
-        $( this ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
-        $( this ).closest( '.modal' ).find( ':submit' ).addClass( 'loading' ).attr( 'disabled', 'disabled' );
+        var modal = $( this ).closest( '.modal' );
+        if ( modal.length )
+        {
+            var submit = modal.find( ':submit' );
+        }
+        else
+        {
+            var submit = $( this ).find( ':submit' );
+        }
+        if ( ! submit.length ) return;
+        submit.addClass( 'loading' ).attr( 'disabled', 'disabled' );
+        setTimeout( function ()
+        {
+            submit.removeClass( 'loading' ).removeAttr( 'disabled' );
+        }, 3000 );
     })
 
     .on ( 'submit', '[data-confirm]', function ( e )
