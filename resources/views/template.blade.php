@@ -34,9 +34,7 @@
                         </p>
                     </a>
                     <!-- END LOGO -->
-
-                    @include( 'parts.search' )
-
+                    
                     <!-- BEGIN TOPBAR ACTIONS -->
                     <div class="topbar-actions">
 
