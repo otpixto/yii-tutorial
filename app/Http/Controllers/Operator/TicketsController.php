@@ -1592,8 +1592,9 @@ class TicketsController extends BaseController
             $data[ 'phone' ] = preg_replace( '/[^0-9_]/', '', $data[ 'phone' ] );
         }
 
-        return redirect()
-            ->route( 'tickets.index', $data );
+        $url = route( 'tickets.index', $data ) . '#result';
+
+        return redirect()->to( $url );
 
     }
 
