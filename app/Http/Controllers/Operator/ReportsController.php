@@ -545,6 +545,10 @@ class ReportsController extends BaseController
                 ->tickets()
                 ->whereNotIn( 'status_code', [ 'draft' ] )
                 ->whereBetween( 'created_at', [ $date_from, $date_to ] )
+                ->with(
+                    'ticket',
+                    'ticket.type'
+                )
                 ->get();
 
             foreach ( $ticketManagements as $ticketManagement )
