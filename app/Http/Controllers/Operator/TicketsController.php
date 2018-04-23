@@ -387,8 +387,8 @@ class TicketsController extends BaseController
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'availableTypes', $availableTypes )
-            ->with( 'types', $types )
+            ->with( 'availableTypes', $availableTypes ?? [] )
+            ->with( 'types', $types ?? [] )
             ->with( 'field_operator', $field_operator ?? false )
             ->with( 'field_management', $field_management ?? false )
             ->with( 'regions', $regions ?? [] )
