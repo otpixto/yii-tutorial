@@ -88,14 +88,6 @@
                     <div class="col-md-4">
                         {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
                     </div>
-                    <div class="col-md-6 text-right">
-                        <a href="javascript:;" data-toggle="#additional-search">
-                            <h4>
-                                <i class="fa fa-unsorted"></i>
-                                Доп. параметры
-                            </h4>
-                        </a>
-                    </div>
                 </div>
                 <div style="display: none;" id="additional-search">
                     <hr />
@@ -188,7 +180,15 @@
                     </div>
                 </div>
                 <div class="row margin-top-15">
-                    <div class="col-md-10 col-md-offset-2">
+                    <div class="col-md-2">
+                        <a href="javascript:;" data-toggle="#additional-search">
+                            <h4>
+                                <i class="fa fa-unsorted"></i>
+                                Доп. параметры
+                            </h4>
+                        </a>
+                    </div>
+                    <div class="col-md-10">
                         {!! Form::submit( 'Применить', [ 'class' => 'btn blue-hoki btn-lg' ] ) !!}
                         @if ( Input::get( 'search' ) )
                             <a href="{{ route( 'tickets.index' ) }}" class="btn btn-default btn-lg">
