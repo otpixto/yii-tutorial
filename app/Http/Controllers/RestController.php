@@ -132,7 +132,7 @@ class RestController extends Controller
 
         $draft->save();
 
-        return $this->success( '' );
+        return $this->success( $region->name ?? '' );
 
     }
 
