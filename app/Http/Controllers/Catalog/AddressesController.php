@@ -4,13 +4,9 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Address;
-use App\Models\AddressManagement;
-use App\Models\Category;
 use App\Models\Management;
 use App\Models\Region;
-use App\Models\Type;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 
 class AddressesController extends BaseController
@@ -230,7 +226,7 @@ class AddressesController extends BaseController
         $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $addresses = Address
-            ::mine()
+            ::mine( Address::IGNORE_REGION )
             ->select(
                 'id',
                 'name AS text'

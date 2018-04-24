@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
-use App\Models\Address;
 use App\Models\Category;
 use App\Models\Management;
 use App\Models\Type;

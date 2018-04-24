@@ -115,31 +115,39 @@ class Management extends BaseModel
             ->where( 'category_id', '=', $category_id );
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, ... $flags )
     {
         if ( ! \Auth::user() ) return false;
         $query
-            ->where( function ( $q )
+            ->where( function ( $q ) use ( $flags )
             {
-                return $q
-                    ->whereHas( 'region', function ( $region )
-                    {
-                        return $region
-                            ->mine()
-                            ->current();
-                    })
-                    ->orWhereHas( 'address', function ( $address )
-                    {
-                        return $address
-                            ->whereHas( 'region', function ( $region )
-                            {
-                                return $region
-                                    ->mine()
-                                    ->current();
-                            });
-                    });
+                if ( ! in_array( self::IGNORE_REGION, $flags ) )
+                {
+                    $q
+                        ->orWhereHas( 'region', function ( $region )
+                        {
+                            return $region
+                                ->mine()
+                                ->current();
+                        });
+                }
+                if ( ! in_array( self::IGNORE_ADDRESS, $flags ) )
+                {
+                    $q
+                        ->orWhereHas( 'address', function ( $address )
+                        {
+                            return $address
+                                ->whereHas( 'region', function ( $region )
+                                {
+                                    return $region
+                                        ->mine()
+                                        ->current();
+                                });
+                        });
+                }
+                return $q;
             });
-        if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query
                 ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );

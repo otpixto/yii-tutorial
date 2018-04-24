@@ -35,15 +35,28 @@ class Address extends BaseModel
         return $this->name;
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, ... $flags )
     {
-        return $query
-            ->whereHas( 'region', function ( $q )
-            {
-                return $q
-                    ->mine()
-                    ->current();
-            });
+        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_addresses' ) )
+        {
+            $query
+                ->whereHas( 'managements', function ( $management )
+                {
+                    return $management
+                        ->mine( self::IGNORE_REGION );
+                });
+        }
+        if ( ! in_array( self::IGNORE_REGION, $flags ) && ! \Auth::user()->can( 'supervisor.all_regions' ) )
+        {
+            $query
+                ->whereHas( 'region', function ( $q )
+                {
+                    return $q
+                        ->mine()
+                        ->current();
+                });
+        }
+        return $query;
     }
 
 }

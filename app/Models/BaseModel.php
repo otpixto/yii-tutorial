@@ -14,6 +14,10 @@ class BaseModel extends Model
 
     protected $connection = 'eds';
 
+    const IGNORE_REGION = 1;
+    const IGNORE_ADDRESS = 2;
+    const IGNORE_MANAGEMENT = 3;
+
     protected $dates = [
         'created_at',
         'updated_at',

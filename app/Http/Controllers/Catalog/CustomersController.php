@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
-use App\Models\Category;
 use App\Models\Customer;
-use App\Models\Management;
 use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
