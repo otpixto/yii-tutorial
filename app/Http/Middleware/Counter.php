@@ -47,9 +47,14 @@ class Counter
                     ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
                     ->count();
 
-                $count_not_completed = TicketManagement
+                $count_in_progress = TicketManagement
                     ::mine()
                     ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                    ->count();
+
+                $count_completed = TicketManagement
+                    ::mine()
+                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified', 'rejected' ] )
                     ->count();
 
             }
@@ -67,7 +72,8 @@ class Counter
         \Session::put( 'tickets_count', $tickets_count ?? 0 );
         \Session::put( 'tickets_call_count', $tickets_call_count ?? 0 );
         \Session::put( 'count_not_processed', $count_not_processed ?? 0 );
-        \Session::put( 'count_not_completed', $count_not_completed ?? 0 );
+        \Session::put( 'count_in_progress', $count_in_progress ?? 0 );
+        \Session::put( 'count_completed', $count_completed ?? 0 );
         \Session::put( 'works_count', $works_count ?? 0 );
 
         return $next( $request );

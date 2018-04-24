@@ -32,6 +32,26 @@
             </div>
         @endif
 
+        <div class="row">
+            <div class="col-xs-12">
+                <a href="{{ route( 'tickets.index' ) }}" class="btn btn-lg btn-{{ \Input::get( 'show', '' ) == '' ? 'info' : 'default' }}">
+                    Все заявки
+                </a>
+                <a href="?show=not_processed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'not_processed' ? 'info' : 'default' }}">
+                    Необработанные заявки
+                </a>
+                <a href="?show=in_progress" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'in_progress' ? 'info' : 'default' }}">
+                    Заявки в работе
+                </a>
+                <a href="?show=completed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'completed' ? 'info' : 'default' }}">
+                    Выполненные заявки
+                </a>
+                <a href="?show=closed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'closed' ? 'info' : 'default' }}">
+                    Закрытые заявки
+                </a>
+            </div>
+        </div>
+
         @if ( \Auth::user()->can( 'tickets.search' ) )
             @include( 'tickets.search' )
         @endif

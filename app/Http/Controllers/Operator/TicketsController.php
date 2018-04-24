@@ -291,9 +291,19 @@ class TicketsController extends BaseController
                     ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'transferred', 'transferred_again' ] )
                     ->orderBy( 'id', 'desc' );
                 break;
-            case 'not_completed':
+            case 'in_progress':
                 $ticketManagements
                     ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                    ->orderBy( 'id', 'desc' );
+                break;
+            case 'completed':
+                $ticketManagements
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified', 'rejected' ] )
+                    ->orderBy( 'id', 'desc' );
+                break;
+            case 'closed':
+                $ticketManagements
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] )
                     ->orderBy( 'id', 'desc' );
                 break;
             default:
