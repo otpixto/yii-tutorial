@@ -298,7 +298,7 @@ class TicketsController extends BaseController
                 break;
             case 'completed':
                 $ticketManagements
-                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified', 'rejected' ] )
+                    ->whereIn( TicketManagement::getTableName() . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                     ->orderBy( 'id', 'desc' );
                 break;
             case 'closed':

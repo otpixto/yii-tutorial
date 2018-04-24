@@ -15,9 +15,9 @@
                                 {{ \Session::get( 'tickets_count' ) }}
                             </span>
                         @endif
-                        @if ( \Session::get( 'tickets_call_count' ) > 0 )
+                        @if ( \Auth::user()->can( 'tickets.call' ) && \Session::get( 'count_completed' ) > 0 )
                             <span class="badge badge-danger bold">
-                                {{ \Session::get( 'tickets_call_count' ) }}
+                                {{ \Session::get( 'count_completed' ) }}
                             </span>
                         @endif
                     @endif

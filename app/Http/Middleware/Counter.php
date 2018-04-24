@@ -34,14 +34,6 @@ class Counter
                     ->notFinaleStatuses()
                     ->count();
 
-                if ( $user->can( 'tickets.call' ) )
-                {
-                    $tickets_call_count = TicketManagement
-                        ::mine()
-                        ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
-                        ->count();
-                }
-
                 $count_not_processed = TicketManagement
                     ::mine()
                     ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
@@ -54,7 +46,7 @@ class Counter
 
                 $count_completed = TicketManagement
                     ::mine()
-                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified', 'rejected' ] )
+                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                     ->count();
 
             }
@@ -70,7 +62,6 @@ class Counter
         }
 
         \Session::put( 'tickets_count', $tickets_count ?? 0 );
-        \Session::put( 'tickets_call_count', $tickets_call_count ?? 0 );
         \Session::put( 'count_not_processed', $count_not_processed ?? 0 );
         \Session::put( 'count_in_progress', $count_in_progress ?? 0 );
         \Session::put( 'count_completed', $count_completed ?? 0 );
