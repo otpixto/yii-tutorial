@@ -262,10 +262,10 @@ class TicketsController extends BaseController
                 ->where( TicketManagement::getTableName() . '.id', '=', $request->get( 'ticket_management_id' ) );
         }
 
-        if ( ! empty( $request->get( 'management_id' ) ) )
+        if ( ! empty( $request->get( 'managements' ) ) )
         {
             $ticketManagements
-                ->where( TicketManagement::getTableName() . '.management_id', '=', $request->get( 'management_id' ) );
+                ->whereIn( TicketManagement::getTableName() . '.management_id', $request->get( 'managements' ) );
         }
 
         if ( ! empty( $request->get( 'executor_id' ) ) )
@@ -397,22 +397,6 @@ class TicketsController extends BaseController
                 ->orderBy( 'name' )
                 ->pluck( 'name', 'id' );
 
-            if ( $managements->count() == 1 )
-            {
-                $management_id = $managements->keys()->first();
-            }
-            else
-            {
-                $management_id = $request->get( 'management_id' );
-            }
-
-            if ( ! empty( $management_id ) )
-            {
-                $executors = Executor
-                    ::where( 'management_id', '=', $management_id )
-                    ->pluck( 'name', 'id' );
-            }
-
         }
 
         return view( 'tickets.index' )
@@ -420,7 +404,6 @@ class TicketsController extends BaseController
             ->with( 'availableTypes', $availableTypes ?? collect() )
             ->with( 'types', $types ?? collect() )
             ->with( 'managements', $managements ?? collect() )
-            ->with( 'executors', $executors ?? collect() )
             ->with( 'field_operator', $field_operator ?? false )
             ->with( 'field_management', $field_management ?? false )
             ->with( 'regions', $regions ?? collect() )

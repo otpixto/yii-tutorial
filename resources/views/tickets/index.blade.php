@@ -308,38 +308,7 @@
 
             })
 
-            .on( 'change', '.ticket-checkbox', checkTicketCheckbox )
-
-            .on( 'change', '#region_id', function ( e )
-            {
-                $( '#address_id, #actual_address_id' ).val( '' ).trigger( 'change' );
-            })
-
-            .on( 'change', '#management_id', function ()
-            {
-
-                var management_id = $( this ).val();
-
-                $( '#executor_id' ).html(
-                    $( '<option>' ).val( '0' ).text( 'Загрузка...' )
-                );
-
-                $.get( '{{ route( 'managements.executors' ) }}', {
-                    management_id: management_id
-                }, function ( response )
-                {
-                    $( '#executor_id' ).html(
-                        $( '<option>' ).val( '0' ).text( 'Все (' + response.length + ')' )
-                    );
-                    $.each( response, function ( i, val )
-                    {
-                        $( '#executor_id' ).append(
-                            $( '<option>' ).val( val.id ).text( val.name )
-                        );
-                    });
-                });
-
-            });
+            .on( 'change', '.ticket-checkbox', checkTicketCheckbox );
 
     </script>
 @endsection

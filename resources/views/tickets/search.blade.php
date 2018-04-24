@@ -123,25 +123,16 @@
                             </select>
                         </div>
                     </div>
-                    <hr />
                     @if ( $managements->count() > 1 )
                         <div class="row margin-top-10">
                             <h4 class="col-md-2">
                                 УО
                             </h4>
                             <div class="col-md-10">
-                                {!! Form::select( 'management_id', $managements, \Input::get( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $managements->count() . ')', 'id' => 'management_id' ] ) !!}
+                                {!! Form::select( 'managements[]', $managements, \Input::get( 'managements', [] ), [ 'class' => 'form-control select2', 'multiple', 'id' => 'managements' ] ) !!}
                             </div>
                         </div>
                     @endif
-                    <div class="row margin-top-10">
-                        <h4 class="col-md-2">
-                            Исполнитель
-                        </h4>
-                        <div class="col-md-10">
-                            {!! Form::select( 'executor_id', $executors, \Input::get( 'executor_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $executors->count() . ')', 'id' => 'executor_id' ] ) !!}
-                        </div>
-                    </div>
                     <hr />
                     <div class="row">
                         <div class="col-md-10 col-md-offset-2">
