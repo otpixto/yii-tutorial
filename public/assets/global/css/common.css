@@ -30,3 +30,7 @@
 .toggle._expand {
     background-image: url(../img/portlet-expand-icon.png);
 }
+
+.ui-autocomplete-loading {
+    background: url( '/images/loading.gif' ) no-repeat center center !important;
+}
