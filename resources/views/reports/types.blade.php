@@ -9,9 +9,9 @@
 
 @section( 'content' )
 
-    <p class="visible-print">
-        за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
-    </p>
+    <div class="visible-print title">
+        Статистический отчет по категориям за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
+    </div>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
     <div class="form-group">
@@ -24,95 +24,54 @@
         </div>
     </div>
     <div class="form-group">
-        {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
-            {!! Form::select( 'managements[]', $managements->count() ? $managements->pluck( 'name', 'id' )->toArray() : [], \Input::get( 'managements' ), [ 'class' => 'select2 form-control', 'multiple' ] ) !!}
-        </div>
-    </div>
-    <div class="form-group">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    <div id="chartdiv" style="min-height: {{ 50 + ( $categories->count() * 35 ) }}px;" class="hidden-print"></div>
-
-    <div class="row">
-        <div class="col-lg-6">
-            <div id="piediv" style="min-height: 500px;" class="hidden-print"></div>
-        </div>
-        <div class="col-lg-6">
-            <div id="piediv2" style="min-height: 500px;" class="hidden-print"></div>
-        </div>
-    </div>
-
-    <table class="table table-striped sortable" id="data">
+    <table class="table table-striped sortable" id="table-categories">
         <thead>
-        <tr>
-            <th>
-                Тип проблемы \ Нименование УО
-            </th>
-            @foreach ( $managements2 as $management )
-                <th class="text-center">
-                    {{ $management->name }}
+            <tr>
+                <th>
+                    Категория проблем
                 </th>
-            @endforeach
-            <th class="text-center info bold">
-                Всего
-            </th>
-            <th class="text-center" colspan="2">
-                Процент выполнения
-            </th>
-        </tr>
+                <th class="text-center info bold">
+                    Поступило заявок, кол-во
+                </th>
+                <th class="text-center">
+                    Процент от общего количества
+                </th>
+                <th class="text-center info bold">
+                    Закрыто заявок, кол-во
+                </th>
+                <th class="text-center">
+                    Процент закрытых заявок
+                </th>
+            </tr>
         </thead>
         <tbody>
         @foreach ( $categories as $category )
             <tr>
-                <td data-field="category">
-                    {{ $category->name }}
+                <td>
+                    <span data-field="category">
+                        {{ $category->name }}
+                    </span>
                 </td>
-                @foreach ( $managements2 as $management )
-                    <td class="text-center">
-                        @if ( isset( $data[ $category->id ], $data[ $category->id ][ $management->id ] ) )
-                            {{ $data[ $category->id ][ $management->id ][ 'closed' ] }}
-                            /
-                            <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
-                                {{ $data[ $category->id ][ $management->id ][ 'total' ] }}
-                            </a>
-                        @else
-                            0 / 0
-                        @endif
-                    </td>
-                @endforeach
                 <td class="text-center info bold">
-                    @if ( isset( $data[ 'category-' . $category->id ] ) )
-                        {{ $data[ 'category-' . $category->id ][ 'closed' ] }}
-                        /
-                        <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="total">
-                            {{ $data[ 'category-' . $category->id ][ 'total' ] }}
-                        </a>
-                    @else
-                        0 / 0
-                    @endif
+                    {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
                 </td>
-                <td class="text-right">
+                <td class="text-center">
                     <span data-field="percent">
-                        @if ( isset( $data[ 'category-' . $category->id ] ) )
-                            {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}
-                        @else
-                            0
-                        @endif
+                        {{ $data[ 'categories' ][ $category->id ][ 'percent_total' ] }}
                     </span>
                     %
                 </td>
-                <td class="hidden-print hidden-md">
-                    @if ( isset( $data[ 'category-' . $category->id ] ) )
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'category-' . $category->id ][ 'total' ] ? ceil( $data[ 'category-' . $category->id ][ 'closed' ] * 100 / $data[ 'category-' . $category->id ][ 'total' ] ) : 0 }}%">
-                            </div>
-                        </div>
-                    @endif
+                <td class="text-center info bold">
+                    {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
+                </td>
+                <td class="text-center">
+                    {{ $data[ 'categories' ][ $category->id ][ 'percent' ] }}%
                 </td>
             </tr>
         @endforeach
@@ -122,36 +81,118 @@
                 <th class="text-right">
                     Всего:
                 </th>
-                @foreach ( $managements2 as $management )
-                    <th class="text-center">
-                        @if ( isset( $data[ 'management-' . $management->id ] ) )
-                            {{ $data[ 'management-' . $management->id ][ 'closed' ] }}
-                            /
-                            <span data-management="{{ $management->name }}">
-                                {{ $data[ 'management-' . $management->id ][ 'total' ] }}
-                            </span>
-                        @else
-                            0 / 0
-                        @endif
-                    </th>
-                @endforeach
                 <th class="text-center warning bold">
-                    {{ $data[ 'closed' ] }}
-                    /
                     {{ $data[ 'total' ] }}
                 </th>
-                <th class="text-right" style="width: 30px;">
-                    {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%
+                <th class="text-center">
+                    100%
                 </th>
-                <th style="width: 15%;" class="hidden-print hidden-md">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ 'total' ] ? ceil( $data[ 'closed' ] * 100 / $data[ 'total' ] ) : 0 }}%">
-                        </div>
-                    </div>
+                <th class="text-center warning bold">
+                    {{ $data[ 'closed' ] }}
+                </th>
+                <th class="text-center">
+                    {{ $data[ 'percent' ] }}%
                 </th>
             </tr>
         </tfoot>
     </table>
+
+    @if ( $categories_count )
+        <div id="pie-categories" style="min-height: {{ 100 + $categories_count * 35 }}px;" class="hidden-print"></div>
+    @endif
+
+    <div class="pagebreak"></div>
+
+    <div class="table-responsive">
+        <table class="table table-striped sortable" id="table-managements">
+            <thead>
+            <tr>
+                <th>
+                    Тип проблемы \ Нименование УО
+                </th>
+                @foreach ( $managements as $management )
+                    <th class="text-center">
+                        {{ $management->name }}
+                    </th>
+                @endforeach
+                <th class="text-center info bold">
+                    Всего
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ( $categories as $category )
+                <tr>
+                    <td>
+                        {{ $category->name }}
+                    </td>
+                    @foreach ( $managements as $management )
+                        <td class="text-center">
+                            @if ( isset( $data[ 'data' ][ $category->id ], $data[ 'data' ][ $category->id ][ $management->id ] ) )
+                                {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'closed' ] }}
+                                /
+                                <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
+                                    {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'total' ] }}
+                                </a>
+                            @else
+                                0 / 0
+                            @endif
+                        </td>
+                    @endforeach
+                    <td class="text-center info bold">
+                        @if ( isset( $data[ 'categories' ][ $category->id ] ) )
+                            {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
+                            /
+                            <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                                {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
+                            </a>
+                        @else
+                            0 / 0
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
+                            {{ $data[ 'managements' ][ $management->id ][ 'closed' ] }}
+                            /
+                            {{ $data[ 'managements' ][ $management->id ][ 'total' ] }}
+                        </th>
+                    @endforeach
+                    <th class="text-center warning bold">
+                        {{ $data[ 'closed' ] }}
+                        /
+                        {{ $data[ 'total' ] }}
+                    </th>
+                </tr>
+                <tr>
+                    <th class="text-right">
+                        В % соотношении:
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
+                            <span data-category="{{ $management->name }}" data-percent="{{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}">
+                                {{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}%
+                            </span>
+                        </th>
+                    @endforeach
+                    <th class="text-center warning bold">
+                        100%
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    @if ( $managements_count )
+        <div id="pie-managements" style="min-height: {{ 100 + $managements_count * 35 }}px;" class="hidden-print"></div>
+    @endif
 
 @endsection
 
@@ -160,11 +201,17 @@
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
-        .progress {
-            margin-bottom: 0 !important;
-        }
-        .table tfoot th, .table tfoot td {
-            padding: 8px !important;
+        @media print {
+            td, th {
+                font-size: 85% !important;
+            }
+            .breadcrumbs {
+                display: none;
+            }
+            .title {
+                font-weight: bold;
+                margin: 10px 0;
+            }
         }
     </style>
 @endsection
@@ -193,111 +240,61 @@
 
                $( '.select2' ).select2();
 
-                var dataProvider = [];
-                var dataProviderPie = [];
+                var dataProviderCategories = [];
 
-                $( '#data tbody tr' ).each( function ()
+                $( '#table-categories tbody tr' ).each( function ()
                 {
 
-                    dataProvider.push({
+                    dataProviderCategories.push({
                         'category': $.trim( $( this ).find( '[data-field="category"]' ).text() ),
                         'percent': $.trim( $( this ).find( '[data-field="percent"]' ).text() ),
                     });
 
-                    dataProviderPie.push({
-                        'category': $.trim( $( this ).find( '[data-field="category"]' ).text() ),
-                        'total': $.trim( $( this ).find( '[data-field="total"]' ).text() ),
-                    });
-
                 });
 
-                dataProviderPie.sort( function ( a, b )
-                {
-                    return Number( a.total ) > Number( b.total );
-                });
-
-                var chart = AmCharts.makeChart("chartdiv", {
-                    "dataProvider": dataProvider,
-                    "graphs": [
-                        {
-                            "balloonText": "Процент выполнения: [[value]]%",
-                            "fillAlphas": 0.8,
-                            "id": "percent",
-                            "lineAlpha": 0.2,
-                            "title": "Процент выполнения",
-                            "type": "column",
-                            "valueField": "percent",
-                        }
-                    ],
-                    "type": "serial",
-                    "theme": "light",
-                    "categoryField": "category",
-                    "rotate": true,
-                    "startDuration": 1,
-                    "categoryAxis": {
-                        "gridPosition": "start",
-                        "position": "left"
-                    },
-                    "trendLines": [],
-                    "guides": [],
-                    "valueAxes": [
-                        {
-                            "id": "ValueAxis-1",
-                            "position": "top",
-                            "axisAlpha": 0
-                        }
-                    ],
-                    "allLabels": [],
-                    "balloon": {},
-                    "titles": [],
-                });
-
-                var pie = AmCharts.makeChart( "piediv", {
+                AmCharts.makeChart( 'pie-categories', {
                     "type": "pie",
                     "theme": "light",
-                    "dataProvider": dataProviderPie,
-                    "valueField": "total",
+                    "dataProvider": dataProviderCategories,
+                    "valueField": "percent",
                     "titleField": "category",
                     "outlineAlpha": 0.4,
                     "depth3D": 15,
-                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b>%</span>",
                     "angle": 30,
                     "export": {
                         "enabled": true
                     }
-                } );
+                });
 
-                var dataProvider = [];
+                var dataProviderManagements = [];
 
-                $( '[data-management]' ).each( function ()
+                $( '#table-managements [data-category]' ).each( function ()
                 {
 
-                    dataProvider.push({
-                        'management': $.trim( $( this ).attr( 'data-management' ) ),
-                        'total': $.trim( $( this ).text() ),
+                    dataProviderManagements.push({
+                        'category': $( this ).attr( 'data-category' ),
+                        'percent': $( this ).attr( 'data-percent' ),
                     });
 
                 });
 
-                dataProvider.sort( function ( a, b )
-                {
-                    return Number( a.total ) < Number( b.total );
-                });
+                console.log( dataProviderManagements );
 
-                var pie2 = AmCharts.makeChart( "piediv2", {
+                AmCharts.makeChart( 'pie-managements', {
                     "type": "pie",
                     "theme": "light",
-                    "dataProvider": dataProvider,
-                    "valueField": "total",
-                    "titleField": "management",
+                    "dataProvider": dataProviderManagements,
+                    "valueField": "percent",
+                    "titleField": "category",
                     "outlineAlpha": 0.4,
                     "depth3D": 15,
-                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b>%</span>",
                     "angle": 30,
                     "export": {
                         "enabled": true
                     }
-                } );
+                });
 
             });
     </script>

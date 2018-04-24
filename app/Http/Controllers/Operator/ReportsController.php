@@ -525,20 +525,23 @@ class ReportsController extends BaseController
 
         $data = [
             'total' => 0,
-            'closed' => 0
+            'closed' => 0,
+            'percent' => 0,
+            'categories' => [],
+            'managements' => [],
+            'data' => [],
         ];
 
-        if ( count( $request->get( 'managements', [] ) ) )
+        foreach ( $categories as $category )
         {
-            $managements2 = $managements
-                ->whereIn( 'id', $request->get( 'managements', [] ) );
-        }
-        else
-        {
-            $managements2 = $managements;
+            $data[ 'categories' ][ $category->id ] = [
+                'total' => 0,
+                'closed' => 0,
+                'percent' => 0
+            ];
         }
 
-        foreach ( $managements2 as $management )
+        foreach ( $managements as $management )
         {
 
             $ticketManagements = $management
@@ -551,56 +554,76 @@ class ReportsController extends BaseController
                 )
                 ->get();
 
+            $data[ 'managements' ][ $management->id ] = [
+                'total' => 0,
+                'closed' => 0,
+                'percent' => 0
+            ];
+
             foreach ( $ticketManagements as $ticketManagement )
             {
                 $ticket = $ticketManagement->ticket;
                 $type = $ticket->type;
-                if ( ! isset( $data[ 'management-' . $management->id ] ) )
+                if ( ! isset( $data[ 'data' ][ $type->category_id ][ $management->id ] ) )
                 {
-                    $data[ 'management-' . $management->id ] = [
+                    $data[ 'data' ][ $type->category_id ][ $management->id ] = [
                         'total' => 0,
-                        'closed' => 0
-                    ];
-                }
-                if ( ! isset( $data[ 'category-' . $type->category_id ] ) )
-                {
-                    $data[ 'category-' . $type->category_id ] = [
-                        'total' => 0,
-                        'closed' => 0
-                    ];
-                }
-                if ( ! isset( $data[ $type->category_id ][ $management->id ] ) )
-                {
-                    $data[ $type->category_id ][ $management->id ] = [
-                        'total' => 0,
-                        'closed' => 0
+                        'closed' => 0,
+                        'percent' => 0
                     ];
                 }
                 $data[ 'total' ] ++;
-                $data[ 'management-' . $management->id ][ 'total' ] ++;
-                $data[ 'category-' . $type->category_id ][ 'total' ] ++;
-                $data[ $type->category_id ][ $management->id ][ 'total' ] ++;
+                $data[ 'managements' ][ $management->id ][ 'total' ] ++;
+                $data[ 'categories' ][ $type->category_id ][ 'total' ] ++;
+                $data[ 'data' ][ $type->category_id ][ $management->id ][ 'total' ] ++;
                 switch ( $ticketManagement->status_code )
                 {
                     case 'closed_with_confirm':
                     case 'closed_without_confirm':
                     case 'not_verified':
                     case 'cancel':
-                        $data[ $type->category_id ][ $management->id ][ 'closed' ] ++;
+                        $data[ 'data' ][ $type->category_id ][ $management->id ][ 'closed' ] ++;
                         $data[ 'closed' ] ++;
-                        $data[ 'management-' . $management->id ][ 'closed' ] ++;
-                        $data[ 'category-' . $type->category_id ][ 'closed' ] ++;
+                        $data[ 'managements' ][ $management->id ][ 'closed' ] ++;
+                        $data[ 'categories' ][ $type->category_id ][ 'closed' ] ++;
                         break;
                 }
             }
 
         }
 
+        $categories_count = 0;
+
+        foreach ( $data[ 'categories' ] as $key => $category )
+        {
+            if ( $category[ 'total' ] )
+            {
+                $categories_count ++;
+                $data[ 'categories' ][ $key ][ 'percent' ] = (float) number_format( $category[ 'closed' ] / $category[ 'total' ] * 100, 1 );
+            }
+            $data[ 'categories' ][ $key ][ 'percent_total' ] = $data[ 'total' ] ? (float) number_format( $category[ 'total' ] / $data[ 'total' ] * 100, 1 ) : 0;
+        }
+
+        $managements_count = 0;
+
+        foreach ( $data[ 'managements' ] as $key => $management )
+        {
+            if ( $management[ 'total' ] )
+            {
+                $managements_count ++;
+                $data[ 'managements' ][ $key ][ 'percent' ] = (float) number_format( $management[ 'closed' ] / $management[ 'total' ] * 100, 1 );
+            }
+            $data[ 'managements' ][ $key ][ 'percent_total' ] = $data[ 'total' ] ? (float) number_format( $management[ 'total' ] / $data[ 'total' ] * 100, 1 ) : 0;
+        }
+
+        $data[ 'percent' ] = $data[ 'total' ] ? (float) number_format( $data[ 'closed' ] / $data[ 'total' ] * 100, 1 ) : 0;
+
         return view( 'reports.types' )
             ->with( 'data', $data )
             ->with( 'categories', $categories )
             ->with( 'managements', $managements )
-            ->with( 'managements2', $managements2 )
+            ->with( 'categories_count', $categories_count )
+            ->with( 'managements_count', $managements_count )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
