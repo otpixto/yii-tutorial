@@ -13,59 +13,17 @@
             <div class="portlet-body {{ ! Input::get( 'search' ) ? 'portlet-collapsed' : '' }}">
                 {!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading', 'url' => route( 'tickets.filter' ) ] ) !!}
                 {!! Form::hidden( 'search', 1 ) !!}
-                @if ( $regions->count() > 1)
-                    <div class="row margin-top-10">
-                        <h4 class="col-md-2">
-                            Регион
-                        </h4>
-                        <div class="col-md-3">
-                            {!! Form::select( 'region_id', $regions, \Input::get( 'region_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все', 'id' => 'region_id' ] ) !!}
-                        </div>
-                    </div>
-                @endif
                 <div class="row margin-top-10">
                     <h4 class="col-md-2">
                         Номер заявки
                     </h4>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <span class="input-group-addon">#</span>
                             {!! Form::text( 'ticket_id', \Input::get( 'ticket_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
                             <span class="input-group-addon">/</span>
                             {!! Form::text( 'ticket_management_id', \Input::get( 'ticket_management_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
                         </div>
-                    </div>
-                </div>
-                <div class="row margin-top-10">
-                    <h4 class="col-md-2">
-                        Статус(ы)
-                    </h4>
-                    <div class="col-md-10">
-                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="statuses" name="statuses[]">
-                            @foreach ( $availableStatuses as $status_code => $status_name )
-                                <option value="{{ $status_code }}" @if ( in_array( $status_code, $statuses ) ) selected="selected" @endif>
-                                    {{ $status_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="row margin-top-10">
-                    <h4 class="col-md-2">
-                        Классификатор
-                    </h4>
-                    <div class="col-md-10">
-                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="types" name="types[]">
-                            @foreach ( $availableTypes as $category => $arr )
-                                <optgroup label="{{ $category }}">
-                                    @foreach ( $arr as $type_id => $type_name )
-                                        <option value="{{ $type_id }}" @if ( in_array( $type_id, $types ) ) selected="selected" @endif>
-                                            {{ $type_name }}
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-                            @endforeach
-                        </select>
                     </div>
                 </div>
                 <div class="row margin-top-10">
@@ -84,25 +42,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <hr />
-                @if ( $managements->count() > 1 )
-                    <div class="row margin-top-10">
-                        <h4 class="col-md-2">
-                            УО
-                        </h4>
-                        <div class="col-md-10">
-                            {!! Form::select( 'management_id', $managements, \Input::get( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $managements->count() . ')', 'id' => 'management_id' ] ) !!}
-                        </div>
-                    </div>
-                @endif
-                <div class="row margin-top-10">
-                    <h4 class="col-md-2">
-                        Исполнитель
-                    </h4>
-                    <div class="col-md-10">
-                        {!! Form::select( 'executor_id', $executors, \Input::get( 'executor_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $executors->count() . ')', 'id' => 'executor_id' ] ) !!}
                     </div>
                 </div>
                 <hr />
@@ -146,53 +85,117 @@
                     <h4 class="col-md-2">
                         Телефон заявителя
                     </h4>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
                     </div>
-                </div>
-                <hr />
-                <div class="row">
-                    <div class="col-md-10 col-md-offset-2">
-                        <div class="icheck-inline">
-                            <label>
-                                {!! Form::checkbox( 'overdue_acceptance', 1, \Input::get( 'overdue_acceptance' ), [ 'class' => 'icheck' ] ) !!}
-                                Просрочено на принятие
-                            </label>
-                            <label>
-                                {!! Form::checkbox( 'overdue_execution', 1, \Input::get( 'overdue_execution' ), [ 'class' => 'icheck' ] ) !!}
-                                Просрочено на исполнение
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row margin-top-10">
-                    <div class="col-md-10 col-md-offset-2">
-                        <div class="icheck-inline">
-                            <label>
-                                {!! Form::checkbox( 'emergency', 1, \Input::get( 'emergency' ), [ 'class' => 'icheck' ] ) !!}
-                                <i class="icon-fire"></i>
-                                Авария
-                            </label>
-                            <label>
-                                {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}
-                                <i class="icon-heart"></i>
-                                Добродел
-                            </label>
-                            <label>
-                                {!! Form::checkbox( 'from_lk', 1, \Input::get( 'from_lk' ), [ 'class' => 'icheck' ] ) !!}
-                                <i class="icon-user-follow"></i>
-                                Из ЛК
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="margin-top-15">
-                    {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-                    @if ( Input::get( 'search' ) )
-                        <a href="{{ route( 'tickets.index' ) }}" class="btn btn-default">
-                            Сбросить фильтр
+                    <div class="col-md-6 text-right">
+                        <a href="javascript:;" data-toggle="#additional-search">
+                            <h4>
+                                <i class="fa fa-unsorted"></i>
+                                Доп. параметры
+                            </h4>
                         </a>
+                    </div>
+                </div>
+                <div style="display: none;" id="additional-search">
+                    <hr />
+                    <div class="row margin-top-10">
+                        <h4 class="col-md-2">
+                            Статус(ы)
+                        </h4>
+                        <div class="col-md-10">
+                            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="statuses" name="statuses[]">
+                                @foreach ( $availableStatuses as $status_code => $status_name )
+                                    <option value="{{ $status_code }}" @if ( in_array( $status_code, $statuses ) ) selected="selected" @endif>
+                                        {{ $status_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <h4 class="col-md-2">
+                            Классификатор
+                        </h4>
+                        <div class="col-md-10">
+                            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="types" name="types[]">
+                                @foreach ( $availableTypes as $category => $arr )
+                                    <optgroup label="{{ $category }}">
+                                        @foreach ( $arr as $type_id => $type_name )
+                                            <option value="{{ $type_id }}" @if ( in_array( $type_id, $types ) ) selected="selected" @endif>
+                                                {{ $type_name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <hr />
+                    @if ( $managements->count() > 1 )
+                        <div class="row margin-top-10">
+                            <h4 class="col-md-2">
+                                УО
+                            </h4>
+                            <div class="col-md-10">
+                                {!! Form::select( 'management_id', $managements, \Input::get( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $managements->count() . ')', 'id' => 'management_id' ] ) !!}
+                            </div>
+                        </div>
                     @endif
+                    <div class="row margin-top-10">
+                        <h4 class="col-md-2">
+                            Исполнитель
+                        </h4>
+                        <div class="col-md-10">
+                            {!! Form::select( 'executor_id', $executors, \Input::get( 'executor_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Все (' . $executors->count() . ')', 'id' => 'executor_id' ] ) !!}
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-2">
+                            <div class="icheck-inline">
+                                <label>
+                                    {!! Form::checkbox( 'overdue_acceptance', 1, \Input::get( 'overdue_acceptance' ), [ 'class' => 'icheck' ] ) !!}
+                                    Просрочено на принятие
+                                </label>
+                                <label>
+                                    {!! Form::checkbox( 'overdue_execution', 1, \Input::get( 'overdue_execution' ), [ 'class' => 'icheck' ] ) !!}
+                                    Просрочено на исполнение
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <div class="col-md-10 col-md-offset-2">
+                            <div class="icheck-inline">
+                                <label>
+                                    {!! Form::checkbox( 'emergency', 1, \Input::get( 'emergency' ), [ 'class' => 'icheck' ] ) !!}
+                                    <i class="icon-fire"></i>
+                                    Авария
+                                </label>
+                                <label>
+                                    {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}
+                                    <i class="icon-heart"></i>
+                                    Добродел
+                                </label>
+                                <label>
+                                    {!! Form::checkbox( 'from_lk', 1, \Input::get( 'from_lk' ), [ 'class' => 'icheck' ] ) !!}
+                                    <i class="icon-user-follow"></i>
+                                    Из ЛК
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row margin-top-15">
+                    <div class="col-md-10 col-md-offset-2">
+                        {!! Form::submit( 'Применить', [ 'class' => 'btn blue-hoki btn-lg' ] ) !!}
+                        @if ( Input::get( 'search' ) )
+                            <a href="{{ route( 'tickets.index' ) }}" class="btn btn-default btn-lg">
+                                Сбросить фильтр
+                            </a>
+                        @endif
+                    </div>
                 </div>
                 {!! Form::close() !!}
             </div>
