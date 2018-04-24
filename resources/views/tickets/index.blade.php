@@ -34,19 +34,28 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <a href="{{ route( 'tickets.index' ) }}" class="btn btn-lg btn-{{ \Input::get( 'show', '' ) == '' ? 'info' : 'default' }}">
+                <a href="{{ route( 'tickets.index' ) }}" class="btn btn-{{ \Input::get( 'show', '' ) == '' ? 'info' : 'default' }}">
+                    <i class="fa fa-list"></i>
                     Все заявки
                 </a>
-                <a href="?show=not_processed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'not_processed' ? 'info' : 'default' }}">
+                |
+                <a href="?show=not_processed" class="btn btn-{{ \Input::get( 'show' ) == 'not_processed' ? 'info' : 'default' }}">
+                    <i class="fa fa-clock-o"></i>
                     Необработанные заявки
                 </a>
-                <a href="?show=in_progress" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'in_progress' ? 'info' : 'default' }}">
+                >
+                <a href="?show=in_progress" class="btn btn-{{ \Input::get( 'show' ) == 'in_progress' ? 'info' : 'default' }}">
+                    <i class="fa fa-wrench"></i>
                     Заявки в работе
                 </a>
-                <a href="?show=completed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'completed' ? 'info' : 'default' }}">
+                >
+                <a href="?show=completed" class="btn btn-{{ \Input::get( 'show' ) == 'completed' ? 'info' : 'default' }}">
+                    <i class="fa fa-check-circle"></i>
                     Выполненные заявки
                 </a>
-                <a href="?show=closed" class="btn btn-lg btn-{{ \Input::get( 'show' ) == 'closed' ? 'info' : 'default' }}">
+                >
+                <a href="?show=closed" class="btn btn-{{ \Input::get( 'show' ) == 'closed' ? 'info' : 'default' }}">
+                    <i class="fa fa-dot-circle-o"></i>
                     Закрытые заявки
                 </a>
             </div>
