@@ -11,7 +11,7 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-        @if( \Auth::user()->canOne( 'tickets.create', 'tickets.export' ) )
+        @if ( \Auth::user()->can( 'tickets.create' ) || ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->total() < 1000 ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
                     @if( \Auth::user()->can( 'tickets.create' ) )
@@ -21,14 +21,20 @@
                         </a>
                     @endif
                 </div>
-                <div class="col-xs-6 text-right">
-                    @if( \Auth::user()->can( 'tickets.export' ) )
-                        <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                            <i class="fa fa-download"></i>
-                            Выгрузить в Excel
-                        </a>
-                    @endif
-                </div>
+                @if ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() )
+                    <div class="col-xs-6 text-right">
+                        @if( $ticketManagements->total() < 1000 )
+                            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                                <i class="fa fa-download"></i>
+                                Выгрузить в Excel
+                            </a>
+                        @else
+                            <span class="text-muted small">
+                                Для выгрузки уточните критерии поиска
+                            </span>
+                        @endif
+                    </div>
+                @endif
             </div>
         @endif
 
