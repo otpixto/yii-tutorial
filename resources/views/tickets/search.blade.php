@@ -65,7 +65,7 @@
                 </div>
                 <div class="row margin-top-10">
                     <h4 class="col-md-2">
-                        Адрес заявителя
+                        Адрес проживания
                     </h4>
                     <div class="col-md-10">
                         <div class="row">
@@ -123,13 +123,35 @@
                             </select>
                         </div>
                     </div>
-                    @if ( $managements->count() > 1 )
+                    @if ( $field_management && count( $availableManagements ) > 1 )
                         <div class="row margin-top-10">
                             <h4 class="col-md-2">
                                 УО
                             </h4>
                             <div class="col-md-10">
-                                {!! Form::select( 'managements[]', $managements, \Input::get( 'managements', [] ), [ 'class' => 'form-control select2', 'multiple', 'id' => 'managements' ] ) !!}
+                                <select class="form-control select2" multiple="multiple" id="managements" name="managements[]">
+                                    @foreach ( $availableManagements as $management_id => $management_name )
+                                        <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements ) ) selected="selected" @endif>
+                                            {{ $management_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endif
+                    @if ( $field_operator && count( $availableOperators ) > 1 )
+                        <div class="row margin-top-10">
+                            <h4 class="col-md-2">
+                                Оператор(ы)
+                            </h4>
+                            <div class="col-md-10">
+                                <select class="form-control select2" multiple="multiple" id="operators" name="operators[]">
+                                    @foreach ( $availableOperators as $operator_id => $operator_name )
+                                        <option value="{{ $operator_id }}" @if ( in_array( $operator_id, $operators ) ) selected="selected" @endif>
+                                            {{ $operator_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     @endif

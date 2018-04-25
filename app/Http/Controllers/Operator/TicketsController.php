@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Operator;
 use App\Classes\Title;
 use App\Jobs\SendStream;
 use App\Models\Address;
-use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Management;
@@ -13,6 +12,7 @@ use App\Models\Region;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -34,44 +34,38 @@ class TicketsController extends BaseController
         $field_operator = \Auth::user()->can( 'tickets.field_operator' );
         $field_management = \Auth::user()->can( 'tickets.field_management' );
 
-        $types = null;
+        $types = [];
+        $managements = [];
+        $operators = [];
 
         if ( \Auth::user()->can( 'tickets.search' ) )
         {
-
-            $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
 
             if ( ! count( $statuses ) && ! empty( $request->get( 'statuses' ) ) )
             {
                 $statuses = explode( ',', $request->get( 'statuses' ) );
             }
 
-            if ( \Cache::tags( [ 'catalog', 'tickets' ] )->has( 'types' ) )
-            {
-                $availableTypes = \Cache::tags( [ 'catalog', 'tickets' ] )->get( 'types' );
-            }
-            else
-            {
-                $res = Type::with( 'category' )->get()->sortBy( 'name' );
-                $availableTypes = [];
-                foreach ( $res as $r )
-                {
-                    $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
-                }
-                \Cache::tags( [ 'catalog', 'tickets' ] )->put( 'types', $availableTypes, \Config::get( 'cache.time' ) );
-            }
-
-            $types = [];
             if ( ! empty( $request->get( 'types' ) ) )
             {
                 $types = explode( ',', $request->get( 'types' ) );
+            }
+
+            if ( ! empty( $request->get( 'operators' ) ) )
+            {
+                $operators = explode( ',', $request->get( 'operators' ) );
+            }
+
+            if ( ! empty( $request->get( 'managements' ) ) )
+            {
+                $managements = explode( ',', $request->get( 'managements' ) );
             }
 
         }
 
         $ticketManagements = TicketManagement
             ::mine()
-            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $customer_id, $types )
+            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $customer_id, $types, $operators )
             {
 
                 if ( $customer_id )
@@ -97,6 +91,12 @@ class TicketsController extends BaseController
                     {
                         $ticket
                             ->whereIn( Ticket::getTableName() . '.type_id', $types );
+                    }
+
+                    if ( count( $operators ) )
+                    {
+                        $ticket
+                            ->whereIn( Ticket::getTableName() . '.author_id', $operators );
                     }
 
                     if ( ! empty( $request->get( 'phone' ) ) )
@@ -234,16 +234,16 @@ class TicketsController extends BaseController
                 ->whereIn( TicketManagement::getTableName() . '.status_code', $statuses );
         }
 
+        if ( count( $managements ) )
+        {
+            $ticketManagements
+                ->whereIn( TicketManagement::getTableName() . '.management_id', $managements );
+        }
+
         if ( ! empty( $request->get( 'rate' ) ) )
         {
             $ticketManagements
                 ->where( TicketManagement::getTableName() . '.rate', '=', $request->get( 'rate' ) );
-        }
-
-        if ( $statuses )
-        {
-            $ticketManagements
-                ->whereIn( TicketManagement::getTableName() . '.status_code', $statuses );
         }
 
         if ( ! empty( $request->get( 'address_id' ) ) )
@@ -260,12 +260,6 @@ class TicketsController extends BaseController
         {
             $ticketManagements
                 ->where( TicketManagement::getTableName() . '.id', '=', $request->get( 'ticket_management_id' ) );
-        }
-
-        if ( ! empty( $request->get( 'managements' ) ) )
-        {
-            $ticketManagements
-                ->whereIn( TicketManagement::getTableName() . '.management_id', $request->get( 'managements' ) );
         }
 
         if ( ! empty( $request->get( 'executor_id' ) ) )
@@ -329,11 +323,11 @@ class TicketsController extends BaseController
                     'Квартира'              => $ticket->flat,
                     'Проблемное место'      => $ticket->getPlace(),
                     'Категория заявки'      => $ticket->type->category->name,
-                    'Тип заявки'            => $ticket->type->name,
+                    'Классификатор'         => $ticket->type->name,
                     'Текст обращения'       => $ticket->text,
                     'ФИО заявителя'         => $ticket->getName(),
                     'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                    'Адрес проживания'      => $ticket->customer ? $ticket->customer->getAddress() : '',
+                    'Адрес проживания'      => $ticket->actualAddress->name ?? '',
                 ];
                 if ( $field_operator )
                 {
@@ -379,6 +373,58 @@ class TicketsController extends BaseController
         if ( \Auth::user()->can( 'tickets.search' ) )
         {
 
+            $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
+
+            if ( \Cache::tags( [ 'catalog', 'tickets' ] )->has( 'types' ) )
+            {
+                $availableTypes = \Cache::tags( [ 'catalog', 'tickets' ] )->get( 'types' );
+            }
+            else
+            {
+                $res = Type::with( 'category' )->get()->sortBy( 'name' );
+                $availableTypes = [];
+                foreach ( $res as $r )
+                {
+                    $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+                }
+                \Cache::tags( [ 'catalog', 'tickets' ] )->put( 'types', $availableTypes, \Config::get( 'cache.time' ) );
+            }
+
+            if ( $field_operator )
+            {
+                if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'operators' ) )
+                {
+                    $availableOperators = \Cache::tags( [ 'users', 'ticket' ] )->get( 'operators' );
+                }
+                else
+                {
+                    $res = User::role( 'operator' )->get();
+                    $availableOperators = [];
+                    foreach ( $res as $r )
+                    {
+                        $availableOperators[ $r->id ] = $r->getName();
+                    }
+                    asort( $availableOperators );
+                    \Cache::tags( [ 'users', 'ticket' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+                }
+            }
+
+            if ( $field_management )
+            {
+                if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'managements' ) )
+                {
+                    $availableManagements = \Cache::tags( [ 'users', 'ticket' ] )->get( 'managements' );
+                }
+                else
+                {
+                    $availableManagements = Management
+                        ::mine()
+                        ->orderBy( 'name' )
+                        ->pluck( 'name', 'id' );
+                    \Cache::tags( [ 'users', 'ticket' ] )->put( 'managements', $availableManagements, \Config::get( 'cache.time' ) );
+                }
+            }
+
             if ( ! count( $types ) )
             {
                 foreach ( $availableTypes as $category )
@@ -392,25 +438,23 @@ class TicketsController extends BaseController
                 $statuses = array_keys( $availableStatuses );
             }
 
-            $managements = Management
-                ::mine()
-                ->orderBy( 'name' )
-                ->pluck( 'name', 'id' );
-
         }
 
         return view( 'tickets.index' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'availableTypes', $availableTypes ?? collect() )
-            ->with( 'types', $types ?? collect() )
-            ->with( 'managements', $managements ?? collect() )
+            ->with( 'availableTypes', $availableTypes ?? [] )
+            ->with( 'availableStatuses', $availableStatuses ?? [] )
+            ->with( 'availableOperators', $availableOperators ?? [] )
+            ->with( 'availableManagements', $availableManagements ?? [] )
+            ->with( 'types', $types ?? [] )
+            ->with( 'managements', $managements ?? [] )
+            ->with( 'operators', $operators ?? [] )
+            ->with( 'regions', $regions ?? [] )
+            ->with( 'address', $address ?? [] )
+            ->with( 'actual_address', $actual_address ?? [] )
+            ->with( 'statuses', $statuses ?? [] )
             ->with( 'field_operator', $field_operator ?? false )
-            ->with( 'field_management', $field_management ?? false )
-            ->with( 'regions', $regions ?? collect() )
-            ->with( 'address', $address ?? collect() )
-            ->with( 'actual_address', $actual_address ?? collect() )
-            ->with( 'availableStatuses', $availableStatuses ?? collect() )
-            ->with( 'statuses', $statuses ?? collect() );
+            ->with( 'field_management', $field_management ?? false );
 
     }
 
@@ -1587,6 +1631,16 @@ class TicketsController extends BaseController
             {
                 $data[ 'statuses' ] = implode( ',', $data[ 'statuses' ] );
             }
+        }
+
+        if ( isset( $data[ 'managements' ] ) )
+        {
+            $data[ 'managements' ] = implode( ',', $data[ 'managements' ] );
+        }
+
+        if ( isset( $data[ 'operators' ] ) )
+        {
+            $data[ 'operators' ] = implode( ',', $data[ 'operators' ] );
         }
 
         if ( isset( $data[ 'types' ] ) )
