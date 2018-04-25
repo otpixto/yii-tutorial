@@ -306,7 +306,7 @@ class TicketsController extends BaseController
                 break;
         }
 
-        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) )
+        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->count() < 1000 )
         {
             $ticketManagements = $ticketManagements->get();
             $data = [];
