@@ -7,7 +7,9 @@ use App\Models\PhoneSession;
 use App\Models\Region;
 use App\Models\Ticket;
 use App\Models\TicketCall;
+use App\Models\UserPhoneAuth;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -25,6 +27,7 @@ class RestController extends Controller
         103         => 'Для данного пользователя уже создан черновик',
         104         => 'Запись о звонке не найдена в БД',
         105         => 'Заявитель не найден',
+        900         => 'Внутренняя ошибка',
     ];
 
     public function __construct ( Request $request )
@@ -37,6 +40,36 @@ class RestController extends Controller
     public function index ()
     {
 
+    }
+
+    public function phoneAuth ( Request $request )
+    {
+        $code = $request->get( 'code' );
+        $auth = UserPhoneAuth
+            ::where( 'code', '=', $code )
+            ->first();
+        if ( ! $auth || ( $auth->user && $auth->user->openPhoneSession ) )
+        {
+            return $this->error( 100 );
+        }
+        \DB::beginTransaction();
+        $phoneSession = PhoneSession::create([
+            'user_id'       => $auth->user_id,
+            'number'        => $auth->number
+        ]);
+        if ( $phoneSession instanceof MessageBag )
+        {
+            return $this->error( 900 );
+        }
+        $phoneSession->save();
+        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
+        if ( $log instanceof MessageBag )
+        {
+            return $this->error( 900 );
+        }
+        $auth->delete();
+        \DB::commit();
+        return $this->success();
     }
 
     public function customer ( Request $request )
@@ -162,17 +195,18 @@ class RestController extends Controller
 
     }
 
-    private function error ( $code )
+    private function error ( $code = null )
     {
-        $this->logs->addError( 'Ошибка', [ $code, $this->errors[ $code ] ] );
+        $message = $this->errors[ $code ] ?? null;
+        $this->logs->addError( 'Ошибка', [ $code, $message ] );
         return [
             'success'   => false,
             'code'      => $code,
-            'message'   => $this->errors[ $code ]
+            'message'   => $message
         ];
     }
 
-    private function success ( $message )
+    private function success ( $message = null )
     {
         $this->logs->addInfo( 'Успешно', is_array( $message ) ? $message : [ $message ] );
         return [

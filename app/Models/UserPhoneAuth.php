@@ -16,7 +16,7 @@ class UserPhoneAuth extends BaseModel
 
     public static $name = 'Авторизация на телефоне';
 
-    private static $code_length = 4; // длина кода авторизации
+    private static $code_length = 3; // длина кода авторизации
     public static $timeout = 30; // таймаут авторизации
 
     protected $fillable = [ 'user_id', 'number', 'code' ];
@@ -31,7 +31,7 @@ class UserPhoneAuth extends BaseModel
 
     public function user ()
     {
-        return $this->hasOne( 'App\User' );
+        return $this->hasOne( 'App\User', 'id', 'user_id' );
     }
 
     public static function create ( array $attributes = [] )
@@ -65,7 +65,9 @@ class UserPhoneAuth extends BaseModel
         $phoneAuth->code = self::genCode();
         $phoneAuth->save();
 
-        return self::callWithCode( $phoneAuth->number, $phoneAuth->code );
+        return $phoneAuth;
+
+        //return self::callWithCode( $phoneAuth->number, $phoneAuth->code );
 
     }
 

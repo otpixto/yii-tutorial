@@ -13,13 +13,15 @@
     <div class="form-group">
         {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::text( 'number', $number, [ 'class' => 'form-control', 'maxlength' => 10, 'readonly' ] ) !!}
+            {!! Form::text( 'number', $phoneAuth->number, [ 'class' => 'form-control', 'maxlength' => 10, 'readonly' ] ) !!}
         </div>
     </div>
     <div class="form-group">
-        {!! Form::label( 'code', 'Код', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        {!! Form::label( null, 'Наберите код на телефоне', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::text( 'code', null, [ 'class' => 'form-control', 'maxlength' => 4, 'autofocus' ] ) !!}
+            <span class="form-control">
+                {{ $phoneAuth->code }}
+            </span>
         </div>
     </div>
     <div class="form-group">

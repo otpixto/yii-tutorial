@@ -20,16 +20,12 @@ class ProfileController extends Controller
 
     public function getPhone ()
     {
-
         if ( ! \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
-
         Title::add( 'Информация об авторизациях' );
-
         return view('profile.phone' );
-
     }
 
     public function getPhoneReg ()
@@ -44,63 +40,17 @@ class ProfileController extends Controller
 
     public function postPhoneReg ( Request $request )
     {
-
-        $res = UserPhoneAuth::create( $request->all() );
-
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()->withErrors( $res );
-        }
-
-        return redirect()->route( 'profile.phone_confirm' )
-            ->with( 'number', $request->get( 'number' ) )
-            ->with( 'success', 'На указанный добавочный номер выслан код' );
-
-    }
-
-    public function getPhoneConfirm ( Request $request )
-    {
-        if ( ! \Session::get( 'number' ) )
-        {
-            return redirect()->route( 'profile.phone_reg' );
-        }
         if ( \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone' );
         }
-        Title::add( 'Авторизация телефона' );
-        return view('profile.phone_confirm' )
-            ->with( 'number', \Session::get( 'number' ) );
-    }
-
-    public function postPhoneConfirm ( Request $request )
-    {
-        $res = UserPhoneAuth::confirm( $request->all() );
-        if ( $res instanceof MessageBag )
+        $phoneAuth = UserPhoneAuth::create( $request->all() );
+        if ( $phoneAuth instanceof MessageBag )
         {
-            return redirect()->route( 'profile.phone_reg' )->withErrors( $res );
+            return redirect()->back()->withErrors( $phoneAuth );
         }
-        \DB::beginTransaction();
-        $phoneSession = PhoneSession::create([
-            'user_id'       => \Auth::user()->id,
-            'number'        => $request->get( 'number' )
-        ]);
-        if ( $phoneSession instanceof MessageBag )
-        {
-            return redirect()
-                ->route( 'profile.phone_reg' )
-                ->withErrors( $phoneSession );
-        }
-        $phoneSession->save();
-        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
-        if ( $log instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $log );
-        }
-        \DB::commit();
-        return redirect()->route( 'profile.phone' )
-            ->with( 'success', 'Телефон успешно зарегистрирован' );
+        return view( 'profile.phone_confirm' )
+            ->with( 'phoneAuth', $phoneAuth );
     }
 
     public function postPhoneUnreg ()

@@ -22,6 +22,9 @@ class SessionsController extends BaseController
     public function index ( Request $request )
     {
 
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->subMonth() ) );
+        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+
         $sessions = PhoneSession
             ::orderBy( 'id', 'desc' );
 
@@ -37,18 +40,16 @@ class SessionsController extends BaseController
                 ->where( 'number', '=', $request->get( 'number' ) );
         }
 
-        if ( ! empty( $request->get( 'date_from' ) ) )
+        if ( ! empty( $date_from ) )
         {
-            $dt = Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString();
             $sessions
-                ->whereRaw( 'DATE( created_at ) >= ? AND ( closed_at IS NULL OR DATE( closed_at ) >= ? )', [ $dt, $dt ] );
+                ->where( \DB::raw( 'DATE( created_at )' ), '>=', $date_from->toDateString() );
         }
 
-        if ( ! empty( $request->get( 'date_to' ) ) )
+        if ( ! empty( $date_to ) )
         {
-            $dt = Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString();
             $sessions
-                ->whereRaw( 'DATE( created_at ) <= ? AND DATE( closed_at ) <= ?', [ $dt, $dt ] );
+                ->where( \DB::raw( 'DATE( created_at )' ), '<=', $date_to->toDateString() );
         }
 
         $sessions = $sessions
@@ -68,9 +69,16 @@ class SessionsController extends BaseController
             $operators[ $r->id ] = $r->getName();
         }
 
+        $activeSessions = PhoneSession
+            ::whereNull( 'closed_at' )
+            ->get();
+
         return view('admin.sessions.index' )
             ->with( 'sessions', $sessions )
-            ->with( 'operators', $operators );
+            ->with( 'operators', $operators )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to )
+            ->with( 'activeSessions', $activeSessions );
 
     }
 
@@ -181,7 +189,7 @@ class SessionsController extends BaseController
                 ->route( 'sessions.index' )
                 ->withErrors( [ 'Сессия уже закрыта' ] );
         }
-        \DB::beginTransaction();
+        //\DB::beginTransaction();
         $log = $phoneSession->addLog( 'Телефонная сессия завершена' );
         if ( $log instanceof MessageBag )
         {
@@ -189,13 +197,13 @@ class SessionsController extends BaseController
                 ->withErrors( $log );
         }
         $res = $phoneSession->user->phoneSessionUnreg();
-        if ( $res instanceof MessageBag )
+        /*if ( $res instanceof MessageBag )
         {
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( $res );
-        }
-        \DB::commit();
+        }*/
+        //\DB::commit();
         return redirect()->route( 'sessions.index' )
             ->with( 'success', 'Сессия успешно закрыта' );
     }

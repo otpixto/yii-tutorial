@@ -23,6 +23,8 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::post( 'customer', 'RestController@customer' );
         Route::post( 'ticket-call', 'RestController@ticketCall' );
 
+        Route::any( 'phone-auth', 'RestController@phoneAuth' );
+
     });
 
 });
