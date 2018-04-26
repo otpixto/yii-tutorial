@@ -9,37 +9,32 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'class' => 'form-horizontal submit-loading' ] ) !!}
-    <div class="form-group">
-        {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
-            {!! Form::text( 'number', $phoneAuth->number, [ 'class' => 'form-control', 'maxlength' => 10, 'readonly' ] ) !!}
+    <div class="form-horizontal">
+        <div class="form-group">
+            {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-6">
+                {!! Form::text( 'number', $phoneAuth->number, [ 'class' => 'form-control', 'maxlength' => 10, 'readonly' ] ) !!}
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        {!! Form::label( null, 'Наберите код на телефоне', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
+        <div class="form-group">
+            {!! Form::label( null, 'Наберите код на телефоне', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-6">
             <span class="form-control">
                 {{ $phoneAuth->code }}
             </span>
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-6">
-            <div class="progress progress-striped active" style="margin-bottom:0;">
-                <div class="progress-bar progress-bar-warning" style="width: 100%">
-                    Осталось:
-                    <b data-left="{{ \Carbon\Carbon::now()->addSeconds( \App\Models\UserPhoneAuth::$timeout )->toDateTimeString() }}"></b>
+        <div class="form-group">
+            <div class="col-xs-offset-3 col-xs-6">
+                <div class="progress progress-striped active" style="margin-bottom:0;">
+                    <div class="progress-bar progress-bar-warning" style="width: 100%">
+                        Осталось:
+                        <b data-left="{{ \Carbon\Carbon::now()->addSeconds( \App\Models\UserPhoneAuth::$timeout )->toDateTimeString() }}"></b>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="form-group">
-        <div class=" col-xs-offset-3 col-xs-6">
-            {!! Form::submit( 'Подтвердить', [ 'class' => 'btn btn-primary' ] ) !!}
-        </div>
-    </div>
-    {!! Form::close() !!}
 
 @endsection
 
