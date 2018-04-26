@@ -50,7 +50,7 @@
             var s = Math.floor(((new Date (t[0], t[1]-1, t[2], t[3]?t[3]:0, t[4]?t[4]:0, t[5]?t[5]:0)).getTime() - (new Date().getTime())) / 1000);
             if ( s < 0 )
             {
-                window.location.href = "{{ route( 'profile.phone_reg' ) }}";
+                window.location.href = "{{ route( 'profile.phone_reg' ) }}?r=" + Math.random();
             }
             else
             {
