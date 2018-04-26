@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Asterisk;
 use App\Models\Customer;
 use App\Models\PhoneSession;
 use App\Models\Region;
@@ -27,6 +28,7 @@ class RestController extends Controller
         103         => 'Для данного пользователя уже создан черновик',
         104         => 'Запись о звонке не найдена в БД',
         105         => 'Заявитель не найден',
+        106         => 'Астериск ответил ошибкой',
         900         => 'Внутренняя ошибка',
     ];
 
@@ -53,18 +55,25 @@ class RestController extends Controller
             return $this->error( 100 );
         }
         \DB::beginTransaction();
+        $asterisk = new Asterisk();
+        if ( ! $asterisk->queueAdd( $auth->number ) )
+        {
+            return $this->error( 106 );
+        }
         $phoneSession = PhoneSession::create([
             'user_id'       => $auth->user_id,
             'number'        => $auth->number
         ]);
         if ( $phoneSession instanceof MessageBag )
         {
+            $asterisk->queueRemove( $auth->number );
             return $this->error( 900 );
         }
         $phoneSession->save();
         $log = $phoneSession->addLog( 'Телефонная сессия началась' );
         if ( $log instanceof MessageBag )
         {
+            $asterisk->queueRemove( $auth->number );
             return $this->error( 900 );
         }
         $auth->delete();
