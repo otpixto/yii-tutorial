@@ -20,7 +20,7 @@
 
     <div class="form-group">
         <div class=" col-xs-offset-3 col-xs-6">
-            {!! Form::submit( 'Отправить код', [ 'class' => 'btn btn-primary' ] ) !!}
+            {!! Form::submit( 'Авторизоваться', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
 
