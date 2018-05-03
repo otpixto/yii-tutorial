@@ -147,13 +147,13 @@
 
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <div id="controls" style="display: none;">
-                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get', 'target' => '_blank' ] ) !!}
+                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox' ] ) !!}
                 {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
                 <button type="submit" class="btn btn-default btn-lg">
                     Распечатать наряд-заказы (<span id="ids-count">0</span>)
                 </button>
                 {!! Form::close(); !!}
-                <a href="javascript:;" class="text-default" id="cancel-ids">
+                <a href="javascript:;" class="text-default" id="cancel-checkbox">
                     отмена
                 </a>
             </div>
@@ -247,6 +247,12 @@
             }
         };
 
+        function cancelCheckbox ()
+        {
+            $( '.ticket-checkbox' ).removeAttr( 'checked' );
+            checkTicketCheckbox();
+        };
+
         $( document )
 
             .ready( function ()
@@ -326,11 +332,15 @@
 
             })
 
-            .on( 'click', '#cancel-ids', function ( event )
+            .on( 'click', '#cancel-checkbox', function ( event )
             {
                 event.preventDefault();
-                $( '.ticket-checkbox' ).removeAttr( 'checked' );
-                checkTicketCheckbox();
+                cancelCheckbox();
+            })
+
+            .on( 'submit', '#form-checkbox', function ( event )
+            {
+                setTimeout( cancelCheckbox, 500 );
             })
 
             .on( 'change', '.ticket-checkbox', checkTicketCheckbox );
