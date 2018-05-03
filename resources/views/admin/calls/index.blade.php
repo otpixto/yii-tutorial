@@ -133,7 +133,7 @@
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    @if ( $call->dcontext == 'incoming' && $call->ticket )
+                                    @if ( $call->dcontext == 'incoming' && $call->ticket()->where( 'status_code', '!=', 'draft' )->first() )
                                         <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
                                             <i class="fa fa-chevron-right"></i>
                                         </a>
