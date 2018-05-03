@@ -153,6 +153,9 @@
                     Распечатать наряд-заказы (<span id="ids-count">0</span>)
                 </button>
                 {!! Form::close(); !!}
+                <a href="javascript:;" class="text-default" id="cancel-ids">
+                    отмена
+                </a>
             </div>
         @endif
 
@@ -321,6 +324,13 @@
                     'mask': '+7 (999) 999-99-99'
                 });
 
+            })
+
+            .on( 'click', '#cancel-ids', function ( event )
+            {
+                event.preventDefault();
+                $( '.ticket-checkbox' ).removeAttr( 'checked' );
+                checkTicketCheckbox();
             })
 
             .on( 'change', '.ticket-checkbox', checkTicketCheckbox );
