@@ -26,6 +26,11 @@
         h3, h4 {
             margin: 15px 0;
         }
+        hr {
+            margin: 50px 0 30px 0;
+            border: none;
+            border-bottom: 1px dashed #999;
+        }
     </style>
     <!-- END PAGE LEVEL STYLES -->
 </head>
@@ -54,6 +59,14 @@
             </div>
 
             <div >
+                Заявитель: <b>{{ $ticketManagement->ticket->getName() ?? '' }}</b>
+            </div>
+
+            <div >
+                Телефон(ы) заявителя: <b>{{ $ticketManagement->ticket->getPhones() ?? '' }}</b>
+            </div>
+
+            <div >
                 Дата подачи заявки: <b>{{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}</b>
             </div>
 
@@ -69,15 +82,15 @@
                 Дата и время выполнения работы ______________________________________________
             </div>
 
-            <div class="margin-top-15">
+            <div class="margin-top-20">
                 Подпись заявителя ______________________________________________________________
             </div>
 
-            <hr />
-
-            @if ( ++ $i == 4 )
+            @if ( ++ $i == 3 )
                 <div class="pagebreak"></div>
                 @php( $i = 0 )
+            @else
+                <hr />
             @endif
 
         @endforeach
