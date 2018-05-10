@@ -261,7 +261,8 @@
                 $('.date-picker').datepicker({
                     rtl: App.isRTL(),
                     orientation: "left",
-                    autoclose: true
+                    autoclose: true,
+                    format: 'dd.mm.yyyy'
                 });
 
                 $( '.select2' ).select2();

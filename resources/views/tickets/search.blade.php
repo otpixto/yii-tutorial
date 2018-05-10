@@ -91,6 +91,21 @@
                 </div>
                 <div style="display: none;" id="additional-search">
                     <hr />
+                    <div class="row">
+                        <h4 class="col-md-2">
+                            Период
+                        </h4>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-xs-6 col-md-3">
+                                    {!! Form::text( 'period_from', \Input::get( 'period_from' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
+                                </div>
+                                <div class="col-xs-6 col-md-3">
+                                    {!! Form::text( 'period_to', \Input::get( 'period_to' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row margin-top-10">
                         <h4 class="col-md-2">
                             Статус(ы)
