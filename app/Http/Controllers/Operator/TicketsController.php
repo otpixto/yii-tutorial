@@ -411,18 +411,10 @@ class TicketsController extends BaseController
 
             if ( $field_management )
             {
-                if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'managements' ) )
-                {
-                    $availableManagements = \Cache::tags( [ 'users', 'ticket' ] )->get( 'managements' );
-                }
-                else
-                {
-                    $availableManagements = Management
-                        ::mine()
-                        ->orderBy( 'name' )
-                        ->pluck( 'name', 'id' );
-                    \Cache::tags( [ 'users', 'ticket' ] )->put( 'managements', $availableManagements, \Config::get( 'cache.time' ) );
-                }
+                $availableManagements = Management
+                    ::mine()
+                    ->orderBy( 'name' )
+                    ->pluck( 'name', 'id' );
             }
 
             if ( ! count( $types ) )
