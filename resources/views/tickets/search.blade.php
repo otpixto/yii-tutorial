@@ -98,10 +98,10 @@
                         <div class="col-md-10">
                             <div class="row">
                                 <div class="col-xs-6 col-md-3">
-                                    {!! Form::text( 'period_from', \Input::get( 'period_from' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
+                                    {!! Form::text( 'period_from', \Input::get( 'period_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'От' ] ) !!}
                                 </div>
                                 <div class="col-xs-6 col-md-3">
-                                    {!! Form::text( 'period_to', \Input::get( 'period_to' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
+                                    {!! Form::text( 'period_to', \Input::get( 'period_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'До' ] ) !!}
                                 </div>
                             </div>
                         </div>

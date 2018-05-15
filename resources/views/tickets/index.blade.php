@@ -258,6 +258,14 @@
             .ready( function ()
             {
 
+                $( '.datetimepicker' ).datetimepicker({
+                    isRTL: App.isRTL(),
+                    format: "dd.mm.yyyy hh:ii",
+                    autoclose: true,
+                    fontAwesome: true,
+                    todayBtn: true
+                });
+
                 $('.date-picker').datepicker({
                     rtl: App.isRTL(),
                     orientation: "left",
