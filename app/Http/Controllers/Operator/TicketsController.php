@@ -172,13 +172,13 @@ class TicketsController extends BaseController
                 if ( ! empty( $request->get( 'period_from' ) ) )
                 {
                     $ticket
-                        ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'period_from' ) )->toDateTimeString() ] );
+                        ->whereRaw( 'created_at >= ?', [ Carbon::parse( $request->get( 'period_from' ) )->toDateTimeString() ] );
                 }
 
                 if ( ! empty( $request->get( 'period_to' ) ) )
                 {
                     $ticket
-                        ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'period_to' ) )->toDateTimeString() ] );
+                        ->whereRaw( 'created_at <= ?', [ Carbon::parse( $request->get( 'period_to' ) )->toDateTimeString() ] );
                 }
 
                 if ( $field_operator && !empty( $request->get( 'operator_id' ) ) )
