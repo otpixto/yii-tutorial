@@ -408,6 +408,11 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="note">
+                        @if ( $ticket->canCall() )
+                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->management->getPhones() }}">
+                                <i class="fa fa-phone"></i>
+                            </button>
+                        @endif
                         <dl>
                             <dt>
                                 @if ( $ticket->managements()->mine()->count() > 1 )
@@ -422,7 +427,7 @@
                                 {{ $ticketManagement->management->name ?: '-' }}
                             </dd>
                             <dd>
-                                {{ $ticketManagement->management->phone }}
+                                {{ $ticketManagement->management->getPhones() }}
                             </dd>
                             @if ( $ticketManagement->management->address )
                                 <dd class="small">
@@ -506,10 +511,10 @@
                             <div class="row">
                                 <div class="col-xs-5">
                                     <dl>
-                                        @if ( ! $_ticketManagement->management->has_contract )
-                                            <div class="label label-danger pull-right">
-                                                Отсутствует договор
-                                            </div>
+                                        @if ( $ticket->canCall() )
+                                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $_ticketManagement->management->getPhones() }}">
+                                                <i class="fa fa-phone"></i>
+                                            </button>
                                         @endif
                                         <dt>
                                             <a href="{{ route( 'tickets.show', $_ticketManagement->getTicketNumber() ) }}">
@@ -524,6 +529,13 @@
 												{{ $_ticketManagement->management->address->name }}
 											</dd>
 										@endif
+                                        @if ( ! $_ticketManagement->management->has_contract )
+                                            <div class="margin-top-10">
+                                                <span class="label label-danger">
+                                                    Отсутствует договор
+                                                </span>
+                                            </div>
+                                        @endif
                                     </dl>
                                 </div>
                                 <div class="col-xs-4">
