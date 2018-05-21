@@ -25,17 +25,6 @@ class Management extends BaseModel
         'Холодное водоснабжение',
     ];
 
-    public static $rules = [
-        'region_id'             => 'required|integer',
-        'address_id'            => 'nullable|integer',
-        'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-        'name'                  => 'required|string|max:255',
-        'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'email'                 => 'nullable|email',
-        'site'                  => 'nullable|url',
-    ];
-
     protected $nullable = [
         'address_id',
         'guid',
