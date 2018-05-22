@@ -43,31 +43,51 @@
         <table class="table table-striped sortable" id="data">
             <thead>
                 <tr>
-                    <th rowspan="3">
-                        Дата \ время
+                    <th rowspan="2">
+                        Дата | время
                     </th>
+                    <th class="text-center bold" colspan="2">
+                        Входящие звонки
+                    </th>
+                    <th class="text-center bold" colspan="2">
+                        Исходящие звонки
+                    </th>
+                    <th class="text-center info bold" rowspan="2">
+                        Создано заявок
+                    </th>
+                </tr>
+                <tr>
                     <th class="text-center info bold">
-                        Поступило звонков
+                        Кол-во
                     </th>
                     <th class="text-center">
-                        Длительность разговоров
+                        Длительность
                     </th>
                     <th class="text-center info bold">
-                        Создано заявок
+                        Кол-во
+                    </th>
+                    <th class="text-center">
+                        Длительность
                     </th>
                 </tr>
             </thead>
             <tbody>
             @foreach ( $data as $date => $arr )
-                <tr @if ( ! $arr[ 'calls' ] && ! $arr[ 'tickets' ] ) class="text-muted" @endif>
+                <tr @if ( ! $arr[ 'incoming' ][ 'calls' ] && ! $arr[ 'outgoing' ][ 'calls' ] && ! $arr[ 'tickets' ] ) class="text-muted" @endif>
                     <td data-field="date">
                         {{ $date }}
                     </td>
-                    <td class="text-center info bold" data-field="calls">
-                        {{ $arr[ 'calls' ] }}
+                    <td class="text-center info bold" data-field="incoming-calls">
+                        {{ $arr[ 'incoming' ][ 'calls' ] }}
                     </td>
-                    <td class="text-center" data-field="duration" data-value="{{ $arr[ 'duration' ] }}">
-                        {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'duration' ] ) ) }}
+                    <td class="text-center" data-field="incoming-duration" data-value="{{ $arr[ 'incoming' ][ 'duration' ] }}">
+                        {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'incoming' ][ 'duration' ] ) ) }}
+                    </td>
+                    <td class="text-center info bold" data-field="outgoing-calls">
+                        {{ $arr[ 'outgoing' ][ 'calls' ] }}
+                    </td>
+                    <td class="text-center" data-field="outgoing-duration" data-value="{{ $arr[ 'outgoing' ][ 'duration' ] }}">
+                        {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'outgoing' ][ 'duration' ] ) ) }}
                     </td>
                     <td class="text-center info bold" data-field="tickets">
                         {{ $arr[ 'tickets' ] }}
@@ -141,8 +161,8 @@
 
                     dataProvider.push({
                         'date': $.trim( $( this ).find( '[data-field="date"]' ).text() ),
-                        'calls': $.trim( $( this ).find( '[data-field="calls"]' ).text() ),
-                        'duration': $.trim( $( this ).find( '[data-field="duration"]' ).attr( 'data-value' ) ),
+                        'incoming': $.trim( $( this ).find( '[data-field="incoming-calls"]' ).text() ),
+                        'outgoing': $.trim( $( this ).find( '[data-field="outgoing-calls"]' ).text() ),
                         'tickets': $.trim( $( this ).find( '[data-field="tickets"]' ).text() ),
                     });
 
@@ -164,48 +184,41 @@
                             "axisAlpha": 0,
                             "gridAlpha": 0,
                             "position": "left",
-                            "title": "Количество"
+                            "title": "Звонки / Заявки"
+                        }
+                    ],
+                    "graphs": [
+                        {
+                            "balloonText": "[[value]]",
+                            "fillAlphas": 0.7,
+                            "legendPeriodValueText": "Всего: [[value.sum]]",
+                            "legendValueText": "[[value]]",
+                            "title": "Входящие",
+                            "type": "column",
+                            "valueField": "incoming",
+                            "valueAxis": "count"
                         },
                         {
-                            "id": "duration",
-                            "duration": "ss",
-                            "durationUnits": {
-                                "hh": "ч ",
-                                "mm": "мин ",
-                                "ss": "сек"
-                            },
-                            "axisAlpha": 0,
-                            "gridAlpha": 0,
-                            "position": "right",
-                            "title": "Длительность разговора"
+                            "balloonText": "[[value]]",
+                            "fillAlphas": 0.7,
+                            "legendPeriodValueText": "Всего: [[value.sum]]",
+                            "legendValueText": "[[value]]",
+                            "title": "Исходящие",
+                            "type": "column",
+                            "valueField": "outgoing",
+                            "valueAxis": "count"
                         },
+                        {
+                            "balloonText": "[[value]]",
+                            "fillAlphas": 0.7,
+                            "legendPeriodValueText": "Всего: [[value.sum]]",
+                            "legendValueText": "[[value]]",
+                            "title": "Количество заявок",
+                            "type": "column",
+                            "valueField": "tickets",
+                            "valueAxis": "count"
+                        }
                     ],
-                    "graphs": [{
-                        "balloonText": "[[value]]",
-                        "fillAlphas": 0.7,
-                        "legendPeriodValueText": "Всего: [[value.sum]]",
-                        "legendValueText": "[[value]]",
-                        "title": "Количество звонков",
-                        "type": "column",
-                        "valueField": "calls",
-                        "valueAxis": "count"
-                    }, {
-                        "dashLengthField": "duration",
-                        "legendValueText": "[[value]]",
-                        "title": "Длительность разговора",
-                        "fillAlphas": 0,
-                        "valueField": "duration",
-                        "valueAxis": "duration"
-                    },{
-                        "balloonText": "[[value]]",
-                        "fillAlphas": 0.7,
-                        "legendPeriodValueText": "Всего: [[value.sum]]",
-                        "legendValueText": "[[value]]",
-                        "title": "Количество заявок",
-                        "type": "column",
-                        "valueField": "tickets",
-                        "valueAxis": "count"
-                    }],
                     "chartCursor": {
                         "categoryBalloonDateFormat": "DD.MM.YYYY",
                         "cursorAlpha": 0.1,

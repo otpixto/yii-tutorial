@@ -405,27 +405,16 @@ class ReportsController extends BaseController
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $operator_id = $request->get( 'operator_id', null );
 
-        if ( $operator_id )
-        {
-            $operator = User::find( $operator_id );
-            if ( ! $operator )
-            {
-                return redirect()
-                    ->back()
-                    ->withErrors( [ 'Оператор не найден' ] );
-            }
-        }
-
         if ( $date_from->timestamp > $date_to->timestamp )
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
 
         $res = Cdr
-            ::incoming()
-            ->mine()
+            ::mine()
+            ->answered()
             ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
-            ->whereHas( 'queueLog' )
+            //->whereHas( 'queueLog' )
             ->groupBy( 'uniqueid' )
             ->with( 'queueLog' )
             ->get();
@@ -446,27 +435,34 @@ class ReportsController extends BaseController
 
         foreach ( $res as $r )
         {
-            if ( $operator_id )
-            {
-                $cdr_operator = $r->queueLog->operator();
-                if ( ! $cdr_operator || $cdr_operator->id != $operator_id )
-                {
-                    continue;
-                }
-            }
             $date = date( $format, strtotime( $r->calldate ) );
             if ( ! isset( $data[ $date ] ) )
             {
                 $data[ $date ] = [
-                    'calls' => 0,
-                    'duration' => 0,
+                    'incoming' => [
+                        'calls' => 0,
+                        'duration' => 0,
+                    ],
+                    'outgoing' => [
+                        'calls' => 0,
+                        'duration' => 0,
+                    ],
                     'tickets' => 0,
                 ];
             }
-            $data[ $date ][ 'calls' ] ++;
-            if ( $r->queueLog->isComplete() )
+            if ( $operator_id && ( ! $r->getOperator() || $r->getOperator()->id != $operator_id ) )
             {
-                $data[ $date ][ 'duration' ] += $r->duration;
+                continue;
+            }
+            if ( $r->dcontext == 'incoming' )
+            {
+                $data[ $date ][ 'incoming' ][ 'calls' ] ++;
+                $data[ $date ][ 'incoming' ][ 'duration' ] += $r->duration;
+            }
+            else if ( $r->dcontext == 'outgoing' )
+            {
+                $data[ $date ][ 'outgoing' ][ 'calls' ] ++;
+                $data[ $date ][ 'outgoing' ][ 'duration' ] += $r->duration;
             }
         }
 
@@ -496,8 +492,14 @@ class ReportsController extends BaseController
                 if ( ! isset( $data[ $date ] ) )
                 {
                     $data[ $date ] = [
-                        'calls' => 0,
-                        'duration' => 0,
+                        'incoming' => [
+                            'calls' => 0,
+                            'duration' => 0,
+                        ],
+                        'outgoing' => [
+                            'calls' => 0,
+                            'duration' => 0,
+                        ],
                         'tickets' => 0,
                     ];
                 }
@@ -523,8 +525,14 @@ class ReportsController extends BaseController
             if ( ! isset( $data[ $date ] ) )
             {
                 $data[ $date ] = [
-                    'calls' => 0,
-                    'duration' => 0,
+                    'incoming' => [
+                        'calls' => 0,
+                        'duration' => 0,
+                    ],
+                    'outgoing' => [
+                        'calls' => 0,
+                        'duration' => 0,
+                    ],
                     'tickets' => 0,
                 ];
             }

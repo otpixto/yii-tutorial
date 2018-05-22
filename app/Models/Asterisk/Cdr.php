@@ -23,9 +23,16 @@ class Cdr extends BaseModel
         'FAILED'        => 'Безуспешно'
     ];
 
+    public $_operator = '-1';
+
     public function queueLog ()
     {
         return $this->belongsTo( 'App\Models\Asterisk\QueueLog', 'uniqueid', 'callid' );
+    }
+
+    public function queueLogs ()
+    {
+        return $this->hasMany( 'App\Models\Asterisk\QueueLog', 'callid', 'uniqueid' );
     }
 
     public function scopeIncoming ( $query )
@@ -93,6 +100,16 @@ class Cdr extends BaseModel
         return 'http://' . \Config::get( 'asterisk.ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
     }
 
+    public function getOperator ()
+    {
+        if ( $this->_operator == '-1' )
+        {
+            $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
+            $this->_operator = $queueLog ? $queueLog->operator() : null;
+        }
+        return $this->_operator;
+    }
+
     public function getCaller ()
     {
         $res = mb_substr( $this->src, -11 );
@@ -141,6 +158,11 @@ class Cdr extends BaseModel
     public function getStatus ()
     {
         return self::$statuses[ $this->disposition ] ?? '-';
+    }
+
+    public function isComplete ()
+    {
+        return $this->queueLogs()->whereIn( 'event', QueueLog::$completeEvents )->count() ? true : false;
     }
 
 }
