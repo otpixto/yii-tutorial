@@ -81,13 +81,13 @@
                         {{ $arr[ 'incoming' ][ 'calls' ] }}
                     </td>
                     <td class="text-center" data-field="incoming-duration" data-value="{{ $arr[ 'incoming' ][ 'duration' ] }}">
-                        {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'incoming' ][ 'duration' ] ) ) }}
+                        {{ gmdate( 'H:i:s', $arr[ 'incoming' ][ 'duration' ] ) }}
                     </td>
                     <td class="text-center info bold" data-field="outgoing-calls">
                         {{ $arr[ 'outgoing' ][ 'calls' ] }}
                     </td>
                     <td class="text-center" data-field="outgoing-duration" data-value="{{ $arr[ 'outgoing' ][ 'duration' ] }}">
-                        {{ date( 'H:i:s', mktime( 0, 0, $arr[ 'outgoing' ][ 'duration' ] ) ) }}
+                        {{ gmdate( 'H:i:s', $arr[ 'outgoing' ][ 'duration' ] ) }}
                     </td>
                     <td class="text-center info bold" data-field="tickets">
                         {{ $arr[ 'tickets' ] }}
@@ -95,6 +95,36 @@
                 </tr>
             @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Итого
+                    </th>
+                    <th class="bold text-center warning">
+                        {{ $totals[ 'incoming' ][ 'calls' ] }}
+                    </th>
+                    <th class="bold text-center">
+                        @if ( $totals[ 'incoming' ][ 'duration' ] > 86400 )
+                            {{ gmdate( 'dд. H:i:s', $totals[ 'incoming' ][ 'duration' ] - 86400 ) }}
+                        @else
+                            {{ gmdate( 'H:i:s', $totals[ 'incoming' ][ 'duration' ] ) }}
+                        @endif
+                    </th>
+                    <th class="bold text-center warning">
+                        {{ $totals[ 'outgoing' ][ 'calls' ] }}
+                    </th>
+                    <th class="bold text-center">
+                        @if ( $totals[ 'outgoing' ][ 'duration' ] > 86400 )
+                            {{ gmdate( 'dд. H:i:s', $totals[ 'outgoing' ][ 'duration' ] - 86400 ) }}
+                        @else
+                            {{ gmdate( 'H:i:s', $totals[ 'outgoing' ][ 'duration' ] ) }}
+                        @endif
+                    </th>
+                    <th class="text-center warning bold">
+                        {{ $totals[ 'tickets' ] }}
+                    </th>
+                </tr>
+            </tfoot>
         </table>
 
     @else

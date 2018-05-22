@@ -414,12 +414,21 @@ class ReportsController extends BaseController
             ::mine()
             ->answered()
             ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
-            //->whereHas( 'queueLog' )
             ->groupBy( 'uniqueid' )
-            ->with( 'queueLog' )
             ->get();
 
         $data = [];
+        $totals = [
+            'incoming' => [
+                'calls' => 0,
+                'duration' => 0,
+            ],
+            'outgoing' => [
+                'calls' => 0,
+                'duration' => 0,
+            ],
+            'tickets' => 0,
+        ];
 
         $one_day = false;
 
@@ -458,11 +467,15 @@ class ReportsController extends BaseController
             {
                 $data[ $date ][ 'incoming' ][ 'calls' ] ++;
                 $data[ $date ][ 'incoming' ][ 'duration' ] += $r->duration;
+                $totals[ 'incoming' ][ 'calls' ] ++;
+                $totals[ 'incoming' ][ 'duration' ] += $r->duration;
             }
             else if ( $r->dcontext == 'outgoing' )
             {
                 $data[ $date ][ 'outgoing' ][ 'calls' ] ++;
                 $data[ $date ][ 'outgoing' ][ 'duration' ] += $r->duration;
+                $totals[ 'outgoing' ][ 'calls' ] ++;
+                $totals[ 'outgoing' ][ 'duration' ] += $r->duration;
             }
         }
 
@@ -537,6 +550,7 @@ class ReportsController extends BaseController
                 ];
             }
             $data[ $date ][ 'tickets' ] ++;
+            $totals[ 'tickets' ] ++;
         }
 
         uksort( $data, function ( $a, $b ) use ( $one_day )
@@ -569,6 +583,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.operators' )
             ->with( 'data', $data )
+            ->with( 'totals', $totals )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'availableOperators', $availableOperators )
