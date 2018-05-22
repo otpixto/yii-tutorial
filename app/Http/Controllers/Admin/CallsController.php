@@ -44,13 +44,29 @@ class CallsController extends BaseController
                         ->phoneSessions()
                         ->whereBetween( 'created_at', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
                         ->get();
-                    return $q
-                        ->whereIn( 'src', $phoneSessions->pluck( 'number' ) )
-                        ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSessions )
+                    if ( $phoneSessions->count() )
+                    {
+                        foreach ( $phoneSessions as $phoneSession )
                         {
-                            return $queueLogs
-                                ->whereIn( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSessions->pluck( 'number' ) );
-                        });
+                            $q
+                                ->whereBetween( 'calldate', [ $phoneSession->created_at->toDateTimeString(), $phoneSession->closed_at ? $phoneSession->closed_at->toDateTimeString() : Carbon::now()->toDateTimeString() ] )
+                                ->where( function ( $q2 ) use ( $phoneSession )
+                                {
+                                    return $q2
+                                        ->where( 'src', '=', $phoneSession->number )
+                                        ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSession )
+                                        {
+                                            return $queueLogs
+                                                ->where( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSession->number );
+                                        });
+                                });
+                        }
+                    }
+                    else
+                    {
+                        $q->where( 'src', '=', '-1' );
+                    }
+                    return $q;
                 });
         }
 
