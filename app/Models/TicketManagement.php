@@ -317,7 +317,9 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! $force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
+        $availableStatuses = $this->ticket->getAvailableStatuses( 'edit' ) + $this->getAvailableStatuses( 'edit' );
+
+        if ( ! $force && ! in_array( $status_code, $availableStatuses ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
@@ -330,9 +332,6 @@ class TicketManagement extends BaseModel
             return redirect()->back()
                 ->withErrors( $log );
         }
-
-        $this->decrementCountByStatus( $this->status_code );
-        $this->incrementCountByStatus( $status_code );
 
         $this->status_code = $status_code;
         $this->status_name = Ticket::$statuses[ $status_code ];
@@ -630,36 +629,6 @@ class TicketManagement extends BaseModel
         if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
         {
             $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( $key );
-        }
-        else
-        {
-            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
-        }
-        return $count;
-    }
-
-    public static function decrementCountByStatus ( $status_code, $force = false )
-    {
-        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
-        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
-        {
-            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->decrement( $key );
-        }
-        else
-        {
-            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
-        }
-        return $count;
-    }
-
-    public static function incrementCountByStatus ( $status_code, $force = false )
-    {
-        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
-        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
-        {
-            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->increment( $key );
         }
         else
         {
