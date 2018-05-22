@@ -13,7 +13,7 @@
         за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </p>
 
-    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
+    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print submit-loading' ] ) !!}
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
