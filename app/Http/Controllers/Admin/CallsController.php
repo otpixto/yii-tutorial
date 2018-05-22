@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Asterisk\Cdr;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,8 @@ class CallsController extends BaseController
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+
+        $operator_id = $request->get( 'operator_id', null );
 
         $calls = Cdr
             ::orderBy( 'id', 'desc' )
@@ -87,10 +90,28 @@ class CallsController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
+        if ( \Cache::tags( [ 'users', 'reports' ] )->has( 'operators' ) )
+        {
+            $availableOperators = \Cache::tags( [ 'users', 'reports' ] )->get( 'operators' );
+        }
+        else
+        {
+            $res = User::role( 'operator' )->get();
+            $availableOperators = [];
+            foreach ( $res as $r )
+            {
+                $availableOperators[ $r->id ] = $r->getName();
+            }
+            asort( $availableOperators );
+            \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+        }
+
         return view('admin.calls.index' )
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )
-            ->with( 'date_to', $date_to );
+            ->with( 'date_to', $date_to )
+            ->with( 'availableOperators', $availableOperators )
+            ->with( 'operator_id', $operator_id );
 
     }
 

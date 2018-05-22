@@ -46,9 +46,9 @@ class PhoneSession extends BaseModel
                 ::answered()
                 ->incoming()
                 ->where( 'calldate', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
-                ->whereHas( 'queueLog', function ( $queueLog ) use ( $channel )
+                ->whereHas( 'queueLogs', function ( $queueLogs ) use ( $channel )
                 {
-                    return $queueLog
+                    return $queueLogs
                         ->completed()
                         ->where( 'agent', '=', $channel );
                 });

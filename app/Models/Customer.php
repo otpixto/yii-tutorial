@@ -84,9 +84,9 @@ class Customer extends BaseModel
                 })
                 ->answered()
                 ->incoming()
-                ->whereHas( 'queueLog', function ( $q )
+                ->whereHas( 'queueLogs', function ( $queueLogs )
                 {
-                    return $q
+                    return $queueLogs
                         ->completed();
                 })
                 ->orderBy( 'uniqueid', 'desc' );

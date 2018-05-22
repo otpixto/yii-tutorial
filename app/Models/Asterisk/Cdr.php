@@ -3,7 +3,6 @@
 namespace App\Models\Asterisk;
 
 use App\Models\Region;
-use App\Models\Ticket;
 use App\User;
 use Carbon\Carbon;
 
@@ -24,11 +23,6 @@ class Cdr extends BaseModel
     ];
 
     public $_operator = '-1';
-
-    public function queueLog ()
-    {
-        return $this->belongsTo( 'App\Models\Asterisk\QueueLog', 'uniqueid', 'callid' );
-    }
 
     public function queueLogs ()
     {
@@ -107,7 +101,7 @@ class Cdr extends BaseModel
             switch ( $this->dcontext )
             {
                 case 'incoming':
-                    $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
+                    $queueLog = $this->queueLogs()->completed()->orderBy( 'time', 'desc' )->first();
                     $this->_operator = $queueLog ? $queueLog->operator() : null;
                     break;
                 case 'outgoing':
@@ -137,25 +131,12 @@ class Cdr extends BaseModel
     public function getCaller ()
     {
         $res = mb_substr( $this->src, -11 );
-        if ( $this->dcontext != 'incoming' && mb_strlen( $this->src ) == 2 )
+        if ( $this->dcontext == 'outgoing' && mb_strlen( $this->src ) == 2 )
         {
-            $caller = User
-                ::whereHas( 'phoneSession', function ( $q )
-                {
-                    return $q
-                        ->where( 'number', '=', $this->src )
-                        ->where( 'created_at', '<=', Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
-                        ->where( function ( $q2 )
-                        {
-                            return $q2
-                                ->whereNull( 'closed_at' )
-                                ->orWhere( 'closed_at', '>=', Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
-                        });
-                })
-                ->first();
+            $caller = $this->getOperator();
             if ( $caller )
             {
-                $res .= ' (' .$caller->getShortName() . ')';
+                $res .= ' (' . $caller->getShortName() . ')';
             }
         }
         return $res;
@@ -166,7 +147,7 @@ class Cdr extends BaseModel
         $res = null;
         if ( $this->dcontext == 'incoming' )
         {
-            $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
+            $queueLog = $this->queueLogs()->completed()->orderBy( 'time', 'desc' )->first();
             if ( $queueLog && $queueLog->operator() )
             {
                 $res = $queueLog->number() . ' (' . $queueLog->operator()->getShortName() . ')';
@@ -186,7 +167,7 @@ class Cdr extends BaseModel
 
     public function isComplete ()
     {
-        return $this->queueLogs()->whereIn( 'event', QueueLog::$completeEvents )->count() ? true : false;
+        return $this->queueLogs()->completed()->count() ? true : false;
     }
 
 }

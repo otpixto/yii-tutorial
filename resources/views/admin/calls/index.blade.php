@@ -14,6 +14,12 @@
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">
+            {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-6">
+                {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
+            </div>
+        </div>
+        <div class="form-group">
             {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
                 {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кто звонит' ] ) !!}
@@ -197,6 +203,8 @@
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
+
+                $( '.select2' ).select2();
 
             });
 

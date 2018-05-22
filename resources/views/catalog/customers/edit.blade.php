@@ -214,14 +214,14 @@
                                                 {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
                                             </td>
                                             <td>
-                                                @if ( $call->queueLog->operator() )
-                                                    {{ $call->queueLog->operator()->getShortName() }}
+                                                @if ( $call->getOperator() )
+                                                    {{ $call->getOperator()->getShortName() }}
                                                 @else
                                                     -
                                                 @endif
                                             </td>
                                             <td>
-                                                {{ $call->queueLog->number() }}
+                                                {{ $call->queueLogs()->completed()->number() }}
                                             </td>
                                             @if ( \Auth::user()->can( 'calls' ) )
                                                 <td>
