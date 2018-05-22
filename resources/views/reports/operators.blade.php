@@ -214,7 +214,7 @@
                             "axisAlpha": 0,
                             "gridAlpha": 0,
                             "position": "left",
-                            "title": "Звонки / Заявки"
+                            "title": "Количество"
                         }
                     ],
                     "graphs": [
@@ -243,7 +243,7 @@
                             "fillAlphas": 0.7,
                             "legendPeriodValueText": "Всего: [[value.sum]]",
                             "legendValueText": "[[value]]",
-                            "title": "Количество заявок",
+                            "title": "Заявки",
                             "type": "column",
                             "valueField": "tickets",
                             "valueAxis": "count"
