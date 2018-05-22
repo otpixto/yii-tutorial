@@ -49,15 +49,19 @@ class CallsController extends BaseController
                         foreach ( $phoneSessions as $phoneSession )
                         {
                             $q
-                                ->whereBetween( 'calldate', [ $phoneSession->created_at->toDateTimeString(), $phoneSession->closed_at ? $phoneSession->closed_at->toDateTimeString() : Carbon::now()->toDateTimeString() ] )
-                                ->where( function ( $q2 ) use ( $phoneSession )
+                                ->orWhere( function ( $q2 ) use ( $phoneSession )
                                 {
                                     return $q2
-                                        ->where( 'src', '=', $phoneSession->number )
-                                        ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSession )
+                                        ->whereBetween( 'calldate', [ $phoneSession->created_at->toDateTimeString(), $phoneSession->closed_at ? $phoneSession->closed_at->toDateTimeString() : Carbon::now()->toDateTimeString() ] )
+                                        ->where( function ( $q3 ) use ( $phoneSession )
                                         {
-                                            return $queueLogs
-                                                ->where( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSession->number );
+                                            return $q3
+                                                ->where( 'src', '=', $phoneSession->number )
+                                                ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSession )
+                                                {
+                                                    return $queueLogs
+                                                        ->where( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSession->number );
+                                                });
                                         });
                                 });
                         }
