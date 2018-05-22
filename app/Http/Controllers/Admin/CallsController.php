@@ -20,19 +20,39 @@ class CallsController extends BaseController
     public function index ( Request $request )
     {
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-
         $operator_id = $request->get( 'operator_id', null );
 
         $calls = Cdr
             ::orderBy( 'id', 'desc' )
             ->where( 'dst', '!=', 's' )
+            ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
             ->select(
                 '*',
                 \DB::raw( 'REPLACE( src, \'79295070506\', \'88005503115\' ) src' ),
                 \DB::raw( 'REPLACE( dst, \'79295070506\', \'88005503115\' ) dst' )
             );
+
+        if ( $operator_id )
+        {
+            $calls
+                ->where( function ( $q ) use ( $operator_id, $date_from, $date_to )
+                {
+                    $operator = User::find( $operator_id );
+                    $phoneSessions = $operator
+                        ->phoneSessions()
+                        ->whereBetween( 'created_at', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
+                        ->get();
+                    return $q
+                        ->whereIn( 'src', $phoneSessions->pluck( 'number' ) )
+                        ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSessions )
+                        {
+                            return $queueLogs
+                                ->whereIn( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSessions->pluck( 'number' ) );
+                        });
+                });
+        }
 
         if ( ! empty( $request->get( 'status' ) ) )
         {
@@ -68,18 +88,6 @@ class CallsController extends BaseController
             $answer = mb_substr( preg_replace( '/\D/', '', $request->get( 'answer' ) ), - 10 );
             $calls
                 ->where( \DB::raw( 'RIGHT( REPLACE( dst, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $answer );
-        }
-
-        if ( ! empty( $date_from ) )
-        {
-            $calls
-                ->where( \DB::raw( 'DATE( calldate )' ), '>=', $date_from->toDateString() );
-        }
-
-        if ( ! empty( $date_to ) )
-        {
-            $calls
-                ->where( \DB::raw( 'DATE( calldate )' ), '<=', $date_to->toDateString() );
         }
 
         $calls = $calls

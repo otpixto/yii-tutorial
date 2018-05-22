@@ -32,10 +32,10 @@
         <div class="form-group">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
             <div class="col-md-3 col-xs-4">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'От' ] ) !!}
+                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'От' ] ) !!}
             </div>
             <div class="col-md-3 col-xs-4">
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control date-picker', 'placeholder' => 'До' ] ) !!}
+                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'До' ] ) !!}
             </div>
         </div>
 
@@ -196,8 +196,16 @@
             .ready( function ()
             {
 
-                $( '.date-picker' ).datepicker({
-                    format: 'dd.mm.yyyy'
+                $( '.datepicker' ).datepicker({
+                    format: 'dd.mm.yyyy',
+                });
+
+                $( '.datetimepicker' ).datetimepicker({
+                    isRTL: App.isRTL(),
+                    format: "dd.mm.yyyy hh:ii",
+                    autoclose: true,
+                    fontAwesome: true,
+                    todayBtn: true
                 });
 
                 $( '.mask_phone' ).inputmask( 'mask', {
