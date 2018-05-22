@@ -104,8 +104,32 @@ class Cdr extends BaseModel
     {
         if ( $this->_operator == '-1' )
         {
-            $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
-            $this->_operator = $queueLog ? $queueLog->operator() : null;
+            switch ( $this->dcontext )
+            {
+                case 'incoming':
+                    $queueLog = $this->queueLog()->completed()->orderBy( 'time', 'desc' )->first();
+                    $this->_operator = $queueLog ? $queueLog->operator() : null;
+                    break;
+                case 'outgoing':
+                    $this->_operator = User
+                        ::whereHas( 'phoneSession', function ( $q )
+                        {
+                            return $q
+                                ->where( 'number', '=', $this->src )
+                                ->where( 'created_at', '<=', Carbon::parse( $this->calldate )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
+                                ->where( function ( $q2 )
+                                {
+                                    return $q2
+                                        ->whereNull( 'closed_at' )
+                                        ->orWhere( 'closed_at', '>=', Carbon::parse( $this->calldate )->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                                });
+                        })
+                        ->first();
+                    break;
+                default:
+                    $this->_operator = null;
+                    break;
+            }
         }
         return $this->_operator;
     }
