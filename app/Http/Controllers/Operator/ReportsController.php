@@ -10,6 +10,7 @@ use App\Models\Executor;
 use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -402,6 +403,18 @@ class ReportsController extends BaseController
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+        $operator_id = $request->get( 'operator_id', null );
+
+        if ( $operator_id )
+        {
+            $operator = User::find( $operator_id );
+            if ( ! $operator )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Оператор не найден' ] );
+            }
+        }
 
         if ( $date_from->timestamp > $date_to->timestamp )
         {
@@ -411,16 +424,20 @@ class ReportsController extends BaseController
         $res = Cdr
             ::incoming()
             ->mine()
-            ->whereBetween( 'calldate', [ $date_from, $date_to ] )
+            ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
             ->whereHas( 'queueLog' )
             ->groupBy( 'uniqueid' )
+            ->with( 'queueLog' )
             ->get();
 
         $data = [];
 
-        if ( $date_from == $date_to )
+        $one_day = false;
+
+        if ( $date_from->toDateString() == $date_to->toDateString() )
         {
             $format = 'Hч.';
+            $one_day = true;
         }
         else
         {
@@ -429,6 +446,14 @@ class ReportsController extends BaseController
 
         foreach ( $res as $r )
         {
+            if ( $operator_id )
+            {
+                $cdr_operator = $r->queueLog->operator();
+                if ( ! $cdr_operator || $cdr_operator->id != $operator_id )
+                {
+                    continue;
+                }
+            }
             $date = date( $format, strtotime( $r->calldate ) );
             if ( ! isset( $data[ $date ] ) )
             {
@@ -445,8 +470,9 @@ class ReportsController extends BaseController
             }
         }
 
-        if ( $date_from == $date_to )
+        if ( $one_day )
         {
+            /*
             for ( $i = 0; $i <= 23; $i ++ )
             {
                 $date = mb_substr( '0' . $i . 'ч.', -4 );
@@ -459,6 +485,7 @@ class ReportsController extends BaseController
                     ];
                 }
             }
+            */
         }
         else
         {
@@ -480,8 +507,15 @@ class ReportsController extends BaseController
 
         $res = Ticket
             ::mine()
-            ->whereBetween( 'created_at', [ $date_from, $date_to ] )
-            ->get();
+            ->whereBetween( 'created_at', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] );
+
+        if ( $operator_id )
+        {
+            $res
+                ->where( 'author_id', '=', $operator_id );
+        }
+
+        $res = $res->get();
 
         foreach ( $res as $r )
         {
@@ -497,12 +531,40 @@ class ReportsController extends BaseController
             $data[ $date ][ 'tickets' ] ++;
         }
 
-        ksort( $data );
+        uksort( $data, function ( $a, $b ) use ( $one_day )
+        {
+            if ( $one_day )
+            {
+                return strcmp( $a, $b );
+            }
+            else
+            {
+                return strtotime( $a ) > strtotime( $b );
+            }
+        });
+
+        if ( \Cache::tags( [ 'users', 'reports' ] )->has( 'operators' ) )
+        {
+            $availableOperators = \Cache::tags( [ 'users', 'reports' ] )->get( 'operators' );
+        }
+        else
+        {
+            $res = User::role( 'operator' )->get();
+            $availableOperators = [];
+            foreach ( $res as $r )
+            {
+                $availableOperators[ $r->id ] = $r->getName();
+            }
+            asort( $availableOperators );
+            \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+        }
 
         return view( 'reports.operators' )
             ->with( 'data', $data )
             ->with( 'date_from', $date_from )
-            ->with( 'date_to', $date_to );
+            ->with( 'date_to', $date_to )
+            ->with( 'availableOperators', $availableOperators )
+            ->with( 'operator_id', $operator_id );
 
     }
 

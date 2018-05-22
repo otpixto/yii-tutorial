@@ -17,12 +17,20 @@
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker' ] ) !!}
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker' ] ) !!}
         </div>
-        <div class="col-xs-3">
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-3 col-xs-offset-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
@@ -76,6 +84,9 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -89,6 +100,7 @@
 
 @section( 'js' )
 
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -99,6 +111,7 @@
     <script src="/assets/global/plugins/amcharts/ammap/ammap.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/ammap/maps/js/worldLow.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amstockcharts/amstock.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
@@ -110,6 +123,16 @@
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',
                 });
+
+                $( '.datetimepicker' ).datetimepicker({
+                    isRTL: App.isRTL(),
+                    format: "dd.mm.yyyy hh:ii",
+                    autoclose: true,
+                    fontAwesome: true,
+                    todayBtn: true
+                });
+
+                $( '.select2' ).select2();
 
                 var dataProvider = [];
 
