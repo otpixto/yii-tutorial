@@ -101,7 +101,7 @@
                 @if ( \Auth::user()->can( 'catalog.customers.calls' ) )
                     <li>
                         <a data-toggle="tab" href="#calls">
-                            Звонки
+                            Входящие звонки
                             <span class="badge" id="calls-count">{{ $customer->calls()->count() }}</span>
                         </a>
                     </li>
@@ -186,25 +186,17 @@
                                 <table class="table table-hover table-striped">
                                     <thead>
                                         <tr>
-                                            <th rowspan="2">
+                                            <th>
                                                 Дата звонка
                                             </th>
-                                            <th colspan="2" class="text-center">
+                                            <th>
                                                 Оператор
                                             </th>
                                             @if ( \Auth::user()->can( 'calls' ) )
-                                                <th rowspan="2">
+                                                <th>
                                                     Запись
                                                 </th>
                                             @endif
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                ФИО
-                                            </th>
-                                            <th>
-                                                Номер
-                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -214,14 +206,7 @@
                                                 {{ \Carbon\Carbon::parse( $call->calldate )->format( 'd.m.Y H:i' ) }}
                                             </td>
                                             <td>
-                                                @if ( $call->getOperator() )
-                                                    {{ $call->getOperator()->getShortName() }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td>
-                                                {{ $call->queueLogs()->completed()->number() }}
+                                                {{ $call->getAnswer() }}
                                             </td>
                                             @if ( \Auth::user()->can( 'calls' ) )
                                                 <td>
@@ -231,8 +216,8 @@
                                                         </a>
                                                     @else
                                                         <span class="text-danger">
-                                                    Запись не найдена
-                                                </span>
+                                                            Запись не найдена
+                                                        </span>
                                                     @endif
                                                 </td>
                                             @endif

@@ -22,7 +22,12 @@ class ProfileController extends Controller
 
         $channel = $request->get( 'channel' );
 
-        if ( ! $channel || ! \Auth::user()->openPhoneSession )
+        if ( ! $channel )
+        {
+            return 'ERROR: Некорректные данные';
+        }
+
+        if ( ! \Auth::user()->openPhoneSession )
         {
             return 'ERROR: Телефон не авторизован';
         }
