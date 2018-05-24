@@ -36,6 +36,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::post( 'login', 'Auth\LoginController@login' );
     Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
 
+    Route::get( '/pickup-call', 'ProfileController@pickupCall' )->name( 'pickup-call' );
+
     // Registration Routes...
     Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
     Route::post( 'register', 'Auth\RegisterController@register' );

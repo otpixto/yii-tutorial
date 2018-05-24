@@ -37,7 +37,7 @@ class Asterisk
     private function login ()
     {
 
-        if ( !$this->socket ) return false;
+        if ( ! $this->socket ) return false;
 
         // Пропускаем приветствие
         $this->read();
@@ -57,6 +57,7 @@ class Asterisk
 
     private function logout ()
     {
+        if ( ! $this->auth ) return false;
         $packet = 'Action: logoff' . PHP_EOL . PHP_EOL;
         $this->write( $packet );
         $this->auth = false;
@@ -64,6 +65,7 @@ class Asterisk
 
     private function read ()
     {
+        if ( ! $this->auth ) return false;
         usleep( 500000 ); //полсекунды
         $result = fread( $this->socket, $this->size );
         $this->last_result = $result;
@@ -72,6 +74,7 @@ class Asterisk
 
     private function write ( $packet )
     {
+        if ( ! $this->auth ) return false;
         fwrite( $this->socket, $packet );
         return $this->read();
     }
@@ -79,7 +82,7 @@ class Asterisk
     private function isSuccess ( $result = null )
     {
         if ( is_null( $result ) ) $result = $this->last_result;
-        return !empty( $result ) && preg_match( '/response: success/i', $result ) ? true : false;
+        return ! empty( $result ) && preg_match( '/response: success/i', $result ) ? true : false;
     }
 
     /*
@@ -91,7 +94,7 @@ class Asterisk
     public function status ( $channel )
     {
 
-        if ( !$this->auth ) return false;
+        if ( ! $this->auth ) return false;
 
         $packet = 'Action: Status' . PHP_EOL;
         $packet .= 'Channel: ' . $channel . PHP_EOL . PHP_EOL;
@@ -110,7 +113,7 @@ class Asterisk
     public function originate ( $number, $callerId = null, $priority = 1 )
     {
 
-        if ( !$this->auth ) return false;
+        if ( ! $this->auth ) return false;
 
         $context = $this->getContext( $number );
 
@@ -141,12 +144,16 @@ class Asterisk
     public function connectTwo ( $number1, $number2 )
     {
 
+        if ( ! $this->auth ) return false;
+
         return ( $this->originate( $number1, $number2 ) && $this->originate( $number2, $number1 ) && $this->bridge( $number1, $number2 ) );
 
     }
 
     public function hangup ( $number )
     {
+
+        if ( ! $this->auth ) return false;
 
         $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
@@ -162,6 +169,8 @@ class Asterisk
 
     public function bridge ( $number1, $number2 )
     {
+
+        if ( ! $this->auth ) return false;
 
         $number1 = $this->prepareNumber( $number1 );
         $number2 = $this->prepareNumber( $number2 );
@@ -180,6 +189,8 @@ class Asterisk
 
     public function queueAdd ( $number, $queue = null )
     {
+
+        if ( ! $this->auth ) return false;
 
         $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
@@ -207,6 +218,8 @@ class Asterisk
     public function queueRemove ( $number, $queue = null )
     {
 
+        if ( ! $this->auth ) return false;
+
         $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
 
@@ -230,48 +243,43 @@ class Asterisk
      * list = [ penalty, isBusy ]
      */
 
-    public function queues ( $parse = false )
+    public function queues ()
     {
-        $packet = 'Action: QueueStatus' . PHP_EOL . PHP_EOL;
+        if ( ! $this->auth ) return false;
+        $packet = 'Action: Queues' . PHP_EOL . PHP_EOL;
         $result = $this->write( $packet );
-        dd( $result );
-        if ( $parse )
+        //dd( $result );
+        preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $result, $matches );
+        $count = count( $matches[ 0 ] );
+        $data = [
+            'list' => [],
+            'count' => $count,
+            'callers' => 0,
+            'busy' => 0
+        ];
+        for ( $i = 0; $i < $count; $i ++ )
         {
-            preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $result, $matches );
-            $count = count( $matches[ 0 ] );
-            $data = [
-                'list' => [],
-                'count' => $count,
-                'callers' => 0,
-                'busy' => 0
+            $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
+            $data[ 'list' ][ $matches[ 2 ][ $i ] ] = [
+                'penalty' => (int) $matches[ 3 ][ $i ],
+                'isFree' => $isFree ? true : false
             ];
-            for ( $i = 0; $i < $count; $i ++ )
+            if ( ! $isFree )
             {
-                $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
-                $data[ 'list' ][ $matches[ 2 ][ $i ] ] = [ (int) $matches[ 3 ][ $i ], $isFree ? 0 : 1 ];
-                if ( ! $isFree )
-                {
-                    $data[ 'busy' ] ++;
-                }
+                $data[ 'busy' ] ++;
             }
-            preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
-            ksort( $data[ 'list' ] );
-            $data[ 'callers' ] = count( $matches[ 0 ] );
-            return $data;
         }
-        return $result;
-    }
-
-    public function queue ( $queue )
-    {
-        $queues = $this->queues( true );
-        return $queues[$queue] ? $queues[$queue] : null;
+        preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
+        ksort( $data[ 'list' ] );
+        $data[ 'callers' ] = count( $matches[ 0 ] );
+        //dd( $data );
+        return $data;
     }
 
     public function redirect ( $channel, $exten, $context = 'default', $priority = 1 )
     {
 
-        if ( !$this->auth ) return false;
+        if ( ! $this->auth ) return false;
 
         $packet = 'Action: redirect' . PHP_EOL;
         $packet .= 'Channel: ' . $channel . PHP_EOL;
@@ -288,7 +296,7 @@ class Asterisk
     public function extentionState ( $exten, $context = 'default' )
     {
 
-        if ( !$this->auth ) return false;
+        if ( ! $this->auth ) return false;
 
         $packet = 'Action: ExtensionState' . PHP_EOL;
         $packet .= 'Context: ' . $context . PHP_EOL;

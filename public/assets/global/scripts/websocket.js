@@ -37,7 +37,7 @@ socket
 
     .on( 'call', function ( data )
     {
-        var message = '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-action="pickup" data-phone="' + data.call_phone + '">Ответить</button></h4>';
+        var message = '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
         if ( data.message.address )
         {
             message += '<div class="small">' + data.message.address + '</div>';

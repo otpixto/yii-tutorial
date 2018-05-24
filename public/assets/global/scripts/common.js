@@ -293,6 +293,23 @@ $( document )
 
 	})
 
+    .on ( 'click', '[data-pickup]', function ( e )
+    {
+
+        e.preventDefault();
+
+        if ( ! confirm( 'Вы уверены?' ) ) return;
+
+        var channel = $( this ).attr( 'data-channel' );
+
+        $.post( '/pickup-call', {
+            channel: channel
+        });
+
+        $( this ).closest( '.bootstrap-growl' ).remove();
+
+    })
+
 	.on ( 'click', '[data-action="ticket-call"]', function ( e )
 	{
 

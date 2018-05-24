@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Asterisk;
 use App\Classes\Title;
-use App\Models\PhoneSession;
 use App\Models\UserPhoneAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -17,6 +17,36 @@ class ProfileController extends Controller
         Title::add( 'Профиль пользователя' );
     }
 
+    public function pickupCall ( Request $request )
+    {
+
+        $channel = $request->get( 'channel' );
+
+        if ( ! $channel || ! \Auth::user()->openPhoneSession )
+        {
+            return '0';
+        }
+
+        $asterisk = new Asterisk();
+        $queues = $asterisk->queues();
+        $exten = \Auth::user()->openPhoneSession->number;
+        if ( isset( $queues[ 'list' ][ $exten ] ) && $queues[ 'list' ][ $exten ][ 'isFree' ] )
+        {
+            if ( $asterisk->redirect( $channel, $exten, 'outgoing' ) )
+            {
+                return '1';
+            }
+            else
+            {
+                return '0';
+            }
+        }
+        else
+        {
+            return '0';
+        }
+
+    }
 
     public function getPhone ()
     {
