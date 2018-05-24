@@ -65,7 +65,6 @@ class Asterisk
 
     private function read ()
     {
-        if ( ! $this->auth ) return false;
         usleep( 500000 ); //полсекунды
         $result = fread( $this->socket, $this->size );
         $this->last_result = $result;
@@ -74,7 +73,6 @@ class Asterisk
 
     private function write ( $packet )
     {
-        if ( ! $this->auth ) return false;
         fwrite( $this->socket, $packet );
         return $this->read();
     }
