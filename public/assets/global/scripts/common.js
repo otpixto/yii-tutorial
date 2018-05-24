@@ -300,7 +300,9 @@ $( document )
 
         if ( ! confirm( 'Вы уверены?' ) ) return;
 
-        var channel = $( this ).attr( 'data-channel' );
+        var channel = $( this ).attr( 'data-pickup' );
+
+        if ( ! channel ) return;
 
         $.post( '/pickup-call', {
             channel: channel
