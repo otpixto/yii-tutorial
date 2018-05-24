@@ -262,7 +262,7 @@ class Asterisk
             $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
             $data[ 'list' ][ $matches[ 2 ][ $i ] ] = [
                 'penalty' => (int) $matches[ 3 ][ $i ],
-                'isFree' => $isFree ? true : false
+                'isFree' => $isFree ? 1 : 0
             ];
             if ( ! $isFree )
             {

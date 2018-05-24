@@ -24,26 +24,30 @@ class ProfileController extends Controller
 
         if ( ! $channel || ! \Auth::user()->openPhoneSession )
         {
-            return '0';
+            return 'ERROR: Телефон не авторизован';
         }
 
         $asterisk = new Asterisk();
         $queues = $asterisk->queues();
         $exten = \Auth::user()->openPhoneSession->number;
-        if ( isset( $queues[ 'list' ][ $exten ] ) && $queues[ 'list' ][ $exten ][ 'isFree' ] )
+
+        if ( ! isset( $queues[ 'list' ][ $exten ] ) )
         {
-            if ( $asterisk->redirect( $channel, $exten, 'outgoing' ) )
-            {
-                return '1';
-            }
-            else
-            {
-                return '0';
-            }
+            return 'ERROR: Телефон не авторизован';
+        }
+
+        if ( ! $queues[ 'list' ][ $exten ][ 'isFree' ] )
+        {
+            return 'ERROR: Занято';
+        }
+
+        if ( $asterisk->redirect( $channel, $exten, 'outgoing' ) )
+        {
+            return 'SUCCESS: Переадресация прошла успешно';
         }
         else
         {
-            return '0';
+            return 'ERROR: Не получилось переадресовать звонок';
         }
 
     }
