@@ -261,7 +261,7 @@
                     "categoryField": "date",
                     "categoryAxis": {
                         "gridPosition": "start",
-                        "labelRotation": dataProvider.length > 24 ? 60 : 0
+                        "labelRotation": dataProvider.length > 10 ? 60 : 0
                     },
                     "export": {
                         "enabled": true
