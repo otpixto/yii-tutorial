@@ -30,7 +30,7 @@ class CheckRegion
             {
                 return response( view('errors.404' ) );
             }
-            if ( \Auth::user() && \Auth::user()->isActive() && ! Region::mine()->where( 'id', $region->id )->count() )
+            if ( \Auth::user() && \Auth::user()->isActive() && ! Region::mine()->where( 'id', $region->id )->count() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
             {
                 return redirect()->route( 'error.403' );
             }
