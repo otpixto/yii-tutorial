@@ -1577,7 +1577,8 @@ class TicketsController extends BaseController
         $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
 
         $tickets = Ticket
-            ::where( 'phone', '=', $phone )
+            ::mine()
+            ->where( 'phone', '=', $phone )
             ->where( 'status_code', '!=', 'draft' )
             ->orderBy( 'id', 'desc' )
             ->take( 10 )
