@@ -270,10 +270,12 @@ class CustomersController extends BaseController
                 $value = str_replace( '+7', '', $value );
                 $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
                 $union = Customer
-                    ::select( 'phone2' . ' as label' )
+                    ::mine()
+                    ->select( 'phone2' . ' as label' )
                     ->where( 'phone2', 'like', $value . '%' );
                 $customers = Customer
-                    ::select( 'phone' . ' as label' )
+                    ::mine()
+                    ->select( 'phone' . ' as label' )
                     ->where( 'phone', 'like', $value . '%' )
                     ->union( $union );
                 break;
@@ -281,7 +283,8 @@ class CustomersController extends BaseController
             case 'middlename':
             case 'firstname':
                 $customers = Customer
-                    ::select( $param . ' as label' )
+                    ::mine()
+                    ->select( $param . ' as label' )
                     ->where( $param, 'like', $value . '%' );
                 break;
             case 'phone_by_name':
@@ -289,7 +292,8 @@ class CustomersController extends BaseController
                 $middlename = trim( $request->get( 'middlename', '' ) );
                 $lastname = trim( $request->get( 'lastname', '' ) );
                 $customers = Customer
-                    ::name( $firstname, $middlename, $lastname )
+                    ::mine()
+                    ->name( $firstname, $middlename, $lastname )
                     ->select(
                         'phone',
                         'actual_address_id',
@@ -315,7 +319,8 @@ class CustomersController extends BaseController
                 $value = str_replace( '+7', '', $request->get( 'phone', '' ) );
                 $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
                 $customer = Customer
-                    ::where( 'phone', '=', $value )
+                    ::mine()
+                    ->where( 'phone', '=', $value )
                     ->select(
                         'firstname',
                         'middlename',
