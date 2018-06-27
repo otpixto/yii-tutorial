@@ -559,48 +559,18 @@ $( document )
         }, 3000 );
     })
 
-    .on ( 'confirmed', '[data-confirm]', function ( e )
-    {
-        if ( this.tagName == 'FORM' && $( this ).attr( 'confirmed' ) )
-        {
-            $( this ).submit();
-        }
-    })
-
     .on ( 'submit', '[data-confirm]', function ( e )
     {
-
-        if ( $( this ).attr( 'confirmed' ) )
+        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) )
         {
-            return true;
-        }
-
-        e.preventDefault();
-
-        var that = $( this );
-
-        bootbox.confirm({
-            message: that.attr( 'data-confirm' ),
-            buttons: {
-                confirm: {
-                    label: 'Да',
-                    className: 'btn-success'
-                },
-                cancel: {
-                    label: 'Нет',
-                    className: 'btn-danger'
-                }
-            },
-            callback: function ( result )
+            e.preventDefault();
+            if ( $( this ).hasClass( 'submit-loading' ) )
             {
-                if ( result )
-                {
-                    that.attr( 'confirmed', true );
-                    that.trigger( 'confirmed', [ e ] );
-                }
+                $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
             }
-        });
-
+            return false;
+        }
+        $( this ).trigger( 'confirmed', [ e ] );
     })
 
     .on ( 'click', 'a[data-confirm]', function ( e )
