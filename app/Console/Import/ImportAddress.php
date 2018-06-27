@@ -41,8 +41,13 @@ class ImportAddress extends Command
         $addresses = Address::all();
         foreach ( $addresses as $address )
         {
-            $address->hash = Address::genHash( $address->name );
-            $address->save();
+            $hash = Address::genHash( $address->name );
+            $addr = Address::where( 'hash', '=', $hash )->count();
+            if ( ! $addr )
+            {
+                $address->hash = $hash;
+                $address->save();
+            }
         }
 
         if ( ( $handle = fopen( storage_path( 'files/juk_addr.csv' ), 'r' ) ) !== FALSE )
