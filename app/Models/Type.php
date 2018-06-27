@@ -38,6 +38,11 @@ class Type extends BaseModel
         return $this->belongsToMany( 'App\Models\Management', 'managements_types' );
     }
 
+    public function regions ()
+    {
+        return $this->belongsToMany( 'App\Models\Region', 'regions_types' );
+    }
+
     public function tickets ()
     {
         return $this->hasMany( 'App\Models\Ticket' );
@@ -76,6 +81,17 @@ class Type extends BaseModel
         }
         $this->save();
         return $this;
+    }
+
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereHas( 'regions', function ( $regions )
+            {
+                return $regions
+                    ->mine()
+                    ->current();
+            });
     }
 
 }

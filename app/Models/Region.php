@@ -45,6 +45,11 @@ class Region extends BaseModel
         return $this->belongsToMany( 'App\Models\Management', 'regions_managements' );
     }
 
+    public function types ()
+    {
+        return $this->belongsToMany( 'App\Models\Type', 'regions_types' );
+    }
+
     public function customers ()
     {
         return $this->hasMany( 'App\Models\Customer' );
