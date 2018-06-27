@@ -14,27 +14,47 @@
 
     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.edit' ) )
 
-        {!! Form::model( $role, [ 'method' => 'put', 'id' => 'role-edit-form' ] ) !!}
-
-        <div class="margin-top-10">
-            <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-info">
-                Редактировать
+        <div class="well">
+            <a href="{{ route( 'roles.edit', $role->id ) }}">
+                {{ $role->code }}
+                ({{ $role->name }})
             </a>
-            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
         </div>
 
-        <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection margin-top-10" role="tree" aria-multiselectable="true" tabindex="0" aria-busy="false" aria-selected="false">
-            <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
-                @if ( $perms_tree )
-                    @include( 'admin.perms.tree', [ 'tree' => $perms_tree, 'role' => $role ] )
-                @endif
-            </ul>
+        {!! Form::model( $role, [ 'method' => 'put', 'id' => 'role-edit-form', 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+        <div class="form-group">
+            <div class="col-xs-6">
+                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+            </div>
+            <div class="col-xs-6 text-right">
+                <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-default btn-circle">
+                    Редактировать роль
+                </a>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-12">
+                <div id="perms_tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-busy="false" aria-selected="false">
+                    @if ( $perms_tree )
+                        @include( 'admin.perms.tree', [ 'perms_tree' => $perms_tree, 'role' => $role ] )
+                    @endif
+                </div>
+            </div>
         </div>
 
         <div id="perms-results"></div>
 
-        <div class="margin-top-10">
-            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+        <div class="form-group">
+            <div class="col-xs-6">
+                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+            </div>
+            <div class="col-xs-6 text-right">
+                <a href="{{ route( 'roles.edit', $role->id ) }}" class="btn btn-default btn-circle">
+                    Редактировать роль
+                </a>
+            </div>
         </div>
 
         {!! Form::close() !!}
@@ -60,7 +80,7 @@
 
                 @if ( $perms_tree )
 
-                    $( '#tree' )
+                    $( '#perms_tree' )
 
                         .on( 'changed.jstree', function ( e, data )
                         {

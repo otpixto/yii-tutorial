@@ -36,17 +36,17 @@ class Counter
 
                 $count_not_processed = TicketManagement
                     ::mine()
-                    ->whereIn( 'status_code', [ 'transferred', 'transferred_again' ] )
+                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'transferred', 'transferred_again' ] )
                     ->count();
 
                 $count_in_progress = TicketManagement
                     ::mine()
-                    ->whereIn( 'status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
                     ->count();
 
                 $count_completed = TicketManagement
                     ::mine()
-                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
                     ->count();
 
             }

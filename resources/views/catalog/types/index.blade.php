@@ -13,7 +13,7 @@
     @if ( \Auth::user()->can( 'catalog.types.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'types.create' ) }}" class="btn btn-success">
+                <a href="{{ route( 'types.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить классификатор
                 </a>
@@ -128,7 +128,7 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'managements.index', [ 'type' => $type->id ] ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'types.managements', $type->id ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
                                                     {{ $type->managements()->mine()->count() }}
                                                 </a>
                                             </td>

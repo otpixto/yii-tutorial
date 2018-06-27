@@ -6,6 +6,7 @@ class TicketStatus extends BaseModel
 {
 
     protected $table = 'tickets_statuses';
+    public static $_table = 'tickets_statuses';
 
     public static $name = 'Статус заявки';
 
@@ -22,11 +23,11 @@ class TicketStatus extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-        $new = new TicketStatus( $attributes );
+        $new = new self( $attributes );
         $new->save();
-        $old = TicketStatus
-            ::where( 'ticket_id', '=', $new->ticket_id )
-            ->orderBy( 'id', 'desc' )
+        $old = self
+            ::where( self::$_table . '.ticket_id', '=', $new->ticket_id )
+            ->orderBy( self::$_table . '.id', 'desc' )
             ->first();
         if ( $old )
         {

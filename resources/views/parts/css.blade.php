@@ -12,11 +12,13 @@
 <!-- BEGIN THEME GLOBAL STYLES -->
 <link href="/assets/global/css/components-rounded.min.css" rel="stylesheet" id="style_components" type="text/css" />
 <link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
 <link href="/assets/layouts/layout5/css/layout.css" rel="stylesheet" type="text/css" />
 <link href="/assets/layouts/layout5/css/custom.css" rel="stylesheet" type="text/css" />
 <link href="/assets/global/css/common.css?v5" rel="stylesheet" type="text/css" />
-<link href="/assets/global/css/print.css" rel="stylesheet" type="text/css" media="print" />
+<link href="/assets/global/css/print.css?v2" rel="stylesheet" type="text/css" media="print" />
 <!-- END THEME LAYOUT STYLES -->
 @yield( 'css' )

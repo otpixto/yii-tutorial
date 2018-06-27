@@ -3,7 +3,7 @@
 <div class="form-group">
 	{!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-4' ] ) !!}
 	<div class="col-xs-8">
-		{!! Form::select( 'actual_address_id', $ticket->actualAddress ? $ticket->actualAddress->pluck( 'name', 'id' ) : [], $ticket->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required' ] ) !!}
+		{!! Form::select( 'actual_address_id', $ticket->actualAddress ? $ticket->actualAddress()->pluck( 'name', 'id' ) : [], $ticket->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
 	</div>
 </div>
 <div class="form-group">

@@ -28,34 +28,39 @@ class AddressesController extends BaseController
         $regions = Region
             ::mine()
             ->current()
-            ->orderBy( 'name' )
+            ->orderBy( Region::$_table . '.name' )
             ->get();
 
         $addresses = Address
-            ::mine()
-            ->orderBy( 'name' );
+            ::mine( Address::IGNORE_MANAGEMENT )
+            ->orderBy( Address::$_table . '.name' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $addresses
-                ->where( 'name', 'like', $s )
-                ->orWhere( 'guid', 'like', $s );
+                ->where( Address::$_table . '.name', 'like', $s )
+                ->orWhere( Address::$_table . '.guid', 'like', $s )
+                ->orWhere( Address::$_table . '.hash', '=', Address::genHash( $search ) );
         }
 
-        if ( !empty( $region ) )
+        if ( ! empty( $region ) )
         {
             $addresses
-                ->where( 'region_id', '=', $region );
+                ->whereHas( 'regions', function ( $regions ) use ( $region )
+                {
+                    return $regions
+                        ->where( Region::$_table . '.id', '=', $region );
+                });
         }
 
-        if ( !empty( $management ) )
+        if ( ! empty( $management ) )
         {
             $addresses
                 ->whereHas( 'managements', function ( $q ) use ( $management )
                 {
                     return $q
-                        ->where( 'management_id', '=', $management );
+                        ->where( Management::$_table . '.id', '=', $management );
                 });
         }
 
@@ -74,21 +79,10 @@ class AddressesController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create ()
     {
-
         Title::add( 'Добавить здание' );
-
-        $managements = Management::orderBy( 'name' )->pluck( 'name', 'id' );
-
-        $regions = Region
-            ::mine()
-            ->orderBy( 'name' )
-            ->get();
-
-        return view( 'catalog.addresses.create' )
-            ->with( 'managements', $managements )
-            ->with( 'regions', $regions );
+        return view( 'catalog.addresses.create' );
     }
 
     /**
@@ -97,13 +91,12 @@ class AddressesController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store ( Request $request )
     {
 
         $rules = [
             'guid'                  => 'nullable|unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'region_id'             => 'required|integer',
-            'name'                  => 'required|string|max:255',
+            'name'                  => 'required|unique:addresses,name|max:255',
         ];
 
         $this->validate( $request, $rules );
@@ -129,7 +122,7 @@ class AddressesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show ( $id )
     {
         //
     }
@@ -140,12 +133,12 @@ class AddressesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
 
         Title::add( 'Редактировать здание' );
 
-        $address = Address::with( 'managements' )->find( $id );
+        $address = Address::find( $id );
 
         if ( ! $address )
         {
@@ -153,19 +146,16 @@ class AddressesController extends BaseController
                 ->withErrors( [ 'Адрес не найден' ] );
         }
 
-        $addressManagements = $address->managements()
-            ->orderBy( 'name' )
-            ->get();
+        $addressRegionsCount = $address->regions()
+            ->count();
 
-        $regions = Region
-            ::mine()
-            ->orderBy( 'name' )
-            ->get();
+        $addressManagementsCount = $address->managements()
+            ->count();
 
         return view( 'catalog.addresses.edit' )
             ->with( 'address', $address )
-            ->with( 'addressManagements', $addressManagements )
-            ->with( 'regions', $regions );
+            ->with( 'addressRegionsCount', $addressRegionsCount )
+            ->with( 'addressManagementsCount', $addressManagementsCount );
 
     }
 
@@ -176,7 +166,7 @@ class AddressesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $address = Address::find( $id );
@@ -188,8 +178,7 @@ class AddressesController extends BaseController
 		
 		$rules = [
             'guid'                  => 'nullable|unique:addresses,guid,' . $address->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'region_id'             => 'required|integer',
-            'name'                  => 'required|string|max:255',
+            'name'                  => 'required|unique:addresses,name,' . $address->id . '|max:255',
         ];
 
         $this->validate( $request, $rules );
@@ -214,7 +203,7 @@ class AddressesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }
@@ -226,7 +215,7 @@ class AddressesController extends BaseController
         $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $addresses = Address
-            ::mine( Address::IGNORE_REGION )
+            ::mine( Address::IGNORE_REGION, Address::IGNORE_MANAGEMENT )
             ->select(
                 'id',
                 'name AS text'
@@ -234,10 +223,14 @@ class AddressesController extends BaseController
             ->where( 'name', 'like', $s )
             ->orderBy( 'name' );
 
-        if ( $region_id )
+        if ( ! empty( $region_id ) )
         {
             $addresses
-                ->where( 'region_id', '=', $region_id );
+                ->whereHas( 'regions', function ( $regions ) use ( $region_id )
+                {
+                    return $regions
+                        ->where( Region::$_table . '.id', '=', $region_id );
+                });
         }
 
         $addresses = $addresses
@@ -247,53 +240,176 @@ class AddressesController extends BaseController
 
     }
 
-    public function getAddManagements ( Request $request )
+    public function managements ( Request $request, $id )
     {
-        $address = Address::find( $request->get( 'id' ) );
+
+        Title::add( 'Привязка УО' );
+
+        $address = Address::find( $id );
+
         if ( ! $address )
         {
-            return view( 'parts.error' )
-                ->with( 'error', 'Адрес не найден' );
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
         }
-        $allowedManagements = Management
-            ::mine()
-            ->whereNotIn( 'id', $address->managements->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.addresses.add_managements' )
+
+        $addressManagements = $address->managements()
+            ->orderBy( Management::$_table . '.name' )
+            ->paginate( 30 );
+
+        return view( 'catalog.addresses.managements' )
             ->with( 'address', $address )
-            ->with( 'allowedManagements', $allowedManagements );
+            ->with( 'addressManagements', $addressManagements );
+
     }
 
-    public function postAddManagements ( Request $request )
+    public function managementsSearch ( Request $request, $id )
     {
 
-        $address = Address::find( $request->get( 'address_id' ) );
-        if ( !$address )
+        $address = Address::find( $id );
+
+        if ( ! $address )
         {
             return redirect()->route( 'addresses.index' )
                 ->withErrors( [ 'Адрес не найден' ] );
         }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $managements = Management
+            ::mine()
+            ->select(
+                Management::$_table . '.id',
+                Management::$_table . '.name AS text'
+            )
+            ->where( Management::$_table . '.name', 'like', $s )
+            ->whereNotIn( Management::$_table . '.id', $address->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        return $managements;
+
+    }
+
+    public function managementsAdd ( Request $request, $id )
+    {
+
+        $address = Address::find( $id );
+
+        if ( ! $address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Адрес не найден' ] );
+        }
+
         $address->managements()->attach( $request->get( 'managements' ) );
 
         return redirect()->back()
-            ->with( 'success', 'Исполнители успешно добавлены' );
+            ->with( 'success', 'УО успешно привязаны' );
 
     }
 
-    public function delManagement ( Request $request )
+    public function managementsDel ( Request $request, $id )
     {
 
-        $address = Address::find( $request->get( 'address_id' ) );
-        if ( !$address )
+        $rules = [
+            'management_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $address = Address::find( $id );
+
+        if ( ! $address )
         {
             return redirect()->route( 'addresses.index' )
                 ->withErrors( [ 'Адрес не найден' ] );
         }
+
         $address->managements()->detach( $request->get( 'management_id' ) );
 
-        return redirect()->back()
-            ->with( 'success', 'Исполнитель успешно удален' );
+    }
+
+    public function regions ( Request $request, $address_id )
+    {
+
+        Title::add( 'Привязка регионов' );
+
+        $address = Address::find( $address_id );
+
+        if ( ! $address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $addressRegions = $address->regions()
+            ->orderBy( Region::$_table . '.name' )
+            ->paginate( 30 );
+
+        $regions = Region
+            ::mine()
+            ->whereNotIn( 'id', $address->regions()->pluck( Region::$_table . '.id' ) )
+            ->pluck( Region::$_table . '.name', Region::$_table . '.id' );
+
+        return view( 'catalog.addresses.regions' )
+            ->with( 'address', $address )
+            ->with( 'addressRegions', $addressRegions )
+            ->with( 'regions', $regions );
+
+    }
+
+    public function regionsAdd ( Request $request, $id )
+    {
+
+        $address = Address::find( $id );
+
+        if ( ! $address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $address->regions()->attach( $request->get( 'regions' ) );
+
+        return redirect()->route( 'addresses.regions', $address->id )
+            ->with( 'success', 'Привязка прошла успешно' );
+
+    }
+
+    public function regionsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'region_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $address = Address::find( $id );
+
+        if ( ! $address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $address->regions()->detach( $request->get( 'region_id' ) );
+
+    }
+
+    public function regionsEmpty ( Request $request, $address_id )
+    {
+
+        $address = Address::find( $address_id );
+
+        if ( ! $address )
+        {
+            return redirect()->route( 'addresses.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $address->regions()->detach();
 
     }
 

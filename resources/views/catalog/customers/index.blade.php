@@ -103,11 +103,6 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    @if ( $regions->count() > 1 )
-                                        <th>
-                                            Регион
-                                        </th>
-                                    @endif
                                     <th>
                                         ФИО
                                     </th>
@@ -117,11 +112,14 @@
                                     <th>
                                         Адрес
                                     </th>
-                                    @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
+                                    @if ( \Auth::user()->can( 'tickets.show' ) )
                                         <th class="text-center">
                                             Заявки
                                         </th>
                                     @endif
+                                    <th class="text-center">
+                                        ЛК
+                                    </th>
                                     <th class="text-right">
                                         &nbsp;
                                     </th>
@@ -130,11 +128,6 @@
                                 <tbody>
                                 @foreach ( $customers as $customer )
                                     <tr>
-                                        @if ( $regions->count() > 1 )
-                                            <td>
-                                                {{ $customer->region->name }}
-                                            </td>
-                                        @endif
                                         <td>
                                             {{ $customer->getName() }}
                                         </td>
@@ -144,13 +137,22 @@
                                         <td>
                                             {{ $customer->getAddress() }}
                                         </td>
-                                        @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
+                                        @if ( \Auth::user()->can( 'tickets.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'tickets.customer_tickets', $customer->id ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'tickets.customers', $customer->id ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
                                                     {{ $customer->tickets()->mine()->count() }}
                                                 </a>
                                             </td>
                                         @endif
+                                        <td class="text-center">
+                                            <a href="javascript:;" data-customer-lk="{{ $customer->id }}">
+                                                @if ( $customer->user && $customer->user->isActive() )
+                                                    @include( 'parts.yes' )
+                                                @else
+                                                    @include( 'parts.no' )
+                                                @endif
+                                            </a>
+                                        </td>
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.customers.edit' ) )
                                                 <a href="{{ route( 'customers.edit', $customer->id ) }}" class="btn btn-info">

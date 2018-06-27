@@ -13,6 +13,7 @@ class TicketManagement extends BaseModel
     use DispatchesJobs;
 
     protected $table = 'tickets_managements';
+    public static $_table = 'tickets_managements';
 
     public static $name = 'Заявка УО';
 
@@ -85,9 +86,9 @@ class TicketManagement extends BaseModel
         'status_name',
     ];
 
-    public function works ()
+    public function services ()
     {
-        return $this->hasMany( 'App\Models\TicketManagementWork' );
+        return $this->hasMany( 'App\Models\TicketManagementService' );
     }
 
     public function executor ()
@@ -108,7 +109,7 @@ class TicketManagement extends BaseModel
     public function statusesHistory ()
     {
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
+            ->where( StatusHistory::$_table . '.model_name', '=', get_class( $this ) );
     }
 
     public function scopeMine ( $query, $ignoreStatuses = false )
@@ -122,7 +123,7 @@ class TicketManagement extends BaseModel
 		if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
 		{
 			$query
-				->whereIn( self::getTableName() . '.management_id', \Auth::user()->managements->pluck( 'id' ) );
+				->whereIn( self::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
 		}
 		return $query;
     }
@@ -130,26 +131,27 @@ class TicketManagement extends BaseModel
     public function scopeNotFinaleStatuses ( $query )
     {
         return $query
-            ->whereNotIn( 'status_code', Ticket::$final_statuses );
+            ->whereNotIn( self::$_table . '.status_code', Ticket::$final_statuses );
     }
 
-    public function saveWorks ( array $works = [] )
+    public function saveServices ( array $services = [] )
     {
-        if ( ! count( $works ) )
+        if ( ! count( $services ) )
         {
-            $this->works()->delete();
+            $this->services()->delete();
+            return true;
         }
         $ids = [];
-        foreach ( $works as $work )
+        foreach ( $services as $service )
         {
-            if ( ! empty( $work[ 'id' ] ) )
+            if ( ! empty( $service[ 'id' ] ) )
             {
-                $ticketManagementWork = TicketManagementWork::find( $work[ 'id' ] );
-                if ( ! $ticketManagementWork )
+                $ticketManagementService = TicketManagementService::find( $service[ 'id' ] );
+                if ( ! $ticketManagementService )
                 {
                     return new MessageBag( [ 'Работа не найдена' ] );
                 }
-                $res = $ticketManagementWork->edit( $work );
+                $res = $ticketManagementService->edit( $service );
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -157,31 +159,31 @@ class TicketManagement extends BaseModel
             }
             else
             {
-                $ticketManagementWork = $this->createWork( $work );
-                if ( $ticketManagementWork instanceof MessageBag )
+                $ticketManagementService = $this->createService( $service );
+                if ( $ticketManagementService instanceof MessageBag )
                 {
-                    return $ticketManagementWork;
+                    return $ticketManagementService;
                 }
             }
-            $ids[] = $ticketManagementWork->id;
+            $ids[] = $ticketManagementService->id;
         }
-        $this->works()->whereNotIn( 'id', $ids )->delete();
+        $this->services()->whereNotIn( 'id', $ids )->delete();
         return true;
     }
 
-    public function createWork ( array $attributes = [] )
+    public function createService ( array $attributes = [] )
     {
         if ( empty( $attributes[ 'ticket_management_id' ] ) )
         {
             $attributes[ 'ticket_management_id' ] = $this->id;
         }
-        $ticketManagementWork = TicketManagementWork::create( $attributes );
-        if ( $ticketManagementWork instanceof MessageBag )
+        $TicketManagementService = TicketManagementService::create( $attributes );
+        if ( $TicketManagementService instanceof MessageBag )
         {
-            return $ticketManagementWork;
+            return $TicketManagementService;
         }
-        $ticketManagementWork->save();
-        return $ticketManagementWork;
+        $TicketManagementService->save();
+        return $TicketManagementService;
     }
 
     public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
@@ -229,7 +231,10 @@ class TicketManagement extends BaseModel
     {
         if ( ! isset( $this->history[ $status_code ] ) )
         {
-            $history = $this->statusesHistory()->where( 'status_code', '=', $status_code )->orderBy( 'id', 'desc' )->first();
+            $history = $this->statusesHistory()
+                ->where( StatusHistory::$_table . '.status_code', '=', $status_code )
+                ->orderBy( StatusHistory::$_table . '.id', 'desc' )
+                ->first();
             if ( ! $history )
             {
                 return null;

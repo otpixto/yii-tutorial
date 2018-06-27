@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\UserPhoneAuth;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -109,6 +110,23 @@ class ProfileController extends Controller
         \DB::commit();
         return redirect()->route( 'profile.phone_reg' )
             ->with( 'success', 'Телефон успешно разлогинен' );
+    }
+
+    public function info ( Request $request, $id )
+    {
+        if ( ! \Auth::user()->admin && ! \Auth::user()->can( 'userinfo' ) )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
+        $user = User::find( $id );
+        if ( ! $user )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Пользователь не найден' );
+        }
+        return view( 'modals.userinfo' )
+            ->with( 'user', $user );
     }
 
 }

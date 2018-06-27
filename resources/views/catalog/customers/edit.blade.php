@@ -25,12 +25,12 @@
                         {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id', $customer->region_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                    <div class="col-xs-7">
                         {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'actual_address_id', $customer->actualAddress ? $customer->actualAddress->pluck( 'name', 'id' ) : [], $customer->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'required' ] ) !!}
+                        {!! Form::select( 'actual_address_id', $customer->actualAddress ? $customer->actualAddress()->pluck( 'name', 'id' ) : [], $customer->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                    <div class="col-xs-2">
                         {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
                     </div>
@@ -87,10 +87,32 @@
 
         </div>
 
-        @if ( \Auth::user()->canOne( 'catalog.customers.tickets', 'catalog.customers.calls' ) )
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Доступ в личный кабинет
+                </h3>
+            </div>
+            <div class="panel-body">
+                @if ( $customer->user && $customer->user->isActive() )
+                    <div class="alert alert-success">
+                        Доступен
+                    </div>
+                @else
+                    <div class="alert alert-danger">
+                        Не доступен
+                         <button class="btn btn-success" data-customer-lk="{{ $customer->id }}">
+                            Включить
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        @if ( \Auth::user()->canOne( 'tickets.show', 'catalog.customers.calls' ) )
 
             <ul class="nav nav-tabs">
-                @if ( \Auth::user()->can( 'catalog.customers.tickets' ) )
+                @if ( \Auth::user()->can( 'tickets.show' ) )
                     <li class="active">
                         <a data-toggle="tab" href="#tickets">
                             Заявки
@@ -241,14 +263,7 @@
 
 @endsection
 
-@section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-@endsection
-
 @section( 'js' )
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
@@ -259,22 +274,6 @@
 
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
-                });
-
-                $( '.select2' ).select2();
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
                 });
 
             });

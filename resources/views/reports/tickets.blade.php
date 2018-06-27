@@ -167,8 +167,6 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -182,7 +180,6 @@
 
 @section( 'js' )
 
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -200,8 +197,6 @@
         $( document )
             .ready(function()
             {
-
-                $( '.select2' ).select2();
 
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',

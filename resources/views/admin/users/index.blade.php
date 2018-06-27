@@ -125,7 +125,7 @@
                                 <th>
                                     Роли
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Активен
                                 </th>
                                 <th class="text-right">
@@ -167,21 +167,20 @@
                                             </div>
                                         @endforeach
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if ( $user->active )
-                                            <span class="label label-success">
-                                                Да
-                                            </span>
+                                            @include( 'parts.yes' )
                                         @else
-                                            <span class="label label-danger">
-                                                Нет
-                                            </span>
+                                            @include( 'parts.no' )
                                         @endif
                                     </td>
                                     <td class="text-right">
                                         @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.edit' ) )
                                             <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
                                                 <i class="fa fa-edit"></i>
+                                            </a>
+                                            <a href="{{ route( 'users.perms', $user->id ) }}" class="btn btn-warning tooltips" title="Права доступа">
+                                                <i class="fa fa-unlock-alt"></i>
                                             </a>
                                         @endif
                                     </td>

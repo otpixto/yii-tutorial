@@ -22,7 +22,7 @@
     <div class="form-group">
         {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес', 'data-allow-clear' => true, 'required', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
     <div class="form-group">
@@ -123,8 +123,6 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         .progress {
@@ -147,7 +145,6 @@
 
 @section( 'js' )
 
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
@@ -159,20 +156,6 @@
 
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',
-                });
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
                 });
 
             });

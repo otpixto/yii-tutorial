@@ -4,7 +4,7 @@
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
         [ 'Реестр заявок', route( 'tickets.index' ) ],
-        [ 'Заявка #' . $ticketManagement->getTicketNumber(), route( 'tickets.open', $ticketManagement->getTicketNumber() ) ],
+        [ 'Заявка #' . $ticketManagement->getTicketNumber(), route( 'tickets.show', $ticketManagement->getTicketNumber() ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -19,7 +19,7 @@
                     Дата, время
                 </th>
                 <th width="30%">
-                    Автор
+                    Пользователь
                 </th>
                 <th>
                     Статус
@@ -51,7 +51,7 @@
                     Дата, время
                 </th>
                 <th width="30%">
-                    Автор
+                    Пользователь
                 </th>
                 <th>
                     Объект
@@ -71,7 +71,12 @@
                     {!! $log->author->getFullName() !!}
                 </td>
                 <td>
-                    {{ $log->model_name }}
+                    @if ( $log->parent && isset( $log->parent::$name ) )
+                        {{ $log->parent::$name }}
+                    @endif
+                    <span class="small text-muted">
+                        ({{ $log->model_name }})
+                    </span>
                 </td>
                 <td>
                     {{ $log->text }}

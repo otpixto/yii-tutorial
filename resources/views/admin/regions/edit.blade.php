@@ -39,8 +39,18 @@
                         </div>
 
                         <div class="form-group hidden-print">
-                            <div class="col-xs-12">
+                            <div class="col-xs-6">
                                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <a href="{{ route( 'regions.addresses', $region->id ) }}" class="btn btn-default btn-circle">
+                                    Здания
+                                    <span class="badge">{{ $regionAddressesCount }}</span>
+                                </a>
+                                <a href="{{ route( 'regions.managements', $region->id ) }}" class="btn btn-default btn-circle">
+                                    УО
+                                    <span class="badge">{{ $regionManagementsCount }}</span>
+                                </a>
                             </div>
                         </div>
 
@@ -62,14 +72,14 @@
                         @foreach ( $region->phones as $phone )
                             <div class="row margin-top-5 margin-bottom-5">
                                 <div class="col-xs-12">
-                                    <button type="button" class="btn btn-xs btn-danger" data-delete-phone="{{ $phone->id }}">
+                                    <button type="button" class="btn btn-xs btn-danger" data-delete="region-phone" data-phone="{{ $phone->id }}">
                                         <i class="fa fa-remove"></i>
                                     </button>
                                     {{ $phone->phone }}
                                 </div>
                             </div>
                         @endforeach
-                        {!! Form::open( [ 'url' => route( 'regions.phone.add', $region->id ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                            {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.phones.add', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
                             <div class="col-xs-12">
                                 {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}
@@ -132,76 +142,13 @@
             </div>
         </div>
 
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a data-toggle="tab" href="#addresses">
-                    Здания
-                    <span class="badge" id="addresses-count">{{ $region->addresses->count() }}</span>
-                </a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#managements">
-                    УО
-                    <span class="badge" id="managements-count">{{ $region->managements->count() }}</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <div id="addresses" class="tab-pane fade in active">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        @if ( ! $region->addresses->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $region->addresses as $r )
-                            <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
-                                    <i class="fa fa-remove"></i>
-                                </button>
-                                <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                                    {{ $r->getAddress() }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            <div id="managements" class="tab-pane fade">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        @if ( ! $region->managements->count() )
-                            @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
-                        @endif
-                        @foreach ( $region->managements as $r )
-                            <div class="margin-bottom-5">
-                                <button type="button" class="btn btn-xs btn-danger">
-                                    <i class="fa fa-remove"></i>
-                                </button>
-                                <a href="{{ route( 'managements.edit', $r->id ) }}">
-                                    {{ $r->name }}
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
     @else
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
     @endif
 
 @endsection
 
-@section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-@endsection
-
 @section( 'js' )
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
@@ -214,29 +161,15 @@
                     'mask': '+7 (999) 999-99-99'
                 });
 
-                $( '.select2' ).select2();
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-
             })
 
-            .on( 'click', '[data-delete-phone]', function ( e )
+            .on( 'click', '[data-delete="region-phone"]', function ( e )
             {
 
-                var id = $( this ).attr( 'data-delete-phone' );
-                var row = $( this ).closest( '.row' );
+                e.preventDefault();
+
+                var phone_id = $( this ).attr( 'data-phone' );
+                var obj = $( this ).closest( '.row' );
 
                 bootbox.confirm({
                     message: 'Удалить телефон?',
@@ -255,16 +188,30 @@
                     {
                         if ( result )
                         {
-                            $.post( '{{ route( 'regions.phone.del' ) }}', {
-                                id: id
-                            }, function ()
-                            {
-                                row.remove();
+
+                            obj.hide();
+
+                            $.ajax({
+                                url: '{{ route( 'regions.phones.del', $region->id ) }}',
+                                method: 'delete',
+                                data: {
+                                    phone_id: phone_id
+                                },
+                                success: function ()
+                                {
+                                    obj.remove();
+                                },
+                                error: function ( e )
+                                {
+                                    obj.show();
+                                    alert( e.statusText );
+                                }
                             });
+
                         }
                     }
-
                 });
+
             });
 
     </script>

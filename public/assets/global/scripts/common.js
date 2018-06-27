@@ -1,3 +1,10 @@
+$.fn.select2.defaults.set( 'allowClear', true );
+
+$.fn.loading = function ()
+{
+    $( this.selector ).html( '<div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Загрузка...</div></div>' );
+};
+
 var Modal = {
 	
 	defaultID: 'modal',
@@ -36,7 +43,7 @@ var Modal = {
 							'<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>' +
 							'<h4 class="modal-title"></h4>' +
 						'</div>'+
-						'<div class="modal-body"></div>'+
+						'<div class="modal-body"></div>' +
 						'<div class="modal-footer">' +
 							'<button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>' +
 						'</div>'
@@ -46,6 +53,8 @@ var Modal = {
 			var _modal = $( html ).attr( 'data-id', id );
 			_modal.appendTo( '#modals' );
 		}
+
+        Modal.setBody( '<div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Загрузка...</div></div>' );
 
         callback.call( Modal, _modal );
 		_modal.modal( 'show' );
@@ -108,27 +117,6 @@ var Modal = {
 			Modal.addSubmit( 'Готово', id );
 		}
 		
-		if ( simple )
-		{
-			setTimeout( function ()
-			{
-				$( '#modals [data-id="' + id + '"] .select2' ).select2();
-				$( '#modals [data-id="' + id + '"] .select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-			}, 300 );
-		}
-		
 	},
 	
 	addSubmit: function ( value, id )
@@ -185,6 +173,8 @@ $( document )
 	.ready ( function ()
 	{
 
+        $( '.test' ).loading();
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -208,16 +198,87 @@ $( document )
             }
         });
 
+        $( '.select2' ).select2();
+        $( '.select2-ajax' ).select2({
+            minimumInputLength: 3,
+            minimumResultsForSearch: 30,
+            ajax: {
+                cache: true,
+                type: 'post',
+                delay: 450,
+                data: function ( term )
+                {
+                    return {
+                        q: term.term,
+                        region_id: $( '#region_id' ).val()
+                    };
+                },
+                processResults: function ( data, page )
+                {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+
 	})
+
+    .on( 'click', '[data-user]', function ( e )
+    {
+        e.preventDefault();
+        var user_id = $( this ).attr( 'data-user' );
+        Modal.create( 'userinfo-' + user_id, function ()
+        {
+            Modal.setTitle( 'Информация пользователя' );
+            $.get( '/profile/info/' + user_id, function ( response )
+            {
+                Modal.setBody( response );
+            });
+        });
+    })
+
+    .on( 'click', '[data-customer]', function ( e )
+    {
+        e.preventDefault();
+        var customer_id = $( this ).attr( 'data-customer' );
+        console.log( customer_id );
+    })
+
+    .on( 'click', '[data-customer-lk]', function ( e )
+    {
+        e.preventDefault();
+        var customer_id = $( this ).attr( 'data-customer-lk' );
+        console.log( customer_id );
+    })
+
+    .on( 'shown.bs.modal', '.modal', function ()
+    {
+        $( this ).find( '.select2' ).select2();
+        $( this ).find( '.select2-ajax' ).select2({
+            minimumInputLength: 3,
+            minimumResultsForSearch: 30,
+            ajax: {
+                cache: true,
+                type: 'post',
+                delay: 450,
+                processResults: function ( data, page )
+                {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+    })
 
     .on ( 'submit', 'form.ajax', function ( e )
     {
     	if ( ! connected ) return;
         e.preventDefault();
         var that = $( this );
-        var method = $( this ).attr( 'method' ).toLowerCase();
-        var url = $( this ).attr( 'action' );
-        var data = $( this ).serialize();
+        var method = that.attr( 'method' ).toLowerCase();
+        var url = that.attr( 'action' );
         var modal = that.closest( '.modal' );
         if ( modal.length )
         {
@@ -225,8 +286,11 @@ $( document )
         }
         $.ajax({
             url: url,
-            data: data,
+            data: new FormData( that[ 0 ] ),
             method: method,
+            contentType: false,
+            processData: false,
+            cache: false,
             success: function ( response )
             {
                 modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
@@ -238,8 +302,7 @@ $( document )
                 modal.find( ':submit' ).removeAttr( 'disabled' ).removeClass( 'loading' );
                 modal.modal( 'hide' );
                 that.trigger( 'errors', response );
-            },
-            cache: false
+            }
         });
     })
 
@@ -496,28 +559,76 @@ $( document )
         }, 3000 );
     })
 
+    .on ( 'confirmed', '[data-confirm]', function ( e )
+    {
+        if ( this.tagName == 'FORM' && $( this ).attr( 'confirmed' ) )
+        {
+            $( this ).submit();
+        }
+    })
+
     .on ( 'submit', '[data-confirm]', function ( e )
     {
 
-        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) )
-		{
-			e.preventDefault();
-			if ( $( this ).hasClass( 'submit-loading' ) )
-			{
-                $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-			}
-			return false;
-		}
+        if ( $( this ).attr( 'confirmed' ) )
+        {
+            return true;
+        }
 
-        $( this ).trigger( 'confirmed', [ e ] );
+        e.preventDefault();
+
+        var that = $( this );
+
+        bootbox.confirm({
+            message: that.attr( 'data-confirm' ),
+            buttons: {
+                confirm: {
+                    label: 'Да',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Нет',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function ( result )
+            {
+                if ( result )
+                {
+                    that.attr( 'confirmed', true );
+                    that.trigger( 'confirmed', [ e ] );
+                }
+            }
+        });
 
     })
 
     .on ( 'click', 'a[data-confirm]', function ( e )
     {
 
-        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) ) return false;
+        e.preventDefault();
 
-        $( this ).trigger( 'confirmed', [ e ] );
+        var that = $( this );
+
+        bootbox.confirm({
+            message: that.attr( 'data-confirm' ),
+            buttons: {
+                confirm: {
+                    label: 'Да',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Нет',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function ( result )
+            {
+                if ( result )
+                {
+                    that.trigger( 'confirmed', [ e ] );
+                }
+            }
+        });
 
     });

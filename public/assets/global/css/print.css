@@ -36,4 +36,17 @@
         padding: 0 !important;
     }
 
+    ::-webkit-input-placeholder { /* WebKit browsers */
+        color: transparent !important;
+    }
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: transparent !important;;
+    }
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: transparent !important;;
+    }
+    :-ms-input-placeholder { /* Internet Explorer 10+ */
+        color: transparent !important;;
+    }
+
 }

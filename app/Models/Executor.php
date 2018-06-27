@@ -6,6 +6,7 @@ class Executor extends BaseModel
 {
 
     protected $table = 'managements_executors';
+    public static $_table = 'managements_executors';
 
     public static $name = 'Исполнитель';
 

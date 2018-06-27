@@ -9,6 +9,7 @@ class Customer extends BaseModel
 {
 
     protected $table = 'customers';
+    public static $_table = 'customers';
 
     public static $name = 'Заявитель';
 
@@ -113,9 +114,9 @@ class Customer extends BaseModel
     public function scopeName ( $query, $firstname, $middlename, $lastname )
     {
         return $query
-            ->where( 'firstname', '=', $firstname )
-            ->where( 'middlename', '=', $middlename )
-            ->where( 'lastname', '=', $lastname );
+            ->where( self::$_table . '.firstname', '=', $firstname )
+            ->where( self::$_table . '.middlename', '=', $middlename )
+            ->where( self::$_table . '.lastname', '=', $lastname );
     }
 
     public static function create ( array $attributes = [] )

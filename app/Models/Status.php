@@ -6,6 +6,7 @@ class Status extends BaseModel
 {
 
     protected $table = 'statuses';
+    public static $_table = 'statuses';
 
     public static $name = 'Статус';
 

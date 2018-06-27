@@ -6,6 +6,7 @@ class Comment extends BaseModel
 {
 
     protected $table = 'comments';
+    public static $_table = 'comments';
 
     public static $name = 'Комментарий';
 

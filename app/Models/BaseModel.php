@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
@@ -27,11 +28,6 @@ class BaseModel extends Model
     protected $guarded = [
         'id'
     ];
-
-    public static function getTableName ()
-    {
-        return with( new static )->getTable();
-    }
 
     public function addComment ( $text )
     {
@@ -101,7 +97,8 @@ class BaseModel extends Model
 
     public function parent ()
     {
-        return $this->belongsTo( $this->model_name, 'model_id' );
+        return $this->belongsTo( $this->model_name, 'model_id' )
+            ->withTrashed();
     }
 
     public function parentOriginal ()
@@ -203,6 +200,11 @@ class BaseModel extends Model
     public function canComment ()
     {
         return false;
+    }
+
+    public static function genHash ( $string )
+    {
+        return md5( mb_strtolower( trim( preg_replace( '/[^a-zA-ZА-Яа-я0-9]/iu', '', $string ) ) ) );
     }
 
 }

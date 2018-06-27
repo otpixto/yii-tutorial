@@ -33,7 +33,3 @@
     @endif
 
 @endsection
-
-@section( 'css' )
-    <link href="/assets/apps/css/todo-2.min.css" rel="stylesheet" type="text/css" />
-@endsection

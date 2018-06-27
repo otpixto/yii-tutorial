@@ -8,6 +8,7 @@ class AddressManagement extends BaseModel
 {
 
     protected $table = 'addresses_managements';
+    public static $_table = 'addresses_managements';
 
     public static $name = 'Привязка ЭО к адресу';
 

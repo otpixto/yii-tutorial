@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Schema::defaultStringLength(191);
+        Schema::defaultStringLength( 191 );
+        setlocale( LC_TIME, 'ru_RU.UTF-8' );
         \Auth::extend(
             'sessionExtended',
             function ($app) {

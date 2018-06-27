@@ -8,6 +8,7 @@ class Management extends BaseModel
 {
 
     protected $table = 'managements';
+    public static $_table = 'managements';
 
     public static $name = 'ЭО';
 
@@ -39,7 +40,6 @@ class Management extends BaseModel
     ];
 
     protected $fillable = [
-        'region_id',
         'address_id',
         'name',
         'phone',
@@ -88,6 +88,11 @@ class Management extends BaseModel
         return $this->belongsTo( 'App\Models\Region' );
     }
 
+    public function regions ()
+    {
+        return $this->belongsToMany( 'App\Models\Region', 'regions_managements' );
+    }
+
     public function users ()
     {
         return $this->belongsToMany( 'App\User', 'users_managements' );
@@ -101,7 +106,7 @@ class Management extends BaseModel
     public function scopeCategory ( $query, $category_id )
     {
         return $query
-            ->where( 'category_id', '=', $category_id );
+            ->where( self::$_table . '.category_id', '=', $category_id );
     }
 
     public function scopeMine ( $query, ... $flags )
@@ -113,9 +118,9 @@ class Management extends BaseModel
                 if ( ! in_array( self::IGNORE_REGION, $flags ) )
                 {
                     $q
-                        ->orWhereHas( 'region', function ( $region )
+                        ->orWhereHas( 'regions', function ( $regions )
                         {
-                            return $region
+                            return $regions
                                 ->mine()
                                 ->current();
                         });
@@ -123,12 +128,12 @@ class Management extends BaseModel
                 if ( ! in_array( self::IGNORE_ADDRESS, $flags ) )
                 {
                     $q
-                        ->orWhereHas( 'address', function ( $address )
+                        ->orWhereHas( 'addresses', function ( $addresses )
                         {
-                            return $address
-                                ->whereHas( 'region', function ( $region )
+                            return $addresses
+                                ->whereHas( 'regions', function ( $regions )
                                 {
-                                    return $region
+                                    return $regions
                                         ->mine()
                                         ->current();
                                 });
@@ -139,7 +144,7 @@ class Management extends BaseModel
         if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query
-                ->whereIn( 'managements.id', \Auth::user()->managements->pluck( 'id' ) );
+                ->whereIn( self::$_table . '.id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
         }
         return $query;
     }
@@ -180,14 +185,14 @@ class Management extends BaseModel
     public static function telegramSubscribe ( $telegram_code, array $attributes = [] )
     {
         $management = self
-            ::where( 'telegram_code', '=', $telegram_code )
-            ->where( 'has_contract', '=', 1 )
+            ::where( self::$_table . '.telegram_code', '=', $telegram_code )
+            ->where( self::$_table . '.has_contract', '=', 1 )
             ->first();
         if ( $management )
         {
             $managementSubscription = $management
                 ->subscriptions()
-                ->where( 'telegram_id', '=', $attributes[ 'telegram_id' ] )
+                ->where( ManagementSubscription::$_table . '.telegram_id', '=', $attributes[ 'telegram_id' ] )
                 ->first();
             if ( $managementSubscription )
             {
@@ -214,14 +219,14 @@ class Management extends BaseModel
     public static function telegramUnSubscribe ( $telegram_code, $telegram_id )
     {
         $management = self
-            ::where( 'telegram_code', '=', $telegram_code )
-            ->where( 'has_contract', '=', 1 )
+            ::where( self::$_table . '.telegram_code', '=', $telegram_code )
+            ->where( self::$_table . '.has_contract', '=', 1 )
             ->first();
         if ( $management )
         {
             $managementSubscription = $management
                 ->subscriptions()
-                ->where( 'telegram_id', '=', $telegram_id )
+                ->where( ManagementSubscription::$_table . '.telegram_id', '=', $telegram_id )
                 ->first();
             if ( $managementSubscription )
             {

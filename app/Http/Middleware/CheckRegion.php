@@ -16,25 +16,28 @@ class CheckRegion
      */
     public function handle ( $request, Closure $next )
     {
-        if ( Region::isOperatorUrl() )
+        if ( $request->getUri() != route( 'logout' ) )
         {
-            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
+            if ( Region::isOperatorUrl() )
             {
-                return redirect()->route( 'error.403' );
+                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
+                {
+                    return redirect()->route( 'error.403' );
+                }
             }
-        }
-        else
-        {
-            $region = Region::getCurrent();
-            if ( ! $region )
+            else
             {
-                return response( view('errors.404' ) );
+                $region = Region::getCurrent();
+                if ( ! $region )
+                {
+                    return response( view('errors.404' ) );
+                }
+                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->regions()->mine()->where( Region::$_table . '.id', $region->id )->count() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
+                {
+                    return redirect()->route( 'error.403' );
+                }
+                Region::$current_region = $region;
             }
-            if ( \Auth::user() && \Auth::user()->isActive() && ! Region::mine()->where( 'id', $region->id )->count() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_regions' ) )
-            {
-                return redirect()->route( 'error.403' );
-            }
-            Region::$current_region = $region;
         }
         return $next( $request );
     }

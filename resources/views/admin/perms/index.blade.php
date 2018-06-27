@@ -13,7 +13,7 @@
     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'perms.create' ) }}" class="btn btn-success">
+                <a href="{{ route( 'perms.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Создать права
                 </a>
@@ -67,10 +67,8 @@
                     </ul>
 
                     @if ( $perms_tree )
-                        <div id="tree" class="tree-demo jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j2_1" aria-busy="false" aria-selected="false">
-                            <ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group">
-                                @include( 'admin.perms.tree', [ 'tree' => $perms_tree ] )
-                            </ul>
+                        <div id="perms_tree" class="jstree jstree-2 jstree-default jstree-checkbox-selection" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j2_1" aria-busy="false" aria-selected="false">
+                            @include( 'admin.perms.tree', [ 'perms_tree' => $perms_tree ] )
                         </div>
                     @elseif ( $perms->count() )
 
@@ -141,7 +139,7 @@
 
                 @if ( $perms_tree )
 
-                    $('#tree').jstree({
+                    $( '#perms_tree' ).jstree({
                         'plugins': [],
                         "core": {
                             "themes":{

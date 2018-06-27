@@ -10,6 +10,7 @@ class Region extends BaseModel
 {
 
     protected $table = 'regions';
+    public static $_table = 'regions';
 
     public static $name = 'Регион';
 
@@ -36,12 +37,12 @@ class Region extends BaseModel
 
     public function addresses ()
     {
-        return $this->hasMany( 'App\Models\Address' );
+        return $this->belongsToMany( 'App\Models\Address', 'regions_addresses' );
     }
 
     public function managements ()
     {
-        return $this->hasMany( 'App\Models\Management' );
+        return $this->belongsToMany( 'App\Models\Management', 'regions_managements' );
     }
 
     public function customers ()
@@ -61,7 +62,7 @@ class Region extends BaseModel
         if ( ! self::subDomainIs( 'operator', 'system' ) || ! $user->can( 'supervisor.all_regions' ) )
         {
             $query
-                ->whereIn( $this->getTable() . '.id', $user->regions->pluck( 'id' ) );
+                ->whereIn( self::$_table . '.id', $user->regions()->pluck( Region::$_table . '.id' ) );
         }
         return $query;
     }
@@ -71,7 +72,7 @@ class Region extends BaseModel
         if ( ! self::isOperatorUrl() )
         {
             $query
-                ->where( $this->getTable() . '.domain', '=', \Request::getHost() );
+                ->where( self::$_table . '.domain', '=', \Request::getHost() );
         }
         return $query;
     }

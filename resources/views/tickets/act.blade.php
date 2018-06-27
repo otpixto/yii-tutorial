@@ -27,73 +27,101 @@
 
     <div class="container">
 
-        <h3 class="text-right">
-            <i>{{ $ticketManagement->management->name }}</i>
-        </h3>
-		
-		<p><br /></p>
-
-        <h1 class="text-center">
-            Акт выполненных работ
+        <h1 class="text-center h3">
+            Акт выполненных работ № {{ $ticketManagement->getTicketNumber() }}
         </h1>
-		
-		<p><br /></p>
-		<p><br /></p>
 
-        <p>
-            По заявке <b>№ {{ $ticketManagement->ticket_id }}</b> от <b>{{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}</b>
-        </p>
+        <div class="row margin-bottom-30">
+            <div class="col-xs-6">
+                {{ $ticketManagement->management->name }}
+            </div>
+            <div class="col-xs-6 text-right">
+                {{ $ticketManagement->ticket->created_at->formatLocalized( '%d %B %Y' ) }} г.
+            </div>
+        </div>
 
-        @if ( $ticketManagement->statusesHistory()->first() && $ticketManagement->statusesHistory()->first()->author )
-            <p>
-                Заявку принял <b>{{ $ticketManagement->statusesHistory()->first()->author->getName() ?? '-' }}</b>
-            </p>
-        @endif
+        <div class="row">
+            <div class="col-xs-7">
+                <dl>
+                    <dt>
+                        ФИО заявителя
+                    </dt>
+                    <dd>
+                        {{ $ticketManagement->ticket->getName() ?? '-' }}
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-xs-5">
+                <dl>
+                    <dt>
+                        Телефон(ы) заявителя
+                    </dt>
+                    <dd>
+                        {{ $ticketManagement->ticket->getPhones() ?? '-' }}
+                    </dd>
+                </dl>
+            </div>
+        </div>
 
-        <p>
-            ФИО заявителя <b>{{ $ticketManagement->ticket->getName() ?? '-' }}</b>
-        </p>
+        <dl>
+            <dt>
+                Адрес проблемы
+            </dt>
+            <dd>
+                {{ $ticketManagement->ticket->getAddress() ?? '-' }}
+            </dd>
+        </dl>
 
-        <p>
-            Телефон(ы) заявителя <b>{{ $ticketManagement->ticket->getPhones() ?? '-' }}</b>
-        </p>
+        <dl>
+            <dt>
+                Тип проблемы
+            </dt>
+            <dd>
+                {{ $ticketManagement->ticket->type->name ?? '-' }}
+            </dd>
+        </dl>
 
-        <p>
-            Адрес проблемы <b>{{ $ticketManagement->ticket->getAddress() ?? '-' }}</b>
-        </p>
+        <dl>
+            <dt>
+                Проблема
+            </dt>
+            <dd>
+                {{ $ticketManagement->ticket->text ?? '-' }}
+            </dd>
+        </dl>
 
-        <p>
-            Тип проблемы: <b>{{ $ticketManagement->ticket->type->name ?? '-' }}</b>
-        </p>
-
-        <hr />
-
-        <p>
-            Проблема: <b>{{ $ticketManagement->ticket->text ?? '-' }}</b>
-        </p>
-
-        <hr />
-
-        <h3>
+        <h2 class="h4 text-center">
             Выполненные работы
-        </h3>
+        </h2>
 
         <table class="table table-striped">
             <tr>
-                <th with="85%">
+                <th width="65%">
                     Наименование
                 </th>
-                <th>
+                <th class="text-center">
+                    Ед. Изм.
+                </th>
+                <th class="text-center">
                     Кол-во
                 </th>
+                <th class="text-right">
+                    Стоимость
+                </th>
             </tr>
-        @foreach ( $works as $work )
+        @foreach ( $services as $service )
             <tr>
                 <td>
-                    {{ $work->name }}
+                    {{ $service->name }}
                 </td>
-                <td>
-                    {{ $work->quantity }}
+                <td class="text-center">
+                    {{ $service->unit }}
+                </td>
+                <td class="text-center">
+                    {{ number_format( $service->quantity, 2 ) }}
+                </td>
+                <td class="text-right">
+                    {{ number_format( $service->amount, 2 ) }}
                 </td>
             </tr>
         @endforeach
@@ -105,29 +133,64 @@
                 <td>
                     &nbsp;
                 </td>
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    &nbsp;
+                </td>
             </tr>
         @endfor
+            <tr>
+                <th colspan="3" class="text-right">
+                    Итого
+                </th>
+                <th class="text-right">
+                    @if ( $total )
+                        {{ number_format( $total, 2 ) }}
+                    @endif
+                </th>
+            </tr>
         </table>
 
-        <p class="text-right bold">
-            Устранено:
-        </p>
+        <div class="row margin-top-50">
+            <div class="col-xs-3 text-right">
+                ФИО Исполнителя
+            </div>
+            <div class="col-xs-5 border-bottom">
+                &nbsp;
+            </div>
+            <div class="col-xs-2 text-right">
+                Подпись
+            </div>
+            <div class="col-xs-2 border-bottom">
+                &nbsp;
+            </div>
+        </div>
 
-        <p class="text-right">
-            ФИО Исполнителя ______________________________________________ Подпись ___________
-        </p>
+        <div class="row margin-top-30">
+            <div class="col-xs-3 text-right">
+                ФИО Заявителя
+            </div>
+            <div class="col-xs-5 border-bottom">
+                &nbsp;
+            </div>
+            <div class="col-xs-2 text-right">
+                Подпись
+            </div>
+            <div class="col-xs-2 border-bottom">
+                &nbsp;
+            </div>
+        </div>
 
-        <p class="text-right bold">
-            Принял:
-        </p>
-
-        <p class="text-right">
-            ФИО Заявителя ________________________________________________ Подпись ___________
-        </p>
-
-        <p class="text-right">
-            Дата ____________________________
-        </p>
+        <div class="row margin-top-30">
+            <div class="col-xs-8 text-right">
+                Дата
+            </div>
+            <div class="col-xs-4 border-bottom text-right">
+                г.
+            </div>
+        </div>
 
     </div>
 

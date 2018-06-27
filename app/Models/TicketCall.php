@@ -6,6 +6,7 @@ class TicketCall extends BaseModel
 {
 
     protected $table = 'tickets_calls';
+    public static $_table = 'tickets_calls';
 
     public static $name = 'Звонки по заявке';
 
@@ -47,13 +48,13 @@ class TicketCall extends BaseModel
     public function scopeActual ( $query )
     {
         return $query
-            ->whereNotNull( 'call_id' );
+            ->whereNotNull( self::$_table . '.call_id' );
     }
 
     public function scopeMine ( $query )
     {
         return $query
-            ->where( 'author_id', '=', \Auth::user()->id );
+            ->where( self::$_table . '.author_id', '=', \Auth::user()->id );
     }
 
 }

@@ -68,7 +68,7 @@ class Cdr extends BaseModel
         if ( Region::getCurrent() )
         {
             $query
-                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Region::$current_region->phones->pluck( 'phone' ) );
+                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Region::$current_region->phones()->pluck( 'phone' ) );
         }
         return $query;
     }

@@ -27,7 +27,7 @@ class WorksController extends BaseController
 
         $works = Work
             ::mine()
-            ->orderBy( 'id', 'desc' );
+            ->orderBy( Work::$_table . '.id', 'desc' );
 
         if ( $request->get( 'show' ) != 'all' )
         {
@@ -44,27 +44,27 @@ class WorksController extends BaseController
         if ( ! empty( $request->get( 'id' ) ) )
         {
             $works
-                ->where( 'id', '=', $request->get( 'id' ) );
+                ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
         }
 
         if ( ! empty( $request->get( 'category_id' ) ) )
         {
             $works
-                ->where( 'category_id', '=', $request->get( 'category_id' ) );
+                ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
         }
 
         if ( ! empty( $request->get( 'composition' ) ) )
         {
             $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
             $works
-                ->where( 'composition', 'like', $q );
+                ->where( Work::$_table . '.composition', 'like', $q );
         }
 
         if ( ! empty( $request->get( 'reason' ) ) )
         {
             $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
             $works
-                ->where( 'reason', 'like', $q );
+                ->where( Work::$_table . '.reason', 'like', $q );
         }
 
         if ( ! empty( $request->get( 'date' ) ) )
@@ -78,7 +78,7 @@ class WorksController extends BaseController
         if ( !empty( $request->get( 'type_id' ) ) )
         {
             $works
-                ->where( 'type_id', '=', $request->get( 'type_id' ) );
+                ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
         }
 
         if ( !empty( $request->get( 'address_id' ) ) )
@@ -88,7 +88,7 @@ class WorksController extends BaseController
                 ->whereHas( 'addresses', function ( $q ) use ( $address_id )
                 {
                     return $q
-                        ->where( 'address_id', '=', $address_id );
+                        ->where( Address::$_table . '.address_id', '=', $address_id );
                 });
             $address = Address::find( $address_id );
         }
@@ -96,7 +96,7 @@ class WorksController extends BaseController
         if ( !empty( $request->get( 'management_id' ) ) )
         {
             $works
-                ->where( 'management_id', '=', $request->get( 'management_id' ) );
+                ->where( Work::$_table . '.management_id', '=', $request->get( 'management_id' ) );
         }
 
         if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
@@ -134,8 +134,8 @@ class WorksController extends BaseController
         $regions = Region
             ::mine()
             ->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
+            ->orderBy( Region::$_table . '.name' )
+            ->pluck( Region::$_table . '.name', Region::$_table . '.id' );
 
         return view( 'works.index' )
             ->with( 'works', $works )
@@ -242,7 +242,7 @@ class WorksController extends BaseController
 
         if ( ! $work )
         {
-            return redirect()->back()->withErrors(['Запись не найдена']);
+            return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
         }
 
         return view( 'works.show' )
@@ -270,7 +270,7 @@ class WorksController extends BaseController
 
         if ( ! $work )
         {
-            return redirect()->back()->withErrors( [ 'Запись не найдена' ] );
+            return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
         }
 
         $managements = Management::orderBy( 'name' )->get();
@@ -279,8 +279,8 @@ class WorksController extends BaseController
         $regions = Region
             ::mine()
             ->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
+            ->orderBy( Region::$_table . '.name' )
+            ->pluck( Region::$_table . '.name', Region::$_table . '.id' );
 
         return view( 'works.edit' )
             ->with( 'work', $work )

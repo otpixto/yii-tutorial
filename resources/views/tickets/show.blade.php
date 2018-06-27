@@ -22,8 +22,6 @@
 @endsection
 
 @section( 'css' )
-	<link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <style>
         dl, .alert {
             margin: 0px;
@@ -34,6 +32,17 @@
         .d-inline {
             display: inline;
         }
+        @media print
+        {
+            #ticket-services .row {
+                border-top: 1px solid #e9e9e9;
+            }
+            #ticket-services .form-control {
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+        }
     </style>
 @endsection
 
@@ -41,17 +50,29 @@
     <script src="/assets/global/plugins/jquery-repeater/jquery.repeater.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
-	<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+
+        function calcTotals ()
+        {
+            var total = 0;
+            $( '#ticket-services [data-repeater-item]' ).each( function ()
+            {
+                var amount = ( Number( $( this ).find( '.amount' ).val().replace( ',', '.' ) ) || 0 ).toFixed( 2 );
+                var quantity = ( Number( $( this ).find( '.quantity' ).val().replace( ',', '.' ) ) || 1 ).toFixed( 2 );
+                $( this ).find( '.amount' ).val( amount || '' );
+                $( this ).find( '.quantity' ).val( quantity );
+                total += amount * quantity;
+            });
+            $( '#ticket-services-total' ).text( total.toFixed( 2 ) );
+        };
 
         $( document )
 
             .ready( function ()
             {
 
-                $( '.mt-repeater' ).repeater({
+                $( '#ticket-services' ).repeater({
                     show: function ()
                     {
                         $( this ).slideDown();
@@ -60,7 +81,11 @@
                     {
                         if ( confirm( 'Уверены, что хотите удалить строку?' ) )
                         {
-                            $( this ).slideUp( deleteElement );
+                            $( this ).slideUp( deleteElement, function ()
+                            {
+                                $( this ).remove();
+                                calcTotals();
+                            });
                         }
                     },
                     ready: function ( setIndexes )
@@ -68,11 +93,14 @@
 
                     },
                     defaultValues: {
-                        quantity: 1
+                        quantity: '1.00',
+                        unit: 'шт'
                     }
                 });
 
             })
+
+            .on( 'change', '.calc-totals', calcTotals )
 
             .on( 'click', '[data-rate]', function ( e )
             {
@@ -138,53 +166,6 @@
 				{
 					Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
 				});
-			})
-
-			{{--.on( 'click', '[data-action="add-management"]', function ( e )--}}
-			{{--{--}}
-				{{--e.preventDefault();--}}
-				{{--$.get( '{{ route( 'tickets.add_management', $ticket ) }}', --}}
-				{{--function ( response )--}}
-				{{--{--}}
-					{{--Modal.createSimple( 'Добавить Эксплуатационную организацию', response, 'add-management' );--}}
-				{{--});--}}
-			{{--})--}}
-
-			.on( 'click', '[data-delete-management]', function ( e )
-			{
-				e.preventDefault();
-				var line = $( this ).closest( 'tr' );
-				var id = $( this ).attr( 'data-delete-management' );
-				bootbox.confirm({
-					message: 'Вы уверены, что хотите убрать из заявки УО?',
-					size: 'small',
-					buttons: {
-						confirm: {
-							label: '<i class="fa fa-check"></i> Да',
-							className: 'btn-success'
-						},
-						cancel: {
-							label: '<i class="fa fa-times"></i> Нет',
-							className: 'btn-danger'
-						}
-					},
-					callback: function ( result )
-					{
-						if ( result )
-						{
-
-							$.post( '{{ route( 'tickets.del_management' ) }}', {
-								    id: id
-								},
-								function ( response )
-								{
-									line.remove();
-								});
-
-						}
-					}
-				});
-
 			})
 
             .on( 'confirmed', '[data-status="assigned"]', function ( e, pe )

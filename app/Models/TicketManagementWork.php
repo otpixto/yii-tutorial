@@ -6,6 +6,7 @@ class TicketManagementWork extends BaseModel
 {
 
     protected $table = 'tickets_managements_works';
+    public static $_table = 'tickets_managements_works';
 
     public static $name = 'Выполненные работы';
 

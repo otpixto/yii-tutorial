@@ -6,17 +6,18 @@ use Closure;
 
 class Settings
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
     public function handle($request, Closure $next)
     {
-        $settings = \App\Models\Settings::first();
-        \Session::put( 'settings', $settings );
-        return $next($request);
+        if ( ! \Cache::has( 'settings' ) )
+        {
+            $res = \App\Models\Settings::get();
+            $settings = [];
+            foreach ( $res as $r )
+            {
+                $settings[ $r->key ] = $r->val;
+            }
+            \Cache::put( 'settings', $settings, 5 );
+        }
+        return $next( $request );
     }
 }

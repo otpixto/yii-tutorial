@@ -10,6 +10,7 @@ class Work extends BaseModel
 {
 
     protected $table = 'works';
+    public static $_table = 'works';
 
     public static $name = 'Работа на сетях';
 
@@ -173,20 +174,20 @@ class Work extends BaseModel
             ->where( function ( $q ) use ( $s )
             {
                 return $q
-                    ->where( 'reason', 'like', $s )
-                    ->orWhere( 'who', 'like', $s )
-                    ->orWhere( 'composition', 'like', $s )
+                    ->where( self::$_table . '.reason', 'like', $s )
+                    ->orWhere( self::$_table . '.who', 'like', $s )
+                    ->orWhere( self::$_table . '.composition', 'like', $s )
                     ->orWhereHas( 'address', function ( $q2 ) use ( $s )
                     {
-                        return $q2->where( 'name', 'like', $s );
+                        return $q2->where( Address::$_table . '.name', 'like', $s );
                     })
                     ->orWhereHas( 'management', function ( $q2 ) use ( $s )
                     {
-                        return $q2->where( 'name', 'like', $s );
+                        return $q2->where( Management::$_table . '.name', 'like', $s );
                     })
                     ->orWhereHas( 'type', function ( $q2 ) use ( $s )
                     {
-                        return $q2->where( 'name', 'like', $s );
+                        return $q2->where( Type::$_table . '.name', 'like', $s );
                     });
             });
     }
@@ -194,34 +195,26 @@ class Work extends BaseModel
     public function scopeMine ( $query )
     {
         $query
-            ->whereHas( 'addresses', function ( $q )
+            ->whereHas( 'addresses', function ( $addresses )
             {
-                return $q
-                    ->whereHas( 'region', function ( $q2 )
+                return $addresses
+                    ->whereHas( 'region', function ( $region )
                     {
-                        return $q2
+                        return $region
                             ->mine()
                             ->current();
                     });
             });
-        if ( \Auth::user()->can( 'supervisor.all_managements' ) )
+        if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
-            return $query;
+            $query
+                ->whereHas( 'management', function ( $management )
+                {
+                    return $management
+                        ->mine();
+                });
         }
-        $addresses = [];
-        foreach ( \Auth::user()->managements as $management )
-        {
-            foreach ( $management->addresses as $address )
-            {
-                $addresses[] = $address->id;
-            }
-        }
-        return $query
-            ->whereHas( 'addresses', function ( $q ) use ( $addresses )
-            {
-                return $q
-                    ->whereIn( 'address_id', $addresses );
-            });
+        return $query;
     }
 
     public function scopeCurrent ( $query )
@@ -230,8 +223,8 @@ class Work extends BaseModel
             ->where( function ( $q )
             {
                 return $q
-                    ->whereNull( 'time_end_fact' )
-                    ->orWhere( 'time_end_fact', '>=', Carbon::now()->toDateTimeString() );
+                    ->whereNull( self::$_table . '.time_end_fact' )
+                    ->orWhere( self::$_table . '.time_end_fact', '>=', Carbon::now()->toDateTimeString() );
             });
     }
 

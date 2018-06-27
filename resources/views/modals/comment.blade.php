@@ -1,4 +1,4 @@
-{!! Form::open( [ 'url' => route( 'comments.store' ), 'files' => isset( $with_file ) && $with_file, 'class' => 'form-horizontal submit-loading ajax' ] ) !!}
+{!! Form::open( [ 'url' => route( 'comments.store' ), 'files' => isset( $with_file ) && $with_file, 'class' => 'form-horizontal submit-loading ajax', 'id' => 'comment-form' ] ) !!}
 {!! Form::hidden( 'model_id', $model_id ) !!}
 {!! Form::hidden( 'model_name', $model_name ) !!}
 {!! Form::hidden( 'origin_model_id', $origin_model_id ) !!}

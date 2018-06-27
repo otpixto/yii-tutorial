@@ -37,7 +37,7 @@
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проблемы', 'data-allow-clear' => true, 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -106,7 +106,7 @@
             <div class="form-group">
                 {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::find( \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес проживания', 'data-allow-clear' => true, 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -273,8 +273,6 @@
 
 @section( 'css' )
     <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
     <style>
         .mt-checkbox, .mt-radio {
@@ -285,8 +283,6 @@
 
 @section( 'js' )
     <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
@@ -308,7 +304,7 @@
                 return;
             }
 
-            $.get( '{{ route( 'tickets.search' ) }}', {
+            $.post( '{{ route( 'tickets.search' ) }}', {
                 phone: phone,
                 region_id: $( '#region_id' ).val()
             }, function ( response )
@@ -412,15 +408,11 @@
 
             if ( $( '#microphone' ).attr( 'data-state' ) == 'off' )
             {
-
                 MicrophoneOn();
-
             }
             else
             {
-
                 MicrophoneOff();
-
             }
 
         };
@@ -453,11 +445,11 @@
                 $( '#category' ).text( response.category_name );
                 if ( response.emergency )
                 {
-                    $( '#emergency' ).prop( 'checked', 'checked' ).attr( 'disabled', 'disabled' );
+                    $( '#emergency' ).prop( 'checked', 'checked' ).attr( 'disabled', 'disabled' ).trigger( 'change' );
                 }
                 else
                 {
-                    $( '#emergency' ).removeAttr( 'checked' ).removeAttr( 'disabled' );
+                    $( '#emergency' ).removeAttr( 'checked' ).removeAttr( 'disabled' ).trigger( 'change' );
                 }
             });
 
@@ -492,7 +484,7 @@
             {
                 return;
             };
-            $.get( '{{ route( 'works.search' ) }}', {
+            $.post( '{{ route( 'works.search' ) }}', {
                 address_id: address_id
             }, function ( response )
             {
@@ -520,7 +512,7 @@
                         var r = {};
                         r.param = this.element[0].name;
                         r.value = request.term;
-                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data )
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
                         {
                             response( data );
                         });
@@ -537,7 +529,7 @@
                     var id = $( '#ticket_id' ).val();
                     var tag = e.item;
                     if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.add-tag' ) }}', {
+                    $.post( '{{ route( 'tickets.tags.add' ) }}', {
                         id: id,
                         tag: tag
                     });
@@ -548,7 +540,7 @@
                     var id = $( '#ticket_id' ).val();
                     var tag = e.item;
                     if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.del-tag' ) }}', {
+                    $.post( '{{ route( 'tickets.tags.del' ) }}', {
                         id: id,
                         tag: tag
                     });
@@ -559,43 +551,6 @@
                 });
 
                 $( '#microphone' ).click( ToggleMicrophone );
-
-                $( '.select2' ).select2();
-                
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-
-                $( '#address_id, #actual_address_id' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        data: function ( term, page )
-                        {
-                            return {
-                                q: term.term,
-                                region_id: $( '#region_id' ).val()
-                            };
-                        },
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
 
                 GetTypeInfo();
                 GetManagements();
@@ -675,7 +630,7 @@
                         r.firstname = firstname;
                         r.middlename = middlename;
                         r.lastname = lastname;
-                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( response )
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( response )
                         {
                             if ( ! response ) return;
                             var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
@@ -752,7 +707,7 @@
                         var r = {};
                         r.param = param;
                         r.phone = phone;
-                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( response )
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( response )
                         {
                             if ( ! response ) return;
                             if ( ! firstname && response.firstname )

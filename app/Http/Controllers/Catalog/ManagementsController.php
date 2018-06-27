@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Address;
+use App\Models\BaseModel;
 use App\Models\Management;
 use App\Models\ManagementSubscription;
 use App\Models\Region;
@@ -31,9 +32,9 @@ class ManagementsController extends BaseController
 
         $managements = Management
             ::mine()
-            ->orderBy( 'name' );
+            ->orderBy( Management::$_table . '.name' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $managements
                 ->where( function ( $q ) use ( $search )
@@ -41,51 +42,55 @@ class ManagementsController extends BaseController
                     $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
                     $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
                     $q
-                        ->where( 'name', 'like', $s )
-                        ->orWhere( 'guid', 'like', $s )
+                        ->where( Management::$_table . '.name', 'like', $s )
+                        ->orWhere( Management::$_table . '.guid', 'like', $s )
                         ->orWhereHas( 'address', function ( $q2 ) use ( $s )
                         {
                             return $q2
-                                ->where( 'name', 'like', $s );
+                                ->where( Address::$_table . '.name', 'like', $s );
                         });
                     if ( ! empty( $p ) )
                     {
                         $q
-                            ->orWhere( 'phone', '=', $p )
-                            ->orWhere( 'phone2', '=', $p );
+                            ->orWhere( Management::$_table . '.phone', '=', $p )
+                            ->orWhere( Management::$_table . '.phone2', '=', $p );
                     }
                 });
         }
 
-        if ( !empty( $category ) )
+        if ( ! empty( $category ) )
         {
             $managements
                 ->category( $category );
         }
 
-        if ( !empty( $region ) )
+        if ( ! empty( $region ) )
         {
             $managements
-                ->where( 'region_id', '=', $region );
+                ->whereHas( 'regions', function ( $regions ) use ( $region )
+                {
+                    return $regions
+                        ->where( Region::$_table . '.id', '=', $region );
+                });
         }
 
-        if ( !empty( $address ) )
+        if ( ! empty( $address ) )
         {
             $managements
                 ->whereHas( 'addresses', function ( $q ) use ( $address )
                 {
                     return $q
-                        ->where( 'address_id', '=', $address );
+                        ->where( Address::$_table . '.id', '=', $address );
                 });
         }
 
-        if ( !empty( $type ) )
+        if ( ! empty( $type ) )
         {
             $managements
                 ->whereHas( 'types', function ( $q ) use ( $type )
                 {
                     return $q
-                        ->where( 'type_id', '=', $type );
+                        ->where( Type::$_table . '.id', '=', $type );
                 });
         }
 
@@ -137,7 +142,7 @@ class ManagementsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create ()
     {
         Title::add( 'Добавить УО' );
         $regions = Region
@@ -155,11 +160,10 @@ class ManagementsController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store ( Request $request )
     {
 
         $rules = [
-            'region_id'             => 'required|integer',
             'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -191,7 +195,7 @@ class ManagementsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show ( $id )
     {
         //
     }
@@ -202,27 +206,25 @@ class ManagementsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
 
         Title::add( 'Редактировать УО' );
 
         $management = Management::find( $id );
 
-        if ( !$management )
+        if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $managementAddresses = $management->addresses()
+        $managementAddressesCount = $management->addresses()
             ->mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->count();
 
-        $managementTypes = $management->types()
-            ->orderBy( 'name' )
-            ->get();
+        $managementTypesCount = $management->types()
+            ->count();
 
         $regions = Region
             ::mine()
@@ -232,8 +234,8 @@ class ManagementsController extends BaseController
 
         return view( 'catalog.managements.edit' )
             ->with( 'management', $management )
-            ->with( 'managementAddresses', $managementAddresses )
-            ->with( 'managementTypes', $managementTypes )
+            ->with( 'managementAddressesCount', $managementAddressesCount )
+            ->with( 'managementTypesCount', $managementTypesCount )
             ->with( 'regions', $regions );
 
     }
@@ -245,19 +247,18 @@ class ManagementsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $management = Management::find( $id );
 
-        if ( !$management )
+        if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
         $rules = [
-            'region_id'             => 'required|integer',
             'guid'                  => 'nullable|unique:managements,guid,' . $management->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -288,7 +289,7 @@ class ManagementsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }
@@ -334,9 +335,9 @@ class ManagementsController extends BaseController
 
     }
 
-    public function executors ( Request $request )
+    public function executors ( Request $request, $id )
     {
-        $management = Management::find( $request->get( 'management_id' ) );
+        $management = Management::find( $id );
         if ( ! $management )
         {
             return false;
@@ -344,142 +345,29 @@ class ManagementsController extends BaseController
         return $management->executors;
     }
 
-    public function getAddAddresses ( Request $request )
+    public function telegramOn ( Request $request, $id )
     {
-        $management = Management::find( $request->get( 'id' ) );
-        if ( ! $management )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'УО не найдена' );
-        }
-        $allowedAddresses = Address
-            ::mine()
-            ->whereNotIn( 'id', $management->addresses->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.managements.add_addresses' )
-            ->with( 'management', $management )
-            ->with( 'allowedAddresses', $allowedAddresses );
-    }
-
-    public function postAddAddresses ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'management_id' ) );
-        if ( ! $management )
-        {
-            return redirect()->back()
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-        $management->addresses()->attach( $request->get( 'addresses', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Адреса успешно назначены' );
-
-    }
-
-    public function getAddTypes ( Request $request )
-    {
-        $management = Management::find( $request->get( 'id' ) );
-        if ( ! $management )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'УО не найдена' );
-        }
-        $allowedTypes = Type
-            ::whereNotIn( 'id', $management->types->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.managements.add_types' )
-            ->with( 'management', $management )
-            ->with( 'allowedTypes', $allowedTypes );
-    }
-
-    public function postAddTypes ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'management_id' ) );
+        $management = Management::find( $id );
         if ( ! $management )
         {
             return redirect()->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
-        $management->types()->attach( $request->get( 'types', [] ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Типы успешно назначены' );
-
-    }
-
-    public function delAddress ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'management_id' ) );
-        if ( ! $management )
-        {
-            return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-        $management->addresses()->detach( $request->get( 'address_id' ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Адрес успешно удален' );
-
-    }
-
-    public function delType ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'management_id' ) );
-        if ( ! $management )
-        {
-            return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-        $management->types()->detach( $request->get( 'type_id' ) );
-
-        return redirect()->back()
-            ->with( 'success', 'Тип успешно удален' );
-
-    }
-
-    public function telegram ( Request $request )
-    {
-
-        $management = Management::find( $request->get( 'id' ) );
-
-        foreach ( $management->subscriptions as $subscription )
-        {
-            $subscription->delete();
-        }
-
-        switch ( $request->get( 'action' ) )
-        {
-
-            case 'gen':
-            case 'on':
-
-                $management->telegram_code = $this->genCode();
-
-                break;
-
-            case 'off':
-
-                $management->telegram_code = null;
-
-                break;
-
-        }
-
+        $management->telegram_code = $this->genCode();
         $management->save();
-
+        return redirect()->route( 'managements.edit', $management->id )
+            ->with( 'success', 'УО успешно отредактирована' );
     }
 
-    public function unsubscribe ( Request $request )
+    public function telegramOff ( Request $request, $id )
     {
-
-        $subscription = ManagementSubscription::find( $request->get( 'id' ) );
-        if ( $subscription )
+        $management = Management::find( $id );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+        foreach ( $management->subscriptions as $subscription )
         {
             if ( $subscription->sendTelegram( 'Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена' ) )
             {
@@ -487,7 +375,33 @@ class ManagementsController extends BaseController
                 $subscription->delete();
             }
         }
+        $management->telegram_code = null;
+        $management->save();
+        return redirect()->route( 'managements.edit', $management->id )
+            ->with( 'success', 'УО успешно отредактирована' );
+    }
 
+    public function telegramUnsubscribe ( Request $request, $id )
+    {
+        $management = Management::find( $id );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+        $subscription = $management->subscriptions()->find( $request->get( 'id' ) );
+        if ( ! $subscription )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'Подписка не найдена' ] );
+        }
+        if ( $subscription->sendTelegram( 'Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена' ) )
+        {
+            $subscription->addLog( 'Подписка прекращена' );
+            $subscription->delete();
+        }
+        return redirect()->route( 'managements.edit', $management->id )
+            ->with( 'success', 'УО успешно отредактирована' );
     }
 
     public function genCode ( $length = 4 )
@@ -498,6 +412,164 @@ class ManagementsController extends BaseController
             $code .= rand( 0, 9 );
         }
         return $code;
+    }
+
+    public function addresses ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementAddresses = $management->addresses()
+            ->mine()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'catalog.managements.addresses' )
+            ->with( 'management', $management )
+            ->with( 'managementAddresses', $managementAddresses );
+
+    }
+
+    public function addressesSearch ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $addresses = Address
+            ::mine( Address::IGNORE_REGION )
+            ->select(
+                Address::$_table . '.id',
+                Address::$_table . '.name AS text'
+            )
+            ->where( Address::$_table . '.name', 'like', $s )
+            ->whereNotIn( Address::$_table . '.id', $management->addresses()->pluck( Address::$_table . '.id' ) )
+            ->orderBy( Address::$_table . '.name' )
+            ->get();
+
+        return $addresses;
+
+    }
+
+    public function addressesAdd ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function addressesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'address_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->addresses()->detach( $request->get( 'address_id' ) );
+
+    }
+
+    public function types ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Классификатора' );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementTypes = $management->types()
+            ->orderBy( Type::$_table . '.name' )
+            ->paginate( 30 );
+
+        $allowedTypes = Type
+            ::whereNotIn( Type::$_table . '.id', $management->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( Type::$_table . '.name' )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id' );
+
+        return view( 'catalog.managements.types' )
+            ->with( 'management', $management )
+            ->with( 'managementTypes', $managementTypes )
+            ->with( 'allowedTypes', $allowedTypes );
+
+    }
+
+    public function typesAdd ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->types()->attach( $request->get( 'types', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Типы успешно назначены' );
+
+    }
+
+    public function typesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'type_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->types()->detach( $request->get( 'type_id' ) );
+
     }
 
 }

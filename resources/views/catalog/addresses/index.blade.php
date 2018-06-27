@@ -93,14 +93,14 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    @if ( $regions->count() > 1 )
-                                        <th width="10%">
-                                            Регион
-                                        </th>
-                                    @endif
                                     <th>
                                         Адрес
                                     </th>
+                                    @if ( \Auth::user()->can( 'admin.regions.show' ) )
+                                        <th class="text-center">
+                                            Регионы
+                                        </th>
+                                    @endif
                                     @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                         <th class="text-center">
                                             УО
@@ -117,17 +117,19 @@
                                 <tbody>
                                 @foreach ( $addresses as $address )
                                     <tr>
-                                        @if ( $regions->count() > 1 )
-                                            <td>
-                                                {{ $address->region->name ?? '-' }}
-                                            </td>
-                                        @endif
                                         <td>
                                             {{ $address->getAddress() }}
                                         </td>
+                                        @if ( \Auth::user()->can( 'admin.regions.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'addresses.regions', $address->id ) }}" class="badge badge-{{ $address->regions()->mine()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $address->regions()->mine()->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'managements.index', [ 'address' => $address->id ] ) }}" class="badge badge-{{ $address->managements()->mine()->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'addresses.managements', $address->id ) }}" class="badge badge-{{ $address->managements()->mine()->count() ? 'info' : 'default' }} bold">
                                                     {{ $address->managements()->mine()->count() }}
                                                 </a>
                                             </td>

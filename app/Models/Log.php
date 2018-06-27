@@ -6,6 +6,7 @@ class Log extends BaseModel
 {
 
     protected $table = 'logs';
+    public static $_table = 'logs';
 
     public static $name = 'Системный лог';
 
@@ -18,13 +19,6 @@ class Log extends BaseModel
 
     protected $nullable = [
         'author_id',
-    ];
-	
-	public static $rules = [
-        'author_id'			=> 'nullable|integer',
-        'model_id'			=> 'required|integer',
-		'model_name'		=> 'required|string',
-        'text'				=> 'required|string',
     ];
 
 }

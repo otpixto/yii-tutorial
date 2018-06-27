@@ -197,8 +197,6 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         @media print {
@@ -217,7 +215,6 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -237,8 +234,6 @@
                $( '.datepicker' ).datepicker({
                    format: 'dd.mm.yyyy',
                });
-
-               $( '.select2' ).select2();
 
                 var dataProviderCategories = [];
 
@@ -278,8 +273,6 @@
                     });
 
                 });
-
-                console.log( dataProviderManagements );
 
                 AmCharts.makeChart( 'pie-managements', {
                     "type": "pie",

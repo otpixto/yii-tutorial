@@ -6,6 +6,7 @@ class RegionPhone extends BaseModel
 {
 
     protected $table = 'regions_phones';
+    public static $_table = 'regions_phones';
 
     public static $name = 'Внутренний номер региона';
 

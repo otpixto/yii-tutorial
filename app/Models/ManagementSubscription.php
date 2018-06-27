@@ -11,6 +11,7 @@ class ManagementSubscription extends BaseModel
     use DispatchesJobs;
 
     protected $table = 'managements_subscriptions';
+    public static $_table = 'managements_subscriptions';
 
     public static $name = 'Подписка на оповещения';
 

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Iphome\Permission\Models\Permission;
 use Iphome\Permission\Models\Role;
 
@@ -13,7 +15,7 @@ class PermsController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Права' );
+        Title::add( 'Права доступа' );
     }
 
     public function index ( Request $request )
@@ -54,7 +56,7 @@ class PermsController extends BaseController
     public function create ()
     {
 
-        Title::add( 'Создать права' );
+        Title::add( 'Создать права доступа' );
 
         $roles = Role
             ::orderBy( 'name' )
@@ -69,14 +71,14 @@ class PermsController extends BaseController
     public function edit ( $id )
     {
 
-        Title::add( 'Редактировать права' );
+        Title::add( 'Редактировать права доступа' );
 
         $perm = Permission::find( $id );
 
         if ( ! $perm )
         {
             return redirect()->route( 'admin.permissions' )
-                ->withErrors( [ 'Права не найдены' ] );
+                ->withErrors( [ 'Права доступа не найдены' ] );
         }
 
         return view('admin.perms.edit' )
@@ -99,7 +101,7 @@ class PermsController extends BaseController
         if ( ! $perm )
         {
             return redirect()->route( 'perms.index' )
-                ->withErrors( [ 'Права не найдены' ] );
+                ->withErrors( [ 'Права доступа не найдены' ] );
         }
 
         $this->validate( $request, Permission::getRules( $perm->code ) );
@@ -113,7 +115,157 @@ class PermsController extends BaseController
         }
 
         return redirect()->route( 'perms.edit', $perm->id )
-            ->with( 'success', 'Права успешно отредактированы' );
+            ->with( 'success', 'Права доступа успешно отредактированы' );
+
+    }
+
+    public function users ( $id )
+    {
+
+        Title::add( 'Привязка прав доступа к пользователям' );
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $permUsers = $perm->users()->paginate( 30 );
+
+        return view('admin.perms.users' )
+            ->with( 'perm', $perm )
+            ->with( 'permUsers', $permUsers );
+
+    }
+
+    public function usersSearch ( Request $request, $id )
+    {
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $res = User
+            ::search( $request->get( 'q' ) )
+            ->whereNotIn( User::$_table . '.id', $perm->users()->pluck( User::$_table . '.id' ) )
+            ->get();
+
+        $users = new Collection();
+        foreach ( $res as $r )
+        {
+            $users->push([
+                'id' => $r->id,
+                'text' => $r->getName()
+            ]);
+        }
+
+        $users = $users->sortBy( 'text' );
+
+        return $users;
+
+    }
+
+    public function usersAdd ( Request $request, $id )
+    {
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $perm->users()->attach( $request->get( 'users' ) );
+
+        return redirect()->route( 'perms.users', $perm->id )
+            ->with( 'success', 'Привязка прошла успешно' );
+
+    }
+
+    public function usersDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'user_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $perm->users()->detach( $request->get( 'user_id' ) );
+
+    }
+
+    public function roles ( $id )
+    {
+
+        Title::add( 'Привязка прав доступа к ролям' );
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $roles = Role
+            ::where( 'guard', '=', $perm->guard )
+            ->get();
+
+        return view('admin.perms.roles' )
+            ->with( 'perm', $perm )
+            ->with( 'roles', $roles );
+
+    }
+
+    public function updateRoles ( Request $request, $id )
+    {
+
+        $perm = Permission::find( $id );
+
+        if ( ! $perm )
+        {
+            return redirect()->route( 'perms.index' )
+                ->withErrors( [ 'Права доступа не найдены' ] );
+        }
+
+        $roles = Role::all();
+        $selected_roles = $request->get( 'selected_roles', [] );
+
+        foreach ( $roles as $role )
+        {
+            if ( in_array( $role->id, $selected_roles ) )
+            {
+                if ( ! $perm->roles->contains( 'id', $role->id ) )
+                {
+                    $role->permissions()->attach( $id );
+                }
+            }
+            else
+            {
+                $role->permissions()->detach( $id );
+            }
+        }
+
+        $this->clearCache( 'users' );
+
+        return redirect()->route( 'perms.roles', $perm->id )
+            ->with( 'success', 'Права доступа успешно отредактированы' );
 
     }
 
@@ -136,6 +288,33 @@ class PermsController extends BaseController
 
         return redirect()->route( 'perms.edit', $perm->id )
             ->with( 'success', 'Права успешно добавлены' );
+
+    }
+
+    public function searchUsers ( Request $request )
+    {
+
+        $perm_id = $request->get( 'perm_id' );
+
+        $users = User
+            ::search( $request->get( 'q' ) )
+            ->whereDoesntHave( 'permissions', function ( $permissions ) use ( $perm_id )
+            {
+                return $permissions
+                    ->where( 'id', '=', $perm_id );
+            })
+            ->get();
+
+        $res = [];
+        foreach ( $users as $user )
+        {
+            $res[] = [
+                'id' => $user->id,
+                'text' => $user->getName()
+            ];
+        }
+
+        return $res;
 
     }
 

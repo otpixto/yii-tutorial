@@ -6,6 +6,7 @@ class Geometry extends BaseModel
 {
 
     protected $table = 'geometry';
+    public static $_table = 'geometry';
 
     public static $name = 'Объекты на карте';
 
@@ -129,7 +130,7 @@ class Geometry extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereNull( 'region_id' )
+            ->whereNull( self::$_table . '.region_id' )
             ->orWhereHas( 'region', function ( $region )
             {
                 return $region

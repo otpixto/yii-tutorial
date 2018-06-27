@@ -26,6 +26,9 @@
 							</span>
                         </a>
                     </div>
+                    <div class="text-center">
+                        <a href="/logout">Выход</a>
+                    </div>
                 </div>
             </div>
         </div>

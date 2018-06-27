@@ -37,6 +37,3 @@
     @endif
 
 @endsection
-
-@section( 'css' )
-@endsection

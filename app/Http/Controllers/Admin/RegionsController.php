@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\Models\Address;
+use App\Models\Management;
 use App\Models\Region;
 use App\Models\RegionPhone;
 use Illuminate\Http\Request;
@@ -21,15 +23,26 @@ class RegionsController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
+        $address = $request->get( 'address', null );
 
         $regions = Region
-            ::orderBy( 'name' );
+            ::orderBy( Region::$_table . '.name' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $regions
-                ->where( 'name', 'like', $s );
+                ->where( Region::$_table . '.name', 'like', $s );
+        }
+
+        if ( ! empty( $address ) )
+        {
+            $regions
+                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                {
+                    return $q
+                        ->where( Address::$_table . '.id', '=', $address );
+                });
         }
 
         $regions = $regions
@@ -59,8 +72,194 @@ class RegionsController extends BaseController
                 ->withErrors( [ 'Регион не найден' ] );
         }
 
+        $regionAddressesCount = $region->addresses()
+            ->count();
+
+        $regionManagementsCount = $region->managements()
+            ->count();
+
         return view('admin.regions.edit' )
-            ->with( 'region', $region );
+            ->with( 'region', $region )
+            ->with( 'regionAddressesCount', $regionAddressesCount )
+            ->with( 'regionManagementsCount', $regionManagementsCount );
+
+    }
+
+    public function addresses ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $regionAddresses = $region->addresses()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'admin.regions.addresses' )
+            ->with( 'region', $region )
+            ->with( 'regionAddresses', $regionAddresses );
+
+    }
+
+    public function addressesSearch ( Request $request, $id )
+    {
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $addresses = Address
+            ::select(
+                Address::$_table . '.id',
+                Address::$_table . '.name AS text'
+            )
+            ->where( Address::$_table . '.name', 'like', $s )
+            ->whereNotIn( Address::$_table . '.id', $region->addresses()->pluck( Address::$_table . '.id' ) )
+            ->orderBy( Address::$_table . '.name' )
+            ->get();
+
+        return $addresses;
+
+    }
+
+    public function addressesAdd ( Request $request, $id )
+    {
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function addressesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'address_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->addresses()->detach( $request->get( 'address_id' ) );
+
+    }
+
+    public function managements ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $regionManagements = $region->managements()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'admin.regions.managements' )
+            ->with( 'region', $region )
+            ->with( 'regionManagements', $regionManagements );
+
+    }
+
+    public function managementsSearch ( Request $request, $id )
+    {
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $managements = Management
+            ::select(
+                Management::$_table . '.id',
+                Management::$_table . '.name AS text'
+            )
+            ->where( Management::$_table . '.name', 'like', $s )
+            ->whereNotIn( Management::$_table . '.id', $region->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        return $managements;
+
+    }
+
+    public function managementsAdd ( Request $request, $id )
+    {
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->managements()->attach( $request->get( 'managements' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'УО успешно привязаны' );
+
+    }
+
+    public function managementsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'management_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->managements()->detach( $request->get( 'management_id' ) );
 
     }
 
@@ -135,7 +334,7 @@ class RegionsController extends BaseController
 
     }
 
-    public function addRegionPhone ( Request $request, $id )
+    public function phonesAdd ( Request $request, $id )
     {
         $rules = [
             'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -159,10 +358,19 @@ class RegionsController extends BaseController
             ->with( 'success', 'Телефон успешно добавлен' );
     }
 
-    public function delRegionPhone ( Request $request )
+    public function phonesDel ( Request $request, $id )
     {
-        $RegionPhone = RegionPhone::find( $request->get( 'id' ) );
-        $RegionPhone->delete();
+        $rules = [
+            'phone_id'                 => 'required|integer',
+        ];
+        $this->validate( $request, $rules );
+        $region = Region::find( $id );
+        if ( ! $region )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+        $region->phones()->find( $request->get( 'phone_id' ) )->delete();
     }
 
 }

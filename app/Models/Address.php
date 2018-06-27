@@ -2,21 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Support\MessageBag;
+
 class Address extends BaseModel
 {
 
     protected $table = 'addresses';
+    public static $_table = 'addresses';
 
     public static $name = 'Адрес';
 
     protected $nullable = [
-        'guid'
+        'hash',
+        'guid',
+        'lon',
+        'lat',
     ];
 
     protected $fillable = [
+        'hash',
         'guid',
-        'region_id',
         'name',
+        'lon',
+        'lat',
     ];
 
     public function managements ()
@@ -29,10 +37,46 @@ class Address extends BaseModel
         return $this->belongsTo( 'App\Models\Region' );
     }
 
+    public function regions ()
+    {
+        return $this->belongsToMany( 'App\Models\Region', 'regions_addresses' );
+    }
+
+    public function customers ()
+    {
+        return $this->hasMany( 'App\Models\Customer', 'id', 'actual_address_id' );
+    }
+
     public function getAddress ()
     {
         //return $this->address . ' д. ' . $this->home;
         return $this->name;
+    }
+
+    public static function create ( array $attributes = [] )
+    {
+        $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
+        $address = self::where( 'hash', '=', $attributes[ 'hash' ] )->first();
+        if ( $address )
+        {
+            return new MessageBag( [ 'Такой адрес уже существует' ] );
+        }
+        $address = parent::create( $attributes );
+        return $address;
+    }
+
+    public function edit ( array $attributes = [] )
+    {
+        $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
+        $address = self
+            ::where( 'hash', '=', $attributes[ 'hash' ] )
+            ->where( 'id', '!=', $this->id )
+            ->first();
+        if ( $address )
+        {
+            return new MessageBag( [ 'Такой адрес уже существует' ] );
+        }
+        return parent::edit( $attributes );
     }
 
     public function scopeMine ( $query, ... $flags )
@@ -43,13 +87,13 @@ class Address extends BaseModel
                 ->whereHas( 'managements', function ( $management )
                 {
                     return $management
-                        ->mine( self::IGNORE_REGION );
+                        ->mine();
                 });
         }
         if ( ! in_array( self::IGNORE_REGION, $flags ) && ! \Auth::user()->can( 'supervisor.all_regions' ) )
         {
             $query
-                ->whereHas( 'region', function ( $q )
+                ->whereHas( 'regions', function ( $q )
                 {
                     return $q
                         ->mine()
@@ -57,6 +101,12 @@ class Address extends BaseModel
                 });
         }
         return $query;
+    }
+
+    public function scopeSearch ( $query, $name )
+    {
+        return $query
+            ->where( 'hash', '=', self::genHash( $name ) );
     }
 
 }

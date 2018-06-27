@@ -3,7 +3,7 @@
 		<i class="fa fa-caret-right pull-left"></i>
 		<div class="media-body">
 			<h5 class="media-heading">
-				<a href="javascript:;">
+				<a href="javascript:;" data-user="{{ $comment->author->id }}">
 					{!! $comment->author->getPosition() !!}
 					{{ $comment->author->getShortName() }}
 				</a>

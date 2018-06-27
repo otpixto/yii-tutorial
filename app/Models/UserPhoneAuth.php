@@ -12,6 +12,8 @@ class UserPhoneAuth extends BaseModel
 {
 
     protected $table = 'users_phone_auth';
+    public static $_table = 'users_phone_auth';
+
     protected $primaryKey = 'id';
 
     public static $name = 'Авторизация на телефоне';

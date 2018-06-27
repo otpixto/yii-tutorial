@@ -74,36 +74,12 @@ class RolesController extends BaseController
 
     }
 
-    public function perms ( $id )
-    {
-
-        Title::add( 'Права доступа' );
-
-        $role = Role::find( $id );
-
-        if ( ! $role )
-        {
-            return redirect()->route( 'roles.index' )
-                ->withErrors( [ 'Роль не найдена' ] );
-        }
-
-        $perms_tree = Permission::getTree( $role->guard );
-
-        return view('admin.roles.perms' )
-            ->with( 'role', $role )
-            ->with( 'perms_tree', $perms_tree );
-
-    }
-
     public function create ()
     {
 
         Title::add( 'Создать роль' );
 
-        $perms_tree = Permission::getTree();
-
         return view('admin.roles.create' )
-            ->with( 'perms_tree', $perms_tree )
             ->with( 'guards', $this->getGuards() );
 
     }
@@ -131,6 +107,27 @@ class RolesController extends BaseController
 
         return redirect()->route( 'roles.edit', $role->id )
             ->with( 'success', 'Роль успешно отредактирована' );
+
+    }
+
+    public function perms ( $id )
+    {
+
+        Title::add( 'Права доступа' );
+
+        $role = Role::find( $id );
+
+        if ( ! $role )
+        {
+            return redirect()->route( 'roles.index' )
+                ->withErrors( [ 'Роль не найдена' ] );
+        }
+
+        $perms_tree = Permission::getTree( $role->guard );
+
+        return view('admin.roles.perms' )
+            ->with( 'role', $role )
+            ->with( 'perms_tree', $perms_tree );
 
     }
 

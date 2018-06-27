@@ -13,7 +13,7 @@
     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'roles.create' ) }}" class="btn btn-success">
+                <a href="{{ route( 'roles.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Создать роль
                 </a>

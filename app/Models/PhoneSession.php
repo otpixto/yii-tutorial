@@ -10,6 +10,7 @@ class PhoneSession extends BaseModel
 {
 
     protected $table = 'phone_sessions';
+    public static $_table = 'phone_sessions';
 
     protected $dates = [
         'closed_at',

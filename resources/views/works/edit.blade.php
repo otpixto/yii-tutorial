@@ -28,7 +28,7 @@
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id[]', $work->addresses->pluck( 'name', 'id' ), $work->addresses->pluck( 'id' ), [ 'class' => 'form-control', 'id' => 'address_id', 'data-ajax--url' => route( 'addresses.search' ), 'data-ajax--cache' => true, 'data-placeholder' => 'Адрес работы', 'data-allow-clear' => true, 'required', 'multiple' ] ) !!}
+                    {!! Form::select( 'address_id[]', $work->addresses()->pluck( \App\Models\Address::$_table . '.name', \App\Models\Address::$_table . '.id' ), $work->addresses()->pluck( \App\Models\Address::$_table . '.id' ), [ 'class' => 'form-control', 'id' => 'address_id', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 

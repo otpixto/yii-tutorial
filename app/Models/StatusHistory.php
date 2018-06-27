@@ -6,6 +6,7 @@ class StatusHistory extends BaseModel
 {
 
     protected $table = 'statuses_history';
+    public static $_table = 'statuses_history';
 
     public static $name = 'История статусов';
 

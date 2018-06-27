@@ -17,13 +17,15 @@
                             <dt>Сменить статус:</dt>
                             <dd>
                                 @foreach( $availableStatuses as $status_code => $availableStatus )
-                                    {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
-                                    {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
-                                    {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
-                                    {!! Form::hidden( 'status_code', $status_code ) !!}
-                                    {!! Form::hidden( 'comment', '' ) !!}
-                                    {!! Form::submit( $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
-                                    {!! Form::close() !!}
+                                    @if ( ( $ticketManagement ?? $ticket )->status_code != $status_code )
+                                        {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
+                                        {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
+                                        {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
+                                        {!! Form::hidden( 'status_code', $status_code ) !!}
+                                        {!! Form::hidden( 'comment', '' ) !!}
+                                        {!! Form::submit( $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
+                                        {!! Form::close() !!}
+                                    @endif
                                 @endforeach
                             </dd>
                         </dl>
@@ -586,28 +588,36 @@
 
         @endif
 
-        @if ( $ticketManagement && \Auth::user()->can( 'tickets.works.show' ) )
+        @if ( $ticketManagement && \Auth::user()->can( 'tickets.services.show' ) )
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note note-info">
                         <h4>Выполненные работы</h4>
                         <div class="row margin-bottom-10">
-                            <label class="col-xs-9 control-label text-muted">Наименование</label>
-                            <label class="col-xs-2 control-label text-muted">Кол-во</label>
+                            <label class="col-xs-5 control-label text-muted">Наименование</label>
+                            <label class="col-xs-2 control-label text-muted text-right">Кол-во</label>
+                            <label class="col-xs-2 control-label text-muted">Е.И.</label>
+                            <label class="col-xs-2 control-label text-muted text-right">Стоимость</label>
                         </div>
-                        @if ( \Auth::user()->can( 'tickets.works.edit' ) )
+                        @if ( \Auth::user()->can( 'tickets.services.edit' ) )
                             {!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading' ] ) !!}
-                            <div class="mt-repeater">
-                                <div data-repeater-list="works">
-                                    @if ( $ticketManagement->works->count() )
-                                        @foreach ( $ticketManagement->works as $work )
+                            <div class="mt-repeater" id="ticket-services">
+                                <div data-repeater-list="services">
+                                    @if ( $ticketManagement->services->count() )
+                                        @foreach ( $ticketManagement->services as $service )
                                             <div data-repeater-item="" class="row margin-bottom-10">
-                                                <div class="col-xs-9">
-                                                    {!! Form::hidden( 'id', $work->id ) !!}
-                                                    <input type="text" name="name" placeholder="Наименование" value="{{ $work->name }}" class="form-control" required="required" />
+                                                <div class="col-xs-5">
+                                                    {!! Form::hidden( 'id', $service->id ) !!}
+                                                    {!! Form::text( 'name', $service->name, [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                                                 </div>
                                                 <div class="col-xs-2">
-                                                    <input type="text" name="quantity" placeholder="Кол-во" class="form-control" value="{{ $work->quantity }}" required="required" />
+                                                    {!! Form::text( 'quantity', $service->quantity, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    {!! Form::text( 'unit', $service->unit, [ 'class' => 'form-control', 'required' ] ) !!}
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    {!! Form::text( 'amount', $service->amount ?? null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                                 </div>
                                                 <div class="col-xs-1 text-right hidden-print">
                                                     <button type="button" data-repeater-delete="" class="btn btn-danger">
@@ -618,12 +628,18 @@
                                         @endforeach
                                     @else
                                         <div data-repeater-item="" class="row margin-bottom-10 hidden-print">
-                                            <div class="col-xs-9">
+                                            <div class="col-xs-5">
                                                 {!! Form::hidden( 'id', null ) !!}
-                                                <input type="text" name="name" placeholder="Наименование" class="form-control" required="required" />
+                                                {!! Form::text( 'name', null, [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                                             </div>
                                             <div class="col-xs-2">
-                                                <input type="text" name="quantity" placeholder="Кол-во" class="form-control" value="1" required="required" />
+                                                {!! Form::text( 'quantity', 1, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
+                                            </div>
+                                            <div class="col-xs-2">
+                                                {!! Form::text( 'unit', 'шт', [ 'class' => 'form-control', 'required' ] ) !!}
+                                            </div>
+                                            <div class="col-xs-2">
+                                                {!! Form::text( 'amount', null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                             </div>
                                             <div class="col-xs-1 text-right hidden-print">
                                                 <button type="button" data-repeater-delete="" class="btn btn-danger">
@@ -632,6 +648,14 @@
                                             </div>
                                         </div>
                                     @endif
+                                </div>
+                                <div class="row margin-bottom-10 bg-info">
+                                    <div class="col-xs-9 text-right bold">
+                                        Итого:
+                                    </div>
+                                    <div class="col-xs-2 text-right bold" id="ticket-services-total">
+                                        {{ number_format( $ticketManagement->services->sum( function ( $service ){ return $service[ 'amount' ] * $service[ 'quantity' ]; } ), 2, '.', '' ) }}
+                                    </div>
                                 </div>
                                 <hr class="hidden-print" />
                                 <div class="row hidden-print">
@@ -651,14 +675,20 @@
                             </div>
                             {!! Form::close() !!}
                         @else
-                            @if ( $ticketManagement->works->count() )
-                                @foreach ( $ticketManagement->works as $work )
+                            @if ( $ticketManagement->services->count() )
+                                @foreach ( $ticketManagement->services as $service )
                                     <div class="row margin-bottom-10">
-                                        <div class="col-xs-9">
-                                            {{ $work->name }}
+                                        <div class="col-xs-6">
+                                            {{ $service->name }}
+                                        </div>
+                                        <div class="col-xs-2 text-right">
+                                            {{ $service->quantity }}
                                         </div>
                                         <div class="col-xs-2">
-                                            {{ $work->quantity }}
+                                            {{ $service->unit }}
+                                        </div>
+                                        <div class="col-xs-2 text-right">
+                                            {{ $service->amount }}
                                         </div>
                                     </div>
                                     <hr />

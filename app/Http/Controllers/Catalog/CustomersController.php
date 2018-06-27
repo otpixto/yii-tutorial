@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
+use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Region;
 use Illuminate\Http\Request;
@@ -25,11 +26,11 @@ class CustomersController extends BaseController
 
         $customers = Customer
             ::mine()
-            ->orderBy( 'lastname' )
-            ->orderBy( 'firstname' )
-            ->orderBy( 'middlename' );
+            ->orderBy( Customer::$_table . '.lastname' )
+            ->orderBy( Customer::$_table . '.firstname' )
+            ->orderBy( Customer::$_table . '.middlename' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $customers
@@ -37,20 +38,20 @@ class CustomersController extends BaseController
                 {
                     $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
                     return $q
-                        ->where( 'firstname', 'like', $s )
-                        ->orWhere( 'middlename', 'like', $s )
-                        ->orWhere( 'lastname', 'like', $s )
-                        ->orWhere( 'phone', '=', $p )
-                        ->orWhere( 'phone2', '=', $p )
+                        ->where( Customer::$_table . '.firstname', 'like', $s )
+                        ->orWhere( Customer::$_table . '.middlename', 'like', $s )
+                        ->orWhere( Customer::$_table . '.lastname', 'like', $s )
+                        ->orWhere( Customer::$_table . '.phone', '=', $p )
+                        ->orWhere( Customer::$_table . '.phone2', '=', $p )
                         ->orWhereHas( 'actualAddress', function ( $q2 ) use ( $s )
                         {
                             return $q2
-                                ->where( 'name', 'like', $s );
+                                ->where( Address::$_table . '.name', 'like', $s );
                         });
                 });
         }
 
-        if ( !empty( $region ) )
+        if ( ! empty( $region ) )
         {
             $customers
                 ->where( 'region_id', '=', $region );
@@ -81,7 +82,7 @@ class CustomersController extends BaseController
         $regions = Region
             ::mine()
             ->current()
-            ->orderBy( 'name' )
+            ->orderBy( Region::$_table . '.name' )
             ->get();
 
         $customers = $customers
@@ -99,7 +100,7 @@ class CustomersController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create ()
     {
         Title::add( 'Добавить заявителя' );
         $regions = Region
@@ -117,7 +118,7 @@ class CustomersController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store ( Request $request )
     {
 
         $this->validate( $request, Customer::$rules );
@@ -143,7 +144,7 @@ class CustomersController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show ( $id )
     {
         if ( $id == 'fix' )
         {
@@ -159,13 +160,13 @@ class CustomersController extends BaseController
                 ->get();
             foreach ( $customers as $customer )
             {
-                $_customers = Customer
-                    ::where( 'phone', '=', $customer->phone )
-                    ->where( 'id', '!=', $customer->id )
-                    ->get();
-                if ( $_customers->count() )
+                if ( ! $customer->trashed() )
                 {
-                    foreach( $_customers as $_customer )
+                    $_customers = Customer
+                        ::where( 'phone', '=', $customer->phone )
+                        ->where( 'id', '!=', $customer->id )
+                        ->get();
+                    foreach ( $_customers as $_customer )
                     {
                         $_customer->delete();
                     }
@@ -181,7 +182,7 @@ class CustomersController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
 
         Title::add( 'Редактировать заявителя' );
@@ -218,7 +219,7 @@ class CustomersController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $customer = Customer::find( $id );
@@ -251,7 +252,7 @@ class CustomersController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }

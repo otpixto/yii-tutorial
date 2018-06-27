@@ -6,6 +6,7 @@ class News extends BaseModel
 {
 
     protected $table = 'news';
+    public static $_table = 'news';
 
     public static $name = 'Новости';
 

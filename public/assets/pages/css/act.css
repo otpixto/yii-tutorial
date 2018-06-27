@@ -4,6 +4,10 @@ body {
     background: #ffffff;
 }
 
-p {
-    margin: 15px 0;
+.border-bottom {
+    border-bottom: 1px solid #333;
+}
+
+.margin-top-50 {
+    margin-top: 50px;
 }

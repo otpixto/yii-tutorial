@@ -78,18 +78,17 @@
                 </span>
             @endif
         </div>
-        @if ( \Auth::user()->can( 'tickets.works.show' ) && $ticketManagement->works->count() )
+        @if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
             <hr />
             <div class="bold">
                 Выполненные работы:
             </div>
-            <ol class="list-unstyled">
-            @foreach ( $ticketManagement->works as $work )
-                <li class="small">
-                    {{ $work->name }}
-                    [{{ $work->quantity }}]
-                </li>
-            @endforeach
+            <ol style="margin: 0; padding: 0 15px;">
+                @foreach ( $ticketManagement->services as $service )
+                    <li class="small">
+                        {{ $service->name }}
+                    </li>
+                @endforeach
             </ol>
         @endif
     </td>

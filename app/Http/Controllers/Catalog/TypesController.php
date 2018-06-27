@@ -91,12 +91,12 @@ class TypesController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create ()
     {
 
         Title::add( 'Добавить Классификатор' );
 
-        $categories = Category::orderBy( 'name' )->pluck( 'name', 'id' );
+        $categories = Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
         return view( 'catalog.types.create' )
             ->with( 'categories', $categories );
@@ -108,7 +108,7 @@ class TypesController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store ( Request $request )
     {
 
         $rules = [
@@ -132,7 +132,7 @@ class TypesController extends BaseController
 
         self::clearCache();
 
-        return redirect()->route( 'types.index' )
+        return redirect()->route( 'types.edit', $type->id )
             ->with( 'success', 'Классификатор успешно добавлен' );
 
     }
@@ -143,7 +143,7 @@ class TypesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show ( $id )
     {
         //
     }
@@ -154,7 +154,7 @@ class TypesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
 
         Title::add( 'Редактировать Классификатор' );
@@ -167,15 +167,14 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $typeManagements = $type->managements()
+        $typeManagementsCount = $type->managements()
             ->mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->count();
 
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
-            ->with( 'categories', Category::orderBy( 'name' )->pluck( 'name', 'id' ) )
-            ->with( 'typeManagements', $typeManagements );
+            ->with( 'categories', Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' ) )
+            ->with( 'typeManagementsCount', $typeManagementsCount );
 
     }
 
@@ -186,12 +185,12 @@ class TypesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $type = Type::find( $id );
 
-        if ( !$type )
+        if ( ! $type )
         {
             return redirect()->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
@@ -199,11 +198,14 @@ class TypesController extends BaseController
 
         $rules = [
             'guid'                  => 'nullable|unique:types,guid,' . $type->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|unique:types,name,' . $type->id . '|string|max:255',
-            'category_id'           => 'required|integer',
+            'name'                  => 'required_with:category_id|unique:types,name,' . $type->id . '|string|max:255',
+            'category_id'           => 'required_with:name|integer',
             'period_acceptance'     => 'numeric',
             'period_execution'      => 'numeric',
+            'price'                 => 'nullable|numeric',
             'need_act'              => 'boolean',
+            'is_pay'                => 'boolean',
+            'emergency'             => 'boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -228,7 +230,7 @@ class TypesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }
@@ -246,53 +248,93 @@ class TypesController extends BaseController
 
     }
 
-    public function getAddManagements ( Request $request )
-    {
-        $type = Type::find( $request->get( 'id' ) );
-        if ( ! $type )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Классификатор не найден' );
-        }
-        $allowedManagements = Management
-            ::mine()
-            ->whereNotIn( 'id', $type->managements->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.types.add_managements' )
-            ->with( 'type', $type )
-            ->with( 'allowedManagements', $allowedManagements );
-    }
-
-    public function postAddManagements ( Request $request )
+    public function managements ( Request $request, $id )
     {
 
-        $type = Type::find( $request->get( 'type_id' ) );
+        Title::add( 'Привязка УО' );
+
+        $type = Type::find( $id );
+
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
+
+        $typeManagements = $type->managements()
+            ->orderBy( Management::$_table . '.name' )
+            ->paginate( 30 );
+
+        return view( 'catalog.types.managements' )
+            ->with( 'type', $type )
+            ->with( 'typeManagements', $typeManagements );
+
+    }
+
+    public function managementsSearch ( Request $request, $id )
+    {
+
+        $type = Type::find( $id );
+
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Классификатор не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $managements = Management
+            ::mine()
+            ->select(
+                Management::$_table . '.id',
+                Management::$_table . '.name AS text'
+            )
+            ->where( Management::$_table . '.name', 'like', $s )
+            ->whereNotIn( Management::$_table . '.id', $type->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        return $managements;
+
+    }
+
+    public function managementsAdd ( Request $request, $id )
+    {
+
+        $type = Type::find( $id );
+
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Классификатор не найден' ] );
+        }
+
         $type->managements()->attach( $request->get( 'managements' ) );
 
         return redirect()->back()
-            ->with( 'success', 'Исполнители успешно добавлены' );
+            ->with( 'success', 'УО успешно привязаны' );
 
     }
 
-    public function delManagement ( Request $request )
+    public function managementsDel ( Request $request, $id )
     {
 
-        $type = Type::find( $request->get( 'type_id' ) );
+        $rules = [
+            'management_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $type = Type::find( $id );
+
         if ( ! $type )
         {
             return redirect()->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
-        $type->managements()->detach( $request->get( 'management_id' ) );
 
-        return redirect()->back()
-            ->with( 'success', 'Исполнитель успешно удален' );
+        $type->managements()->detach( $request->get( 'management_id' ) );
 
     }
 

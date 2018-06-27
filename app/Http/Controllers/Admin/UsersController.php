@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Region;
 use App\User;
@@ -20,21 +21,55 @@ class UsersController extends BaseController
         Title::add( 'Пользователи' );
     }
 
-    public function loginas ( Request $request, $id )
+    public function loginas ( Request $request, $id, $token = null )
     {
-        if ( ! \Auth::user()->admin )
+        if ( $token )
         {
-            return redirect()->route( 'users.index' )
-                ->withErrors( [ 'У вас недостаточно прав' ] );
+            if ( ! \Cache::has( 'user.token.' . $id ) || \Cache::get( 'user.token.' . $id ) != $token )
+            {
+                return redirect()->route( 'users.index' )
+                    ->withErrors( [ 'Неверный токен' ] );
+            }
+            $user = User::find( $id );
+            if ( ! $user )
+            {
+                return redirect()->route( 'users.index' )
+                    ->withErrors( [ 'Пользователь не найден' ] );
+            }
+            \Auth::login( $user );
+            return redirect()->route( 'home' );
         }
-        $user = User::find( $id );
-        if ( ! $user )
+        else
         {
-            return redirect()->route( 'users.index' )
-                ->withErrors( [ 'Пользователь не найден' ] );
+            if ( ! \Auth::user()->admin && ! \Auth::user()->can( 'admin.loginas' ) )
+            {
+                return redirect()->route( 'users.index' )
+                    ->withErrors( [ 'У вас недостаточно прав' ] );
+            }
+            $user = User::find( $id );
+            if ( ! $user )
+            {
+                return redirect()->route( 'users.index' )
+                    ->withErrors( [ 'Пользователь не найден' ] );
+            }
+            if ( ! $user->can( 'supervisor.all_regions' ) )
+            {
+                if ( ! $user->regions->count() )
+                {
+                    return redirect()->route( 'users.index' )
+                        ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
+                }
+                $token = md5( $user->id . rand( 11111, 99999 ) . microtime() );
+                \Cache::put( 'user.token.' . $user->id, $token, 3 );
+                return redirect()->to( ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->regions->first()->domain . '/loginas/' . $id . '/' . $token );
+            }
+            else
+            {
+                \Auth::login( $user );
+                return redirect()->route( 'home' );
+            }
         }
-        \Auth::login( $user );
-        return redirect()->route( 'home' );
+
     }
 
     public function index ( Request $request )
@@ -55,17 +90,8 @@ class UsersController extends BaseController
 
         if ( !empty( $search ) )
         {
-            $s = '%' . str_replace( ' ', '%', $search ) . '%';
             $users
-                ->where( function ( $q ) use ( $s )
-                {
-                    return $q
-                        ->where( 'firstname', 'like', $s )
-                        ->orWhere( 'middlename', 'like', $s )
-                        ->orWhere( 'lastname', 'like', $s )
-                        ->orWhere( 'email', 'like', $s )
-                        ->orWhere( 'phone', 'like', $s );
-                });
+                ->search( $search );
         }
 
         if ( ! empty( $region ) )
@@ -75,7 +101,7 @@ class UsersController extends BaseController
                 {
                     return $q
                         ->mine()
-                        ->where( $q->getModel()->getTable() . '.id', '=', $region );
+                        ->where( Region::$_table . '.id', '=', $region );
                 });
         }
         else if ( ! Region::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_regions' ) )
@@ -153,32 +179,268 @@ class UsersController extends BaseController
 
         $user = User::find( $id );
 
-        if ( !$user )
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        return view('admin.users.edit' )
+            ->with( 'user', $user );
+
+    }
+
+    public function perms ( $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
         {
             return redirect()->route( 'users.index' )
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
 
         $roles = Role::orderBy( 'name' )->get();
+
         $perms_tree = Permission::getTree();
 
-        $managements = Management
-            ::whereNotIn( 'id', $user->managements->pluck( 'id' ) )
-            ->orderBy( 'name' )
-            ->get()
-            ->pluck( 'name', 'id' );
+        return view('admin.users.perms' )
+            ->with( 'user', $user )
+            ->with( 'roles', $roles )
+            ->with( 'perms_tree', $perms_tree );
+
+    }
+
+    public function permsUpdate ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->syncPermissions( $request->get( 'perms', [] ) );
+
+        $this->clearCache();
+
+    }
+
+    public function rolesUpdate ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->syncRoles( $request->get( 'roles', [] ) );
+
+        $this->clearCache();
+
+        $perms_tree = Permission::getTree();
+
+        return view('admin.perms.tree' )
+            ->with( 'user', $user )
+            ->with( 'perms_tree', $perms_tree );
+
+    }
+
+    public function regions ( $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $userRegions = $user->regions()
+            ->paginate( 30 );
 
         $regions = Region
-            ::mine()
+            ::whereNotIn( Region::$_table . '.id', $user->regions()->pluck( Region::$_table . '.id' ) )
+            ->pluck( 'name', 'id' );
+
+        return view('admin.users.regions' )
+            ->with( 'user', $user )
+            ->with( 'userRegions', $userRegions )
+            ->with( 'regions', $regions );
+
+    }
+
+    public function regionsAdd ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->regions()->attach( $request->get( 'regions' ) );
+
+        return redirect()->route( 'users.regions', $user->id )
+            ->with( 'success', 'Привязка прошла успешно' );
+
+    }
+
+    public function regionsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'region_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->regions()->detach( $request->get( 'region_id' ) );
+
+    }
+
+    public function managements ( $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $userManagements = $user->managements()
             ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view('admin.users.managements' )
+            ->with( 'user', $user )
+            ->with( 'userManagements', $userManagements );
+
+    }
+
+    public function managementsSearch ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $managements = Management
+            ::mine()
+            ->select(
+                Management::$_table . '.id',
+                Management::$_table . '.name AS text'
+            )
+            ->where( Management::$_table . '.name', 'like', $s )
+            ->whereNotIn( Management::$_table . '.id', $user->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
             ->get();
 
-        return view('admin.users.edit' )
+        return $managements;
+
+    }
+
+    public function managementsAdd ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->managements()->attach( $request->get( 'managements' ) );
+
+        return redirect()->route( 'users.managements', $user->id )
+            ->with( 'success', 'УО успешно привязаны' );
+
+    }
+
+    public function managementsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'management_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->managements()->detach( $request->get( 'management_id' ) );
+
+    }
+
+    public function logs ( $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $userLogsIn = $user
+            ->logs()
+            ->where( 'text', 'not like', '%авторизовался%' )
+            ->where( 'text', 'not like', '%выход%' )
+            ->orderBy( 'id', 'desc' )
+            ->take( 30 )
+            ->get();
+
+        $userLogsOut = Log
+            ::where( 'author_id', '=', $user->id )
+            ->orderBy( 'id', 'desc' )
+            ->take( 30 )
+            ->get();
+
+        return view('admin.users.logs' )
             ->with( 'user', $user )
-            ->with( 'perms_tree', $perms_tree )
-            ->with( 'roles', $roles )
-            ->with( 'managements', $managements )
-            ->with( 'regions', $regions );
+            ->with( 'userLogsIn', $userLogsIn )
+            ->with( 'userLogsOut', $userLogsOut );
 
     }
 
@@ -194,41 +456,103 @@ class UsersController extends BaseController
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
 
-        switch ( $request->get( 'action' ) )
+        $rules = [
+            'active' => [
+                'boolean',
+            ],
+            'firstname' => [
+                'required',
+                'max:255',
+            ],
+            'middlename' => [
+                'nullable',
+                'max:255',
+            ],
+            'lastname' => [
+                'required',
+                'max:255',
+            ],
+            'phone' => [
+                'nullable',
+                'max:18',
+                'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            ],
+            'prefix' => [
+                'nullable',
+                'max:255',
+            ],
+        ];
+
+        $this->validate( $request, $rules );
+        $res = $user->edit( $request->all() );
+        if ( $res instanceof MessageBag )
         {
-            case 'edit_personal':
-                $this->validate( $request, User::$rules_edit );
-                $res = $user->edit( $request->all() );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()->withInput()->withErrors( $res );
-                }
-                break;
-            case 'edit_binds':
-                $user->managements()->sync( $request->get( 'managements' ) );
-                break;
-            case 'change_password':
-                $this->validate( $request, User::$rules_password );
-                $res = $user->changePass( $request->all() );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()->withInput()->withErrors( $res );
-                }
-                break;
-            case 'edit_access':
-                $user->syncRoles( $request->get( 'roles', [] ) );
-                $user->syncPermissions( $request->get( 'perms', [] ) );
-                $user->active = $request->get( 'active', 0 );
-                $user->save();
-                $this->clearCache();
-                break;
-            default:
-                return redirect()->back()->withInput()->withErrors( [ 'Некорректное действие' ] );
-                break;
+            return redirect()->back()->withInput()->withErrors( $res );
         }
 
         return redirect()->route( 'users.edit', $user->id )
             ->with( 'success', 'Пользователь успешно отредактирован' );
+
+    }
+
+    public function changePassword ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()
+                ->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $rules = [
+            'password' => [
+                'required',
+                'min: 6',
+                'confirmed'
+            ]
+        ];
+
+        $this->validate( $request, $rules );
+
+        $res = $user->changePass( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()->withInput()->withErrors( $res );
+        }
+
+        return redirect()->route( 'users.edit', $user->id )
+            ->with( 'success', 'Пароль успешно изменен' );
+
+    }
+
+    public function uploadPhoto ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()
+                ->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $rules = [
+            'image' => [
+                'required',
+                'image',
+            ]
+        ];
+
+        $this->validate( $request, $rules );
+
+
+
+        return redirect()->route( 'users.edit', $user->id )
+            ->with( 'success', 'Фотография успешно загружена' );
 
     }
 

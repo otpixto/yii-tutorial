@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'ssl' => true,
+    'ssl' => env('APP_SSL', true),
     'url' => env('APP_URL', 'eds-region.ru'),
 
     /*

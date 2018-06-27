@@ -90,24 +90,3 @@
     @endif
 
 @endsection
-
-@section( 'css' )
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-@endsection
-
-@section( 'js' )
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-
-        $( document )
-            .ready(function()
-            {
-
-                $( '.select2' ).select2();
-
-            });
-
-    </script>
-@endsection

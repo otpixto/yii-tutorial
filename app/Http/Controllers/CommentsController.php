@@ -45,6 +45,11 @@ class CommentsController extends Controller
 
         $comment = Comment::create( $request->all() );
         $comment->save();
+        $log = $comment->addLog( 'Добавил комментарий' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()->withErrors( $log );
+        }
 
         if ( $comment->origin_model_name == Ticket::class )
         {
@@ -116,6 +121,11 @@ class CommentsController extends Controller
                     'name'          => $_file->getClientOriginalName()
                 ]);
                 $file->save();
+                $log = $file->addLog( 'Загрузил файл "' . $file->name . '"' );
+                if ( $log instanceof MessageBag )
+                {
+                    return redirect()->back()->withErrors( $log );
+                }
             }
         }
 

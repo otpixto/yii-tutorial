@@ -127,11 +127,6 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
-                                    @if ( $regions->count() > 1 )
-                                        <th width="10%">
-                                            Регион
-                                        </th>
-                                    @endif
                                     <th width="10%">
                                         Категория
                                     </th>
@@ -168,11 +163,6 @@
                                 <tbody>
                                 @foreach ( $managements as $management )
                                     <tr>
-                                        @if ( $regions->count() > 1 )
-                                            <td>
-                                                {{ $management->region->name }}
-                                            </td>
-                                        @endif
                                         <td>
                                             {{ $management->getCategory() }}
                                         </td>
@@ -191,14 +181,14 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'addresses.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->addresses()->mine()->count() ? 'info' : 'default' }} bold">
-                                                    {{ $management->addresses()->mine()->count() }}
+                                                <a href="{{ route( 'managements.addresses', $management->id ) }}" class="badge badge-{{ $management->addresses()->mine( \App\Models\BaseModel::IGNORE_MANAGEMENT )->count() ? 'info' : 'default' }} bold">
+                                                    {{ $management->addresses()->mine( \App\Models\BaseModel::IGNORE_MANAGEMENT )->count() }}
                                                 </a>
                                             </td>
                                         @endif
                                         @if ( \Auth::user()->can( 'catalog.types.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'types.index', [ 'management' => $management->id ] ) }}" class="badge badge-{{ $management->types->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'managements.types', $management->id ) }}" class="badge badge-{{ $management->types->count() ? 'info' : 'default' }} bold">
                                                     {{ $management->types->count() }}
                                                 </a>
                                             </td>

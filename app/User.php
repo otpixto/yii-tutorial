@@ -27,22 +27,25 @@ class User extends BaseModel implements
 
     public $availableStatuses = null;
 
+    public static $_table = 'users';
+
     public static $name = 'Пользователь';
 
     protected $nullable = [
-        'company',
+        'prefix',
         'phone',
         'middlename',
         'roles',
     ];
 
     protected $fillable = [
+        'active',
         'firstname',
         'middlename',
         'lastname',
         'phone',
         'email',
-        'company',
+        'prefix',
         'password',
     ];
 
@@ -79,48 +82,13 @@ class User extends BaseModel implements
             'min: 6',
             'confirmed'
         ],
-        'company' => [
+        'prefix' => [
             'nullable',
             'max:255',
         ],
         'roles' => [
             'nullable',
             'array',
-        ],
-    ];
-
-    public static $rules_edit = [
-        'regions' => [
-            'array',
-        ],
-        'firstname' => [
-            'required',
-            'max:255',
-        ],
-        'middlename' => [
-            'nullable',
-            'max:255',
-        ],
-        'lastname' => [
-            'required',
-            'max:255',
-        ],
-        'phone' => [
-            'nullable',
-            'max:18',
-            'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        ],
-        'company' => [
-            'nullable',
-            'max:255',
-        ],
-    ];
-
-    public static $rules_password = [
-        'password' => [
-            'required',
-            'min: 6',
-            'confirmed'
         ],
     ];
 
@@ -205,6 +173,11 @@ class User extends BaseModel implements
     public function edit ( array $attributes = [] )
     {
 
+        if ( ! isset( $attributes[ 'active' ] ) )
+        {
+            $attributes[ 'active' ] = 0;
+        }
+
         if ( ! empty( $attributes[ 'phone' ] ) )
         {
             $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
@@ -247,34 +220,43 @@ class User extends BaseModel implements
         return $name;
     }
 
-    public function getPosition ()
+    public function getPosition ( $html = false )
     {
-        if ( $this->hasRole( 'control' ) )
+        $position = '';
+        if ( $this->prefix )
         {
-            return '<b class="text-info">[Контролирующий]</b>';
+            $position = $this->prefix;
+        }
+        else if ( $this->hasRole( 'control' ) )
+        {
+            $position = 'Контролирующий';
         }
         else if ( $this->hasRole( 'operator' ) )
         {
-            return '<b class="text-info">[Оператор ЕДС]</b>';
-        }
-        elseif ( $this->company )
-        {
-            return '<b class="text-info">[' . $this->company . ']</b>';
+            $position = 'Оператор ЕДС';
         }
         elseif ( $this->hasRole( 'management' ) && $this->managements->count() )
         {
-            return '<b class="text-info">[' . $this->managements()->first()->name . ']</b>';
+            $position = $this->managements->first()->name ?? '';
+        }
+        if ( $html )
+        {
+            return '<b class="text-info">[' . $position . ']</b>';
         }
         else
         {
-            return '';
+            return $position;
         }
     }
 
     public function getFullName ()
     {
         $return = $this->getName();
-        if ( $this->hasRole( 'control' ) )
+        if ( $this->prefix )
+        {
+            $return = '<i>[' . $this->prefix . ']</i> ' . $return;
+        }
+        else if ( $this->hasRole( 'control' ) )
         {
             $return = '<i>[Контролирующий]</i> ' . $return;
         }
@@ -282,13 +264,9 @@ class User extends BaseModel implements
         {
             $return = '<i>[Оператор ЕДС]</i> ' . $return;
         }
-        else if ( $this->company )
-        {
-            $return = '<i>[' . $this->company . ']</i> ' . $return;
-        }
         else if ( $this->hasRole( 'management' ) && $this->managements->count() )
         {
-            $return = '<i>[' . $this->managements()->first()->name . ']</i> ' . $return;
+            $return = '<i>[' . $this->managements->first()->name . ']</i> ' . $return;
         }
         return $return;
     }
@@ -384,6 +362,21 @@ class User extends BaseModel implements
         return $query
             ->where( 'active', '=', 1 )
             ->orWhere( 'admin', '=', 1 );
+    }
+
+    public function scopeSearch ( $query, $search )
+    {
+        return $query
+            ->where( function ( $q ) use ( $search )
+            {
+                $s = '%' . str_replace( ' ', '%', $search ) . '%';
+                return $q
+                    ->where( User::$_table . '.firstname', 'like', $s )
+                    ->orWhere( User::$_table . '.middlename', 'like', $s )
+                    ->orWhere( User::$_table . '.lastname', 'like', $s )
+                    ->orWhere( User::$_table . '.email', 'like', $s )
+                    ->orWhere( User::$_table . '.phone', 'like', $s );
+            });
     }
 
     public function sendEmail ( $message, $url = null )

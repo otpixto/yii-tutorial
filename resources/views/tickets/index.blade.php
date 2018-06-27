@@ -107,7 +107,7 @@
                             </th>
                             <th width="300">
                                 Классификатор
-                                @if ( \Auth::user()->can( 'tickets.works.show' ) )
+                                @if ( \Auth::user()->can( 'tickets.services.show' ) )
                                     \ Выполненные работы
                                 @endif
                             </th>
@@ -116,7 +116,6 @@
                             </th>
                         </tr>
                     </thead>
-                    {!! Form::open( [ 'url' => route( 'tickets.action' ) ] ) !!}
                     <tbody id="tickets">
                         <tr id="tickets-new-message" class="hidden">
                             <td colspan="7">
@@ -129,11 +128,8 @@
                         @foreach ( $ticketManagements as $ticketManagement )
                             @include( 'parts.ticket', [ 'ticketManagement' => $ticketManagement ] )
                         @endforeach
-                        </tbody>
-                        {!! Form::close() !!}
-                    @else
-                        </tbody>
                     @endif
+                    </tbody>
                 </table>
 
                 {{ $ticketManagements->render() }}
@@ -168,8 +164,6 @@
 @section( 'css' )
     <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
@@ -216,8 +210,6 @@
 @section( 'js' )
     <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
@@ -273,31 +265,6 @@
                     format: 'dd.mm.yyyy'
                 });
 
-                $( '.select2' ).select2();
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    allowClear: true,
-                    ajax: {
-                        delay: 450,
-                        cache: true,
-                        data: function ( term, page )
-                        {
-                            return {
-                                q: term.term,
-                                region_id: $( '#region_id' ).val() || null
-                            };
-                        },
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-
                 checkTicketCheckbox();
 
                 $( '.mt-multiselect' ).multiselect({
@@ -323,7 +290,7 @@
                         var r = {};
                         r.param = this.element[0].name;
                         r.value = request.term;
-                        $.getJSON( '{{ route( 'customers.search' ) }}', r, function ( data )
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
                         {
                             response( data );
                         });

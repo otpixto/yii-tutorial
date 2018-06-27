@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\TicketCall;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,7 @@ class Ticket extends BaseModel
 {
 
     protected $table = 'tickets';
+    public static $_table = 'tickets';
 
     public static $name = 'Заявка';
 
@@ -114,6 +116,7 @@ class Ticket extends BaseModel
         'managements',
         'actual_address_id',
         'actual_flat',
+        'price',
     ];
 
     public static $rules = [
@@ -135,6 +138,8 @@ class Ticket extends BaseModel
         'customer_id'               => 'nullable|integer',
         'text'                      => 'required',
         'managements'               => 'required|array',
+        'price'                     => 'nullable|numeric|min:0',
+        'quantity'                  => 'nullable|integer|min:1',
     ];
 
     protected $fillable = [
@@ -155,6 +160,8 @@ class Ticket extends BaseModel
         'customer_id',
         'place_id',
         'text',
+        'price',
+        'quantity',
     ];
 
     public function managements ()
@@ -195,7 +202,7 @@ class Ticket extends BaseModel
     public function childs ()
     {
         return $this->hasMany( 'App\Models\Ticket', 'parent_id' )
-            ->orderBy( 'id', 'desc' );
+            ->orderBy( Ticket::$_table . '.id', 'desc' );
     }
 
     public function group ()
@@ -206,13 +213,13 @@ class Ticket extends BaseModel
     public function statuses ()
     {
         return $this->hasMany( 'App\Models\Status', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
+            ->where( Status::$_table . '.model_name', '=', get_class( $this ) );
     }
 
     public function statusesHistory ()
     {
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
+            ->where( StatusHistory::$_table . '.model_name', '=', get_class( $this ) );
     }
 
     public function calls ()
@@ -228,14 +235,14 @@ class Ticket extends BaseModel
     public function scopeNotFinaleStatuses ( $query )
     {
         return $query
-            ->whereNotIn( 'status_code', self::$final_statuses );
+            ->whereNotIn( self::$_table . '.status_code', self::$final_statuses );
     }
 
     public function scopeDraft ( $query, $user_id = null )
     {
         return $query
-            ->where( 'author_id', '=', $user_id ?: \Auth::user()->id )
-            ->where( 'status_code', '=', 'draft' );
+            ->where( self::$_table . '.author_id', '=', $user_id ?: \Auth::user()->id )
+            ->where( self::$_table . '.status_code', '=', 'draft' );
     }
 
     public function scopeMine ( $query, $ignoreStatuses = false )
@@ -258,7 +265,7 @@ class Ticket extends BaseModel
                     if ( ! $ignoreStatuses && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                     {
                         $q
-                            ->whereIn( self::getTableName() . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                            ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                     }
                     if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
                     {
@@ -266,18 +273,18 @@ class Ticket extends BaseModel
                             ->where( function ( $q2 )
                             {
                                 return $q2
-                                    ->where( self::getTableName() . '.author_id', '=', \Auth::user()->id )
+                                    ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
                                     ->orWhereHas( 'managements', function ( $q3 )
                                     {
                                         return $q3
-                                            ->whereIn( 'management_id', \Auth::user()->managements->pluck( 'id' ) );
+                                            ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
                                     });
                             });
                     }
                 }
                 else
                 {
-                    $q->whereNull( 'id' );
+                    $q->whereNull( self::$_table . '.id' );
                 }
                 return $q;
             });
@@ -291,35 +298,35 @@ class Ticket extends BaseModel
             ->where( function ( $q ) use ( $like, $eq )
             {
                 return $q
-                    ->where( 'id', '=', $eq )
-                    ->orWhere( 'firstname', 'like', $like )
-                    ->orWhere( 'middlename', 'like', $like )
-                    ->orWhere( 'lastname', 'like', $like )
-                    ->orWhere( 'phone', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
-                    ->orWhere( 'phone2', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
-                    ->orWhere( 'text', 'like', $like )
-                    ->orWhere( 'flat', '=', $eq )
+                    ->where( self::$_table . '.id', '=', $eq )
+                    ->orWhere( self::$_table . '.firstname', 'like', $like )
+                    ->orWhere( self::$_table . '.middlename', 'like', $like )
+                    ->orWhere( self::$_table . '.lastname', 'like', $like )
+                    ->orWhere( self::$_table . '.phone', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
+                    ->orWhere( self::$_table . '.phone2', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
+                    ->orWhere( self::$_table . '.text', 'like', $like )
+                    ->orWhere( self::$_table . '.flat', '=', $eq )
                     ->orWhereHas( 'author', function ( $q2 ) use ( $like )
                     {
                         return $q2
-                            ->where( 'firstname', 'like', $like )
-                            ->orWhere( 'middlename', 'like', $like )
-                            ->orWhere( 'lastname', 'like', $like );
+                            ->where( User::$_table . '.firstname', 'like', $like )
+                            ->orWhere( User::$_table . '.middlename', 'like', $like )
+                            ->orWhere( User::$_table . '.lastname', 'like', $like );
                     })
                     ->orWhereHas( 'address', function ( $q2 ) use ( $like )
                     {
-                        return $q2->where( 'name', 'like', $like );
+                        return $q2->where( Address::$_table . '.name', 'like', $like );
                     })
                     ->orWhereHas( 'managements', function ( $q2 ) use ( $like )
                     {
                         return $q2->whereHas( 'management', function ( $q3 ) use ( $like )
                         {
-                            return $q3->where( 'name', 'like', $like );
+                            return $q3->where( Management::$_table . '.name', 'like', $like );
                         });
                     })
                     ->orWhereHas( 'type', function ( $q2 ) use ( $like )
                     {
-                        return $q2->where( 'name', 'like', $like );
+                        return $q2->where( Type::$_table . '.name', 'like', $like );
                     });
             });
     }
@@ -334,7 +341,7 @@ class Ticket extends BaseModel
     public function scopeParentsOnly ( $query )
     {
         return $query
-            ->whereNull( 'parent_id' );
+            ->whereNull( self::$_table . '.parent_id' );
     }
 
     public function isFinalStatus ()
@@ -933,10 +940,10 @@ class Ticket extends BaseModel
     {
         if ( ! \Auth::user()->openPhoneSession ) return;
         $ticketCall = TicketCall
-            ::whereNull( 'call_id' )
-            ->where( 'ticket_id', '=', $this->id )
-            ->where( 'call_phone', '=', $phone )
-            ->where( 'agent_number', '=', \Auth::user()->openPhoneSession->number )
+            ::whereNull( TicketCall::$_table . '.call_id' )
+            ->where( TicketCall::$_table . '.ticket_id', '=', $this->id )
+            ->where( TicketCall::$_table . '.call_phone', '=', $phone )
+            ->where( TicketCall::$_table . '.agent_number', '=', \Auth::user()->openPhoneSession->number )
             ->first();
         if ( $ticketCall )
         {
