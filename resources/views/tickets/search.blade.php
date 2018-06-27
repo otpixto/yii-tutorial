@@ -91,6 +91,16 @@
                 </div>
                 <div style="display: none;" id="additional-search">
                     <hr />
+                    @if ( count( $regions ) > 1 )
+                        <div class="row margin-top-10">
+                            <h4 class="col-md-2">
+                                Регион
+                            </h4>
+                            <div class="col-md-10">
+                                {!! Form::select( 'region_id', [ null => 'ВСЕ (' . count( $regions ) . ')' ] + $regions->toArray(), \Input::get( 'region_id' ), [ 'class' => 'form-control select2' ] ) !!}
+                            </div>
+                        </div>
+                    @endif
                     <div class="row">
                         <h4 class="col-md-2">
                             Период
