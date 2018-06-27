@@ -35,12 +35,7 @@ class FilesController extends Controller
         try
         {
             $path = storage_path( 'app/' . $file->path );
-            $log = $file->parent->addLog( 'Скачал файл "' . $file->name . '"' );
-            if ( $log instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $log->getMessages() );
-            }
-            $log->save();
+            $file->parent->addLog( 'Скачал файл "' . $file->name . '"' );
             return response()->download( $path, $file->name );
         }
         catch ( \Exception $e )
