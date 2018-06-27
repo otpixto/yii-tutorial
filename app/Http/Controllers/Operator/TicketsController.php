@@ -524,7 +524,8 @@ class TicketsController extends BaseController
         Title::add( 'Заявка #' . $draft->id . ' от ' . $draft->created_at->format( 'd.m.Y H:i' ) );
 
         $res = Type
-            ::orderBy( Type::$_table . '.name' )
+            ::mine()
+            ->orderBy( Type::$_table . '.name' )
             ->get();
 
         $types = [];

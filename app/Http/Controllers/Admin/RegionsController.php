@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\Management;
 use App\Models\Region;
 use App\Models\RegionPhone;
+use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -72,16 +73,8 @@ class RegionsController extends BaseController
                 ->withErrors( [ 'Регион не найден' ] );
         }
 
-        $regionAddressesCount = $region->addresses()
-            ->count();
-
-        $regionManagementsCount = $region->managements()
-            ->count();
-
         return view('admin.regions.edit' )
-            ->with( 'region', $region )
-            ->with( 'regionAddressesCount', $regionAddressesCount )
-            ->with( 'regionManagementsCount', $regionManagementsCount );
+            ->with( 'region', $region );
 
     }
 
@@ -260,6 +253,74 @@ class RegionsController extends BaseController
         }
 
         $region->managements()->detach( $request->get( 'management_id' ) );
+
+    }
+
+    public function types ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Классификатора' );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $types = Type
+            ::whereNotIn( 'id', $region->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $regionTypes = $region->types()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'admin.regions.types' )
+            ->with( 'region', $region )
+            ->with( 'types', $types )
+            ->with( 'regionTypes', $regionTypes );
+
+    }
+
+    public function typesAdd ( Request $request, $id )
+    {
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->types()->attach( $request->get( 'types' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Классификатор успешно привязан' );
+
+    }
+
+    public function typesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'type_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $region = Region::find( $id );
+
+        if ( ! $region )
+        {
+            return redirect()->route( 'regions.index' )
+                ->withErrors( [ 'Регион не найден' ] );
+        }
+
+        $region->types()->detach( $request->get( 'type_id' ) );
 
     }
 

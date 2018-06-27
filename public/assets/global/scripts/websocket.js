@@ -14,6 +14,12 @@ socket
         }
     })
 
+    .on( 'disconnect', function ()
+    {
+        console.log( 'socket disconnected' );
+        connected = false;
+    })
+
     .on( 'picked_up', function ( phone )
     {
         console.log( 'picked_up', phone );
@@ -37,7 +43,7 @@ socket
 
     .on( 'call', function ( data )
     {
-        var message = '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
+        var message = '<h2>' + ( data.region || '-' ) + '</h2><h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
         if ( data.message.address )
         {
             message += '<div class="small">' + data.message.address + '</div>';

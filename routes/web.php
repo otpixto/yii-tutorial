@@ -200,6 +200,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'regions/{region_id}/managements/search', 'Admin\RegionsController@managementsSearch' )->name( 'regions.managements.search' );
             Route::put( 'regions/{region_id}/managements/add', 'Admin\RegionsController@managementsAdd' )->name( 'regions.managements.add' );
             Route::delete( 'regions/{region_id}/managements/del', 'Admin\RegionsController@managementsDel' )->name( 'regions.managements.del' );
+            Route::get( 'regions/{region_id}/types', 'Admin\RegionsController@types' )->name( 'regions.types' );
+            Route::put( 'regions/{region_id}/types/add', 'Admin\RegionsController@typesAdd' )->name( 'regions.types.add' );
+            Route::delete( 'regions/{region_id}/types/del', 'Admin\RegionsController@typesDel' )->name( 'regions.types.del' );
             Route::put( 'regions/{region_id}/phones/add', 'Admin\RegionsController@phonesAdd' )->name( 'regions.phones.add' );
             Route::delete( 'regions/{region_id}/phones/del', 'Admin\RegionsController@phonesDel' )->name( 'regions.phones.del' );
 

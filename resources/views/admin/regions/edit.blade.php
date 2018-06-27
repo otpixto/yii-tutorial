@@ -45,11 +45,15 @@
                             <div class="col-xs-6 text-right">
                                 <a href="{{ route( 'regions.addresses', $region->id ) }}" class="btn btn-default btn-circle">
                                     Здания
-                                    <span class="badge">{{ $regionAddressesCount }}</span>
+                                    <span class="badge">{{ $region->addresses()->count() }}</span>
                                 </a>
                                 <a href="{{ route( 'regions.managements', $region->id ) }}" class="btn btn-default btn-circle">
                                     УО
-                                    <span class="badge">{{ $regionManagementsCount }}</span>
+                                    <span class="badge">{{ $region->managements()->count() }}</span>
+                                </a>
+                                <a href="{{ route( 'regions.types', $region->id ) }}" class="btn btn-default btn-circle">
+                                    Классификатор
+                                    <span class="badge">{{ $region->types()->count() }}</span>
                                 </a>
                             </div>
                         </div>

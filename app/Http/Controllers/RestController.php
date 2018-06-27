@@ -102,9 +102,20 @@ class RestController extends Controller
             return $this->error( 105 );
         }
 
+        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
+
+        $region = Region
+            ::whereHas( 'phones', function ( $phones ) use ( $phone_office )
+            {
+                return $phones
+                    ->where( 'phone', '=', $phone_office );
+            })
+            ->first();
+
         $response = [
             'address' => $customer->getAddress(),
-            'name' => $customer->getName()
+            'name' => $customer->getName(),
+            'region' => $region->name ?? '-',
         ];
 
         return $this->success( $response );

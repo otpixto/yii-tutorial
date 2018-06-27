@@ -22,14 +22,14 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    Добавить Здания
+                    Добавить Классификатор
                 </h3>
             </div>
             <div class="panel-body">
-                {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.addresses.add', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                {!! Form::model( $region, [ 'method' => 'put', 'route' => [ 'regions.types.add', $region->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                 <div class="form-group">
                     <div class="col-md-12">
-                        {!! Form::select( 'addresses[]', [], null, [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'regions.addresses.search', $region->id ), 'multiple' ] ) !!}
+                        {!! Form::select( 'types[]', $types, [], [ 'class' => 'form-control select2', 'multiple' ] ) !!}
                     </div>
                 </div>
                 <div class="form-group">
@@ -44,23 +44,23 @@
         <div class="panel panel-default">
             <div class="panel-body">
 
-                {{ $regionAddresses->render() }}
+                {{ $regionTypes->render() }}
 
-                @if ( ! $regionAddresses->count() )
+                @if ( ! $regionTypes->count() )
                     @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
                 @endif
-                @foreach ( $regionAddresses as $r )
+                @foreach ( $regionTypes as $r )
                     <div class="margin-bottom-5">
-                        <button type="button" class="btn btn-xs btn-danger" data-delete="region-address" data-address="{{ $r->id }}">
+                        <button type="button" class="btn btn-xs btn-danger" data-delete="region-type" data-type="{{ $r->id }}">
                             <i class="fa fa-remove"></i>
                         </button>
-                        <a href="{{ route( 'addresses.edit', $r->id ) }}">
-                            {{ $r->getAddress() }}
+                        <a href="{{ route( 'managements.edit', $r->id ) }}">
+                            {{ $r->name }}
                         </a>
                     </div>
                 @endforeach
 
-                {{ $regionAddresses->render() }}
+                {{ $regionTypes->render() }}
 
             </div>
         </div>
@@ -78,12 +78,12 @@
 
         $( document )
 
-            .on( 'click', '[data-delete="region-address"]', function ( e )
+            .on( 'click', '[data-delete="region-type"]', function ( e )
             {
 
                 e.preventDefault();
 
-                var address_id = $( this ).attr( 'data-address' );
+                var type_id = $( this ).attr( 'data-type' );
                 var obj = $( this ).closest( 'div' );
 
                 bootbox.confirm({
@@ -107,10 +107,10 @@
                             obj.hide();
 
                             $.ajax({
-                                url: '{{ route( 'regions.addresses.del', $region->id ) }}',
+                                url: '{{ route( 'regions.types.del', $region->id ) }}',
                                 method: 'delete',
                                 data: {
-                                    address_id: address_id
+                                    type_id: type_id
                                 },
                                 success: function ()
                                 {

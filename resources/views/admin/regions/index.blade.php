@@ -64,6 +64,9 @@
                             <th class="text-center">
                                 УО
                             </th>
+                            <th class="text-center">
+                                Классификатор
+                            </th>
                             <th class="text-right">
                                 &nbsp;
                             </th>
@@ -82,13 +85,18 @@
                                     {{ $region->phones->implode( 'phone', ', ' ) }}
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'regions.addresses', $region->id ) }}" class="badge badge-{{ $region->addresses()->mine( \App\Models\BaseModel::IGNORE_MANAGEMENT )->count() ? 'info' : 'default' }} bold">
-                                        {{ $region->addresses()->count() }}
+                                    <a href="{{ route( 'regions.addresses', $region->id ) }}" class="badge badge-{{ $region->addresses->count() ? 'info' : 'default' }} bold">
+                                        {{ $region->addresses->count() }}
                                     </a>
                                 </td>
                                 <td class="text-center">
                                     <a href="{{ route( 'regions.managements', $region->id ) }}" class="badge badge-{{ $region->managements->count() ? 'info' : 'default' }} bold">
-                                        {{ $region->managements()->count() }}
+                                        {{ $region->managements->count() }}
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route( 'regions.types', $region->id ) }}" class="badge badge-{{ $region->types->count() ? 'info' : 'default' }} bold">
+                                        {{ $region->types->count() }}
                                     </a>
                                 </td>
                                 <td class="text-right">

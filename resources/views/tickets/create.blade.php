@@ -18,13 +18,6 @@
 
         <div class="col-lg-7">
 
-            <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
             @if ( $regions->count() > 1 )
                 <div class="form-group">
                     {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -33,6 +26,13 @@
                     </div>
                 </div>
             @endif
+
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
 
             <div class="form-group">
                 {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
