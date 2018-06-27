@@ -74,7 +74,10 @@ class ImportAddress extends Command
                     }
                     $address->save();
                 }
-                $address->regions()->attach( 6 );
+                if ( ! $address->regions->contains( 'id', 6 ) )
+                {
+                    $address->regions()->attach( 6 );
+                }
             }
             fclose( $handle );
         }
@@ -103,7 +106,10 @@ class ImportAddress extends Command
                     }
                     $address->save();
                 }
-                $address->regions()->attach( 6 );
+                if ( ! $address->regions->contains( 'id', 6 ) )
+                {
+                    $address->regions()->attach( 6 );
+                }
             }
             fclose( $handle );
         }
