@@ -606,7 +606,12 @@ class ReportsController extends BaseController
             ->get();
 
         $categories = Category
-            ::orderBy( 'name' )
+			::whereHas( 'types', function ( $types )
+			{
+				return $types
+					->mine();
+			})
+            ->orderBy( 'name' )
             ->get();
 
         $data = [
