@@ -322,7 +322,7 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        $availableStatuses = $this->ticket->getAvailableStatuses( 'edit' ) + $this->getAvailableStatuses( 'edit' );
+        $availableStatuses = array_merge( $this->ticket->getAvailableStatuses( 'edit' ), $this->getAvailableStatuses( 'edit' ) );
 
         if ( ! $force && ! in_array( $status_code, $availableStatuses ) )
         {

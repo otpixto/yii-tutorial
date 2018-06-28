@@ -179,8 +179,6 @@
                     $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
                 }
 
-                var id = $( this ).attr( 'data-id' );
-
                 var dialog = bootbox.dialog({
                     title: 'Выберите исполнителя',
                     message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
@@ -188,9 +186,7 @@
 
                 dialog.init( function ()
                 {
-                    $.get( '{{ route( 'tickets.executor' ) }}', {
-                        id: id
-                    }, function ( response )
+                    $.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
                     {
                         dialog.find( '.bootbox-body' ).html( response );
                         dialog.removeAttr( 'tabindex' );

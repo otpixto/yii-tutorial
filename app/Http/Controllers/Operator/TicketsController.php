@@ -1296,29 +1296,33 @@ class TicketsController extends BaseController
 		$ticketManagement->delete();
     }
 
-    public function getExecutorForm ( Request $request )
+    public function getExecutorForm ( Request $request, $id )
     {
-        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+
+        $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Заявка не найдена' );
         }
+
         $management = $ticketManagement->management;
         $executors = [ null => 'Выбрать из списка' ] + $management->executors()->pluck( 'name', 'id' )->toArray();
+		
         return view( 'parts.executor_form' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'management', $management )
             ->with( 'executors', $executors );
+			
     }
 
-    public function postExecutorForm ( Request $request )
+    public function postExecutorForm ( Request $request, $id )
     {
         $this->validate( $request, [
             'executor_id'       => 'required_without:executor_name|nullable|integer',
             'executor_name'     => 'required_without:executor_id|nullable',
         ]);
-        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
             return redirect()

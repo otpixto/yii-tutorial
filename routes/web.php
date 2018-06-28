@@ -105,8 +105,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::get( 'customers/{customer_id}', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customers' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::get( 'executor', 'Operator\TicketsController@getExecutorForm' )->name( 'tickets.executor' );
-            Route::post( 'executor', 'Operator\TicketsController@postExecutorForm' )->name( 'tickets.executor' );
+            Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutorForm' )->name( 'tickets.executor' );
+            Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutorForm' )->name( 'tickets.executor' );
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );

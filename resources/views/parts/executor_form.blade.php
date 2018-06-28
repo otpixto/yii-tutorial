@@ -1,5 +1,4 @@
-{!! Form::open( [ 'url' => route( 'tickets.executor' ), 'id' => 'executor-form', 'class' => 'submit-loading form-horizontal' ] ) !!}
-{!! Form::hidden( 'id', $ticketManagement->id ) !!}
+{!! Form::open( [ 'url' => route( 'tickets.executor', $ticketManagement->id ), 'id' => 'executor-form', 'class' => 'submit-loading form-horizontal' ] ) !!}
 <div class="form-group">
     <div class="col-xs-12">
         {!! Form::select( 'executor_id', $executors, null, [ 'class' => 'select2 form-control' ] ) !!}
