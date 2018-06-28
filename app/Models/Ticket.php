@@ -250,15 +250,11 @@ class Ticket extends BaseModel
         return $query
             ->where( function ( $q ) use ( $ignoreStatuses )
             {
-                $q->whereHas( 'address', function ( $q2 )
+                $q->whereHas( 'region', function ( $region )
                 {
-                    return $q2
-                        ->whereHas( 'region', function ( $q3 )
-                        {
-                            return $q3
-                                ->mine()
-                                ->current();
-                        });
+                    return $region
+						->mine()
+						->current();
                 });
                 if ( \Auth::user()->can( 'tickets.show' ) )
                 {
