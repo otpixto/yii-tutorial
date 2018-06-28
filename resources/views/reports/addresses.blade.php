@@ -13,16 +13,40 @@
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+            <div class="input-group date datetimepicker form_datetime bs-datetime">
+                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
+                <span class="input-group-addon">
+                    <button class="btn default date-reset" type="button">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn default date-set" type="button">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </div>
         </div>
         <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+            <div class="input-group date datetimepicker form_datetime bs-datetime">
+                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
+                <span class="input-group-addon">
+                    <button class="btn default date-reset" type="button">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </span>
+                <span class="input-group-addon">
+                    <button class="btn default date-set" type="button">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </div>
         </div>
     </div>
     <div class="form-group">
         {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::select( 'address_id', $address, $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
     <div class="form-group">
@@ -35,7 +59,7 @@
     @if ( $address )
 
         <div class="visible-print title">
-            Статистический отчет по заявкам на {{ $address->name }} за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
+            Статистический отчет по заявкам на {{ $address[ $address_id ] }} за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
         </div>
 
         @if ( $ticketManagements->count() )
@@ -93,10 +117,9 @@
                         </td>
                         <td>
                             <ol class="list-unstyled">
-                                @foreach ( $ticketManagement->works as $work )
+                                @foreach ( $ticketManagement->services as $service )
                                     <li>
-                                        {{ $work->name }}
-                                        [{{ $work->quantity }}]
+                                        {{ $service->name }}
                                     </li>
                                 @endforeach
                             </ol>
@@ -145,6 +168,7 @@
 
 @section( 'js' )
 
+	<script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
@@ -154,6 +178,14 @@
             .ready(function()
             {
 
+				$( '.datetimepicker' ).datetimepicker({
+                    isRTL: App.isRTL(),
+                    format: "dd.mm.yyyy hh:ii",
+                    autoclose: true,
+                    fontAwesome: true,
+                    todayBtn: true
+                });
+			
                 $( '.datepicker' ).datepicker({
                     format: 'dd.mm.yyyy',
                 });

@@ -65,7 +65,7 @@
     @if ( $management || $executor )
 
         <div class="visible-print title">
-            Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
+            Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
             Исполнитель
             @if ( $management )
                 {{ $management->name }}
