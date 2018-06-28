@@ -1,10 +1,8 @@
 @if ( $ticketManagement->canRate() )
-    {!! Form::open( [ 'url' => route( 'tickets.rate' ), 'id' => 'rate-form' ] ) !!}
-    {!! Form::hidden( 'id', $ticketManagement->id ) !!}
+    {!! Form::open( [ 'url' => route( 'tickets.rate', $ticketManagement->id ), 'id' => 'rate-form' ] ) !!}
     {!! Form::hidden( 'comment', null ) !!}
     {!! Form::hidden( 'rate', null ) !!}
     {!! Form::hidden( 'closed_with_confirm', $closed_with_confirm ?? 0 ) !!}
-    {!! Form::close() !!}
     <div class="note note-info">
         <dl>
             <dt>
@@ -29,4 +27,5 @@
             </dd>
         </dl>
     </div>
+	{!! Form::close() !!}
 @endif

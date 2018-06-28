@@ -1377,9 +1377,9 @@ class TicketsController extends BaseController
         return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
     }
 
-    public function getRateForm ( Request $request )
+    public function getRateForm ( Request $request, $id )
     {
-        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
             return view( 'parts.error' )
@@ -1395,9 +1395,9 @@ class TicketsController extends BaseController
             ->with( 'closed_with_confirm', 1 );
     }
 
-    public function postRateForm ( Request $request )
+    public function postRateForm ( Request $request, $id )
     {
-        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+        $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
             return redirect()
@@ -1407,14 +1407,6 @@ class TicketsController extends BaseController
         \DB::beginTransaction();
         $ticketManagement->rate = $request->get( 'rate' );
         $ticketManagement->rate_comment = $request->get( 'comment', null );
-        if ( $request->get( 'closed_with_confirm' ) == 1 && $ticketManagement->status_code != 'closed_with_confirm' )
-        {
-            $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
-            if ( $res instanceof MessageBag )
-            {
-                return redirect()->back()->withErrors( $res );
-            }
-        }
         $ticketManagement->save();
         if ( $ticketManagement->rate_comment )
         {
@@ -1426,9 +1418,19 @@ class TicketsController extends BaseController
         }
         if ( $res instanceof MessageBag )
         {
-            return $res;
+			return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( $res );
         }
-        \DB::commit();
+		if ( $request->get( 'closed_with_confirm', 0 ) == 1 && $ticketManagement->status_code != 'closed_with_confirm' )
+        {
+            $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $res );
+            }
+        }
+		\DB::commit();
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
     }
 

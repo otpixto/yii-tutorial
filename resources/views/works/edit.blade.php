@@ -145,8 +145,6 @@
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
     <style>
         .mt-checkbox, .mt-radio {
             margin-bottom: 0;
@@ -159,8 +157,6 @@
     <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
@@ -174,43 +170,6 @@
 
                 $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
-                });
-
-                $( '.select2' ).select2();
-
-                $( '.select2-ajax' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
-                });
-
-                $( '#address_id' ).select2({
-                    minimumInputLength: 3,
-                    minimumResultsForSearch: 30,
-                    ajax: {
-                        data: function ( term, page )
-                        {
-                            return {
-                                q: term.term,
-                                region_id: $( '#region_id' ).val()
-                            };
-                        },
-                        delay: 450,
-                        processResults: function ( data, page )
-                        {
-                            return {
-                                results: data
-                            };
-                        }
-                    }
                 });
 
                 $( '.datepicker' ).datepicker();

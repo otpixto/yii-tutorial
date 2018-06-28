@@ -108,7 +108,7 @@
                 e.preventDefault();
 
                 var rate = $( this ).attr( 'data-rate' );
-                var form = $( '#rate-form' );
+                var form = $( this ).closest( '#rate-form' );
 
 				bootbox.confirm({
 					message: 'Вы уверены, что хотите поставить оценку ' + rate + '?',
@@ -209,8 +209,6 @@
                     $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
                 }
 
-                var id = $( this ).attr( 'data-id' );
-
                 var dialog = bootbox.dialog({
                     title: 'Оцените работу УО',
                     message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
@@ -218,9 +216,7 @@
 
                 dialog.init( function ()
                 {
-                    $.get( '{{ route( 'tickets.rate' ) }}', {
-                        id: id
-                    }, function ( response )
+                    $.get( '{{ route( 'tickets.rate', $ticketManagement->id ) }}', function ( response )
                     {
                         dialog.find( '.bootbox-body' ).html( response );
                     });

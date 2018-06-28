@@ -93,8 +93,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::prefix( 'tickets' )->group( function ()
         {
             Route::post( 'export', 'Operator\TicketsController@export' )->name( 'tickets.export' );
-            Route::get( 'rate', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
-            Route::post( 'rate', 'Operator\TicketsController@postRateForm' )->name( 'tickets.rate' );
+            Route::get( 'rate/{ticket_management_id}', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
+            Route::post( 'rate/{ticket_management_id}', 'Operator\TicketsController@postRateForm' )->name( 'tickets.rate' );
             Route::post( 'save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
             Route::get( 'cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
             Route::get( 'act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
