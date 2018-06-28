@@ -20,7 +20,7 @@
         @if ( ( \Auth::user()->admin || \Auth::user()->can( 'messages' ) ) && $user->id != \Auth::user()->id )
             <hr />
             <div>
-                <button class="btn btn-info" data-message="{{ $user->id }}">
+                <button class="btn btn-info" data-message="{{ $user->id }}" disabled="disabled">
                     Отправить сообщение
                 </button>
             </div>
