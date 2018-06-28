@@ -88,9 +88,9 @@ class WorksController extends BaseController
                 ->whereHas( 'addresses', function ( $q ) use ( $address_id )
                 {
                     return $q
-                        ->where( Address::$_table . '.address_id', '=', $address_id );
+                        ->where( Address::$_table . '.id', '=', $address_id );
                 });
-            $address = Address::find( $address_id );
+            $address = Address::where( 'id', '=', $address_id )->pluck( 'name', 'id' );
         }
 
         if ( !empty( $request->get( 'management_id' ) ) )
@@ -142,7 +142,7 @@ class WorksController extends BaseController
             ->with( 'managements', Management::orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'regions', $regions )
-            ->with( 'address', $address ?? null );
+            ->with( 'address', $address ?? [] );
 
     }
 

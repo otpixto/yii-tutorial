@@ -106,7 +106,7 @@
             <div class="form-group">
                 {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">

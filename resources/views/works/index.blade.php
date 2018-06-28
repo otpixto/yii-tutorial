@@ -91,7 +91,7 @@
                                 {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                             </td>
                             <td width="15%">
-                                {!! Form::select( 'address_id', $address ? $address->pluck( 'name', 'id' ) : [], \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес работы' ] ) !!}
+                                {!! Form::select( 'address_id', $address, \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес работы' ] ) !!}
                             </td>
                             <td width="15%">
                                 {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}

@@ -575,30 +575,6 @@ $( document )
 
     .on ( 'click', 'a[data-confirm]', function ( e )
     {
-
-        e.preventDefault();
-
-        var that = $( this );
-
-        bootbox.confirm({
-            message: that.attr( 'data-confirm' ),
-            buttons: {
-                confirm: {
-                    label: 'Да',
-                    className: 'btn-success'
-                },
-                cancel: {
-                    label: 'Нет',
-                    className: 'btn-danger'
-                }
-            },
-            callback: function ( result )
-            {
-                if ( result )
-                {
-                    that.trigger( 'confirmed', [ e ] );
-                }
-            }
-        });
-
+        if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) ) return false;
+        $( this ).trigger( 'confirmed', [ e ] );
     });
