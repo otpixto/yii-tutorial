@@ -83,15 +83,19 @@ class Type extends BaseModel
         return $this;
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, ... $flags )
     {
-        return $query
-            ->whereHas( 'regions', function ( $regions )
-            {
-                return $regions
-                    ->mine()
-                    ->current();
-            });
+		if ( ! in_array( self::IGNORE_REGION, $flags ) && ! \Auth::user()->can( 'supervisor.all_types' ) )
+		{
+			$query
+				->whereHas( 'regions', function ( $regions )
+				{
+					return $regions
+						->mine()
+						->current();
+				});
+		}
+		return $query;
     }
 
 }
