@@ -215,7 +215,7 @@ class AddressesController extends BaseController
         $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $addresses = Address
-            ::mine( Address::IGNORE_REGION, Address::IGNORE_MANAGEMENT )
+            ::mine( Address::IGNORE_MANAGEMENT )
             ->select(
                 'id',
                 'name AS text'

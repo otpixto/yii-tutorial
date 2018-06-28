@@ -36,8 +36,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::post( 'login', 'Auth\LoginController@login' );
     Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
 
-    Route::get( 'loginas/{user_id}/{token?}', 'Admin\UsersController@loginas' )->name( 'loginas' );
-
     Route::post( '/pickup-call', 'ProfileController@pickupCall' )->name( 'pickup-call' );
 
     // Registration Routes...
@@ -192,6 +190,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'calls', 'Admin\CallsController' );
             Route::resource( 'regions', 'Admin\RegionsController' );
             Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
+			
+			Route::get( 'loginas/{user_id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
 
             Route::get( 'regions/{region_id}/addresses', 'Admin\RegionsController@addresses' )->name( 'regions.addresses' );
             Route::post( 'regions/{region_id}/address/search', 'Admin\RegionsController@addressesSearch' )->name( 'regions.addresses.search' );

@@ -21,55 +21,34 @@ class UsersController extends BaseController
         Title::add( 'Пользователи' );
     }
 
-    public function loginas ( Request $request, $id, $token = null )
+    public function loginas ( Request $request, $id )
     {
-        if ( $token )
-        {
-            if ( ! \Cache::has( 'user.token.' . $id ) || \Cache::get( 'user.token.' . $id ) != $token )
-            {
-                return redirect()->route( 'users.index' )
-                    ->withErrors( [ 'Неверный токен' ] );
-            }
-            $user = User::find( $id );
-            if ( ! $user )
-            {
-                return redirect()->route( 'users.index' )
-                    ->withErrors( [ 'Пользователь не найден' ] );
-            }
-            \Auth::login( $user );
-            return redirect()->route( 'home' );
-        }
-        else
-        {
-            if ( ! \Auth::user()->admin && ! \Auth::user()->can( 'admin.loginas' ) )
-            {
-                return redirect()->route( 'users.index' )
-                    ->withErrors( [ 'У вас недостаточно прав' ] );
-            }
-            $user = User::find( $id );
-            if ( ! $user )
-            {
-                return redirect()->route( 'users.index' )
-                    ->withErrors( [ 'Пользователь не найден' ] );
-            }
-            if ( ! $user->can( 'supervisor.all_regions' ) )
-            {
-                if ( ! $user->regions->count() )
-                {
-                    return redirect()->route( 'users.index' )
-                        ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
-                }
-                $token = md5( $user->id . rand( 11111, 99999 ) . microtime() );
-                \Cache::put( 'user.token.' . $user->id, $token, 3 );
-                return redirect()->to( ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->regions->first()->domain . '/loginas/' . $id . '/' . $token );
-            }
-            else
-            {
-                \Auth::login( $user );
-                return redirect()->route( 'home' );
-            }
-        }
-
+		if ( ! \Auth::user()->admin && ! \Auth::user()->can( 'admin.loginas' ) )
+		{
+			return redirect()->route( 'users.index' )
+				->withErrors( [ 'У вас недостаточно прав' ] );
+		}
+		$user = User::find( $id );
+		if ( ! $user )
+		{
+			return redirect()->route( 'users.index' )
+				->withErrors( [ 'Пользователь не найден' ] );
+		}
+		if ( ! $user->can( 'supervisor.all_regions' ) )
+		{
+			if ( ! $user->regions->count() )
+			{
+				return redirect()->route( 'users.index' )
+					->withErrors( [ 'У пользователя нет привязанных регионов' ] );
+			}
+			$redirect = ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->regions->first()->domain;
+		}
+		else
+		{
+			$redirect = route( 'home' );
+		}
+		\Auth::login( $user );
+		return redirect()->to( $redirect );
     }
 
     public function index ( Request $request )

@@ -112,35 +112,16 @@ class Management extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         if ( ! \Auth::user() ) return false;
-        $query
-            ->where( function ( $q ) use ( $flags )
-            {
-                if ( ! in_array( self::IGNORE_REGION, $flags ) )
-                {
-                    $q
-                        ->orWhereHas( 'regions', function ( $regions )
-                        {
-                            return $regions
-                                ->mine()
-                                ->current();
-                        });
-                }
-                if ( ! in_array( self::IGNORE_ADDRESS, $flags ) )
-                {
-                    $q
-                        ->orWhereHas( 'addresses', function ( $addresses )
-                        {
-                            return $addresses
-                                ->whereHas( 'regions', function ( $regions )
-                                {
-                                    return $regions
-                                        ->mine()
-                                        ->current();
-                                });
-                        });
-                }
-                return $q;
-            });
+		if ( ! in_array( self::IGNORE_REGION, $flags ) )
+		{
+			$query
+				->whereHas( 'regions', function ( $regions )
+				{
+					return $regions
+						->mine()
+						->current();
+				});
+		}
         if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query
@@ -161,8 +142,9 @@ class Management extends BaseModel
             $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
             $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
         }
+		$attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         $new = parent::create( $attributes );
-        $new->has_contract = !empty( $attributes['has_contract'] ) ? 1 : 0;
+		$new->regions()->attach( $attributes[ 'region_id' ] );
         return $new;
     }
 

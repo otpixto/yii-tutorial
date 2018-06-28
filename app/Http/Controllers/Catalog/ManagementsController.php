@@ -301,16 +301,16 @@ class ManagementsController extends BaseController
         $address_id = $request->get( 'address_id' );
 
         $managements = Management
-            ::whereHas( 'types', function ( $q ) use ( $type_id )
+			::mine()
+            ->whereHas( 'types', function ( $types ) use ( $type_id )
             {
-                return $q
-                    ->where( 'type_id', '=', $type_id );
+                return $types
+                    ->where( Type::$_table . '.id', '=', $type_id );
             })
-            ->whereHas( 'addresses', function ( $q ) use ( $address_id, $type_id )
+            ->whereHas( 'addresses', function ( $addresses ) use ( $address_id )
             {
-                return $q
-                    ->mine()
-                    ->where( 'address_id', '=', $address_id );
+                return $addresses
+                    ->where( Address::$_table . '.id', '=', $address_id );
             })
             ->get();
 

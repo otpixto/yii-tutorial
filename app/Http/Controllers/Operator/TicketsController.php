@@ -374,21 +374,12 @@ class TicketsController extends BaseController
         {
 
             $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
-
-            if ( \Cache::tags( [ 'catalog', 'tickets' ] )->has( 'types' ) )
-            {
-                $availableTypes = \Cache::tags( [ 'catalog', 'tickets' ] )->get( 'types' );
-            }
-            else
-            {
-                $res = Type::with( 'category' )->get()->sortBy( 'name' );
-                $availableTypes = [];
-                foreach ( $res as $r )
-                {
-                    $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
-                }
-                \Cache::tags( [ 'catalog', 'tickets' ] )->put( 'types', $availableTypes, \Config::get( 'cache.time' ) );
-            }
+			$res = Type::mine()->with( 'category' )->get()->sortBy( 'name' );
+			$availableTypes = [];
+			foreach ( $res as $r )
+			{
+				$availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+			}
 
             if ( $field_operator )
             {
