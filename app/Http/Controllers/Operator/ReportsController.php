@@ -34,7 +34,7 @@ class ReportsController extends BaseController
 
         Title::add( 'Отчет по исполнителям' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $management_id = $request->get( 'management_id' );
         $executor_id = $request->get( 'executor_id' );
@@ -72,7 +72,7 @@ class ReportsController extends BaseController
         {
             $executors = new Collection();
         }
-
+		
         $ticketManagements = $ticketManagements->get();
 
         return view( 'reports.executors' )

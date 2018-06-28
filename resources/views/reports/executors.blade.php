@@ -14,7 +14,7 @@
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
             <div class="input-group date datetimepicker form_datetime bs-datetime">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y 00:00' ), [ 'class' => 'form-control' ] ) !!}
+                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
                 <span class="input-group-addon">
                     <button class="btn default date-reset" type="button">
                         <i class="fa fa-times"></i>
@@ -52,7 +52,7 @@
     <div id="executor_block" class="form-group @if ( ! $management ) hidden @endif">
         {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'executor_id', $executors->count() ? [ null => ' -- выберите из списка -- ' ] + $executors->pluck( 'name', 'id' )->toArray() : [ null => 'Ничего не найдено' ], \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+            {!! Form::select( 'executor_id', $executors->count() ? [ null => ' -- выберите из списка -- ' ] + $executors->toArray() : [ null => 'Ничего не найдено' ], \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
         </div>
     </div>
     <div class="form-group">
@@ -130,10 +130,9 @@
                         </td>
                         <td>
                             <ol class="list-unstyled">
-                                @foreach ( $ticketManagement->works as $work )
+                                @foreach ( $ticketManagement->services as $service )
                                     <li>
-                                        {{ $work->name }}
-                                        [{{ $work->quantity }}]
+                                        {{ $service->name }}
                                     </li>
                                 @endforeach
                             </ol>
@@ -214,7 +213,7 @@
                     $( '<option>' ).val( '0' ).text( 'Загрузка...' )
                 );
 
-                $.get( '{{ route( 'managements.executors' ) }}', {
+                $.get( '{{ route( 'managements.executors.search' ) }}', {
                     management_id: management_id
                 }, function ( response )
                 {

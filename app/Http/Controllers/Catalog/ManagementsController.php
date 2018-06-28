@@ -335,9 +335,9 @@ class ManagementsController extends BaseController
 
     }
 
-    public function executors ( Request $request, $id )
+    public function executors ( Request $request )
     {
-        $management = Management::find( $id );
+        $management = Management::find( $request->get( 'management_id' ) );
         if ( ! $management )
         {
             return false;

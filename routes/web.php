@@ -164,8 +164,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'types/{type_id}/managements/add', 'Catalog\TypesController@managementsAdd' )->name( 'types.managements.add' );
             Route::delete( 'types/{type_id}/managements/del', 'Catalog\TypesController@managementsDel' )->name( 'types.managements.del' );
 
+			Route::get( 'executors/search', 'Catalog\ManagementsController@executors' )->name( 'managements.executors.search' );
+			
             Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
-            Route::get( 'managements/{management_id}/executors', 'Catalog\ManagementsController@executors' )->name( 'managements.executors' );
             Route::post( 'managements/{management_id}/telegram/unsubscribe', 'Catalog\ManagementsController@telegramUnsubscribe' )->name( 'managements.telegram.unsubscribe' );
             Route::post( 'managements/{management_id}/telegram/on', 'Catalog\ManagementsController@telegramOn' )->name( 'managements.telegram.on' );
             Route::post( 'managements/{management_id}/telegram/off', 'Catalog\ManagementsController@telegramOff' )->name( 'managements.telegram.off' );
