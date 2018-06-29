@@ -149,7 +149,7 @@ class TicketManagement extends BaseModel
                 $ticketManagementService = TicketManagementService::find( $service[ 'id' ] );
                 if ( ! $ticketManagementService )
                 {
-                    return new MessageBag( [ 'Работа не найдена' ] );
+                    return new MessageBag( [ 'Строка выполненных работ не найдена' ] );
                 }
                 $res = $ticketManagementService->edit( $service );
                 if ( $res instanceof MessageBag )

@@ -95,8 +95,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'rate/{ticket_management_id}', 'Operator\TicketsController@postRateForm' )->name( 'tickets.rate' );
             Route::post( 'save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
             Route::get( 'cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
-            Route::get( 'act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
-            Route::get( 'waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
+            Route::get( 'print/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
+            Route::get( 'print/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
             Route::post( 'search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
             Route::post( 'filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );
             Route::post( 'tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
@@ -111,7 +111,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
             Route::post( 'comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::get( '{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
-            Route::post( 'services/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
+            Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
         });
 
         Route::prefix( 'reports' )->group( function ()

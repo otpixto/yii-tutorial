@@ -14,7 +14,7 @@
         <div class="row margin-bottom-15">
             <div class="col-xs-6">
                 @if ( \Auth::user()->can( 'catalog.managements.create' ) )
-                    <a href="{{ route( 'managements.create' ) }}" class="btn btn-success">
+                    <a href="{{ route( 'managements.create' ) }}" class="btn btn-success btn-lg">
                         <i class="fa fa-plus"></i>
                         Добавить УО
                     </a>

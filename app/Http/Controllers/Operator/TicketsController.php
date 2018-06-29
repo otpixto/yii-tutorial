@@ -751,26 +751,16 @@ class TicketsController extends BaseController
 
     }
 
-    public function saveServices ( Request $request, $ticket_id, $ticket_management_id = null )
+    public function saveServices ( Request $request, $ticket_management_id )
     {
 
-        $ticket = Ticket
-            ::mine()
-            ->find( $ticket_id );
-        if ( ! $ticket )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-
-        $ticketManagement = $ticket
-            ->managements()
-            ->find( $ticket_management_id );
+        $ticketManagement = TicketManagement
+            ::find( $ticket_management_id );
         if ( ! $ticketManagement )
         {
             return redirect()
-                ->route( 'tickets.index' )
+                ->back()
+                ->withInput()
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 

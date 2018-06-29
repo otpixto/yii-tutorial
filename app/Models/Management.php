@@ -27,6 +27,7 @@ class Management extends BaseModel
     ];
 
     protected $nullable = [
+        'region_id',
         'address_id',
         'guid',
         'phone',
@@ -40,6 +41,7 @@ class Management extends BaseModel
     ];
 
     protected $fillable = [
+        'region_id',
         'address_id',
         'name',
         'phone',
@@ -144,7 +146,6 @@ class Management extends BaseModel
         }
 		$attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         $new = parent::create( $attributes );
-		$new->regions()->attach( $attributes[ 'region_id' ] );
         return $new;
     }
 

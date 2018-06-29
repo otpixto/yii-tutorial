@@ -182,6 +182,8 @@ class ManagementsController extends BaseController
         }
         $management->save();
 
+        $management->regions()->attach( $request->get( 'region_id' ) );
+
         self::clearCache();
 
         return redirect()->route( 'managements.edit', $management->id )

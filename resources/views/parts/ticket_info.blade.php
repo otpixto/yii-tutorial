@@ -600,7 +600,7 @@
                             <label class="col-xs-2 control-label text-muted text-right">Стоимость</label>
                         </div>
                         @if ( \Auth::user()->can( 'tickets.services.edit' ) )
-                            {!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading' ] ) !!}
+                            {!! Form::model( $ticketManagement, [ 'method' => 'put', 'route' => [ 'tickets.services.save', $ticketManagement->id ], 'class' => 'submit-loading' ] ) !!}
                             <div class="mt-repeater" id="ticket-services">
                                 <div data-repeater-list="services">
                                     @if ( $ticketManagement->services->count() )
@@ -629,8 +629,8 @@
                                     @else
                                         <div data-repeater-item="" class="row margin-bottom-10 hidden-print">
                                             <div class="col-xs-5">
-                                                {!! Form::hidden( 'id', null ) !!}
-                                                {!! Form::text( 'name', null, [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
+                                                {!! Form::hidden( 'id', '' ) !!}
+                                                {!! Form::text( 'name', '', [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                                             </div>
                                             <div class="col-xs-2">
                                                 {!! Form::text( 'quantity', 1, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
@@ -639,7 +639,7 @@
                                                 {!! Form::text( 'unit', 'шт', [ 'class' => 'form-control', 'required' ] ) !!}
                                             </div>
                                             <div class="col-xs-2">
-                                                {!! Form::text( 'amount', null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
+                                                {!! Form::text( 'amount', '', [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                             </div>
                                             <div class="col-xs-1 text-right hidden-print">
                                                 <button type="button" data-repeater-delete="" class="btn btn-danger">
