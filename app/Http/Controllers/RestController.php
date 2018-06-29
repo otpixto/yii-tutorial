@@ -89,18 +89,10 @@ class RestController extends Controller
             return $this->error( 100 );
         }
 
-        $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
-
-        $customer = Customer
-            ::where( 'phone', '=', $call_phone )
-            ->orWhere( 'phone2', '=', $call_phone )
-            ->orderBy( 'id', 'desc' )
-            ->first();
-
-        if ( ! $customer )
-        {
-            return $this->error( 105 );
-        }
+        $response = [
+            'customer' => null,
+            'region' => null,
+        ];
 
         $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
 
@@ -112,11 +104,23 @@ class RestController extends Controller
             })
             ->first();
 
-        $response = [
-            'address' => $customer->getAddress(),
-            'name' => $customer->getName(),
-            'region' => $region->name ?? '-',
-        ];
+        if ( $region )
+        {
+            $response[ 'region' ] = $region->name;
+            $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
+            $customer = $region->customers()
+                ->where( 'phone', '=', $call_phone )
+                ->orWhere( 'phone2', '=', $call_phone )
+                ->orderBy( 'id', 'desc' )
+                ->first();
+            if ( $customer )
+            {
+                $response[ 'customer' ] = [
+                    'address' => $customer->getAddress(),
+                    'name' => $customer->getName(),
+                ];
+            }
+        }
 
         return $this->success( $response );
 
