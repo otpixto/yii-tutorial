@@ -49,14 +49,17 @@ socket
             message += '<h2>' + ( data.message.region || '-' ) + '</h2>'
         }
         message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
-        if ( data.message.customer.address )
-        {
-            message += '<div class="small">' + data.message.customer.address + '</div>';
-        }
-        if ( data.message.customer.name )
-        {
-            message += '<div class="small">' + data.message.customer.name + '</div>';
-        }
+        if ( data.message.customer )
+		{
+			if ( data.message.customer.address )
+			{
+				message += '<div class="small">' + data.message.customer.address + '</div>';
+			}
+			if ( data.message.customer.name )
+			{
+				message += '<div class="small">' + data.message.customer.name + '</div>';
+			}
+		}
         $.bootstrapGrowl( message, {
             ele: 'body',
             type: 'info',
