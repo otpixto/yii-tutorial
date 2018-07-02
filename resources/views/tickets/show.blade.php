@@ -168,61 +168,65 @@
 				});
 			})
 
-            .on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
-            {
+			@if ( isset( $ticketManagement ) )
+				
+				.on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
+				{
 
-                e.preventDefault();
-                pe.preventDefault();
+					e.preventDefault();
+					pe.preventDefault();
 
-                if ( $( this ).hasClass( 'submit-loading' ) )
-                {
-                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-                }
+					if ( $( this ).hasClass( 'submit-loading' ) )
+					{
+						$( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+					}
 
-                var dialog = bootbox.dialog({
-                    title: 'Выберите исполнителя',
-                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-                });
+					var dialog = bootbox.dialog({
+						title: 'Выберите исполнителя',
+						message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+					});
 
-                dialog.init( function ()
-                {
-                    $.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
-                    {
-                        dialog.find( '.bootbox-body' ).html( response );
-                        dialog.removeAttr( 'tabindex' );
-                        dialog.find( '.select2' ).select2();
-                    });
-                });
+					dialog.init( function ()
+					{
+						$.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
+						{
+							dialog.find( '.bootbox-body' ).html( response );
+							dialog.removeAttr( 'tabindex' );
+							dialog.find( '.select2' ).select2();
+						});
+					});
 
-            })
+				})
+			
+				.on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
+				{
 
-            .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
-            {
+					if ( $( '#rate' ).length ) return;
 
-                if ( $( '#rate' ).length ) return;
+					e.preventDefault();
+					pe.preventDefault();
 
-                e.preventDefault();
-                pe.preventDefault();
+					if ( $( this ).hasClass( 'submit-loading' ) )
+					{
+						$( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+					}
 
-                if ( $( this ).hasClass( 'submit-loading' ) )
-                {
-                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-                }
+					var dialog = bootbox.dialog({
+						title: 'Оцените работу УО',
+						message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+					});
 
-                var dialog = bootbox.dialog({
-                    title: 'Оцените работу УО',
-                    message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-                });
+					dialog.init( function ()
+					{
+						$.get( '{{ route( 'tickets.rate', $ticketManagement->id ) }}', function ( response )
+						{
+							dialog.find( '.bootbox-body' ).html( response );
+						});
+					});
 
-                dialog.init( function ()
-                {
-                    $.get( '{{ route( 'tickets.rate', $ticketManagement->id ) }}', function ( response )
-                    {
-                        dialog.find( '.bootbox-body' ).html( response );
-                    });
-                });
-
-            })
+				})
+				
+			@endif
 
             .on( 'confirmed', '[data-status="rejected"]', function ( e, pe )
             {
