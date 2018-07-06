@@ -160,8 +160,6 @@ class Ticket extends BaseModel
         'customer_id',
         'place_id',
         'text',
-        'price',
-        'quantity',
     ];
 
     public function managements ()

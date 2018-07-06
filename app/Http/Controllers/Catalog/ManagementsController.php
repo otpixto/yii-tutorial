@@ -301,6 +301,7 @@ class ManagementsController extends BaseController
 
         $type_id = $request->get( 'type_id' );
         $address_id = $request->get( 'address_id' );
+        $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
 
         $managements = Management
 			::mine()
@@ -313,8 +314,19 @@ class ManagementsController extends BaseController
             {
                 return $addresses
                     ->where( Address::$_table . '.id', '=', $address_id );
-            })
-            ->get();
+            });
+
+        if ( ! empty( $region_id ) )
+        {
+            $managements
+                ->whereHas( 'regions', function ( $regions ) use ( $region_id )
+                {
+                    return $regions
+                        ->where( Region::$_table . '.id', '=', $region_id );
+                });
+        }
+
+        $managements = $managements->get();
 
         if ( ! $managements->count() )
         {

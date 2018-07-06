@@ -28,11 +28,6 @@ class Type extends BaseModel
         'need_act',
     ];
 
-    public function addresses ()
-    {
-        return $this->belongsToMany( 'App\Models\Address', 'addresses_types' );
-    }
-
     public function managements ()
     {
         return $this->belongsToMany( 'App\Models\Management', 'managements_types' );
