@@ -460,13 +460,15 @@
 
             var address_id = $( '#address_id' ).val();
             var type_id = $( '#type_id' ).val();
-            if ( !address_id || !type_id )
+            var region_id = $( '#region_id' ).val() || null;
+            if ( ! address_id || ! type_id )
             {
                 $( '#management' ).addClass( 'hidden' );
                 return;
             };
             $.post( '{{ route( 'managements.search' ) }}', {
                 address_id: address_id,
+                region_id: region_id,
                 type_id: type_id,
                 selected: $( '#selected_managements' ).val()
             }, function ( response )
