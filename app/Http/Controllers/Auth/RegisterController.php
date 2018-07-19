@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\Region;
+use App\Models\Provider;
 use App\Traits\RegistersUsers;
 use App\User;
 use App\Http\Controllers\Controller;
@@ -57,13 +57,14 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create( array $data )
+    protected function create ( array $data )
     {
         $user = User::create( $data );
-        if ( Region::$current_region )
+        if ( Provider::$current )
         {
-            $user->regions()->attach( Region::$current_region->id );
+            $user->providers()->attach( Provider::$current->id );
         }
         return $user;
     }
+
 }

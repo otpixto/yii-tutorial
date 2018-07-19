@@ -23,4 +23,9 @@ class Category extends BaseModel
         return $this->hasMany( 'App\Models\Type' );
     }
 
+    public function provider ()
+    {
+        return $this->belongsTo( 'App\Models\Provider' );
+    }
+
 }

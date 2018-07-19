@@ -58,43 +58,8 @@ class LogsController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
-        $res = Log
-            ::select(
-                \DB::raw( 'DISTINCT model_name' ),
-                'model_id'
-            )
-            ->groupBy( 'model_name' )
-            ->get();
-
-        $models = [
-            null => ' -- ВСЕ -- '
-        ];
-        foreach ( $res as $r )
-        {
-            if ( ! $r->parent || ! isset( $r->parent::$name ) ) continue;
-            $models[ $r->model_name ] = $r->parent::$name;
-        }
-
-        asort( $models );
-
-        $res = User
-            ::orderBy( 'lastname' )
-            ->orderBy( 'firstname' )
-            ->orderBy( 'middlename' )
-            ->get();
-
-        $users = [
-            null => ' -- ВСЕ -- '
-        ];
-        foreach ( $res as $r )
-        {
-            $users[ $r->id ] = $r->getName();
-        }
-
         return view('admin.logs.index' )
-            ->with( 'logs', $logs )
-            ->with( 'models', $models )
-            ->with( 'users', $users );
+            ->with( 'logs', $logs );
 
     }
 

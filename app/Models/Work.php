@@ -24,7 +24,7 @@ class Work extends BaseModel
     ];
 
     public static $rules = [
-        'region_id'         => 'nullable|integer',
+        'provider_id'       => 'nullable|integer',
         'category_id'       => 'required|integer',
         'address_id'        => 'required|array',
         'management_id'     => 'required|integer',
@@ -42,12 +42,12 @@ class Work extends BaseModel
 
     protected $nullable = [
         'time_end_fact',
-        'region_id',
+        'provider_id',
         'phone',
     ];
 
     protected $fillable = [
-        'region_id',
+        'provider_id',
         'category_id',
         'management_id',
         'who',
@@ -65,14 +65,19 @@ class Work extends BaseModel
         return $this->belongsTo( 'App\Models\Category' );
     }
 
-    public function addresses ()
+    public function buildings ()
     {
-        return $this->belongsToMany( 'App\Models\Address', 'works_addresses' );
+        return $this->belongsToMany( 'App\Models\Building', 'works_buildings' );
     }
 
     public function management ()
     {
         return $this->belongsTo( 'App\Models\Management' );
+    }
+
+    public function provider ()
+    {
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
     public static function create ( array $attributes = [] )
@@ -114,9 +119,9 @@ class Work extends BaseModel
 
         $message = '<em>Добавлена работа на сетях</em>' . PHP_EOL . PHP_EOL;
 
-        foreach ( $work->addresses as $address )
+        foreach ( $work->buildings as $building )
         {
-            $message .= '<b>Адрес работы: ' . $address->name . '</b>' . PHP_EOL;
+            $message .= '<b>Адрес работы: ' . $building->name . '</b>' . PHP_EOL;
         }
         $message .= 'Категория: ' . $work->getCategory() . PHP_EOL;
         $message .= 'Основание: ' . $work->reason . PHP_EOL;
@@ -167,40 +172,15 @@ class Work extends BaseModel
 
     }
 
-    public function scopeFastSearch ( $query, $search )
-    {
-        $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-        return $query
-            ->where( function ( $q ) use ( $s )
-            {
-                return $q
-                    ->where( self::$_table . '.reason', 'like', $s )
-                    ->orWhere( self::$_table . '.who', 'like', $s )
-                    ->orWhere( self::$_table . '.composition', 'like', $s )
-                    ->orWhereHas( 'address', function ( $q2 ) use ( $s )
-                    {
-                        return $q2->where( Address::$_table . '.name', 'like', $s );
-                    })
-                    ->orWhereHas( 'management', function ( $q2 ) use ( $s )
-                    {
-                        return $q2->where( Management::$_table . '.name', 'like', $s );
-                    })
-                    ->orWhereHas( 'type', function ( $q2 ) use ( $s )
-                    {
-                        return $q2->where( Type::$_table . '.name', 'like', $s );
-                    });
-            });
-    }
-
     public function scopeMine ( $query )
     {
         $query
-            ->whereHas( 'addresses', function ( $addresses )
+            ->whereHas( 'buildings', function ( $buildings )
             {
-                return $addresses
-                    ->whereHas( 'region', function ( $region )
+                return $buildings
+                    ->whereHas( 'provider', function ( $provider )
                     {
-                        return $region
+                        return $provider
                             ->mine()
                             ->current();
                     });

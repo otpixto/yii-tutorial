@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -55,29 +54,29 @@
                                     {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
                                 </div>
                             </div>
-                            {!! Form::hidden( 'region', \Input::get( 'region' ) ) !!}
+                            {!! Form::hidden( 'provider_id', \Input::get( 'provider_id' ) ) !!}
                             {!! Form::close() !!}
                         </div>
                     </div>
                 </div>
 
-                @if ( $regions->count() > 1 )
+                @if ( $providers->count() > 1 )
                     <div class="portlet light ">
                         <div class="portlet-title">
                             <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                                <span class="caption-subject font-green-sharp bold uppercase">Регионы</span>
+                                <span class="caption-subject font-green-sharp bold uppercase">Поставщики</span>
                                 <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
                             </div>
                         </div>
                         <div class="portlet-body todo-project-list-content" style="height: auto;">
                             <div class="todo-project-list">
                                 <ul class="nav nav-stacked">
-                                    @foreach ( $regions as $region )
-                                        <li @if ( \Input::get( 'region' ) == $region->id ) class="active" @endif>
-                                            <a href="?region={{ $region->id }}">
-                                                {{ $region->name }}
+                                    @foreach ( $providers as $provider )
+                                        <li @if ( \Input::get( 'provider_id' ) == $provider->id ) class="active" @endif>
+                                            <a href="?provider_id={{ $provider->id }}">
+                                                {{ $provider->name }}
                                                 <span class="badge badge-info pull-right">
-                                                    {{ $region->customers->count() }}
+                                                    {{ $provider->customers()->count() }}
                                                 </span>
                                             </a>
                                         </li>
@@ -132,14 +131,18 @@
                                             {{ $customer->getName() }}
                                         </td>
                                         <td>
-                                            {{ $customer->getPhones() }}
+                                            <span class="small">
+                                                {{ $customer->getPhones() }}
+                                            </span>
                                         </td>
                                         <td>
-                                            {{ $customer->getAddress() }}
+                                            <span class="small">
+                                                {{ $customer->getActualAddress() }}
+                                            </span>
                                         </td>
                                         @if ( \Auth::user()->can( 'tickets.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'tickets.customers', $customer->id ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'tickets.index', [ 'phone' => $customer->phone ] ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
                                                     {{ $customer->tickets()->mine()->count() }}
                                                 </a>
                                             </td>

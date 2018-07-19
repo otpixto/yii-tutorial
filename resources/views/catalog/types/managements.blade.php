@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Классификатор', route( 'types.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -22,6 +21,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
+                    <i class="fa fa-plus"></i>
                     Добавить УО
                 </h3>
             </div>
@@ -42,6 +42,29 @@
         </div>
 
         <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-search"></i>
+                    Поиск
+                </h3>
+            </div>
+            <div class="panel-body">
+                {!! Form::open( [ 'method' => 'get', 'route' => [ 'types.managements', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::text( 'search', $search, [ 'class' => 'form-control' ] ) !!}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Найти', [ 'class' => 'btn btn-success' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
+            </div>
+        </div>
+
+        <div class="panel panel-default">
             <div class="panel-body">
 
                 {{ $typeManagements->render() }}
@@ -55,12 +78,25 @@
                             <i class="fa fa-remove"></i>
                         </button>
                         <a href="{{ route( 'managements.edit', $r->id ) }}">
+                            @if ( $r->parent )
+                                <span class="text-muted">
+                                    {{ $r->parent->name }}
+                                </span>
+                            @endif
                             {{ $r->name }}
                         </a>
                     </div>
                 @endforeach
 
                 {{ $typeManagements->render() }}
+
+                {!! Form::model( $type, [ 'method' => 'delete', 'route' => [ 'types.managements.empty', $type->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                <div class="form-group margin-top-15">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
 
             </div>
         </div>

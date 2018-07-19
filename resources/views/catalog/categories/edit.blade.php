@@ -3,9 +3,8 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
-        [ 'Категории обращений', route( 'categories.index' ) ],
-        [ 'Редактировать "' . $category->name . '"' ]
+        [ 'Категории классификатора', route( 'categories.index' ) ],
+        [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 

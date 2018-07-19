@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
+use App\Models\Building;
 use App\Models\Category;
 use App\Models\Management;
 use App\Models\Type;
@@ -22,55 +23,55 @@ class TypesController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
-        $category = trim( $request->get( 'category', '' ) );
-        $address = trim( $request->get( 'address', '' ) );
-        $management = trim( $request->get( 'management', '' ) );
+        $category_id = trim( $request->get( 'category_id', '' ) );
+        $building_id = trim( $request->get( 'building_id', '' ) );
+        $management_id = trim( $request->get( 'management_id', '' ) );
 
         $types = Type
             ::select(
-                'types.*',
-                'categories.name AS category_name'
+                Type::$_table . '.*',
+                Category::$_table . '.name AS category_name'
             )
             ->join( 'categories', 'categories.id', '=', 'types.category_id' )
-            ->orderBy( 'categories.name' )
-            ->orderBy( 'types.name' );
+            ->orderBy( Category::$_table . '.name' )
+            ->orderBy( Type::$_table .'.name' );
 
-        if ( !empty( $category ) )
+        if ( ! empty( $category_id ) )
         {
             $types
-                ->where( 'types.category_id', '=', $category );
+                ->where( Type::$_table . '.category_id', '=', $category_id );
         }
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $types
                 ->where( function ( $q ) use ( $s )
                 {
                     return $q
-                        ->where( 'types.name', 'like', $s )
-                        ->orWhere( 'categories.name', 'like', $s )
-                        ->orWhere( 'types.guid', 'like', $s );
+                        ->where( Type::$_table . '.name', 'like', $s )
+                        ->orWhere( Category::$_table . '.name', 'like', $s )
+                        ->orWhere( Type::$_table . '.guid', 'like', $s );
                 });
         }
 
-        if ( !empty( $address ) )
+        if ( ! empty( $building_id ) )
         {
             $types
-                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
                 {
-                    return $q
-                        ->where( 'address_id', '=', $address );
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $building_id );
                 });
         }
 
-        if ( !empty( $management ) )
+        if ( ! empty( $management_id ) )
         {
             $types
-                ->whereHas( 'managements', function ( $q ) use ( $management )
+                ->whereHas( 'managements', function ( $managements ) use ( $management_id )
                 {
-                    return $q
-                        ->where( 'management_id', '=', $management );
+                    return $managements
+                        ->where( Management::$_table . '.id', '=', $management_id );
                 });
         }
 
@@ -254,6 +255,7 @@ class TypesController extends BaseController
         Title::add( 'Привязка УО' );
 
         $type = Type::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
 
         if ( ! $type )
         {
@@ -262,11 +264,22 @@ class TypesController extends BaseController
         }
 
         $typeManagements = $type->managements()
-            ->orderBy( Management::$_table . '.name' )
-            ->paginate( 30 );
+            ->orderBy( Management::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $typeManagements
+                ->where( Management::$_table . '.name', 'like', $s );
+        }
+
+        $typeManagements = $typeManagements
+            ->paginate( 30 )
+            ->appends( $request->all() );
 
         return view( 'catalog.types.managements' )
             ->with( 'type', $type )
+            ->with( 'search', $search )
             ->with( 'typeManagements', $typeManagements );
 
     }
@@ -284,16 +297,26 @@ class TypesController extends BaseController
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
 
-        $managements = Management
+        $res = Management
             ::mine()
-            ->select(
-                Management::$_table . '.id',
-                Management::$_table . '.name AS text'
-            )
             ->where( Management::$_table . '.name', 'like', $s )
             ->whereNotIn( Management::$_table . '.id', $type->managements()->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
+
+        $managements = [];
+        foreach ( $res as $r )
+        {
+            $name = $r->name;
+            if ( $r->parent )
+            {
+                $name = $r->parent->name . ' ' . $name;
+            }
+            $managements[] = [
+                'id'        => $r->id,
+                'text'      => $name
+            ];
+        }
 
         return $managements;
 
@@ -335,6 +358,24 @@ class TypesController extends BaseController
         }
 
         $type->managements()->detach( $request->get( 'management_id' ) );
+
+    }
+
+    public function managementsEmpty ( Request $request, $id )
+    {
+
+        $type = Type::find( $id );
+
+        if ( ! $type )
+        {
+            return redirect()->route( 'types.index' )
+                ->withErrors( [ 'Классификатор не найден' ] );
+        }
+
+        $type->managements()->detach();
+
+        return redirect()->back()
+            ->with( 'success', 'Привязки успешно удалены' );
 
     }
 

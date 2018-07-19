@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Заявители', route( 'customers.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -18,13 +17,13 @@
         <div class="form-group">
 
             <div class="col-xs-3">
-                {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'region_id', $regions->pluck( 'name', 'id' ), \Input::old( 'region_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Регион' ] ) !!}
+                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'provider_id', $providers->pluck( 'name', 'id' ), \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Поставщик' ] ) !!}
             </div>
 
             <div class="col-xs-7">
                 {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'actual_address_id', [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
+                {!! Form::select( 'actual_address_id', [], \Input::old( 'actual_address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
             </div>
 
             <div class="col-xs-2">

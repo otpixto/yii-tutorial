@@ -26,20 +26,47 @@
         @endif
     </td>
     <td>
-        <span class="small">
-            {{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}
-        </span>
-    </td>
-    @if ( $field_operator )
-        <td>
-            <span class="{{ $ticketManagement->ticket->author->id == \Auth::user()->id ? 'mark' : '' }} small">
-                {{ $ticketManagement->ticket->author->getShortName() }}
+        <div class="small">
+            <span class="text-muted">
+                Создано
             </span>
-        </td>
-    @endif
+            <b>{{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}</b>
+        </div>
+        <div class="small">
+            <span class="text-muted">
+                Принять до
+            </span>
+            <span class="bold {{ $ticketManagement->ticket->overdueDeadlineAcceptance() ? 'text-danger' : 'text-success' }}">
+                {{ $ticketManagement->ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+            </span>
+        </div>
+        <div class="small">
+            <span class="text-muted">
+                Выполнить до
+            </span>
+            <span class="bold {{ $ticketManagement->ticket->overdueDeadlineExecution() ? 'text-danger' : 'text-success' }}">
+                {{ $ticketManagement->ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+            </span>
+        </div>
+        @if ( $ticketManagement->ticket->postponed_to )
+            <div class="small">
+                <span class="text-muted">
+                    Отложено до
+                </span>
+                <span class="bold {{ $ticketManagement->ticket->overdueDeadlinePostponed() ? 'text-danger' : 'text-success' }}">
+                {{ $ticketManagement->ticket->postponed_to->format( 'd.m.Y H:i' ) }}
+            </span>
+            </div>
+        @endif
+    </td>
     <td>
         @if ( $field_management )
-            <div>
+            @if ( $ticketManagement->management->parent )
+                <div class="text-muted">
+                    {{ $ticketManagement->management->parent->name }}
+                </div>
+            @endif
+            <div class="small">
                 {{ $ticketManagement->management->name }}
             </div>
         @endif
@@ -103,6 +130,9 @@
         </div>
         <div class="small text-info">
             {{ $ticketManagement->ticket->getName() }}
+        </div>
+        <div class="small">
+            {{ $ticketManagement->ticket->getPhones() }}
         </div>
     </td>
     <td class="text-right hidden-print">

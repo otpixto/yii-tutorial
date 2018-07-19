@@ -11,7 +11,7 @@ class Geometry extends BaseModel
     public static $name = 'Объекты на карте';
 
     protected $nullable = [
-        'region_id',
+        'provider_id',
         'type',
         'fillColor',
         'strokeColor',
@@ -31,7 +31,7 @@ class Geometry extends BaseModel
     public static $rules = [
         'name'			            => 'required|string|max:255',
         'management_id'			    => 'required|integer',
-        'region_id'			        => 'nullable|integer',
+        'provider_id'			    => 'nullable|integer',
         'type'		                => 'required_without:id|in:Point,Polygon',
         'coordinates'			    => 'required|json',
         'fillColor'			        => 'required_without:preset|string|max:7',
@@ -127,22 +127,27 @@ class Geometry extends BaseModel
         return $this->belongsTo( 'App\Models\Management' );
     }
 
+    public function provider ()
+    {
+        return $this->belongsTo( 'App\Models\Provider' );
+    }
+
     public function scopeMine ( $query )
     {
         return $query
-            ->whereNull( self::$_table . '.region_id' )
-            ->orWhereHas( 'region', function ( $region )
+            ->whereNull( self::$_table . '.provider_id' )
+            ->orWhereHas( 'provider', function ( $provider )
             {
-                return $region
+                return $provider
                     ->mine()
                     ->current();
             })
             ->orWhereHas( 'management', function ( $management )
             {
                 return $management
-                    ->whereHas( 'region', function ( $region )
+                    ->whereHas( 'providers', function ( $providers )
                     {
-                        return $region
+                        return $providers
                             ->mine()
                             ->current();
                     });

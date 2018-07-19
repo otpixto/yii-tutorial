@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Jobs\SendStream;
-use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\MessageBag;
 
@@ -16,6 +15,14 @@ class TicketManagement extends BaseModel
     public static $_table = 'tickets_managements';
 
     public static $name = 'Заявка УО';
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'scheduled_begin',
+        'scheduled_end',
+    ];
 
     private $history = [];
 
@@ -32,14 +39,17 @@ class TicketManagement extends BaseModel
         'transferred' => [
             'accepted',
             'rejected',
+            'waiting',
         ],
         'transferred_again' => [
             'accepted',
             'rejected',
+            'waiting',
         ],
         'accepted' => [
             'waiting',
             'assigned',
+            'waiting',
         ],
         'assigned' => [
             'completed_with_act',
@@ -93,7 +103,8 @@ class TicketManagement extends BaseModel
 
     public function executor ()
     {
-        return $this->belongsTo( 'App\Models\Executor' );
+        return $this->belongsTo( 'App\Models\Executor' )
+            ->withTrashed();
     }
 
     public function management ()
@@ -456,7 +467,7 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
 
                 $message .= 'Исполнитель: ' . $this->executor->name . PHP_EOL;
 
@@ -517,7 +528,7 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
 
                 $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
@@ -542,7 +553,7 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -590,7 +601,7 @@ class TicketManagement extends BaseModel
 
         $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
         $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-        $message .= 'Изменения внес: ' . \Auth::user()->getFullName() . PHP_EOL . PHP_EOL;
+        $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
 
         $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
@@ -612,13 +623,13 @@ class TicketManagement extends BaseModel
 
     }
 
-    public function getUrl ( $regionDomain = true )
+    public function getUrl ( $providerDomain = true )
     {
-        if ( $regionDomain )
+        if ( $providerDomain )
         {
-            if ( ! $this->management || ! $this->management->region || ! $this->management->region->domain ) return null;
+            if ( ! $this->management || ! $this->management->provider || ! $this->management->provider->domain ) return null;
             $url = \Config::get( 'app.ssl' ) ? 'https://' : 'http://';
-            $url .= $this->management->region->domain;
+            $url .= $this->management->provider->domain;
             $url .= route( 'tickets.show', $this->getTicketNumber(), false );
         }
         else
@@ -630,7 +641,7 @@ class TicketManagement extends BaseModel
 
     public static function getCountByStatus ( $status_code, $force = false )
     {
-        $key = 'ticket.status.' . Region::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
+        $key = 'ticket.status.' . Provider::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
         if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
         {
             $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( $key );

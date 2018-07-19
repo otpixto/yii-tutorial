@@ -4,10 +4,7 @@
     </div>
     <div class="col-md-7">
         <h1 class="h3">
-            {{ $user->getShortName() }}
-            <div class="h6 text-muted">
-                {{ $user->getPosition() }}
-            </div>
+            {{ $user->getShortName( true ) }}
         </h1>
         <div>
             {!! $user->getPhone( true ) !!}

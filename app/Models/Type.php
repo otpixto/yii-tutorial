@@ -15,10 +15,12 @@ class Type extends BaseModel
 
     protected $nullable = [
         'guid',
+        'description',
     ];
 
     protected $fillable = [
         'name',
+        'description',
         'category_id',
         'period_acceptance',
         'period_execution',
@@ -33,9 +35,9 @@ class Type extends BaseModel
         return $this->belongsToMany( 'App\Models\Management', 'managements_types' );
     }
 
-    public function regions ()
+    public function providers ()
     {
-        return $this->belongsToMany( 'App\Models\Region', 'regions_types' );
+        return $this->belongsToMany( 'App\Models\Provider', 'providers_types' );
     }
 
     public function tickets ()
@@ -80,12 +82,12 @@ class Type extends BaseModel
 
     public function scopeMine ( $query, ... $flags )
     {
-		if ( ! in_array( self::IGNORE_REGION, $flags ) && ! \Auth::user()->can( 'supervisor.all_types' ) )
+		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) && ! \Auth::user()->can( 'supervisor.all_types' ) )
 		{
 			$query
-				->whereHas( 'regions', function ( $regions )
+				->whereHas( 'providers', function ( $providers )
 				{
-					return $regions
+					return $providers
 						->mine()
 						->current();
 				});

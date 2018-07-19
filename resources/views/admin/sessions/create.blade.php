@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ 'Авторизация на телефоне', route( 'sessions.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -11,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.create' ) )
+    @if ( \Auth::user()->can( 'catalog.sessions.create' ) )
 
         {!! Form::open( [ 'url' => route( 'sessions.store' ) ] ) !!}
 

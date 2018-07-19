@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Address;
+use App\Models\Building;
 use App\Models\Management;
-use App\Models\Region;
+use App\Models\Provider;
 use App\Models\Type;
 use Illuminate\Console\Command;
-use Illuminate\Support\MessageBag;
 
 class FixRelations extends Command
 {
@@ -41,37 +40,37 @@ class FixRelations extends Command
 
         \DB::beginTransaction();
 
-        $addresses = Address::whereDoesntHave( 'regions' )->get();
+        $addresses = Building::whereDoesntHave( 'providers' )->get();
         foreach ( $addresses as $address )
         {
-            if ( ! $address->regions->contains( 'id', $address->region_id ) )
+            if ( ! $address->providers->contains( 'id', $address->provider_id ) )
             {
-                $address->regions()->attach( $address->region_id );
+                $address->providers()->attach( $address->provider_id );
             }
         }
 
-        $addresses = Address::whereIn( 'region_id', [ 1, 3 ] )->get();
+        $addresses = Building::whereIn( 'provider_id', [ 1, 3 ] )->get();
         foreach ( $addresses as $address )
         {
-            if ( ! $address->regions->contains( 'id', 6 ) )
+            if ( ! $address->providers->contains( 'id', 6 ) )
             {
-                $address->regions()->attach( 6 );
+                $address->providers()->attach( 6 );
             }
         }
 
-        $managements = Management::whereDoesntHave( 'regions' )->get();
+        $managements = Management::whereDoesntHave( 'providers' )->get();
         foreach ( $managements as $management )
         {
-            if ( ! $management->regions->contains( 'id', $management->region_id ) )
+            if ( ! $management->providers->contains( 'id', $management->provider_id ) )
             {
-                $management->regions()->attach( $management->region_id );
+                $management->providers()->attach( $management->provider_id );
             }
         }
 
-        $types = Type::whereDoesntHave( 'regions' )->get();
+        $types = Type::whereDoesntHave( 'providers' )->get();
         foreach ( $types as $type )
         {
-            $type->regions()->sync( Region::pluck( 'id' ) );
+            $type->providers()->sync( Provider::pluck( 'id' ) );
         }
 
         \DB::commit();

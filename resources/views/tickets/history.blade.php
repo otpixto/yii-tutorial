@@ -2,9 +2,8 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
+        [ 'Главная', route( 'home' ) ],
         [ 'Реестр заявок', route( 'tickets.index' ) ],
-        [ 'Заявка #' . $ticketManagement->getTicketNumber(), route( 'tickets.show', $ticketManagement->getTicketNumber() ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -33,7 +32,7 @@
                     {{ $status->created_at->format( 'd.m.Y H:i' ) }}
                 </td>
                 <td>
-                    {!! $status->author->getFullName() !!}
+                    {!! $status->author->getName( true ) !!}
                 </td>
                 <td>
                     {{ $status->status_name }}
@@ -68,7 +67,7 @@
                     {{ $log->created_at->format( 'd.m.Y H:i' ) }}
                 </td>
                 <td>
-                    {!! $log->author->getFullName() !!}
+                    {!! $log->author->getName( true ) !!}
                 </td>
                 <td>
                     @if ( $log->parent && isset( $log->parent::$name ) )

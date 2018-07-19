@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Классификатор', route( 'types.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}

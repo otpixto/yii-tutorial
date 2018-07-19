@@ -73,7 +73,7 @@ class SessionsController extends BaseController
             ::whereNull( 'closed_at' )
             ->get();
 
-        return view('admin.sessions.index' )
+        return view('catalog.sessions.index' )
             ->with( 'sessions', $sessions )
             ->with( 'operators', $operators )
             ->with( 'date_from', $date_from )
@@ -100,7 +100,7 @@ class SessionsController extends BaseController
             $operators[ $r->id ] = $r->getName();
         }
 
-        return view('admin.sessions.create' )
+        return view('catalog.sessions.create' )
             ->with( 'operators', $operators );
 
     }
@@ -126,7 +126,7 @@ class SessionsController extends BaseController
 
         $calls = $session->calls();
 
-        return view( 'admin.sessions.show' )
+        return view( 'catalog.sessions.show' )
             ->with( 'session', $session )
             ->with( 'calls', $calls );
 

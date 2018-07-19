@@ -2,8 +2,7 @@
 <div class="btn-group-img btn-group">
     <button type="button" class="btn btn-sm md-skip dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span>
-            {!! \Auth::user()->getPosition() !!}
-            {{ \Auth::user()->getShortName() }}
+            {{ \Auth::user()->getShortName( true ) }}
         </span>
     </button>
     <ul class="dropdown-menu-v2" role="menu">

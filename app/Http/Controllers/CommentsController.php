@@ -66,7 +66,7 @@ class CommentsController extends Controller
 
                     $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                     $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                    $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
+                    $message .= 'Автор комментария: ' . $comment->author->getName( true ) . PHP_EOL;
 
                     $message .= PHP_EOL . $comment->text . PHP_EOL;
 
@@ -95,7 +95,7 @@ class CommentsController extends Controller
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Автор комментария: ' . $comment->author->getFullName() . PHP_EOL;
+                $message .= 'Автор комментария: ' . $comment->author->getName( true ) . PHP_EOL;
 
                 $message .= PHP_EOL . $comment->text . PHP_EOL;
 

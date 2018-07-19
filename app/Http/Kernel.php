@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'srm' => [
-            'check.region',
+            'check.provider',
             'counter',
         ],
 
@@ -64,7 +64,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'check.region' => \App\Http\Middleware\CheckRegion::class,
+        'check.provider' => \App\Http\Middleware\CheckProvider::class,
         'counter' => \App\Http\Middleware\Counter::class,
     ];
 }

@@ -18,6 +18,36 @@ class ProfileController extends Controller
         Title::add( 'Профиль пользователя' );
     }
 
+    public function loginas ( Request $request, $id )
+    {
+        if ( ! \Auth::user()->admin && ! \Auth::user()->can( 'admin.loginas' ) )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'У вас недостаточно прав' ] );
+        }
+        $user = User::find( $id );
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+        if ( ! $user->can( 'supervisor.all_providers' ) )
+        {
+            if ( ! $user->providers->count() )
+            {
+                return redirect()->route( 'users.index' )
+                    ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
+            }
+            $redirect = ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->providers->first()->domain;
+        }
+        else
+        {
+            $redirect = route( 'home' );
+        }
+        \Auth::login( $user );
+        return redirect()->to( $redirect );
+    }
+
     public function pickupCall ( Request $request )
     {
 

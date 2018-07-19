@@ -14,51 +14,51 @@ class DataController extends BaseController
         parent::__construct();
     }
 
-    public function addresses ()
+    public function buildings ()
     {
 
 		$res = Ticket
 			::mine()
-			->whereDoesntHave( 'address', function ( $q )
+			->whereDoesntHave( 'building', function ( $q )
 			{
 				return $q
 					->where( 'lon', '=', -1 )
 					->orWhere( 'lat', '=', -1 );
 			})
-			->with( 'address', 'managements' )
+			->with( 'building', 'managements' )
 			->get();
 
 		$data = [];
 		foreach ( $res as $r )
 		{
-			if ( ! isset( $data[ $r->address_id ] ) )
+			if ( ! isset( $data[ $r->building_id ] ) )
 			{
-				if ( ! $r->address->lon || ! $r->address->lat )
+				if ( ! $r->building->lon || ! $r->building->lat )
 				{
-					$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->address->name ) ) );
+					$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->building->name ) ) );
 					if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
 					{
 						$pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-						$r->address->lon = $pos[0];
-						$r->address->lat = $pos[1];
+						$r->building->lon = $pos[0];
+						$r->building->lat = $pos[1];
 					}
 					else
 					{
-						$r->address->lon = -1;
-						$r->address->lat = -1;
+						$r->building->lon = -1;
+						$r->building->lat = -1;
 					}
-					$r->address->save();
+					$r->building->save();
 				}
 				$managements = [];
 				foreach ( $r->managements()->whereIn( 'management_id', Management::mine()->pluck( 'id' ) )->get() as $m )
 				{
 					$managements[] = $m->management->name;
 				}
-				$data[ $r->address_id ] = [ $r->address_id, $r->address->name, [ $r->address->lat, $r->address->lon ], $managements, 1 ];
+				$data[ $r->building_id ] = [ $r->building_id, $r->building->name, [ $r->building->lat, $r->building->lon ], $managements, 1 ];
 			}
 			else
 			{
-				$data[ $r->address_id ][ 4 ] ++;
+				$data[ $r->building_id ][ 4 ] ++;
 			}
 		}
 		
@@ -66,49 +66,49 @@ class DataController extends BaseController
 
     }
 
-    public function worksAddresses ()
+    public function worksBuildings ()
     {
 
         $res = Work
             ::mine()
             ->current()
-            ->whereDoesntHave( 'addresses', function ( $q )
+            ->whereDoesntHave( 'buildings', function ( $q )
             {
                 return $q
                     ->where( 'lon', '=', -1 )
                     ->orWhere( 'lat', '=', -1 );
             })
-            ->with( 'addresses' )
+            ->with( 'buildings' )
             ->get();
 
         $data = [];
         foreach ( $res as $r )
         {
-            foreach ( $r->addresses as $address )
+            foreach ( $r->buildings as $building )
             {
-                if ( ! isset( $data[ $address->id ] ) )
+                if ( ! isset( $data[ $building->id ] ) )
                 {
-                    if ( ! $address->lon || ! $address->lat )
+                    if ( ! $building->lon || ! $building->lat )
                     {
-                        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $address->name ) ) );
+                        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
                         if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
                         {
                             $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-                            $address->lon = $pos[0];
-                            $address->lat = $pos[1];
+                            $building->lon = $pos[0];
+                            $building->lat = $pos[1];
                         }
                         else
                         {
-                            $address->lon = -1;
-                            $address->lat = -1;
+                            $building->lon = -1;
+                            $building->lat = -1;
                         }
-                        $address->save();
+                        $building->save();
                     }
-                    $data[ $address->id ] = [ $address->id, $address->name, [ $address->lat, $address->lon ], 1 ];
+                    $data[ $building->id ] = [ $building->id, $building->name, [ $building->lat, $building->lon ], 1 ];
                 }
                 else
                 {
-                    $data[ $address->id ][ 3 ] ++;
+                    $data[ $building->id ][ 3 ] ++;
                 }
             }
         }

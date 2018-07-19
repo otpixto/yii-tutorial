@@ -2,7 +2,7 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
+        [ 'Главная', route( 'home' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -92,13 +92,8 @@
                                  Статус \ Номер заявки \ Оценка
                             </th>
                             <th width="220">
-                                Дата и время создания
+                                Даты \ Сроки
                             </th>
-                            @if ( $field_operator )
-                                <th width="150">
-                                    Оператор
-                                </th>
-                            @endif
                             <th width="200">
                                 @if ( $field_management )
                                     УО \
@@ -217,6 +212,7 @@
     <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-treeview.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         function checkTicketCheckbox ()
@@ -317,6 +313,36 @@
             .on( 'submit', '#form-checkbox', function ( event )
             {
                 setTimeout( cancelCheckbox, 500 );
+            })
+
+            .on( 'click', '#segment', function ( e )
+            {
+
+                e.preventDefault();
+
+                Modal.create( 'segment-modal', function ()
+                {
+                    Modal.setTitle( 'Выберите сегмент' );
+                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
+                    {
+                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
+                        Modal.setBody( tree );
+                        tree.treeview({
+                            data: response,
+                            onNodeSelected: function ( event, node )
+                            {
+                                $( '#segment_id' ).val( node.id );
+                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
+                            },
+                            onNodeUnselected: function ( event, node )
+                            {
+                                $( '#segment_id' ).val( '' );
+                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
+                            }
+                        });
+                    });
+                });
+
             })
 
             .on( 'change', '.ticket-checkbox', checkTicketCheckbox );

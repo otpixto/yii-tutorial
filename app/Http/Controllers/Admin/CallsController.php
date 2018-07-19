@@ -134,7 +134,7 @@ class CallsController extends BaseController
             \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
         }
 
-        return view('admin.calls.index' )
+        return view('catalog.calls.index' )
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )

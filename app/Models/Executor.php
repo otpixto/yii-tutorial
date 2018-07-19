@@ -30,7 +30,8 @@ class Executor extends BaseModel
         return $query
             ->whereHas( 'management', function ( $management )
             {
-                return $management->mine();
+                return $management
+                    ->mine();
             });
     }
 

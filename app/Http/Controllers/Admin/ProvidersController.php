@@ -1,0 +1,507 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Classes\Title;
+use App\Models\Building;
+use App\Models\Management;
+use App\Models\Provider;
+use App\Models\Type;
+use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
+
+class ProvidersController extends BaseController
+{
+
+    public function __construct ()
+    {
+        parent::__construct();
+        Title::add( 'Поставщики' );
+    }
+
+    public function index ( Request $request )
+    {
+
+        $search = trim( $request->get( 'search', '' ) );
+        $address = $request->get( 'address', null );
+
+        $providers = Provider
+            ::orderBy( Provider::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $providers
+                ->where( Provider::$_table . '.name', 'like', $s );
+        }
+
+        if ( ! empty( $address ) )
+        {
+            $providers
+                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                {
+                    return $q
+                        ->where( Building::$_table . '.id', '=', $address );
+                });
+        }
+
+        $providers = $providers
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        return view('admin.providers.index' )
+            ->with( 'providers', $providers );
+
+    }
+
+    public function show ( $id )
+    {
+        return $this->edit( $id );
+    }
+
+    public function edit ( $id )
+    {
+
+        Title::add( 'Редактировать поставщика' );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        return view('admin.providers.edit' )
+            ->with( 'provider', $provider );
+
+    }
+
+    public function addresses ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $providerAddresses = $provider->addresses()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'admin.providers.addresses' )
+            ->with( 'provider', $provider )
+            ->with( 'providerAddresses', $providerAddresses );
+
+    }
+
+    public function addressesSearch ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $addresses = Building
+            ::select(
+                Building::$_table . '.id',
+                Building::$_table . '.name AS text'
+            )
+            ->where( Building::$_table . '.name', 'like', $s )
+            ->whereNotIn( Building::$_table . '.id', $provider->addresses()->pluck( Building::$_table . '.id' ) )
+            ->orderBy( Building::$_table . '.name' )
+            ->get();
+
+        return $addresses;
+
+    }
+
+    public function addressesAdd ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->addresses()->attach( $request->get( 'addresses', [] ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Адреса успешно назначены' );
+
+    }
+
+    public function addressesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'address_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->addresses()->detach( $request->get( 'address_id' ) );
+
+    }
+
+    public function managements ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $providerManagements = $provider->managements()
+            ->orderBy( 'name' )
+            ->paginate( 30 );
+
+        return view( 'admin.providers.managements' )
+            ->with( 'provider', $provider )
+            ->with( 'providerManagements', $providerManagements );
+
+    }
+
+    public function managementsSearch ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $res = Management
+            ::where( Management::$_table . '.name', 'like', $s )
+            ->whereNotIn( Management::$_table . '.id', $provider->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $managements = [];
+        foreach ( $res as $r )
+        {
+            $name = $r->name;
+            if ( $r->parent )
+            {
+                $name = $r->parent->name . ' ' . $name;
+            }
+            $managements[] = [
+                'id'        => $r->id,
+                'text'      => $name
+            ];
+        }
+
+        return $managements;
+
+    }
+
+    public function managementsAdd ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->managements()->attach( $request->get( 'managements' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'УО успешно привязаны' );
+
+    }
+
+    public function managementsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'management_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->managements()->detach( $request->get( 'management_id' ) );
+
+    }
+
+    public function managementsEmpty ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->managements()->detach();
+
+    }
+
+    public function types ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Классификатора' );
+
+        $provider = Provider::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $types = Type
+            ::whereNotIn( 'id', $provider->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $providerTypes = $provider->types()
+            ->orderBy( 'name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $providerTypes
+                ->where( Type::$_table . '.name', 'like', $s );
+        }
+
+        $providerTypes = $providerTypes
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        return view( 'admin.providers.types' )
+            ->with( 'provider', $provider )
+            ->with( 'search', $search )
+            ->with( 'types', $types )
+            ->with( 'providerTypes', $providerTypes );
+
+    }
+
+    public function typesAdd ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->types()->attach( $request->get( 'types' ) );
+
+        return redirect()->back()
+            ->with( 'success', 'Классификатор успешно привязан' );
+
+    }
+
+    public function typesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'type_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->types()->detach( $request->get( 'type_id' ) );
+
+    }
+
+    public function typesEmpty ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->types()->detach();
+
+        return redirect()->back()
+            ->with( 'success', 'Привязки успешно удалены' );
+
+    }
+
+    public function create ()
+    {
+
+        Title::add( 'Создать регион' );
+
+        return view('admin.providers.create' );
+
+    }
+
+    public function update ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $rules = [
+            'guid'                  => 'nullable|unique:providers,guid,' . $provider->id . ',id|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username'              => 'nullable|string|max:50',
+            'password'              => 'nullable|string|max:50',
+        ];
+
+        if ( $request->has( 'name' ) || $request->has( 'domain' ) )
+        {
+            $rules += [
+                'name'                  => 'required|string|max:255',
+                'domain'                => 'required|string|max:100',
+            ];
+        }
+
+        $this->validate( $request, $rules );
+
+        $provider->edit( $request->all() );
+
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Поставщик успешно отредактирован' );
+
+    }
+
+    public function store ( Request $request )
+    {
+
+        $rules = [
+            'guid'                  => 'nullable|unique:providers,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username'              => 'nullable|string|max:50',
+            'password'              => 'nullable|string|max:50',
+            'name'                  => 'required|string|max:255',
+            'domain'                => 'required|string|max:100',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::create( $request->all() );
+
+        if ( $provider instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $provider );
+        }
+
+        $provider->save();
+
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Поставщик успешно создан' );
+
+    }
+
+    public function phonesAdd ( Request $request, $id )
+    {
+
+        $rules = [
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
+
+        $providerPhone = $provider->addPhone( $phone );
+
+        if ( $providerPhone instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $providerPhone );
+        }
+
+        $providerPhone->save();
+
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Телефон успешно добавлен' );
+
+    }
+
+    public function phonesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'phone_id'                 => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->phones()->find( $request->get( 'phone_id' ) )->delete();
+
+    }
+
+}

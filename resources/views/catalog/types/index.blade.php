@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -65,7 +64,7 @@
                                         <a href="?category={{ $category->id }}">
                                             {{ $category->name }}
                                             <span class="badge badge-info pull-right">
-                                                {{ $category->types->count() }}
+                                                {{ $category->types()->count() }}
                                             </span>
                                         </a>
                                     </li>

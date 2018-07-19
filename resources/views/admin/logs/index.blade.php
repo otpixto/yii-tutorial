@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -51,13 +50,13 @@
                                 {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control datepicker' ] ) !!}
                             </th>
                             <th>
-                                {!! Form::select( 'model_name', $models, \Input::old( 'model_name' ), [ 'class' => 'form-control select2' ] ) !!}
+                                {!! Form::select( 'model_name', [], \Input::old( 'model_name' ), [ 'class' => 'form-control select2' ] ) !!}
                             </th>
                             <th>
                                 {!! Form::text( 'model_id', \Input::old( 'model_id' ), [ 'class' => 'form-control' ] ) !!}
                             </th>
                             <th>
-                                {!! Form::select( 'author_id', $users, \Input::old( 'author_id' ), [ 'class' => 'form-control select2' ] ) !!}
+                                {!! Form::select( 'author_id', [], \Input::old( 'author_id' ), [ 'class' => 'form-control select2' ] ) !!}
                             </th>
                             <th>
                                 {!! Form::text( 'text', \Input::old( 'text' ), [ 'class' => 'form-control' ] ) !!}
@@ -99,7 +98,7 @@
                             </td>
                             <td>
                                 @if ( $log->author )
-                                    {!! $log->author->getFullName() !!}
+                                    {!! $log->author->getName() !!}
                                 @endif
                             </td>
                             <td>

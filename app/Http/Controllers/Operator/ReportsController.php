@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
-use App\Models\Address;
+use App\Models\Building;
 use App\Models\Asterisk\Cdr;
 use App\Models\Category;
 use App\Models\Executor;
@@ -236,24 +236,24 @@ class ReportsController extends BaseController
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-        $address_id = $request->get( 'address_id' );
-        $address = [];
+        $building_id = $request->get( 'building_id' );
+        $building = [];
 
         if ( $date_from->timestamp > $date_to->timestamp )
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
 
-        if ( $address_id )
+        if ( $building_id )
         {
-            $address = Address::where( 'id', '=', $address_id )->pluck( 'name', 'id' );
+            $building = Building::where( 'id', '=', $building_id )->pluck( 'name', 'id' );
             $ticketManagements = TicketManagement
                 ::mine()
                 ->whereBetween( 'created_at', [ $date_from, $date_to ] )
-                ->whereHas( 'ticket', function ( $ticket ) use ( $address_id )
+                ->whereHas( 'ticket', function ( $ticket ) use ( $building_id )
                 {
                     return $ticket
-                        ->where( 'address_id', '=', $address_id );
+                        ->where( 'building_id', '=', $building_id );
                 })
                 ->get();
         }
@@ -264,8 +264,8 @@ class ReportsController extends BaseController
 						
         return view( 'reports.addresses' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'address_id', $address_id )
-            ->with( 'address', $address )
+            ->with( 'building_id', $building_id )
+            ->with( 'building', $building )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 

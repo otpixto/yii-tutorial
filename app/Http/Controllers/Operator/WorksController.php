@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
-use App\Models\Address;
+use App\Models\Building;
 use App\Models\Management;
-use App\Models\Region;
+use App\Models\Provider;
+use App\Models\Segment;
 use App\Models\Type;
 use App\Models\Work;
 use Carbon\Carbon;
@@ -19,26 +20,42 @@ class WorksController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Работы на сетях' );
+        Title::add( 'Отключения' );
     }
 
     public function index ( Request $request )
     {
 
-        $works = Work
-            ::mine()
-            ->orderBy( Work::$_table . '.id', 'desc' );
+        $managements = [];
 
-        if ( $request->get( 'show' ) != 'all' )
+        if ( ! empty( $request->get ( 'managements' ) ) )
         {
-            $works
-                ->current();
+            $managements = explode ( ',', $request->get ( 'managements' ) );
         }
 
-        if ( ! empty( $request->get( 'search' ) ) )
+        $works = Work
+            ::mine ()
+            ->orderBy ( Work::$_table . '.id', 'desc' );
+
+        if ( $request->get ( 'show' ) != 'all' )
         {
             $works
-                ->fastSearch( $request->get( 'search' ) );
+                ->current ();
+        }
+
+        switch ( $request->get ( 'show' ) )
+        {
+            case 'all':
+
+                break;
+            case 'overdue':
+                $works
+                    ->whereRaw( 'time_end < COALESCE( time_end_fact, CURRENT_TIMESTAMP )' );
+                break;
+            default:
+                $works
+                    ->current ();
+                break;
         }
 
         if ( ! empty( $request->get( 'id' ) ) )
@@ -67,36 +84,72 @@ class WorksController extends BaseController
                 ->where( Work::$_table . '.reason', 'like', $q );
         }
 
-        if ( ! empty( $request->get( 'date' ) ) )
+        if ( ! empty( $request->get( 'begin_from' ) ) )
         {
-            $dt = Carbon::parse( $request->get( 'date' ) )->toDateString();
             $works
-                ->whereRaw( 'DATE( time_begin ) <= ?', [ $dt ] )
-                ->whereRaw( 'DATE( time_end_fact ) >= ?', [ $dt ] );
+                ->where( Work::$_table . '.time_begin', '>=', Carbon::parse( $request->get( 'begin_from' ) )->toDateTimeString() );
         }
 
-        if ( !empty( $request->get( 'type_id' ) ) )
+        if ( ! empty( $request->get( 'begin_to' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.time_begin', '<=', Carbon::parse( $request->get( 'begin_to' ) )->toDateTimeString() );
+        }
+
+        if ( ! empty( $request->get( 'end_from' ) ) )
+        {
+            $works
+                ->where( function ( $q ) use ( $request )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '>=', Carbon::parse( $request->get( 'end_from' ) )->toDateTimeString() )
+                        ->orWhere( Work::$_table . '.time_end_fact', '>=', Carbon::parse( $request->get( 'end_from' ) )->toDateTimeString() );
+                });
+        }
+
+        if ( ! empty( $request->get( 'end_to' ) ) )
+        {
+            $works
+                ->where( function ( $q ) use ( $request )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '<=', Carbon::parse( $request->get( 'end_to' ) )->toDateTimeString() )
+                        ->orWhere( Work::$_table . '.time_end_fact', '<=', Carbon::parse( $request->get( 'end_to' ) )->toDateTimeString() );
+                });
+        }
+
+        if ( ! empty( $request->get( 'type_id' ) ) )
         {
             $works
                 ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
         }
 
-        if ( !empty( $request->get( 'address_id' ) ) )
+        if ( ! empty( $request->get( 'building_id' ) ) )
         {
-            $address_id = $request->get( 'address_id' );
             $works
-                ->whereHas( 'addresses', function ( $q ) use ( $address_id )
+                ->whereHas( 'buildings', function ( $buildings ) use ( $request )
                 {
-                    return $q
-                        ->where( Address::$_table . '.id', '=', $address_id );
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
                 });
-            $address = Address::where( 'id', '=', $address_id )->pluck( 'name', 'id' );
+            $building = Building::where( 'id', '=', $request->get( 'building_id' ) )->pluck( 'name', 'id' );
         }
 
-        if ( !empty( $request->get( 'management_id' ) ) )
+        if ( ! empty( $request->get( 'segment_id' ) ) )
+        {
+            $segment = Segment::find( $request->get( 'segment_id' ) );
+            $works
+                ->whereHas( 'buildings', function ( $buildings ) use ( $request )
+                {
+                    return $buildings
+                        ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
+                });
+        }
+
+        if ( count( $managements ) )
         {
             $works
-                ->where( Work::$_table . '.management_id', '=', $request->get( 'management_id' ) );
+                ->whereIn( Work::$_table . '.management_id', $managements );
         }
 
         if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
@@ -110,7 +163,7 @@ class WorksController extends BaseController
                     'Дата и время'                  => $work->created_at->format( 'd.m.y H:i' ),
                     'Кто сообщил'                   => $work->who,
                     'Основание'                     => $work->reason,
-                    'Адрес работ'                   => $work->addresses->implode( 'name', '; ' ),
+                    'Адрес работ'                   => $work->buildings->implode( 'name', '; ' ),
                     'Категория работ'               => $work->category->name,
                     'Исполнитель работ'             => $work->management->name,
                     'Состав работ'                  => $work->composition,
@@ -118,9 +171,9 @@ class WorksController extends BaseController
                     'Время окончания работ'         => Carbon::parse( $work->time_end )->format( 'd.m.y H:i' ),
                 ];
             }
-            \Excel::create( 'РАБОТЫ НА СЕТЯХ', function ( $excel ) use ( $data )
+            \Excel::create( 'Отключения', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'РАБОТЫ НА СЕТЯХ', function ( $sheet ) use ( $data )
+                $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -131,18 +184,32 @@ class WorksController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
-            ->orderBy( Region::$_table . '.name' )
-            ->pluck( Region::$_table . '.name', Region::$_table . '.id' );
+            ->orderBy( Provider::$_table . '.name' )
+            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
+
+        $res = Management
+            ::mine()
+            ->whereHas( 'parent' )
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
+        $availableManagements = [];
+        foreach ( $res as $r )
+        {
+            $availableManagements[ $r->parent->name ][ $r->id ] = $r->name;
+        }
 
         return view( 'works.index' )
             ->with( 'works', $works )
-            ->with( 'managements', Management::orderBy( 'name' )->get() )
+            ->with( 'availableManagements', $availableManagements )
+            ->with( 'managements', $managements )
             ->with( 'types', Type::orderBy( 'name' )->get() )
-            ->with( 'regions', $regions )
-            ->with( 'address', $address ?? [] );
+            ->with( 'providers', $providers )
+            ->with( 'building', $building ?? [] )
+            ->with( 'segment', $segment ?? [] );
 
     }
 
@@ -156,16 +223,16 @@ class WorksController extends BaseController
 
         Title::add( 'Добавить сообщение' );
 
-        $addresses = new Collection();
+        $buildings = new Collection();
 
-        if ( !empty( \Input::old( 'address_id', [] ) ) )
+        if ( ! empty( \Input::old( 'building_id', [] ) ) )
         {
-            $addresses = Address
-                ::whereIn( 'id', \Input::old( 'address_id' ) )
+            $buildings = Building
+                ::whereIn( 'id', \Input::old( 'building_id' ) )
                 ->get();
         }
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
@@ -174,8 +241,8 @@ class WorksController extends BaseController
         return view( 'works.create' )
             ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
             ->with( 'types', Type::orderBy( 'name' )->get() )
-            ->with( 'regions', $regions )
-            ->with( 'addresses', $addresses );
+            ->with( 'providers', $providers )
+            ->with( 'buildings', $buildings );
 
     }
 
@@ -213,9 +280,11 @@ class WorksController extends BaseController
             }
         }
 
-        $work->addresses()->sync( $request->get( 'address_id', [] ) );
+        $work->buildings()->sync( $request->get( 'building_id', [] ) );
 
         \DB::commit();
+
+        \Cache::tags( 'works_counts' )->flush();
 
         return redirect()->route( 'works.edit', $work->id )
             ->with( 'success', 'Сообщение успешно добавлено' );
@@ -276,16 +345,16 @@ class WorksController extends BaseController
         $managements = Management::orderBy( 'name' )->get();
         $types = Type::orderBy( 'name' )->get();
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
-            ->orderBy( Region::$_table . '.name' )
-            ->pluck( Region::$_table . '.name', Region::$_table . '.id' );
+            ->orderBy( Provider::$_table . '.name' )
+            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
         return view( 'works.edit' )
             ->with( 'work', $work )
             ->with( 'managements', $managements )
-            ->with( 'regions', $regions )
+            ->with( 'providers', $providers )
             ->with( 'types', $types );
 
     }
@@ -322,9 +391,11 @@ class WorksController extends BaseController
             return redirect()->back()->withErrors( $res );
         }
 
-        $work->addresses()->sync( $request->get( 'address_id', [] ) );
+        $work->buildings()->sync( $request->get( 'building_id', [] ) );
 
         \DB::commit();
+
+        \Cache::tags( 'works_counts' )->flush();
 
         return redirect()->back()
             ->with( 'success', 'Сообщение успешно обновлено' );
@@ -349,19 +420,45 @@ class WorksController extends BaseController
 
     }
 
+    public function filter ( Request $request )
+    {
+
+        $data = $request->all();
+
+        unset( $data[ '_token' ] );
+
+        foreach ( $data as $key => $val )
+        {
+            if ( empty( $val ) )
+            {
+                unset( $data[ $key ] );
+            }
+        }
+
+        if ( isset( $data[ 'managements' ] ) )
+        {
+            $data[ 'managements' ] = implode( ',', $data[ 'managements' ] );
+        }
+
+        $url = route( 'works.index', $data ) . '#result';
+
+        return redirect()->to( $url );
+
+    }
+
     public function search ( Request $request )
     {
 
         $now = Carbon::now()->toDateString();
 
         $works = Work
-            ::whereHas( 'addresses', function ( $a ) use ( $request )
+            ::whereHas( 'buildings', function ( $buildings ) use ( $request )
             {
-                return $a
-                    ->where( 'address_id', '=', $request->get( 'address_id' ) );
+                return $buildings
+                    ->where( Building::$_table. '.id', '=', $request->get( 'building_id' ) );
             })
             ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
-            ->orderBy( 'id', 'desc' )
+            ->orderBy( Work::$_table . '.id', 'desc' )
             ->take( 10 )
             ->get();
 

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Asterisk;
-use App\Models\Customer;
 use App\Models\PhoneSession;
-use App\Models\Region;
+use App\Models\Provider;
 use App\Models\Ticket;
 use App\Models\TicketCall;
 use App\Models\UserPhoneAuth;
@@ -91,12 +90,12 @@ class RestController extends Controller
 
         $response = [
             'customer' => null,
-            'region' => null,
+            'provider' => null,
         ];
 
         $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
 
-        $region = Region
+        $provider = Provider
             ::whereHas( 'phones', function ( $phones ) use ( $phone_office )
             {
                 return $phones
@@ -104,11 +103,11 @@ class RestController extends Controller
             })
             ->first();
 
-        if ( $region )
+        if ( $provider )
         {
-            $response[ 'region' ] = $region->name;
+            $response[ 'provider' ] = $provider->name;
             $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
-            $customer = $region->customers()
+            $customer = $provider->customers()
                 ->where( 'phone', '=', $call_phone )
                 ->orWhere( 'phone2', '=', $call_phone )
                 ->orderBy( 'id', 'desc' )
@@ -116,7 +115,7 @@ class RestController extends Controller
             if ( $customer )
             {
                 $response[ 'customer' ] = [
-                    'address' => $customer->getAddress(),
+                    'building' => $customer->getAddress(),
                     'name' => $customer->getName(),
                 ];
             }
@@ -156,7 +155,7 @@ class RestController extends Controller
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
         $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
 
-        $region = Region
+        $provider = Provider
             ::mine( $user )
             ->whereHas( 'phones', function ( $q ) use ( $phone_office )
             {
@@ -182,14 +181,14 @@ class RestController extends Controller
             $draft->call_id = $request->get( 'call_id' );
         }
 
-        if ( $region )
+        if ( $provider )
         {
-            $draft->region_id = $region->id;
+            $draft->provider_id = $provider->id;
         }
 
         $draft->save();
 
-        return $this->success( $region->name ?? '' );
+        return $this->success( $provider->name ?? '' );
 
     }
 

@@ -10,14 +10,15 @@
                         Заявки
                     </span>
                     @if ( \Auth::user()->can( 'tickets.counter' ) )
-                        @if ( \Session::get( 'tickets_count' ) > 0 )
-                            <span class="badge badge-success bold">
-                                {{ \Session::get( 'tickets_count' ) }}
-                            </span>
-                        @endif
-                        @if ( \Auth::user()->can( 'tickets.call' ) && \Session::get( 'count_completed' ) > 0 )
-                            <span class="badge badge-danger bold">
-                                {{ \Session::get( 'count_completed' ) }}
+                        <span class="badge badge-info bold">
+                            {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_count' ) }}
+                        </span>
+                        <span class="badge badge-danger bold">
+                            {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_overdue_count' ) }}
+                        </span>
+                        @if ( \Auth::user()->can( 'tickets.call' ) )
+                            <span class="badge badge-warning bold">
+                                {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_completed_count' ) }}
                             </span>
                         @endif
                     @endif
@@ -30,15 +31,34 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'tickets.show' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.index' ) }}?show=overdue">
+                                Просроченные
+                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                    <span class="badge badge-danger bold">
+                                        {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_overdue_count' ) }}
+                                    </span>
+                                @endif
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
                             <a href="{{ route( 'tickets.index' ) }}?show=call">
                                 Обзвон
-                                @if ( \Auth::user()->can( 'tickets.counter' ) && \Session::get( 'tickets_call_count' ) > 0 )
-                                    <span class="badge badge-danger bold">
-                                        {{ \Session::get( 'tickets_call_count' ) }}
+                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                    <span class="badge badge-warning bold">
+                                        {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_completed_count' ) }}
                                     </span>
                                 @endif
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'tickets.calendar' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.calendar', \Carbon\Carbon::now()->format( 'Y-m-d' ) ) }}">
+                                Календарь
                             </a>
                         </li>
                     @endif
@@ -51,11 +71,14 @@
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
                     <span class="hidden-md">
-                        Работы на сетях
+                        Отключения
                     </span>
-                    @if ( ( \Auth::user()->can( 'works.counter' ) ) && \Session::get( 'works_count' ) > 0 )
+                    @if ( ( \Auth::user()->can( 'works.counter' ) ) )
+                        <span class="badge badge-info bold">
+                            {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_count' ) }}
+                        </span>
                         <span class="badge badge-danger bold">
-                            {{ \Session::get( 'works_count' ) }}
+                            {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_overdue_count' ) }}
                         </span>
                     @endif
                 </a>
@@ -67,10 +90,20 @@
                             </a>
                         </li>
                     @endif
+                    <li>
+                        <a href="{{ route( 'works.index' ) }}?show=overdue">
+                            Просроченные
+                            @if ( \Auth::user()->can( 'works.counter' ) )
+                                <span class="badge badge-danger bold">
+                                    {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_overdue_count' ) }}
+                                </span>
+                            @endif
+                        </a>
+                    </li>
                     @if ( \Auth::user()->can( 'works.all' ) )
                         <li>
                             <a href="{{ route( 'works.index' ) }}?show=all">
-                                Работы за все время
+                                Отключения за все время
                             </a>
                         </li>
                     @endif
@@ -167,7 +200,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->canOne( 'catalog.managements.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.addresses.show' ) )
+        @if ( \Auth::user()->canOne( 'catalog.managements.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.buildings.show', 'catalog.segments.show' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-edit"></i>
@@ -176,6 +209,13 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
+                    @if ( \Auth::user()->can( 'catalog.users.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'users.index' ) }}" class="nav-link">
+                                Пользователи
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'catalog.customers.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'customers.index' ) }}" class="nav-link">
@@ -183,9 +223,9 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->can( 'catalog.addresses.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
                         <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'addresses.index' ) }}" class="nav-link">
+                            <a href="{{ route( 'buildings.index' ) }}" class="nav-link">
                                 Здания
                             </a>
                         </li>
@@ -208,7 +248,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->admin || \Auth::user()->canOne( 'admin.users.show', 'admin.perms.show', 'admin.roles.show', 'admin.sessions.show', 'admin.logs', 'admin.calls' ) )
+        @if ( \Auth::user()->admin )
             <li class="dropdown more-dropdown @if ( Request::is( 'admin*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>
@@ -217,55 +257,36 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'users.index' ) }}" class="nav-link">
-                                Пользователи
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'perms.index' ) }}" class="nav-link">
-                                Права
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'roles.index' ) }}" class="nav-link">
-                                Роли
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.regions.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'regions.index' ) }}" class="nav-link">
-                                Регионы
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'calls.index' ) }}" class="nav-link">
-                                Телефонные звонки
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
-                                Телефонные сессии
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'logs.index' ) }}" class="nav-link">
-                                Системные логи
-                            </a>
-                        </li>
-                    @endif
+                    <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'perms.index' ) }}" class="nav-link">
+                            Права
+                        </a>
+                    </li>
+                    <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'roles.index' ) }}" class="nav-link">
+                            Роли
+                        </a>
+                    </li>
+                    <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'providers.index' ) }}" class="nav-link">
+                            Поставщики
+                        </a>
+                    </li>
+                    <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
+                            Телефонные сессии
+                        </a>
+                    </li>
+                    <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'calls.index' ) }}" class="nav-link">
+                            Телефонные звонки
+                        </a>
+                    </li>
+                     <li aria-haspopup="true" class=" ">
+                        <a href="{{ route( 'logs.index' ) }}" class="nav-link">
+                            Системные логи
+                        </a>
+                    </li>
                 </ul>
             </li>
         @endif

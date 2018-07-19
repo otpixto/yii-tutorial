@@ -64,3 +64,19 @@
     .text-lg-center { text-align: center; }
     .text-lg-justify { text-align: justify; }
 }
+
+.margin-bottom-0 {
+    margin-bottom: 0px !important;
+}
+
+.margin-top-0 {
+    margin-top: 0px !important;
+}
+
+.margin-left-0 {
+    margin-left: 0px !important;
+}
+
+.margin-right-0 {
+    margin-right: 0px !important;
+}

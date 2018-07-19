@@ -2,7 +2,7 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
+        [ 'Главная', route( 'home' ) ],
         [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -31,6 +31,9 @@
         }
         .d-inline {
             display: inline;
+        }
+        #customer_tickets table *, #neighbors_tickets table * {
+            font-size: 12px;
         }
         @media print
         {
@@ -100,6 +103,31 @@
 
             })
 
+            .on ( 'click', '.nav-tabs a', function ( e )
+            {
+                $( this ).tab( 'show' );
+                switch ( $( this ).attr( 'href' ) )
+                {
+
+                    case '#customer_tickets':
+                        $( '#customer_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.customers', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#customer_tickets' ).html( response );
+                        });
+                        break;
+
+                    case '#neighbors_tickets':
+                        $( '#neighbors_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.neighbors', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#neighbors_tickets' ).html( response );
+                        });
+                        break;
+
+                }
+            })
+
             .on( 'change', '.calc-totals', calcTotals )
 
             .on( 'click', '[data-rate]', function ( e )
@@ -140,8 +168,11 @@
 										alert('Действие отменено!');
 									}
 									else {
-										form.find('[name="comment"]').val(result);
-										form.submit();
+                                        form
+                                            .append(
+                                                $( '<input type="hidden" name="delayed_to" />' ).val( result )
+                                            );
+                                        form.submit();
 									}
 								}
 							});
@@ -169,7 +200,7 @@
 			})
 
 			@if ( isset( $ticketManagement ) )
-				
+
 				.on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
 				{
 
@@ -256,7 +287,9 @@
                         {
                             form
                                 .removeAttr( 'data-confirm' )
-                                .find( '[name="comment"]' ).val( result );
+                                .append(
+                                    $( '<input type="hidden" name="comment">' ).val( result )
+                                );
                             form.submit();
                         }
                     }
@@ -292,7 +325,9 @@
                         {
                             form
                                 .removeAttr( 'data-confirm' )
-                                .find( '[name="comment"]' ).val( result );
+                                .append(
+                                    $( '<input type="hidden" name="comment">' ).val( result )
+                                );
                             form.submit();
                         }
                     }
@@ -324,6 +359,46 @@
                 }, function ( response )
                 {
                     Modal.createSimple( 'Прикрепить оформленный Акт', response, 'file' );
+                });
+
+            })
+
+            .on( 'confirmed', '[data-status="waiting"]', function ( e, pe )
+            {
+
+                e.preventDefault();
+                pe.preventDefault();
+
+                if ( $( this ).hasClass( 'submit-loading' ) )
+                {
+                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                }
+
+                var form = $( pe.target );
+
+                var model_name = form.find( '[name="model_name"]' ).val();
+                var model_id = form.find( '[name="model_id"]' ).val();
+                var status_code = form.find( '[name="status_code"]' ).val();
+
+                $.get( '{{ route( 'tickets.postpone', $ticket->id ) }}', {
+                    model_name: model_name,
+                    model_id: model_id,
+                    status_code: status_code
+                }, function ( response )
+                {
+                    Modal.createSimple( 'Отложить заявку до', response, 'postpone' );
+                    Modal.onSubmit = function ( e )
+                    {
+                        e.preventDefault();
+                        var thisForm = $( this );
+                        form
+                            .removeAttr( 'data-confirm' )
+                            .append(
+                                $( '<input type="hidden" name="postponed_to">' ).val( thisForm.find( '[name="postponed_to"]' ).val() ),
+                                $( '<input type="hidden" name="postponed_comment">' ).val( thisForm.find( '[name="postponed_comment"]' ).val() )
+                            );
+                        form.submit();
+                    };
                 });
 
             });

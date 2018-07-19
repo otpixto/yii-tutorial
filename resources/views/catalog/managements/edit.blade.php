@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Управляющие организации', route( 'managements.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -29,8 +28,8 @@
                     </div>
 
                     <div class="col-xs-8">
-                        {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'address_id', $management->address ? $management->address()->pluck( \App\Models\Address::$_table . '.name', \App\Models\Address::$_table . '.id' ) : [], \Input::old( 'address_id', $management->address_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес офиса' ] ) !!}
+                        {!! Form::label( 'building_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'building_id', $management->building ? $management->building()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ) : [], \Input::old( 'building_id', $management->building_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес офиса' ] ) !!}
                     </div>
 
                 </div>
@@ -118,13 +117,17 @@
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
                     <div class="col-xs-6 text-right">
-                        <a href="{{ route( 'managements.addresses', $management->id ) }}" class="btn btn-default btn-circle">
-                            Здания
-                            <span class="badge">{{ $managementAddressesCount }}</span>
+                        <a href="{{ route( 'managements.buildings', $management->id ) }}" class="btn btn-default btn-circle">
+                            Адреса
+                            <span class="badge">
+                                {{ $management->buildings()->count() }}
+                            </span>
                         </a>
                         <a href="{{ route( 'managements.types', $management->id ) }}" class="btn btn-default btn-circle">
                             Классификатор
-                            <span class="badge">{{ $managementTypesCount }}</span>
+                            <span class="badge">
+                                {{ $management->types()->count() }}
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -214,7 +217,7 @@
                         @if ( $management->users->count() )
                             <ul class="list-group">
                                 @foreach ( $management->users as $user )
-                                    @if ( \Auth::user()->can( 'admin.users.edit' ) )
+                                    @if ( \Auth::user()->can( 'catalog.users.edit' ) )
                                         <a href="{{ route( 'users.edit', $user->id ) }}" class="list-group-item">
                                             {!! $user->getFullName() !!}
                                         </a>

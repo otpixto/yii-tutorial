@@ -30,7 +30,7 @@ class ParseAddress extends Command
     public function handle ()
     {
 
-        $addresses = \App\Models\Address::whereNull( 'address' )->get();
+        $addresses = \App\Models\Building::whereNull( 'address' )->get();
         foreach ( $addresses as $addr )
         {
             $exp = explode( 'д.', $addr->name );

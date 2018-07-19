@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\TicketCall;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
 class Ticket extends BaseModel
@@ -32,6 +30,7 @@ class Ticket extends BaseModel
         'completed_at',
         'deadline_acceptance',
         'deadline_execution',
+        'postponed_to',
     ];
 
     public static $places = [
@@ -96,36 +95,39 @@ class Ticket extends BaseModel
         'from_lk' => [
             'transferred',
             'cancel',
+            'waiting',
         ],
         'transferred' => [
             'cancel',
+            'waiting',
         ],
         'transferred_again' => [
             'cancel',
+            'waiting',
         ],
         'accepted' => [
             'cancel',
+            'waiting',
         ],
     ];
 
     protected $nullable = [
-        'region_id',
+        'provider_id',
         'customer_id',
         'phone2',
         'flat',
         'managements',
-        'actual_address_id',
+        'actual_building_id',
         'actual_flat',
-        'price',
     ];
 
-    public static $rules = [
-        'region_id'                 => 'nullable|integer',
+    /*public static $rules = [
+        'provider_id'               => 'nullable|integer',
         'type_id'                   => 'required|integer',
-        'address_id'                => 'required|integer',
-        'actual_address_id'         => 'nullable|integer',
         'place_id'                  => 'required|integer',
+        'building_id'               => 'required|integer',
         'flat'                      => 'nullable',
+        'actual_building_id'        => 'nullable|integer',
         'actual_flat'               => 'nullable',
         'emergency'                 => 'boolean',
         'urgently'                  => 'boolean',
@@ -138,16 +140,14 @@ class Ticket extends BaseModel
         'customer_id'               => 'nullable|integer',
         'text'                      => 'required',
         'managements'               => 'required|array',
-        'price'                     => 'nullable|numeric|min:0',
-        'quantity'                  => 'nullable|integer|min:1',
-    ];
+    ];*/
 
     protected $fillable = [
-        'region_id',
+        'provider_id',
         'type_id',
-        'address_id',
-        'actual_address_id',
+        'building_id',
         'flat',
+        'actual_building_id',
         'actual_flat',
         'emergency',
         'urgently',
@@ -167,19 +167,19 @@ class Ticket extends BaseModel
         return $this->hasMany( 'App\Models\TicketManagement' );
     }
 
-    public function region ()
+    public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Region' );
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
-    public function address ()
+    public function building ()
     {
-        return $this->belongsTo( 'App\Models\Address' );
+        return $this->belongsTo('App\Models\Building');
     }
 
-    public function actualAddress ()
+    public function actualBuilding ()
     {
-        return $this->belongsTo( 'App\Models\Address' );
+        return $this->belongsTo('App\Models\Building');
     }
 
     public function type ()
@@ -195,6 +195,16 @@ class Ticket extends BaseModel
     public function customer ()
     {
         return $this->belongsTo( 'App\Models\Customer', 'phone', 'phone' );
+    }
+
+    public function customerTickets ()
+    {
+        return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
+    }
+
+    public function neighborsTickets ()
+    {
+        return $this->hasMany( 'App\Models\Ticket', 'building_id', 'building_id' );
     }
 
     public function childs ()
@@ -248,9 +258,9 @@ class Ticket extends BaseModel
         return $query
             ->where( function ( $q ) use ( $ignoreStatuses )
             {
-                $q->whereHas( 'region', function ( $region )
+                $q->whereHas( 'provider', function ( $provider )
                 {
-                    return $region
+                    return $provider
 						->mine()
 						->current();
                 });
@@ -300,27 +310,31 @@ class Ticket extends BaseModel
                     ->orWhere( self::$_table . '.phone2', '=', mb_substr( preg_replace( '/\D/', '', $eq ), - 10 ) )
                     ->orWhere( self::$_table . '.text', 'like', $like )
                     ->orWhere( self::$_table . '.flat', '=', $eq )
-                    ->orWhereHas( 'author', function ( $q2 ) use ( $like )
+                    ->orWhereHas( 'author', function ( $author ) use ( $like )
                     {
-                        return $q2
+                        return $author
                             ->where( User::$_table . '.firstname', 'like', $like )
                             ->orWhere( User::$_table . '.middlename', 'like', $like )
                             ->orWhere( User::$_table . '.lastname', 'like', $like );
                     })
-                    ->orWhereHas( 'address', function ( $q2 ) use ( $like )
+                    ->orWhereHas( 'building', function ( $building ) use ( $like )
                     {
-                        return $q2->where( Address::$_table . '.name', 'like', $like );
+                        return $building
+                            ->where( Building::$_table . '.name', 'like', $like );
                     })
-                    ->orWhereHas( 'managements', function ( $q2 ) use ( $like )
+                    ->orWhereHas( 'managements', function ( $managements ) use ( $like )
                     {
-                        return $q2->whereHas( 'management', function ( $q3 ) use ( $like )
-                        {
-                            return $q3->where( Management::$_table . '.name', 'like', $like );
-                        });
+                        return $managements
+                            ->whereHas( 'management', function ( $management ) use ( $like )
+                            {
+                                return $management
+                                    ->where( Management::$_table . '.name', 'like', $like );
+                            });
                     })
-                    ->orWhereHas( 'type', function ( $q2 ) use ( $like )
+                    ->orWhereHas( 'type', function ( $type ) use ( $like )
                     {
-                        return $q2->where( Type::$_table . '.name', 'like', $like );
+                        return $type
+                            ->where( Type::$_table . '.name', 'like', $like );
                     });
             });
     }
@@ -402,7 +416,7 @@ class Ticket extends BaseModel
 			{
 				return $res;
 			}
-            if ( ( isset( $attributes[ 'lastname' ] ) || isset( $attributes[ 'firstname' ] ) || isset( $attributes[ 'middlename' ] ) || isset( $attributes[ 'actual_address_id' ] ) || isset( $attributes[ 'actual_flat' ] ) || isset( $attributes[ 'phone' ] ) || isset( $attributes[ 'phone2' ] ) ) && $this->customer )
+            if ( ( isset( $attributes[ 'lastname' ] ) || isset( $attributes[ 'firstname' ] ) || isset( $attributes[ 'middlename' ] ) || isset( $attributes[ 'actual_building_id' ] ) || isset( $attributes[ 'actual_flat' ] ) || isset( $attributes[ 'phone' ] ) || isset( $attributes[ 'phone2' ] ) ) && $this->customer )
             {
                 $res = $this->customer->edit( $attributes );
                 if ( $res instanceof MessageBag )
@@ -557,9 +571,9 @@ class Ticket extends BaseModel
     public function getAddress ( $with_place = false )
     {
         $addr = '';
-        if ( $this->address )
+        if ( $this->building )
         {
-            $addr .= $this->address->getAddress();
+            $addr .= $this->building->name;
         }
 		if ( $this->flat )
 		{
@@ -575,9 +589,9 @@ class Ticket extends BaseModel
     public function getActualAddress ()
     {
         $addr = '';
-        if ( $this->actualAddress )
+        if ( $this->actualBuilding )
         {
-            $addr .= $this->actualAddress->name;
+            $addr .= $this->actualBuilding->name;
         }
         if ( $this->actual_flat )
         {
@@ -637,26 +651,59 @@ class Ticket extends BaseModel
 
     }
 
+    public function overdueDeadlineAcceptance ()
+    {
+        if ( $this->deadline_acceptance && ( $this->accepted_at ?? Carbon::now() )->timestamp > $this->deadline_acceptance->timestamp )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public function overdueDeadlineExecution ()
+    {
+        if ( $this->overdueDeadlinePostponed() && $this->deadline_execution && ( $this->completed_at ?? Carbon::now() )->timestamp > $this->deadline_execution->timestamp )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public function overdueDeadlinePostponed ()
+    {
+        if ( $this->status_code == 'waiting' && $this->postponed_to && $this->postponed_to->timestamp < Carbon::now()->timestamp )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public function getClass ()
     {
-        $now = Carbon::now();
         switch ( $this->status_code )
         {
             case 'transferred':
             case 'transferred_again':
-                if ( $this->deadline_acceptance && ( $this->accepted_at ?? $now )->timestamp > $this->deadline_acceptance->timestamp )
-                {
-                    return 'danger';
-                }
-                return 'warning';
+                return $this->overdueDeadlineAcceptance() ? 'danger' : 'warning';
                 break;
             case 'accepted':
             case 'assigned':
-                if ( $this->deadline_execution && ( $this->completed_at ?? $now )->timestamp > $this->deadline_execution->timestamp )
+                return $this->overdueDeadlineExecution() ? 'danger' : 'success';
+                break;
+            case 'waiting':
+                if ( $this->overdueDeadlinePostponed() )
                 {
                     return 'danger';
                 }
-                return 'success';
                 break;
             case 'not_verified':
             case 'cancel':

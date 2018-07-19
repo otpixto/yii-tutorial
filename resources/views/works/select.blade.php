@@ -61,7 +61,7 @@
 @can ( 'works.show' )
     <div class="margin-top-10">
         <a href="{{ route( 'works.index' ) }}" target="_blank" class="btn btn-primary">
-            Показать все работы на сетях за текущий период
+            Показать все отключения за текущий период
         </a>
     </div>
 @endcan

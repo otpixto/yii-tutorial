@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Asterisk\Cdr;
-use Illuminate\Support\MessageBag;
 
 class Customer extends BaseModel
 {
@@ -16,34 +15,22 @@ class Customer extends BaseModel
     private $_calls = null;
     private $_limit = null;
 
-    public static $rules = [
-        'region_id'             => 'nullable|integer',
-        'firstname'             => 'required|max:191',
-        'middlename'            => 'nullable|max:191',
-        'lastname'              => 'required|max:191',
-        'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'actual_address_id'     => 'nullable|integer',
-        'actual_flat'           => 'nullable|string',
-        'email'                 => 'nullable|email',
-    ];
-
     protected $nullable = [
-        'region_id',
+        'provider_id',
         'email',
 		'middlename',
-		'actual_address_id',
+		'actual_building_id',
         'actual_flat',
     ];
 
     protected $fillable = [
-        'region_id',
+        'provider_id',
         'firstname',
         'middlename',
         'lastname',
         'phone',
         'phone2',
-        'actual_address_id',
+        'actual_building_id',
         'actual_flat',
         'email',
     ];
@@ -58,14 +45,14 @@ class Customer extends BaseModel
         return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
     }
 
-    public function actualAddress ()
+    public function actualBuilding ()
     {
-        return $this->belongsTo( 'App\Models\Address' );
+        return $this->belongsTo('App\Models\Building');
     }
 
-    public function region ()
+    public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Region' );
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
     public function calls ( $limit = null )
@@ -103,9 +90,9 @@ class Customer extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereHas( 'region', function ( $q )
+            ->whereHas( 'provider', function ( $provider )
             {
-                return $q
+                return $provider
                     ->mine()
                     ->current();
             });
@@ -165,6 +152,24 @@ class Customer extends BaseModel
         }
         return implode( ' ', $name );
     }
+
+    public function getShortName ()
+    {
+        $name = [];
+        if ( ! empty( $this->lastname ) )
+        {
+            $name[] = $this->lastname;
+        }
+        if ( ! empty( $this->firstname ) )
+        {
+            $name[] = mb_substr( $this->firstname, 0, 1 ) . '.';
+        }
+        if ( ! empty( $this->middlename ) )
+        {
+            $name[] = mb_substr( $this->middlename, 0, 1 ) . '.';
+        }
+        return implode( ' ', $name );
+    }
 	
 	public function getPhones ( $html = false )
     {
@@ -193,12 +198,12 @@ class Customer extends BaseModel
         return $phones;
     }
 
-    public function getAddress ()
+    public function getActualAddress ()
     {
         $addr = '';
-        if ( $this->actualAddress )
+        if ( $this->actualBuilding )
         {
-            $addr .= $this->actualAddress->getAddress();
+            $addr .= $this->actualBuilding->name;
         }
         if ( $this->actual_flat )
         {

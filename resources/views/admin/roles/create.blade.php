@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ 'Роли', route( 'roles.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}

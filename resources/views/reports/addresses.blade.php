@@ -46,7 +46,7 @@
     <div class="form-group">
         {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'address_id', $address, $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::select( 'address_id', $address, $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
     <div class="form-group">

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Address;
+use App\Models\Building;
 use Illuminate\Console\Command;
 use Illuminate\Support\MessageBag;
 
@@ -38,11 +38,11 @@ class ImportAddress extends Command
 
         \DB::beginTransaction();
 
-        $addresses = Address::all();
+        $addresses = Building::all();
         foreach ( $addresses as $address )
         {
-            $hash = Address::genHash( $address->name );
-            $addr = Address::where( 'hash', '=', $hash )->count();
+            $hash = Building::genHash( $address->name );
+            $addr = Building::where( 'hash', '=', $hash )->count();
             if ( ! $addr )
             {
                 $address->hash = $hash;
@@ -59,14 +59,14 @@ class ImportAddress extends Command
                 {
                     $address_name .= ', ' . trim( $data[1] );
                 }
-                $address = Address
+                $address = Building
                     ::search( $address_name )
                     ->first();
                 if ( ! $address )
                 {
-                    $address = Address::create([
+                    $address = Building::create([
                         'name' => $address_name,
-                        'region_id' => 6
+                        'provider_id' => 6
                     ]);
                     if ( $address instanceof MessageBag )
                     {
@@ -74,9 +74,9 @@ class ImportAddress extends Command
                     }
                     $address->save();
                 }
-                if ( ! $address->regions->contains( 'id', 6 ) )
+                if ( ! $address->providers->contains( 'id', 6 ) )
                 {
-                    $address->regions()->attach( 6 );
+                    $address->providers()->attach( 6 );
                 }
             }
             fclose( $handle );
@@ -91,14 +91,14 @@ class ImportAddress extends Command
                 {
                     $address_name .= ', ' . trim( $data[1] );
                 }
-                $address = Address
+                $address = Building
                     ::search( $address_name )
                     ->first();
                 if ( ! $address )
                 {
-                    $address = Address::create([
+                    $address = Building::create([
                         'name' => $address_name,
-                        'region_id' => 6
+                        'provider_id' => 6
                     ]);
                     if ( $address instanceof MessageBag )
                     {
@@ -106,9 +106,9 @@ class ImportAddress extends Command
                     }
                     $address->save();
                 }
-                if ( ! $address->regions->contains( 'id', 6 ) )
+                if ( ! $address->providers->contains( 'id', 6 ) )
                 {
-                    $address->regions()->attach( 6 );
+                    $address->providers()->attach( 6 );
                 }
             }
             fclose( $handle );

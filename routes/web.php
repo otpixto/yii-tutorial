@@ -72,6 +72,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::get( '/binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
 
+        Route::get( 'loginas/{user_id}', 'ProfileController@loginas' )->name( 'loginas' );
+
         Route::prefix( 'profile' )->group( function ()
         {
             Route::get( 'phone', 'ProfileController@getPhone' )->name( 'profile.phone' );
@@ -86,10 +88,20 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::prefix( 'works' )->group( function ()
         {
             Route::post( 'search', 'Operator\WorksController@search' )->name( 'works.search' );
+            Route::post( 'filter', 'Operator\WorksController@filter' )->name( 'works.filter' );
         });
 
         Route::prefix( 'tickets' )->group( function ()
         {
+
+            Route::get( 'calendar/{date}', 'Operator\TicketsController@calendar' )->name( 'tickets.calendar' );
+            Route::post( 'calendar', 'Operator\TicketsController@calendarData' )->name( 'tickets.calendar_data' );
+
+            Route::get( '{ticket_id}/neighbors', 'Operator\TicketsController@neighborsTickets' )->name( 'tickets.neighbors' );
+            Route::get( '{ticket_id}/customers', 'Operator\TicketsController@customersTickets' )->name( 'tickets.customers' );
+
+            Route::get( '{ticket_id}/postpone', 'Operator\TicketsController@postpone' )->name( 'tickets.postpone' );
+
             Route::post( 'export', 'Operator\TicketsController@export' )->name( 'tickets.export' );
             Route::get( 'rate/{ticket_management_id}', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
             Route::post( 'rate/{ticket_management_id}', 'Operator\TicketsController@postRateForm' )->name( 'tickets.rate' );
@@ -101,7 +113,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );
             Route::post( 'tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
             Route::post( 'tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
-            Route::get( 'customers/{customer_id}', 'Operator\TicketsController@customerTickets' )->name( 'tickets.customers' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
             Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutorForm' )->name( 'tickets.executor' );
             Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutorForm' )->name( 'tickets.executor' );
@@ -112,6 +123,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::get( '{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
+
         });
 
         Route::prefix( 'reports' )->group( function ()
@@ -134,36 +146,45 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::prefix( 'data' )->group( function ()
         {
-            Route::get( 'addresses', 'Operator\DataController@addresses' )->name( 'data.addresses' );
-            Route::get( 'works-addresses', 'Operator\DataController@worksAddresses' )->name( 'data.works_addresses' );
+            Route::get( 'buildings', 'Operator\DataController@buildings' )->name( 'data.buildings' );
+            Route::get( 'works-buildings', 'Operator\DataController@worksBuildings' )->name( 'data.works_buildings' );
         });
 
         Route::prefix( 'catalog' )->group( function ()
         {
+
+            Route::get( 'segments/tree', 'Catalog\SegmentsController@tree' )->name( 'segments.tree' );
+
+            Route::resource( 'users', 'Catalog\UsersController' );
             Route::resource( 'managements', 'Catalog\ManagementsController' );
             Route::resource( 'customers', 'Catalog\CustomersController' );
             Route::resource( 'types', 'Catalog\TypesController' );
-            Route::resource( 'addresses', 'Catalog\AddressesController' );
+            Route::resource( 'segments', 'Catalog\SegmentsController' );
+            Route::resource( 'buildings', 'Catalog\BuildingsController' );
             Route::resource( 'categories', 'Catalog\CategoriesController' );
+
             Route::get( 'clear-cache', 'Catalog\BaseController@clearCacheAndRedirect' )->name( 'catalog.clear_cache' );
 
-            Route::post( 'addresses/search', 'Catalog\AddressesController@search' )->name( 'addresses.search' );
-            Route::get( 'addresses/{address_id}/managements', 'Catalog\AddressesController@managements' )->name( 'addresses.managements' );
-            Route::post( 'addresses/{address_id}/managements/search', 'Catalog\AddressesController@managementsSearch' )->name( 'addresses.managements.search' );
-            Route::put( 'addresses/{address_id}/managements/add', 'Catalog\AddressesController@managementsAdd' )->name( 'addresses.managements.add' );
-            Route::delete( 'addresses/{address_id}/managements/del', 'Catalog\AddressesController@managementsDel' )->name( 'addresses.managements.del' );
-            Route::get( 'addresses/{address_id}/regions', 'Catalog\AddressesController@regions' )->name( 'addresses.regions' );
-            Route::put( 'addresses/{address_id}/regions/add', 'Catalog\AddressesController@regionsAdd' )->name( 'addresses.regions.add' );
-            Route::delete( 'addresses/{address_id}/regions/del', 'Catalog\AddressesController@regionsDel' )->name( 'addresses.regions.del' );
+            Route::post( 'segments/search', 'Catalog\SegmentsController@search' )->name( 'segments.search' );
+
+            Route::post( 'buildings/search', 'Catalog\BuildingsController@search' )->name( 'buildings.search' );
+            Route::get( 'buildings/{building_id}/managements', 'Catalog\BuildingsController@managements' )->name( 'buildings.managements' );
+            Route::post( 'buildings/{building_id}/managements/search', 'Catalog\BuildingsController@managementsSearch' )->name( 'buildings.managements.search' );
+            Route::put( 'buildings/{building_id}/managements/add', 'Catalog\BuildingsController@managementsAdd' )->name( 'buildings.managements.add' );
+            Route::delete( 'buildings/{building_id}/managements/del', 'Catalog\BuildingsController@managementsDel' )->name( 'buildings.managements.del' );
+            Route::delete( 'buildings/{building_id}/managements/empty', 'Catalog\BuildingsController@managementsEmpty' )->name( 'buildings.managements.empty' );
+            Route::get( 'buildings/{building_id}/providers', 'Catalog\BuildingsController@providers' )->name( 'buildings.providers' );
+            Route::put( 'buildings/{building_id}/providers/add', 'Catalog\BuildingsController@providersAdd' )->name( 'buildings.providers.add' );
+            Route::delete( 'buildings/{building_id}/providers/del', 'Catalog\BuildingsController@providersDel' )->name( 'buildings.providers.del' );
+            Route::delete( 'buildings/{building_id}/providers/empty', 'Catalog\BuildingsController@providersEmpty' )->name( 'buildings.providers.empty' );
 
             Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
             Route::get( 'types/{type_id}/managements', 'Catalog\TypesController@managements' )->name( 'types.managements' );
             Route::post( 'types/{type_id}/managements/search', 'Catalog\TypesController@managementsSearch' )->name( 'types.managements.search' );
             Route::put( 'types/{type_id}/managements/add', 'Catalog\TypesController@managementsAdd' )->name( 'types.managements.add' );
             Route::delete( 'types/{type_id}/managements/del', 'Catalog\TypesController@managementsDel' )->name( 'types.managements.del' );
+            Route::delete( 'types/{type_id}/managements/empty', 'Catalog\TypesController@managementsEmpty' )->name( 'types.managements.empty' );
 
-			Route::get( 'executors/search', 'Catalog\ManagementsController@executors' )->name( 'managements.executors.search' );
-			
             Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
             Route::post( 'managements/{management_id}/telegram/unsubscribe', 'Catalog\ManagementsController@telegramUnsubscribe' )->name( 'managements.telegram.unsubscribe' );
             Route::post( 'managements/{management_id}/telegram/on', 'Catalog\ManagementsController@telegramOn' )->name( 'managements.telegram.on' );
@@ -171,41 +192,67 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'managements/{management_id}/types', 'Catalog\ManagementsController@types' )->name( 'managements.types' );
             Route::put( 'managements/{management_id}/types/add', 'Catalog\ManagementsController@typesAdd' )->name( 'managements.types.add' );
             Route::delete( 'managements/{management_id}/types/del', 'Catalog\ManagementsController@typesDel' )->name( 'managements.types.del' );
-            Route::get( 'managements/{management_id}/addresses', 'Catalog\ManagementsController@addresses' )->name( 'managements.addresses' );
-            Route::post( 'managements/{management_id}/addresses/search', 'Catalog\ManagementsController@addressesSearch' )->name( 'managements.addresses.search' );
-            Route::put( 'managements/{management_id}/addresses/add', 'Catalog\ManagementsController@addressesAdd' )->name( 'managements.addresses.add' );
-            Route::delete( 'managements/{management_id}/addresses/del', 'Catalog\ManagementsController@addressesDel' )->name( 'managements.addresses.del' );
+            Route::delete( 'managements/{management_id}/types/empty', 'Catalog\ManagementsController@typesEmpty' )->name( 'managements.types.empty' );
+            Route::get( 'managements/{management_id}/buildings', 'Catalog\ManagementsController@buildings' )->name( 'managements.buildings' );
+            Route::post( 'managements/{management_id}/buildings/search', 'Catalog\ManagementsController@buildingsSearch' )->name( 'managements.buildings.search' );
+            Route::put( 'managements/{management_id}/buildings/add', 'Catalog\ManagementsController@buildingsAdd' )->name( 'managements.buildings.add' );
+            Route::put( 'managements/{management_id}/segments/add', 'Catalog\ManagementsController@segmentsAdd' )->name( 'managements.segments.add' );
+            Route::delete( 'managements/{management_id}/buildings/del', 'Catalog\ManagementsController@buildingsDel' )->name( 'managements.buildings.del' );
+            Route::delete( 'managements/{management_id}/buildings/empty', 'Catalog\ManagementsController@buildingsEmpty' )->name( 'managements.buildings.empty' );
+            Route::get( 'managements/{management_id}/executors', 'Catalog\ManagementsController@executors' )->name( 'managements.executors' );
+            Route::post( 'managements/{management_id}/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
+            Route::put( 'managements/{management_id}/executors/add', 'Catalog\ManagementsController@executorsAdd' )->name( 'managements.executors.add' );
+            Route::delete( 'managements/{management_id}/executors/del', 'Catalog\ManagementsController@executorsDel' )->name( 'managements.executors.del' );
+            Route::delete( 'managements/{management_id}/executors/empty', 'Catalog\ManagementsController@executorsEmpty' )->name( 'managements.executors.empty' );
+
+            Route::get( 'managements/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
 
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
+
+            Route::post( 'users/{user_id}/managements/search', 'Catalog\UsersController@managementsSearch' )->name( 'users.managements.search' );
+            Route::get( 'users/{user_id}/logs', 'Catalog\UsersController@logs' )->name( 'users.logs' );
+            Route::get( 'users/{user_id}/providers', 'Catalog\UsersController@providers' )->name( 'users.providers' );
+            Route::put( 'users/{user_id}/providers/add', 'Catalog\UsersController@providersAdd' )->name( 'users.providers.add' );
+            Route::delete( 'users/{user_id}/providers/del', 'Catalog\UsersController@providersDel' )->name( 'users.providers.del' );
+            Route::get( 'users/{user_id}/perms', 'Catalog\UsersController@perms' )->name( 'users.perms' );
+            Route::put( 'users/{user_id}/perms/update', 'Catalog\UsersController@permsUpdate' )->name( 'users.perms.update' );
+            Route::put( 'users/{user_id}/roles/update', 'Catalog\UsersController@rolesUpdate' )->name( 'users.roles.update' );
+            Route::get( 'users/{user_id}/managements', 'Catalog\UsersController@managements' )->name( 'users.managements' );
+            Route::put( 'users/{user_id}/managements/add', 'Catalog\UsersController@managementsAdd' )->name( 'users.managements.add' );
+            Route::delete( 'users/{user_id}/managements/del', 'Catalog\UsersController@managementsDel' )->name( 'users.managements.del' );
+            Route::put( 'users/{user_id}/change-password', 'Catalog\UsersController@changePassword' )->name( 'users.change_password' );
+            Route::put( 'users/{user_id}/upload-photo', 'Catalog\UsersController@uploadPhoto' )->name( 'users.upload_photo' );
+
         });
 
         Route::prefix( 'admin' )->group( function ()
         {
-            Route::resource( 'users', 'Admin\UsersController' );
+
             Route::resource( 'roles', 'Admin\RolesController' );
             Route::resource( 'perms', 'Admin\PermsController' );
             Route::resource( 'logs', 'Admin\LogsController' );
+            Route::resource( 'providers', 'Admin\ProvidersController' );
             Route::resource( 'sessions', 'Admin\SessionsController' );
             Route::resource( 'calls', 'Admin\CallsController' );
-            Route::resource( 'regions', 'Admin\RegionsController' );
-            Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
-			
-			Route::get( 'loginas/{user_id}', 'Admin\UsersController@loginas' )->name( 'loginas' );
 
-            Route::get( 'regions/{region_id}/addresses', 'Admin\RegionsController@addresses' )->name( 'regions.addresses' );
-            Route::post( 'regions/{region_id}/address/search', 'Admin\RegionsController@addressesSearch' )->name( 'regions.addresses.search' );
-            Route::put( 'regions/{region_id}/addresses/add', 'Admin\RegionsController@addressesAdd' )->name( 'regions.addresses.add' );
-            Route::delete( 'regions/{region_id}/addresses/del', 'Admin\RegionsController@addressesDel' )->name( 'regions.addresses.del' );
-            Route::get( 'regions/{region_id}/managements', 'Admin\RegionsController@managements' )->name( 'regions.managements' );
-            Route::post( 'regions/{region_id}/managements/search', 'Admin\RegionsController@managementsSearch' )->name( 'regions.managements.search' );
-            Route::put( 'regions/{region_id}/managements/add', 'Admin\RegionsController@managementsAdd' )->name( 'regions.managements.add' );
-            Route::delete( 'regions/{region_id}/managements/del', 'Admin\RegionsController@managementsDel' )->name( 'regions.managements.del' );
-            Route::get( 'regions/{region_id}/types', 'Admin\RegionsController@types' )->name( 'regions.types' );
-            Route::put( 'regions/{region_id}/types/add', 'Admin\RegionsController@typesAdd' )->name( 'regions.types.add' );
-            Route::delete( 'regions/{region_id}/types/del', 'Admin\RegionsController@typesDel' )->name( 'regions.types.del' );
-            Route::put( 'regions/{region_id}/phones/add', 'Admin\RegionsController@phonesAdd' )->name( 'regions.phones.add' );
-            Route::delete( 'regions/{region_id}/phones/del', 'Admin\RegionsController@phonesDel' )->name( 'regions.phones.del' );
+            Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
+
+            Route::get( 'providers/{provider_id}/buildings', 'Admin\ProvidersController@buildings' )->name( 'providers.buildings' );
+            Route::post( 'providers/{provider_id}/buildings/search', 'Admin\ProvidersController@buildingsSearch' )->name( 'providers.buildings.search' );
+            Route::put( 'providers/{provider_id}/buildings/add', 'Admin\ProvidersController@buildingsAdd' )->name( 'providers.buildings.add' );
+            Route::delete( 'providers/{provider_id}/buildings/del', 'Admin\ProvidersController@buildingsDel' )->name( 'providers.buildings.del' );
+            Route::delete( 'providers/{provider_id}/buildings/empty', 'Admin\ProvidersController@buildingsEmpty' )->name( 'providers.buildings.empty' );
+            Route::get( 'providers/{provider_id}/managements', 'Admin\ProvidersController@managements' )->name( 'providers.managements' );
+            Route::post( 'providers/{provider_id}/managements/search', 'Admin\ProvidersController@managementsSearch' )->name( 'providers.managements.search' );
+            Route::put( 'providers/{provider_id}/managements/add', 'Admin\ProvidersController@managementsAdd' )->name( 'providers.managements.add' );
+            Route::delete( 'providers/{provider_id}/managements/del', 'Admin\ProvidersController@managementsDel' )->name( 'providers.managements.del' );
+            Route::get( 'providers/{provider_id}/types', 'Admin\ProvidersController@types' )->name( 'providers.types' );
+            Route::put( 'providers/{provider_id}/types/add', 'Admin\ProvidersController@typesAdd' )->name( 'providers.types.add' );
+            Route::delete( 'providers/{provider_id}/types/del', 'Admin\ProvidersController@typesDel' )->name( 'providers.types.del' );
+            Route::delete( 'providers/{provider_id}/types/empty', 'Admin\ProvidersController@typesEmpty' )->name( 'providers.types.empty' );
+            Route::put( 'providers/{provider_id}/phones/add', 'Admin\ProvidersController@phonesAdd' )->name( 'providers.phones.add' );
+            Route::delete( 'providers/{provider_id}/phones/del', 'Admin\ProvidersController@phonesDel' )->name( 'providers.phones.del' );
 
             Route::get( 'roles/{role_id}/perms', 'Admin\RolesController@perms' )->name( 'roles.perms' );
             Route::put( 'roles/{role_id}/perms', 'Admin\RolesController@updatePerms' );
@@ -217,19 +264,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'perms/{perm_id}/users/add', 'Admin\PermsController@usersAdd' )->name( 'perms.users.add' );
             Route::delete( 'perms/{perm_id}/users/del', 'Admin\PermsController@usersDel' )->name( 'perms.users.del' );
 
-            Route::post( 'users/{user_id}/managements/search', 'Admin\UsersController@managementsSearch' )->name( 'users.managements.search' );
-            Route::get( 'users/{user_id}/logs', 'Admin\UsersController@logs' )->name( 'users.logs' );
-            Route::get( 'users/{user_id}/regions', 'Admin\UsersController@regions' )->name( 'users.regions' );
-            Route::put( 'users/{user_id}/regions/add', 'Admin\UsersController@regionsAdd' )->name( 'users.regions.add' );
-            Route::delete( 'users/{user_id}/regions/del', 'Admin\UsersController@regionsDel' )->name( 'users.regions.del' );
-            Route::get( 'users/{user_id}/perms', 'Admin\UsersController@perms' )->name( 'users.perms' );
-            Route::put( 'users/{user_id}/perms/update', 'Admin\UsersController@permsUpdate' )->name( 'users.perms.update' );
-            Route::put( 'users/{user_id}/roles/update', 'Admin\UsersController@rolesUpdate' )->name( 'users.roles.update' );
-            Route::get( 'users/{user_id}/managements', 'Admin\UsersController@managements' )->name( 'users.managements' );
-            Route::put( 'users/{user_id}/managements/add', 'Admin\UsersController@managementsAdd' )->name( 'users.managements.add' );
-            Route::delete( 'users/{user_id}/managements/del', 'Admin\UsersController@managementsDel' )->name( 'users.managements.del' );
-            Route::put( 'users/{user_id}/change-password', 'Admin\UsersController@changePassword' )->name( 'users.change_password' );
-            Route::put( 'users/{user_id}/upload-photo', 'Admin\UsersController@uploadPhoto' )->name( 'users.upload_photo' );
         });
 
     });

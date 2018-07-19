@@ -33,7 +33,7 @@
                     <div class="col-md-10">
                         <div class="row">
                             <div class="col-xs-10">
-                                {!! Form::select( 'address_id', $address, \Input::get( 'address_id' ), [ 'id' => 'address_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
+                                {!! Form::select( 'building_id', $building, \Input::get( 'building_id' ), [ 'id' => 'building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
                             </div>
                             <div class="col-xs-2">
                                 <div class="input-group">
@@ -42,6 +42,21 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row margin-top-10">
+                    <h4 class="col-md-2">
+                        Сегмент
+                    </h4>
+                    <div class="col-md-10">
+                        <span id="segment" class="form-control text-muted">
+                            @if ( $segment )
+                                {{ $segment->name }}
+                            @else
+                                Нажмите, чтобы выбрать
+                            @endif
+                        </span>
+                        {!! Form::hidden( 'segment_id', \Input::old( 'segment_id', $segment->id ?? null ), [ 'id' => 'segment_id' ] ) !!}
                     </div>
                 </div>
                 <hr />
@@ -70,7 +85,7 @@
                     <div class="col-md-10">
                         <div class="row">
                             <div class="col-xs-10">
-                                {!! Form::select( 'actual_address_id', $actual_address, \Input::get( 'actual_address_id' ), [ 'id' => 'actual_address_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес заявителя' ] ) !!}
+                                {!! Form::select( 'actual_building_id', $actual_building, \Input::get( 'actual_building_id' ), [ 'id' => 'actual_building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания' ] ) !!}
                             </div>
                             <div class="col-xs-2">
                                 <div class="input-group">
@@ -91,27 +106,55 @@
                 </div>
                 <div style="display: none;" id="additional-search">
                     <hr />
-                    @if ( count( $regions ) > 1 )
+                    @if ( count( $providers ) > 1 )
                         <div class="row margin-top-10">
                             <h4 class="col-md-2">
-                                Регион
+                                Поставщик
                             </h4>
                             <div class="col-md-10">
-                                {!! Form::select( 'region_id', [ null => 'ВСЕ (' . count( $regions ) . ')' ] + $regions->toArray(), \Input::get( 'region_id' ), [ 'class' => 'form-control select2' ] ) !!}
+                                {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), \Input::get( 'provider_id' ), [ 'class' => 'form-control select2' ] ) !!}
                             </div>
                         </div>
                     @endif
                     <div class="row">
                         <h4 class="col-md-2">
-                            Период
+                            Периоды
                         </h4>
                         <div class="col-md-10">
                             <div class="row">
-                                <div class="col-xs-6 col-md-3">
-                                    {!! Form::text( 'period_from', \Input::get( 'period_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'От' ] ) !!}
+                                <div class="col-md-6">
+                                    <label>Дата создания</label>
+                                    <div class="input-group">
+                                        {!! Form::text( 'created_from', \Input::get( 'created_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                        <span class="input-group-addon">-</span>
+                                        {!! Form::text( 'created_to', \Input::get( 'created_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                    </div>
                                 </div>
-                                <div class="col-xs-6 col-md-3">
-                                    {!! Form::text( 'period_to', \Input::get( 'period_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'До' ] ) !!}
+                                <div class="col-md-6">
+                                    <label>Принято</label>
+                                    <div class="input-group">
+                                        {!! Form::text( 'accepted_from', \Input::get( 'accepted_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                        <span class="input-group-addon">-</span>
+                                        {!! Form::text( 'accepted_to', \Input::get( 'accepted_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Выполнено</label>
+                                    <div class="input-group">
+                                        {!! Form::text( 'completed_from', \Input::get( 'completed_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                        <span class="input-group-addon">-</span>
+                                        {!! Form::text( 'completed_to', \Input::get( 'completed_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Отложено</label>
+                                    <div class="input-group">
+                                        {!! Form::text( 'delayed_from', \Input::get( 'delayed_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                        <span class="input-group-addon">-</span>
+                                        {!! Form::text( 'delayed_to', \Input::get( 'delayed_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -154,11 +197,15 @@
                                 УО
                             </h4>
                             <div class="col-md-10">
-                                <select class="form-control select2" multiple="multiple" id="managements" name="managements[]">
-                                    @foreach ( $availableManagements as $management_id => $management_name )
-                                        <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements ) ) selected="selected" @endif>
-                                            {{ $management_name }}
-                                        </option>
+                                <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                                    @foreach ( $availableManagements as $management => $arr )
+                                        <optgroup label="{{ $management }}">
+                                            @foreach ( $arr as $management_id => $management_name )
+                                                <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements ) ) selected="selected" @endif>
+                                                    {{ $management_name }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
                                 </select>
                             </div>

@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ 'Телефонные сессии', route( 'sessions.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -11,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
+    @if ( \Auth::user()->can( 'catalog.sessions.show' ) )
 
         <div class="row margin-top-15">
             <div class="col-xs-12">

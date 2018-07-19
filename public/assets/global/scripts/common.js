@@ -115,6 +115,10 @@ var Modal = {
 		if ( simple && $( '#modals [data-id="' + id + '"] .modal-body form' ).length && ! $( '#modals [data-id="' + id + '"] .modal-footer :submit' ).length )
 		{
 			Modal.addSubmit( 'Готово', id );
+            $( '#modals [data-id="' + id + '"] .modal-body form' ).submit( function ( e )
+            {
+                Modal.onSubmit.call( this, e );
+            });
 		}
 		
 	},
@@ -138,7 +142,9 @@ var Modal = {
 	clear: function ()
 	{
 		$( '#modals' ).empty();
-	}
+	},
+
+    onSubmit: function ( e ) {}
 	
 };
 
@@ -208,10 +214,19 @@ $( document )
                 delay: 450,
                 data: function ( term )
                 {
-                    return {
+                    var data = {
                         q: term.term,
-                        region_id: $( '#region_id' ).val()
+                        provider_id: $( '#provider_id' ).val()
                     };
+                    var _data = $( this ).closest( 'form' ).serializeArray();
+                    for( var i = 0; i < _data.length; i ++ )
+                    {
+                        if ( _data[ i ].name != '_method' )
+                        {
+                            data[ _data[ i ].name ] = _data[ i ].value;
+                        }
+                    }
+                    return data;
                 },
                 processResults: function ( data, page )
                 {

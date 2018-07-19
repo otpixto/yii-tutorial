@@ -3,9 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ 'Права доступа', route( 'perms.index' ) ],
-        [ $perm->name, route( 'perms.edit', $perm->id ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection

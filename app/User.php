@@ -50,7 +50,7 @@ class User extends BaseModel implements
     ];
 
     public static $rules_create = [
-        'regions' => [
+        'providers' => [
             'required',
             'array',
         ],
@@ -112,9 +112,14 @@ class User extends BaseModel implements
         return $this->belongsToMany( 'App\Models\Management', 'users_managements' );
     }
 
-    public function regions ()
+    public function providers ()
     {
-        return $this->belongsToMany( 'App\Models\Region', 'users_regions' );
+        return $this->belongsToMany( 'App\Models\Provider', 'users_providers' );
+    }
+
+    public function tickets ()
+    {
+        return $this->hasMany( 'App\Models\Ticket', 'author_id' );
     }
 
     /**
@@ -156,9 +161,9 @@ class User extends BaseModel implements
         $user = parent::create( $attributes );
         $user->save();
 
-        if ( ! empty( $attributes[ 'regions' ] ) )
+        if ( ! empty( $attributes[ 'providers' ] ) )
         {
-            $user->regions()->attach( $attributes[ 'regions' ] );
+            $user->providers()->attach( $attributes[ 'providers' ] );
         }
 
         if ( ! empty( $attributes[ 'roles' ] ) )
@@ -190,8 +195,6 @@ class User extends BaseModel implements
             return $res;
         }
 
-        $this->regions()->sync( $attributes[ 'regions' ] ?? [] );
-
         return $this;
 
     }
@@ -208,67 +211,26 @@ class User extends BaseModel implements
 
     }
 
-    public function getName ()
+    public function getName ( $withPrefix = false )
     {
-        $name = $this->lastname . ' ' . $this->firstname . ' ' . $this->middlename;
+        $name = '';
+        if ( $withPrefix && ! empty( $this->prefix ) )
+        {
+            $name .= $this->prefix . ' ';
+        }
+        $name .= $this->lastname . ' ' . $this->firstname . ' ' . $this->middlename;
         return $name;
     }
 
-    public function getShortName ()
+    public function getShortName ( $withPrefix = false )
     {
-        $name = $this->lastname . ' ' . mb_substr( $this->firstname, 0, 1 ) . '. ' . mb_substr( $this->middlename, 0, 1 ) . '.';
+        $name = '';
+        if ( $withPrefix && ! empty( $this->prefix ) )
+        {
+            $name .= $this->prefix . ' ';
+        }
+        $name .= $this->lastname . ' ' . mb_substr( $this->firstname, 0, 1 ) . '. ' . mb_substr( $this->middlename, 0, 1 ) . '.';
         return $name;
-    }
-
-    public function getPosition ( $html = false )
-    {
-        $position = '';
-        if ( $this->prefix )
-        {
-            $position = $this->prefix;
-        }
-        else if ( $this->hasRole( 'control' ) )
-        {
-            $position = 'Контролирующий';
-        }
-        else if ( $this->hasRole( 'operator' ) )
-        {
-            $position = 'Оператор ЕДС';
-        }
-        elseif ( $this->hasRole( 'management' ) && $this->managements->count() )
-        {
-            $position = $this->managements->first()->name ?? '';
-        }
-        if ( $html )
-        {
-            return '<b class="text-info">[' . $position . ']</b>';
-        }
-        else
-        {
-            return $position;
-        }
-    }
-
-    public function getFullName ()
-    {
-        $return = $this->getName();
-        if ( $this->prefix )
-        {
-            $return = '<i>[' . $this->prefix . ']</i> ' . $return;
-        }
-        else if ( $this->hasRole( 'control' ) )
-        {
-            $return = '<i>[Контролирующий]</i> ' . $return;
-        }
-        else if ( $this->hasRole( 'operator' ) )
-        {
-            $return = '<i>[Оператор ЕДС]</i> ' . $return;
-        }
-        else if ( $this->hasRole( 'management' ) && $this->managements->count() )
-        {
-            $return = '<i>[' . $this->managements->first()->name . ']</i> ' . $return;
-        }
-        return $return;
     }
 
     public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )

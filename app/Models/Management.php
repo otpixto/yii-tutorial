@@ -27,7 +27,7 @@ class Management extends BaseModel
     ];
 
     protected $nullable = [
-        'region_id',
+        'provider_id',
         'address_id',
         'guid',
         'phone',
@@ -41,7 +41,7 @@ class Management extends BaseModel
     ];
 
     protected $fillable = [
-        'region_id',
+        'provider_id',
         'address_id',
         'name',
         'phone',
@@ -60,14 +60,19 @@ class Management extends BaseModel
         return $this->hasMany( 'App\Models\Executor' );
     }
 
-    public function addresses ()
+    public function buildings ()
     {
-        return $this->belongsToMany( 'App\Models\Address', 'managements_addresses' );
+        return $this->belongsToMany( 'App\Models\Building', 'managements_buildings' );
     }
 
-    public function address ()
+    public function parent ()
     {
-        return $this->belongsTo( 'App\Models\Address' );
+        return $this->belongsTo( 'App\Models\Management' );
+    }
+
+    public function building ()
+    {
+        return $this->belongsTo('App\Models\Building');
     }
 
     public function types ()
@@ -85,14 +90,9 @@ class Management extends BaseModel
         return $this->hasMany( 'App\Models\ManagementSubscription' );
     }
 
-    public function region ()
+    public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Region' );
-    }
-
-    public function regions ()
-    {
-        return $this->belongsToMany( 'App\Models\Region', 'regions_managements' );
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
     public function users ()
@@ -114,12 +114,12 @@ class Management extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         if ( ! \Auth::user() ) return false;
-		if ( ! in_array( self::IGNORE_REGION, $flags ) )
+		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
 		{
 			$query
-				->whereHas( 'regions', function ( $regions )
+				->whereHas( 'provider', function ( $provider )
 				{
-					return $regions
+					return $provider
 						->mine()
 						->current();
 				});

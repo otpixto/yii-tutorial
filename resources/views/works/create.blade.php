@@ -2,8 +2,8 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
-        [ 'Работы на сетях', route( 'works.index' ) ],
+        [ 'Главная', route( 'home' ) ],
+        [ 'Отключения', route( 'works.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -16,19 +16,19 @@
 
         <div class="col-lg-6">
 
-            @if ( $regions->count() > 1 )
+            @if ( $providers->count() > 1 )
                 <div class="form-group">
-                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    {!! Form::label( 'Поставщик', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
                     <div class="col-xs-9">
-                        {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Поставщик', 'data-placeholder' => 'Поставщик', 'required', 'autocomplete' => 'off' ] ) !!}
                     </div>
                 </div>
             @endif
 
             <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'buildings', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'address_id[]', $addresses->pluck( 'name', 'id' )->toArray(), $addresses->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес работ', 'required', 'multiple' ] ) !!}
+                    {!! Form::select( 'buildings[]', $buildings->pluck( 'name', 'id' )->toArray(), $buildings->pluck( 'id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес работ', 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 
@@ -285,7 +285,7 @@
                 }
             })
 
-            .on( 'change', '#region_id', function ( e )
+            .on( 'change', '#provider_id', function ( e )
             {
                 $( '#address_id' ).val( '' ).trigger( 'change' );
             });

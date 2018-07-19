@@ -12,9 +12,9 @@ class BaseModel extends Model
 
     use SoftDeletes;
 
-    protected $connection = 'eds';
+    protected $connection = 'eds_verin';
 
-    const IGNORE_REGION = 1;
+    const IGNORE_PROVIDER = 1;
     const IGNORE_ADDRESS = 2;
     const IGNORE_MANAGEMENT = 3;
 
@@ -113,9 +113,9 @@ class BaseModel extends Model
             ->where( 'model_name', '=', $model_name );
     }
 
-    public function region ()
+    public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Region' );
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
     public function author ()
@@ -139,9 +139,9 @@ class BaseModel extends Model
         {
             $new->author_id = \Auth::user()->id;
         }
-        if ( Schema::hasColumn( $new->getTable(), 'region_id' ) && ! $new->region_id && Region::getCurrent() )
+        if ( Schema::hasColumn( $new->getTable(), 'provider_id' ) && ! $new->provider_id && Provider::getCurrent() )
         {
-            $new->region_id = Region::$current_region->id;
+            $new->provider_id = Provider::$current->id;
         }
         return $new;
     }

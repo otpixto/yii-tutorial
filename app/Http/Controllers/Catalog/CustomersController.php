@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
-use App\Models\Address;
+use App\Models\Building;
 use App\Models\Customer;
-use App\Models\Region;
+use App\Models\Provider;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -22,7 +22,7 @@ class CustomersController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
-        $region = $request->get( 'region' );
+        $provider_id = $request->get( 'provider_id' );
 
         $customers = Customer
             ::mine()
@@ -43,18 +43,18 @@ class CustomersController extends BaseController
                         ->orWhere( Customer::$_table . '.lastname', 'like', $s )
                         ->orWhere( Customer::$_table . '.phone', '=', $p )
                         ->orWhere( Customer::$_table . '.phone2', '=', $p )
-                        ->orWhereHas( 'actualAddress', function ( $q2 ) use ( $s )
+                        ->orWhereHas( 'building', function ( $building ) use ( $s )
                         {
-                            return $q2
-                                ->where( Address::$_table . '.name', 'like', $s );
+                            return $building
+                                ->where( Building::$_table . '.name', 'like', $s );
                         });
                 });
         }
 
-        if ( ! empty( $region ) )
+        if ( ! empty( $provider_id ) )
         {
             $customers
-                ->where( 'region_id', '=', $region );
+                ->where( 'provider_id', '=', $provider_id );
         }
 
         if ( \Input::get( 'export' ) == 1 )
@@ -79,10 +79,10 @@ class CustomersController extends BaseController
             })->export( 'xls' );
         }
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
-            ->orderBy( Region::$_table . '.name' )
+            ->orderBy( Provider::$_table . '.name' )
             ->get();
 
         $customers = $customers
@@ -91,7 +91,7 @@ class CustomersController extends BaseController
 
         return view( 'catalog.customers.index' )
             ->with( 'customers', $customers )
-            ->with( 'regions', $regions );
+            ->with( 'providers', $providers );
 
     }
 
@@ -103,13 +103,13 @@ class CustomersController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить заявителя' );
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
             ->get();
         return view( 'catalog.customers.create' )
-            ->with( 'regions', $regions );
+            ->with( 'providers', $providers );
     }
 
     /**
@@ -121,7 +121,19 @@ class CustomersController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, Customer::$rules );
+        $rules = [
+            'provider_id'           => 'nullable|integer',
+            'firstname'             => 'required|max:191',
+            'middlename'            => 'nullable|max:191',
+            'lastname'              => 'required|max:191',
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'actual_building_id'    => 'nullable|integer',
+            'actual_flat'           => 'nullable|string',
+            'email'                 => 'nullable|email',
+        ];
+
+        $this->validate( $request, $rules );
 
         $customer = Customer::create( $request->all() );
         if ( $customer instanceof MessageBag )
@@ -198,7 +210,7 @@ class CustomersController extends BaseController
         $calls = $customer->calls( 30 );
         $tickets = $customer->tickets()->paginate( 30 );
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
@@ -207,7 +219,7 @@ class CustomersController extends BaseController
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
             ->with( 'tickets', $tickets )
-            ->with( 'regions', $regions )
+            ->with( 'providers', $providers )
             ->with( 'calls', $calls );
 
     }
@@ -222,15 +234,27 @@ class CustomersController extends BaseController
     public function update ( Request $request, $id )
     {
 
+        $rules = [
+            'provider_id'           => 'nullable|integer',
+            'firstname'             => 'required|max:191',
+            'middlename'            => 'nullable|max:191',
+            'lastname'              => 'required|max:191',
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'actual_building_id'    => 'nullable|integer',
+            'actual_flat'           => 'nullable|string',
+            'email'                 => 'nullable|email',
+        ];
+
+        $this->validate( $request, $rules );
+
         $customer = Customer::find( $id );
 
-        if ( !$customer )
+        if ( ! $customer )
         {
             return redirect()->route( 'customers.index' )
                 ->withErrors( [ 'Заявитель не найден' ] );
         }
-
-        $this->validate( $request, Customer::$rules );
 		
 		$res = $customer->edit( $request->all() );
 		if ( $res instanceof MessageBag )
@@ -262,7 +286,7 @@ class CustomersController extends BaseController
 
         $param = $request->get( 'param' );
         $value = trim( $request->get( 'value', '' ) );
-        $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
 
         switch ( $param )
         {
@@ -297,18 +321,18 @@ class CustomersController extends BaseController
                     ->name( $firstname, $middlename, $lastname )
                     ->select(
                         'phone',
-                        'actual_address_id',
-                        'actual_flat'
+                        'customer_building',
+                        'customer_flat'
                     );
-                if ( $region_id )
+                if ( $provider_id )
                 {
                     $customers
-                        ->where( 'region_id', '=', $region_id );
+                        ->where( 'provider_id', '=', $provider_id );
                 }
                 if ( $customers->count() == 1 )
                 {
                     $customer = $customers->first();
-                    $customer->actualAddress;
+                    $customer->building;
                 }
                 else
                 {
@@ -326,18 +350,18 @@ class CustomersController extends BaseController
                         'firstname',
                         'middlename',
                         'lastname',
-                        'actual_address_id',
+                        'actual_building_id',
                         'actual_flat'
                     );
-                if ( $region_id )
+                if ( $provider_id )
                 {
                     $customer
-                        ->where( 'region_id', '=', $region_id );
+                        ->where( 'provider_id', '=', $provider_id );
                 }
                 $customer = $customer->first();
                 if ( $customer )
                 {
-                    $customer->actualAddress;
+                    $customer->actualBuilding;
                 }
                 return $customer;
                 break;
@@ -346,10 +370,10 @@ class CustomersController extends BaseController
                 break;
         }
 
-        if ( $region_id )
+        if ( ! empty( $provider_id ) )
         {
             $customers
-                ->where( 'region_id', '=', $region_id );
+                ->where( 'provider_id', '=', $provider_id );
         }
 
         $customers = $customers

@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Classes\Gzhi;
-use App\Models\Address;
-use App\Models\Region;
+use App\Models\Building;
+use App\Models\Provider;
 use Illuminate\Console\Command;
 use Illuminate\Support\MessageBag;
 
@@ -19,21 +19,21 @@ class Sync extends Command
         $this->info( 'Добро пожаловать в программу для синхронизации с АИС ГЖИ!' );
         $this->info( 'Версия АИС ГЖИ ' . \Config::get( 'gzhi.version' ) );
 
-        $regions = Region
+        $providers = Provider
             ::orderBy( 'name' )
             ->whereNotNull( 'guid' )
             ->whereNotNull( 'username' )
             ->whereNotNull( 'password' )
             ->get();
-        $region = null;
+        $provider = null;
         $choice_all = ' -- ВСЕ -- ';
 
-        $choice = $this->choice('Выберите регион для синхронизации', array_merge( [ $choice_all ], $regions->pluck( 'name' )->toArray() ), 0 );
+        $choice = $this->choice('Выберите регион для синхронизации', array_merge( [ $choice_all ], $providers->pluck( 'name' )->toArray() ), 0 );
 
         if ( $choice != $choice_all )
         {
-            $region = $regions->where( 'name', $choice )->first();
-            $this->info( 'Выбрана синхронизация для региона "' . $region->name . '"' );
+            $provider = $providers->where( 'name', $choice )->first();
+            $this->info( 'Выбрана синхронизация для региона "' . $provider->name . '"' );
         }
         else
         {
@@ -45,18 +45,18 @@ class Sync extends Command
 
             case 'addresses':
 
-                if ( ! $region )
+                if ( ! $provider )
                 {
-                    foreach ( $regions as $region )
+                    foreach ( $provider as $provider )
                     {
-                        $this->info( 'Началась синхрониазация адресов для региона "' . $region->name . '"' );
-                        $this->syncAddresses( $region );
+                        $this->info( 'Началась синхрониазация адресов для региона "' . $provider->name . '"' );
+                        $this->syncAddresses( $provider );
                     }
                 }
                 else
                 {
-                    $this->info( 'Началась синхрониазация адресов для региона "' . $region->name . '"' );
-                    $this->syncAddresses( $region );
+                    $this->info( 'Началась синхрониазация адресов для региона "' . $provider->name . '"' );
+                    $this->syncAddresses( $provider );
                 }
 
             break;
@@ -66,21 +66,21 @@ class Sync extends Command
 
     }
 
-    public function syncAddresses ( Region $region )
+    public function syncAddresses ( Provider $provider )
     {
 
-        $client = new Gzhi( $region->getGzhiConfig() );
+        $client = new Gzhi( $provider->getGzhiConfig() );
 
         $rules = [
             'guid'                  => 'nullable|unique:addresses,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'region_id'             => 'required|integer',
+            'provider_id'           => 'required|integer',
             'name'                  => 'required|string|max:255|unique:addresses,name',
         ];
 
         try
         {
 
-            $this->info( 'Загружаю адреса для региона "' . $region->name . '"' );
+            $this->info( 'Загружаю адреса для региона "' . $provider->name . '"' );
             $response = $client->GetAddresses();
             //$response = $client->GetResult( 'b0019410-e4cd-11e7-82b7-05d37e8c944e' );
             $addresses = $response->Addresses;
@@ -92,7 +92,7 @@ class Sync extends Command
                 $bar->advance();
                 $attributes = [
                     'guid'          => $address->AddressGUID,
-                    'region_id'     => $region->id,
+                    'provider_id'   => $provider->id,
                     'name'          => $address->AddressName
                 ];
                 $v = \Validator::make( $attributes, $rules );
@@ -104,7 +104,7 @@ class Sync extends Command
                     }*/
                     continue;
                 }
-                $res = Address::create( $attributes );
+                $res = Building::create( $attributes );
                 if ( $res instanceof MessageBag )
                 {
                     /*foreach ( $res->errors()->all() as $error )

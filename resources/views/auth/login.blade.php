@@ -34,13 +34,13 @@
             </p>
         </div>
 
-        @if ( ! \App\Models\Region::isOperatorUrl() )
+        {{--@if ( ! \App\Models\Provider::isOperatorUrl() )
             <div class="create-account">
                 <p>
                     <a href="/register" id="register-btn" class="uppercase">Зарегистрироваться</a>
                 </p>
             </div>
-        @endif
+        @endif--}}
 
     {!! Form::close() !!}
     <!-- END LOGIN FORM -->

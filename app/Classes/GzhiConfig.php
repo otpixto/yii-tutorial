@@ -2,7 +2,7 @@
 
 namespace App\Classes;
 
-use App\Models\Region;
+use App\Models\Provider;
 use Mockery\Exception;
 
 class GzhiConfig
@@ -12,15 +12,15 @@ class GzhiConfig
     public $username;
     public $password;
 
-    public function __construct ( Region $region )
+    public function __construct ( Provider $provider )
     {
-        if ( ! $region->guid || ! $region->username || ! $region->password )
+        if ( ! $provider->guid || ! $provider->username || ! $provider->password )
         {
             throw new Exception( 'Некорректые данные' );
         }
-        $this->guid = $region->guid;
-        $this->username = $region->username;
-        $this->password = $region->password;
+        $this->guid = $provider->guid;
+        $this->username = $provider->username;
+        $this->password = $provider->password;
     }
 
 }

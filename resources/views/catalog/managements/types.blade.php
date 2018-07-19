@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Управляющие организации', route( 'managements.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -15,6 +14,11 @@
 
         <div class="well">
             <a href="{{ route( 'managements.edit', $management->id ) }}">
+                @if ( $management->parent )
+                    <div class="text-muted">
+                        {{ $management->parent->name }}
+                    </div>
+                @endif
                 {{ $management->name }}
             </a>
         </div>
@@ -22,6 +26,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
+                    <i class="fa fa-plus"></i>
                     Добавить Классификатор
                 </h3>
             </div>
@@ -29,16 +34,17 @@
                 {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.types.add', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                 <div class="form-group">
                     <div class="col-md-12">
-                        {!! Form::select( 'types[]', $allowedTypes, null, [ 'class' => 'form-control select2', 'multiple', 'id' => 'types' ] ) !!}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-12">
-                        <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                            <input name="select_all_types" id="select-all-types" type="checkbox" value="1" />
-                            <span></span>
-                            Выбрать все
-                        </label>
+                        <select class="mt-multiselect" multiple="multiple" data-label="left" id="types" name="types[]">
+                            @foreach ( $availableTypes as $category => $arr )
+                                <optgroup label="{{ $category }}">
+                                    @foreach ( $arr as $type_id => $type_name )
+                                        <option value="{{ $type_id }}">
+                                            {{ $type_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
@@ -51,12 +57,35 @@
         </div>
 
         <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-search"></i>
+                    Поиск
+                </h3>
+            </div>
+            <div class="panel-body">
+                {!! Form::open( [ 'method' => 'get', 'route' => [ 'managements.types', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::text( 'search', $search, [ 'class' => 'form-control' ] ) !!}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Найти', [ 'class' => 'btn btn-success' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
+            </div>
+        </div>
+
+        <div class="panel panel-default">
             <div class="panel-body">
 
                 {{ $managementTypes->render() }}
 
                 @if ( ! $managementTypes->count() )
-                    @include( 'parts.error', [ 'error' => 'Ничего не назначено' ] )
+                    @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                 @endif
                 @foreach ( $managementTypes as $r )
                     <div class="margin-bottom-5">
@@ -71,6 +100,14 @@
 
                 {{ $managementTypes->render() }}
 
+                {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.types.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                <div class="form-group margin-top-15">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
+
             </div>
         </div>
 
@@ -82,10 +119,37 @@
 
 @endsection
 
+@section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+@endsection
+
 @section( 'js' )
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
+
+            .ready( function ()
+            {
+
+                $( '.mt-multiselect' ).multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
+                });
+
+            })
 
             .on( 'click', '[data-delete="management-type"]', function ( e )
             {
@@ -136,20 +200,6 @@
                     }
                 });
 
-            })
-
-            .on( 'change', '#select-all-types', function ()
-            {
-                if ( $( this ).is( ':checked' ) )
-                {
-                    $( '#types > option' ).prop( 'selected', 'selected' );
-                    $( '#types' ).trigger( 'change' );
-                }
-                else
-                {
-                    $( '#types > option' ).removeAttr( 'selected' );
-                    $( '#types' ).trigger( 'change' );
-                }
             });
 
     </script>

@@ -2,8 +2,8 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
-        [ 'Работы на сетях', route( 'works.index' ) ],
+        [ 'Главная', route( 'home' ) ],
+        [ 'Отключения', route( 'works.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -20,7 +20,7 @@
                 {!! Form::label( null, 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->addresses->implode( 'name', '; ' ) }}
+                        {{ $work->buildings->implode( 'name', '; ' ) }}
                     </span>
                 </div>
             </div>

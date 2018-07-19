@@ -3,14 +3,13 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.calls' ) )
+    @if ( \Auth::user()->can( 'calls.show' ) )
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">

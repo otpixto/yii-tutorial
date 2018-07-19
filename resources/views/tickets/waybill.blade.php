@@ -44,12 +44,20 @@
         @foreach ( $ticketManagements as $ticketManagement )
 
             <div>
-                <h3 class="pull-left">
-                    {{ $ticketManagement->management->name }}
-                </h3>
-                <h4 class="pull-right">
-                    Наряд-заказ по заявке № {{ $ticketManagement->getTicketNumber() }}
+                <h4 class="pull-left h4">
+                    @if ( $ticketManagement->management->parent )
+                        {{ $ticketManagement->management->parent->name }}
+                        <div class="small">
+                            {{ $ticketManagement->management->name }}
+                        </div>
+                    @else
+                        {{ $ticketManagement->management->name }}
+                    @endif
+
                 </h4>
+                <h5 class="pull-right h5">
+                    Наряд-заказ по заявке № {{ $ticketManagement->getTicketNumber() }}
+                </h5>
             </div>
 
             <div class="clearfix"></div>

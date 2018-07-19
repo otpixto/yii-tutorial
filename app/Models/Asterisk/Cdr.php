@@ -2,7 +2,7 @@
 
 namespace App\Models\Asterisk;
 
-use App\Models\Region;
+use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 
@@ -65,10 +65,10 @@ class Cdr extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( Region::getCurrent() )
+        if ( Provider::getCurrent() )
         {
             $query
-                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Region::$current_region->phones()->pluck( 'phone' ) );
+                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Provider::$current->phones()->pluck( 'phone' ) );
         }
         return $query;
     }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\SegmentTree;
 use App\Classes\Title;
-use App\Models\Address;
-use App\Models\BaseModel;
+use App\Models\Building;
+use App\Models\Executor;
 use App\Models\Management;
-use App\Models\ManagementSubscription;
-use App\Models\Region;
+use App\Models\Provider;
+use App\Models\Segment;
+use App\Models\SegmentType;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -25,10 +27,10 @@ class ManagementsController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
-        $region = $request->get( 'region' );
-        $category = $request->get( 'category' );
-        $address = $request->get( 'address' );
-        $type = $request->get( 'type' );
+        $provider_id = $request->get( 'provider_id' );
+        $category_id = $request->get( 'category_id' );
+        $building_id = $request->get( 'building_id' );
+        $type_id = $request->get( 'type_id' );
 
         $managements = Management
             ::mine()
@@ -44,10 +46,10 @@ class ManagementsController extends BaseController
                     $q
                         ->where( Management::$_table . '.name', 'like', $s )
                         ->orWhere( Management::$_table . '.guid', 'like', $s )
-                        ->orWhereHas( 'address', function ( $q2 ) use ( $s )
+                        ->orWhereHas( 'building', function ( $building ) use ( $s )
                         {
-                            return $q2
-                                ->where( Address::$_table . '.name', 'like', $s );
+                            return $building
+                                ->where( Building::$_table . '.name', 'like', $s );
                         });
                     if ( ! empty( $p ) )
                     {
@@ -58,39 +60,39 @@ class ManagementsController extends BaseController
                 });
         }
 
-        if ( ! empty( $category ) )
+        if ( ! empty( $category_id ) )
         {
             $managements
-                ->category( $category );
+                ->category( $category_id );
         }
 
-        if ( ! empty( $region ) )
+        if ( ! empty( $provider_id ) )
         {
             $managements
-                ->whereHas( 'regions', function ( $regions ) use ( $region )
+                ->whereHas( 'providers', function ( $providers ) use ( $provider_id )
                 {
-                    return $regions
-                        ->where( Region::$_table . '.id', '=', $region );
+                    return $providers
+                        ->where( Provider::$_table . '.id', '=', $provider_id );
                 });
         }
 
-        if ( ! empty( $address ) )
+        if ( ! empty( $building_id ) )
         {
             $managements
-                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
                 {
-                    return $q
-                        ->where( Address::$_table . '.id', '=', $address );
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $building_id );
                 });
         }
 
-        if ( ! empty( $type ) )
+        if ( ! empty( $type_id ) )
         {
             $managements
-                ->whereHas( 'types', function ( $q ) use ( $type )
+                ->whereHas( 'types', function ( $types ) use ( $type_id )
                 {
-                    return $q
-                        ->where( Type::$_table . '.id', '=', $type );
+                    return $types
+                        ->where( Type::$_table . '.id', '=', $type_id );
                 });
         }
 
@@ -105,16 +107,16 @@ class ManagementsController extends BaseController
                     'Услуги'                => $management->services,
                     'Наименование'          => $management->name,
                     'Телефон(ы)'            => $management->getPhones(),
-                    'Адрес'                 => $management->address->name ?? '',
+                    'Адрес'                 => $management->building->name ?? '',
                     'График работы'         => $management->schedule,
                     'ФИО руководителя'      => $management->director,
                     'E-mail'                => $management->email,
                     'Сайт'                  => $management->site,
                 ];
             }
-            \Excel::create( 'ЭКСПЛУАТИРУЮЩИЕ ОРГАНИЗАЦИИ', function ( $excel ) use ( $data )
+            \Excel::create( 'УО', function ( $excel ) use ( $data )
             {
-                $excel->sheet( 'ЭКСПЛУАТИРУЮЩИЕ ОРГАНИЗАЦИИ', function ( $sheet ) use ( $data )
+                $excel->sheet( 'УО', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
                 });
@@ -125,7 +127,7 @@ class ManagementsController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
@@ -133,7 +135,7 @@ class ManagementsController extends BaseController
 
         return view( 'catalog.managements.index' )
             ->with( 'managements', $managements )
-            ->with( 'regions', $regions );
+            ->with( 'providers', $providers );
 
     }
 
@@ -144,14 +146,18 @@ class ManagementsController extends BaseController
      */
     public function create ()
     {
+
         Title::add( 'Добавить УО' );
-        $regions = Region
+
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
             ->get();
+
         return view( 'catalog.managements.create' )
-            ->with( 'regions', $regions );
+            ->with( 'providers', $providers );
+
     }
 
     /**
@@ -182,7 +188,7 @@ class ManagementsController extends BaseController
         }
         $management->save();
 
-        $management->regions()->attach( $request->get( 'region_id' ) );
+        $management->providers()->attach( $request->get( 'provider_id' ) );
 
         self::clearCache();
 
@@ -221,14 +227,7 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $managementAddressesCount = $management->addresses()
-            ->mine()
-            ->count();
-
-        $managementTypesCount = $management->types()
-            ->count();
-
-        $regions = Region
+        $providers = Provider
             ::mine()
             ->current()
             ->orderBy( 'name' )
@@ -236,9 +235,7 @@ class ManagementsController extends BaseController
 
         return view( 'catalog.managements.edit' )
             ->with( 'management', $management )
-            ->with( 'managementAddressesCount', $managementAddressesCount )
-            ->with( 'managementTypesCount', $managementTypesCount )
-            ->with( 'regions', $regions );
+            ->with( 'providers', $providers );
 
     }
 
@@ -300,8 +297,8 @@ class ManagementsController extends BaseController
     {
 
         $type_id = $request->get( 'type_id' );
-        $address_id = $request->get( 'address_id' );
-        $region_id = $request->get( 'region_id', Region::getCurrent() ? Region::$current_region->id : null );
+        $building_id = $request->get( 'building_id' );
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
 
         $managements = Management
 			::mine()
@@ -310,20 +307,16 @@ class ManagementsController extends BaseController
                 return $types
                     ->where( Type::$_table . '.id', '=', $type_id );
             })
-            ->whereHas( 'addresses', function ( $addresses ) use ( $address_id )
+            ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
             {
-                return $addresses
-                    ->where( Address::$_table . '.id', '=', $address_id );
+                return $buildings
+                    ->where( Building::$_table . '.id', '=', $building_id );
             });
 
-        if ( ! empty( $region_id ) )
+        if ( ! empty( $provider_id ) )
         {
             $managements
-                ->whereHas( 'regions', function ( $regions ) use ( $region_id )
-                {
-                    return $regions
-                        ->where( Region::$_table . '.id', '=', $region_id );
-                });
+                ->where( Management::$_table . '.provider_id', '=', $provider_id );
         }
 
         $managements = $managements->get();
@@ -349,7 +342,7 @@ class ManagementsController extends BaseController
 
     }
 
-    public function executors ( Request $request )
+    public function executorsSearch ( Request $request )
     {
         $management = Management::find( $request->get( 'management_id' ) );
         if ( ! $management )
@@ -428,12 +421,13 @@ class ManagementsController extends BaseController
         return $code;
     }
 
-    public function addresses ( Request $request, $id )
+    public function buildings ( Request $request, $id )
     {
 
         Title::add( 'Привязка Зданий' );
 
         $management = Management::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
 
         if ( ! $management )
         {
@@ -441,18 +435,31 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $managementAddresses = $management->addresses()
-            ->mine()
-            ->orderBy( 'name' )
-            ->paginate( 30 );
+        $managementBuildings = $management->buildings()
+            ->orderBy( Building::$_table . '.name' );
 
-        return view( 'catalog.managements.addresses' )
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $managementBuildings
+                ->where( Building::$_table . '.name', 'like', $s );
+        }
+
+        $managementBuildings = $managementBuildings
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        $segmentsTypes = SegmentType::orderBy( 'sort' )->pluck( 'name', 'id' );
+
+        return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )
-            ->with( 'managementAddresses', $managementAddresses );
+            ->with( 'search', $search )
+            ->with( 'segmentsTypes', $segmentsTypes )
+            ->with( 'managementBuildings', $managementBuildings );
 
     }
 
-    public function addressesSearch ( Request $request, $id )
+    public function buildingsSearch ( Request $request, $id )
     {
 
         $management = Management::find( $id );
@@ -465,22 +472,22 @@ class ManagementsController extends BaseController
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
 
-        $addresses = Address
-            ::mine( Address::IGNORE_REGION )
+        $buildings = Building
+            ::mine()
             ->select(
-                Address::$_table . '.id',
-                Address::$_table . '.name AS text'
+                Building::$_table . '.id',
+                Building::$_table . '.name AS text'
             )
-            ->where( Address::$_table . '.name', 'like', $s )
-            ->whereNotIn( Address::$_table . '.id', $management->addresses()->pluck( Address::$_table . '.id' ) )
-            ->orderBy( Address::$_table . '.name' )
+            ->where( Building::$_table . '.name', 'like', $s )
+            ->whereNotIn( Building::$_table . '.id', $management->buildings()->pluck( Building::$_table . '.id' ) )
+            ->orderBy( Building::$_table . '.name' )
             ->get();
 
-        return $addresses;
+        return $buildings;
 
     }
 
-    public function addressesAdd ( Request $request, $id )
+    public function buildingsAdd ( Request $request, $id )
     {
 
         $management = Management::find( $id );
@@ -491,18 +498,49 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->addresses()->attach( $request->get( 'addresses', [] ) );
+        $management->buildings()->attach( $request->get( 'buildings', [] ) );
 
         return redirect()->back()
             ->with( 'success', 'Адреса успешно назначены' );
 
     }
 
-    public function addressesDel ( Request $request, $id )
+    public function segmentsAdd ( Request $request, $id )
     {
 
         $rules = [
-            'address_id'             => 'required|integer',
+            'segment_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $segment = Segment::find( $request->get( 'segment_id' ) );
+        foreach ( $segment->buildings as $building )
+        {
+            if ( ! $management->buildings->contains( $building->id ) )
+            {
+                $management->buildings()->attach( $building->id );
+            }
+        }
+
+        return redirect()->back()
+            ->with( 'success', 'Здания сегментов успешно привязаны' );
+
+    }
+
+    public function buildingsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'building_id'             => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -515,14 +553,12 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->addresses()->detach( $request->get( 'address_id' ) );
+        $management->buildings()->detach( $request->get( 'building_id' ) );
 
     }
 
-    public function types ( Request $request, $id )
+    public function buildingsEmpty ( Request $request, $id )
     {
-
-        Title::add( 'Привязка Классификатора' );
 
         $management = Management::find( $id );
 
@@ -532,19 +568,170 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $managementTypes = $management->types()
-            ->orderBy( Type::$_table . '.name' )
-            ->paginate( 30 );
+        $management->buildings()->detach();
 
-        $allowedTypes = Type
-            ::whereNotIn( Type::$_table . '.id', $management->types()->pluck( Type::$_table . '.id' ) )
-            ->orderBy( Type::$_table . '.name' )
-            ->pluck( Type::$_table . '.name', Type::$_table . '.id' );
+        return redirect()->back()
+            ->with( 'success', 'Привязки успешно удалены' );
+
+    }
+
+    public function executors ( Request $request, $id )
+    {
+
+        Title::add( 'Исполнители' );
+
+        $management = Management::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementExecutors = $management->executors()
+            ->orderBy( Executor::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $managementExecutors
+                ->where( Executor::$_table . '.name', 'like', $s );
+        }
+
+        $managementExecutors = $managementExecutors
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        return view( 'catalog.managements.executors' )
+            ->with( 'search', $search )
+            ->with( 'management', $management )
+            ->with( 'managementExecutors', $managementExecutors );
+    }
+
+    public function executorsAdd ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $executor = Executor::create([
+            'management_id'     => $id,
+            'name'              => $request->get( 'name' ),
+        ]);
+
+        if ( $executor instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $executor->getMessages() );
+        }
+
+        $executor->save();
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнитель успешно добавлен' );
+
+    }
+
+    public function executorsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'executor_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $executor = $management->executors()->find( $request->get( 'executor_id' ) );
+        if ( ! $executor )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Исполнитель не найден' ] );
+        }
+
+        $executor->delete();
+
+    }
+
+    public function executorsEmpty ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        foreach ( $management->executors as $executor )
+        {
+            $executor->delete();
+        }
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнители успешно удалены' );
+
+    }
+
+    public function types ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Классификатора' );
+
+        $management = Management::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementTypes = $management->types()
+            ->orderBy( Type::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $managementTypes
+                ->where( Type::$_table . '.name', 'like', $s );
+        }
+
+        $managementTypes = $managementTypes
+            ->paginate( 30 )
+            ->appends( $request->all() );
+
+        $res = Type
+            ::mine()
+            ->whereNotIn( 'id', $management->types()->pluck( Type::$_table . '.id' ) )
+            ->with( 'category' )
+            ->get()
+            ->sortBy( 'name' );
+        $availableTypes = [];
+        foreach ( $res as $r )
+        {
+            $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+        }
 
         return view( 'catalog.managements.types' )
             ->with( 'management', $management )
+            ->with( 'search', $search )
             ->with( 'managementTypes', $managementTypes )
-            ->with( 'allowedTypes', $allowedTypes );
+            ->with( 'availableTypes', $availableTypes );
 
     }
 
@@ -583,6 +770,24 @@ class ManagementsController extends BaseController
         }
 
         $management->types()->detach( $request->get( 'type_id' ) );
+
+    }
+
+    public function typesEmpty ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->types()->detach();
+
+        return redirect()->back()
+            ->with( 'success', 'Привязки успешно удалены' );
 
     }
 

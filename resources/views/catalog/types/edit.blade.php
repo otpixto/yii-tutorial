@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Справочники' ],
         [ 'Классификатор', route( 'types.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -28,6 +27,15 @@
                     <div class="col-md-6">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-md-12">
+                        {!! Form::label( 'description', 'Подсказки', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::textarea( 'description', \Input::old( 'description', $type->description ), [ 'class' => 'form-control', 'placeholder' => 'Подсказки' ] ) !!}
                     </div>
 
                 </div>

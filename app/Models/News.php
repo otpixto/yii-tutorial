@@ -35,15 +35,15 @@ class News extends BaseModel
         return $this->belongsTo( 'App\User' );
     }
 
-    public function region ()
+    public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Region' );
+        return $this->belongsTo( 'App\Models\Provider' );
     }
 
     public function scopeMine ( $query )
     {
         $query
-            ->whereHas( 'region', function ( $q )
+            ->whereHas( 'provider', function ( $q )
             {
                 return $q
                     ->mine()

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\External;
 
 use App\Classes\Gzhi;
-use App\Models\Address;
-use App\Models\Region;
+use App\Models\Building;
+use App\Models\Provider;
 use Illuminate\Support\MessageBag;
 use Webpatser\Uuid\Uuid;
 
@@ -178,20 +178,20 @@ class AisController extends BaseController
     public function sync ()
     {
 
-        $region_id = 5;
+        $provider_id = 5;
 
-        $region = Region::find( $region_id );
+        $provider = Provider::find( $provider_id );
 
-        $client = new Gzhi( $region->getGzhiConfig() );
+        $client = new Gzhi( $provider->getGzhiConfig() );
 
         try
         {
             $response = $client->GetResult( 'b0019410-e4cd-11e7-82b7-05d37e8c944e' );
             foreach ( $response->Addresses as $address )
             {
-                $res = Address::create([
+                $res = Building::create([
                     'guid'          => $address->AddressGUID,
-                    'region_id'     => $region_id,
+                    'provider_id'   => $provider_id,
                     'name'          => $address->AddressName
                 ]);
                 if ( $res instanceof MessageBag )

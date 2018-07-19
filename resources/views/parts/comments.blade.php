@@ -4,8 +4,7 @@
 		<div class="media-body">
 			<h5 class="media-heading">
 				<a href="javascript:;" data-user="{{ $comment->author->id }}">
-					{!! $comment->author->getPosition() !!}
-					{{ $comment->author->getShortName() }}
+					{{ $comment->author->getShortName( true ) }}
 				</a>
 				<span class="small">
 					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}

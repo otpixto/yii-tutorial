@@ -3,7 +3,6 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Администрирование' ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -46,7 +45,7 @@
                                 {{ $activeSession->number }}
                             </td>
                             <td class="text-right">
-                                @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.close' ) )
+                                @if ( \Auth::user()->admin || \Auth::user()->can( 'catalog.sessions.close' ) )
                                     {!! Form::model( $activeSession, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $activeSession->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
                                     <button type="submit" class="btn btn-danger">
                                         <i class="fa fa-close"></i>
@@ -59,14 +58,14 @@
                     @endforeach
                 </table>
             @else
-                @include( 'error', [ 'error' => 'Активных сессий нет' ] )
+                @include( 'parts.error', [ 'error' => 'Активных сессий нет' ] )
             @endif
         </div>
     </div>
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
+    @if ( \Auth::user()->can( 'catalog.sessions.show' ) )
 
-        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.create' ) )
+        @if ( \Auth::user()->can( 'catalog.sessions.create' ) )
             <div class="row margin-bottom-15">
                 <div class="col-xs-12">
                     <a href="{{ route( 'sessions.create' ) }}" class="btn btn-success">
@@ -166,7 +165,7 @@
                                     </td>
                                 @else
                                     <td colspan="2">
-                                        @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.close' ) )
+                                        @if ( \Auth::user()->can( 'catalog.sessions.close' ) )
                                             {!! Form::model( $session, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $session->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
                                             <button type="submit" class="btn btn-danger">
                                                 <i class="fa fa-close"></i>

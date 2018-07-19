@@ -62,7 +62,7 @@
                         {
                             return {
                                 balloonContentHeader: '<h3>' + val[1] + '</h3>',
-                                balloonContentBody: '<p>Количество заявок: <a href="/tickets?address_id=' + val[0] + '" class="badge">' + val[4] + '</a></p><p>УК: <b>' + val[3].join( ', ' ) + '</b><p>',
+                                balloonContentBody: '<p>Количество заявок: <a href="/tickets?building_id=' + val[0] + '" class="badge">' + val[4] + '</a></p><p>УК: <b>' + val[3].join( ', ' ) + '</b><p>',
                                 clusterCaption: val[1]
                             };
                         },
@@ -75,7 +75,7 @@
 
                     $( '.ymaps-2-1-56-map-copyrights-promo, .ymaps-2-1-56-copyright' ).remove();
 
-                    $.get( '/data/addresses', function ( response )
+                    $.get( '/data/buildings', function ( response )
                     {
                         if ( response.length )
                         {

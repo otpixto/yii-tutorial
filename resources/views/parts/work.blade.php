@@ -3,23 +3,54 @@
         #{{ $work->id }}
     </td>
     <td>
-        {{ $work->reason }}
+        <div class="small">
+            {{ $work->reason }}
+        </div>
     </td>
     <td>
-        @foreach ( $work->addresses as $address )
-            <div>
-                {{ $address->getAddress() }}
+        @if ( $work->buildings->count() > 5 )
+            @foreach ( $work->buildings->slice( 0, 5 ) as $building )
+                <div class="small">
+                    {{ $building->name }}
+                </div>
+            @endforeach
+            <a href="javascript:;" data-toggle="#work-buildings-{{ $work->id }}">
+                Показать\ скрыть остальные {{ $work->buildings->count() }}
+            </a>
+            <div class="display-none" id="work-buildings-{{ $work->id }}">
+                @foreach ( $work->buildings->slice( 5 ) as $building )
+                    <div class="small">
+                        {{ $building->name }}
+                    </div>
+                @endforeach
             </div>
-        @endforeach
+        @else
+            @foreach ( $work->buildings as $building )
+                <div class="small">
+                    {{ $building->name }}
+                </div>
+            @endforeach
+        @endif
     </td>
     <td>
-        {{ $work->getCategory() }}
+        <div class="small">
+            {{ $work->getCategory() }}
+        </div>
     </td>
     <td>
-        {{ $work->management->name }}
+        <div class="small">
+            @if ( $work->management->parent )
+                <div class="text-muted">
+                    {{ $work->management->parent->name }}
+                </div>
+            @endif
+            {{ $work->management->name }}
+        </div>
     </td>
     <td>
-        {{ $work->composition }}
+        <div class="small">
+            {{ $work->composition }}
+        </div>
     </td>
     <td>
         {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}

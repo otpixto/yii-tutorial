@@ -2,7 +2,7 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
+        [ 'Главная', route( 'home' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -32,34 +32,27 @@
             </div>
         @endcan
 
-        <div class="row hidden-print">
-            <div class="col-xs-12">
-                {!! Form::open( [ 'method' => 'get' ] ) !!}
-                    <div class="input-group">
-                        {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control input-lg', 'placeholder' => 'Быстрый поиск...' ] ) !!}
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fa fa-search"></i>
-                                Поиск
-                            </button>
-                        </span>
-                    </div>
-                {!! Form::close() !!}
-            </div>
-        </div>
+        @include( 'works.search' )
 
         <div class="row margin-top-15">
             <div class="col-xs-12">
 
-                {{ $works->render() }}
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ $works->render() }}
+                    </div>
+                    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+                        <span class="label label-info">
+                            Найдено: <b>{{ $works->total() }}</b>
+                        </span>
+                    </div>
+                </div>
 
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
-                        {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading' ] ) !!}
-                        {!! Form::hidden( 'show', \Input::get( 'show', null ) ) !!}
                         <tr class="info">
                             <th>
-                                 Номер сообщения
+                                Номер сообщения
                             </th>
                             <th>
                                 Основание
@@ -83,44 +76,6 @@
                                 &nbsp;Дата окончания (План.|Факт.)
                             </th>
                         </tr>
-                        <tr class="info hidden-print">
-                            <td width="10%">
-                                {!! Form::text( 'id', \Input::old( 'id' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
-                            </td>
-                            <td width="10%">
-                                {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
-                            </td>
-                            <td width="15%">
-                                {!! Form::select( 'address_id', $address, \Input::old( 'address_id' ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес работы' ] ) !!}
-                            </td>
-                            <td width="15%">
-                                {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
-                            </td>
-                            <td width="10%">
-                                {!! Form::select( 'management_id', [ null => ' -- все -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'ЭО' ] ) !!}
-                            </td>
-                            <td width="10%">
-                                {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав' ] ) !!}
-                            </td>
-                            <td colspan="4">
-                                <div class="row">
-                                    <div class="col-lg-12 text-right">
-                                        <span class="text-muted small bold">
-                                            Фильтр:
-                                        </span>
-                                        <a href="{{ route( 'works.index' ) }}" class="btn btn-sm btn-default tooltips" title="Очистить фильтр">
-                                            <i class="icon-close"></i>
-                                            Очистить
-                                        </a>
-                                        <button type="submit" class="btn btn-sm btn-primary tooltips bold" title="Применить фильтр">
-                                            <i class="icon-check"></i>
-                                            Применить
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        {!! Form::close() !!}
                     </thead>
                     @if ( $works->count() )
                         <tbody>
@@ -147,11 +102,8 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
     <style>
         .alert {
             margin-bottom: 0;
@@ -175,23 +127,72 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-treeview.js" type="text/javascript"></script>
     <script type="text/javascript">
+
         $( document )
+
             .ready( function ()
             {
 
-                $('.date-picker').datepicker({
-                    rtl: App.isRTL(),
-                    orientation: "left",
-                    autoclose: true
+                $( '.datetimepicker' ).datetimepicker({
+                    isRTL: App.isRTL(),
+                    format: "dd.mm.yyyy hh:ii",
+                    autoclose: true,
+                    fontAwesome: true,
+                    todayBtn: true
+                });
+
+                $( '.mt-multiselect' ).multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
+                });
+
+            })
+
+            .on( 'click', '#segment', function ( e )
+            {
+
+                e.preventDefault();
+
+                Modal.create( 'segment-modal', function ()
+                {
+                    Modal.setTitle( 'Выберите сегмент' );
+                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
+                    {
+                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
+                        Modal.setBody( tree );
+                        tree.treeview({
+                            data: response,
+                            onNodeSelected: function ( event, node )
+                            {
+                                $( '#segment_id' ).val( node.id );
+                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
+                            },
+                            onNodeUnselected: function ( event, node )
+                            {
+                                $( '#segment_id' ).val( '' );
+                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
+                            }
+                        });
+                    });
                 });
 
             });
+
     </script>
 @endsection

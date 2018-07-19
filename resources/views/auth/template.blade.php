@@ -5,10 +5,10 @@
     <a href="">
         <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
         <p>
-            @if ( \App\Models\Region::isOperatorUrl() )
+            @if ( \App\Models\Provider::isOperatorUrl() )
                 <span class="text-danger">Оператор</span>
-            @elseif ( \App\Models\Region::getCurrent() )
-                {{ \App\Models\Region::$current_region->name }}
+            @elseif ( \App\Models\Provider::getCurrent() )
+                {{ \App\Models\Provider::$current->name }}
             @endif
         </p>
     </a>

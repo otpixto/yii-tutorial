@@ -2,7 +2,7 @@
 
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
+        [ 'Главная', route( 'home' ) ],
         [ 'Реестр заявок', route( 'tickets.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
@@ -18,11 +18,11 @@
 
         <div class="col-lg-7">
 
-            @if ( $regions->count() > 1 )
+            @if ( $providers->count() > 1 )
                 <div class="form-group">
-                    {!! Form::label( 'region_id', 'Регион', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
                     <div class="col-xs-9">
-                        {!! Form::select( 'region_id', $regions, \Input::old( 'region_id', $draft->region_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Регион', 'data-placeholder' => 'Регион', 'required', 'autocomplete' => 'off' ] ) !!}
+                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Поставщик', 'data-placeholder' => 'Поставщик', 'required', 'autocomplete' => 'off' ] ) !!}
                     </div>
                 </div>
             @endif
@@ -34,10 +34,12 @@
                 </div>
             </div>
 
+            <div id="types-description" class="alert alert-warning hidden"></div>
+
             <div class="form-group">
-                {!! Form::label( 'address_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'building_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'address_id', \Input::old( 'address_id', $draft->address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'address_id', $draft->address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'address_id', $draft->address_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'building_id', $draft->building ? $draft->building()->pluck( 'name', 'id' ) : [], \Input::old( 'building_id', $draft->building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -48,7 +50,7 @@
             <div class="form-group">
                 {!! Form::label( 'place_id', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $draft->place_id ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Проблемное место', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $draft->place_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
@@ -104,9 +106,9 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'actual_building_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-5">
-                    {!! Form::select( 'actual_address_id', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) ? \App\Models\Address::where( 'id', '=', \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ) )->pluck( 'name', 'id' ) : [], \Input::old( 'actual_address_id', $draft->actual_address_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'addresses.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_address_id', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::select( 'actual_building_id', $draft->actual_building ? $draft->actual_building()->pluck( 'name', 'id' ) : [], \Input::old( 'actual_building_id', $draft->actual_building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_building_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
                 <div class="col-xs-3">
@@ -253,7 +255,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                     <h4 class="modal-title bold text-danger">
                         <i class="fa fa-wrench"></i>
-                        Работы на сетях
+                        Отключения
                     </h4>
                 </div>
                 <div class="modal-body" id="works">
@@ -306,7 +308,7 @@
 
             $.post( '{{ route( 'tickets.search' ) }}', {
                 phone: phone,
-                region_id: $( '#region_id' ).val()
+                provider_id: $( '#provider_id' ).val()
             }, function ( response )
             {
                 if ( response )
@@ -451,6 +453,23 @@
                 {
                     $( '#emergency' ).removeAttr( 'checked' ).removeAttr( 'disabled' ).trigger( 'change' );
                 }
+                if ( response.description )
+                {
+                    $( '#types-description' )
+                        .removeClass( 'hidden' )
+                        .text( response.description )
+                        .pulsate({
+                            repeat: 3,
+                            speed: 500,
+                            color: '#F1C40F',
+                            glow: true,
+                            reach: 15
+                        });
+                }
+                else
+                {
+                    $( '#types-description' ).addClass( 'hidden' ).empty();
+                }
             });
 
         };
@@ -458,17 +477,17 @@
         function GetManagements ()
         {
 
-            var address_id = $( '#address_id' ).val();
+            var building_id = $( '#building_id' ).val();
             var type_id = $( '#type_id' ).val();
-            var region_id = $( '#region_id' ).val() || null;
-            if ( ! address_id || ! type_id )
+            var provider_id = $( '#provider_id' ).val() || null;
+            if ( ! building_id || ! type_id )
             {
                 $( '#management' ).addClass( 'hidden' );
                 return;
             };
             $.post( '{{ route( 'managements.search' ) }}', {
-                address_id: address_id,
-                region_id: region_id,
+                building_id: building_id,
+                provider_id: provider_id,
                 type_id: type_id,
                 selected: $( '#selected_managements' ).val()
             }, function ( response )
@@ -481,13 +500,13 @@
         function GetWorks ()
         {
 
-            var address_id = $( '#address_id' ).val();
-            if ( ! address_id )
+            var building_id = $( '#building_id' ).val();
+            if ( ! building_id )
             {
                 return;
             };
             $.post( '{{ route( 'works.search' ) }}', {
-                address_id: address_id
+                building_id: building_id
             }, function ( response )
             {
                 if ( response )
@@ -562,9 +581,9 @@
 
             })
 
-            .on( 'change', '#region_id', function ( e )
+            .on( 'change', '#provider_id', function ( e )
             {
-                $( '#address_id' ).val( '' ).trigger( 'change' );
+                $( '#building_id' ).val( '' ).trigger( 'change' );
             })
 
             .on( 'change', '.autosave', function ( e )
@@ -602,12 +621,12 @@
                 GetTypeInfo();
             })
 
-            .on( 'change', '#address_id, #type_id', function ( e )
+            .on( 'change', '#building_id, #type_id', function ( e )
             {
                 GetManagements();
             })
 
-            .on( 'change', '#address_id', function ( e )
+            .on( 'change', '#building_id', function ( e )
             {
                 GetWorks();
             })
@@ -636,7 +655,7 @@
                         {
                             if ( ! response ) return;
                             var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
-                            var actual_address_id = $( '#actual_address_id' ).val();
+                            var actual_building_id = $( '#actual_building_id' ).val();
                             var actual_flat = $( '#actual_flat' ).val();
                             if ( ! phone && response.phone )
                             {
@@ -651,15 +670,15 @@
                                         reach: 15
                                     });
                             }
-                            if ( ! actual_address_id && response.actual_address_id )
+                            if ( ! actual_building_id && response.actual_building_id )
                             {
-                                $( '#actual_address_id' )
+                                $( '#actual_building_id' )
                                     .append(
                                         $( '<option>' )
-                                            .val( response.actual_address_id )
-                                            .text( response.actual_address.name )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val( response.actual_address_id )
+                                    .val( response.actual_building_id )
                                     .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
@@ -702,9 +721,9 @@
                     var middlename = $.trim( $( '#middlename' ).val() );
                     var lastname = $.trim( $( '#lastname' ).val() );
                     var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
-                    var actual_address_id = $( '#actual_address_id' ).val();
+                    var actual_building_id = $( '#actual_building_id' ).val();
                     var actual_flat = $( '#actual_flat' ).val();
-                    if ( ! firstname || ! middlename || ! lastname || ! actual_address_id || ! actual_flat )
+                    if ( ! firstname || ! middlename || ! lastname || ! actual_building_id || ! actual_flat )
                     {
                         var r = {};
                         r.param = param;
@@ -751,15 +770,15 @@
                                         reach: 15
                                     });
                             }
-                            if ( ! actual_address_id && response.actual_address_id )
+                            if ( ! actual_building_id && response.actual_building_id )
                             {
-                                $( '#actual_address_id' )
+                                $( '#actual_building_id' )
                                     .append(
                                         $( '<option>' )
-                                            .val( response.actual_address_id )
-                                            .text( response.actual_address.name )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val( response.actual_address_id )
+                                    .val( response.actual_building_id )
                                     .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
