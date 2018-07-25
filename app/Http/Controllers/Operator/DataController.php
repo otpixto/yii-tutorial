@@ -17,52 +17,65 @@ class DataController extends BaseController
     public function buildings ()
     {
 
-		$res = Ticket
-			::mine()
-			->whereDoesntHave( 'building', function ( $q )
-			{
-				return $q
-					->where( 'lon', '=', -1 )
-					->orWhere( 'lat', '=', -1 );
-			})
-			->with( 'building', 'managements' )
-			->get();
+        $res = Ticket
+            ::mine()
+            ->notFinaleStatuses()
+            ->whereHas( 'building', function ( $building )
+            {
+                return $building
+                    ->where( 'lon', '!=', - 1 )
+                    ->where( 'lat', '!=', - 1 );
+            })
+            ->with(
+                'building',
+                'managements',
+                'managements.management'
+            )
+            ->get();
 
-		$data = [];
-		foreach ( $res as $r )
-		{
-			if ( ! isset( $data[ $r->building_id ] ) )
-			{
-				if ( ! $r->building->lon || ! $r->building->lat )
-				{
-					$yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->building->name ) ) );
-					if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
-					{
-						$pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-						$r->building->lon = $pos[0];
-						$r->building->lat = $pos[1];
-					}
-					else
-					{
-						$r->building->lon = -1;
-						$r->building->lat = -1;
-					}
-					$r->building->save();
-				}
-				$managements = [];
-				foreach ( $r->managements()->whereIn( 'management_id', Management::mine()->pluck( 'id' ) )->get() as $m )
-				{
-					$managements[] = $m->management->name;
-				}
-				$data[ $r->building_id ] = [ $r->building_id, $r->building->name, [ $r->building->lat, $r->building->lon ], $managements, 1 ];
-			}
-			else
-			{
-				$data[ $r->building_id ][ 4 ] ++;
-			}
-		}
-		
-		return array_values( $data );
+        $data = [];
+        foreach ( $res as $r )
+        {
+            if ( ! isset( $data[ $r->building_id ] ) )
+            {
+                if ( ! $r->building->lon || ! $r->building->lat )
+                {
+                    $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->building->name ) ) );
+                    if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
+                    {
+                        $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
+                        $r->building->lon = $pos[ 0 ];
+                        $r->building->lat = $pos[ 1 ];
+                    } else
+                    {
+                        $r->building->lon = - 1;
+                        $r->building->lat = - 1;
+                    }
+                    $r->building->save();
+                }
+                $data[ $r->building_id ] = [
+                    'building_id'           => $r->building_id,
+                    'building_name'         => $r->building->name,
+                    'coors' => [
+                        (float) $r->building->lat,
+                        (float) $r->building->lon
+                    ],
+                    'tickets' => []
+                ];
+            }
+            foreach ( $r->managements as $ticketManagement )
+            {
+                $data[ $r->building_id ][ 'tickets' ][] = [
+                    'number'        => $ticketManagement->getTicketNumber(),
+                    'url'           => route( 'tickets.show', $ticketManagement->getTicketNumber() ),
+                    'type'          => $r->type->name,
+                    'management'    => $ticketManagement->management->name,
+                    'text'          => $r->text
+                ];
+            }
+        }
+
+        return array_values( $data );
 
     }
 
@@ -72,11 +85,11 @@ class DataController extends BaseController
         $res = Work
             ::mine()
             ->current()
-            ->whereDoesntHave( 'buildings', function ( $q )
+            ->whereHas( 'buildings', function ( $buildings )
             {
-                return $q
-                    ->where( 'lon', '=', -1 )
-                    ->orWhere( 'lat', '=', -1 );
+                return $buildings
+                    ->where( 'lon', '!=', - 1 )
+                    ->where( 'lat', '!=', - 1 );
             })
             ->with( 'buildings' )
             ->get();

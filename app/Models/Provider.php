@@ -154,7 +154,7 @@ class Provider extends BaseModel
 
     public static function getLogo ()
     {
-        if ( self::getCurrent() && self::$current->logo )
+        if ( self::getCurrent() && self::$current->logo  )
         {
             return '/storage/' . self::$current->logo;
         }

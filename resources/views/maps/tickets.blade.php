@@ -60,10 +60,26 @@
 
                         getPointData = function ( val )
                         {
+                            var balloonContentBody = '';
+                            for ( var i in val.tickets )
+                            {
+                                balloonContentBody += '' +
+                                    '<div class="panel panel-default">' +
+                                        '<div class="panel-heading">' +
+                                            ( val.tickets[ i ].type || '<span class="text-danger">Не указан классификатор</span>' ) +
+                                        '</div>' +
+                                        '<div class="panel-body">' +
+                                            '<div>Организация: ' + val.tickets[ i ].management + '</div>' +
+                                            '<div>' + val.tickets[ i ].text + '</div>' +
+                                            '<hr />' +
+                                            '<a href="' + val.tickets[ i ].url + '">Перейти <i class="fa fa-chevron-right"></i></a>' +
+                                        '</div>' +
+                                    '</div>';
+                            }
                             return {
-                                balloonContentHeader: '<h3>' + val[1] + '</h3>',
-                                balloonContentBody: '<p>Количество заявок: <a href="/tickets?building_id=' + val[0] + '" class="badge">' + val[4] + '</a></p><p>УК: <b>' + val[3].join( ', ' ) + '</b><p>',
-                                clusterCaption: val[1]
+                                balloonContentHeader: val.building_name,
+                                balloonContentBody: balloonContentBody,
+                                clusterCaption: val.building_name
                             };
                         },
 
@@ -81,7 +97,7 @@
                         {
                             $.each( response, function ( address_id, val )
                             {
-                                clusterer.add( new ymaps.Placemark( val[2], getPointData(val), getPointOptions()) );
+                                clusterer.add( new ymaps.Placemark( val.coors, getPointData( val ), getPointOptions() ) );
                             });
                             myMap.geoObjects.add(clusterer);
                             myMap.setBounds(clusterer.getBounds(), {
