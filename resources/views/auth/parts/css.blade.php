@@ -14,7 +14,7 @@
 <link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link href="/assets/pages/css/login.css" rel="stylesheet" type="text/css" />
+<link href="/assets/pages/css/login.css?v2" rel="stylesheet" type="text/css" />
 <!-- END PAGE LEVEL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
 @yield( 'css' )

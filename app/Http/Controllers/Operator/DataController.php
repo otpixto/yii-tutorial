@@ -139,7 +139,7 @@ class DataController extends BaseController
                     'management'        => $management,
                     'executor'          => $executor,
                     'composition'       => $r->composition,
-                    'category'          => $r->getCategory(),
+                    'category'          => $r->category->name,
                     'time_end'          => $r->time_end,
                 ];
             }

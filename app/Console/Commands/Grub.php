@@ -85,8 +85,6 @@ class Grub extends Command
 
         $api_url = 'https://mo.i-eds.ru/api/';
 
-        $per_page = 1000;
-
         $headers = [
             'Authorization'         => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIwYzY5MDNmMi0yOWU3LTQyNmMtOTI4Zi0yYWQzZjk0MWQ2MjciLCJzdWIiOiJtdmVyaW5AbWFpbC5ydSIsInR5cGUiOiJlbWFpbCIsImlhdCI6MTUzMDAyMDMxOCwianRpIjoiMDk4Y2VmYTc4MGRlMDUzYmE1YWJhMjQ1YTE1MDgyZTY2N2U3ZjBiNyJ9.ENhadqF_iqEfaPPCZJ7h23OJTO7jJa9tZXJH-cy5lRE',
         ];
@@ -413,9 +411,9 @@ class Grub extends Command
         $page = 0;
         $pages = null;
         $per_page = 100;
-        #$max_pages = 15;
+        $max_pages = 15;
 
-        while ( is_null( $pages ) || $pages > $page )
+        while ( is_null( $pages ) || ( $pages > $page || $page < $max_pages ) )
         {
 
             $this->info('Works Page #' . $page . ' Start');
@@ -546,6 +544,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
 		$per_page = 100;
+        $max_pages = 15;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();
@@ -553,7 +552,7 @@ class Grub extends Command
 
 		$statuses = [
 			2 => 'transferred',
-			3 => 'assigned',
+			3 => 'in_process',
 			5 => 'accepted',
 			6 => 'assigned',
 			8 => 'rejected',
@@ -564,7 +563,7 @@ class Grub extends Command
 			16 => 'cancel',
 		];
 
-        while ( is_null( $pages ) || $pages > $page )
+        while ( is_null( $pages ) || ( $pages > $page || $page < $max_pages ) )
         {
 
             $this->info( 'Tickets Page #' . $page . ' Start' );

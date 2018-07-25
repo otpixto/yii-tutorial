@@ -372,8 +372,6 @@
     .page-header .navbar-fixed-top {
       position: static;
       margin: 10px auto; }
-    .page-header .page-logo {
-      float: none !important; }
     .page-header .search {
       display: inherit !important; }
       .page-header .search .form-control {

@@ -11,7 +11,7 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-        @if ( \Auth::user()->can( 'tickets.create' ) || ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->total() < 1000 ) )
+       {{-- @if ( \Auth::user()->can( 'tickets.create' ) || ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->total() < 1000 ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
                     @if( \Auth::user()->can( 'tickets.create' ) )
@@ -36,31 +36,31 @@
                     </div>
                 @endif
             </div>
-        @endif
+        @endif--}}
 
         <div class="row">
             <div class="col-xs-12">
-                <a href="{{ route( 'tickets.index' ) }}" class="btn btn-{{ \Input::get( 'show', '' ) == '' ? 'info' : 'default' }}">
+                <a href="{{ route( 'tickets.index' ) }}" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' ) btn-info @endif">
                     <i class="fa fa-list"></i>
                     Все заявки
                 </a>
                 |
-                <a href="?show=not_processed" class="btn btn-{{ \Input::get( 'show' ) == 'not_processed' ? 'info' : 'default' }}">
+                <a href="?show=not_processed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'not_processed' ) btn-info @endif">
                     <i class="fa fa-clock-o"></i>
                     Необработанные заявки
                 </a>
                 >
-                <a href="?show=in_progress" class="btn btn-{{ \Input::get( 'show' ) == 'in_progress' ? 'info' : 'default' }}">
+                <a href="?show=in_process" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'in_process' ) btn-info @endif">
                     <i class="fa fa-wrench"></i>
                     Заявки в работе
                 </a>
                 >
-                <a href="?show=completed" class="btn btn-{{ \Input::get( 'show' ) == 'completed' ? 'info' : 'default' }}">
+                <a href="?show=completed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'completed' ) btn-info @endif">
                     <i class="fa fa-check-circle"></i>
                     Выполненные заявки
                 </a>
                 >
-                <a href="?show=closed" class="btn btn-{{ \Input::get( 'show' ) == 'closed' ? 'info' : 'default' }}">
+                <a href="?show=closed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'closed' ) btn-info @endif">
                     <i class="fa fa-dot-circle-o"></i>
                     Закрытые заявки
                 </a>
@@ -68,70 +68,27 @@
         </div>
 
         @if ( \Auth::user()->can( 'tickets.search' ) )
-            @include( 'tickets.search' )
-        @endif
 
-        <div class="row margin-top-15" id="result">
-            <div class="col-xs-12">
-
-                <div class="row">
-                    <div class="col-md-8">
-                        {{ $ticketManagements->render() }}
-                    </div>
-                    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
-                        <span class="label label-info">
-                            Найдено: <b>{{ $ticketManagements->total() }}</b>
-                        </span>
+            <div class="row margin-top-15 hidden-print">
+                <div class="col-xs-12">
+                    <div class="portlet box blue-hoki">
+                        <div class="portlet-title">
+                            <a class="caption" data-load="search" data-toggle="#search">
+                                <i class="fa fa-search"></i>
+                                ПОИСК
+                            </a>
+                        </div>
+                        <div class="portlet-body hidden" id="search"></div>
                     </div>
                 </div>
+            </div>
 
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr class="info">
-                            <th width="250">
-                                 Статус \ Номер заявки \ Оценка
-                            </th>
-                            <th width="220">
-                                Даты \ Сроки
-                            </th>
-                            <th width="200">
-                                @if ( $field_management )
-                                    УО \
-                                @endif
-                                Исполнитель
-                            </th>
-                            <th width="300">
-                                Классификатор
-                                @if ( \Auth::user()->can( 'tickets.services.show' ) )
-                                    \ Выполненные работы
-                                @endif
-                            </th>
-                            <th colspan="2">
-                                Адрес проблемы \ Заявитель
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tickets">
-                        <tr id="tickets-new-message" class="hidden">
-                            <td colspan="7">
-                                <button type="button" class="btn btn-warning btn-block btn-lg" id="tickets-new-show">
-                                    Добавлены новые заявки <span class="badge bold" id="tickets-new-count">2</span>
-                                </button>
-                            </td>
-                        </tr>
-                    @if ( $ticketManagements->count() )
-                        @foreach ( $ticketManagements as $ticketManagement )
-                            @include( 'parts.ticket', [ 'ticketManagement' => $ticketManagement ] )
-                        @endforeach
-                    @endif
-                    </tbody>
-                </table>
+        @endif
 
-                {{ $ticketManagements->render() }}
+        <div class="row margin-top-15">
+            <div class="col-xs-12">
 
-                @if ( ! $ticketManagements->count() )
-                    @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                @endif
+                <div id="tickets"></div>
 
             </div>
         </div>
@@ -165,6 +122,29 @@
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
     <style>
+        dl, .alert {
+            margin: 0px;
+        }
+        .note {
+            margin: 5px 0;
+        }
+        .d-inline {
+            display: inline;
+        }
+        #customer_tickets table *, #neighbors_tickets table * {
+            font-size: 12px;
+        }
+        @media print
+        {
+            #ticket-services .row {
+                border-top: 1px solid #e9e9e9;
+            }
+            #ticket-services .form-control {
+                padding: 0;
+                margin: 0;
+                border: none;
+            }
+        }
         #controls {
             position: fixed;
             bottom: 0;
@@ -241,72 +221,142 @@
             checkTicketCheckbox();
         };
 
+        function loadTickets ( url )
+        {
+            $( '#tickets' ).loading();
+            $.get( url || window.location.href, function ( response )
+            {
+                $( '#tickets' ).html( response );
+            });
+        };
+
         $( document )
 
             .ready( function ()
             {
 
-                $( '.datetimepicker' ).datetimepicker({
-                    isRTL: App.isRTL(),
-                    format: "dd.mm.yyyy hh:ii",
-                    autoclose: true,
-                    fontAwesome: true,
-                    todayBtn: true
-                });
-
-                $('.date-picker').datepicker({
-                    rtl: App.isRTL(),
-                    orientation: "left",
-                    autoclose: true,
-                    format: 'dd.mm.yyyy'
-                });
-
+                loadTickets();
                 checkTicketCheckbox();
-
-                $( '.mt-multiselect' ).multiselect({
-                    disableIfEmpty: true,
-                    enableFiltering: true,
-                    includeSelectAllOption: true,
-                    enableCaseInsensitiveFiltering: true,
-                    enableClickableOptGroups: true,
-                    buttonWidth: '100%',
-                    maxHeight: '300',
-                    buttonClass: 'mt-multiselect btn btn-default',
-                    numberDisplayed: 5,
-                    nonSelectedText: '-',
-                    nSelectedText: ' выбрано',
-                    allSelectedText: 'Все',
-                    selectAllText: 'Выбрать все',
-                    selectAllValue: ''
-                });
-
-                $( '.customer-autocomplete' ).autocomplete({
-                    source: function ( request, response )
-                    {
-                        var r = {};
-                        r.param = this.element[0].name;
-                        r.value = request.term;
-                        $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
-                        {
-                            response( data );
-                        });
-                    },
-                    minLength: 2,
-                    select: function ( event, ui )
-                    {
-                        $( this ).trigger( 'change' );
-                    }
-                });
-
-                $( '.mask_phone' ).inputmask( 'mask', {
-                    'mask': '+7 (999) 999-99-99'
-                });
 
             })
 
-            .on( 'click', '#cancel-checkbox', function ( event )
+            /*.on( 'click', 'a[href].tickets-ajax', function ( e )
             {
-                event.preventDefault();
+                e.preventDefault();
+                var url = $( this ).attr( 'href' );
+                loadTickets( url );
+                window.history.pushState( '', '', url );
+            })
+
+            .on( 'click', 'a[href].ticket-tabs', function ( e )
+            {
+                e.preventDefault();
+                $( 'a[href].ticket-tabs' ).removeClass( 'btn-info' );
+                $( this ).addClass( 'btn-info' );
+            })*/
+
+            .on( 'click', '[data-load="search"]', function ( e )
+            {
+                e.preventDefault();
+                if ( $( '#search' ).text().trim() == '' )
+                {
+                    $( '#search' ).loading();
+                    $.get( '{{ route( 'tickets.search.form' ) }}', function ( response )
+                    {
+                        $( '#search' ).html( response );
+                        $( '.select2' ).select2();
+                        $( '.select2-ajax' ).select2({
+                            minimumInputLength: 3,
+                            minimumResultsForSearch: 30,
+                            ajax: {
+                                cache: true,
+                                type: 'post',
+                                delay: 450,
+                                data: function ( term )
+                                {
+                                    var data = {
+                                        q: term.term,
+                                        provider_id: $( '#provider_id' ).val()
+                                    };
+                                    var _data = $( this ).closest( 'form' ).serializeArray();
+                                    for( var i = 0; i < _data.length; i ++ )
+                                    {
+                                        if ( _data[ i ].name != '_method' )
+                                        {
+                                            data[ _data[ i ].name ] = _data[ i ].value;
+                                        }
+                                    }
+                                    return data;
+                                },
+                                processResults: function ( data, page )
+                                {
+                                    return {
+                                        results: data
+                                    };
+                                }
+                            }
+                        });
+
+                        $( '.datetimepicker' ).datetimepicker({
+                            isRTL: App.isRTL(),
+                            format: "dd.mm.yyyy hh:ii",
+                            autoclose: true,
+                            fontAwesome: true,
+                            todayBtn: true
+                        });
+
+                        $('.date-picker').datepicker({
+                            rtl: App.isRTL(),
+                            orientation: "left",
+                            autoclose: true,
+                            format: 'dd.mm.yyyy'
+                        });
+
+                        $( '.mt-multiselect' ).multiselect({
+                            disableIfEmpty: true,
+                            enableFiltering: true,
+                            includeSelectAllOption: true,
+                            enableCaseInsensitiveFiltering: true,
+                            enableClickableOptGroups: true,
+                            buttonWidth: '100%',
+                            maxHeight: '300',
+                            buttonClass: 'mt-multiselect btn btn-default',
+                            numberDisplayed: 5,
+                            nonSelectedText: '-',
+                            nSelectedText: ' выбрано',
+                            allSelectedText: 'Все',
+                            selectAllText: 'Выбрать все',
+                            selectAllValue: ''
+                        });
+
+                        $( '.customer-autocomplete' ).autocomplete({
+                            source: function ( request, response )
+                            {
+                                var r = {};
+                                r.param = this.element[0].name;
+                                r.value = request.term;
+                                $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
+                                {
+                                    response( data );
+                                });
+                            },
+                            minLength: 2,
+                            select: function ( event, ui )
+                            {
+                                $( this ).trigger( 'change' );
+                            }
+                        });
+
+                        $( '.mask_phone' ).inputmask( 'mask', {
+                            'mask': '+7 (999) 999-99-99'
+                        });
+                    });
+                }
+            })
+
+            .on( 'click', '#cancel-checkbox', function ( e )
+            {
+                e.preventDefault();
                 cancelCheckbox();
             })
 

@@ -103,7 +103,7 @@
                             Классификатор
                         </h4>
                         <div class="col-md-10">
-                            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+                            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
                         </div>
                     </div>
                     <div class="row margin-top-10">

@@ -14,15 +14,6 @@ class Work extends BaseModel
 
     public static $name = 'Работа на сетях';
 
-    public static $categories = [
-        1 => 'ГВС (горячее водоснабжение)',
-        2 => 'ХВС (холодное водоснабжение)',
-        3 => 'ЭС (электроснабжение)',
-        4 => 'ГС (газоснабжение)',
-        5 => 'ТС (теплоснабжение)',
-        6 => 'БУ (благоустройство)'
-    ];
-
     public static $rules = [
         'provider_id'       => 'nullable|integer',
         'category_id'       => 'required|integer',
@@ -214,11 +205,6 @@ class Work extends BaseModel
                     ->whereNull( self::$_table . '.time_end_fact' )
                     ->orWhere( self::$_table . '.time_end_fact', '>=', Carbon::now()->toDateTimeString() );
             });
-    }
-
-    public function getCategory ()
-    {
-        return self::$categories[ $this->category_id ] ?? null;
     }
 
     public function getClass ()

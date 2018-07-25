@@ -24,7 +24,7 @@ class CategoriesController extends BaseController
         $categories = Category
             ::orderBy( 'name' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $categories
@@ -32,7 +32,7 @@ class CategoriesController extends BaseController
                 {
                     return $q
                         ->where( 'name', 'like', $s );
-                });
+                } );
         }
 
         $categories = $categories
@@ -49,7 +49,7 @@ class CategoriesController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create ()
     {
         Title::add( 'Добавить категорию обращений' );
         return view( 'catalog.categories.create' );
@@ -58,10 +58,10 @@ class CategoriesController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store ( Request $request )
     {
 
         $this->validate( $request, Category::$rules );
@@ -69,14 +69,16 @@ class CategoriesController extends BaseController
         $category = Category::create( $request->all() );
         if ( $category instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $category );
         }
         $category->save();
 
         self::clearCache();
 
-        return redirect()->route( 'categories.index' )
+        return redirect()
+            ->route( 'categories.index' )
             ->with( 'success', 'Категория успешно добавлена' );
 
     }
@@ -84,10 +86,10 @@ class CategoriesController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show ( $id )
     {
         //
     }
@@ -95,10 +97,10 @@ class CategoriesController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit ( $id )
     {
 
         $category = Category::find( $id );
@@ -111,33 +113,41 @@ class CategoriesController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update ( Request $request, $id )
     {
 
         $category = Category::find( $id );
 
         if ( ! $category )
         {
-            return redirect()->route( 'categories.index' )
+            return redirect()
+                ->route( 'categories.index' )
                 ->withErrors( [ 'Категория не найдена' ] );
         }
 
         $this->validate( $request, Category::$rules );
+        $attributes = $request->all();
+        $attributes[ 'need_act' ] = $request->get( 'need_act', 0 );
+        $attributes[ 'emergency' ] = $request->get( 'emergency', 0 );
+        $attributes[ 'is_pay' ] = $request->get( 'is_pay', 0 );
+        $attributes[ 'works' ] = $request->get( 'works', 0 );
 
-        $res = $category->edit( $request->all() );
+        $res = $category->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'categories.edit', $category->id )
+        return redirect()
+            ->route( 'categories.edit', $category->id )
             ->with( 'success', 'Категория успешно отредактирована' );
 
     }
@@ -145,10 +155,10 @@ class CategoriesController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }

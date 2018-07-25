@@ -27,6 +27,10 @@
                             <i class="fa fa-download"></i>
                             Выгрузить в Excel
                         </a>
+                        <a href="?report=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                            <i class="fa fa-download"></i>
+                            Отчет
+                        </a>
                     @endcan
                 </div>
             </div>
@@ -103,7 +107,7 @@
                                 </td>
                                 <td>
                                     <div class="small">
-                                        {{ $work->getCategory() }}
+                                        {{ $work->category->name }}
                                     </div>
                                 </td>
                                 <td>

@@ -16,6 +16,11 @@ class Category extends BaseModel
 
     protected $fillable = [
         'name',
+        'color',
+        'is_pay',
+        'emergency',
+        'need_act',
+        'works',
     ];
 
     public function types ()
@@ -26,6 +31,12 @@ class Category extends BaseModel
     public function provider ()
     {
         return $this->belongsTo( 'App\Models\Provider' );
+    }
+
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.provider_id', \Auth::user()->providers()->pluck( Provider::$_table . '.id' ) );
     }
 
 }

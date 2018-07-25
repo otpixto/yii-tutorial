@@ -3,7 +3,7 @@
 <!-- BEGIN LOGO -->
 <div class="logo">
     <a href="">
-        <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
+        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
         <p>
             @if ( \App\Models\Provider::isOperatorUrl() )
                 <span class="text-danger">Оператор</span>

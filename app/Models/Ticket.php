@@ -58,6 +58,7 @@ class Ticket extends BaseModel
         'cancel'				            => 'Отмена',
         'rejected'                          => 'Отклонено',
         'no_contract'                       => 'Отказ (нет договора с УО)',
+        'in_process'                        => 'В работе',
     ];
 
     public static $not_notify = [
@@ -100,14 +101,17 @@ class Ticket extends BaseModel
         'transferred' => [
             'cancel',
             'waiting',
+            'in_process',
         ],
         'transferred_again' => [
             'cancel',
             'waiting',
+            'in_process',
         ],
         'accepted' => [
             'cancel',
             'waiting',
+            'in_process',
         ],
     ];
 
@@ -251,6 +255,38 @@ class Ticket extends BaseModel
         return $query
             ->where( self::$_table . '.author_id', '=', $user_id ?: \Auth::user()->id )
             ->where( self::$_table . '.status_code', '=', 'draft' );
+    }
+
+    public function scopeOverdue ( $query )
+    {
+        return $query
+            ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' )
+            ->orWhereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' )
+            ->orWhereRaw( 'COALESCE( postponed_to, CURRENT_TIMESTAMP ) < CURRENT_TIMESTAMP' );
+    }
+
+    public function scopeInProcess ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting', 'in_process' ] );
+    }
+
+    public function scopeNotProcessed ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'transferred', 'transferred_again' ] );
+    }
+
+    public function scopeCompleted ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] );
+    }
+
+    public function scopeClosed ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] );
     }
 
     public function scopeMine ( $query, $ignoreStatuses = false )

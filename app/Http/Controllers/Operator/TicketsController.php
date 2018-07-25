@@ -29,20 +29,400 @@ class TicketsController extends BaseController
         Title::add( 'Реестр заявок' );
     }
 
-    public function index ( Request $request, $statuses = [], $customer_id = null )
+    public function index ( Request $request )
     {
 
-        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
-        $field_management = \Auth::user()->can( 'tickets.field_management' );
+        if ( $request->ajax() )
+        {
+
+            $types = [];
+            $managements = [];
+            $operators = [];
+            $statuses = [];
+
+            $ticketManagements = TicketManagement
+                ::mine();
+
+            if ( \Auth::user()->can( 'tickets.search' ) )
+            {
+
+                if ( ! empty( $request->get( 'statuses' ) ) )
+                {
+                    $statuses = explode( ',', $request->get( 'statuses' ) );
+                }
+
+                if ( ! empty( $request->get( 'types' ) ) )
+                {
+                    $types = explode( ',', $request->get( 'types' ) );
+                }
+
+                if ( ! empty( $request->get( 'operators' ) ) )
+                {
+                    $operators = explode( ',', $request->get( 'operators' ) );
+                }
+
+                if ( ! empty( $request->get( 'managements' ) ) )
+                {
+                    $managements = explode( ',', $request->get( 'managements' ) );
+                }
+
+                $ticketManagements->whereHas( 'ticket', function ( $ticket ) use ( $request, $types, $operators )
+                {
+
+                    if ( $request->get( 'customer_id' ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.customer_id', '=', $request->get( 'customer_id' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'group' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.group_uuid', '=', $request->get( 'group' ) );
+                    }
+
+                    if ( \Auth::user()->can( 'tickets.search' ) )
+                    {
+
+                        if ( count( $types ) )
+                        {
+                            $ticket
+                                ->whereIn( Ticket::$_table . '.type_id', $types );
+                        }
+
+                        if ( count( $operators ) )
+                        {
+                            $ticket
+                                ->whereIn( Ticket::$_table . '.author_id', $operators );
+                        }
+
+                        if ( ! empty( $request->get( 'phone' ) ) )
+                        {
+                            $p = str_replace( '+7', '', $request->get( 'phone' ) );
+                            $p = preg_replace( '/[^0-9_]/', '', $p );
+                            $p = '%' . mb_substr( $p, - 10 ) . '%';
+                            $ticket
+                                ->where( function ( $q ) use ( $p )
+                                {
+                                    return $q
+                                        ->where( Ticket::$_table . '.phone', 'like', $p )
+                                        ->orWhere( Ticket::$_table . '.phone2', 'like', $p );
+                                });
+                        }
+
+                        if ( ! empty( $request->get( 'firstname' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.firstname', 'like', '%' . str_replace( ' ', '%', $request->get( 'firstname' ) ) . '%' );
+                        }
+
+                        if ( ! empty( $request->get( 'middlename' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.middlename', 'like', '%' . str_replace( ' ', '%', $request->get( 'middlename' ) ) . '%' );
+                        }
+
+                        if ( ! empty( $request->get( 'lastname' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.lastname', 'like', '%' . str_replace( ' ', '%', $request->get( 'lastname' ) ) . '%' );
+                        }
+
+                        if ( ! empty( $request->get( 'emergency' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.emergency', '=', 1 );
+                        }
+
+                        if ( ! empty( $request->get( 'dobrodel' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.dobrodel', '=', 1 );
+                        }
+
+                        if ( ! empty( $request->get( 'from_lk' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.from_lk', '=', 1 );
+                        }
+
+                        if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
+                        {
+                            $ticket
+                                ->whereRaw( Ticket::$_table . '.deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
+                        }
+
+                        if ( ! empty( $request->get( 'overdue_execution' ) ) )
+                        {
+                            $ticket
+                                ->whereRaw( Ticket::$_table . '.deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
+                        }
+
+                    }
+
+                    if ( ! empty( $request->get( 'ticket_id' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.id', '=', $request->get( 'ticket_id' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'created_from' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'created_from' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'created_to' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'created_to' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'accepted_from' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.accepted_at >= ?', [ Carbon::parse( $request->get( 'accepted_from' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'accepted_to' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.accepted_at <= ?', [ Carbon::parse( $request->get( 'accepted_to' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'completed_from' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.completed_at >= ?', [ Carbon::parse( $request->get( 'completed_from' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'completed_to' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.completed_at <= ?', [ Carbon::parse( $request->get( 'completed_to' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'postponed_from' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.postponed_at >= ?', [ Carbon::parse( $request->get( 'postponed_from' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'postponed_to' ) ) )
+                    {
+                        $ticket
+                            ->whereRaw( Ticket::$_table . '.postponed_at <= ?', [ Carbon::parse( $request->get( 'postponed_to' ) )->toDateTimeString() ] );
+                    }
+
+                    if ( ! empty( $request->get( 'operator_id' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.author_id', '=', $request->get( 'operator_id' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'building_id' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.building_id', '=', $request->get( 'building_id' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'segment_id' ) ) )
+                    {
+                        $ticket
+                            ->whereHas( 'building', function ( $building ) use ( $request )
+                            {
+                                return $building
+                                    ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
+                            });
+                    }
+
+                    if ( ! empty( $request->get( 'flat' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.flat', '=', $request->get( 'flat' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'actual_building_id' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'actual_flat' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.actual_flat', '=', $request->get( 'actual_flat' ) );
+                    }
+
+                    if ( ! empty( $request->get( 'provider_id' ) ) )
+                    {
+                        $ticket
+                            ->where( function ( $q ) use ( $request )
+                            {
+                                return $q
+                                    ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
+                            });
+                    }
+
+                    if ( $request->get( 'show' ) == 'overdue' )
+                    {
+                        $ticket
+                            ->overdue();
+                    }
+
+                });
+
+                if ( count( $statuses ) )
+                {
+                    $ticketManagements
+                        ->whereIn( TicketManagement::$_table . '.status_code', $statuses );
+                }
+
+                if ( count( $managements ) )
+                {
+                    $ticketManagements
+                        ->whereIn( TicketManagement::$_table . '.management_id', $managements );
+                }
+
+                if ( ! empty( $request->get( 'rate' ) ) )
+                {
+                    $ticketManagements
+                        ->where( TicketManagement::$_table . '.rate', '=', $request->get( 'rate' ) );
+                }
+
+                if ( ! empty( $request->get( 'ticket_management_id' ) ) )
+                {
+                    $ticketManagements
+                        ->where( TicketManagement::$_table . '.id', '=', $request->get( 'ticket_management_id' ) );
+                }
+
+                if ( ! empty( $request->get( 'executor_id' ) ) )
+                {
+                    $ticketManagements
+                        ->where( TicketManagement::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
+                }
+
+            }
+
+            switch ( $request->get( 'show' ) )
+            {
+                case 'call':
+                    $ticketManagements
+                        ->select(
+                            TicketManagement::$_table . '.*',
+                            Ticket::$_table . '.completed_at'
+                        )
+                        ->join( Ticket::$_table, Ticket::$_table . '.id', '=', TicketManagement::$_table . '.ticket_id' )
+                        ->whereIn( TicketManagement::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                        ->orderBy( Ticket::$_table . '.completed_at', 'asc' );
+                    break;
+                case 'not_processed':
+                    $ticketManagements
+                        ->notProcessed()
+                        ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    break;
+                case 'in_process':
+                    $ticketManagements
+                        ->inProcess()
+                        ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    break;
+                case 'completed':
+                    $ticketManagements
+                        ->completed()
+                        ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    break;
+                case 'closed':
+                    $ticketManagements
+                        ->closed()
+                        ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    break;
+                default:
+                    $ticketManagements
+                        ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    break;
+            }
+
+            /*if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->count() < 1000 )
+            {
+                $ticketManagements = $ticketManagements->get();
+                $data = [];
+                $i = 0;
+                foreach ( $ticketManagements as $ticketManagement )
+                {
+                    $ticket = $ticketManagement->ticket;
+                    if ( ! $ticket || $ticket->status_code == 'draft' ) continue;
+                    $data[ $i ] = [
+                        '#'                     => $ticket->id,
+                        'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
+                        'Текущий статус'        => $ticket->status_name,
+                        'Здание'                => $ticket->building->name,
+                        'Квартира'              => $ticket->flat,
+                        'Проблемное место'      => $ticket->getPlace(),
+                        'Категория заявки'      => $ticket->type->category->name,
+                        'Классификатор'         => $ticket->type->name,
+                        'Текст обращения'       => $ticket->text,
+                        'ФИО заявителя'         => $ticket->getName(),
+                        'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                    ];
+                    if ( $field_operator )
+                    {
+                        $data[ $i ][ 'Оператор' ] = $ticket->author->getName();
+                    }
+                    if ( $field_management )
+                    {
+                        $data[ $i ][ 'ЭО' ] = $ticketManagement->management->name;
+                    }
+                    $i ++;
+                }
+                \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
+                {
+                    $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
+                    {
+                        $sheet->fromArray( $data );
+                    });
+                })->export( 'xls' );
+                die;
+            }*/
+
+            $ticketManagements = $ticketManagements
+                ->with(
+                    'ticket',
+                    'ticket.type',
+                    'ticket.type.category',
+                    'ticket.building',
+                    'management'
+                )
+                ->paginate( config( 'pagination.per_page' ) )
+                ->appends( $request->all() );
+
+            return view( 'tickets.parts.list' )
+                ->with( 'ticketManagements', $ticketManagements );
+
+        }
+
+        return view( 'tickets.index' )
+            ->with( 'request', $request );
+
+    }
+
+    public function searchForm ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.search' ) )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
 
         $types = [];
         $managements = [];
         $operators = [];
+        $statuses = [];
 
         if ( \Auth::user()->can( 'tickets.search' ) )
         {
 
-            if ( ! count( $statuses ) && ! empty( $request->get( 'statuses' ) ) )
+            if ( ! empty( $request->get( 'statuses' ) ) )
             {
                 $statuses = explode( ',', $request->get( 'statuses' ) );
             }
@@ -64,231 +444,9 @@ class TicketsController extends BaseController
 
         }
 
-        $ticketManagements = TicketManagement
-            ::mine()
-            ->whereHas( 'ticket', function ( $ticket ) use ( $request, $field_operator, $customer_id, $types, $operators )
-            {
-
-                if ( $customer_id )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.customer_id', '=', $customer_id );
-                }
-
-                if ( ! empty( $request->get( 'group' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.group_uuid', '=', $request->get( 'group' ) );
-                }
-
-                if ( \Auth::user()->can( 'tickets.search' ) )
-                {
-
-                    if ( count( $types ) )
-                    {
-                        $ticket
-                            ->whereIn( Ticket::$_table . '.type_id', $types );
-                    }
-
-                    if ( count( $operators ) )
-                    {
-                        $ticket
-                            ->whereIn( Ticket::$_table . '.author_id', $operators );
-                    }
-
-                    if ( ! empty( $request->get( 'phone' ) ) )
-                    {
-                        $p = str_replace( '+7', '', $request->get( 'phone' ) );
-                        $p = preg_replace( '/[^0-9_]/', '', $p );
-                        $p = '%' . mb_substr( $p, - 10 ) . '%';
-                        $ticket
-                            ->where( function ( $q ) use ( $p )
-                            {
-                                return $q
-                                    ->where( Ticket::$_table . '.phone', 'like', $p )
-                                    ->orWhere( Ticket::$_table . '.phone2', 'like', $p );
-                            });
-                    }
-
-                    if ( ! empty( $request->get( 'firstname' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.firstname', 'like', '%' . str_replace( ' ', '%', $request->get( 'firstname' ) ) . '%' );
-                    }
-
-                    if ( ! empty( $request->get( 'middlename' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.middlename', 'like', '%' . str_replace( ' ', '%', $request->get( 'middlename' ) ) . '%' );
-                    }
-
-                    if ( ! empty( $request->get( 'lastname' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.lastname', 'like', '%' . str_replace( ' ', '%', $request->get( 'lastname' ) ) . '%' );
-                    }
-
-                    if ( ! empty( $request->get( 'emergency' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.emergency', '=', 1 );
-                    }
-
-                    if ( ! empty( $request->get( 'dobrodel' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.dobrodel', '=', 1 );
-                    }
-
-                    if ( ! empty( $request->get( 'from_lk' ) ) )
-                    {
-                        $ticket
-                            ->where( Ticket::$_table . '.from_lk', '=', 1 );
-                    }
-
-                    if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
-                    {
-                        $ticket
-                            ->whereRaw( Ticket::$_table . '.deadline_acceptance < COALESCE( accepted_at, CURRENT_TIMESTAMP )' );
-                    }
-
-                    if ( ! empty( $request->get( 'overdue_execution' ) ) )
-                    {
-                        $ticket
-                            ->whereRaw( Ticket::$_table . '.deadline_execution < COALESCE( completed_at, CURRENT_TIMESTAMP )' );
-                    }
-
-                }
-
-                if ( ! empty( $request->get( 'ticket_id' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.id', '=', $request->get( 'ticket_id' ) );
-                }
-
-                if ( ! empty( $request->get( 'created_from' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'created_from' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'created_to' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'created_to' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'accepted_from' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.accepted_at >= ?', [ Carbon::parse( $request->get( 'accepted_from' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'accepted_to' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.accepted_at <= ?', [ Carbon::parse( $request->get( 'accepted_to' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'completed_from' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.completed_at >= ?', [ Carbon::parse( $request->get( 'completed_from' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'completed_to' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.completed_at <= ?', [ Carbon::parse( $request->get( 'completed_to' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'postponed_from' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.postponed_at >= ?', [ Carbon::parse( $request->get( 'postponed_from' ) )->toDateTimeString() ] );
-                }
-
-                if ( ! empty( $request->get( 'postponed_to' ) ) )
-                {
-                    $ticket
-                        ->whereRaw( Ticket::$_table . '.postponed_at <= ?', [ Carbon::parse( $request->get( 'postponed_to' ) )->toDateTimeString() ] );
-                }
-
-                if ( $field_operator && !empty( $request->get( 'operator_id' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.author_id', '=', $request->get( 'operator_id' ) );
-                }
-
-                if ( ! empty( $request->get( 'building_id' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.building_id', '=', $request->get( 'building_id' ) );
-                }
-
-                if ( ! empty( $request->get( 'segment_id' ) ) )
-                {
-                    $ticket
-                        ->whereHas( 'building', function ( $building ) use ( $request )
-                        {
-                            return $building
-                                ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
-                        });
-                }
-
-                if ( ! empty( $request->get( 'flat' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.flat', '=', $request->get( 'flat' ) );
-                }
-
-                if ( ! empty( $request->get( 'actual_building_id' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
-                }
-
-                if ( ! empty( $request->get( 'actual_flat' ) ) )
-                {
-                    $ticket
-                        ->where( Ticket::$_table . '.actual_flat', '=', $request->get( 'actual_flat' ) );
-                }
-
-                if ( ! empty( $request->get( 'provider_id' ) ) )
-                {
-                    $ticket
-                        ->where( function ( $q ) use ( $request )
-                        {
-                            return $q
-                                ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
-                        });
-                }
-
-                if ( $request->get( 'show' ) == 'overdue' )
-                {
-                    $ticket
-                        ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' )
-                        ->orWhereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' );
-                }
-
-            });
-
-        if ( count( $statuses ) )
+        if ( ! empty( $request->get( 'segment_id' ) ) )
         {
-            $ticketManagements
-                ->whereIn( TicketManagement::$_table . '.status_code', $statuses );
-        }
-
-        if ( count( $managements ) )
-        {
-            $ticketManagements
-                ->whereIn( TicketManagement::$_table . '.management_id', $managements );
-        }
-
-        if ( ! empty( $request->get( 'rate' ) ) )
-        {
-            $ticketManagements
-                ->where( TicketManagement::$_table . '.rate', '=', $request->get( 'rate' ) );
+            $segment = Segment::find( $request->get( 'segment_id' ) );
         }
 
         if ( ! empty( $request->get( 'building_id' ) ) )
@@ -301,185 +459,68 @@ class TicketsController extends BaseController
             $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
         }
 
-        if ( ! empty( $request->get( 'ticket_management_id' ) ) )
-        {
-            $ticketManagements
-                ->where( TicketManagement::$_table . '.id', '=', $request->get( 'ticket_management_id' ) );
-        }
-
-        if ( ! empty( $request->get( 'executor_id' ) ) )
-        {
-            $ticketManagements
-                ->where( TicketManagement::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
-        }
-
-        if ( ! empty( $request->get( 'segment_id' ) ) )
-        {
-            $segment = Segment::find( $request->get( 'segment_id' ) );
-        }
-
-        switch ( $request->get( 'show' ) )
-        {
-            case 'call':
-                $ticketManagements
-                    ->select(
-                        TicketManagement::$_table . '.*',
-                        Ticket::$_table . '.completed_at'
-                    )
-                    ->join( Ticket::$_table, Ticket::$_table . '.id', '=', TicketManagement::$_table . '.ticket_id' )
-                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
-                    ->orderBy( Ticket::$_table . '.completed_at', 'asc' );
-                break;
-            case 'not_processed':
-                $ticketManagements
-                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'transferred', 'transferred_again' ] )
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
-                break;
-            case 'in_progress':
-                $ticketManagements
-                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
-                break;
-            case 'completed':
-                $ticketManagements
-                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
-                break;
-            case 'closed':
-                $ticketManagements
-                    ->whereIn( TicketManagement::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] )
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
-                break;
-            default:
-                $ticketManagements
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
-                break;
-        }
-
-        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->count() < 1000 )
-        {
-            $ticketManagements = $ticketManagements->get();
-            $data = [];
-            $i = 0;
-            foreach ( $ticketManagements as $ticketManagement )
-            {
-                $ticket = $ticketManagement->ticket;
-                if ( ! $ticket || $ticket->status_code == 'draft' ) continue;
-                $data[ $i ] = [
-                    '#'                     => $ticket->id,
-                    'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                    'Текущий статус'        => $ticket->status_name,
-                    'Здание'                => $ticket->building->name,
-                    'Квартира'              => $ticket->flat,
-                    'Проблемное место'      => $ticket->getPlace(),
-                    'Категория заявки'      => $ticket->type->category->name,
-                    'Классификатор'         => $ticket->type->name,
-                    'Текст обращения'       => $ticket->text,
-                    'ФИО заявителя'         => $ticket->getName(),
-                    'Телефон(ы) заявителя'  => $ticket->getPhones(),
-                ];
-                if ( $field_operator )
-                {
-                    $data[ $i ][ 'Оператор' ] = $ticket->author->getName();
-                }
-                if ( $field_management )
-                {
-                    $data[ $i ][ 'ЭО' ] = $ticketManagement->management->name;
-                }
-                $i ++;
-            }
-            \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
-            {
-                $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
-                {
-                    $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
-            die;
-        }
-
-        $ticketManagements = $ticketManagements
-            ->with(
-                'comments',
-                'ticket',
-                'ticket.type',
-                'ticket.type.category',
-				'ticket.building',
-				'ticket.author',
-                'management',
-				'services'
-            )
-            ->paginate( config( 'pagination.per_page' ) )
-            ->appends( $request->all() );
-
         $providers = Provider
             ::mine()
             ->current()
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
-        if ( \Auth::user()->can( 'tickets.search' ) )
+        $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
+        $res = Type::mine()->with( 'category' )->get()->sortBy( 'name' );
+        $availableTypes = [];
+        foreach ( $res as $r )
         {
-
-            $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
-			$res = Type::mine()->with( 'category' )->get()->sortBy( 'name' );
-			$availableTypes = [];
-			foreach ( $res as $r )
-			{
-				$availableTypes[ $r->category->name ][ $r->id ] = $r->name;
-			}
-
-            if ( $field_operator )
-            {
-                if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'operators' ) )
-                {
-                    $availableOperators = \Cache::tags( [ 'users', 'ticket' ] )->get( 'operators' );
-                }
-                else
-                {
-                    $res = User::role( 'operator' )->get();
-                    $availableOperators = [];
-                    foreach ( $res as $r )
-                    {
-                        $availableOperators[ $r->id ] = $r->getName();
-                    }
-                    asort( $availableOperators );
-                    \Cache::tags( [ 'users', 'ticket' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
-                }
-            }
-
-            if ( $field_management )
-            {
-                $res = Management
-                    ::mine()
-                    ->whereHas( 'parent' )
-                    ->with( 'parent' )
-                    ->get()
-                    ->sortBy( 'name' );
-                $availableManagements = [];
-                foreach ( $res as $r )
-                {
-                    $availableManagements[ $r->parent->name ][ $r->id ] = $r->name;
-                }
-            }
-
-            if ( ! count( $types ) )
-            {
-                foreach ( $availableTypes as $category )
-                {
-                    $types = array_merge( $types, array_keys( $category ) );
-                }
-            }
-
-            if ( ! count( $statuses ) )
-            {
-                $statuses = array_keys( $availableStatuses );
-            }
-
+            $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
         }
 
-        return view( 'tickets.index' )
-            ->with( 'ticketManagements', $ticketManagements )
+        if ( \Auth::user()->can( 'tickets.field_operator' ) )
+        {
+            if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'operators' ) )
+            {
+                $availableOperators = \Cache::tags( [ 'users', 'ticket' ] )->get( 'operators' );
+            }
+            else
+            {
+                $res = User::role( 'operator' )->get();
+                $availableOperators = [];
+                foreach ( $res as $r )
+                {
+                    $availableOperators[ $r->id ] = $r->getName();
+                }
+                asort( $availableOperators );
+                \Cache::tags( [ 'users', 'ticket' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+            }
+        }
+
+        if ( \Auth::user()->can( 'tickets.field_management' ) )
+        {
+            $res = Management
+                ::mine()
+                ->whereHas( 'parent' )
+                ->with( 'parent' )
+                ->get()
+                ->sortBy( 'name' );
+            $availableManagements = [];
+            foreach ( $res as $r )
+            {
+                $availableManagements[ $r->parent->name ][ $r->id ] = $r->name;
+            }
+        }
+
+        if ( ! count( $types ) )
+        {
+            foreach ( $availableTypes as $category )
+            {
+                $types = array_merge( $types, array_keys( $category ) );
+            }
+        }
+
+        if ( ! count( $statuses ) )
+        {
+            $statuses = array_keys( $availableStatuses );
+        }
+
+        return view( 'tickets.parts.search' )
             ->with( 'availableTypes', $availableTypes ?? [] )
             ->with( 'availableStatuses', $availableStatuses ?? [] )
             ->with( 'availableOperators', $availableOperators ?? [] )
@@ -491,9 +532,7 @@ class TicketsController extends BaseController
             ->with( 'building', $building ?? [] )
             ->with( 'segment', $segment ?? [] )
             ->with( 'actual_building', $actual_building ?? [] )
-            ->with( 'statuses', $statuses ?? [] )
-            ->with( 'field_operator', $field_operator ?? false )
-            ->with( 'field_management', $field_management ?? false );
+            ->with( 'statuses', $statuses ?? [] );
 
     }
 
@@ -842,7 +881,7 @@ class TicketsController extends BaseController
             }
         }
 
-        return view( 'tickets.show' )
+        return view( $request->ajax() ? 'tickets.parts.info' : 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
             ->with( 'availableStatuses', $availableStatuses )
@@ -1687,9 +1726,7 @@ class TicketsController extends BaseController
             $data[ 'phone' ] = preg_replace( '/[^0-9_]/', '', $data[ 'phone' ] );
         }
 
-        $url = route( 'tickets.index', $data ) . '#result';
-
-        return redirect()->to( $url );
+        return redirect()->route( 'tickets.index', $data );
 
     }
 
@@ -1728,7 +1765,7 @@ class TicketsController extends BaseController
             ->whereHas( 'ticket', function ( $ticket ) use ( $request )
             {
 
-                $ticket->notFinaleStatuses();
+                $ticket->inProcess();
 
                 if ( $request->get( 'building_id' ) )
                 {

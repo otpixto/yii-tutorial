@@ -46,8 +46,7 @@ class Counter
                         ->whereHas( 'ticket', function ( $ticket )
                         {
                             return $ticket
-                                ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' )
-                                ->orWhereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' );
+                                ->overdue();
                         })
                         ->count();
                     \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_overdue_count', $tickets_overdue_count, $cache_time );
@@ -57,34 +56,25 @@ class Counter
                 {
                     $tickets_not_processed_count = TicketManagement
                         ::mine()
-                        ->whereIn( TicketManagement::$_table . '.status_code', [ 'transferred', 'transferred_again' ] )
+                        ->notProcessed()
                         ->count();
                     \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_not_processed_count', $tickets_not_processed_count, 1 );
                 }
 
-                if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . $user->id . '.tickets_in_progress_count' ) )
+                if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . $user->id . '.tickets_in_process_count' ) )
                 {
-                    $tickets_in_progress_count = TicketManagement
+                    $tickets_in_process_count = TicketManagement
                         ::mine()
-                        ->whereIn( TicketManagement::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
+                        ->inProcess()
                         ->count();
-                    \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_in_progress_count', $tickets_in_progress_count, $cache_time );
-                }
-
-                if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . $user->id . '.tickets_in_progress_count' ) )
-                {
-                    $tickets_in_progress_count = TicketManagement
-                        ::mine()
-                        ->whereIn( TicketManagement::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting' ] )
-                        ->count();
-                    \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_in_progress_count', $tickets_in_progress_count, $cache_time );
+                    \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_in_process_count', $tickets_in_process_count, $cache_time );
                 }
 
                 if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . $user->id . '.tickets_completed_count' ) )
                 {
                     $tickets_completed_count = TicketManagement
                         ::mine()
-                        ->whereIn( TicketManagement::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] )
+                        ->completed()
                         ->count();
                     \Cache::tags( 'tickets_counts' )->put( 'user.' . $user->id . '.tickets_completed_count', $tickets_completed_count, $cache_time );
                 }

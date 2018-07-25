@@ -40,22 +40,26 @@ class TicketManagement extends BaseModel
             'accepted',
             'rejected',
             'waiting',
+            'in_process',
         ],
         'transferred_again' => [
             'accepted',
             'rejected',
             'waiting',
+            'in_process',
         ],
         'accepted' => [
             'waiting',
             'assigned',
             'waiting',
+            'in_process',
         ],
         'assigned' => [
             'completed_with_act',
             'completed_without_act',
             'not_verified',
             'waiting',
+            'in_process',
         ],
         'waiting' => [
             'accepted',
@@ -121,6 +125,30 @@ class TicketManagement extends BaseModel
     {
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
             ->where( StatusHistory::$_table . '.model_name', '=', get_class( $this ) );
+    }
+
+    public function scopeInProcess ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'accepted', 'assigned', 'waiting', 'in_process' ] );
+    }
+
+    public function scopeNotProcessed ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'transferred', 'transferred_again' ] );
+    }
+
+    public function scopeCompleted ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] );
+    }
+
+    public function scopeClosed ( $query )
+    {
+        return $query
+            ->whereIn( self::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] );
     }
 
     public function scopeMine ( $query, $ignoreStatuses = false )
