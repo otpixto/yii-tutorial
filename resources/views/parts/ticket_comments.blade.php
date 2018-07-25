@@ -2,7 +2,7 @@
 	<td colspan="6">
         @if ( $ticket->status_code == 'waiting' && ! empty( $ticket->postponed_comment ) )
             <div class="note note-warning">
-                <span class="small text-muted">Комментарий об отложенной заявки:</span>
+                <span class="small text-muted">Комментарий к отложенной заявке:</span>
                 {{ $ticket->postponed_comment }}
             </div>
         @endif

@@ -55,7 +55,7 @@ class LogsController extends BaseController
         }
 
         $logs = $logs
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view('admin.logs.index' )

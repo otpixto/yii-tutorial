@@ -3,14 +3,14 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Категории классификатора', route( 'categories.index' ) ],
+        [ 'Классификатор', route( 'types.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.categories.create' ) )
+    @if ( \Auth::user()->can( 'catalog.types.create_category' ) )
 
         {!! Form::open( [ 'url' => route( 'categories.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 

@@ -40,7 +40,7 @@ class RolesController extends BaseController
         }
 
         $roles = $roles
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view('admin.roles.index' )

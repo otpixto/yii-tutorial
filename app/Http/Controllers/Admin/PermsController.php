@@ -37,7 +37,7 @@ class PermsController extends BaseController
                 ->where( 'guard', '=', $guard )
                 ->orderBy( 'code' )
                 ->orderBy( 'name' )
-                ->paginate( 30 )
+                ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
         }
         else
@@ -152,7 +152,8 @@ class PermsController extends BaseController
         }
 
         $res = User
-            ::search( $request->get( 'q' ) )
+            ::mine()
+            ->search( $request->get( 'q' ) )
             ->whereNotIn( User::$_table . '.id', $perm->users()->pluck( User::$_table . '.id' ) )
             ->get();
 

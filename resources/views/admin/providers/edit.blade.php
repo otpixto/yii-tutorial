@@ -43,7 +43,7 @@
                             </div>
                             <div class="col-xs-6 text-right">
                                 <a href="{{ route( 'providers.buildings', $provider->id ) }}" class="btn btn-default btn-circle">
-                                    Адреса
+                                    Здания
                                     <span class="badge">{{ $provider->buildings()->count() }}</span>
                                 </a>
                                 <a href="{{ route( 'providers.managements', $provider->id ) }}" class="btn btn-default btn-circle">
@@ -140,6 +140,42 @@
 
                     </div>
 
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Логотип</h3>
+                    </div>
+                    <div class="panel-body" style="background-color: #2f373e;">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img src="{{ \App\Models\Provider::getLogo() }}" class="img-responsive" />
+                            </div>
+                            {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.logo.upload', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
+                            <div class="col-md-5">
+                                {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
+                            </div>
+                            <div class="col-md-4">
+                                {!! Form::submit( 'Загрузить', [ 'class' => 'btn btn-primary' ] ) !!}
+                            </div>
+                        </div>
+                        @if ( $provider->logo )
+                            <div class="row margin-top-30">
+                                <div class="col-md-3 text-center">
+                                    {!! Form::close() !!}
+                                    {!! Form::model( $provider, [ 'method' => 'delete', 'route' => [ 'providers.logo.delete', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
+                                    {!! Form::submit( 'Удалить', [ 'class' => 'btn btn-danger' ] ) !!}
+                                    {!! Form::close() !!}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
             </div>

@@ -185,7 +185,7 @@
                 @if ( \Auth::user()->can( 'maps.works' ) )
                     <li>
                         <a href="{{ route( 'maps.works' ) }}">
-                            География работ на сетях
+                            География отключений
                         </a>
                     </li>
                 @endif
@@ -241,6 +241,13 @@
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'managements.index' ) }}" class="nav-link">
                                 Управляющие организации (УО)
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'catalog.executors.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'executors.index' ) }}" class="nav-link">
+                                Исполнители
                             </a>
                         </li>
                     @endif

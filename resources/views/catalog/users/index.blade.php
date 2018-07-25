@@ -61,7 +61,7 @@
                                     <a href="?role={{ $role->code }}">
                                         {{ $role->name }}
                                         <span class="badge badge-info pull-right">
-                                            {{ $role->users->count() }}
+                                            {{ $role->users()->mine()->count() }}
                                         </span>
                                     </a>
                                 </li>

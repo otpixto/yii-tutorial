@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
 use App\Models\Building;
+use App\Models\Executor;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
@@ -28,22 +29,22 @@ class WorksController extends BaseController
 
         $managements = [];
 
-        if ( ! empty( $request->get ( 'managements' ) ) )
+        if ( ! empty( $request->get( 'managements' ) ) )
         {
-            $managements = explode ( ',', $request->get ( 'managements' ) );
+            $managements = explode( ',', $request->get( 'managements' ) );
         }
 
         $works = Work
-            ::mine ()
-            ->orderBy ( Work::$_table . '.id', 'desc' );
+            ::mine()
+            ->orderBy( Work::$_table . '.id', 'desc' );
 
-        if ( $request->get ( 'show' ) != 'all' )
+        if ( $request->get( 'show' ) != 'all' )
         {
             $works
-                ->current ();
+                ->current();
         }
 
-        switch ( $request->get ( 'show' ) )
+        switch ( $request->get( 'show' ) )
         {
             case 'all':
 
@@ -54,7 +55,7 @@ class WorksController extends BaseController
                 break;
             default:
                 $works
-                    ->current ();
+                    ->current();
                 break;
         }
 
@@ -87,13 +88,15 @@ class WorksController extends BaseController
         if ( ! empty( $request->get( 'begin_from' ) ) )
         {
             $works
-                ->where( Work::$_table . '.time_begin', '>=', Carbon::parse( $request->get( 'begin_from' ) )->toDateTimeString() );
+                ->where( Work::$_table . '.time_begin', '>=', Carbon::parse( $request->get( 'begin_from' ) )
+                    ->toDateTimeString() );
         }
 
         if ( ! empty( $request->get( 'begin_to' ) ) )
         {
             $works
-                ->where( Work::$_table . '.time_begin', '<=', Carbon::parse( $request->get( 'begin_to' ) )->toDateTimeString() );
+                ->where( Work::$_table . '.time_begin', '<=', Carbon::parse( $request->get( 'begin_to' ) )
+                    ->toDateTimeString() );
         }
 
         if ( ! empty( $request->get( 'end_from' ) ) )
@@ -102,9 +105,11 @@ class WorksController extends BaseController
                 ->where( function ( $q ) use ( $request )
                 {
                     return $q
-                        ->where( Work::$_table . '.time_end', '>=', Carbon::parse( $request->get( 'end_from' ) )->toDateTimeString() )
-                        ->orWhere( Work::$_table . '.time_end_fact', '>=', Carbon::parse( $request->get( 'end_from' ) )->toDateTimeString() );
-                });
+                        ->where( Work::$_table . '.time_end', '>=', Carbon::parse( $request->get( 'end_from' ) )
+                            ->toDateTimeString() )
+                        ->orWhere( Work::$_table . '.time_end_fact', '>=', Carbon::parse( $request->get( 'end_from' ) )
+                            ->toDateTimeString() );
+                } );
         }
 
         if ( ! empty( $request->get( 'end_to' ) ) )
@@ -113,15 +118,23 @@ class WorksController extends BaseController
                 ->where( function ( $q ) use ( $request )
                 {
                     return $q
-                        ->where( Work::$_table . '.time_end', '<=', Carbon::parse( $request->get( 'end_to' ) )->toDateTimeString() )
-                        ->orWhere( Work::$_table . '.time_end_fact', '<=', Carbon::parse( $request->get( 'end_to' ) )->toDateTimeString() );
-                });
+                        ->where( Work::$_table . '.time_end', '<=', Carbon::parse( $request->get( 'end_to' ) )
+                            ->toDateTimeString() )
+                        ->orWhere( Work::$_table . '.time_end_fact', '<=', Carbon::parse( $request->get( 'end_to' ) )
+                            ->toDateTimeString() );
+                } );
         }
 
         if ( ! empty( $request->get( 'type_id' ) ) )
         {
             $works
                 ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'executor_id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
         }
 
         if ( ! empty( $request->get( 'building_id' ) ) )
@@ -131,8 +144,9 @@ class WorksController extends BaseController
                 {
                     return $buildings
                         ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
-                });
-            $building = Building::where( 'id', '=', $request->get( 'building_id' ) )->pluck( 'name', 'id' );
+                } );
+            $building = Building::where( 'id', '=', $request->get( 'building_id' ) )
+                ->pluck( 'name', 'id' );
         }
 
         if ( ! empty( $request->get( 'segment_id' ) ) )
@@ -143,7 +157,7 @@ class WorksController extends BaseController
                 {
                     return $buildings
                         ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
-                });
+                } );
         }
 
         if ( count( $managements ) )
@@ -152,23 +166,26 @@ class WorksController extends BaseController
                 ->whereIn( Work::$_table . '.management_id', $managements );
         }
 
-        if ( $request->get( 'export' ) == 1 && \Auth::user()->can( 'works.export' ) )
+        if ( $request->get( 'export' ) == 1 && \Auth::user()
+                ->can( 'works.export' ) )
         {
             $works = $works->get();
             $data = [];
             foreach ( $works as $work )
             {
                 $data[] = [
-                    '#'                             => $work->id,
-                    'Дата и время'                  => $work->created_at->format( 'd.m.y H:i' ),
-                    'Кто сообщил'                   => $work->who,
-                    'Основание'                     => $work->reason,
-                    'Адрес работ'                   => $work->buildings->implode( 'name', '; ' ),
-                    'Категория работ'               => $work->category->name,
-                    'Исполнитель работ'             => $work->management->name,
-                    'Состав работ'                  => $work->composition,
-                    'Время начала работ'            => Carbon::parse( $work->time_begin )->format( 'd.m.y H:i' ),
-                    'Время окончания работ'         => Carbon::parse( $work->time_end )->format( 'd.m.y H:i' ),
+                    '#' => $work->id,
+                    'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
+                    'Кто сообщил' => $work->who,
+                    'Основание' => $work->reason,
+                    'Адрес работ' => $work->buildings->implode( 'name', '; ' ),
+                    'Категория работ' => $work->category->name,
+                    'Исполнитель работ' => $work->management->name,
+                    'Состав работ' => $work->composition,
+                    'Время начала работ' => Carbon::parse( $work->time_begin )
+                        ->format( 'd.m.y H:i' ),
+                    'Время окончания работ' => Carbon::parse( $work->time_end )
+                        ->format( 'd.m.y H:i' ),
                 ];
             }
             \Excel::create( 'Отключения', function ( $excel ) use ( $data )
@@ -176,12 +193,13 @@ class WorksController extends BaseController
                 $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
+                } );
+            } )
+                ->export( 'xls' );
         }
 
         $works = $works
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $providers = Provider
@@ -206,7 +224,6 @@ class WorksController extends BaseController
             ->with( 'works', $works )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'managements', $managements )
-            ->with( 'types', Type::orderBy( 'name' )->get() )
             ->with( 'providers', $providers )
             ->with( 'building', $building ?? [] )
             ->with( 'segment', $segment ?? [] );
@@ -259,7 +276,9 @@ class WorksController extends BaseController
 
         if ( ! isset( Work::$categories[ $request->get( 'category_id' ) ] ) )
         {
-            return redirect()->back()->withErrors( [ 'Некорректная категория' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Некорректная категория' ] );
         }
 
         \DB::beginTransaction();
@@ -268,25 +287,50 @@ class WorksController extends BaseController
 
         if ( $work instanceof MessageBag )
         {
-            return redirect()->back()->withErrors( $work );
+            return redirect()
+                ->back()
+                ->withErrors( $work );
         }
 
-        if ( !empty( $request->comment ) )
+        if ( ! empty( $request->get( 'executor_name' ) ) )
+        {
+            $executor = Executor::create([
+                'management_id'     => $work->management_id,
+                'name'              => $request->get( 'executor_name' ),
+                'phone'             => $request->get( 'executor_phone' ),
+            ]);
+            if ( $executor instanceof MessageBag )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( $executor );
+            }
+            $executor->save();
+            $work->executor_id = $executor->id;
+            $work->save();
+        }
+
+        if ( ! empty( $request->comment ) )
         {
             $comment = $work->addComment( $request->comment );
             if ( $comment instanceof MessageBag )
             {
-                return redirect()->back()->withErrors( $comment );
+                return redirect()
+                    ->back()
+                    ->withErrors( $comment );
             }
         }
 
-        $work->buildings()->sync( $request->get( 'building_id', [] ) );
+        $work->buildings()
+            ->sync( $request->get( 'buildings', [] ) );
 
         \DB::commit();
 
-        \Cache::tags( 'works_counts' )->flush();
+        \Cache::tags( 'works_counts' )
+            ->flush();
 
-        return redirect()->route( 'works.edit', $work->id )
+        return redirect()
+            ->route( 'works.edit', $work->id )
             ->with( 'success', 'Сообщение успешно добавлено' );
 
     }
@@ -343,7 +387,6 @@ class WorksController extends BaseController
         }
 
         $managements = Management::orderBy( 'name' )->get();
-        $types = Type::orderBy( 'name' )->get();
 
         $providers = Provider
             ::mine()
@@ -354,8 +397,7 @@ class WorksController extends BaseController
         return view( 'works.edit' )
             ->with( 'work', $work )
             ->with( 'managements', $managements )
-            ->with( 'providers', $providers )
-            ->with( 'types', $types );
+            ->with( 'providers', $providers );
 
     }
 
@@ -373,14 +415,18 @@ class WorksController extends BaseController
 
         if ( ! isset( Work::$categories[ $request->get( 'category_id' ) ] ) )
         {
-            return redirect()->back()->withErrors( [ 'Некорректная категория' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Некорректная категория' ] );
         }
 
         $work = Work::find( $id );
 
         if ( ! $work )
         {
-            return redirect()->back()->withErrors( [ 'Запись не найдена' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Запись не найдена' ] );
         }
 
         \DB::beginTransaction();
@@ -388,16 +434,39 @@ class WorksController extends BaseController
         $res = $work->edit( $request->all() );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()->withErrors( $res );
+            return redirect()
+                ->back()
+                ->withErrors( $res );
         }
 
-        $work->buildings()->sync( $request->get( 'building_id', [] ) );
+        if ( ! empty( $request->get( 'executor_name' ) ) )
+        {
+            $executor = Executor::create([
+                'management_id'     => $work->management_id,
+                'name'              => $request->get( 'executor_name' ),
+                'phone'             => $request->get( 'executor_phone' ),
+            ]);
+            if ( $executor instanceof MessageBag )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( $executor );
+            }
+            $executor->save();
+            $work->executor_id = $executor->id;
+            $work->save();
+        }
+
+        $work->buildings()
+            ->sync( $request->get( 'buildings', [] ) );
 
         \DB::commit();
 
-        \Cache::tags( 'works_counts' )->flush();
+        \Cache::tags( 'works_counts' )
+            ->flush();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Сообщение успешно обновлено' );
 
     }

@@ -76,7 +76,7 @@ class TypesController extends BaseController
         }
 
         $types = $types
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $categories = Category::orderBy( 'name' )->get();
@@ -168,15 +168,17 @@ class TypesController extends BaseController
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $typeManagementsCount = $type->managements()
-            ->mine()
-            ->count();
+        $parents = Type
+            ::mine()
+            ->whereNull( 'parent_id' )
+            ->where( 'id', '!=', $type->id )
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
-            ->with( 'categories', Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' ) )
-            ->with( 'typeManagementsCount', $typeManagementsCount );
-
+            ->with( 'parents', $parents )
+            ->with( 'categories', Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' ) );
     }
 
     /**

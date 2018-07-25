@@ -6,7 +6,6 @@ use App\Models\File;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use Illuminate\Http\Request;
-use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\MessageBag;
 

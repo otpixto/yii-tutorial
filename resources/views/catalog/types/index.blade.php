@@ -16,6 +16,10 @@
                     <i class="fa fa-plus"></i>
                     Добавить классификатор
                 </a>
+                <a href="{{ route( 'categories.create' ) }}" class="btn btn-info btn-lg">
+                    <i class="fa fa-plus"></i>
+                    Добавить категорию
+                </a>
             </div>
         </div>
     @endif
@@ -44,24 +48,24 @@
                                     {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
                                 </div>
                             </div>
-                            {!! Form::hidden( 'category', \Input::get( 'category' ) ) !!}
+                            {!! Form::hidden( 'category_id', \Input::get( 'category_id' ) ) !!}
                             {!! Form::close() !!}
                         </div>
                     </div>
                 </div>
                 <div class="portlet light ">
                     <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                        <div class="caption" data-toggle="collapse" data-target="#categories">
                             <span class="caption-subject font-green-sharp bold uppercase">КАТЕГОРИИ</span>
                             <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
                         </div>
                     </div>
-                    <div class="portlet-body todo-project-list-content" style="height: auto;">
+                    <div class="portlet-body todo-project-list-content" id="categories" style="height: auto;">
                         <div class="todo-project-list">
                             <ul class="nav nav-stacked">
                                 @foreach ( $categories as $category )
-                                    <li @if ( \Input::get( 'category' ) == $category->id ) class="active" @endif>
-                                        <a href="?category={{ $category->id }}">
+                                    <li @if ( \Input::get( 'category_id' ) == $category->id ) class="active" @endif>
+                                        <a href="?category_id={{ $category->id }}">
                                             {{ $category->name }}
                                             <span class="badge badge-info pull-right">
                                                 {{ $category->types()->count() }}
@@ -120,7 +124,9 @@
                                 @foreach ( $types as $type )
                                     <tr>
                                         <td>
-                                            {{ $type->category_name }}
+                                            <a href="{{ route( 'categories.edit', $type->category_id ) }}">
+                                                {{ $type->category_name }}
+                                            </a>
                                         </td>
                                         <td>
                                             {{ $type->name }}

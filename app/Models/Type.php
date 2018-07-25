@@ -16,12 +16,14 @@ class Type extends BaseModel
     protected $nullable = [
         'guid',
         'description',
+        'parent_id',
     ];
 
     protected $fillable = [
         'name',
         'description',
         'category_id',
+        'parent_id',
         'period_acceptance',
         'period_execution',
         'season',
@@ -48,6 +50,11 @@ class Type extends BaseModel
     public function category ()
     {
         return $this->belongsTo( 'App\Models\Category' );
+    }
+
+    public function parent ()
+    {
+        return $this->belongsTo( 'App\Models\Type' );
     }
 
     public function edit ( array $attributes = [] )

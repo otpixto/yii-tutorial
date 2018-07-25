@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Classes\SegmentTree;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Executor;
@@ -124,7 +123,7 @@ class ManagementsController extends BaseController
         }
 
         $managements = $managements
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $providers = Provider
@@ -342,6 +341,35 @@ class ManagementsController extends BaseController
 
     }
 
+    public function parentsSearch ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $managements = Management
+            ::mine()
+            ->whereNull( 'parent_id' )
+            ->select(
+                Management::$_table . '.id',
+                Management::$_table . '.name AS text'
+            )
+            ->where( Management::$_table . '.name', 'like', $s )
+            ->where( Management::$_table . '.id', '!=', $management->id )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        return $managements;
+
+    }
+
     public function executorsSearch ( Request $request )
     {
         $management = Management::find( $request->get( 'management_id' ) );
@@ -446,7 +474,7 @@ class ManagementsController extends BaseController
         }
 
         $managementBuildings = $managementBuildings
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $segmentsTypes = SegmentType::orderBy( 'sort' )->pluck( 'name', 'id' );
@@ -600,7 +628,7 @@ class ManagementsController extends BaseController
         }
 
         $managementExecutors = $managementExecutors
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view( 'catalog.managements.executors' )
@@ -620,15 +648,12 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $executor = Executor::create([
-            'management_id'     => $id,
-            'name'              => $request->get( 'name' ),
-        ]);
+        $executor = $management->addExecutor( $request->get( 'name' ), $request->get( 'phone' ) );
 
         if ( $executor instanceof MessageBag )
         {
             return redirect()->back()
-                ->withErrors( $executor->getMessages() );
+                ->withErrors( $executor );
         }
 
         $executor->save();
@@ -712,7 +737,7 @@ class ManagementsController extends BaseController
         }
 
         $managementTypes = $managementTypes
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $res = Type

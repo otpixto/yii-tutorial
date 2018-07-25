@@ -15,6 +15,7 @@
         <div class="well">
             <a href="{{ route( 'providers.edit', $provider->id ) }}">
                 {{ $provider->name }}
+                ({{ $provider->domain }})
             </a>
         </div>
 

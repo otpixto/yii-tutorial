@@ -37,35 +37,40 @@
                 <div class="form-group">
 
                     <div class="col-xs-4">
+                        {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'parent_id', $management->parent ? $management->parent()->pluck( \App\Models\Management::$_table . '.name', \App\Models\Management::$_table . '.id' ) : [], \Input::old( 'parent_id', $management->parent_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Родитель', 'data-ajax--url' => route( 'managements.parents.search', $management->id ), 'data-placeholder' => 'Родитель' ] ) !!}
+                    </div>
+
+                    <div class="col-xs-8">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $management->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                    </div>
-
-                    <div class="col-xs-4">
-                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone', \Input::old( 'phone', $management->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
-                    </div>
-
-                    <div class="col-xs-4">
-                        {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'phone2', \Input::old( 'phone2', $management->phone2 ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
                     </div>
 
                 </div>
 
                 <div class="form-group">
 
-                    <div class="col-xs-4">
+                    <div class="col-md-4">
                         {!! Form::label( 'director', 'ФИО руководителя', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'director', \Input::old( 'director', $management->director ), [ 'class' => 'form-control', 'placeholder' => 'ФИО руководителя' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                    <div class="col-md-2">
+                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'phone', \Input::old( 'phone', $management->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                    </div>
+
+                    <div class="col-md-2">
+                        {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'phone2', \Input::old( 'phone2', $management->phone2 ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
+                    </div>
+
+                    <div class="col-md-2">
                         {!! Form::label( 'email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::email( 'email', \Input::old( 'email', $management->email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                    <div class="col-md-2">
                         {!! Form::label( 'site', 'Сайт', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'site', \Input::old( 'site', $management->site ), [ 'class' => 'form-control', 'placeholder' => 'Сайт' ] ) !!}
                     </div>
@@ -127,6 +132,12 @@
                             Классификатор
                             <span class="badge">
                                 {{ $management->types()->count() }}
+                            </span>
+                        </a>
+                        <a href="{{ route( 'managements.executors', $management->id ) }}" class="btn btn-default btn-circle">
+                            Исполнители
+                            <span class="badge">
+                                {{ $management->executors()->count() }}
                             </span>
                         </a>
                     </div>
@@ -219,11 +230,11 @@
                                 @foreach ( $management->users as $user )
                                     @if ( \Auth::user()->can( 'catalog.users.edit' ) )
                                         <a href="{{ route( 'users.edit', $user->id ) }}" class="list-group-item">
-                                            {!! $user->getFullName() !!}
+                                            {!! $user->getName( true ) !!}
                                         </a>
                                     @else
                                         <li class="list-group-item">
-                                            {!! $user->getFullName() !!}
+                                            {!! $user->getName( true ) !!}
                                         </li>
                                     @endif
                                 @endforeach

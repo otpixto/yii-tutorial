@@ -127,12 +127,21 @@ class BaseModel extends Model
     {
         if ( isset( $attributes[ 'model_name' ], $attributes[ 'model_id' ] ) )
         {
-            $model = new $attributes['model_name'];
-            $exists = $model->where( 'id', '=', $attributes['model_id'] )->first();
+            $model = new $attributes[ 'model_name' ];
+            $exists = $model->where( 'id', '=', $attributes[ 'model_id' ] )
+                ->first();
             if ( ! $exists )
             {
                 return new MessageBag( [ 'Некорректные данные' ] );
             }
+        }
+        if ( ! empty( $attributes[ 'phone' ] ) )
+        {
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
+        }
+        if ( ! empty( $attributes[ 'phone2' ] ) )
+        {
+            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
         }
         $new = new static( $attributes );
         if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && ! $new->author_id && \Auth::user() )
@@ -148,6 +157,14 @@ class BaseModel extends Model
 
     public function edit ( array $attributes = [] )
     {
+        if ( ! empty( $attributes[ 'phone' ] ) )
+        {
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
+        }
+        if ( ! empty( $attributes[ 'phone2' ] ) )
+        {
+            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
+        }
         $res = $this->saveLogs( $attributes );
         if ( $res instanceof MessageBag )
         {

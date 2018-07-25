@@ -15,7 +15,7 @@ class MapsController extends BaseController
 
     public function works ()
     {
-        Title::add( 'География работ на сетях' );
+        Title::add( 'География отключений' );
         return view( 'maps.works' );
     }
 

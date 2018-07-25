@@ -33,8 +33,13 @@
             <div class="panel-body">
                 {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.executors.add', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                 <div class="form-group">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
+                        {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', '', [ 'class' => 'form-control' ] ) !!}
+                    </div>
+                    <div class="col-md-4">
+                        {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'phone', '', [ 'class' => 'form-control mask_phone' ] ) !!}
                     </div>
                 </div>
                 <div class="form-group">
@@ -82,7 +87,9 @@
                         <button type="button" class="btn btn-xs btn-danger" data-delete="management-executor" data-executor="{{ $r->id }}">
                             <i class="fa fa-remove"></i>
                         </button>
-                        {{ $r->name }}
+                        <a href="{{ route( 'executors.edit', $r->id ) }}">
+                            {{ $r->name }}
+                        </a>
                     </div>
                 @endforeach
 
@@ -108,9 +115,19 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
+
+            .ready(function()
+            {
+
+                $( '.mask_phone' ).inputmask( 'mask', {
+                    'mask': '+7 (999) 999-99-99'
+                });
+
+            })
 
             .on( 'click', '[data-delete="management-executor"]', function ( e )
             {

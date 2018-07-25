@@ -25,6 +25,15 @@
                     </div>
 
                     <div class="col-md-6">
+                        {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'parent_id', $parents, \Input::old( 'parent_id', $type->parent_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Родитель' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-md-12">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                     </div>
@@ -47,7 +56,9 @@
                     <div class="col-xs-6 text-right">
                         <a href="{{ route( 'types.managements', $type->id ) }}" class="btn btn-default btn-circle">
                             УО
-                            <span class="badge">{{ $typeManagementsCount }}</span>
+                            <span class="badge">
+                                {{ $type->managements()->count() }}
+                            </span>
                         </a>
                     </div>
                 </div>

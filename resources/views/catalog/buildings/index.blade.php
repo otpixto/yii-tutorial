@@ -149,8 +149,8 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'buildings.managements', $building->id ) }}" class="badge badge-{{ $building->managements()->mine()->count() ? 'info' : 'default' }} bold">
-                                                    {{ $building->managements()->mine()->count() }}
+                                                <a href="{{ route( 'buildings.managements', $building->id ) }}" class="badge badge-{{ $building->managements()->count() ? 'info' : 'default' }} bold">
+                                                    {{ $building->managements()->count() }}
                                                 </a>
                                             </td>
                                         @endif

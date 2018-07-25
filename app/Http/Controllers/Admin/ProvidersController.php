@@ -9,6 +9,7 @@ use App\Models\Provider;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use Illuminate\Support\Facades\Storage;
 
 class ProvidersController extends BaseController
 {
@@ -23,7 +24,7 @@ class ProvidersController extends BaseController
     {
 
         $search = trim( $request->get( 'search', '' ) );
-        $address = $request->get( 'address', null );
+        $building_id = $request->get( 'building_id', null );
 
         $providers = Provider
             ::orderBy( Provider::$_table . '.name' );
@@ -35,18 +36,18 @@ class ProvidersController extends BaseController
                 ->where( Provider::$_table . '.name', 'like', $s );
         }
 
-        if ( ! empty( $address ) )
+        if ( ! empty( $building_id ) )
         {
             $providers
-                ->whereHas( 'addresses', function ( $q ) use ( $address )
+                ->whereHas( 'buildings', function ( $q ) use ( $building_id )
                 {
                     return $q
-                        ->where( Building::$_table . '.id', '=', $address );
+                        ->where( Building::$_table . '.id', '=', $building_id );
                 });
         }
 
         $providers = $providers
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view('admin.providers.index' )
@@ -77,7 +78,7 @@ class ProvidersController extends BaseController
 
     }
 
-    public function addresses ( Request $request, $id )
+    public function buildings ( Request $request, $id )
     {
 
         Title::add( 'Привязка Зданий' );
@@ -90,17 +91,17 @@ class ProvidersController extends BaseController
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $providerAddresses = $provider->addresses()
+        $providerBuildings = $provider->buildings()
             ->orderBy( 'name' )
-            ->paginate( 30 );
+            ->paginate( config( 'pagination.per_page' ) );
 
-        return view( 'admin.providers.addresses' )
+        return view( 'admin.providers.buildings' )
             ->with( 'provider', $provider )
-            ->with( 'providerAddresses', $providerAddresses );
+            ->with( 'providerBuildings', $providerBuildings );
 
     }
 
-    public function addressesSearch ( Request $request, $id )
+    public function buildingsSearch ( Request $request, $id )
     {
 
         $provider = Provider::find( $id );
@@ -113,21 +114,21 @@ class ProvidersController extends BaseController
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
 
-        $addresses = Building
+        $buildings = Building
             ::select(
                 Building::$_table . '.id',
                 Building::$_table . '.name AS text'
             )
             ->where( Building::$_table . '.name', 'like', $s )
-            ->whereNotIn( Building::$_table . '.id', $provider->addresses()->pluck( Building::$_table . '.id' ) )
+            ->whereNotIn( Building::$_table . '.id', $provider->buildings()->pluck( Building::$_table . '.id' ) )
             ->orderBy( Building::$_table . '.name' )
             ->get();
 
-        return $addresses;
+        return $buildings;
 
     }
 
-    public function addressesAdd ( Request $request, $id )
+    public function buildingsAdd ( Request $request, $id )
     {
 
         $provider = Provider::find( $id );
@@ -138,18 +139,18 @@ class ProvidersController extends BaseController
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->addresses()->attach( $request->get( 'addresses', [] ) );
+        $provider->buildings()->attach( $request->get( 'buildings', [] ) );
 
         return redirect()->back()
             ->with( 'success', 'Адреса успешно назначены' );
 
     }
 
-    public function addressesDel ( Request $request, $id )
+    public function buildingsDel ( Request $request, $id )
     {
 
         $rules = [
-            'address_id'             => 'required|integer',
+            'building_id'             => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -162,7 +163,7 @@ class ProvidersController extends BaseController
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->addresses()->detach( $request->get( 'address_id' ) );
+        $provider->buildings()->detach( $request->get( 'building_id' ) );
 
     }
 
@@ -446,6 +447,54 @@ class ProvidersController extends BaseController
 
         return redirect()->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Поставщик успешно создан' );
+
+    }
+
+    public function uploadLogo ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $rules = [
+            'file'                  => 'required|image|mimes:png',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $path = Storage::disk( 'public' )->putFile( 'logo', $request->file( 'file' ) );
+
+        $provider->logo = $path;
+        $provider->save();
+
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Логотип успешно загружен' );
+
+    }
+
+    public function deleteLogo ( Request $request, $id )
+    {
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        unlink( public_path( '/storage/' . $provider->logo ) );
+
+        $provider->logo = null;
+        $provider->save();
+
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Логотип успешно загружен' );
 
     }
 

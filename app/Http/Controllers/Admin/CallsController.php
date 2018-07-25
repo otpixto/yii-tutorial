@@ -115,7 +115,7 @@ class CallsController extends BaseController
                 'uniqueid',
                 'disposition'
             )
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         if ( \Cache::tags( [ 'users', 'reports' ] )->has( 'operators' ) )

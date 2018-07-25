@@ -152,4 +152,16 @@ class Provider extends BaseModel
         return new GzhiConfig( $this );
     }
 
+    public static function getLogo ()
+    {
+        if ( self::getCurrent() && self::$current->logo )
+        {
+            return '/storage/' . self::$current->logo;
+        }
+        else
+        {
+            return '/storage/logo/default.png';
+        }
+    }
+
 }

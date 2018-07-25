@@ -104,12 +104,31 @@ class DataController extends BaseController
                         }
                         $building->save();
                     }
-                    $data[ $building->id ] = [ $building->id, $building->name, [ $building->lat, $building->lon ], 1 ];
+                    $data[ $building->id ] = [
+                        'building_id' => $building->id,
+                        'building_name' => $building->name,
+                        'coors' => [
+                            (float) $building->lat,
+                            (float) $building->lon
+                        ],
+                        'works' => []
+                    ];
                 }
-                else
+                $management = $r->management->name;
+                if ( $r->management->parent )
                 {
-                    $data[ $building->id ][ 3 ] ++;
+                    $management = $r->management->parent->name . ' ' . $management;
                 }
+                $executor = $r->executor ? $r->executor->name : null;
+                $data[ $building->id ][ 'works' ][] = [
+                    'id'                => $r->id,
+                    'url'               => route( 'works.show', $r->id ),
+                    'management'        => $management,
+                    'executor'          => $executor,
+                    'composition'       => $r->composition,
+                    'category'          => $r->getCategory(),
+                    'time_end'          => $r->time_end,
+                ];
             }
         }
 

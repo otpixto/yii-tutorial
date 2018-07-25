@@ -81,6 +81,17 @@ class Building extends BaseModel
         return $this->name;
     }
 
+    public function getFullName ( $withHome = true )
+    {
+        $segments = $this->getSegments();
+        $name = $segments->implode( 'name', ', ' );
+        if ( $withHome && $this->home )
+        {
+            $name .= ', д.' . $this->home;
+        }
+        return $name;
+    }
+
     public function getSegments ()
     {
         $current = $this->segment;
@@ -92,7 +103,7 @@ class Building extends BaseModel
             $current = $current->parent;
             $segments->push( $current );
         }
-        return $segments;
+        return $segments->reverse();
     }
 
     public static function create ( array $attributes = [] )
@@ -154,8 +165,17 @@ class Building extends BaseModel
         return $query;
     }
 
-    public function scopeSearch ( $query, $name )
+    public function scopeSearch ( $query, $name, $provider_id = null )
     {
+        if ( ! $provider_id )
+        {
+            $provider_id = Provider::getCurrent() ? Provider::$current->id : null;
+        }
+        if ( $provider_id )
+        {
+            $query
+                ->where( 'provider_id', '=', $provider_id );
+        }
         return $query
             ->where( 'hash', '=', self::genHash( $name ) );
     }

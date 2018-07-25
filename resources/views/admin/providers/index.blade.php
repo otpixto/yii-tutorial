@@ -58,7 +58,7 @@
                                 Телефоны
                             </th>
                             <th class="text-center">
-                                Адреса
+                                Здания
                             </th>
                             <th class="text-center">
                                 УО

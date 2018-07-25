@@ -83,7 +83,7 @@
             @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_comment )
                 <div class="note note-warning">
                     <dl>
-                        <dt>Комментарий отложенной заявки:</dt>
+                        <dt>Комментарий к отложенной заявке:</dt>
                         <dd>{{ $ticketManagement->ticket->postponed_comment }}</dd>
                     </dl>
                 </div>

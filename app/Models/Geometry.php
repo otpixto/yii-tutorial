@@ -145,9 +145,9 @@ class Geometry extends BaseModel
             ->orWhereHas( 'management', function ( $management )
             {
                 return $management
-                    ->whereHas( 'providers', function ( $providers )
+                    ->whereHas( 'provider', function ( $provider )
                     {
-                        return $providers
+                        return $provider
                             ->mine()
                             ->current();
                     });

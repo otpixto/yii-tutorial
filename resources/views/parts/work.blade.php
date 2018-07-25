@@ -8,29 +8,16 @@
         </div>
     </td>
     <td>
-        @if ( $work->buildings->count() > 5 )
-            @foreach ( $work->buildings->slice( 0, 5 ) as $building )
-                <div class="small">
-                    {{ $building->name }}
-                </div>
-            @endforeach
-            <a href="javascript:;" data-toggle="#work-buildings-{{ $work->id }}">
-                Показать\ скрыть остальные {{ $work->buildings->count() }}
-            </a>
-            <div class="display-none" id="work-buildings-{{ $work->id }}">
-                @foreach ( $work->buildings->slice( 5 ) as $building )
-                    <div class="small">
-                        {{ $building->name }}
-                    </div>
-                @endforeach
+        @foreach ( $work->getAddressesGroupBySegment() as $segment )
+            <div class="margin-top-5">
+                <span class="small">
+                    {{ $segment[ 0 ] }}
+                </span>
+                <span class="bold">
+                    д. {{ implode( ', ', $segment[ 1 ] ) }}
+                </span>
             </div>
-        @else
-            @foreach ( $work->buildings as $building )
-                <div class="small">
-                    {{ $building->name }}
-                </div>
-            @endforeach
-        @endif
+        @endforeach
     </td>
     <td>
         <div class="small">

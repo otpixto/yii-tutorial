@@ -36,7 +36,7 @@ class CategoriesController extends BaseController
         }
 
         $categories = $categories
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view( 'catalog.categories.index' )

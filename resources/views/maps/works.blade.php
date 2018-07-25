@@ -43,7 +43,7 @@
 
                 ymaps.ready(function () {
                     var myMap = new ymaps.Map('map', {
-                            center: [55.751574, 37.573856],
+                            center: [ 55.751574, 37.573856 ],
                             zoom: 9,
                             controls: ['zoomControl']
                         }, {
@@ -60,10 +60,27 @@
 
                         getPointData = function ( val )
                         {
+                            var balloonContentBody = '';
+                            for ( var i in val.works )
+                            {
+                                balloonContentBody += '' +
+                                    '<div class="panel panel-default">' +
+                                        '<div class="panel-heading">' +
+                                            ( val.works[ i ].category || '<span class="text-danger">Не указана категория</span>' ) +
+                                        '</div>' +
+                                        '<div class="panel-body">' +
+                                            '<div>Включение по плану: ' + val.works[ i ].time_end + '</div>' +
+                                            '<div>Организация: ' + val.works[ i ].management + '</div>' +
+                                            '<div>' + val.works[ i ].composition + '</div>' +
+                                            '<hr />' +
+                                            '<a href="' + val.works[ i ].url + '">Перейти <i class="fa fa-chevron-right"></i></a>' +
+                                        '</div>' +
+                                    '</div>';
+                            }
                             return {
-                                balloonContentHeader: '<h3>' + val[1] + '</h3>',
-                                balloonContentBody: '<p>Количество работ на сетях: <a href="/works?show=all&building_id=' + val[0] + '" class="badge">' + val[3] + '</a></p>',
-                                clusterCaption: val[1]
+                                balloonContentHeader: val.building_name,
+                                balloonContentBody: balloonContentBody,
+                                clusterCaption: val.building_name
                             };
                         },
 
@@ -81,7 +98,7 @@
                         {
                             $.each( response, function ( address_id, val )
                             {
-                                clusterer.add( new ymaps.Placemark( val[2], getPointData(val), getPointOptions()) );
+                                clusterer.add( new ymaps.Placemark( val.coors, getPointData( val ), getPointOptions() ) );
                             });
                             myMap.geoObjects.add(clusterer);
                             myMap.setBounds(clusterer.getBounds(), {

@@ -551,7 +551,7 @@ $( document )
 
         e.preventDefault();
 
-        $( $( this ).attr( 'data-toggle' ) ).toggle();
+        $( $( this ).attr( 'data-toggle' ) ).toggleClass( 'hidden' );
 
     })
 

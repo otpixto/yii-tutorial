@@ -30,11 +30,11 @@ class UsersController extends BaseController
 
         if ( ! empty( $role ) )
         {
-            $users = User::role( $role )->orderBy( 'id', 'desc' );
+            $users = User::role( $role )->mine()->orderBy( 'id', 'desc' );
         }
         else
         {
-            $users = User::orderBy( 'id', 'desc' );
+            $users = User::mine()->orderBy( 'id', 'desc' );
         }
 
         if ( ! empty( $search ) )
@@ -49,28 +49,19 @@ class UsersController extends BaseController
                 ->whereHas( 'providers', function ( $providers ) use ( $provider_id )
                 {
                     return $providers
-                        ->mine()
                         ->where( Provider::$_table . '.id', '=', $provider_id );
-                });
-        }
-        else if ( ! Provider::isOperatorUrl() || ! \Auth::user()->can( 'supervisor.all_providers' ) )
-        {
-            $users
-                ->whereHas( 'providers', function ( $providers )
-                {
-                    return $providers
-                        ->mine();
                 });
         }
 
         $users = $users
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $roles = Role::orderBy( 'name' )->get();
 
         $providers = Provider
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->get();
 

@@ -26,10 +26,12 @@ class Work extends BaseModel
     public static $rules = [
         'provider_id'       => 'nullable|integer',
         'category_id'       => 'required|integer',
-        'address_id'        => 'required|array',
+        'buildings'         => 'required|array',
         'management_id'     => 'required|integer',
+        'executor_id'       => 'nullable|integer',
+        'executor_name'     => 'nullable|max:255',
+        'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
         'comment'           => 'max:255',
-        'who'               => 'required|max:255',
         'reason'            => 'required|max:255',
         'date_begin'        => 'required|date_format:d.m.Y',
         'time_begin'        => 'required|date_format:G:i',
@@ -37,24 +39,23 @@ class Work extends BaseModel
         'time_end'          => 'required|date_format:G:i',
         'date_end_fact'     => 'nullable|date_format:d.m.Y',
         'time_end_fact'     => 'nullable|date_format:G:i',
-        'phone'             => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
     ];
 
     protected $nullable = [
         'time_end_fact',
         'provider_id',
         'phone',
+        'executor_id',
     ];
 
     protected $fillable = [
         'provider_id',
         'category_id',
         'management_id',
-        'who',
+        'executor_id',
         'reason',
         'text',
         'composition',
-        'phone',
 		'time_begin',
 		'time_end',
         'time_end_fact',
@@ -75,6 +76,11 @@ class Work extends BaseModel
         return $this->belongsTo( 'App\Models\Management' );
     }
 
+    public function executor ()
+    {
+        return $this->belongsTo( 'App\Models\Executor' );
+    }
+
     public function provider ()
     {
         return $this->belongsTo( 'App\Models\Provider' );
@@ -83,30 +89,32 @@ class Work extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
-        if ( ! empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/\D/', '', $attributes['phone'] ), -10 );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
         }
 
-        $exp = explode( ':', $attributes['time_begin'] );
-        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1], 0 );
+        $exp = explode( ':', $attributes[ 'time_begin' ] );
+        $dt_begin = Carbon::parse( $attributes[ 'date_begin' ] )
+            ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
 
-        $exp = explode( ':', $attributes['time_end'] );
-        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1], 0 );
+        $exp = explode( ':', $attributes[ 'time_end' ] );
+        $dt_end = Carbon::parse( $attributes[ 'date_end' ] )
+            ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
 
-        if ( ! empty( $attributes['time_end_fact'] ) )
+        if ( ! empty( $attributes[ 'time_end_fact' ] ) )
         {
-            $exp = explode( ':', $attributes['time_end_fact'] );
-            $dt_end_fact = Carbon::parse( $attributes['date_end_fact'] )->setTime( $exp[0], $exp[1], 0 );
-            $attributes['time_end_fact'] = $dt_end_fact->toDateTimeString();
-        }
-        else
+            $exp = explode( ':', $attributes[ 'time_end_fact' ] );
+            $dt_end_fact = Carbon::parse( $attributes[ 'date_end_fact' ] )
+                ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
+            $attributes[ 'time_end_fact' ] = $dt_end_fact->toDateTimeString();
+        } else
         {
-            $attributes['time_end_fact'] = null;
+            $attributes[ 'time_end_fact' ] = null;
         }
 
-        $attributes['time_begin'] = $dt_begin->toDateTimeString();
-        $attributes['time_end'] = $dt_end->toDateTimeString();
+        $attributes[ 'time_begin' ] = $dt_begin->toDateTimeString();
+        $attributes[ 'time_end' ] = $dt_end->toDateTimeString();
 
         $work = parent::create( $attributes );
         $work->save();
@@ -263,6 +271,28 @@ class Work extends BaseModel
     public function canComment ()
     {
         return \Auth::user()->can( 'works.comments_add' );
+    }
+
+    public function getAddressesGroupBySegment ()
+    {
+        $result = [];
+        foreach ( $this->buildings as $building )
+        {
+            if ( ! isset( $result[ $building->segment_id ] ) )
+            {
+                $result[ $building->segment_id ] = [
+                    $building->getFullName( false ),
+                    [
+                        $building->home
+                    ]
+                ];
+            }
+            else
+            {
+                $result[ $building->segment_id ][ 1 ][] = $building->home;
+            }
+        }
+        return $result;
     }
 
 }

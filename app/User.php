@@ -341,6 +341,17 @@ class User extends BaseModel implements
             });
     }
 
+    public function scopeMine ( $query )
+    {
+        /*return $query
+            ->whereHas( 'providers', function ( $providers )
+            {
+                return $providers
+                    ->mine()
+                    ->current();
+            });*/
+    }
+
     public function sendEmail ( $message, $url = null )
     {
         $this->dispatch( new SendEmail( $this, $message, $url ) );

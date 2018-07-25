@@ -53,7 +53,7 @@ class SessionsController extends BaseController
         }
 
         $sessions = $sessions
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $res = User

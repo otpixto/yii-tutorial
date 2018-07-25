@@ -28,7 +28,8 @@ class Management extends BaseModel
 
     protected $nullable = [
         'provider_id',
-        'address_id',
+        'parent_id',
+        'building_id',
         'guid',
         'phone',
         'phone2',
@@ -42,7 +43,8 @@ class Management extends BaseModel
 
     protected $fillable = [
         'provider_id',
-        'address_id',
+        'parent_id',
+        'building_id',
         'name',
         'phone',
         'phone2',
@@ -163,6 +165,20 @@ class Management extends BaseModel
         }
         $attributes[ 'has_contract' ] = !empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         return parent::edit( $attributes );
+    }
+
+    public function addExecutor ( $name, $phone = null )
+    {
+        if ( ! empty( $phone ) )
+        {
+            $phone = str_replace( '+7', '', $phone );
+            $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
+        }
+        return Executor::create([
+            'management_id'     => $this->id,
+            'name'              => $name,
+            'phone'             => $phone,
+        ]);
     }
 
     public static function telegramSubscribe ( $telegram_code, array $attributes = [] )

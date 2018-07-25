@@ -72,11 +72,7 @@ class TicketsController extends BaseController
                 if ( $customer_id )
                 {
                     $ticket
-                        ->whereHas( 'customer', function ( $q ) use ( $customer_id )
-                        {
-                            return $q
-                                ->where( 'id', '=', $customer_id );
-                        });
+                        ->where( Ticket::$_table . '.customer_id', '=', $customer_id );
                 }
 
                 if ( ! empty( $request->get( 'group' ) ) )
@@ -264,12 +260,7 @@ class TicketsController extends BaseController
                         ->where( function ( $q ) use ( $request )
                         {
                             return $q
-                                ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) )
-                                ->orWhereHas( 'building', function ( $building ) use ( $request )
-                                {
-                                    return $building
-                                        ->where( Building::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
-                                });
+                                ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
                         });
                 }
 
@@ -418,7 +409,7 @@ class TicketsController extends BaseController
                 'management',
 				'services'
             )
-            ->paginate( 15 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         $providers = Provider
@@ -426,7 +417,6 @@ class TicketsController extends BaseController
             ->current()
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
 
         if ( \Auth::user()->can( 'tickets.search' ) )
         {

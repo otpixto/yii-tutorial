@@ -24,14 +24,15 @@
 
                     <!-- BEGIN LOGO -->
                     <a id="index" class="page-logo" href="/">
-                        <img src="/images/logo.png" alt="{{ \Config::get( 'app.name' ) }}" />
-                        <p>
+
+                        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
+                        <span class="page-title">
                             @if ( \App\Models\Provider::isOperatorUrl() )
                                 <span class="text-danger">Оператор</span>
                             @elseif ( \App\Models\Provider::getCurrent() )
                                 {{ \App\Models\Provider::$current->name }}
                             @endif
-                        </p>
+                        </span>
                     </a>
                     <!-- END LOGO -->
                     

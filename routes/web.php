@@ -55,11 +55,12 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::resource( 'works', 'Operator\WorksController' );
         Route::resource( 'tickets', 'Operator\TicketsController' );
-        Route::resource( 'zones', 'Maps\ZonesController' );
 
         Route::get( '/', 'HomeController@index' )->name( 'home' );
         Route::get( '/about', 'HomeController@about' )->name( 'about' );
         Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
+
+        Route::get( '/blank', 'HomeController@blank' )->name( 'blank' );
 
         Route::get( 'clear-cache', 'Operator\BaseController@clearCacheAndRedirect' )->name( 'tickets.clear_cache' );
 
@@ -139,6 +140,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::prefix( 'maps' )->group( function ()
         {
+            Route::resource( 'zones', 'Maps\ZonesController' );
             Route::get( 'tickets', 'Maps\MapsController@tickets' )->name( 'maps.tickets' );
             Route::get( 'works', 'Maps\MapsController@works' )->name( 'maps.works' );
             Route::post( 'zones/load', 'Maps\ZonesController@load' )->name( 'zones.load' );
@@ -157,6 +159,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::resource( 'users', 'Catalog\UsersController' );
             Route::resource( 'managements', 'Catalog\ManagementsController' );
+            Route::resource( 'executors', 'Catalog\ExecutorsController' );
             Route::resource( 'customers', 'Catalog\CustomersController' );
             Route::resource( 'types', 'Catalog\TypesController' );
             Route::resource( 'segments', 'Catalog\SegmentsController' );
@@ -186,6 +189,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'types/{type_id}/managements/empty', 'Catalog\TypesController@managementsEmpty' )->name( 'types.managements.empty' );
 
             Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
+            Route::post( 'managements/{management_id}/parents/search', 'Catalog\ManagementsController@parentsSearch' )->name( 'managements.parents.search' );
             Route::post( 'managements/{management_id}/telegram/unsubscribe', 'Catalog\ManagementsController@telegramUnsubscribe' )->name( 'managements.telegram.unsubscribe' );
             Route::post( 'managements/{management_id}/telegram/on', 'Catalog\ManagementsController@telegramOn' )->name( 'managements.telegram.on' );
             Route::post( 'managements/{management_id}/telegram/off', 'Catalog\ManagementsController@telegramOff' )->name( 'managements.telegram.off' );
@@ -253,6 +257,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'providers/{provider_id}/types/empty', 'Admin\ProvidersController@typesEmpty' )->name( 'providers.types.empty' );
             Route::put( 'providers/{provider_id}/phones/add', 'Admin\ProvidersController@phonesAdd' )->name( 'providers.phones.add' );
             Route::delete( 'providers/{provider_id}/phones/del', 'Admin\ProvidersController@phonesDel' )->name( 'providers.phones.del' );
+            Route::put( 'providers/{provider_id}/logo/upload', 'Admin\ProvidersController@uploadLogo' )->name( 'providers.logo.upload' );
+            Route::delete( 'providers/{provider_id}/logo/delete', 'Admin\ProvidersController@deleteLogo' )->name( 'providers.logo.delete' );
 
             Route::get( 'roles/{role_id}/perms', 'Admin\RolesController@perms' )->name( 'roles.perms' );
             Route::put( 'roles/{role_id}/perms', 'Admin\RolesController@updatePerms' );

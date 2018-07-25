@@ -20,22 +20,22 @@
                 <div class="form-group">
                     {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
                     <div class="col-xs-9">
-                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Поставщик', 'data-placeholder' => 'Поставщик', 'required', 'autocomplete' => 'off' ] ) !!}
+                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'data-placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
                     </div>
                 </div>
             @endif
 
             <div class="form-group">
-                {!! Form::label( 'buildings[]', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
+                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'buildings[]', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория', 'required' ] ) !!}
+                    {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
                 </div>
             </div>
 
@@ -80,6 +80,41 @@
                 </div>
             </div>
 
+            <div class="form-group @if ( ! $work->management ) hidden @endif" id="executor">
+                {!! Form::label( 'executor_id', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-7">
+                    {!! Form::select( 'executor_id', $work->management ? $work->management->executors->pluck( 'name', 'id' ) : [], \Input::old( 'executor_id', $work->executor_id ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ' ] ) !!}
+                </div>
+                <div class="col-xs-2">
+                    <button type="button" class="btn btn-primary executor-toggle" data-toggle="#executor_create, #executor">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden" id="executor_create">
+
+                <div class="form-group">
+                    {!! Form::label( 'executor_name', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    <div class="col-xs-7">
+                        {!! Form::text( 'executor_name', \Input::old( 'executor_name' ), [ 'class' => 'form-control', 'placeholder' => 'Должность и ФИО' ] ) !!}
+                    </div>
+                    <div class="col-xs-2">
+                        <button type="button" class="btn btn-danger executor-toggle" data-toggle="#executor_create, #executor">
+                            <i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {!! Form::label( 'executor_phone', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    <div class="col-xs-9">
+                        {!! Form::text( 'executor_phone', \Input::old( 'executor_phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Контактный телефон' ] ) !!}
+                    </div>
+                </div>
+
+            </div>
+
             <div class="form-group">
                 {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
@@ -91,20 +126,6 @@
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::text( 'reason', \Input::old( 'reason', $work->reason ), [ 'class' => 'form-control', 'placeholder' => 'Основание', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'who', 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::text( 'who', \Input::old( 'who', $work->who ), [ 'class' => 'form-control', 'placeholder' => 'Должность и ФИО', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'phone', 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $work->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Контактный телефон' ] ) !!}
                 </div>
             </div>
 
@@ -184,9 +205,39 @@
 
             })
 
+            .on( 'click', '.executor-toggle', function ( e )
+            {
+                $( '#executor_name, #executor_phone' ).val( '' );
+            })
+
+            .on( 'change', '#management_id', function ( e )
+            {
+                var management_id = $( this ).val();
+                $( '#executor_id' ).empty();
+                if ( management_id )
+                {
+                    $( '#executor' ).removeClass( 'hidden' );
+                    $.get( '{{ route( 'managements.executors.search' ) }}', {
+                        management_id: management_id
+                    }, function ( response )
+                    {
+                        $.each( response, function ( i, executor )
+                        {
+                            $( '#executor_id' ).append(
+                                $( '<option>' ).val( executor.id ).text( executor.name )
+                            );
+                        });
+                    });
+                }
+                else
+                {
+                    $( '#executor' ).addClass( 'hidden' );
+                }
+            })
+
             .on( 'change', '#provider_id', function ( e )
             {
-                $( '#address_id' ).val( '' ).trigger( 'change' );
+                $( '#buildings' ).val( '' ).trigger( 'change' );
             });
 
     </script>

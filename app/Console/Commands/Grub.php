@@ -38,6 +38,51 @@ class Grub extends Command
     public function handle ()
     {
 
+        $executors = Executor
+            ::whereDoesntHave( 'tickets' )
+            ->whereDoesntHave( 'works' )
+            ->get();
+        foreach ( $executors as $executor )
+        {
+            $executor->forceDelete();
+        }
+
+        /*$buildings = Building::whereNull( 'home' )->get();
+        foreach ( $buildings as $building )
+        {
+            if ( preg_match( '/д\.([0-9].*)$/i', $building->name, $matches ) )
+            {
+                $building->home = $matches[ 1 ];
+                $building->save();
+            }
+        }*/
+
+        /*$buildings = Building::get();
+        foreach ( $buildings as $building )
+        {
+            $fullName = $building->getFullName();
+            if ( $building->genHash( $building->name ) != $building->genHash( $fullName ) )
+            {
+                echo $building->name . ' | ' . $fullName . PHP_EOL;
+            }
+        }*/
+
+        /*$works = Work::whereNull( 'executor_id' )->get();
+        foreach ( $works as $work )
+        {
+            $executor = Executor
+                ::where( 'name', 'like', '%' . $work->who . '%' )
+                ->where( 'management_id', '=', $work->management_id )
+                ->first();
+            if ( $executor )
+            {
+                $work->executor_id = $executor->id;
+                $work->save();
+            }
+        }
+
+        return;*/
+
         $api_url = 'https://mo.i-eds.ru/api/';
 
         $per_page = 1000;
@@ -75,8 +120,13 @@ class Grub extends Command
                 }
                 $code = implode( '.', $exp );
                 $category->name = $code . '. ' . $_type->title;
-                $category->save();
             }
+
+            $category->emergency = $_type->is_emergency ? 1 : 0;
+            $category->period_acceptance = $_type->accept_time;
+            $category->period_execution = $_type->execution_time;
+            $category->need_act = $_type->is_act_required ? 1 : 0;
+            $category->save();
 
             $type = Type::find( $_type->service_qualifier_id );
             if ( ! $type )
@@ -359,14 +409,13 @@ class Grub extends Command
 
         $admin_id = 1;
 
-        /*
         $this->info( 'Works Start' );
         $page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 1;
+        #$max_pages = 15;
 
-        while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
+        while ( is_null( $pages ) || $pages > $page )
         {
 
             $this->info('Works Page #' . $page . ' Start');
@@ -406,10 +455,13 @@ class Grub extends Command
                 {
                     $work = new Work;
                 }
+
+                $management_id = $_work->division_id ?? $_work->company_id;
+
                 $work->fill([
                     'provider_id'       => 1,
                     'category_id'       => $type->category_id,
-                    'management_id'     => $_work->division_id ?? $_work->company_id,
+                    'management_id'     => $management_id,
                     'reason'            => $_work->client_description,
                     'composition'       => $_work->description,
                     'time_begin'        => Carbon::parse( $_work->time_begin )->toDateTimeString(),
@@ -438,12 +490,23 @@ class Grub extends Command
 
                 if ( ! empty( $_work->responsible->responsible_name ) )
                 {
-                    $work->who = $_work->responsible->responsible_name;
-                }
-
-                if ( ! empty( $_work->responsible->responsible_phone ) )
-                {
-                    $work->phone = mb_substr( $_work->responsible->responsible_phone, -10 );
+                    $executor_name = $_work->responsible->responsible_name;
+                    $executor = Executor
+                        ::whereRaw( 'REPLACE( name, \' \', \'\' ) like ?', [ '%' . str_replace( ' ', '', $executor_name ) . '%' ] )
+                        ->where( 'management_id', '=', $management_id )
+                        ->first();
+                    if ( ! $executor )
+                    {
+                        $executor = new Executor;
+                        $executor->management_id = $management_id;
+                        $executor->name = $executor_name;
+                    }
+                    $work->executor_id = $executor->id;
+                    if ( ! empty( $_work->responsible->responsible_phone ) )
+                    {
+                        $executor->phone = $work->phone;
+                    }
+                    $executor->save();
                 }
 
                 $work->save();
@@ -451,7 +514,9 @@ class Grub extends Command
                 $ids = [];
                 foreach ( $_work->buildings as $building )
                 {
-                    $address = Building::search( $building->full_address )->first();
+                    $address = Building
+                        ::search( $building->full_address )
+                        ->first();
                     if ( ! $address )
                     {
                         $address = Building::find( $building->id );
@@ -476,13 +541,11 @@ class Grub extends Command
         }
 
         $this->info( 'Works End' );
-        */
 
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
 		$per_page = 100;
-		$max_pages = 200;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();
@@ -501,7 +564,7 @@ class Grub extends Command
 			16 => 'cancel',
 		];
 
-        while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
+        while ( is_null( $pages ) || $pages > $page )
         {
 
             $this->info( 'Tickets Page #' . $page . ' Start' );

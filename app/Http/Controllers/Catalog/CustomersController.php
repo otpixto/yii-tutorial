@@ -86,7 +86,7 @@ class CustomersController extends BaseController
             ->get();
 
         $customers = $customers
-            ->paginate( 30 )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
         return view( 'catalog.customers.index' )
