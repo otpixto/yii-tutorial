@@ -31,6 +31,8 @@ class Ticket extends BaseModel
         'deadline_acceptance',
         'deadline_execution',
         'postponed_to',
+        'scheduled_begin',
+        'scheduled_end',
     ];
 
     public static $places = [
@@ -123,28 +125,10 @@ class Ticket extends BaseModel
         'managements',
         'actual_building_id',
         'actual_flat',
+        'postponed_to',
+        'scheduled_begin',
+        'scheduled_end',
     ];
-
-    /*public static $rules = [
-        'provider_id'               => 'nullable|integer',
-        'type_id'                   => 'required|integer',
-        'place_id'                  => 'required|integer',
-        'building_id'               => 'required|integer',
-        'flat'                      => 'nullable',
-        'actual_building_id'        => 'nullable|integer',
-        'actual_flat'               => 'nullable',
-        'emergency'                 => 'boolean',
-        'urgently'                  => 'boolean',
-        'dobrodel'                  => 'boolean',
-        'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'firstname'                 => 'required',
-        'middlename'                => 'nullable',
-        'lastname'                  => 'nullable',
-        'customer_id'               => 'nullable|integer',
-        'text'                      => 'required',
-        'managements'               => 'required|array',
-    ];*/
 
     protected $fillable = [
         'provider_id',
@@ -164,6 +148,9 @@ class Ticket extends BaseModel
         'customer_id',
         'place_id',
         'text',
+        'scheduled_begin',
+        'scheduled_end',
+        'postponed_to',
     ];
 
     public function managements ()
@@ -289,42 +276,41 @@ class Ticket extends BaseModel
             ->whereIn( self::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] );
     }
 
-    public function scopeMine ( $query, $ignoreStatuses = false )
+    public function scopeMine ( $query, ... $flags )
     {
         return $query
-            ->where( function ( $q ) use ( $ignoreStatuses )
+            ->where( function ( $q ) use ( $flags )
             {
-                $q->whereHas( 'provider', function ( $provider )
-                {
-                    return $provider
-						->mine()
-						->current();
-                });
-                if ( \Auth::user()->can( 'tickets.show' ) )
-                {
-                    if ( ! $ignoreStatuses && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
+                $q
+                    ->whereHas( 'provider', function ( $provider )
                     {
-                        $q
-                            ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
-                    }
-                    if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
-                    {
-                        $q
-                            ->where( function ( $q2 )
-                            {
-                                return $q2
-                                    ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
-                                    ->orWhereHas( 'managements', function ( $q3 )
-                                    {
-                                        return $q3
-                                            ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
-                                    });
-                            });
-                    }
+                        return $provider
+                            ->mine()
+                            ->current();
+                    });
+                if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
+                {
+                    $q
+                        ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                }
+                if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+                {
+                    $q
+                        ->where( function ( $q2 )
+                        {
+                            return $q2
+                                ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                                ->orWhereHas( 'managements', function ( $managements )
+                                {
+                                    return $managements
+                                        ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+                                });
+                        });
                 }
                 else
                 {
-                    $q->whereNull( self::$_table . '.id' );
+                    $q
+                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id );
                 }
                 return $q;
             });

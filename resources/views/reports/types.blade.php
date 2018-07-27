@@ -13,17 +13,36 @@
         Статистический отчет по категориям за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </div>
 
-    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
-    <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
-        </div>
-        <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+    {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
+            <div class="input-group">
+                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                <span class="input-group-addon">-</span>
+                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+            </div>
         </div>
     </div>
-    <div class="form-group">
+
+    <div class="row margin-top-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
+            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                @foreach ( $availableManagements as $management => $arr )
+                    <optgroup label="{{ $management }}">
+                        @foreach ( $arr as $management_id => $management_name )
+                            <option value="{{ $management_id }}" @if ( $managements->find( $management_id ) ) selected="selected" @endif>
+                                {{ $management_name }}
+                            </option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
+    <div class="row margin-top-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
@@ -197,6 +216,7 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         @media print {
@@ -215,6 +235,7 @@
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
@@ -287,6 +308,23 @@
                     "export": {
                         "enabled": true
                     }
+                });
+
+                $( '.mt-multiselect' ).multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
                 });
 
             });

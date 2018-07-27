@@ -155,7 +155,11 @@
                     <div class="panel-body" style="background-color: #2f373e;">
                         <div class="row">
                             <div class="col-md-3">
-                                <img src="{{ \App\Models\Provider::getLogo() }}" class="img-responsive" />
+                                @if ( $provider->logo )
+                                    <img src="/storage/{{ $provider->logo }}" class="img-responsive" />
+                                @else
+                                    <img src="{{ \App\Models\Provider::getDefaultLogo() }}" class="img-responsive" />
+                                @endif
                             </div>
                             {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.logo.upload', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
                             <div class="col-md-5">

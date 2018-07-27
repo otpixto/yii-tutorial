@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\Title;
 use App\Jobs\SendStream;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\MessageBag;
@@ -121,6 +122,11 @@ class TicketManagement extends BaseModel
         return $this->belongsTo( 'App\Models\Ticket' );
     }
 
+    public function act ()
+    {
+        return $this->belongsTo( 'App\Models\ManagementAct' );
+    }
+
     public function statusesHistory ()
     {
         return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
@@ -151,15 +157,27 @@ class TicketManagement extends BaseModel
             ->whereIn( self::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] );
     }
 
-    public function scopeMine ( $query, $ignoreStatuses = false )
+    public function scopeMine ( $query, ... $flags )
     {
         $query
-			->whereHas( 'ticket', function ( $q ) use ( $ignoreStatuses )
+			->whereHas( 'ticket', function ( $ticket )
 			{
-				return $q
-					->mine( $ignoreStatuses );
+                $ticket
+                    ->where( Ticket::$_table . '.author_id', '=', \Auth::user()->id )
+                    ->orWhereHas( 'provider', function ( $provider )
+                    {
+                        return $provider
+                            ->mine()
+                            ->current();
+                    });
+                return $ticket;
 			});
-		if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
+        {
+            $query
+                ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+        }
+		if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
 		{
 			$query
 				->whereIn( self::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );

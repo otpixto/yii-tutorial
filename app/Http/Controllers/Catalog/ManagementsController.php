@@ -816,4 +816,28 @@ class ManagementsController extends BaseController
 
     }
 
+    public function act ( Request $request, $management_id, $act_id )
+    {
+
+        $management = Management::find( $management_id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $act = $management->acts()->find( $act_id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.edit', $management->id )
+                ->withErrors( [ 'Акт не найден' ] );
+        }
+
+        return view( 'catalog.managements.act' )
+            ->with( 'act', $act );
+
+    }
+
 }

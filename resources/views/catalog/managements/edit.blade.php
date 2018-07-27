@@ -149,6 +149,26 @@
 
         </div>
 
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Акты
+                </h3>
+            </div>
+            <div class="panel-body">
+
+                @foreach ( $management->acts as $act )
+                    <div>
+                        <a href="{{ route( 'managements.act', [ $management->id, $act->id ] ) }}">
+                            {{ $act->name }}
+                        </a>
+                    </div>
+                @endforeach
+
+            </div>
+
+        </div>
+
         <div class="row">
 
             <div class="col-lg-6">

@@ -211,6 +211,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'managements/{management_id}/executors/add', 'Catalog\ManagementsController@executorsAdd' )->name( 'managements.executors.add' );
             Route::delete( 'managements/{management_id}/executors/del', 'Catalog\ManagementsController@executorsDel' )->name( 'managements.executors.del' );
             Route::delete( 'managements/{management_id}/executors/empty', 'Catalog\ManagementsController@executorsEmpty' )->name( 'managements.executors.empty' );
+            Route::get( 'managements/{management_id}/act/{act_id}', 'Catalog\ManagementsController@act' )->name( 'managements.act' );
 
             Route::get( 'managements/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
 

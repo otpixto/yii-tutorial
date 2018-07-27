@@ -303,14 +303,13 @@ class WorksController extends BaseController
 
         $res = Management
             ::mine()
-            ->whereHas( 'parent' )
             ->with( 'parent' )
             ->get()
             ->sortBy( 'name' );
         $availableManagements = [];
         foreach ( $res as $r )
         {
-            $availableManagements[ $r->parent->name ][ $r->id ] = $r->name;
+            $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
 
         $categories = Category

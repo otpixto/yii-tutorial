@@ -12,7 +12,7 @@
 
     <div id="ticket-show">
 
-        @include( 'parts.ticket_info' )
+        @include( 'tickets.parts.info' )
 
     </div>
 
@@ -22,6 +22,7 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
     <style>
         dl, .alert {
             margin: 0px;
@@ -51,6 +52,7 @@
 
 @section( 'js' )
     <script src="/assets/global/plugins/jquery-repeater/jquery.repeater.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 
@@ -196,6 +198,15 @@
 				}, function ( response )
 				{
 					Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
+					if ( param == 'schedule' )
+                    {
+                        $( '.datepicker' ).datepicker({
+                            rtl: App.isRTL(),
+                            orientation: "left",
+                            autoclose: true,
+                            format: 'dd.mm.yyyy'
+                        });
+                    }
 				});
 			})
 

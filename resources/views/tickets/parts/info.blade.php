@@ -362,8 +362,8 @@
                                     <i class="fa fa-chevron-circle-up text-danger"></i>
                                     Исходящий вызов
                                     <span class="text-muted small">
-                                                {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
-                                            </span>
+                                        {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
+                                    </span>
                                 </a>
                             </div>
                         </div>
@@ -371,6 +371,32 @@
                 @endif
             @endforeach
         @endif
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="note">
+                    @if ( $ticket->canEdit() )
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="schedule">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    @endif
+                    <dl>
+                        <dt>Запланировано на:</dt>
+                        <dd>
+                            @if ( $ticket->scheduled_begin && $ticket->scheduled_end )
+                                {{ $ticket->scheduled_begin->format( 'd.m.Y H:i' ) }}
+                                -
+                                {{ $ticket->scheduled_end->format( 'd.m.Y H:i' ) }}
+                            @else
+                                <span class="text-danger">
+                                    Не запланировано
+                                </span>
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
 
     </div>
     <div class="col-lg-6">

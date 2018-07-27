@@ -46,7 +46,7 @@
     <div class="form-group">
         {!! Form::label( 'management_id', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + ( $managements->count() ? $managements->pluck( 'name', 'id' )->toArray() : [] ), \Input::get( 'management_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+            {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $availableManagements, \Input::get( 'management_id' ), [ 'class' => 'select2 form-control' ] ) !!}
         </div>
     </div>
     <div id="executor_block" class="form-group @if ( ! $management ) hidden @endif">

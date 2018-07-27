@@ -160,8 +160,13 @@ class Provider extends BaseModel
         }
         else
         {
-            return '/storage/logo/default.png';
+            return self::getDefaultLogo();
         }
+    }
+
+    public static function getDefaultLogo ()
+    {
+        return '/storage/logo/default.png';
     }
 
 }

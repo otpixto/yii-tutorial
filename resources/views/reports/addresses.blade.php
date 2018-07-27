@@ -44,9 +44,9 @@
         </div>
     </div>
     <div class="form-group">
-        {!! Form::label( 'address_id', 'Адрес', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        {!! Form::label( 'building_id', 'Здание', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-6">
-            {!! Form::select( 'address_id', $address, $address_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::select( 'building_id', $building, $building_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
     <div class="form-group">
@@ -56,10 +56,10 @@
     </div>
     {!! Form::close() !!}
 
-    @if ( $address )
+    @if ( $building )
 
         <div class="visible-print title">
-            Статистический отчет по заявкам на {{ $address[ $address_id ] }} за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
+            Статистический отчет по заявкам на {{ $building[ $building_id ] }} за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
         </div>
 
         @if ( $ticketManagements->count() )

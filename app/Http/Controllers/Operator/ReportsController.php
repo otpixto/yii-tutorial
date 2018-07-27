@@ -44,7 +44,7 @@ class ReportsController extends BaseController
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
 
-        $managements = Management
+        $availableManagements = Management
             ::mine()
             ->orderBy( 'name' )
             ->get();
@@ -57,7 +57,7 @@ class ReportsController extends BaseController
         {
             $ticketManagements
                 ->where( 'management_id', '=', $management_id );
-            $management = $managements->find( $management_id );
+            $management = $availableManagements->find( $management_id );
             $executors = Executor
                 ::where( 'management_id', '=', $management_id )
                 ->get();
@@ -75,9 +75,18 @@ class ReportsController extends BaseController
 		
         $ticketManagements = $ticketManagements->get();
 
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? '' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
         return view( 'reports.executors' )
             ->with( 'ticketManagements', $ticketManagements )
-            ->with( 'managements', $managements )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'management', $management ?? null )
             ->with( 'executors', $executors )
             ->with( 'executor', $executor ?? null )
@@ -111,22 +120,23 @@ class ReportsController extends BaseController
             'rate-5' => 0
         ];
 
-        $managements = Management
+        $availableManagements = Management
             ::mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
 
         if ( count( $request->get( 'managements', [] ) ) )
         {
-            $managements2 = $managements
+            $managements = $availableManagements
                 ->whereIn( 'id', $request->get( 'managements', [] ) );
         }
         else
         {
-            $managements2 = $managements;
+            $managements = $availableManagements;
         }
 
-        foreach ( $managements2 as $management )
+        foreach ( $managements as $management )
         {
 
             if ( ! isset( $data[ $management->id ] ) )
@@ -177,7 +187,7 @@ class ReportsController extends BaseController
             $data[ 'average' ] = number_format($s / $c, 1, '.', '' );
         }
 
-        foreach ( $managements2 as $management )
+        foreach ( $managements as $management )
         {
             $s = 0;
             $c = 0;
@@ -198,7 +208,7 @@ class ReportsController extends BaseController
         if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
         {
             $print_data = [];
-            foreach ( $managements2 as $management )
+            foreach ( $managements as $management )
             {
                 $print_data[] = [
                     'Нименование ЭО'                => $management->name,
@@ -220,10 +230,20 @@ class ReportsController extends BaseController
             })->export( 'xls' );
         }
 
+        $res = [];
+        foreach ( $availableManagements as $r )
+        {
+            $res[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
+        }
+
+        ksort( $res );
+
+        $availableManagements = $res;
+
         return view( 'reports.rates' )
             ->with( 'data', $data )
             ->with( 'managements', $managements )
-            ->with( 'managements2', $managements2 )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -293,22 +313,23 @@ class ReportsController extends BaseController
             'closed_without_confirm' => 0
         ];
 
-        $managements = Management
+        $availableManagements = Management
             ::mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
 
         if ( count( $request->get( 'managements', [] ) ) )
         {
-            $managements2 = $managements
+            $managements = $availableManagements
                 ->whereIn( 'id', $request->get( 'managements', [] ) );
         }
         else
         {
-            $managements2 = $managements;
+            $managements = $availableManagements;
         }
 
-        foreach ( $managements2 as $management )
+        foreach ( $managements as $management )
         {
 
             $data[ $management->id ] = [
@@ -368,7 +389,7 @@ class ReportsController extends BaseController
         if ( $request->has( 'export' ) && \Auth::user()->can( 'reports.export' ) )
         {
             $print_data = [];
-            foreach ( $managements2 as $management )
+            foreach ( $managements as $management )
             {
                 $print_data[] = [
                     'Нименование ЭО'                => $management->name,
@@ -390,10 +411,20 @@ class ReportsController extends BaseController
             })->export( 'xls' );
         }
 
+        $res = [];
+        foreach ( $availableManagements as $r )
+        {
+            $res[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
+        }
+
+        ksort( $res );
+
+        $availableManagements = $res;
+
         return view( 'reports.tickets' )
             ->with( 'data', $data )
             ->with( 'managements', $managements )
-            ->with( 'managements2', $managements2 )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -600,10 +631,21 @@ class ReportsController extends BaseController
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
 
-        $managements = Management
+        $availableManagements = Management
             ::mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
+
+        if ( count( $request->get( 'managements', [] ) ) )
+        {
+            $managements = $availableManagements
+                ->whereIn( 'id', $request->get( 'managements', [] ) );
+        }
+        else
+        {
+            $managements = $availableManagements;
+        }
 
         $categories = Category
 			::whereHas( 'types', function ( $types )
@@ -709,10 +751,21 @@ class ReportsController extends BaseController
 
         $data[ 'percent' ] = $data[ 'total' ] ? (float) number_format( $data[ 'closed' ] / $data[ 'total' ] * 100, 1 ) : 0;
 
+        $res = [];
+        foreach ( $availableManagements as $r )
+        {
+            $res[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
+        }
+
+        ksort( $res );
+
+        $availableManagements = $res;
+
         return view( 'reports.types' )
             ->with( 'data', $data )
             ->with( 'categories', $categories )
             ->with( 'managements', $managements )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'categories_count', $categories_count )
             ->with( 'managements_count', $managements_count )
             ->with( 'date_from', $date_from )

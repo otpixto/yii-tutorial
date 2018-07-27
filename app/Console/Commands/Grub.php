@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Category;
+use App\Models\ManagementAct;
 use App\Models\Type;
 use App\Models\Work;
 use GuzzleHttp\Client;
@@ -38,14 +39,28 @@ class Grub extends Command
     public function handle ()
     {
 
-        $executors = Executor
+        /*$acts = ManagementAct::get();
+        foreach ( $acts as $act )
+        {
+            if ( preg_match('/< *img[^>]*src *= *["\']?([^"\']*)/i', $act->content, $matches ) )
+            {
+                $url = 'https://mo.i-eds.ru' . $matches[ 1 ];
+                $act->content = str_replace( $matches[ 1 ], '/storage/acts' . $matches[ 1 ], $act->content );
+                $act->save();
+                Storage::disk( 'public' )->put( 'acts/' . $matches[ 1 ], file_get_contents( $url ) );
+            }
+        }
+
+        die;*/
+
+        /*$executors = Executor
             ::whereDoesntHave( 'tickets' )
             ->whereDoesntHave( 'works' )
             ->get();
         foreach ( $executors as $executor )
         {
             $executor->forceDelete();
-        }
+        }*/
 
         /*$buildings = Building::whereNull( 'home' )->get();
         foreach ( $buildings as $building )
@@ -362,6 +377,38 @@ class Grub extends Command
         die;
         */
 
+        /*
+        $this->info( 'Acts Start' );
+
+        $url = $api_url . 'acts';
+
+        $response = $this->client->get( $url, [
+            'headers' => $headers
+        ]);
+
+        $json_string = $response->getBody();
+        $acts = json_decode( $json_string );
+        foreach ( $acts->data as $_act )
+        {
+            $act = ManagementAct::find( $_act->act_id );
+            if ( ! $act )
+            {
+                $act = new ManagementAct();
+                $act->id = $_act->act_id;
+                $act->management_id = $_act->company_id;
+            }
+            $act->name = $_act->title;
+            $act->content = $_act->content;
+            $act->created_at = Carbon::parse( $_act->time_created )->toDateTimeString();
+            $act->updated_at = Carbon::parse( $_act->time_updated )->toDateTimeString();
+            $act->save();
+        }
+
+        $this->info( 'Acts End' );
+
+        die;
+        */
+
         /*$this->info( 'Managements' );
 
         $url = $api_url . 'companies';
@@ -413,7 +460,7 @@ class Grub extends Command
         $per_page = 100;
         $max_pages = 15;
 
-        while ( is_null( $pages ) || ( $pages > $page || $page < $max_pages ) )
+        while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
 
             $this->info('Works Page #' . $page . ' Start');
@@ -563,7 +610,7 @@ class Grub extends Command
 			16 => 'cancel',
 		];
 
-        while ( is_null( $pages ) || ( $pages > $page || $page < $max_pages ) )
+        while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
 
             $this->info( 'Tickets Page #' . $page . ' Start' );
@@ -786,6 +833,11 @@ class Grub extends Command
 				
 				$ticketManagement->status_code = $ticket->status_code;
 				$ticketManagement->status_name = $ticket->status_name;
+
+				if ( $_ticket->act_id )
+                {
+                    $ticketManagement->act_id = $_ticket->act_id;
+                }
 
                 $ticket->save();
                 $ticketManagement->save();

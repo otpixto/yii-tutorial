@@ -87,6 +87,11 @@ class Management extends BaseModel
         return $this->hasMany( 'App\Models\TicketManagement' );
     }
 
+    public function acts ()
+    {
+        return $this->hasMany( 'App\Models\ManagementAct' );
+    }
+
     public function subscriptions ()
     {
         return $this->hasMany( 'App\Models\ManagementSubscription' );
