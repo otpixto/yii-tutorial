@@ -39,6 +39,28 @@ class Grub extends Command
     public function handle ()
     {
 
+        /*$users = User
+            ::whereDoesntHave( 'managements' )
+            ->whereDoesntHave( 'roles' )
+            ->whereDoesntHave( 'tickets' )
+            ->whereDoesntHave( 'works' )
+            ->whereNull( 'email' )
+            ->get();
+
+        foreach ( $users as $user )
+        {
+            $user->delete();
+        }*/
+
+        /*$comments = Comment::where( 'model_name', '=', 'App\Models\TicketManagement' )->get();
+        foreach ( $comments as $comment )
+        {
+            $ticket = $comment->parent->ticket;
+            $comment->model_name = get_class( $ticket );
+            $comment->model_id = $ticket->id;
+            $comment->save();
+        }*/
+
         /*$acts = ManagementAct::get();
         foreach ( $acts as $act )
         {
@@ -523,9 +545,12 @@ class Grub extends Command
                 $work->created_at = Carbon::parse( $_work->time_created )->toDateTimeString();
                 $work->updated_at = Carbon::parse( $_work->time_updated )->toDateTimeString();
 
-                if ( $_work->created_by && User::find( $_work->created_by ) )
+                if ( $_work->created_by )
                 {
-                    $work->author_id = $_work->created_by;
+                    $user = User::withTrashed()->find( $_work->created_by );
+                    $work->author_id = $user->id;
+                    $user->deleted_at = null;
+                    $user->save();
                 }
 
                 if ( ! $work->author_id )
@@ -803,9 +828,12 @@ class Grub extends Command
 					}
 				}
 				
-				if ( $first_history && $first_history->user_id && User::find( $first_history->user_id ) )
+				if ( $first_history && $first_history->user_id )
 				{
-					$ticket->author_id = $first_history->user_id;
+                    $user = User::withTrashed()->find( $first_history->user_id );
+					$ticket->author_id = $user->id;
+					$user->deleted_at = null;
+					$user->save();
 				}
 				else
 				{
@@ -884,8 +912,8 @@ class Grub extends Command
                         $comment->id = $s->comment_id;
                     }
 					$comment->fill([
-						'model_id'      => $ticketManagement->id,
-						'model_name'    => get_class( $ticketManagement ),
+						'model_id'      => $ticket->id,
+						'model_name'    => get_class( $ticket ),
 						'text'          => $s->content
 					]);
 					if ( $s->user_id && User::find( $s->user_id ) )

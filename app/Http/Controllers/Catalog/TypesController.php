@@ -28,7 +28,8 @@ class TypesController extends BaseController
         $management_id = trim( $request->get( 'management_id', '' ) );
 
         $types = Type
-            ::select(
+            ::mine()
+            ->select(
                 Type::$_table . '.*',
                 Category::$_table . '.name AS category_name'
             )

@@ -78,6 +78,13 @@ class Cdr extends BaseModel
         return $this->belongsTo( 'App\Models\Ticket', 'uniqueid', 'call_id' );
     }
 
+    public function providerPhone ()
+    {
+        return $this
+            ->addSelect( \DB::raw( 'RIGHT( dst, 10 ) AS phone' ) )
+            ->belongsTo( 'App\Models\ProviderPhone', 'phone', 'phone' );
+    }
+
     public function ticketCall ()
     {
         return $this->belongsTo( 'App\Models\TicketCall', 'uniqueid', 'call_id' );

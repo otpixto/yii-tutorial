@@ -89,12 +89,12 @@ class Type extends BaseModel
 
     public function scopeMine ( $query, ... $flags )
     {
-		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) && ! \Auth::user()->can( 'supervisor.all_types' ) )
+		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
 		{
 			$query
-				->whereHas( 'providers', function ( $providers )
+				->whereHas( 'provider', function ( $provider )
 				{
-					return $providers
+					return $provider
 						->mine()
 						->current();
 				});

@@ -12,7 +12,7 @@
     @if ( \Auth::user()->can( 'catalog.buildings.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'buildings.create' ) }}" class="btn btn-success">
+                <a href="{{ route( 'buildings.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить здание
                 </a>

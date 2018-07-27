@@ -248,7 +248,7 @@
                         @if ( $management->users->count() )
                             <ul class="list-group">
                                 @foreach ( $management->users as $user )
-                                    @if ( \Auth::user()->can( 'catalog.users.edit' ) )
+                                    @if ( \Auth::user()->can( 'admin.users.edit' ) )
                                         <a href="{{ route( 'users.edit', $user->id ) }}" class="list-group-item">
                                             {!! $user->getName( true ) !!}
                                         </a>

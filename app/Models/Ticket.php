@@ -291,7 +291,8 @@ class Ticket extends BaseModel
                 if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                 {
                     $q
-                        ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                        ->orWhereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                 }
                 if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
                 {

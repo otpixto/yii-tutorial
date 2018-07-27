@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.users.edit' ) )
+    @if ( \Auth::user()->can( 'admin.users.edit' ) )
 
         <div class="row">
             <div class="col-md-3">

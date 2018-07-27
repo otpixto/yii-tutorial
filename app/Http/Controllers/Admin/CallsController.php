@@ -34,6 +34,20 @@ class CallsController extends BaseController
                 \DB::raw( 'REPLACE( dst, \'79295070506\', \'88005503115\' ) dst' )
             );
 
+        if ( ! \Auth::user()->admin )
+        {
+            $calls
+                ->whereHas( 'providerPhone', function ( $providerPhone )
+                {
+                    return $providerPhone
+                        ->whereHas( 'provider', function ( $provider )
+                        {
+                            return $provider
+                                ->mine();
+                        });
+                });
+        }
+
         if ( $operator_id )
         {
             $calls
@@ -115,6 +129,10 @@ class CallsController extends BaseController
                 'uniqueid',
                 'disposition'
             )
+            ->with(
+                'ticket',
+                'ticketCall'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
@@ -134,7 +152,7 @@ class CallsController extends BaseController
             \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
         }
 
-        return view('catalog.calls.index' )
+        return view('admin.calls.index' )
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )

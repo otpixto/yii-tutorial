@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Catalog;
+namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Log;
@@ -65,7 +65,7 @@ class UsersController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
-        return view('catalog.users.index' )
+        return view('admin.users.index' )
             ->with( 'users', $users )
             ->with( 'roles', $roles )
             ->with( 'role', $role )
@@ -86,7 +86,7 @@ class UsersController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
-        return view('catalog.users.create' )
+        return view('admin.users.create' )
             ->with( 'roles', $roles )
             ->with( 'providers', $providers );
 
@@ -125,7 +125,7 @@ class UsersController extends BaseController
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
 
-        return view('catalog.users.edit' )
+        return view('admin.users.edit' )
             ->with( 'user', $user );
 
     }
@@ -147,7 +147,7 @@ class UsersController extends BaseController
 
         $perms_tree = Permission::getTree();
 
-        return view('catalog.users.perms' )
+        return view('admin.users.perms' )
             ->with( 'user', $user )
             ->with( 'roles', $roles )
             ->with( 'perms_tree', $perms_tree );
@@ -214,7 +214,7 @@ class UsersController extends BaseController
             ::whereNotIn( Provider::$_table . '.id', $user->providers()->pluck( Provider::$_table . '.id' ) )
             ->pluck( 'name', 'id' );
 
-        return view('catalog.users.providers' )
+        return view('admin.users.providers' )
             ->with( 'user', $user )
             ->with( 'userProviders', $userProviders )
             ->with( 'providers', $providers );
@@ -277,7 +277,7 @@ class UsersController extends BaseController
             ->orderBy( 'name' )
             ->paginate( 30 );
 
-        return view('catalog.users.managements' )
+        return view('admin.users.managements' )
             ->with( 'user', $user )
             ->with( 'userManagements', $userManagements );
 
@@ -377,7 +377,7 @@ class UsersController extends BaseController
             ->take( 30 )
             ->get();
 
-        return view('catalog.users.logs' )
+        return view('admin.users.logs' )
             ->with( 'user', $user )
             ->with( 'userLogsIn', $userLogsIn )
             ->with( 'userLogsOut', $userLogsOut );

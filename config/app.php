@@ -188,6 +188,7 @@ return [
         Telegram\Bot\Laravel\TelegramServiceProvider::class,
 
         \App\Providers\StreamServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class,
 
     ],
 
@@ -247,6 +248,8 @@ return [
         'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
 
         'Stream' => \App\Facades\Stream::class,
+
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
 
     ],
 

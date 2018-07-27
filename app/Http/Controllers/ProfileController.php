@@ -31,19 +31,12 @@ class ProfileController extends Controller
             return redirect()->route( 'users.index' )
                 ->withErrors( [ 'Пользователь не найден' ] );
         }
-        if ( ! $user->can( 'supervisor.all_providers' ) )
+        if ( ! $user->providers->count() )
         {
-            if ( ! $user->providers->count() )
-            {
-                return redirect()->route( 'users.index' )
-                    ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
-            }
-            $redirect = ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->providers->first()->domain;
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
         }
-        else
-        {
-            $redirect = route( 'home' );
-        }
+        $redirect = ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->providers->first()->domain;
         \Auth::login( $user );
         return redirect()->to( $redirect );
     }

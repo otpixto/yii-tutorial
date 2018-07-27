@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.users.create' ) )
+    @if ( \Auth::user()->can( 'admin.users.create' ) )
 
         <div class="portlet light">
             <div class="portlet-body">

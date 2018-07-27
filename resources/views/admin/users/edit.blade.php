@@ -1,4 +1,4 @@
-@extends( 'catalog.users.template' )
+@extends( 'admin.users.template' )
 
 @section( 'users.content' )
 

@@ -77,7 +77,7 @@ class PermsController extends BaseController
 
         if ( ! $perm )
         {
-            return redirect()->route( 'admin.permissions' )
+            return redirect()->route( 'perms.index' )
                 ->withErrors( [ 'Права доступа не найдены' ] );
         }
 

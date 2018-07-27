@@ -23,6 +23,16 @@ class LogsController extends BaseController
         $logs = Log
             ::orderBy( 'id', 'desc' );
 
+        if ( ! \Auth::user()->admin )
+        {
+            $logs
+                ->whereHas( 'author', function ( $author )
+                {
+                    return $author
+                        ->mine();
+                });
+        }
+
         if ( ! empty( $request->get( 'date' ) ) )
         {
             $logs
@@ -55,6 +65,9 @@ class LogsController extends BaseController
         }
 
         $logs = $logs
+            ->with(
+                'author'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

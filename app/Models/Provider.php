@@ -64,7 +64,7 @@ class Provider extends BaseModel
     {
         if ( ! $user ) $user = \Auth::user();
         if ( ! $user ) return false;
-        if ( ! self::subDomainIs( 'operator', 'system' ) || ! $user->can( 'supervisor.all_providers' ) )
+        if ( ! self::subDomainIs( 'operator', 'system' ) )
         {
             $query
                 ->whereIn( self::$_table . '.id', $user->providers()->pluck( Provider::$_table . '.id' ) );

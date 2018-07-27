@@ -20,7 +20,7 @@ class CheckProvider
         {
             if ( Provider::isOperatorUrl() )
             {
-                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_providers' ) )
+                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin )
                 {
                     return redirect()->route( 'error.403' );
                 }
@@ -32,7 +32,7 @@ class CheckProvider
                 {
                     return response( view('errors.404' ) );
                 }
-                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers()->mine()->where( Provider::$_table . '.id', $provider->id )->count() && ! \Auth::user()->admin && ! \Auth::user()->can( 'supervisor.all_providers' ) )
+                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers()->mine()->find( $provider->id ) && ! \Auth::user()->admin )
                 {
                     return redirect()->route( 'error.403' );
                 }

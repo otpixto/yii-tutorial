@@ -160,7 +160,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::get( 'segments/tree', 'Catalog\SegmentsController@tree' )->name( 'segments.tree' );
 
-            Route::resource( 'users', 'Catalog\UsersController' );
             Route::resource( 'managements', 'Catalog\ManagementsController' );
             Route::resource( 'executors', 'Catalog\ExecutorsController' );
             Route::resource( 'customers', 'Catalog\CustomersController' );
@@ -218,25 +217,12 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
 
-            Route::post( 'users/{user_id}/managements/search', 'Catalog\UsersController@managementsSearch' )->name( 'users.managements.search' );
-            Route::get( 'users/{user_id}/logs', 'Catalog\UsersController@logs' )->name( 'users.logs' );
-            Route::get( 'users/{user_id}/providers', 'Catalog\UsersController@providers' )->name( 'users.providers' );
-            Route::put( 'users/{user_id}/providers/add', 'Catalog\UsersController@providersAdd' )->name( 'users.providers.add' );
-            Route::delete( 'users/{user_id}/providers/del', 'Catalog\UsersController@providersDel' )->name( 'users.providers.del' );
-            Route::get( 'users/{user_id}/perms', 'Catalog\UsersController@perms' )->name( 'users.perms' );
-            Route::put( 'users/{user_id}/perms/update', 'Catalog\UsersController@permsUpdate' )->name( 'users.perms.update' );
-            Route::put( 'users/{user_id}/roles/update', 'Catalog\UsersController@rolesUpdate' )->name( 'users.roles.update' );
-            Route::get( 'users/{user_id}/managements', 'Catalog\UsersController@managements' )->name( 'users.managements' );
-            Route::put( 'users/{user_id}/managements/add', 'Catalog\UsersController@managementsAdd' )->name( 'users.managements.add' );
-            Route::delete( 'users/{user_id}/managements/del', 'Catalog\UsersController@managementsDel' )->name( 'users.managements.del' );
-            Route::put( 'users/{user_id}/change-password', 'Catalog\UsersController@changePassword' )->name( 'users.change_password' );
-            Route::put( 'users/{user_id}/upload-photo', 'Catalog\UsersController@uploadPhoto' )->name( 'users.upload_photo' );
-
         });
 
         Route::prefix( 'admin' )->group( function ()
         {
 
+            Route::resource( 'users', 'Admin\UsersController' );
             Route::resource( 'roles', 'Admin\RolesController' );
             Route::resource( 'perms', 'Admin\PermsController' );
             Route::resource( 'logs', 'Admin\LogsController' );
@@ -273,6 +259,20 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'perms/{perm_id}/users/search', 'Admin\PermsController@usersSearch' )->name( 'perms.users.search' );
             Route::put( 'perms/{perm_id}/users/add', 'Admin\PermsController@usersAdd' )->name( 'perms.users.add' );
             Route::delete( 'perms/{perm_id}/users/del', 'Admin\PermsController@usersDel' )->name( 'perms.users.del' );
+
+            Route::post( 'users/{user_id}/managements/search', 'Admin\UsersController@managementsSearch' )->name( 'users.managements.search' );
+            Route::get( 'users/{user_id}/logs', 'Admin\UsersController@logs' )->name( 'users.logs' );
+            Route::get( 'users/{user_id}/providers', 'Admin\UsersController@providers' )->name( 'users.providers' );
+            Route::put( 'users/{user_id}/providers/add', 'Admin\UsersController@providersAdd' )->name( 'users.providers.add' );
+            Route::delete( 'users/{user_id}/providers/del', 'Admin\UsersController@providersDel' )->name( 'users.providers.del' );
+            Route::get( 'users/{user_id}/perms', 'Admin\UsersController@perms' )->name( 'users.perms' );
+            Route::put( 'users/{user_id}/perms/update', 'Admin\UsersController@permsUpdate' )->name( 'users.perms.update' );
+            Route::put( 'users/{user_id}/roles/update', 'Admin\UsersController@rolesUpdate' )->name( 'users.roles.update' );
+            Route::get( 'users/{user_id}/managements', 'Admin\UsersController@managements' )->name( 'users.managements' );
+            Route::put( 'users/{user_id}/managements/add', 'Admin\UsersController@managementsAdd' )->name( 'users.managements.add' );
+            Route::delete( 'users/{user_id}/managements/del', 'Admin\UsersController@managementsDel' )->name( 'users.managements.del' );
+            Route::put( 'users/{user_id}/change-password', 'Admin\UsersController@changePassword' )->name( 'users.change_password' );
+            Route::put( 'users/{user_id}/upload-photo', 'Admin\UsersController@uploadPhoto' )->name( 'users.upload_photo' );
 
         });
 

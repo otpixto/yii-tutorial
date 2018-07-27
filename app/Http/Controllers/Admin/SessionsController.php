@@ -26,7 +26,8 @@ class SessionsController extends BaseController
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
 
         $sessions = PhoneSession
-            ::orderBy( 'id', 'desc' );
+            ::mine()
+            ->orderBy( 'id', 'desc' );
 
         if ( ! empty( $request->get( 'operator' ) ) )
         {
@@ -57,7 +58,8 @@ class SessionsController extends BaseController
             ->appends( $request->all() );
 
         $res = User
-            ::role( 'operator' )
+            ::mine()
+            ->role( 'operator' )
             ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
             ->orderBy( 'middlename' )
@@ -73,7 +75,7 @@ class SessionsController extends BaseController
             ::whereNull( 'closed_at' )
             ->get();
 
-        return view('catalog.sessions.index' )
+        return view('admin.sessions.index' )
             ->with( 'sessions', $sessions )
             ->with( 'operators', $operators )
             ->with( 'date_from', $date_from )

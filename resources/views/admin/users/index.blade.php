@@ -9,10 +9,10 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.users.create' ) )
+    @if ( \Auth::user()->can( 'admin.users.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'users.create' ) }}" class="btn btn-success">
+                <a href="{{ route( 'users.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Создать пользователя
                 </a>
@@ -178,7 +178,7 @@
                                         @endif
                                     </td>
                                     <td class="text-right">
-                                        @if ( \Auth::user()->can( 'catalog.users.edit' ) )
+                                        @if ( \Auth::user()->can( 'admin.users.edit' ) )
                                             <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
                                                 <i class="fa fa-edit"></i>
                                             </a>

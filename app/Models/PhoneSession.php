@@ -73,6 +73,16 @@ class PhoneSession extends BaseModel
 			->whereNull( 'closed_at' );
 	}
 
+	public function scopeMine ( $query )
+    {
+        return $query
+            ->whereHas( 'user', function ( $user )
+            {
+                return $user
+                    ->mine();
+            });
+    }
+
     public function close ()
     {
         $this->closed_at = Carbon::now()->toDateTimeString();

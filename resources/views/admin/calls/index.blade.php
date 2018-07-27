@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'calls.show' ) )
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'calls.show' ) )
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">
@@ -138,7 +138,7 @@
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    @if ( $call->dcontext == 'incoming' && $call->ticket()->where( 'status_code', '!=', 'draft' )->first() )
+                                    @if ( $call->dcontext == 'incoming' && $call->ticket )
                                         <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
                                             <i class="fa fa-chevron-right"></i>
                                         </a>

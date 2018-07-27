@@ -391,8 +391,8 @@ class TicketsController extends BaseController
                     'ticket.type',
                     'ticket.type.category',
                     'ticket.building',
-                    'management',
-                    'comments'
+                    'ticket.comments',
+                    'management'
                 )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
@@ -540,17 +540,28 @@ class TicketsController extends BaseController
     public function customersTickets ( Request $request, $id )
     {
 
-        $ticket = Ticket::mine()->find( $id );
+        $ticket = Ticket
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
+            ->find( $id );
         if ( ! $ticket )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Произошла ошибка. Заявка не найдена' );
         }
 
-        $tickets = $ticket->customerTickets()
-            ->mine()
+        $tickets = $ticket
+            ->customerTickets()
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->orderBy( 'id', 'desc' )
-            ->paginate( 15 );
+            ->paginate( config( 'pagination.per_page' ) );
 
         return view( 'tickets.mini_table' )
             ->with( 'tickets', $tickets )
@@ -561,18 +572,29 @@ class TicketsController extends BaseController
     public function neighborsTickets ( Request $request, $id )
     {
 
-        $ticket = Ticket::mine()->find( $id );
+        $ticket = Ticket
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
+            ->find( $id );
         if ( ! $ticket )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Произошла ошибка. Заявка не найдена' );
         }
 
-        $tickets = $ticket->neighborsTickets()
-            ->mine()
+        $tickets = $ticket
+            ->neighborsTickets()
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->where( 'phone', '!=', $ticket->phone )
             ->orderBy( 'id', 'desc' )
-            ->paginate( 15 );
+            ->paginate( config( 'pagination.per_page' ) );
 
         return view( 'tickets.mini_table' )
             ->with( 'tickets', $tickets )
@@ -818,9 +840,7 @@ class TicketsController extends BaseController
     public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $ticket = Ticket
-            ::mine()
-            ->find( $ticket_id );
+        $ticket = Ticket::find( $ticket_id );
 
         if ( ! $ticket )
         {
@@ -829,12 +849,13 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
-        $comments = $ticket->getComments();
+        $comments = $ticket->comments;
 
         if ( $ticket_management_id )
         {
             $ticketManagement = $ticket
                 ->managements()
+                ->mine()
                 ->find( $ticket_management_id );
             if ( ! $ticketManagement )
             {

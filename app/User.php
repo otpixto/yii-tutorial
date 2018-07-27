@@ -122,6 +122,11 @@ class User extends BaseModel implements
         return $this->hasMany( 'App\Models\Ticket', 'author_id' );
     }
 
+    public function works ()
+    {
+        return $this->hasMany( 'App\Models\Work', 'author_id' );
+    }
+
     /**
      * Авторизация на телефоне
      */

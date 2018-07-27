@@ -52,7 +52,7 @@ class Segment extends BaseModel
     {
         if ( ! $user ) $user = \Auth::user();
         if ( ! $user ) return false;
-        if ( ! Provider::subDomainIs( 'operator', 'system' ) || ! $user->can( 'supervisor.all_providers' ) )
+        if ( ! Provider::subDomainIs( 'operator', 'system' ) )
         {
             $query
                 ->whereIn( self::$_table . '.provider_id', $user->providers()->pluck( Provider::$_table . '.id' ) );

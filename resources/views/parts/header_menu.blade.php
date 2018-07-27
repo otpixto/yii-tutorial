@@ -209,13 +209,6 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
-                    @if ( \Auth::user()->can( 'catalog.users.show' ) )
-                        <li aria-haspopup="true" class=" ">
-                            <a href="{{ route( 'users.index' ) }}" class="nav-link">
-                                Пользователи
-                            </a>
-                        </li>
-                    @endif
                     @if ( \Auth::user()->can( 'catalog.customers.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'customers.index' ) }}" class="nav-link">
@@ -255,7 +248,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->admin )
+        @if ( \Auth::user()->admin || \Auth::user()->canOne( 'admin.users.show', 'admin.sessions.show', 'admin.calls.show', 'admin.logs.show' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'admin*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-lock"></i>
@@ -264,36 +257,54 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'perms.index' ) }}" class="nav-link">
-                            Права
-                        </a>
-                    </li>
-                    <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'roles.index' ) }}" class="nav-link">
-                            Роли
-                        </a>
-                    </li>
-                    <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'providers.index' ) }}" class="nav-link">
-                            Поставщики
-                        </a>
-                    </li>
-                    <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
-                            Телефонные сессии
-                        </a>
-                    </li>
-                    <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'calls.index' ) }}" class="nav-link">
-                            Телефонные звонки
-                        </a>
-                    </li>
-                     <li aria-haspopup="true" class=" ">
-                        <a href="{{ route( 'logs.index' ) }}" class="nav-link">
-                            Системные логи
-                        </a>
-                    </li>
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'users.index' ) }}" class="nav-link">
+                                Пользователи
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
+                                Телефонные сессии
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'calls.index' ) }}" class="nav-link">
+                                Телефонные звонки
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs.show' ) )
+                         <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'logs.index' ) }}" class="nav-link">
+                                Системные логи
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->admin )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'perms.index' ) }}" class="nav-link">
+                                <i class="fa fa-star text-warning"></i>
+                                Права
+                            </a>
+                        </li>
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'roles.index' ) }}" class="nav-link">
+                                <i class="fa fa-star text-warning"></i>
+                                Роли
+                            </a>
+                        </li>
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'providers.index' ) }}" class="nav-link">
+                                <i class="fa fa-star text-warning"></i>
+                                Поставщики
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
         @endif
