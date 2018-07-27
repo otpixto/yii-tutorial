@@ -114,7 +114,16 @@
 
                         @if ( $buildings->count() )
 
-                            {{ $buildings->render() }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {{ $buildings->render() }}
+                                </div>
+                                <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+                                    <span class="label label-info">
+                                        Найдено: <b>{{ $buildings->total() }}</b>
+                                    </span>
+                                </div>
+                            </div>
 
                             <table class="table table-hover table-striped">
                                 <thead>

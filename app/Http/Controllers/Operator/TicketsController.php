@@ -82,6 +82,30 @@ class TicketsController extends BaseController
                                 ->where( Ticket::$_table . '.group_uuid', '=', $request->get( 'group' ) );
                         }
 
+                        if ( ! empty( $request->get( 'tags' ) ) )
+                        {
+                            $_tags = explode( ',', $request->get( 'tags' ) );
+                            $ticket
+                                ->whereHas( 'tags', function ( $tags ) use ( $_tags )
+                                {
+                                    $i = 0;
+                                    foreach ( $_tags as $tag )
+                                    {
+                                        $tag = trim( $tag );
+                                        if ( empty( $tag ) ) continue;
+                                        if ( $i ++ == 0 )
+                                        {
+                                            $tags->where( 'text', '=', $tag );
+                                        }
+                                        else
+                                        {
+                                            $tags->orWhere( 'text', '=', $tag );
+                                        }
+                                    }
+                                    return $tags;
+                                });
+                        }
+
                         if ( \Auth::user()->can( 'tickets.search' ) )
                         {
 
@@ -713,8 +737,28 @@ class TicketsController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, Ticket::$rules );
-        $this->validate( $request, Customer::$rules );
+        $rules = [
+            'provider_id'               => 'nullable|integer',
+            'type_id'                   => 'required|integer',
+            'building_id'               => 'required|integer',
+            'flat'                      => 'nullable',
+            'actual_address_id'         => 'nullable|integer',
+            'actual_flat'               => 'nullable',
+            'place_id'                  => 'required|integer',
+            'emergency'                 => 'boolean',
+            'urgently'                  => 'boolean',
+            'dobrodel'                  => 'boolean',
+            'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'firstname'                 => 'required',
+            'middlename'                => 'nullable',
+            'lastname'                  => 'nullable',
+            'customer_id'               => 'nullable|integer',
+            'text'                      => 'required',
+            'managements'               => 'required|array',
+        ];
+
+        $this->validate( $request, $rules );
 
         if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
         {
@@ -801,15 +845,6 @@ class TicketsController extends BaseController
             $managements_count ++;
 
         }
-
-		if ( count( $request->get( 'tags', [] ) ) )
-		{
-			$tags = explode( ',', $request->get( 'tags' ) );
-			foreach ( $tags as $tag )
-			{
-				$ticket->addTag( $tag );
-			}
-		}
 
 		$res = $ticket->changeStatus( $status_code, true );
 
@@ -1744,7 +1779,11 @@ class TicketsController extends BaseController
         $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
 
         $tickets = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->where( 'phone', '=', $phone )
             ->where( 'status_code', '!=', 'draft' )
             ->orderBy( 'id', 'desc' )

@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Category;
 use App\Models\Management;
+use App\Models\Provider;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -26,6 +27,7 @@ class TypesController extends BaseController
         $category_id = trim( $request->get( 'category_id', '' ) );
         $building_id = trim( $request->get( 'building_id', '' ) );
         $management_id = trim( $request->get( 'management_id', '' ) );
+        $provider_id = trim( $request->get( 'provider_id', '' ) );
 
         $types = Type
             ::mine()
@@ -76,15 +78,34 @@ class TypesController extends BaseController
                 });
         }
 
+        if ( ! empty( $provider_id ) )
+        {
+            $types
+                ->where( Type::$_table . '.provider_id', '=', $provider_id );
+        }
+
         $types = $types
+            ->with(
+                'category'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $categories = Category::orderBy( 'name' )->get();
+        $categories = Category
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
 
         return view( 'catalog.types.index' )
             ->with( 'types', $types )
-            ->with( 'categories', $categories );
+            ->with( 'categories', $categories )
+            ->with( 'providers', $providers );
 
     }
 
@@ -280,10 +301,26 @@ class TypesController extends BaseController
             ->paginate( 30 )
             ->appends( $request->all() );
 
+        $availableManagements = Management
+            ::mine()
+            ->whereNotIn( Management::$_table . '.id', $type->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
         return view( 'catalog.types.managements' )
             ->with( 'type', $type )
             ->with( 'search', $search )
-            ->with( 'typeManagements', $typeManagements );
+            ->with( 'typeManagements', $typeManagements )
+            ->with( 'availableManagements', $availableManagements );
 
     }
 

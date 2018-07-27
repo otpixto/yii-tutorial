@@ -260,12 +260,13 @@ class UsersController extends BaseController
 
     }
 
-    public function managements ( $id )
+    public function managements ( Request $request, $id )
     {
 
         Title::add( 'Редактировать пользователя' );
 
         $user = User::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
 
         if ( ! $user )
         {
@@ -274,12 +275,39 @@ class UsersController extends BaseController
         }
 
         $userManagements = $user->managements()
-            ->orderBy( 'name' )
-            ->paginate( 30 );
+            ->orderBy( Management::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $userManagements
+                ->where( Management::$_table . '.name', 'like', $s );
+        }
+
+        $userManagements = $userManagements
+            ->paginate( config( 'pagination.per_page' ) )
+            ->appends( $request->all() );
+
+        $availableManagements = Management
+            ::mine()
+            ->whereNotIn( Management::$_table . '.id', $user->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
 
         return view('admin.users.managements' )
             ->with( 'user', $user )
-            ->with( 'userManagements', $userManagements );
+            ->with( 'userManagements', $userManagements )
+            ->with( 'availableManagements', $availableManagements )
+            ->with( 'search', $search );
 
     }
 

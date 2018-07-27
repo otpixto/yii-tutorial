@@ -53,14 +53,15 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="portlet light ">
                     <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target="#categories">
+                        <div class="caption" data-toggle="collapse" data-target="#search-categories">
                             <span class="caption-subject font-green-sharp bold uppercase">КАТЕГОРИИ</span>
                             <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
                         </div>
                     </div>
-                    <div class="portlet-body todo-project-list-content" id="categories" style="height: auto;">
+                    <div class="portlet-body todo-project-list-content" id="search-categories" style="height: auto;">
                         <div class="todo-project-list">
                             <ul class="nav nav-stacked">
                                 @foreach ( $categories as $category )
@@ -77,6 +78,34 @@
                         </div>
                     </div>
                 </div>
+
+                @if ( $providers->count() > 1 )
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption" data-toggle="collapse" data-target="#search-providers">
+                                <span class="caption-subject font-green-sharp bold uppercase">Поставщики</span>
+                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body todo-project-list-content" id="search-providers" style="height: auto;">
+                            <div class="todo-project-list">
+                                <ul class="nav nav-stacked">
+                                    @foreach ( $providers as $provider )
+                                        <li @if ( \Input::get( 'provider_id' ) == $provider->id ) class="active" @endif>
+                                            <a href="?provider_id={{ $provider->id }}">
+                                                {{ $provider->name }}
+                                                <span class="badge badge-info pull-right">
+                                                    {{ $provider->types()->count() }}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
             <!-- END TODO SIDEBAR -->
 
@@ -87,7 +116,16 @@
 
                         @if ( $types->count() )
 
-                            {{ $types->render() }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {{ $types->render() }}
+                                </div>
+                                <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+                                    <span class="label label-info">
+                                        Найдено: <b>{{ $types->total() }}</b>
+                                    </span>
+                                </div>
+                            </div>
 
                             <table class="table table-hover table-striped">
                                 <thead>

@@ -31,8 +31,8 @@
                 </h3>
             </div>
             <div class="panel-body">
-                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.types.add', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-                <div class="form-group">
+                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.types.add', $management->id ], 'class' => 'submit-loading' ] ) !!}
+                <div class="row">
                     <div class="col-md-12">
                         <select class="mt-multiselect" multiple="multiple" data-label="left" id="types" name="types[]">
                             @foreach ( $availableTypes as $category => $arr )
@@ -47,7 +47,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="row margin-top-15">
                     <div class="col-md-12">
                         {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
                     </div>

@@ -37,7 +37,11 @@
                 Принять до
             </span>
             <span class="bold {{ $ticketManagement->ticket->overdueDeadlineAcceptance() ? 'text-danger' : 'text-success' }}">
-                {{ $ticketManagement->ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+                @if ( $ticketManagement->ticket->deadline_acceptance )
+                    {{ $ticketManagement->ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+                @else
+                    -
+                @endif
             </span>
         </div>
         <div class="small">
@@ -45,7 +49,11 @@
                 Выполнить до
             </span>
             <span class="bold {{ $ticketManagement->ticket->overdueDeadlineExecution() ? 'text-danger' : 'text-success' }}">
-                {{ $ticketManagement->ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+                @if ( $ticketManagement->ticket->deadline_execution )
+                    {{ $ticketManagement->ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+                @else
+                    -
+                @endif
             </span>
         </div>
         @if ( $ticketManagement->ticket->postponed_to )

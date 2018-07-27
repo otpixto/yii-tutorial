@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'calls.show' ) )
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">

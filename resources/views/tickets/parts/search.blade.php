@@ -216,6 +216,18 @@
     @endif
     <hr />
     <div class="row">
+        <h4 class="col-md-2">
+            Поиск по тегам
+        </h4>
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-xs-12">
+                    {!! Form::text( 'tags', \Input::get( 'tags' ), [ 'class' => 'form-control', 'placeholder' => 'Введите через запятую' ] ) !!}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-10 col-md-offset-2">
             <div class="icheck-inline">
                 <label>

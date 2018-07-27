@@ -309,13 +309,32 @@ class BuildingsController extends BaseController
         }
 
         $buildingManagements = $buildingManagements
-            ->paginate( 30 )
+            ->with(
+                'buildingType'
+            )
+            ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
+
+        $availableManagements = Management
+            ::mine()
+            ->whereNotIn( Management::$_table . '.id', $building->managements()->pluck( Management::$_table . '.id' ) )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
 
         return view( 'catalog.buildings.managements' )
             ->with( 'building', $building )
             ->with( 'search', $search )
-            ->with( 'buildingManagements', $buildingManagements );
+            ->with( 'buildingManagements', $buildingManagements )
+            ->with( 'availableManagements', $availableManagements );
 
     }
 

@@ -6,10 +6,16 @@
         <div class="portlet-title tabbable-line">
             <div class="caption">
                 <i class="fa fa-user"></i>
-                <span class="caption-subject bold">
-                    {{ $user->email }}
-                </span>
-                <span class="caption-helper">логин для входа</span>
+                @if ( $user->email )
+                    <span class="caption-subject bold">
+                        {{ $user->email }}
+                    </span>
+                    <span class="caption-helper">логин для входа</span>
+                @else
+                    <span class="caption-subject bold">
+                        Данные пользователя
+                    </span>
+                @endif
             </div>
             <ul class="nav nav-tabs">
                 <li class="active">

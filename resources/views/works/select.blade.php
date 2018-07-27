@@ -1,67 +1,46 @@
-<table class="table table-hover table-striped table-condensed">
-    <thead>
-        <tr>
-            <th>
-                №
-            </th>
-            <th>
-                Основание
-            </th>
-            <th>
-                Исполнитель работ
-            </th>
-            <th>
-                Состав работ
-            </th>
-            <th>
-                Дата начала
-            </th>
-            <th>
-                Дата окончания
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach ( $works as $work )
-        <tr>
-            <td>
-                <a href="{{ route( 'works.show', $work->id ) }}" target="_blank">
-                    {{ $work->id }}
-                </a>
-            </td>
-            <td>
-                <span class="small">
-                    {{ $work->reason }}
-                </span>
-            </td>
-            <td>
-                <span class="small">
+@foreach ( $works as $work )
+    <div class="row">
+        <div class="col-xs-6">
+            <a href="{{ route( 'works.show', $work->id ) }}" target="_blank" class="bold">
+                № {{ $work->id }}
+            </a>
+        </div>
+        <div class="col-xs-6 text-right small text-muted">
+            {{ $work->created_at->format( 'd.m.Y H:i' ) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div>
+                Исполнитель:
+                <strong>
+                    @if ( $work->management->parent )
+                        <span class="text-muted">
+                            {{ $work->management->parent->name }}
+                        </span>
+                    @endif
                     {{ $work->management->name }}
-                </span>
-            </td>
-            <td>
-                <span class="small">
-                    {{ $work->composition }}
-                </span>
-            </td>
-            <td>
-                <span class="small">
-                    {{ $work->time_begin }}
-                </span>
-            </td>
-            <td>
-                <span class="small">
-                    {{ $work->time_end}}
-                </span>
-            </td>
-        </tr>
-    @endforeach
-    </tbody>
-</table>
+                </strong>
+            </div>
+            <div>
+                {{ $work->composition }}
+            </div>
+            <div>
+                Период:
+                <strong>
+                    {{ $work->time_begin->format( 'd.m.Y H:i' ) }}
+                    -
+                    {{ $work->time_end->format( 'd.m.Y H:i' ) }}
+                </strong>
+            </div>
+        </div>
+    </div>
+    <hr />
+@endforeach
 @can ( 'works.show' )
-    <div class="margin-top-10">
-        <a href="{{ route( 'works.index' ) }}" target="_blank" class="btn btn-primary">
-            Показать все отключения за текущий период
+    <div class="margin-top-10 text-right">
+        <a href="{{ route( 'works.index' ) }}" target="_blank" class="text-primary">
+            Показать все активные отключения
         </a>
     </div>
 @endcan

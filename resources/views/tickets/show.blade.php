@@ -23,6 +23,7 @@
 
 @section( 'css' )
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
     <style>
         dl, .alert {
             margin: 0px;
@@ -54,6 +55,7 @@
     <script src="/assets/global/plugins/jquery-repeater/jquery.repeater.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
@@ -76,6 +78,28 @@
 
             .ready( function ()
             {
+
+                $( '#tags' ).on( 'itemAdded', function ( e )
+                {
+                    var id = $( '#ticket-id' ).val();
+                    var tag = e.item;
+                    if ( ! id || ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.add' ) }}', {
+                        id: id,
+                        tag: tag
+                    });
+                });
+
+                $( '#tags' ).on( 'itemRemoved', function ( e )
+                {
+                    var id = $( '#ticket-id' ).val();
+                    var tag = e.item;
+                    if ( ! id || ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.del' ) }}', {
+                        id: id,
+                        tag: tag
+                    });
+                });
 
                 $( '#ticket-services' ).repeater({
                     show: function ()

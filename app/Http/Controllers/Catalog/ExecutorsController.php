@@ -25,6 +25,9 @@ class ExecutorsController extends BaseController
 
         $executors = Executor
             ::mine()
+            ->with(
+                'management'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

@@ -9,7 +9,8 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.providers.create' ) )
+    @if ( \Auth::user()->admin )
+
         <div class="row margin-bottom-15 hidden-print">
             <div class="col-xs-12">
                 <a href="{{ route( 'providers.create' ) }}" class="btn btn-success btn-lg">
@@ -18,9 +19,6 @@
                 </a>
             </div>
         </div>
-    @endif
-
-    @if ( \Auth::user()->can( 'admin.providers.show' ) )
 
         <div class="row hidden-print">
             <div class="col-xs-12">
@@ -84,17 +82,17 @@
                                     {{ $provider->phones->implode( 'phone', ', ' ) }}
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'providers.buildings', $provider->id ) }}" class="badge badge-{{ $provider->buildings()->count() ? 'info' : 'default' }} bold">
+                                    <a href="{{ route( 'buildings.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->buildings()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->buildings()->count() }}
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'providers.managements', $provider->id ) }}" class="badge badge-{{ $provider->managements()->count() ? 'info' : 'default' }} bold">
+                                    <a href="{{ route( 'managements.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->managements()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->managements()->count() }}
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'providers.types', $provider->id ) }}" class="badge badge-{{ $provider->types()->count() ? 'info' : 'default' }} bold">
+                                    <a href="{{ route( 'types.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->types()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->types()->count() }}
                                     </a>
                                 </td>

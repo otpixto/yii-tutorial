@@ -86,6 +86,10 @@ class CustomersController extends BaseController
             ->get();
 
         $customers = $customers
+            ->with(
+                'actualBuilding',
+                'user'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

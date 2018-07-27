@@ -26,13 +26,23 @@
                 </h3>
             </div>
             <div class="panel-body">
-                {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.managements.add', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-                <div class="form-group">
+                {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.managements.add', $type->id ], 'class' => 'submit-loading' ] ) !!}
+                <div class="row">
                     <div class="col-md-12">
-                        {!! Form::select( 'managements[]', [], null, [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'types.managements.search', $type->id ), 'multiple' ] ) !!}
+                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                            @foreach ( $availableManagements as $management => $arr )
+                                <optgroup label="{{ $management }}">
+                                    @foreach ( $arr as $management_id => $management_name )
+                                        <option value="{{ $management_id }}">
+                                            {{ $management_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="row margin-top-15">
                     <div class="col-md-12">
                         {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
                     </div>
@@ -109,10 +119,37 @@
 
 @endsection
 
+@section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+@endsection
+
 @section( 'js' )
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
+
+            .ready( function ()
+            {
+
+                $( '.mt-multiselect' ).multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
+                });
+
+            })
 
             .on( 'click', '[data-delete="type-management"]', function ( e )
             {

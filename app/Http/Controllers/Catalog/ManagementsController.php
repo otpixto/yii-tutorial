@@ -68,11 +68,7 @@ class ManagementsController extends BaseController
         if ( ! empty( $provider_id ) )
         {
             $managements
-                ->whereHas( 'providers', function ( $providers ) use ( $provider_id )
-                {
-                    return $providers
-                        ->where( Provider::$_table . '.id', '=', $provider_id );
-                });
+                ->where( Management::$_table . '.provider_id', '=', $provider_id );
         }
 
         if ( ! empty( $building_id ) )
@@ -123,6 +119,9 @@ class ManagementsController extends BaseController
         }
 
         $managements = $managements
+            ->with(
+                'parent'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

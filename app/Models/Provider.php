@@ -37,17 +37,17 @@ class Provider extends BaseModel
 
     public function buildings ()
     {
-        return $this->belongsToMany( 'App\Models\Building', 'providers_buildings' );
+        return $this->hasMany( 'App\Models\Building' );
     }
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'providers_managements' );
+        return $this->hasMany( 'App\Models\Management' );
     }
 
     public function types ()
     {
-        return $this->belongsToMany( 'App\Models\Type', 'providers_types' );
+        return $this->hasMany( 'App\Models\Type' );
     }
 
     public function customers ()

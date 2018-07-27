@@ -11,7 +11,7 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-       {{-- @if ( \Auth::user()->can( 'tickets.create' ) || ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() && $ticketManagements->total() < 1000 ) )
+        @if ( \Auth::user()->can( 'tickets.create' ) || \Auth::user()->can( 'tickets.export' ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
                     @if( \Auth::user()->can( 'tickets.create' ) )
@@ -21,7 +21,7 @@
                         </a>
                     @endif
                 </div>
-                @if ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() )
+                {{--@if ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() )
                     <div class="col-xs-6 text-right">
                         @if( $ticketManagements->total() < 1000 )
                             <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
@@ -34,9 +34,9 @@
                             </span>
                         @endif
                     </div>
-                @endif
+                @endif--}}
             </div>
-        @endif--}}
+        @endif
 
         <div class="row">
             <div class="col-xs-12">

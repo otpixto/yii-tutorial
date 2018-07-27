@@ -548,9 +548,12 @@ class Grub extends Command
                 if ( $_work->created_by )
                 {
                     $user = User::withTrashed()->find( $_work->created_by );
-                    $work->author_id = $user->id;
-                    $user->deleted_at = null;
-                    $user->save();
+                    if ( $user )
+                    {
+                        $work->author_id = $user->id;
+                        $user->deleted_at = null;
+                        $user->save();
+                    }
                 }
 
                 if ( ! $work->author_id )
@@ -831,9 +834,12 @@ class Grub extends Command
 				if ( $first_history && $first_history->user_id )
 				{
                     $user = User::withTrashed()->find( $first_history->user_id );
-					$ticket->author_id = $user->id;
-					$user->deleted_at = null;
-					$user->save();
+                    if ( $user )
+                    {
+                        $ticket->author_id = $user->id;
+                        $user->deleted_at = null;
+                        $user->save();
+                    }
 				}
 				else
 				{

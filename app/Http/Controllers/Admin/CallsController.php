@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Asterisk\Cdr;
+use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -34,18 +35,23 @@ class CallsController extends BaseController
                 \DB::raw( 'REPLACE( dst, \'79295070506\', \'88005503115\' ) dst' )
             );
 
+        $providers = Provider
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
         if ( ! \Auth::user()->admin )
         {
-            $calls
-                ->whereHas( 'providerPhone', function ( $providerPhone )
+            $providerPhones = [];
+            foreach ( $providers as $provider )
+            {
+                foreach ( $provider->phones as $providerPhone )
                 {
-                    return $providerPhone
-                        ->whereHas( 'provider', function ( $provider )
-                        {
-                            return $provider
-                                ->mine();
-                        });
-                });
+                    $providerPhones[] = $providerPhone;
+                }
+            }
+            $calls
+                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
         }
 
         if ( $operator_id )

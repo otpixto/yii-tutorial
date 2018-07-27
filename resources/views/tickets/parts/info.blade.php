@@ -398,6 +398,19 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="note">
+                    <dl>
+                        <dt>Теги</dt>
+                        <dd>
+                            {!! Form::text( 'tags', $ticket->tags->implode( 'text', ',' ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off', 'id' => 'tags' ] ) !!}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div class="col-lg-6">
 

@@ -203,30 +203,8 @@
 
     {!! Form::close() !!}
 
-    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="customers-modal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title">
-                        Выберите заявителя
-                    </h4>
-                </div>
-                <div class="modal-body" id="customers">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
-
-    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="tickets-modal">
-        <div class="modal-dialog modal-lg">
+    <div class="modal right fade" tabindex="-1" role="basic" aria-hidden="true" id="tickets-modal">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -248,8 +226,8 @@
     </div>
     <!-- /.modal -->
 
-    <div class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true" id="works-modal">
-        <div class="modal-dialog modal-lg">
+    <div class="modal right fade" tabindex="-1" role="basic" aria-hidden="true" id="works-modal">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>

@@ -623,6 +623,7 @@ class WorksController extends BaseController
             ::whereHas( 'buildings', function ( $buildings ) use ( $request )
             {
                 return $buildings
+                    ->mine()
                     ->where( Building::$_table. '.id', '=', $request->get( 'building_id' ) );
             })
             ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )

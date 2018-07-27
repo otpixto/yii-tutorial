@@ -14,6 +14,15 @@ class Work extends BaseModel
 
     public static $name = 'Работа на сетях';
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'time_begin',
+        'time_end',
+        'time_end_fact',
+    ];
+
     public static $rules = [
         'provider_id'       => 'nullable|integer',
         'category_id'       => 'required|integer',
