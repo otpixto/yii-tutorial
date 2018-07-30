@@ -1837,7 +1837,7 @@ class TicketsController extends BaseController
             ->where( 'phone', '=', $phone )
             ->where( 'status_code', '!=', 'draft' )
             ->orderBy( 'id', 'desc' )
-            ->take( 10 )
+            ->take( config( 'pagination.per_page' ) )
             ->get();
 
         if ( $tickets->count() )

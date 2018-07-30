@@ -617,6 +617,8 @@ class Grub extends Command
 
         $this->info( 'Works End' );
 
+        \Cache::tags( 'works_counts' )->flush();
+
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
@@ -953,7 +955,6 @@ class Grub extends Command
 		
 		$this->info( 'Tickets End' );
 
-        \Cache::tags( 'works_counts' )->flush();
         \Cache::tags( 'tickets_counts' )->flush();
 
     }
