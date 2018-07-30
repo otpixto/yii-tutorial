@@ -393,16 +393,14 @@ class UsersController extends BaseController
 
         $userLogsIn = $user
             ->logs()
-            ->where( 'text', 'not like', '%авторизовался%' )
-            ->where( 'text', 'not like', '%выход%' )
             ->orderBy( 'id', 'desc' )
-            ->take( 30 )
+            ->take( config( 'pagination.per_page' ) )
             ->get();
 
         $userLogsOut = Log
             ::where( 'author_id', '=', $user->id )
             ->orderBy( 'id', 'desc' )
-            ->take( 30 )
+            ->take( config( 'pagination.per_page' ) )
             ->get();
 
         return view('admin.users.logs' )

@@ -1,4 +1,4 @@
-var socket = io( 'https://system.eds-region.ru:8443', { secure: true } );
+var socket = io( 'https://system.eds-region.ru:8444', { secure: true } );
 var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 var connected = false;
 
@@ -115,14 +115,7 @@ socket
                 if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
-                    $( '#ticket-show' ).load( window.location.href + ' #ticket-show', function ()
-                    {
-                        // без этого быдлядства не обошлось...
-                        if ( $( '#ticket-show #ticket-show' ).length )
-                        {
-                            $( '#ticket-show' ).replaceWith( $( '#ticket-show #ticket-show' ) );
-                        }
-                    });
+                    $( '#ticket-show' ).load( window.location.href );
                 }
                 else if ( data.ticket_management_id )
                 {

@@ -28,7 +28,7 @@
             <div class="form-group">
                 {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Work::$categories, \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + $categories->toArray(), \Input::old( 'category_id', $work->category_id ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
                 </div>
             </div>
 

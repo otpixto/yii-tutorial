@@ -480,7 +480,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 15;
+        $max_pages = 50;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -584,6 +584,8 @@ class Grub extends Command
 
                 $work->save();
 
+                $work->logs()->forceDelete();
+
                 $ids = [];
                 foreach ( $_work->buildings as $building )
                 {
@@ -619,7 +621,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
 		$per_page = 100;
-        $max_pages = 15;
+        $max_pages = 50;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();
@@ -875,7 +877,10 @@ class Grub extends Command
 
                 $ticket->save();
                 $ticketManagement->save();
-								
+
+                $ticket->logs()->forceDelete();
+                $ticketManagement->logs()->forceDelete();
+
 				foreach ( $data->data->uploads as $s )
 				{
 					if ( ! $s->url ) continue;
@@ -947,6 +952,9 @@ class Grub extends Command
         }
 		
 		$this->info( 'Tickets End' );
+
+        \Cache::tags( 'works_counts' )->flush();
+        \Cache::tags( 'tickets_counts' )->flush();
 
     }
 	

@@ -85,17 +85,23 @@
                             <td>
                                 {{ $log->created_at->format( 'd.m.Y H:i' ) }}
                             </td>
-                            <td>
-                                @if ( $log->parent && isset( $log->parent::$name ) )
-                                    {{ $log->parent::$name }}
-                                @endif
-                                <span class="small text-muted">
-                                    ({{ $log->model_name }})
-                                </span>
-                            </td>
-                            <td>
-                                {{ $log->model_id }}
-                            </td>
+                            @if ( $log->model_name && $log->model_id )
+                                <td>
+                                    @if ( $log->parent && isset( $log->parent::$name ) )
+                                        {{ $log->parent::$name }}
+                                    @endif
+                                    <span class="small text-muted">
+                                        ({{ $log->model_name }})
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ $log->model_id ?: '-' }}
+                                </td>
+                            @else
+                                <td colspan="2">
+                                    -
+                                </td>
+                            @endif
                             <td>
                                 @if ( $log->author )
                                     {!! $log->author->getName() !!}

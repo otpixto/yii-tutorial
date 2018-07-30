@@ -2,5 +2,5 @@
 
 return [
     'password' => '4AZVdsDFTw',
-    'stream_url' => 'https://system.eds-region.ru:8443/stream'
+    'stream_url' => 'https://system.eds-region.ru:8444/stream'
 ];

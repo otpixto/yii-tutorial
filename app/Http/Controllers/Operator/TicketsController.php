@@ -7,6 +7,7 @@ use App\Jobs\SendStream;
 use App\Models\Building;
 use App\Models\Customer;
 use App\Models\Executor;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
@@ -260,6 +261,16 @@ class TicketsController extends BaseController
                                         ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
                                 });
                         }
+						
+						if ( ! empty( $request->get( 'category_id' ) ) )
+                        {
+                            $ticket
+                                ->whereHas( 'type', function ( $type ) use ( $request )
+                                {
+                                    return $type
+                                        ->where( Type::$_table . '.category_id', '=', $request->get( 'category_id' ) );
+                                });
+                        }
 
                         if ( ! empty( $request->get( 'flat' ) ) )
                         {
@@ -292,6 +303,7 @@ class TicketsController extends BaseController
                         if ( $request->get( 'show' ) == 'overdue' )
                         {
                             $ticket
+								->notFinaleStatuses()
                                 ->overdue();
                         }
 
@@ -425,6 +437,11 @@ class TicketsController extends BaseController
                 ->with( 'ticketManagements', $ticketManagements );
 
         }
+
+        $log = Log::create([
+            'text' => 'Просмотрел список заявок'
+        ]);
+        $log->save();
 
         return view( 'tickets.index' )
             ->with( 'request', $request );
@@ -660,7 +677,11 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->where( 'id', '=', $id )
             ->first();
 
@@ -898,10 +919,12 @@ class TicketsController extends BaseController
                     ->route( 'tickets.index' )
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
+            $ticketManagement->addLog( 'Просмотрел заявку №' . $ticketManagement->getTicketNumber() );
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
         }
         else
         {
+            $ticket->addLog( 'Просмотрел заявку №' . $ticket->id );
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
         }
 
@@ -989,7 +1012,11 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->find( $ticket_id );
         if ( ! $ticket )
         {
@@ -1007,6 +1034,8 @@ class TicketsController extends BaseController
                 ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
+
+        $ticketManagement->addLog( 'Просмотрел историю заявки №' . $ticketManagement->getTicketNumber() );
 
         Title::add( 'История изменений заявки #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
 
@@ -1192,7 +1221,11 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->find( $ticket_id );
 
         if ( ! $ticket )
@@ -1408,7 +1441,11 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
             ->find( $ticket_id );
         if ( ! $ticket )
         {
@@ -1429,7 +1466,20 @@ class TicketsController extends BaseController
 
         $ticketManagement->addLog( 'Распечатал акт №' . $ticketManagement->getTicketNumber() );
 
-        $act = $ticketManagement->act ?: $ticketManagement->management->acts()->first();
+        $act = null;
+
+        if ( $ticketManagement->act )
+        {
+            $act = $ticketManagement->act;
+        }
+        else if ( $ticketManagement->management->acts->count() )
+        {
+            $act = $ticketManagement->management->acts->first();
+        }
+        else if ( $ticketManagement->management->parent && $ticketManagement->management->parent->acts->count() )
+        {
+            $act = $ticketManagement->management->parent->acts->first();
+        }
 
         if ( $act )
         {
@@ -1439,7 +1489,7 @@ class TicketsController extends BaseController
             {
                 $management = $ticketManagement->management->parent->name . '<br />' . $management;
             }
-            $content = $ticketManagement->act->content;
+            $content = $act->content;
             $content = str_replace( '[[object]]', $management, $content );
             $content = str_replace( '[[emergency]]', $ticket->emergency ? 'Авария' : '', $content );
             $content = str_replace( '[[urgent]]', $ticket->urgently ? 'Срочно' : '', $content );

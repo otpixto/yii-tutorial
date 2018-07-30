@@ -93,27 +93,27 @@
                         {{ $management->name }}
                     </td>
                     <td class="text-center info bold">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="total">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="total">
                             {{ $data[ $management->id ][ 'total' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="canceled">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="canceled">
                             {{ $data[ $management->id ][ 'canceled' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="not_verified">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="not_verified">
                             {{ $data[ $management->id ][ 'not_verified' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_with_confirm">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_with_confirm">
                             {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}" data-field="closed_without_confirm">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_without_confirm">
                             {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
                         </a>
                     </td>
@@ -142,22 +142,22 @@
                     {{ $data['total'] }}
                 </th>
                 <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'cancel', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
                         {{ $data['canceled'] }}
                     </a>
                 </th>
                 <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'not_verified', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
                         {{ $data['not_verified'] }}
                     </a>
                 </th>
                 <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_with_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
                         {{ $data['closed_with_confirm'] }}
                     </a>
                 </th>
                 <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'status_code' => 'closed_without_confirm', 'period_from' => $date_from, 'period_to' => $date_to ] ) }}">
+                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
                         {{ $data['closed_without_confirm'] }}
                     </a>
                 </th>

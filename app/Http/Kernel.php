@@ -40,7 +40,6 @@ class Kernel extends HttpKernel
 
         'srm' => [
             'check.provider',
-            'counter',
         ],
 
         'api' => [
@@ -65,6 +64,5 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'check.provider' => \App\Http\Middleware\CheckProvider::class,
-        'counter' => \App\Http\Middleware\Counter::class,
     ];
 }

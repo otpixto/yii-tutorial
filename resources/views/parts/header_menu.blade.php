@@ -11,14 +11,14 @@
                     </span>
                     @if ( \Auth::user()->can( 'tickets.counter' ) )
                         <span class="badge badge-info bold">
-                            {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_count' ) }}
+                            {{ \App\Classes\Counter::ticketsCount() }}
                         </span>
                         <span class="badge badge-danger bold">
-                            {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_overdue_count' ) }}
+                            {{ \App\Classes\Counter::ticketsOverdueCount() }}
                         </span>
                         @if ( \Auth::user()->can( 'tickets.call' ) )
                             <span class="badge badge-warning bold">
-                                {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_completed_count' ) }}
+                                {{ \App\Classes\Counter::ticketsCompletedCount() }}
                             </span>
                         @endif
                     @endif
@@ -37,7 +37,7 @@
                                 Просроченные
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-danger bold">
-                                        {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_overdue_count' ) }}
+                                        {{ \App\Classes\Counter::ticketsOverdueCount() }}
                                     </span>
                                 @endif
                             </a>
@@ -49,7 +49,7 @@
                                 Обзвон
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">
-                                        {{ \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_completed_count' ) }}
+                                        {{ \App\Classes\Counter::ticketsCompletedCount() }}
                                     </span>
                                 @endif
                             </a>
@@ -75,10 +75,10 @@
                     </span>
                     @if ( ( \Auth::user()->can( 'works.counter' ) ) )
                         <span class="badge badge-info bold">
-                            {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_count' ) }}
+                            {{ \App\Classes\Counter::worksCount() }}
                         </span>
                         <span class="badge badge-danger bold">
-                            {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_overdue_count' ) }}
+                            {{ \App\Classes\Counter::worksOverdueCount() }}
                         </span>
                     @endif
                 </a>
@@ -95,7 +95,7 @@
                             Просроченные
                             @if ( \Auth::user()->can( 'works.counter' ) )
                                 <span class="badge badge-danger bold">
-                                    {{ \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_overdue_count' ) }}
+                                    {{ \App\Classes\Counter::worksOverdueCount() }}
                                 </span>
                             @endif
                         </a>

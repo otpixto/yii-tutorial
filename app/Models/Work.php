@@ -215,6 +215,12 @@ class Work extends BaseModel
                     ->orWhere( self::$_table . '.time_end_fact', '>=', Carbon::now()->toDateTimeString() );
             });
     }
+	
+	public function scopeOverdue ( $query )
+	{
+		return $query
+			->whereRaw( 'time_end < COALESCE( time_end_fact, CURRENT_TIMESTAMP )' );
+	}
 
     public function getClass ()
     {

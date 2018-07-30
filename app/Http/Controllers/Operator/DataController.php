@@ -18,7 +18,11 @@ class DataController extends BaseController
     {
 
         $res = Ticket
-            ::mine()
+            ::whereHas( 'managements', function ( $managements )
+			{
+				return $managements
+					->mine();
+			})
             ->notFinaleStatuses()
             ->whereHas( 'building', function ( $building )
             {

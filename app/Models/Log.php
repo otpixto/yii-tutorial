@@ -19,6 +19,8 @@ class Log extends BaseModel
 
     protected $nullable = [
         'author_id',
+        'model_id',
+        'model_name',
     ];
 
 }

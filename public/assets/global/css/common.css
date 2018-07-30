@@ -10,7 +10,15 @@
 }
 
 .datepicker {
-    z-index: 999999;
+    z-index: 9999 !important;
+}
+
+.modal-backdrop {
+    z-index: 99999 !important;
+}
+
+.modal {
+    z-index: 999999 !important;
 }
 
 .media-buttons {

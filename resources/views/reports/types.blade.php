@@ -150,7 +150,7 @@
                             @if ( isset( $data[ 'data' ][ $category->id ], $data[ 'data' ][ $category->id ][ $management->id ] ) )
                                 {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'closed' ] }}
                                 /
-                                <a href="{{ route( 'tickets.index', [ 'management_id' => $management->id, 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
+                                <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
                                     {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'total' ] }}
                                 </a>
                             @else
@@ -162,7 +162,7 @@
                         @if ( isset( $data[ 'categories' ][ $category->id ] ) )
                             {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
                             /
-                            <a href="{{ route( 'tickets.index', [ 'type' => 'category-' . $category->id, 'period_from' => $date_from->format( 'd.m.Y' ), 'period_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ),'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
                                 {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
                             </a>
                         @else

@@ -29,12 +29,16 @@
                                     {{ $log->created_at->format( 'd.m.Y H:i:s' ) }}
                                 </td>
                                 <td>
-                                    @if ( $log->parent && isset( $log->parent::$name ) )
-                                        {{ $log->parent::$name }}
+                                    @if ( $log->model_name && $log->model_id )
+                                        @if ( $log->parent && isset( $log->parent::$name ) )
+                                            {{ $log->parent::$name }}
+                                        @endif
+                                        <span class="small text-muted">
+                                            ({{ $log->model_name }})
+                                        </span>
+                                    @else
+                                        -
                                     @endif
-                                    <span class="small text-muted">
-                                        ({{ $log->model_name }})
-                                    </span>
                                 </td>
                                 <td>
                                     {{ $log->text }}
@@ -42,6 +46,13 @@
                             </tr>
                         @endforeach
                     </table>
+                    @if ( \Auth::user()->can( 'admin.logs' ) )
+                        <div class="margin-top-30">
+                            <a href="{{ route( 'logs.index', [ 'author_id' => $user->id ] ) }}" class="btn btn-info">
+                                Показать все
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -83,6 +94,13 @@
                             </tr>
                         @endforeach
                     </table>
+                    @if ( \Auth::user()->can( 'admin.logs' ) )
+                        <div class="margin-top-30">
+                            <a href="{{ route( 'logs.index', [ 'model_name' => get_class( $user ), 'model_id' => $user->id ] ) }}" class="btn btn-info">
+                                Показать все
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
