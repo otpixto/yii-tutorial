@@ -663,7 +663,7 @@ class TicketsController extends BaseController
 
         $hide = $ticketManagement->ticket->author_id == \Auth::user()->id ? false : $request->get( 'hide', false );
 
-        return view( 'parts.ticket' )
+        return view( 'tickets.parts.line' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'ticket', $ticketManagement->ticket )
             ->with( 'field_operator', $field_operator )
