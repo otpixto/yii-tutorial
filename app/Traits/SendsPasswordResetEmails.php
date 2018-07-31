@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Classes\Title;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 
@@ -14,6 +15,7 @@ trait SendsPasswordResetEmails
      */
     public function showLinkRequestForm()
     {
+        Title::add( 'Напоминание пароля' );
         return view('auth.forgot');
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Classes\Title;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,7 @@ trait AuthenticatesUsers
      */
     public function showLoginForm()
     {
+        Title::add( 'Авторизация' );
         return view('auth.login');
     }
 

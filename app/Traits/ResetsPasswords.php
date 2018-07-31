@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Classes\Title;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ trait ResetsPasswords
      */
     public function showResetForm(Request $request, $token = null)
     {
+        Title::add( 'Сброс пароля' );
         return view('auth.reset' )->with(
             ['token' => $token, 'email' => $request->email]
         );

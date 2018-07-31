@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Classes\Title;
 use App\Models\Provider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ trait RegistersUsers
         {
             return redirect()->route( 'login' );
         }
+        Title::add( 'Авторизация' );
         return view('auth.register' );
     }
 
