@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use App\Models\Provider;
+
 class Title
 {
 
@@ -30,7 +32,7 @@ class Title
 
     public static function render ( $html = false )
     {
-        $title = config( 'app.name' );
+        $title = Provider::getCurrent() ? Provider::$current->name : config( 'app.name' );
         if ( count( self::$title ) != 0 )
         {
             $title .= ' - ' . implode( ' - ', self::$title );
