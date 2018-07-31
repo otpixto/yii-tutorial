@@ -34,9 +34,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
     Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
     Route::post( 'login', 'Auth\LoginController@login' );
-    Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
-
-    Route::post( '/pickup-call', 'ProfileController@pickupCall' )->name( 'pickup-call' );
 
     // Registration Routes...
     Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
@@ -47,11 +44,15 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::post( 'forgot', 'Auth\ForgotPasswordController@sendResetLinkEmail' )->name( 'password.email' );
     Route::get( 'reset/{token}', 'Auth\ResetPasswordController@showResetForm' )->name( 'reset' );
     Route::post( 'reset', 'Auth\ResetPasswordController@reset' );
+
+    Route::post( '/pickup-call', 'ProfileController@pickupCall' )->name( 'pickup-call' );
     Route::resource( '/news', 'NewsController' );
     Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
 
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
+
+        Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
 
         Route::resource( 'works', 'Operator\WorksController' );
         Route::resource( 'tickets', 'Operator\TicketsController' );
