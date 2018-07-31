@@ -882,6 +882,7 @@ class Grub extends Command
 
                 $ticket->logs()->forceDelete();
                 $ticketManagement->logs()->forceDelete();
+                $ticketManagement->statusesHistory()->forceDelete();
 
 				foreach ( $data->data->uploads as $s )
 				{
