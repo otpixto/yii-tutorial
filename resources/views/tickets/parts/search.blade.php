@@ -54,13 +54,13 @@
     <div class="col-md-10">
         <div class="row">
             <div class="col-xs-4">
-                {!! Form::text( 'lastname', \Input::get( 'lastname' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Фамилия' ] ) !!}
+                {!! Form::text( 'lastname', \Input::get( 'lastname' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Фамилия' ] ) !!}
             </div>
             <div class="col-xs-4">
-                {!! Form::text( 'firstname', \Input::get( 'firstname' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Имя' ] ) !!}
+                {!! Form::text( 'firstname', \Input::get( 'firstname' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Имя' ] ) !!}
             </div>
             <div class="col-xs-4">
-                {!! Form::text( 'middlename', \Input::get( 'middlename' ), [ 'class' => 'form-control customer-autocomplete', 'placeholder' => 'Отчество' ] ) !!}
+                {!! Form::text( 'middlename', \Input::get( 'middlename' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Отчество' ] ) !!}
             </div>
         </div>
     </div>
