@@ -102,9 +102,14 @@
         function loadWorks ( url )
         {
             $( '#works' ).loading();
-            $.get( url || window.location.href, function ( response )
-            {
-                $( '#works' ).html( response );
+            $.ajax({
+                url: url || window.location.href,
+                method: 'get',
+                cache: false,
+                success: function ( response )
+                {
+                    $( '#works' ).html( response );
+                }
             });
         };
 
@@ -115,6 +120,30 @@
 
                 loadWorks();
 
+            })
+
+            .on( 'submit', '#search-form', function ( e )
+            {
+                e.preventDefault();
+                $( '#works' ).loading();
+                $.ajax({
+                    url: $( this ).attr( 'action' ),
+                    method: 'post',
+                    cache: false,
+                    data: $( this ).serialize(),
+                    success: function ( response )
+                    {
+                        $( '#works' ).html( response );
+                    }
+                });
+            })
+
+            .on( 'click', '.pagination a', function ( e )
+            {
+                e.preventDefault();
+                var url = $( this ).attr( 'href' );
+                loadWorks( url );
+                window.history.pushState( '', '', url );
             })
 
             .on( 'click', '[data-load="search"]', function ( e )
