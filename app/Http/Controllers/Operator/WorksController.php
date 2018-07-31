@@ -29,7 +29,7 @@ class WorksController extends BaseController
     public function index ( Request $request )
     {
 
-        if ( $request->ajax() )
+        if ( $request->ajax() || ! empty( $request->get( 'export' ) ) )
         {
 
             $managements = [];
@@ -177,6 +177,123 @@ class WorksController extends BaseController
                 $filters[] = 'Здание: ' . $building->first()->name;
             }
 
+            if ( $request->get( 'export' ) == 'data' && \Auth::user()->can( 'works.export' ) )
+            {
+                $works = $works->get();
+                $data = [];
+                foreach ( $works as $work )
+                {
+                    $data[] = [
+                        '#' => $work->id,
+                        'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
+                        'Кто сообщил' => $work->who,
+                        'Основание' => $work->reason,
+                        'Адрес работ' => $work->buildings->implode( 'name', '; ' ),
+                        'Категория работ' => $work->category->name,
+                        'Исполнитель работ' => $work->management->name,
+                        'Состав работ' => $work->composition,
+                        'Время начала работ' => Carbon::parse( $work->time_begin )
+                            ->format( 'd.m.y H:i' ),
+                        'Время окончания работ' => Carbon::parse( $work->time_end )
+                            ->format( 'd.m.y H:i' ),
+                    ];
+                }
+                \Excel::create( 'Отключения', function ( $excel ) use ( $data )
+                {
+                    $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
+                    {
+                        $sheet->fromArray( $data );
+                    } );
+                } )
+                    ->export( 'xls' );
+            }
+
+            if ( $request->get( 'export' ) == 'report' && \Auth::user()->can( 'works.export' ) )
+            {
+                $works = $works
+                    ->whereHas( 'category', function ( $category )
+                    {
+                        return $category
+                            ->where( 'works', '=', 1 );
+                    })
+                    ->get();
+                $data = [];
+                $totals = [
+                    'buildings' => 0,
+                    'flats'     => 0
+                ];
+                foreach ( $works as $work )
+                {
+                    $count_flats = 0;
+                    $count_buildings = 0;
+                    foreach ( $work->buildings as $building )
+                    {
+                        $count_flats += $building->room_living_count;
+                        $count_buildings ++;
+                    }
+                    if ( ! isset( $data[ $work->category_id ] ) )
+                    {
+                        /*if ( $work->is_plan )
+                        {
+                            $period = $work->category->period_execution_plan;
+                        }
+                        else
+                        {
+                            $period = $work->category->period_execution;
+                        }
+                        if ( $period > 24 )
+                        {
+                            $period = ceil($period / 24 ) . ' д.';
+                        }
+                        else
+                        {
+                            $period = $period . ' ч.';
+                        }*/
+                        $data[ $work->category_id ] = [
+                            'title' => $work->category->name,
+                            'color' => $work->category->color,
+                            //'period' => $period,
+                            'works' => [],
+                            'totals' => [
+                                'buildings' => 0,
+                                'flats'     => 0
+                            ]
+                        ];
+                    }
+                    $data[ $work->category_id ][ 'totals' ][ 'buildings' ] += $count_buildings;
+                    $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
+                    $totals[ 'flats' ] += $count_flats;
+                    $totals[ 'buildings' ] += $count_buildings;
+                    $data[ $work->category_id ][ 'works' ][ $work->id ] = [
+                        'addresses' => [],
+                        'count_flats' => $count_flats,
+                        'count_buildings' => $count_buildings,
+                        'time_begin' => Carbon::parse( $work->time_begin ),
+                        'time_end' => Carbon::parse( $work->time_end ),
+                        'composition' => $work->composition,
+                        'management' => $work->management->name ?? null,
+                        'executor_name' => $work->executor->name ?? null,
+                        'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
+                    ];
+                    foreach ( $work->getAddressesGroupBySegment() as $segment )
+                    {
+                        $data[ $work->category_id ][ 'works' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
+                    }
+                }
+                \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $data, $totals, $filters )
+                {
+                    $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $data, $totals, $filters )
+                    {
+                        $sheet
+                            ->loadView( 'works.report' )
+                            ->with( 'data', $data )
+                            ->with( 'totals', $totals )
+                            ->with( 'filters', $filters );
+                    });
+
+                })->export( 'xls' );
+            }
+
             $works = $works
                 ->with(
                     'comments',
@@ -192,126 +309,6 @@ class WorksController extends BaseController
 
         }
 
-
-
-//        if ( $request->get( 'export' ) == 1 && \Auth::user()
-//                ->can( 'works.export' ) )
-//        {
-//            $works = $works->get();
-//            $data = [];
-//            foreach ( $works as $work )
-//            {
-//                $data[] = [
-//                    '#' => $work->id,
-//                    'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
-//                    'Кто сообщил' => $work->who,
-//                    'Основание' => $work->reason,
-//                    'Адрес работ' => $work->buildings->implode( 'name', '; ' ),
-//                    'Категория работ' => $work->category->name,
-//                    'Исполнитель работ' => $work->management->name,
-//                    'Состав работ' => $work->composition,
-//                    'Время начала работ' => Carbon::parse( $work->time_begin )
-//                        ->format( 'd.m.y H:i' ),
-//                    'Время окончания работ' => Carbon::parse( $work->time_end )
-//                        ->format( 'd.m.y H:i' ),
-//                ];
-//            }
-//            \Excel::create( 'Отключения', function ( $excel ) use ( $data )
-//            {
-//                $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
-//                {
-//                    $sheet->fromArray( $data );
-//                } );
-//            } )
-//                ->export( 'xls' );
-//        }
-//
-//        if ( $request->get( 'report' ) == 1 && \Auth::user()
-//                ->can( 'works.export' ) )
-//        {
-//            $works = $works
-//                ->whereHas( 'category', function ( $category )
-//                {
-//                    return $category
-//                        ->where( 'works', '=', 1 );
-//                })
-//                ->get();
-//            $data = [];
-//            $totals = [
-//                'buildings' => 0,
-//                'flats'     => 0
-//            ];
-//            foreach ( $works as $work )
-//            {
-//                $count_flats = 0;
-//                $count_buildings = 0;
-//                foreach ( $work->buildings as $building )
-//                {
-//                    $count_flats += $building->room_living_count;
-//                    $count_buildings ++;
-//                }
-//                if ( ! isset( $data[ $work->category_id ] ) )
-//                {
-//                    /*if ( $work->is_plan )
-//                    {
-//                        $period = $work->category->period_execution_plan;
-//                    }
-//                    else
-//                    {
-//                        $period = $work->category->period_execution;
-//                    }
-//                    if ( $period > 24 )
-//                    {
-//                        $period = ceil($period / 24 ) . ' д.';
-//                    }
-//                    else
-//                    {
-//                        $period = $period . ' ч.';
-//                    }*/
-//                    $data[ $work->category_id ] = [
-//                        'title' => $work->category->name,
-//                        'color' => $work->category->color,
-//                        //'period' => $period,
-//                        'works' => [],
-//                        'totals' => [
-//                            'buildings' => 0,
-//                            'flats'     => 0
-//                        ]
-//                    ];
-//                }
-//                $data[ $work->category_id ][ 'totals' ][ 'buildings' ] += $count_buildings;
-//                $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
-//                $totals[ 'flats' ] += $count_flats;
-//                $totals[ 'buildings' ] += $count_buildings;
-//                $data[ $work->category_id ][ 'works' ][ $work->id ] = [
-//                    'addresses' => [],
-//                    'count_flats' => $count_flats,
-//                    'count_buildings' => $count_buildings,
-//                    'time_begin' => Carbon::parse( $work->time_begin ),
-//                    'time_end' => Carbon::parse( $work->time_end ),
-//                    'composition' => $work->composition,
-//                    'management' => $work->management->name ?? null,
-//                    'executor_name' => $work->executor->name ?? null,
-//                    'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
-//                ];
-//                foreach ( $work->getAddressesGroupBySegment() as $segment )
-//                {
-//                    $data[ $work->category_id ][ 'works' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
-//                }
-//            }
-//            \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $data, $totals, $filters )
-//            {
-//                $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $data, $totals, $filters )
-//                {
-//                    $sheet
-//                        ->loadView( 'works.report' )
-//                        ->with( 'data', $data )
-//                        ->with( 'totals', $totals )
-//                        ->with( 'filters', $filters );
-//                });
-//
-//            })->export( 'xls' );
-//        }
 
         $log = Log::create([
             'text' => 'Просмотрел список отключений'

@@ -23,11 +23,11 @@
                 </div>
                 <div class="col-xs-6 text-right">
                     @can( 'works.export' )
-                        <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                        <a href="?export=data&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
                             <i class="fa fa-download"></i>
                             Выгрузить в Excel
                         </a>
-                        <a href="?report=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                        <a href="?export=report&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
                             <i class="fa fa-download"></i>
                             Отчет
                         </a>

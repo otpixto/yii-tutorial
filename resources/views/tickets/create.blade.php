@@ -84,24 +84,24 @@
             <div class="form-group ">
                 {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave customer-autocomplete', 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave customer-autocomplete', 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
                 </div>
                 {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-3">
-                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave customer-autocomplete', 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
 
