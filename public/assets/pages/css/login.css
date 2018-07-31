@@ -8,8 +8,7 @@ Login page
 
 .login .logo {
   margin: 0 auto;
-  margin-top: 60px;
-  padding: 15px;
+  margin-top: 25px;
   text-align: center; }
 
 .login .content {
@@ -202,5 +201,5 @@ Login page
 }
 
 .login .logo img {
-  max-height: 100px;
+  max-height: 75px;
 }
