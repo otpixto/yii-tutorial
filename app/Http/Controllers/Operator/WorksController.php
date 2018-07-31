@@ -422,14 +422,25 @@ class WorksController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, Work::$rules );
+        $rules = [
+            'provider_id'       => 'nullable|integer',
+            'category_id'       => 'required|integer',
+            'buildings'         => 'required|array',
+            'management_id'     => 'required|integer',
+            'executor_id'       => 'nullable|integer',
+            'executor_name'     => 'nullable|max:255',
+            'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'comment'           => 'max:255',
+            'reason'            => 'required|max:255',
+            'date_begin'        => 'required|date_format:d.m.Y',
+            'time_begin'        => 'required|date_format:G:i',
+            'date_end'          => 'required|date_format:d.m.Y',
+            'time_end'          => 'required|date_format:G:i',
+            'date_end_fact'     => 'nullable|date_format:d.m.Y',
+            'time_end_fact'     => 'nullable|date_format:G:i',
+        ];
 
-        if ( ! isset( Work::$categories[ $request->get( 'category_id' ) ] ) )
-        {
-            return redirect()
-                ->back()
-                ->withErrors( [ 'Некорректная категория' ] );
-        }
+        $this->validate( $request, $rules );
 
         \DB::beginTransaction();
 

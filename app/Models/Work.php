@@ -23,24 +23,6 @@ class Work extends BaseModel
         'time_end_fact',
     ];
 
-    public static $rules = [
-        'provider_id'       => 'nullable|integer',
-        'category_id'       => 'required|integer',
-        'buildings'         => 'required|array',
-        'management_id'     => 'required|integer',
-        'executor_id'       => 'nullable|integer',
-        'executor_name'     => 'nullable|max:255',
-        'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        'comment'           => 'max:255',
-        'reason'            => 'required|max:255',
-        'date_begin'        => 'required|date_format:d.m.Y',
-        'time_begin'        => 'required|date_format:G:i',
-        'date_end'          => 'required|date_format:d.m.Y',
-        'time_end'          => 'required|date_format:G:i',
-        'date_end_fact'     => 'nullable|date_format:d.m.Y',
-        'time_end_fact'     => 'nullable|date_format:G:i',
-    ];
-
     protected $nullable = [
         'time_end_fact',
         'provider_id',
@@ -89,11 +71,6 @@ class Work extends BaseModel
     public static function create ( array $attributes = [] )
     {
 
-        if ( ! empty( $attributes[ 'phone' ] ) )
-        {
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
-        }
-
         $exp = explode( ':', $attributes[ 'time_begin' ] );
         $dt_begin = Carbon::parse( $attributes[ 'date_begin' ] )
             ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
@@ -131,7 +108,7 @@ class Work extends BaseModel
         {
             $message .= '<b>Адрес работы: ' . $building->name . '</b>' . PHP_EOL;
         }
-        $message .= 'Категория: ' . $work->getCategory() . PHP_EOL;
+        $message .= 'Категория: ' . $work->category->name . PHP_EOL;
         $message .= 'Основание: ' . $work->reason . PHP_EOL;
         $message .= 'Исполнитель работ: ' . $work->management->name . PHP_EOL;
         $message .= 'Кто передал: ' . $work->who . PHP_EOL;

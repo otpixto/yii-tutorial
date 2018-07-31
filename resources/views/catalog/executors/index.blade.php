@@ -13,7 +13,7 @@
         <div class="row margin-bottom-15">
             <div class="col-xs-6">
                 @if ( \Auth::user()->can( 'catalog.executors.create' ) )
-                    <a href="{{ route( 'managements.create' ) }}" class="btn btn-success btn-lg">
+                    <a href="{{ route( 'executors.create' ) }}" class="btn btn-success btn-lg">
                         <i class="fa fa-plus"></i>
                         Добавить Исполнителя
                     </a>

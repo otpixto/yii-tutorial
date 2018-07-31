@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Executor;
+use App\Models\Management;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class ExecutorsController extends BaseController
 {
@@ -43,7 +45,24 @@ class ExecutorsController extends BaseController
      */
     public function create ()
     {
-        //
+
+        $availableManagements = Management
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? '' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
+        return view( 'catalog.executors.create' )
+            ->with( 'availableManagements', $availableManagements );
+
     }
 
     /**
@@ -54,7 +73,28 @@ class ExecutorsController extends BaseController
      */
     public function store ( Request $request )
     {
-        //
+
+        $rules = [
+            'management_id'         => 'required|integer',
+            'name'                  => 'required|max:191',
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $executor = Executor::create( $request->all() );
+        if ( $executor instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $executor );
+        }
+
+        $executor->save();
+
+        return redirect()->route( 'executors.edit', $executor->id )
+            ->with( 'success', 'Исполнитель успешно создан' );
+
     }
 
     /**
@@ -76,7 +116,33 @@ class ExecutorsController extends BaseController
      */
     public function edit ( $id )
     {
-        //
+
+        $executor = Executor::find( $id );
+
+        if ( ! $executor )
+        {
+            return redirect()->route( 'executors.index' )
+                ->withErrors( [ 'Исполнитель не найден' ] );
+        }
+
+        $availableManagements = Management
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? '' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
+        return view( 'catalog.executors.edit' )
+            ->with( 'executor', $executor )
+            ->with( 'availableManagements', $availableManagements );
+
     }
 
     /**
@@ -88,7 +154,34 @@ class ExecutorsController extends BaseController
      */
     public function update ( Request $request, $id )
     {
-        //
+
+        $executor = Executor::find( $id );
+
+        if ( ! $executor )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Исполнитель не найден' ] );
+        }
+
+        $rules = [
+            'management_id'         => 'required|integer',
+            'name'                  => 'required|max:191',
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $res = $executor->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $res );
+        }
+
+        return redirect()->route( 'executors.edit', $executor->id )
+            ->with( 'success', 'Исполнитель успешно отредактирован' );
+
     }
 
     /**
