@@ -1,4 +1,4 @@
-{!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading', 'url' => route( 'tickets.filter' ) ] ) !!}
+{!! Form::open( [ 'method' => 'post', 'class' => 'submit-loading', 'url' => route( 'tickets.filter' ), 'id' => 'search-form' ] ) !!}
 {{--{!! Form::hidden( 'search', 1 ) !!}--}}
 <div class="row margin-top-10">
     <h4 class="col-md-2">

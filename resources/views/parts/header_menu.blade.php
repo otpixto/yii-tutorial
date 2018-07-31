@@ -33,7 +33,7 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.show' ) )
                         <li>
-                            <a href="{{ route( 'tickets.index' ) }}?show=overdue" class="tickets-ajax">
+                            <a href="{{ route( 'tickets.index' ) }}?show=overdue">
                                 Просроченные
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-danger bold">
@@ -45,7 +45,7 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
-                            <a href="{{ route( 'tickets.index' ) }}?show=completed" class="tickets-ajax">
+                            <a href="{{ route( 'tickets.index' ) }}?show=completed">
                                 Обзвон
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">

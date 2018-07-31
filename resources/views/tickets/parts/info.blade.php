@@ -111,7 +111,7 @@
                         <dt>Адрес проблемы:</dt>
                         <dd>
                             @if ( $ticket->building )
-                                {{ $ticket->building->name }}
+                                {{ $ticket->getAddress() }}
                                 <span class="small text-muted">
                                     ({{ $ticket->getPlace() }})
                                 </span>

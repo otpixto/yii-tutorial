@@ -40,27 +40,27 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <a href="{{ route( 'tickets.index' ) }}" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' ) btn-info @endif">
+                <a href="{{ route( 'tickets.index' ) }}" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' ) btn-info @endif">
                     <i class="fa fa-list"></i>
                     Все заявки
                 </a>
                 |
-                <a href="?show=not_processed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'not_processed' ) btn-info @endif">
+                <a href="?show=not_processed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'not_processed' ) btn-info @endif">
                     <i class="fa fa-clock-o"></i>
                     Необработанные заявки
                 </a>
                 >
-                <a href="?show=in_process" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'in_process' ) btn-info @endif">
+                <a href="?show=in_process" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'in_process' ) btn-info @endif">
                     <i class="fa fa-wrench"></i>
                     Заявки в работе
                 </a>
                 >
-                <a href="?show=completed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'completed' ) btn-info @endif">
+                <a href="?show=completed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'completed' ) btn-info @endif">
                     <i class="fa fa-check-circle"></i>
                     Выполненные заявки
                 </a>
                 >
-                <a href="?show=closed" class="tickets-ajax ticket-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'closed' ) btn-info @endif">
+                <a href="?show=closed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'closed' ) btn-info @endif">
                     <i class="fa fa-dot-circle-o"></i>
                     Закрытые заявки
                 </a>
@@ -240,7 +240,17 @@
 
             })
 
-            /*.on( 'click', 'a[href].tickets-ajax', function ( e )
+            .on( 'submit', '#search-form', function ( e )
+            {
+                e.preventDefault();
+                $( '#tickets' ).loading();
+                $.post( $( this ).attr( 'action' ), $( this ).serialize(), function ( response )
+                {
+                    $( '#tickets' ).html( response );
+                });
+            })
+
+            .on( 'click', '.pagination a', function ( e )
             {
                 e.preventDefault();
                 var url = $( this ).attr( 'href' );
@@ -248,7 +258,7 @@
                 window.history.pushState( '', '', url );
             })
 
-            .on( 'click', 'a[href].ticket-tabs', function ( e )
+            /*.on( 'click', 'a[href].ticket-tabs', function ( e )
             {
                 e.preventDefault();
                 $( 'a[href].ticket-tabs' ).removeClass( 'btn-info' );
@@ -261,7 +271,7 @@
                 if ( $( '#search' ).text().trim() == '' )
                 {
                     $( '#search' ).loading();
-                    $.get( '{{ route( 'tickets.search.form' ) }}', function ( response )
+                    $.get( '{{ route( 'tickets.search.form' ) }}', window.location.search, function ( response )
                     {
                         $( '#search' ).html( response );
                         $( '.select2' ).select2();
