@@ -126,6 +126,8 @@
             {
                 e.preventDefault();
                 $( '#works' ).loading();
+                var button = $( this ).find( ':submit' );
+                button.attr( 'disabled', 'disabled' ).addClass( 'loading' );
                 $.ajax({
                     url: $( this ).attr( 'action' ),
                     method: 'post',
@@ -134,6 +136,7 @@
                     success: function ( response )
                     {
                         $( '#works' ).html( response );
+                        button.removeAttr( 'disabled' ).removeClass( 'loading' );
                     }
                 });
             })
