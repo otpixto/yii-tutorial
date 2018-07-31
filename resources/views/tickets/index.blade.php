@@ -224,9 +224,14 @@
         function loadTickets ( url )
         {
             $( '#tickets' ).loading();
-            $.get( url || window.location.href, function ( response )
-            {
-                $( '#tickets' ).html( response );
+            $.ajax({
+                url: url || window.location.href,
+                method: 'get',
+                cache: false,
+                success: function ( response )
+                {
+                    $( '#tickets' ).html( response );
+                }
             });
         };
 
@@ -244,9 +249,15 @@
             {
                 e.preventDefault();
                 $( '#tickets' ).loading();
-                $.post( $( this ).attr( 'action' ), $( this ).serialize(), function ( response )
-                {
-                    $( '#tickets' ).html( response );
+                $.ajax({
+                    url: $( this ).attr( 'action' ),
+                    method: 'post',
+                    cache: false,
+                    data: $( this ).serialize(),
+                    success: function ( response )
+                    {
+                        $( '#tickets' ).html( response );
+                    }
                 });
             })
 
