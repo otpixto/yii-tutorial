@@ -585,7 +585,7 @@ class Ticket extends BaseModel
         $addr = '';
         if ( $this->building )
         {
-            $addr .= $this->building->name;
+            $addr .= $this->building->name . ' (' . $this->building->buildingType->name . ')';
         }
 		if ( $this->flat )
 		{
