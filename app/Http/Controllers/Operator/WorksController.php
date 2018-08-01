@@ -199,6 +199,12 @@ class WorksController extends BaseController
                             ->format( 'd.m.y H:i' ),
                     ];
                 }
+				
+				$log = Log::create([
+					'text' => 'Выгрузил данные по отключениям'
+				]);
+				$log->save();
+				
                 \Excel::create( 'Отключения', function ( $excel ) use ( $data )
                 {
                     $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
@@ -282,6 +288,12 @@ class WorksController extends BaseController
                         $data[ $work->category_id ][ 'works' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
                     }
                 }
+				
+				$log = Log::create([
+					'text' => 'Скачал отчет по отключениям'
+				]);
+				$log->save();
+				
                 \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $data, $totals, $filters )
                 {
                     $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $data, $totals, $filters )
@@ -294,6 +306,7 @@ class WorksController extends BaseController
                     });
 
                 })->export( 'xls' );
+				
             }
 
             $works = $works
