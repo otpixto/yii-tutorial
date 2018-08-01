@@ -21,7 +21,7 @@
                         </a>
                     @endif
                 </div>
-                {{--@if ( \Auth::user()->can( 'tickets.export' ) && $ticketManagements->count() )
+                {{--@if ( \Auth::user()->can( 'tickets.export' ) )
                     <div class="col-xs-6 text-right">
                         @if( $ticketManagements->total() < 1000 )
                             <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">

@@ -262,23 +262,28 @@ class BuildingsController extends BaseController
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
         $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
 
-        $buildings = Building
+        $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
-            ->select(
-                'id',
-                'name AS text'
-            )
             ->where( 'name', 'like', $s )
             ->orderBy( 'name' );
 
         if ( ! empty( $provider_id ) )
         {
-            $buildings
+            $res
                 ->where( Building::$_table . '.provider_id', '=', $provider_id );
         }
 
-        $buildings = $buildings
+        $res = $res
             ->get();
+			
+		$buildings = [];
+		foreach ( $res as $r )
+		{
+			$buildings[] = [
+				'id' => $r->id,
+				'text' => $r->name . ' (' . $r->buildingType->name . ')'
+			];
+		}
 
         return $buildings;
 

@@ -15,6 +15,7 @@ use App\Models\TicketManagement;
 use App\Models\Executor;
 use App\Models\Building;
 use App\Models\Customer;
+use App\Models\Segment;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -119,6 +120,19 @@ class Grub extends Command
         }
 
         return;*/
+		
+		$tickets = Ticket
+			::whereNull( 'actual_building_id' )
+			->whereHas( 'customer' )
+			->get();
+        foreach ( $tickets as $ticket )
+        {
+            $ticket->actual_building_id = $ticket->customer->actual_building_id;
+            $ticket->actual_flat = $ticket->customer->actual_flat;
+			$ticket->save();
+        }
+
+        return;
 
         $api_url = 'https://mo.i-eds.ru/api/';
 
@@ -473,6 +487,122 @@ class Grub extends Command
 
         $this->info( 'Users End' );
 		*/
+		
+		$this->info( 'Customers Start' );
+		
+		$page = 0;
+        $pages = null;
+        $per_page = 100;
+        $max_pages = 5000;
+
+        while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
+		{
+			
+			$this->info('Customers Page #' . $page . ' Start');
+			
+			$url = $api_url . 'clients/table?pn=' . $page . '&ps=' . $per_page . '&sort=-user_id';
+
+			$response = $this->client->get( $url, [
+				'headers' => $headers
+			]);
+			
+			$pages = (int)$response->getHeader('X-PAGINATION-PAGE-COUNT')[0] ?? 0;
+
+			$json_string = $response->getBody();
+			$customers = json_decode( $json_string );
+			
+			$bar = $this->output->createProgressBar(count($customers->data));
+			
+			foreach ( $customers->data as $_customer )
+			{
+				$bar->advance();
+				$customer = Customer::find( $_customer->user_id );
+				if ( ! $customer )
+				{
+					$customer = new Customer;
+					$customer->id = $_customer->user_id;
+					$customer->provider_id = 1;
+					$customer->created_at = Carbon::now()->toDateTimeString();
+					$customer->updated_at = $customer->created_at;
+				}
+				if ( $_customer->created_by->deleted )
+				{
+					$customer->deleted_at = $customer->updated_at;
+				}
+				$customer->firstname = $_customer->first_name;
+				$customer->middlename = $_customer->middle_name;
+				$customer->lastname = $_customer->last_name;
+				$customer->email = $_customer->email ?: null;
+				$customer->phone = mb_substr( $_customer->phone, -10 ) ?: null;
+				if ( ! empty( $_customer->phones ) )
+				{
+					if ( ! $customer->phone && isset( $_customer->phones[ 0 ] ) )
+					{
+						$customer->phone = mb_substr( $_customer->phones[ 0 ]->phone_number, -10 );
+					}
+					if ( isset( $_customer->phones[ 1 ] ) )
+					{
+						$customer->phone2 = mb_substr( $_customer->phones[ 1 ]->phone_number, -10 );
+					}
+				}
+				if ( ! empty( $_customer->rooms ) )
+				{
+					$url = $api_url . 'rooms/' . $_customer->rooms[ 0 ]->room_id;
+					$response = $this->client->get( $url, [
+						'headers' => $headers
+					]);
+					$json_string = $response->getBody();
+					$room = json_decode( $json_string );
+					if ( ! empty( $room ) && ! empty( $room->data ) )
+					{
+						$room = $room->data;
+						$_building = $room->building;
+						$building = Building::find( $_building->building_id );
+						if ( ! $building )
+						{
+							$building = new Building;
+							$building->id = $_building->building_id;
+							$building->provider_id = 1;
+						}
+						$building->name = $_building->full_address;
+						$building->hash = Building::genHash( $building->name );
+						$segment_id = $_building->street_id ?: $_building->city_id ?: $_building->district_id ?: $_building->region_id;
+						if ( Segment::find( $segment_id ) )
+						{
+							$building->segment_id = $segment_id;
+						}
+						$building->guid = $_building->gzhi_guid;
+						$building->lon = $_building->longitude;
+						$building->lat = $_building->latitude;
+						$building->date_of_construction = $_building->date_of_construction;
+						$building->building_type_id = $_building->building_type_id;
+						$building->eirts_number = $_building->eirts_number;
+						$building->total_area = $_building->total_area;
+						$building->living_area = $_building->living_area;
+						$building->floor_count = $_building->floor_count;
+						$building->porches_count = $_building->porches_count;
+						$building->room_total_count = $_building->room_total_count;
+						$building->room_living_count = $_building->room_living_count;
+						$building->room_mask = $_building->room_mask;
+						$building->is_first_floor_living = $_building->is_first_floor_living ? 1 : 0;
+						$building->first_floor_index = $_building->first_floor_index;
+						$building->save();
+						$customer->actual_building_id = $building->id;
+						$customer->actual_flat = $room->room_number;
+					}
+				}
+				$customer->save();
+			}
+			
+			$bar->finish();
+			
+			$this->info('Customers Page #' . $page . ' Complete');
+			
+			$page ++;
+			
+		}
+
+        $this->info( 'Customers End' );
 
         $admin_id = 1;
 
@@ -608,6 +738,8 @@ class Grub extends Command
                 $work->buildings()->sync( $ids );
 
             }
+			
+			$bar->finish();
 
             $this->info( 'Works Page #' . $page . ' Complete' );
 
@@ -749,6 +881,8 @@ class Grub extends Command
 						$ticket->lastname = $customer->lastname;
 						$ticket->firstname = $customer->firstname;
 						$ticket->middlename = $customer->middlename;
+						$ticket->actual_building_id = $customer->actual_building_id;
+						$ticket->actual_flat = $customer->actual_flat;
 					}
 					else
 					{
@@ -945,6 +1079,8 @@ class Grub extends Command
 				}
 				
 			}
+			
+			$bar->finish();
 			
             //file_put_contents( storage_path( 'json/tickets/' . $page . '.json' ), $json_string );
 

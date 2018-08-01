@@ -177,6 +177,7 @@ class WorksController extends BaseController
                 $filters[] = 'Здание: ' . $building->first()->name;
             }
 
+			/*
             if ( $request->get( 'export' ) == 'data' && \Auth::user()->can( 'works.export' ) )
             {
                 $works = $works->get();
@@ -207,6 +208,7 @@ class WorksController extends BaseController
                 } )
                     ->export( 'xls' );
             }
+			*/
 
             if ( $request->get( 'export' ) == 'report' && \Auth::user()->can( 'works.export' ) )
             {
