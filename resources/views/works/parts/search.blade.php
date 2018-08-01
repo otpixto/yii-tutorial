@@ -120,12 +120,10 @@
         </a>
     </div>
     <div class="col-md-10">
-        {!! Form::submit( 'Применить', [ 'class' => 'btn blue-hoki btn-lg' ] ) !!}
-        @if ( Input::get( 'search' ) )
-            <a href="{{ route( 'tickets.index' ) }}" class="btn btn-default btn-lg">
-                Сбросить фильтр
-            </a>
-        @endif
+        {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
+		<a href="{{ route( 'works.index' ) }}" class="btn btn-danger btn-lg">
+			Сбросить фильтр
+		</a>
     </div>
 </div>
 {!! Form::close() !!}
