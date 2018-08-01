@@ -274,6 +274,7 @@ class BuildingsController extends BaseController
         }
 
         $res = $res
+			->with( 'buildingType' )
             ->get();
 			
 		$buildings = [];

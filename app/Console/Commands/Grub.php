@@ -123,14 +123,19 @@ class Grub extends Command
 		
 		$tickets = Ticket
 			::whereNull( 'actual_building_id' )
-			->whereHas( 'customer' )
 			->get();
+		$bar = $this->output->createProgressBar($tickets->count());
         foreach ( $tickets as $ticket )
         {
-            $ticket->actual_building_id = $ticket->customer->actual_building_id;
-            $ticket->actual_flat = $ticket->customer->actual_flat;
-			$ticket->save();
+			$bar->advance();
+			if ( $ticket->customer )
+			{
+				$ticket->actual_building_id = $ticket->customer->actual_building_id;
+				$ticket->actual_flat = $ticket->customer->actual_flat;
+				$ticket->save();
+			}
         }
+		$bar->finish();
 
         return;
 

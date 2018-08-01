@@ -251,23 +251,28 @@ class Work extends BaseModel
         return \Auth::user()->can( 'works.comments_add' );
     }
 
-    public function getAddressesGroupBySegment ()
+    public function getAddressesGroupBySegment ( $withBuildingType = true )
     {
         $result = [];
         foreach ( $this->buildings as $building )
         {
+			$name = $building->home;
+			if ( $withBuildingType )
+			{
+				$name .= ' (' . $building->buildingType->name . ')';
+			}
             if ( ! isset( $result[ $building->segment_id ] ) )
             {
                 $result[ $building->segment_id ] = [
                     $building->getFullName( false ),
                     [
-                        $building->home
+                        $name
                     ]
                 ];
             }
             else
             {
-                $result[ $building->segment_id ][ 1 ][] = $building->home;
+                $result[ $building->segment_id ][ 1 ][] = $name;
             }
         }
         return $result;
