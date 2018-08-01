@@ -43,9 +43,9 @@ class CustomersController extends BaseController
                         ->orWhere( Customer::$_table . '.lastname', 'like', $s )
                         ->orWhere( Customer::$_table . '.phone', '=', $p )
                         ->orWhere( Customer::$_table . '.phone2', '=', $p )
-                        ->orWhereHas( 'building', function ( $building ) use ( $s )
+                        ->orWhereHas( 'actualBuilding', function ( $actualBuilding ) use ( $s )
                         {
-                            return $building
+                            return $actualBuilding
                                 ->where( Building::$_table . '.name', 'like', $s );
                         });
                 });
@@ -336,7 +336,7 @@ class CustomersController extends BaseController
                 if ( $customers->count() == 1 )
                 {
                     $customer = $customers->first();
-                    $customer->building;
+                    $customer->actualBuilding;
                 }
                 else
                 {
