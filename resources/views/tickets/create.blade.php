@@ -10,244 +10,7 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'url' => route( 'tickets.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
-	{!! Form::hidden( 'draft', '0', [ 'id' => 'draft', 'autocomplete' => 'off' ] ) !!}
-    {!! Form::hidden( 'ticket_id', $draft->id ?? null, [ 'id' => 'ticket_id', 'autocomplete' => 'off' ] ) !!}
-
-    <div class="row">
-
-        <div class="col-lg-7">
-
-            @if ( $providers->count() > 1 )
-                <div class="form-group">
-                    {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                    <div class="col-xs-9">
-                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Поставщик', 'data-placeholder' => 'Поставщик', 'required', 'autocomplete' => 'off' ] ) !!}
-                    </div>
-                </div>
-            @endif
-
-            <div class="form-group">
-                {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $draft->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-            <div id="types-description" class="alert alert-warning hidden"></div>
-
-            <div class="form-group">
-                {!! Form::label( 'building_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
-                    {!! Form::select( 'building_id', $draft->building ? $draft->building()->pluck( 'name', 'id' ) : [], \Input::old( 'building_id', $draft->building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'flat', \Input::old( 'flat', $draft->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'place_id', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $draft->place_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-3">
-                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $draft->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency', 'autocomplete' => 'off' ] ) !!}
-                        <span></span>
-                        Авария
-                    </label>
-                </div>
-                <div class="col-xs-3">
-                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently', $draft->urgently ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
-                        <span></span>
-                        Срочно
-                    </label>
-                </div>
-                <div class="col-xs-3">
-                    <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                        {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel', $draft->dobrodel ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
-                        <span></span>
-                        Добродел
-                    </label>
-                </div>
-            </div>
-
-            <hr style="margin-top: 30px;" />
-
-            <div class="form-group ">
-                {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'lastname', \Input::old( 'lastname', $draft->lastname ?? null ), [ 'id' => 'lastname', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Фамилия', 'required', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                <div class="col-xs-3">
-                    {!! Form::text( 'firstname', \Input::old( 'firstname', $draft->firstname ?? null ), [ 'id' => 'firstname', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Имя', 'required', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                <div class="col-xs-3">
-                    {!! Form::text( 'middlename', \Input::old( 'middlename', $draft->middlename ?? null ), [ 'id' => 'middlename', 'class' => 'form-control text-capitalize autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Отчество', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'phone', \Input::old( 'phone', $draft->phone ?? null ), [ 'id' => 'phone', 'class' => 'form-control mask_phone autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Телефон', 'required', $draft->customer_id ? 'readonly' : '', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                {!! Form::label( 'phone2', 'Доп. телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'phone2', \Input::old( 'phone2', $draft->phone2 ?? null ), [ 'id' => 'phone2', 'class' => 'form-control mask_phone autosave' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Доп. телефон', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'actual_building_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
-                    {!! Form::select( 'actual_building_id', $draft->actual_building ? $draft->actual_building()->pluck( 'name', 'id' ) : [], \Input::old( 'actual_building_id', $draft->actual_building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_building_id', 'autocomplete' => 'off' ] ) !!}
-                </div>
-                {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $draft->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'id' => 'actual_flat', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-
-        </div>
-
-        <div class="col-lg-5 hidden" id="info-block">
-
-            <hr class="visible-sm" />
-
-            <div class="form-group">
-                {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
-                <div class="col-md-7 col-xs-6">
-                    <span class="form-control-static bold text-info" id="category"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Сезонность устранения', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
-                <div class="col-md-7 col-xs-6">
-                    <span class="form-control-static bold text-info" id="season"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Период на принятие заявки в работу', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
-                <div class="col-md-5 col-xs-6">
-                    <span class="form-control-static bold text-info" id="period_acceptance"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Период на исполнение', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
-                <div class="col-md-5 col-xs-6">
-                    <span class="form-control-static bold text-info" id="period_execution"></span>
-                </div>
-            </div>
-
-            <div id="managements"></div>
-
-        </div>
-
-    </div>
-
-    <hr />
-
-    <div class="row">
-
-        <div class="col-xs-12">
-
-            <button type="button" class="btn btn-default margin-bottom-5" id="microphone" data-state="off">
-                <i class="fa fa-microphone-slash"></i>
-            </button>
-            {!! Form::label( 'text', 'Текст обращения', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::textarea( 'text', \Input::old( 'text', $draft->text ?? null ), [ 'class' => 'form-control autosizeme autosave', 'placeholder' => 'Текст обращения', 'required', 'rows' => 5, 'autocomplete' => 'off' ] ) !!}
-
-        </div>
-
-    </div>
-
-    <div class="row margin-top-10">
-
-        <div class="col-xs-7">
-
-            {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::text( 'tags', \Input::old( 'tags', $draft->tags->implode( 'text', ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
-
-        </div>
-
-        <div class="col-xs-5 text-right">
-            <button type="submit" class="btn green btn-lg btn-block">
-                <i class="fa fa-plus"></i>
-                Добавить заявку
-            </button>
-            @if ( $draft )
-                <div class="text-right margin-top-10">
-                    <a href="{{ route( 'tickets.cancel', $draft->id ) }}" class="btn btn-danger" data-confirm="Вы уверены, что хотите отменить заявку?">
-                        <i class="fa fa-remove"></i>
-                        Отменить
-                    </a>
-                </div>
-            @endif
-        </div>
-
-    </div>
-
-    {!! Form::hidden( 'customer_id', \Input::old( 'customer_id', $draft->customer_id ?? null ), [ 'id' => 'customer_id', 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
-    {!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements', 'autocomplete' => 'off' ] ) !!}
-
-    {!! Form::close() !!}
-
-    <div class="modal right fade" tabindex="-1" role="basic" aria-hidden="true" id="tickets-modal">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-warning bold">
-                        <i class="fa fa-support"></i>
-                        Заявки с номера заявителя
-                    </h4>
-                </div>
-                <div class="modal-body" id="customer_tickets">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
-
-    <div class="modal right fade" tabindex="-1" role="basic" aria-hidden="true" id="works-modal">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title bold text-danger">
-                        <i class="fa fa-wrench"></i>
-                        Отключения
-                    </h4>
-                </div>
-                <div class="modal-body" id="works">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Закрыть</button>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
+    @include( 'tickets.parts.create' )
 
 @endsection
 
@@ -273,34 +36,6 @@
 
         var streamer = new ya.speechkit.SpeechRecognition();
         var timers = {};
-
-        function GetTickets ()
-        {
-
-            var phone = $.trim( $( '#phone' ).val() );
-
-            if ( ! phone || /_/.test( phone ) )
-            {
-                return;
-            }
-
-            $.post( '{{ route( 'tickets.search' ) }}', {
-                phone: phone,
-                provider_id: $( '#provider_id' ).val()
-            }, function ( response )
-            {
-                if ( response )
-                {
-                    $( '#customer_tickets' ).html( response );
-                    $( '#tickets-modal' ).modal( 'show' );
-                }
-                else
-                {
-                    $( '#customer_tickets' ).empty();
-                }
-            });
-
-        };
 
         function MicrophoneOn ()
         {
@@ -397,14 +132,6 @@
 
         };
 
-        function formattedPhone ( phone )
-        {
-
-            var res = '+7 (' + phone.substr( 0, 3 ) + ') ' + phone.substr( 3, 3 ) + '-' + phone.substr( 6, 2 ) + '-' + phone.substr( 8, 2 );
-            return res;
-
-        };
-
         function GetTypeInfo ()
         {
 
@@ -421,7 +148,7 @@
                 $( '#info-block' ).removeClass( 'hidden' );
                 $( '#period_acceptance' ).text( response.period_acceptance + ' ч.' );
                 $( '#period_execution' ).text( response.period_execution + ' ч.' );
-                $( '#season' ).text( response.season );
+                $( '#season' ).text( response.season || '-' );
                 $( '#category' ).text( response.category_name );
                 if ( response.emergency )
                 {
@@ -452,52 +179,22 @@
 
         };
 
-        function GetManagements ()
+        function GetSelect ()
         {
-
-            var building_id = $( '#building_id' ).val();
-            var type_id = $( '#type_id' ).val();
-            var provider_id = $( '#provider_id' ).val() || null;
-            if ( ! building_id || ! type_id )
+            if ( ! $( '#type_id' ).val() || ! $( '#building_id' ).val() ) return;
+            $( '#select' ).loading();
+            if ( timers[ 'select' ] )
             {
-                $( '#management' ).addClass( 'hidden' );
-                return;
-            };
-            $.post( '{{ route( 'managements.search' ) }}', {
-                building_id: building_id,
-                provider_id: provider_id,
-                type_id: type_id,
-                selected: $( '#selected_managements' ).val()
-            }, function ( response )
+                window.clearTimeout( timers[ 'select' ] );
+            }
+            timers[ 'select' ] = window.setTimeout( function ()
             {
-                $( '#managements' ).html( response );
-            });
-
-        };
-
-        function GetWorks ()
-        {
-
-            var building_id = $( '#building_id' ).val();
-            if ( ! building_id )
-            {
-                return;
-            };
-            $.post( '{{ route( 'works.search' ) }}', {
-                building_id: building_id
-            }, function ( response )
-            {
-                if ( response )
+                timers[ 'select' ] = null;
+                $.post( '{{ route( 'tickets.select', $ticket->id ) }}', function ( response )
                 {
-                    $( '#works' ).html( response );
-                    $( '#works-modal' ).modal( 'show' );
-                }
-                else
-                {
-                    $( '#works' ).empty();
-                }
-            });
-
+                    $( '#select' ).html( response );
+                });
+            }, 600 );
         };
 
         $( document )
@@ -552,11 +249,43 @@
                 $( '#microphone' ).click( ToggleMicrophone );
 
                 GetTypeInfo();
-                GetManagements();
-                GetWorks();
+                GetSelect();
 
                 $( '#phone' ).trigger( 'change' );
 
+            })
+
+            .on ( 'click', '.nav-tabs a', function ( e )
+            {
+                $( this ).tab( 'show' );
+                switch ( $( this ).attr( 'href' ) )
+                {
+
+                    case '#customer_tickets':
+                        $( '#customer_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.customers', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#customer_tickets' ).html( response );
+                        });
+                        break;
+
+                    case '#neighbors_tickets':
+                        $( '#neighbors_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.neighbors', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#neighbors_tickets' ).html( response );
+                        });
+                        break;
+
+                    case '#works':
+                        $( '#works' ).loading();
+                        $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#works' ).html( response );
+                        });
+                        break;
+
+                }
             })
 
             .on( 'change', '#provider_id', function ( e )
@@ -599,14 +328,9 @@
                 GetTypeInfo();
             })
 
-            .on( 'change', '#building_id, #type_id', function ( e )
+            .on( 'change', '#building_id, #type_id, #phone', function ( e )
             {
-                GetManagements();
-            })
-
-            .on( 'change', '#building_id', function ( e )
-            {
-                GetWorks();
+                GetSelect();
             })
 
             .on( 'change', '#fistname, #middlename, #lastname', function ( e )
@@ -686,7 +410,6 @@
 
             .on( 'change', '#phone', function ()
             {
-                GetTickets();
                 var param = 'name_by_phone';
                 if ( timers[ param ] )
                 {

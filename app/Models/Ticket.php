@@ -31,8 +31,6 @@ class Ticket extends BaseModel
         'deadline_acceptance',
         'deadline_execution',
         'postponed_to',
-        'scheduled_begin',
-        'scheduled_end',
     ];
 
     public static $places = [

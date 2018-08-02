@@ -121,7 +121,7 @@ class Grub extends Command
 
         return;*/
 		
-		$tickets = Ticket
+		/*$tickets = Ticket
 			::whereNull( 'actual_building_id' )
 			->get();
 		$bar = $this->output->createProgressBar($tickets->count());
@@ -137,7 +137,7 @@ class Grub extends Command
         }
 		$bar->finish();
 
-        return;
+        return;*/
 
         $api_url = 'https://mo.i-eds.ru/api/';
 
@@ -155,10 +155,15 @@ class Grub extends Command
 
         $json_string = $response->getBody();
         $types = json_decode( $json_string );
+        $bar = $this->output->createProgressBar(count($types->data));
         foreach ( $types->data as $_type )
         {
 
-            $category = Category::find( $_type->service_qualifier_id );
+            $bar->advance();
+
+            $category = Category
+                ::withTrashed()
+                ->find( $_type->service_qualifier_id );
             if ( ! $category )
             {
                 $category = new Category;
@@ -182,7 +187,9 @@ class Grub extends Command
             $category->need_act = $_type->is_act_required ? 1 : 0;
             $category->save();
 
-            $type = Type::find( $_type->service_qualifier_id );
+            $type = Type
+                ::withTrashed()
+                ->find( $_type->service_qualifier_id );
             if ( ! $type )
             {
                 $type = new Type();
@@ -210,7 +217,9 @@ class Grub extends Command
             $type->save();
             foreach ( $_type->children as $c )
             {
-                $type = Type::find( $c->service_qualifier_id );
+                $type = Type
+                    ::withTrashed()
+                    ->find( $c->service_qualifier_id );
                 if ( ! $type )
                 {
                     $type = new Type();
@@ -238,7 +247,9 @@ class Grub extends Command
                 $type->save();
                 foreach ( $c->children as $c2 )
                 {
-                    $type = Type::find( $c2->service_qualifier_id );
+                    $type = Type
+                        ::withTrashed()
+                        ->find( $c2->service_qualifier_id );
                     if ( ! $type )
                     {
                         $type = new Type();
@@ -266,6 +277,8 @@ class Grub extends Command
                 }
             }
         }
+
+        $bar->finish();
 
         $this->info( 'Types End' );
 
@@ -498,20 +511,20 @@ class Grub extends Command
 		$page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 5000;
+        $max_pages = 30;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
 		{
 			
-			$this->info('Customers Page #' . $page . ' Start');
-			
-			$url = $api_url . 'clients/table?pn=' . $page . '&ps=' . $per_page . '&sort=-user_id';
+			$url = $api_url . 'clients/table?pn=' . $page . '&ps=' . $per_page . '&sort=-time_updated';
 
 			$response = $this->client->get( $url, [
 				'headers' => $headers
 			]);
 			
 			$pages = (int)$response->getHeader('X-PAGINATION-PAGE-COUNT')[0] ?? 0;
+
+            $this->info('Customers Page #' . $page . '/'. $pages . ' Start');
 
 			$json_string = $response->getBody();
 			$customers = json_decode( $json_string );
@@ -521,7 +534,9 @@ class Grub extends Command
 			foreach ( $customers->data as $_customer )
 			{
 				$bar->advance();
-				$customer = Customer::find( $_customer->user_id );
+				$customer = Customer
+                    ::withTrashed()
+                    ->find( $_customer->user_id );
 				if ( ! $customer )
 				{
 					$customer = new Customer;
@@ -530,6 +545,10 @@ class Grub extends Command
 					$customer->created_at = Carbon::now()->toDateTimeString();
 					$customer->updated_at = $customer->created_at;
 				}
+				else
+                {
+                    $customer->deleted_at = null;
+                }
 				if ( $_customer->created_by->deleted )
 				{
 					$customer->deleted_at = $customer->updated_at;
@@ -550,7 +569,7 @@ class Grub extends Command
 						$customer->phone2 = mb_substr( $_customer->phones[ 1 ]->phone_number, -10 );
 					}
 				}
-				if ( ! empty( $_customer->rooms ) )
+				if ( ( ! $customer->actual_building_id || ! $customer->actual_flat ) && ! empty( $_customer->rooms ) )
 				{
 					$url = $api_url . 'rooms/' . $_customer->rooms[ 0 ]->room_id;
 					$response = $this->client->get( $url, [
@@ -562,7 +581,9 @@ class Grub extends Command
 					{
 						$room = $room->data;
 						$_building = $room->building;
-						$building = Building::find( $_building->building_id );
+						$building = Building
+                            ::withTrashed()
+                            ->find( $_building->building_id );
 						if ( ! $building )
 						{
 							$building = new Building;
@@ -572,7 +593,7 @@ class Grub extends Command
 						$building->name = $_building->full_address;
 						$building->hash = Building::genHash( $building->name );
 						$segment_id = $_building->street_id ?: $_building->city_id ?: $_building->district_id ?: $_building->region_id;
-						if ( Segment::find( $segment_id ) )
+						if ( Segment::withTrashed()->find( $segment_id ) )
 						{
 							$building->segment_id = $segment_id;
 						}
@@ -620,8 +641,6 @@ class Grub extends Command
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
 
-            $this->info('Works Page #' . $page . ' Start');
-
             $url = $api_url . 'announcements?pn=' . $page . '&ps=' . $per_page . '&sort=-time_updated';
 
             $response = $this->client->get( $url, [
@@ -629,6 +648,8 @@ class Grub extends Command
             ]);
 
             $pages = (int)$response->getHeader('X-PAGINATION-PAGE-COUNT')[0] ?? 0;
+
+            $this->info('Works Page #' . $page . '/'. $pages . ' Start');
 
             $json_string = $response->getBody();
             $works = json_decode( $json_string );
@@ -649,10 +670,14 @@ class Grub extends Command
                     $type_id = 71;
                 }
 
-                $type = Type::find( $type_id );
+                $type = Type
+                    ::withTrashed()
+                    ->find( $type_id );
                 if ( ! $type ) continue;
 
-                $work = Work::find( $_work->id );
+                $work = Work
+                    ::withTrashed()
+                    ->find( $_work->id );
                 if ( ! $work )
                 {
                     $work = new Work;
@@ -700,7 +725,8 @@ class Grub extends Command
                 {
                     $executor_name = $_work->responsible->responsible_name;
                     $executor = Executor
-                        ::whereRaw( 'REPLACE( name, \' \', \'\' ) like ?', [ '%' . str_replace( ' ', '', $executor_name ) . '%' ] )
+                        ::withTrashed()
+                        ->whereRaw( 'REPLACE( name, \' \', \'\' ) like ?', [ '%' . str_replace( ' ', '', $executor_name ) . '%' ] )
                         ->where( 'management_id', '=', $management_id )
                         ->first();
                     if ( ! $executor )
@@ -725,11 +751,14 @@ class Grub extends Command
                 foreach ( $_work->buildings as $building )
                 {
                     $address = Building
-                        ::search( $building->full_address )
+                        ::withTrashed()
+                        ->search( $building->full_address )
                         ->first();
                     if ( ! $address )
                     {
-                        $address = Building::find( $building->id );
+                        $address = Building
+                            ::withTrashed()
+                            ->find( $building->id );
                         if ( ! $address )
                         {
                             $address = new Building;
@@ -782,8 +811,6 @@ class Grub extends Command
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
 
-            $this->info( 'Tickets Page #' . $page . ' Start' );
-
             $url = $api_url . 'issues?pn=' . $page . '&ps=' . $per_page . '&sort=-time_updated';
 
             $response = $this->client->get( $url, [
@@ -791,6 +818,8 @@ class Grub extends Command
             ]);
 
             $pages = (int) $response->getHeader( 'X-PAGINATION-PAGE-COUNT' )[ 0 ] ?? 0;
+
+            $this->info('Tickets Page #' . $page . '/'. $pages . ' Start');
 
             $json_string = $response->getBody();
 			$tickets = json_decode( $json_string );
@@ -872,14 +901,18 @@ class Grub extends Command
 
                 $first_history = end( $history->data );
 				
-				$ticket = Ticket::withTrashed()->find( $_ticket->id );
+				$ticket = Ticket
+                    ::withTrashed()
+                    ->find( $_ticket->id );
 				if ( ! $ticket )
 				{
 					$ticket = new Ticket;
 					$ticket->created_at = Carbon::parse( $_ticket->time_created )->toDateTimeString();
 					$ticket->id = $_ticket->id;
 					$ticket->provider_id = 1;
-					$customer = Customer::find( $_ticket->client_id );
+					$customer = Customer
+                        ::withTrashed()
+                        ->find( $_ticket->client_id );
 					if ( $customer )
 					{
 						$ticket->customer_id = $customer->id;
@@ -955,7 +988,9 @@ class Grub extends Command
 				
 				if ( ! empty( $_ticket->executor_id ) && ! empty( $_ticket->executor_name ) )
 				{
-					$executor = Executor::find( $_ticket->executor_id );
+					$executor = Executor
+                        ::withTrashed()
+                        ->find( $_ticket->executor_id );
 					if ( ! $executor )
 					{
 						$executor = new Executor;
@@ -976,7 +1011,9 @@ class Grub extends Command
 				
 				if ( $first_history && $first_history->user_id )
 				{
-                    $user = User::withTrashed()->find( $first_history->user_id );
+                    $user = User
+                        ::withTrashed()
+                        ->find( $first_history->user_id );
                     if ( $user )
                     {
                         $ticket->author_id = $user->id;

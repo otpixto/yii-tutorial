@@ -131,7 +131,7 @@
         .d-inline {
             display: inline;
         }
-        #customer_tickets table *, #neighbors_tickets table * {
+        #customer_tickets table *, #neighbors_tickets table *, #works table * {
             font-size: 12px;
         }
         @media print

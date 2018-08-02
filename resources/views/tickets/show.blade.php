@@ -74,6 +74,18 @@
             $( '#ticket-services-total' ).text( total.toFixed( 2 ) );
         };
 
+        @if ( isset( $ticketManagement ) )
+
+            function setExecutor ()
+            {
+                $.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
+                {
+                    Modal.createSimple( 'Назначить исполнителя', response, 'executor' );
+                });
+            };
+
+        @endif
+
         $( document )
 
             .ready( function ()
@@ -151,6 +163,14 @@
                         });
                         break;
 
+                    case '#works':
+                        $( '#works' ).loading();
+                        $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#works' ).html( response );
+                        });
+                        break;
+
                 }
             })
 
@@ -217,21 +237,30 @@
 			{
 				e.preventDefault();
 				var param = $( this ).attr( 'data-edit' );
-				$.get( '{{ route( 'tickets.edit', $ticket ) }}', {
-					param: param
-				}, function ( response )
-				{
-					Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
-					if ( param == 'schedule' )
-                    {
-                        $( '.datepicker' ).datepicker({
-                            rtl: App.isRTL(),
-                            orientation: "left",
-                            autoclose: true,
-                            format: 'dd.mm.yyyy'
+				switch ( param )
+                {
+                    case 'executor':
+                        setExecutor();
+                        break;
+                    default:
+                        $.get( '{{ route( 'tickets.edit', $ticket ) }}', {
+                            param: param
+                        }, function ( response )
+                        {
+                            Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
+                            if ( param == 'schedule' )
+                            {
+                                $( '.datepicker' ).datepicker({
+                                    rtl: App.isRTL(),
+                                    orientation: "left",
+                                    autoclose: true,
+                                    format: 'dd.mm.yyyy'
+                                });
+                            }
                         });
-                    }
-				});
+                        break;
+                }
+
 			})
 
 			@if ( isset( $ticketManagement ) )
@@ -247,20 +276,7 @@
 						$( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
 					}
 
-					var dialog = bootbox.dialog({
-						title: 'Выберите исполнителя',
-						message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-					});
-
-					dialog.init( function ()
-					{
-						$.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
-						{
-							dialog.find( '.bootbox-body' ).html( response );
-							dialog.removeAttr( 'tabindex' );
-							dialog.find( '.select2' ).select2();
-						});
-					});
+                    setExecutor();
 
 				})
 			

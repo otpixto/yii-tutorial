@@ -101,11 +101,12 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'calendar', 'Operator\TicketsController@calendarData' )->name( 'tickets.calendar_data' );
 
             Route::get( '{ticket_id}/neighbors', 'Operator\TicketsController@neighborsTickets' )->name( 'tickets.neighbors' );
-
-            Route::get( '{ticket_id}/neighbors', 'Operator\TicketsController@neighborsTickets' )->name( 'tickets.neighbors' );
             Route::get( '{ticket_id}/customers', 'Operator\TicketsController@customersTickets' )->name( 'tickets.customers' );
+            Route::get( '{ticket_id}/works', 'Operator\TicketsController@works' )->name( 'tickets.works' );
 
             Route::get( '{ticket_id}/postpone', 'Operator\TicketsController@postpone' )->name( 'tickets.postpone' );
+
+            Route::post( '{ticket_id}/select', 'Operator\TicketsController@select' )->name( 'tickets.select' );
 
             Route::post( 'export', 'Operator\TicketsController@export' )->name( 'tickets.export' );
             Route::get( 'rate/{ticket_management_id}', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
@@ -218,6 +219,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
+            Route::get( 'search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
 
         });
 

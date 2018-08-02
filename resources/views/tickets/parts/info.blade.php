@@ -66,14 +66,18 @@
             </div>
             <div class="col-xs-6">
                 <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="type">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
                     <dl>
-                        <dt>Тип заявки:</dt>
-                        <dd>{{ $ticket->type->name ?? '' }}</dd>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="type">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Тип заявки:
+                        </dt>
+                        <dd>
+                            {{ $ticket->type->name ?? '' }}
+                        </dd>
                     </dl>
                 </div>
             </div>
@@ -102,13 +106,15 @@
         <div class="row">
             <div class="col-xs-6">
                 <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="building">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
                     <dl>
-                        <dt>Адрес проблемы:</dt>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="building">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Адрес проблемы:
+                        </dt>
                         <dd>
                             @if ( $ticket->building )
                                 {{ $ticket->getAddress() }}
@@ -124,13 +130,15 @@
             </div>
             <div class="col-xs-6">
                 <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="mark">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
                     <dl>
-                        <dt>Дополнительные метки:</dt>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="mark">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Дополнительные метки:
+                        </dt>
                         <dd>
                             @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
                                 <span class="badge badge-warning bold">
@@ -164,7 +172,12 @@
                                 </a>
                                 &nbsp;
                             @endif
-                            &nbsp;
+                            @if ( $ticket->type && $ticket->type->need_act )
+                                <span class="badge bg-purple-plum bold">
+                                    <i class="glyphicon glyphicon-exclamation-sign"></i>
+                                    Требуется Акт выполненных работ
+                                </span>
+                            @endif
                         </dd>
                     </dl>
                 </div>
@@ -174,14 +187,18 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="text">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
                     <dl>
-                        <dt>Текст заявки:</dt>
-                        <dd>{{ $ticket->text }}</dd>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="text">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Текст заявки:
+                        </dt>
+                        <dd>
+                            {{ $ticket->text }}
+                        </dd>
                     </dl>
                 </div>
             </div>
@@ -189,60 +206,78 @@
 
         <hr />
 
-        @if ( $ticket->type )
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <strong>Сезонность устранения: </strong>
-                        {{ $ticket->type->season }}
-                    </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="note">
+                    <dl>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="name">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            ФИО Заявителя:
+                        </dt>
+                        <dd>
+                            {{ $ticket->getName() }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="note">
-                        <dl>
-                            <dt>Период на принятие заявки в работу, час:</dt>
-                            <dd>{{ $ticket->type->period_acceptance }}</dd>
-                        </dl>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="note">
-                        <dl>
-                            <dt>Период на исполнение, час:</dt>
-                            <dd>{{ $ticket->type->period_execution }}</dd>
-                        </dl>
-                    </div>
+            <div class="col-xs-6">
+                <div class="note">
+                    @if ( $ticket->canCall() )
+                        <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
+                            <i class="fa fa-phone"></i>
+                        </button>
+                    @endif
+                    <dl>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="phone">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Телефон(ы) Заявителя:
+                        </dt>
+                        <dd>
+                            {{ $ticket->getPhones() }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
-        @endif
+        </div>
 
-        @if ( $ticket->transferred_at )
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="note">
-                        <dl>
-                            <dt>Заявка передана в УО:</dt>
-                            <dd>{{ $ticket->transferred_at->format( 'd.m.Y H:i' ) }}</dd>
-                        </dl>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="note">
-                        <dl>
-                            <dt>Оператор ЕДС:</dt>
-                            <dd>{{ $ticket->author->getName() }}</dd>
-                        </dl>
-                    </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="note">
+                    <dl>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="actual_building">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Адрес проживания:
+                        </dt>
+                        <dd>
+                            @if ( $ticket->actualBuilding )
+                                {{ $ticket->actualBuilding->name }}
+                            @else
+                                -
+                            @endif
+                        </dd>
+                    </dl>
                 </div>
             </div>
-        @endif
+        </div>
+
+        <hr />
 
         @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
             <div class="row">
                 <div class="col-xs-6">
-                    <div class="note note-{{ ( $ticket->accepted_at ?? $dt_now )->timestamp > $ticket->deadline_acceptance->timestamp ? 'danger' : 'success' }}">
+                    <div class="note note-{{ $ticket->overdueDeadlineAcceptance() ? 'danger' : 'success' }}">
                         <div class="row">
                             <div class="col-xs-6">
                                 <dl>
@@ -263,7 +298,7 @@
                                 </div>
                             @endif
                         </div>
-                        @if ( ( $ticket->accepted_at ?? $dt_now )->timestamp > $ticket->deadline_acceptance->timestamp )
+                        @if ( $ticket->overdueDeadlineAcceptance() )
                             <div class="row">
                                 <div class="col-xs-12">
                                     <span class="badge badge-danger">
@@ -276,7 +311,7 @@
                     </div>
                 </div>
                 <div class="col-xs-6">
-                    <div class="note note-{{ ( $ticket->completed_at ?? $dt_now )->timestamp > $ticket->deadline_execution->timestamp ? 'danger' : 'success' }}">
+                    <div class="note note-{{ $ticket->overdueDeadlineExecution() ? 'danger' : 'success' }}">
                         <div class="row">
                             <div class="col-xs-6">
                                 <dl>
@@ -297,7 +332,7 @@
                                 </div>
                             @endif
                         </div>
-                        @if ( ( $ticket->completed_at ?? $dt_now )->timestamp > $ticket->deadline_execution->timestamp )
+                        @if ( $ticket->overdueDeadlineExecution() )
                             <div class="row">
                                 <div class="col-xs-12">
                                     <span class="badge badge-danger">
@@ -375,32 +410,6 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="schedule">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
-                    <dl>
-                        <dt>Запланировано на:</dt>
-                        <dd>
-                            @if ( $ticket->scheduled_begin && $ticket->scheduled_end )
-                                {{ $ticket->scheduled_begin->format( 'd.m.Y H:i' ) }}
-                                -
-                                {{ $ticket->scheduled_end->format( 'd.m.Y H:i' ) }}
-                            @else
-                                <span class="text-danger">
-                                    Не запланировано
-                                </span>
-                            @endif
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="note">
                     <dl>
                         <dt>Теги</dt>
                         <dd>
@@ -414,61 +423,55 @@
     </div>
     <div class="col-lg-6">
 
-        <div class="row">
-            <div class="col-xs-6">
-                <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="name">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
-                    <dl>
-                        <dt>ФИО Заявителя:</dt>
-                        <dd>{{ $ticket->getName() }}</dd>
-                    </dl>
+        @if ( $ticket->type )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note">
+                        <strong>Сезонность устранения: </strong>
+                        {{ $ticket->type->season }}
+                    </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="note">
-                    @if ( $ticket->canCall() )
-                        <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
-                            <i class="fa fa-phone"></i>
-                        </button>
-                    @endif
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="phone">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
-                    <dl>
-                        <dt>Телефон(ы) Заявителя:</dt>
-                        <dd>{{ $ticket->getPhones() }}</dd>
-                    </dl>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Период на принятие заявки в работу, час:</dt>
+                            <dd>{{ $ticket->type->period_acceptance }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Период на исполнение, час:</dt>
+                            <dd>{{ $ticket->type->period_execution }}</dd>
+                        </dl>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
 
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="note">
-                    @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="actual_building">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    @endif
-                    <dl>
-                        <dt>Адрес проживания:</dt>
-                        <dd>
-                            @if ( $ticket->actualBuilding )
-                                {{ $ticket->actualBuilding->name }}
-                            @else
-                                -
-                            @endif
-                        </dd>
-                    </dl>
+        @if ( $ticket->transferred_at )
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Заявка передана в УО:</dt>
+                            <dd>{{ $ticket->transferred_at->format( 'd.m.Y H:i' ) }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="note">
+                        <dl>
+                            <dt>Оператор ЕДС:</dt>
+                            <dd>{{ $ticket->author->getName() }}</dd>
+                        </dl>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
 
         <hr />
 
@@ -485,14 +488,30 @@
                     Текущая заявка
                 </a>
             </li>
-            <li>
-                <a href="#customer_tickets">
-                    Заявки заявителя
-                </a>
-            </li>
+            @if ( $ticket->phone )
+                <li>
+                    <a href="#customer_tickets">
+                        Заявки заявителя
+                        <span class="badge {{ $customerTicketsCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
+                            {{ $customerTicketsCount }}
+                        </span>
+                    </a>
+                </li>
+            @endif
             <li>
                 <a href="#neighbors_tickets">
                     Заявки соседей
+                    <span class="badge {{ $neighborsTicketsCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
+                        {{ $neighborsTicketsCount }}
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="#works">
+                    Отключения
+                    <span class="badge {{ $worksCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
+                        {{ $worksCount }}
+                    </span>
                 </a>
             </li>
         </ul>
@@ -503,75 +522,62 @@
 
                 @if ( $ticketManagement )
 
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="note">
-                                @if ( $ticket->canCall() )
-                                    <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->management->getPhones() }}">
-                                        <i class="fa fa-phone"></i>
-                                    </button>
-                                @endif
-                                <dl>
-                                    <dt>
-                                        @if ( $ticket->managements()->mine()->count() > 1 )
-                                            <a href="{{ route( 'tickets.show', $ticket->id ) }}">
-                                                Управляющая организация:
-                                            </a>
-                                        @else
-                                            Управляющая организация:
-                                        @endif
-                                    </dt>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th width="35%">
+                                    <a href="javascript:;" class="hidden-print">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    УО
+                                </th>
+                                <th width="35%">
+                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    Исполнитель
+                                </th>
+                                <th width="30%">
+                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    Запланировано
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
                                     @if ( $ticketManagement->management->parent )
-                                        <dd>
-                                            <div class="text-muted">
-                                                {{ $ticketManagement->management->parent->name ?: '-' }}
-                                            </div>
-                                            {{ $ticketManagement->management->name ?: '-' }}
-                                        </dd>
-                                        <dd>
-                                            {{ $ticketManagement->management->parent->getPhones() }}
-                                        </dd>
-                                        @if ( $ticketManagement->management->parent->building )
-                                            <dd class="small">
-                                                {{ $ticketManagement->management->parent->building->name }}
-                                            </dd>
-                                        @endif
-                                    @else
-                                        <dd>
-                                            {{ $ticketManagement->management->name ?: '-' }}
-                                        </dd>
-                                        <dd>
-                                            {{ $ticketManagement->management->getPhones() }}
-                                        </dd>
-                                        @if ( $ticketManagement->management->building )
-                                            <dd class="small">
-                                                {{ $ticketManagement->management->building->name }}
-                                            </dd>
-                                        @endif
-                                    @endif
-                                    @if ( ! $ticketManagement->management->has_contract )
-                                        <div class="margin-top-10">
-                                            <span class="label label-danger">
-                                                Отсутствует договор
-                                            </span>
+                                        <div class="text-muted">
+                                            {{ $ticketManagement->management->parent->name }}
                                         </div>
                                     @endif
-                                </dl>
-                            </div>
-                        </div>
-                        @if ( $ticketManagement->executor )
-                            <div class="col-lg-6">
-                                <div class="note note-info">
-                                    <dl>
-                                        <dt>Исполнитель:</dt>
-                                        <dd>
-                                            {{ $ticketManagement->executor->name }}
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
+                                    {{ $ticketManagement->management->name }}
+                                </td>
+                                <td>
+                                    @if ( $ticketManagement->executor )
+                                        {{ $ticketManagement->executor->name }}
+                                    @else
+                                        <span class="text-danger">
+                                            Исполнитель не назначен
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ( $ticketManagement->scheduled_begin && $ticketManagement->scheduled_end )
+                                        {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }}
+                                        -
+                                        {{ $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) }}
+                                    @else
+                                        <span class="text-danger">
+                                            Не запланировано
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     @if ( $ticketManagement->canPrintAct() || $ticketManagement->canUploadAct() )
                         <div class="row hidden-print">
@@ -857,21 +863,11 @@
 
             </div>
 
-            <div id="customer_tickets" class="tab-pane fade margin-top-15">
-                <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                        Загрузка...
-                    </div>
-                </div>
-            </div>
+            <div id="customer_tickets" class="tab-pane fade margin-top-15"></div>
 
-            <div id="neighbors_tickets" class="tab-pane fade margin-top-15">
-                <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                        Загрузка...
-                    </div>
-                </div>
-            </div>
+            <div id="neighbors_tickets" class="tab-pane fade margin-top-15"></div>
+
+            <div id="works" class="tab-pane fade margin-top-15"></div>
 
         </div>
 

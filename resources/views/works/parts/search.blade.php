@@ -49,81 +49,72 @@
         </select>
     </div>
 </div>
-<div id="additional-search" class="hidden">
-    <hr />
-    @if ( count( $providers ) > 1 )
-        <div class="row margin-top-10">
-            <h4 class="col-md-2">
-                Поставщик
-            </h4>
-            <div class="col-md-10">
-                {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), \Input::get( 'provider_id' ), [ 'class' => 'form-control select2' ] ) !!}
-            </div>
-        </div>
-    @endif
-    <div class="row">
-        <h4 class="col-md-2">
-            Начало действия
-        </h4>
-        <div class="col-md-4">
-            <div class="input-group">
-                {!! Form::text( 'begin_from', \Input::get( 'begin_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'begin_to', \Input::get( 'begin_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <h4 class="col-md-2">
-            Конец действия
-        </h4>
-        <div class="col-md-4">
-            <div class="input-group">
-                {!! Form::text( 'end_from', \Input::get( 'end_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'end_to', \Input::get( 'end_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-            </div>
-        </div>
-    </div>
+<hr />
+@if ( count( $providers ) > 1 )
     <div class="row margin-top-10">
         <h4 class="col-md-2">
-            Классификатор
+            Поставщик
         </h4>
         <div class="col-md-10">
-            {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+            {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), \Input::get( 'provider_id' ), [ 'class' => 'form-control select2' ] ) !!}
         </div>
     </div>
-    <div class="row margin-top-10">
-        <h4 class="col-md-2">
-            Основание
-        </h4>
-        <div class="col-md-10">
-            {!! Form::text( 'reason', \Input::get( 'reason' ), [ 'class' => 'form-control' ] ) !!}
-        </div>
-    </div>
-    <div class="row margin-top-10">
-        <h4 class="col-md-2">
-            Состав работ
-        </h4>
-        <div class="col-md-10">
-            {!! Form::text( 'composition', \Input::get( 'composition' ), [ 'class' => 'form-control' ] ) !!}
+@endif
+<div class="row">
+    <h4 class="col-md-2">
+        Начало действия
+    </h4>
+    <div class="col-md-4">
+        <div class="input-group">
+            {!! Form::text( 'begin_from', \Input::get( 'begin_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            <span class="input-group-addon">-</span>
+            {!! Form::text( 'begin_to', \Input::get( 'begin_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
         </div>
     </div>
 </div>
-<div class="row margin-top-15">
-    <div class="col-md-2">
-        <a href="javascript:;" data-toggle="#additional-search">
-            <h4>
-                <i class="fa fa-unsorted"></i>
-                Доп. параметры
-            </h4>
-        </a>
+<div class="row">
+    <h4 class="col-md-2">
+        Конец действия
+    </h4>
+    <div class="col-md-4">
+        <div class="input-group">
+            {!! Form::text( 'end_from', \Input::get( 'end_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            <span class="input-group-addon">-</span>
+            {!! Form::text( 'end_to', \Input::get( 'end_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+        </div>
     </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        Классификатор
+    </h4>
     <div class="col-md-10">
+        {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+    </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        Основание
+    </h4>
+    <div class="col-md-10">
+        {!! Form::text( 'reason', \Input::get( 'reason' ), [ 'class' => 'form-control' ] ) !!}
+    </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        Состав работ
+    </h4>
+    <div class="col-md-10">
+        {!! Form::text( 'composition', \Input::get( 'composition' ), [ 'class' => 'form-control' ] ) !!}
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-xs-12">
         {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
-		<a href="{{ route( 'works.index' ) }}" class="btn btn-danger btn-lg">
-			Сбросить фильтр
-		</a>
+        <a href="{{ route( 'works.index' ) }}" class="btn btn-danger btn-lg">
+            Сбросить фильтр
+        </a>
     </div>
 </div>
 {!! Form::close() !!}

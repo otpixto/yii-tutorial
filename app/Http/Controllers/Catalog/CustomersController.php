@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Customer;
 use App\Models\Provider;
+use App\Models\Segment;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -21,43 +22,109 @@ class CustomersController extends BaseController
     public function index ( Request $request )
     {
 
-        $search = trim( $request->get( 'search', '' ) );
-        $provider_id = $request->get( 'provider_id' );
-
-        $customers = Customer
-            ::mine()
-            ->orderBy( Customer::$_table . '.lastname' )
-            ->orderBy( Customer::$_table . '.firstname' )
-            ->orderBy( Customer::$_table . '.middlename' );
-
-        if ( ! empty( $search ) )
+        if ( $request->ajax() )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-            $customers
-                ->where( function ( $q ) use ( $s, $search )
-                {
-                    $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
-                    return $q
-                        ->where( Customer::$_table . '.firstname', 'like', $s )
-                        ->orWhere( Customer::$_table . '.middlename', 'like', $s )
-                        ->orWhere( Customer::$_table . '.lastname', 'like', $s )
-                        ->orWhere( Customer::$_table . '.phone', '=', $p )
-                        ->orWhere( Customer::$_table . '.phone2', '=', $p )
-                        ->orWhereHas( 'actualBuilding', function ( $actualBuilding ) use ( $s )
+
+            $customers = Customer
+                ::mine()
+                ->orderBy( Customer::$_table . '.lastname' )
+                ->orderBy( Customer::$_table . '.firstname' )
+                ->orderBy( Customer::$_table . '.middlename' );
+
+            if ( ! empty( $request->get( 'lastname' ) ) )
+            {
+                $s = '%' . str_replace( ' ', '%', $request->get( 'lastname' ) ) . '%';
+                $customers
+                    ->where( Customer::$_table . '.lastname', 'like', $s );
+            }
+
+            if ( ! empty( $request->get( 'firstname' ) ) )
+            {
+                $s = '%' . str_replace( ' ', '%', $request->get( 'firstname' ) ) . '%';
+                $customers
+                    ->where( Customer::$_table . '.firstname', 'like', $s );
+            }
+
+            if ( ! empty( $request->get( 'middlename' ) ) )
+            {
+                $s = '%' . str_replace( ' ', '%', $request->get( 'middlename' ) ) . '%';
+                $customers
+                    ->where( Customer::$_table . '.middlename', 'like', $s );
+            }
+
+            if ( ! empty( $request->get( 'provider_id' ) ) )
+            {
+                $customers
+                    ->where( Customer::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
+            }
+
+            if ( ! empty( $request->get( 'actual_building_id' ) ) )
+            {
+                $customers
+                    ->where( Customer::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
+            }
+
+            if ( ! empty( $request->get( 'actual_flat' ) ) )
+            {
+                $customers
+                    ->where( Customer::$_table . '.actual_flat', '=', $request->get( 'actual_flat' ) );
+            }
+
+            if ( ! empty( $request->get( 'phone' ) ) )
+            {
+                $p = str_replace( '+7', '', $request->get( 'phone' ) );
+                $p = preg_replace( '/[^0-9_]/', '', $p );
+                $p = '%' . mb_substr( $p, - 10 ) . '%';
+                $customers
+                    ->where( function ( $q ) use ( $p )
+                    {
+                        return $q
+                            ->where( Customer::$_table . '.phone', 'like', $p )
+                            ->orWhere( Customer::$_table . '.phone2', 'like', $p );
+                    });
+            }
+
+            if ( ! empty( $request->get( 'tags' ) ) )
+            {
+                $_tags = explode( ',', $request->get( 'tags' ) );
+                $customers
+                    ->whereHas( 'tags', function ( $tags ) use ( $_tags )
+                    {
+                        $i = 0;
+                        foreach ( $_tags as $tag )
                         {
-                            return $actualBuilding
-                                ->where( Building::$_table . '.name', 'like', $s );
-                        });
-                });
+                            $tag = trim( $tag );
+                            if ( empty( $tag ) ) continue;
+                            if ( $i ++ == 0 )
+                            {
+                                $tags->where( 'text', '=', $tag );
+                            }
+                            else
+                            {
+                                $tags->orWhere( 'text', '=', $tag );
+                            }
+                        }
+                        return $tags;
+                    });
+            }
+
+            $customers = $customers
+                ->with(
+                    'actualBuilding',
+                    'user'
+                )
+                ->paginate( config( 'pagination.per_page' ) )
+                ->appends( $request->all() );
+
+            return view( 'catalog.customers.parts.list' )
+                ->with( 'customers', $customers );
+
         }
 
-        if ( ! empty( $provider_id ) )
-        {
-            $customers
-                ->where( 'provider_id', '=', $provider_id );
-        }
+        return view( 'catalog.customers.index' )
+            ->with( 'request', $request );
 
-        if ( \Input::get( 'export' ) == 1 )
+        /*if ( \Input::get( 'export' ) == 1 )
         {
             $customers = $customers->get();
             $data = [];
@@ -77,25 +144,39 @@ class CustomersController extends BaseController
                     $sheet->fromArray( $data );
                 });
             })->export( 'xls' );
+        }*/
+
+    }
+
+    public function searchForm ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'catalog.customers.search' ) )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
+
+        if ( ! empty( $request->get( 'segment_id' ) ) )
+        {
+            $segment = Segment::find( $request->get( 'segment_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'actual_building_id' ) ) )
+        {
+            $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
         }
 
         $providers = Provider
             ::mine()
             ->current()
             ->orderBy( Provider::$_table . '.name' )
-            ->get();
+            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
-        $customers = $customers
-            ->with(
-                'actualBuilding',
-                'user'
-            )
-            ->paginate( config( 'pagination.per_page' ) )
-            ->appends( $request->all() );
-
-        return view( 'catalog.customers.index' )
-            ->with( 'customers', $customers )
-            ->with( 'providers', $providers );
+        return view( 'catalog.customers.parts.search' )
+            ->with( 'providers', $providers ?? [] )
+            ->with( 'segment', $segment ?? [] )
+            ->with( 'actual_building', $actual_building ?? [] );
 
     }
 

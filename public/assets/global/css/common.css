@@ -21,6 +21,10 @@
     z-index: 999999 !important;
 }
 
+.select2-container {
+    z-index: 9999999 !important;
+}
+
 .media-buttons {
     margin-left: 15px;
 }
@@ -150,4 +154,9 @@
 
 .select2 {
     width: 100% !important;
+}
+
+.table-condensed th, .table-condensed td {
+    font-size: 12px !important;
+    vertical-align: middle !important;
 }

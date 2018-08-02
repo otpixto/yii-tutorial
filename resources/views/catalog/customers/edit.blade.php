@@ -25,13 +25,13 @@
                     </div>
 
                     <div class="col-xs-7">
-                        {!! Form::label( 'actual_address_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'actual_address_id', $customer->actualAddress ? $customer->actualAddress()->pluck( 'name', 'id' ) : [], $customer->actual_address_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
+                        {!! Form::label( 'actual_building_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'actual_building_id', $customer->actualBuilding ? $customer->actualBuilding()->pluck( 'name', 'id' ) : [], $customer->actual_building_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
                     </div>
 
                     <div class="col-xs-2">
                         {!! Form::label( 'actual_flat', 'Квартира', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
+                        {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $customer->actual_flat ), [ 'class' => 'form-control', 'placeholder' => 'Квартира' ] ) !!}
                     </div>
 
                 </div>

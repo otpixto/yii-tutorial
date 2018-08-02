@@ -62,7 +62,16 @@
         <div class="row margin-top-15">
             <div class="col-xs-12">
 
-                {{ $calls->render() }}
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ $calls->render() }}
+                    </div>
+                    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+                        <span class="label label-info">
+                            Найдено: <b>{{ $calls->total() }}</b>
+                        </span>
+                    </div>
+                </div>
 
                 @if ( $calls->count() )
 

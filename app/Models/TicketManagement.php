@@ -30,6 +30,7 @@ class TicketManagement extends BaseModel
     private $can_upload_act = null;
     private $can_print_act = null;
     private $can_rate = null;
+    private $can_set_executor = null;
 
     private $availableStatuses = null;
 
@@ -97,6 +98,9 @@ class TicketManagement extends BaseModel
     protected $fillable = [
         'ticket_id',
         'management_id',
+        'executor_id',
+        'scheduled_begin',
+        'scheduled_end',
         'status_code',
         'status_name',
     ];
@@ -338,6 +342,22 @@ class TicketManagement extends BaseModel
         return $this->can_rate;
     }
 
+    public function canSetExecutor ()
+    {
+        if ( is_null( $this->can_set_executor ) )
+        {
+            if ( \Auth::user()->can( 'tickets.executor' ) && in_array( $this->status_code, [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'waiting', 'in_process' ] ) )
+            {
+                $this->can_set_executor = true;
+            }
+            else
+            {
+                $this->can_set_executor = false;
+            }
+        }
+        return $this->can_set_executor;
+    }
+
     public function canPrintAct ()
     {
         if ( is_null( $this->can_print_act ) )
@@ -368,6 +388,11 @@ class TicketManagement extends BaseModel
             }
         }
         return $this->can_upload_act;
+    }
+
+    public function isFinalStatus ()
+    {
+        return in_array( $this->status_code, Ticket::$final_statuses );
     }
 
     # force - принудительно
