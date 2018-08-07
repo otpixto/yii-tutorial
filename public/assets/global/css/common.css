@@ -13,21 +13,7 @@ body {
     top: 7px;
 }
 
-.datepicker {
-    z-index: 100 !important;
-}
 
-.navbar-nav {
-    z-index: 90001 !important;
-}
-
-.modal-backdrop {
-    z-index: 90002 !important;
-}
-
-.modal, .page-header, .select2-container, .dropdown-menu  {
-    z-index: 90003 !important;
-}
 
 .media-buttons {
     margin-left: 15px;
