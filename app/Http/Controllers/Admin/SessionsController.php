@@ -102,7 +102,7 @@ class SessionsController extends BaseController
             $operators[ $r->id ] = $r->getName();
         }
 
-        return view('catalog.sessions.create' )
+        return view('admin.sessions.create' )
             ->with( 'operators', $operators );
 
     }
@@ -128,7 +128,7 @@ class SessionsController extends BaseController
 
         $calls = $session->calls();
 
-        return view( 'catalog.sessions.show' )
+        return view( 'admin.sessions.show' )
             ->with( 'session', $session )
             ->with( 'calls', $calls );
 

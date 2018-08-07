@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.sessions.create' ) )
+    @if ( \Auth::user()->can( 'admin.sessions.create' ) )
 
         {!! Form::open( [ 'url' => route( 'sessions.store' ) ] ) !!}
 
