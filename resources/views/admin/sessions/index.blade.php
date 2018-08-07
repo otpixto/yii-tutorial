@@ -9,61 +9,61 @@
 
 @section( 'content' )
 
-    <div class="portlet">
-        <div class="portlet-title">
-            <div class="caption">
-                <i class="fa fa-gift"></i>
-                Активные сессии
-            </div>
-            <div class="tools">
-                <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
-                <a href="javascript:;" class="remove" data-original-title="" title=""> </a>
-            </div>
-        </div>
-        <div class="portlet-body">
-            @if ( $activeSessions->count() )
-                <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>
-                                ФИО
-                            </th>
-                            <th class="text-center">
-                                Номер
-                            </th>
-                            <th>
-                                &nbsp;
-                            </th>
-                        </tr>
-                    </thead>
-                    @foreach ( $activeSessions as $activeSession )
-                        <tr>
-                            <td>
-                                {{ $activeSession->user->getName() }}
-                            </td>
-                            <td class="text-center">
-                                {{ $activeSession->number }}
-                            </td>
-                            <td class="text-right">
-                                @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.close' ) )
-                                    {!! Form::model( $activeSession, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $activeSession->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fa fa-close"></i>
-                                        Завершить сессию
-                                    </button>
-                                    {!! Form::close() !!}
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </table>
-            @else
-                @include( 'parts.error', [ 'error' => 'Активных сессий нет' ] )
-            @endif
-        </div>
-    </div>
-
     @if ( \Auth::user()->can( 'admin.sessions.show' ) )
+		
+		<div class="portlet">
+			<div class="portlet-title">
+				<div class="caption">
+					<i class="fa fa-gift"></i>
+					Активные сессии
+				</div>
+				<div class="tools">
+					<a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+					<a href="javascript:;" class="remove" data-original-title="" title=""> </a>
+				</div>
+			</div>
+			<div class="portlet-body">
+				@if ( $activeSessions->count() )
+					<table class="table table-hover table-striped">
+						<thead>
+							<tr>
+								<th>
+									ФИО
+								</th>
+								<th class="text-center">
+									Номер
+								</th>
+								<th>
+									&nbsp;
+								</th>
+							</tr>
+						</thead>
+						@foreach ( $activeSessions as $activeSession )
+							<tr>
+								<td>
+									{{ $activeSession->user->getName() }}
+								</td>
+								<td class="text-center">
+									{{ $activeSession->number }}
+								</td>
+								<td class="text-right">
+									@if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.close' ) )
+										{!! Form::model( $activeSession, [ 'method' => 'delete', 'route' => [ 'sessions.destroy', $activeSession->id ], 'data-confirm' => 'Вы уверены, что хотите завершить сессию?', 'class' => 'submit-loading' ] ) !!}
+										<button type="submit" class="btn btn-danger">
+											<i class="fa fa-close"></i>
+											Завершить сессию
+										</button>
+										{!! Form::close() !!}
+									@endif
+								</td>
+							</tr>
+						@endforeach
+					</table>
+				@else
+					@include( 'parts.error', [ 'error' => 'Активных сессий нет' ] )
+				@endif
+			</div>
+		</div>
 
         @if ( \Auth::user()->can( 'admin.sessions.create' ) )
             <div class="row margin-bottom-15">
@@ -145,7 +145,7 @@
                         @foreach ( $sessions as $session )
                             <tr @if ( ! $session->closed_at ) class="success" @endif>
                                 <td>
-                                    {!! $session->user->getFullName() !!}
+                                    {!! $session->user->getName( true ) !!}
                                 </td>
                                 <td>
                                     {{ $session->number }}
