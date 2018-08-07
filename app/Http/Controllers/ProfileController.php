@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
+use App\Models\Provider;
 use App\Models\UserPhoneAuth;
 use App\User;
 use Illuminate\Http\Request;
@@ -57,15 +58,15 @@ class ProfileController extends Controller
         }
 
         $asterisk = new Asterisk();
-        $queues = $asterisk->queues();
+        $queue = $asterisk->queue( \Auth::user()->openPhoneSession->provider->queue );
         $exten = \Auth::user()->openPhoneSession->number;
 
-        if ( ! isset( $queues[ 'list' ][ $exten ] ) )
+        if ( ! isset( $queue[ 'list' ][ $exten ] ) )
         {
             return 'ERROR: Телефон не авторизован';
         }
 
-        if ( ! $queues[ 'list' ][ $exten ][ 'isFree' ] )
+        if ( ! $queue[ 'list' ][ $exten ][ 'isFree' ] )
         {
             return 'ERROR: Занято';
         }
@@ -98,7 +99,12 @@ class ProfileController extends Controller
             return redirect()->route( 'profile.phone' );
         }
         Title::add( 'Регистрация телефона' );
-        return view('profile.phone_reg' );
+        $providers = Provider
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
+        return view('profile.phone_reg' )
+            ->with( 'providers', $providers );
     }
 
     public function postPhoneReg ( Request $request )
@@ -107,11 +113,32 @@ class ProfileController extends Controller
         {
             return redirect()->route( 'profile.phone' );
         }
-        $phoneAuth = UserPhoneAuth::create( $request->all() );
+        $rules = [
+            'provider_id'   => 'nullable|integer',
+            'number'        => 'required|min:2|max:4',
+        ];
+        $this->validate( $request, $rules );
+        $providers = Provider::mine()->get();
+        $attributes = $request->all();
+        if ( $providers->count() == 1 )
+        {
+            $attributes[ 'provider_id' ] = $providers->first()->id;
+        }
+        else if ( ! empty( $request->get( 'provider_id' ) ) )
+        {
+            $attributes[ 'provider_id' ] = $request->get( 'provider_id' );
+        }
+        else
+        {
+            return redirect()->back()->withInput()->withErrors( [ 'Выберите провайдера' ] );
+        }
+
+        $phoneAuth = UserPhoneAuth::create( $attributes );
         if ( $phoneAuth instanceof MessageBag )
         {
             return redirect()->back()->withErrors( $phoneAuth );
         }
+        $phoneAuth->save();
         return view( 'profile.phone_confirm' )
             ->with( 'phoneAuth', $phoneAuth );
     }

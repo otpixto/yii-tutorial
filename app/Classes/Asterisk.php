@@ -241,37 +241,52 @@ class Asterisk
      * list = [ penalty, isBusy ]
      */
 
-    public function queues ()
+    public function queues ( $parse = false )
     {
         if ( ! $this->auth ) return false;
         $packet = 'Action: Queues' . PHP_EOL . PHP_EOL;
-        $result = $this->write( $packet );
-        //dd( $result );
-        preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $result, $matches );
-        $count = count( $matches[ 0 ] );
-        $data = [
-            'list' => [],
-            'count' => $count,
-            'callers' => 0,
-            'busy' => 0
-        ];
-        for ( $i = 0; $i < $count; $i ++ )
+        $result = trim( $this->write( $packet ) );
+        if ( ! $parse )
         {
-            $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
-            $data[ 'list' ][ $matches[ 2 ][ $i ] ] = [
-                'penalty' => (int) $matches[ 3 ][ $i ],
-                'isFree' => $isFree ? 1 : 0
-            ];
-            if ( ! $isFree )
-            {
-                $data[ 'busy' ] ++;
-            }
+            return $result;
         }
-        preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
-        ksort( $data[ 'list' ] );
-        $data[ 'callers' ] = count( $matches[ 0 ] );
-        //dd( $data );
+        $exp = explode( "\r\n\r\n", $result );
+        $data = [];
+        foreach ( $exp as $e )
+        {
+            preg_match( '/(.*) has/', $e, $matches );
+            $queue = trim( $matches[ 1 ] );
+            preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $e, $matches );
+            $count = count( $matches[ 0 ] );
+            $data[ $queue ] = [
+                'list' => [],
+                'count' => $count,
+                'callers' => 0,
+                'busy' => 0
+            ];
+            for ( $i = 0; $i < $count; $i ++ )
+            {
+                $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
+                $data[ $queue ][ 'list' ][ $matches[ 2 ][ $i ] ] = [
+                    'penalty' => (int) $matches[ 3 ][ $i ],
+                    'isFree' => $isFree ? 1 : 0
+                ];
+                if ( ! $isFree )
+                {
+                    $data[ $queue ][ 'busy' ] ++;
+                }
+            }
+            preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
+            ksort( $data[ $queue ][ 'list' ] );
+            $data[ $queue ][ 'callers' ] = count( $matches[ 0 ] );
+        }
         return $data;
+    }
+
+    public function queue ( $queue )
+    {
+        $queues = $this->queues( true );
+        return $queues[ $queue ] ?? null;
     }
 
     public function redirect ( $channel, $exten, $context = 'default', $priority = 1 )

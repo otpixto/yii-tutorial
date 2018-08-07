@@ -6,7 +6,7 @@ return [
     'port'              => 5038,
     'user'              => 'asterisk',
     'pass'              => 'ololoasterisk321123',
-    'queue'             => 'eds-zhuk',
+    'queue'             => 'eds-elect',
     'tolerance'         => 5, // погрешность разницы во времени (сек)
     'period_hours'      => 3, // cdr за последние n часов
     'redirect_timeout'  => 0, // редирект звонка через (сек)

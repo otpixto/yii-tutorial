@@ -4,21 +4,21 @@ namespace App\Classes;
 
 use App\Models\Segment;
 
-class SegmentTree
+class SegmentTree extends Segments
 {
 
-    private $segmentsTree;
+    public $tree;
 
     public function __construct ()
     {
-        if ( ! \Cache::has( 'segments_tree' ) )
+        if ( ! \Cache::tags( $this->cache_tags )->has( 'segments.tree' ) )
         {
             $parentSegments = Segment
                 ::mine()
                 ->whereNull( 'parent_id' )
                 ->orderBy( 'name' )
                 ->get();
-            $this->segmentsTree = [];
+            $this->tree = [];
             foreach ( $parentSegments as $parentSegment )
             {
                 $item = $this->getItem( $parentSegment );
@@ -27,42 +27,28 @@ class SegmentTree
                 {
                     $item[ 'nodes' ] = $nodes;
                 }
-                $this->segmentsTree[] = $item;
+                $this->tree[] = $item;
             }
-            \Cache::put( 'segments_tree', $this->segmentsTree, 60 );
+            \Cache::tags( $this->cache_tags )->put( 'segments.tree', $this->tree, $this->cache_life );
         }
         else
         {
-            $this->segmentsTree = \Cache::get( 'segments_tree' );
+            $this->tree = \Cache::tags( $this->cache_tags )->get( 'segments.tree' );
         }
+        return $this;
     }
 
     public function getTree ()
     {
-        return $this->segmentsTree;
+        return $this->tree;
     }
 
-    public function getChildsIds ( $parent_id = null, array & $ids = [] )
+    private function getNodes ( Segment $parentSegment )
     {
-        foreach ( $this->segmentsTree as $item )
-        {
-            $current = $item[ 'nodes' ];
-            foreach ( $item[ 'nodes' ] as $node )
-            {
-                if ( $item[ 'id' ] == $parent_id )
-                {
-                    $ids[] = $node[ 'id' ];
-                }
-                $this->getChildsIds( $node[ 'id' ], $ids );
-            }
-        }
-    }
-
-    private function getNodes ( \App\Models\Segment $parentSegment )
-    {
-        if ( ! $parentSegment->childs->count() ) return null;
+        $childs = $parentSegment->childs()->orderBy( 'name' )->get();
+        if ( ! $childs->count() ) return null;
         $items = [];
-        foreach ( $parentSegment->childs as $child )
+        foreach ( $childs as $child )
         {
             $item = $this->getItem( $child );
             $nodes = $this->getNodes( $child );
@@ -75,7 +61,7 @@ class SegmentTree
         return $items;
     }
 
-    private function getItem ( \App\Models\Segment $segment )
+    private function getItem ( Segment $segment )
     {
         return [
             'id'        => $segment->id,

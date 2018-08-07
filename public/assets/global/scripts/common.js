@@ -5,6 +5,61 @@ $.fn.loading = function ()
     $( this.selector ).html( '<div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Загрузка...</div></div>' );
 };
 
+jQuery.cachedScript = function( url, options ) {
+
+    // Allow user to set any option except for dataType, cache, and url
+    options = $.extend( options || {}, {
+        dataType: "script",
+        cache: true,
+        url: url
+    });
+
+    // Use $.ajax() since it is more flexible than $.getScript
+    // Return the jqXHR object so we can chain callbacks
+    return jQuery.ajax( options );
+};
+
+$.fn.selectSegment = function ()
+{
+    var elements = this;
+    $.cachedScript( '/assets/global/plugins/bootstrap-treeview.js' )
+        .done( function ( script, textStatus )
+        {
+            elements.each( function ()
+            {
+                var obj = $( this );
+                var value = $( '<input type="hidden">' ).attr( 'name', obj.attr( 'name' ) ).insertAfter( obj );
+                obj.removeAttr( 'name' ).attr( 'readonly', 'readonly' );
+                obj.on( 'click focus', function ()
+                {
+                    Modal.create( 'segment-modal', function ()
+                    {
+                        Modal.setTitle( 'Выберите сегмент', 'segment-modal' );
+                        $.get( '/catalog/segments/tree', function ( response )
+                        {
+                            var tree = $( '<div></div>' );
+                            Modal.setBody( tree, 'segment-modal' );
+                            tree.treeview({
+                                data: response,
+                                onNodeSelected: function ( event, node )
+                                {
+                                    value.val( node.id );
+                                    obj.val( node.text ).removeClass( 'text-muted' );
+                                    Modal.hide( 'segment-modal' );
+                                },
+                                onNodeUnselected: function ( event, node )
+                                {
+                                    value.val( '' );
+                                    obj.val( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+        });
+};
+
 var Modal = {
 	
 	defaultID: 'modal',
@@ -143,6 +198,26 @@ var Modal = {
 	{
 		$( '#modals' ).empty();
 	},
+
+    open: function ( id )
+    {
+        var id = id || Modal.defaultID;
+        Modal.lastID = id;
+        if ( $( '#modals [data-id="' + id + '"]' ).length )
+        {
+            $( '#modals [data-id="' + id + '"]' ).modal( 'show' );
+        }
+    },
+
+    hide: function ( id )
+    {
+        var id = id || Modal.defaultID;
+        Modal.lastID = id;
+        if ( $( '#modals [data-id="' + id + '"]' ).length )
+        {
+            $( '#modals [data-id="' + id + '"]' ).modal( 'hide' );
+        }
+    },
 
     onSubmit: function ( e ) {}
 	

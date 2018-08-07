@@ -374,6 +374,9 @@
                         $( '.mask_phone' ).inputmask( 'mask', {
                             'mask': '+7 (999) 999-99-99'
                         });
+
+                        $( '#segment_id' ).selectSegment();
+
                     });
                 }
             })
@@ -387,36 +390,6 @@
             .on( 'submit', '#form-checkbox', function ( event )
             {
                 setTimeout( cancelCheckbox, 500 );
-            })
-
-            .on( 'click', '#segment', function ( e )
-            {
-
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
-                {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
-                    {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
-                    });
-                });
-
             })
 
             .on( 'change', '.ticket-checkbox', checkTicketCheckbox );

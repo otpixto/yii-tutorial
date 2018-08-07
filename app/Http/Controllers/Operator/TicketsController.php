@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendStream;
 use App\Models\Building;
@@ -253,14 +254,20 @@ class TicketsController extends BaseController
                                 ->where( Ticket::$_table . '.building_id', '=', $request->get( 'building_id' ) );
                         }
 
-                        if ( ! empty( $request->get( 'segment_id' ) ) )
+                        if ( $request->get( 'segment_id' ) )
                         {
-                            $ticket
-                                ->whereHas( 'building', function ( $building ) use ( $request )
-                                {
-                                    return $building
-                                        ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
-                                });
+                            $segment = Segment::find( $request->get( 'segment_id' ) );
+                            if ( $segment )
+                            {
+                                $segmentChilds = new SegmentChilds( $segment );
+                                $segmentChildsIds = $segmentChilds->ids;
+                                $ticket
+                                    ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                                    {
+                                        return $building
+                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                    });
+                            }
                         }
 						
 						if ( ! empty( $request->get( 'category_id' ) ) )
@@ -807,13 +814,12 @@ class TicketsController extends BaseController
 
 		\DB::beginTransaction();
 
-        $draft = Ticket
+        $ticket = Ticket
             ::draft()
             ->first();
 
-        if ( $draft )
+        if ( $ticket )
         {
-            $ticket = $draft;
             $ticket->created_at = Carbon::now()->toDateTimeString();
             $ticket->edit( $request->all() );
         }
@@ -830,6 +836,7 @@ class TicketsController extends BaseController
         if ( $ticket->customer )
         {
             $ticket->customer->edit( $request->all() );
+            $ticket->customer_id = $ticket->customer->id;
         }
         else
         {
@@ -1737,7 +1744,7 @@ class TicketsController extends BaseController
 		$ticketManagement->delete();
     }
 
-    public function getExecutorForm ( Request $request, $id )
+    public function getExecutor ( Request $request, $id )
     {
 
         $ticketManagement = TicketManagement::find( $id );
@@ -1750,15 +1757,16 @@ class TicketsController extends BaseController
         $management = $ticketManagement->management;
         $executors = [ null => 'Выбрать из списка' ] + $management->executors()->pluck( 'name', 'id' )->toArray();
 		
-        return view( 'tickets.parts.executor' )
+        return view( 'tickets.edit.executor' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'management', $management )
             ->with( 'executors', $executors );
 			
     }
 
-    public function postExecutorForm ( Request $request, $id )
+    public function postExecutor ( Request $request, $id )
     {
+
         $this->validate( $request, [
             'executor_id'               => 'required_without:executor_name|nullable|integer',
             'executor_name'             => 'required_without:executor_id|nullable',
@@ -1767,6 +1775,7 @@ class TicketsController extends BaseController
             'scheduled_end_date'        => 'required|date_format:Y-m-d',
             'scheduled_end_time'        => 'required|date_format:H:i',
         ]);
+
         $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
@@ -1774,6 +1783,9 @@ class TicketsController extends BaseController
                 ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
+
+        $ticket = $ticketManagement->ticket;
+
         \DB::beginTransaction();
         if ( $request->get( 'executor_id' ) )
         {
@@ -1832,7 +1844,118 @@ class TicketsController extends BaseController
                 ->withErrors( $res );
         }
         \DB::commit();
+
+        $this->dispatch( new SendStream( 'update', $ticket ) );
+
         return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
+
+    }
+
+    public function getManagements ( Request $request, $id )
+    {
+
+        $ticketManagement = TicketManagement::find( $id );
+        if ( ! $ticketManagement )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Заявка не найдена' );
+        }
+
+        $ticket = $ticketManagement->ticket;
+
+        $managements = Management
+            ::mine()
+            ->select(
+                Management::$_table . '.*'
+            )
+            ->join( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
+            ->whereHas( 'types', function ( $types ) use ( $ticket )
+            {
+                return $types
+                    ->where( Type::$_table . '.id', '=', $ticket->type_id );
+            })
+            ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
+            {
+                return $buildings
+                    ->where( Building::$_table . '.id', '=', $ticket->building_id );
+            })
+            ->orderBy( 'parent.name' )
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        return view( 'tickets.edit.managements' )
+            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'ticket', $ticket )
+            ->with( 'managements', $managements );
+
+    }
+
+    public function postManagements ( Request $request, $id )
+    {
+
+        $this->validate( $request, [
+            'management_id'               => 'required|integer',
+        ]);
+
+        $ticketManagement = TicketManagement::find( $id );
+        if ( ! $ticketManagement )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $ticket = $ticketManagement->ticket;
+
+        \DB::beginTransaction();
+
+        $management = Management
+            ::mine()
+            ->whereHas( 'types', function ( $types ) use ( $ticket )
+            {
+                return $types
+                    ->where( Type::$_table . '.id', '=', $ticket->type_id );
+            })
+            ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
+            {
+                return $buildings
+                    ->where( Building::$_table . '.id', '=', $ticket->building_id );
+            })
+            ->where( Management::$_table . '.id', '=', $request->get( 'management_id' ) )
+            ->first();
+
+        if ( ! $management )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Невозможно назначить УО' ] );
+        }
+
+        $ticketManagement->management_id = $management->id;
+        $ticketManagement->executor_id = null;
+        $ticketManagement->scheduled_begin = null;
+        $ticketManagement->scheduled_end = null;
+        $ticketManagement->save();
+
+        $management_name = $management->name;
+        if ( $management->parent )
+        {
+            $management_name = $management->parent->name . ' ' . $management_name;
+        }
+
+        $res = $ticketManagement->addLog( 'Назначено УО "' . $management_name . '"' );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        \DB::commit();
+
+        $this->dispatch( new SendStream( 'update', $ticket ) );
+
+        return redirect()->back()->with( 'success', 'УО успешно назначено' );
+
     }
 
     public function getRateForm ( Request $request, $id )
@@ -1892,9 +2015,9 @@ class TicketsController extends BaseController
         return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
     }
 
-    public function postSave ( Request $request )
+    public function postSave ( Request $request, $id )
     {
-        $ticket = Ticket::find( $request->id );
+        $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
         switch ( $request->get( 'field' ) )
         {
@@ -1920,18 +2043,18 @@ class TicketsController extends BaseController
 
     }
 
-    public function addTag ( Request $request )
+    public function addTag ( Request $request, $id )
     {
-        $ticket = Ticket::find( $request->id );
+        $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
         $tag = trim( $request->get( 'tag', '' ) );
         if ( empty( $tag ) || $ticket->tags()->where( 'text', '=', $tag )->count() ) return;
         $ticket->addTag( $tag );
     }
 
-    public function delTag ( Request $request )
+    public function delTag ( Request $request, $id )
     {
-        $ticket = Ticket::find( $request->id );
+        $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
         $tag = $ticket->tags()->where( 'text', '=', trim( $request->get( 'tag', '' ) ) )->first();
         if ( ! $tag ) return;
@@ -2116,12 +2239,18 @@ class TicketsController extends BaseController
 
                 if ( $request->get( 'segment_id' ) )
                 {
-                    $ticket
-                        ->whereHas( 'building', function ( $building ) use ( $request )
-                        {
-                            return $building
-                                ->where( Building::$_table . '.segment_id', $request->get( 'segment_id' ) );
-                        });
+                    $segment = Segment::find( $request->get( 'segment_id' ) );
+                    if ( $segment )
+                    {
+                        $segmentChilds = new SegmentChilds( $segment );
+                        $segmentChildsIds = $segmentChilds->ids;
+                        $ticket
+                            ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                            {
+                                return $building
+                                    ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                            });
+                    }
                 }
 
             })

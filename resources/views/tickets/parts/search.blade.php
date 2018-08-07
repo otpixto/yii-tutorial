@@ -7,7 +7,7 @@
     <div class="col-md-4">
         <div class="input-group">
             <span class="input-group-addon">#</span>
-            {!! Form::text( 'ticket_id', \Input::get( 'ticket_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
+            {!! Form::text( 'ticket_id', '', [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
             <span class="input-group-addon">/</span>
             {!! Form::text( 'ticket_management_id', \Input::get( 'ticket_management_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
         </div>
@@ -20,7 +20,7 @@
     <div class="col-md-10">
         <div class="row">
             <div class="col-xs-10">
-                {!! Form::select( 'building_id', $building, \Input::get( 'building_id' ), [ 'id' => 'building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
+                {!! Form::select( 'building_id', [], \Input::get( 'building_id' ), [ 'id' => 'building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
             </div>
             <div class="col-xs-2">
                 <div class="input-group">
@@ -36,17 +36,9 @@
         Сегмент
     </h4>
     <div class="col-md-10">
-        <span id="segment" class="form-control text-muted">
-            @if ( $segment )
-                {{ $segment->name }}
-            @else
-                Нажмите, чтобы выбрать
-            @endif
-        </span>
-        {!! Form::hidden( 'segment_id', \Input::old( 'segment_id', $segment->id ?? null ), [ 'id' => 'segment_id' ] ) !!}
+        {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
     </div>
 </div>
-<hr />
 <div class="row">
     <h4 class="col-md-2">
         ФИО заявителя
@@ -54,13 +46,13 @@
     <div class="col-md-10">
         <div class="row">
             <div class="col-xs-4">
-                {!! Form::text( 'lastname', \Input::get( 'lastname' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Фамилия' ] ) !!}
+                {!! Form::text( 'lastname', '', [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Фамилия' ] ) !!}
             </div>
             <div class="col-xs-4">
-                {!! Form::text( 'firstname', \Input::get( 'firstname' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Имя' ] ) !!}
+                {!! Form::text( 'firstname', '', [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Имя' ] ) !!}
             </div>
             <div class="col-xs-4">
-                {!! Form::text( 'middlename', \Input::get( 'middlename' ), [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Отчество' ] ) !!}
+                {!! Form::text( 'middlename', '', [ 'class' => 'form-control' . ( \Auth::user()->can( 'tickets.autocomplete' ) ? ' customer-autocomplete' : '' ), 'placeholder' => 'Отчество' ] ) !!}
             </div>
         </div>
     </div>
@@ -72,12 +64,12 @@
     <div class="col-md-10">
         <div class="row">
             <div class="col-xs-10">
-                {!! Form::select( 'actual_building_id', $actual_building, \Input::get( 'actual_building_id' ), [ 'id' => 'actual_building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания' ] ) !!}
+                {!! Form::select( 'actual_building_id', [], \Input::get( 'actual_building_id' ), [ 'id' => 'actual_building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания' ] ) !!}
             </div>
             <div class="col-xs-2">
                 <div class="input-group">
                     <span class="input-group-addon">кв.</span>
-                    {!! Form::text( 'actual_flat', \Input::old( 'actual_flat' ), [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
+                    {!! Form::text( 'actual_flat', '', [ 'class' => 'form-control', 'placeholder' => 'Кв.' ] ) !!}
                 </div>
             </div>
         </div>
@@ -88,10 +80,9 @@
         Телефон заявителя
     </h4>
     <div class="col-md-4">
-        {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+        {!! Form::text( 'phone', '', [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
     </div>
 </div>
-<hr />
 @if ( count( $providers ) > 1 )
     <div class="row margin-top-10">
         <h4 class="col-md-2">
@@ -102,6 +93,7 @@
         </div>
     </div>
 @endif
+<hr />
 <div class="row">
     <h4 class="col-md-2">
         Периоды
@@ -145,6 +137,7 @@
         </div>
     </div>
 </div>
+<hr />
 <div class="row margin-top-10">
     <h4 class="col-md-2">
         Статус(ы)
@@ -213,7 +206,6 @@
         </div>
     </div>
 @endif
-<hr />
 <div class="row">
     <h4 class="col-md-2">
         Поиск по тегам
@@ -226,6 +218,7 @@
         </div>
     </div>
 </div>
+<hr />
 <div class="row">
     <div class="col-md-10 col-md-offset-2">
         <div class="icheck-inline">

@@ -37,6 +37,8 @@ class AsteriskController extends BaseController
             $phoneSession->close();
         }
 
+        return redirect()->route( 'asterisk.queues' );
+
     }
 
     public function call ( Request $request )

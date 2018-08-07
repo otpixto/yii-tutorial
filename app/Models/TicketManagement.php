@@ -411,6 +411,16 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
 
+        $statusHistory = $this
+            ->statusesHistory()
+            ->orderBy( StatusHistory::$_table . '.id', 'desc' )
+            ->first();
+
+        if ( $statusHistory && $statusHistory->status_code == $status_code )
+        {
+            return false;
+        }
+
         \DB::beginTransaction();
 
         $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . Ticket::$statuses[ $status_code ] . '"' );

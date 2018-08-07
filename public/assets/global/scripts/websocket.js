@@ -1,6 +1,7 @@
 var socket = io( 'https://system.eds-region.ru:8444', { secure: true } );
 var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 var connected = false;
+var auth = false;
 
 socket
 
@@ -10,7 +11,7 @@ socket
         connected = true;
         if ( number )
         {
-            socket.emit( 'number', number );
+            socket.emit( 'auth', number );
         }
     })
 
@@ -18,12 +19,20 @@ socket
     {
         console.log( 'socket disconnected' );
         connected = false;
+        auth = false;
     })
 
-    .on( 'picked_up', function ( phone )
+    .on( 'auth', function ()
     {
-        console.log( 'picked_up', phone );
-        $.cookie( 'phone', phone );
+        console.log( 'auth ok' );
+        auth = true;
+    })
+
+    .on( 'picked_up', function ( data )
+    {
+        console.log( 'picked_up', data );
+        var phone = data.phone;
+        $.cookie( 'phone', phone, { path: '/' } );
         if ( window.location.pathname == '/tickets/create' && $( '#phone' ).length )
         {
             $( '#phone' ).val( phone ).trigger( 'keyup' );
@@ -32,11 +41,10 @@ socket
         $( '#call-phone' ).text( phone );
     })
 
-    .on( 'picked_down', function ()
+    .on( 'picked_down', function ( data )
     {
-        var phone = $.cookie( 'phone' );
-        console.log( 'picked_down', phone );
-        $.removeCookie( 'phone' );
+        console.log( 'picked_down', data );
+        $.removeCookie( 'phone', { path: '/' } );
         $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-success' );
         $( '#call-phone' ).text( '' );
     })
@@ -44,20 +52,20 @@ socket
     .on( 'call', function ( data )
     {
         var message = '';
-        if ( data.message.region )
+        if ( data.provider )
         {
-            message += '<h2>' + ( data.message.region || '-' ) + '</h2>'
+            message += '<h2>' + ( data.provider ) + '</h2>'
         }
         message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
-        if ( data.message.customer )
+        if ( data.customer )
 		{
-			if ( data.message.customer.address )
+			if ( data.customer.address )
 			{
-				message += '<div class="small">' + data.message.customer.address + '</div>';
+				message += '<div class="small">' + data.customer.address + '</div>';
 			}
-			if ( data.message.customer.name )
+			if ( data.customer.name )
 			{
-				message += '<div class="small">' + data.message.customer.name + '</div>';
+				message += '<div class="small">' + data.customer.name + '</div>';
 			}
 		}
         $.bootstrapGrowl( message, {

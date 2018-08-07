@@ -262,7 +262,7 @@
                         </dt>
                         <dd>
                             @if ( $ticket->actualBuilding )
-                                {{ $ticket->actualBuilding->name }}
+                                {{ $ticket->getActualAddress() }}
                             @else
                                 -
                             @endif
@@ -374,19 +374,6 @@
             </div>
         @endif
 
-        @if ( ( \Auth::user()->can( 'calls.all' ) || ( \Auth::user()->can( 'calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
-                            <i class="fa fa-chevron-circle-down text-success"></i>
-                            Входящий вызов
-                        </a>
-                    </div>
-                </div>
-            </div>
-        @endif
-
         @if ( $ticketCalls->count() )
             @foreach ( $ticketCalls as $ticketCall )
                 @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
@@ -411,14 +398,45 @@
             <div class="col-xs-12">
                 <div class="note">
                     <dl>
-                        <dt>Теги</dt>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-toggle="#tags_edit, #tags_show">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Теги
+                        </dt>
                         <dd>
-                            {!! Form::text( 'tags', $ticket->tags->implode( 'text', ',' ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off', 'id' => 'tags' ] ) !!}
+                            @if ( $ticket->canEdit() )
+                                <div id="tags_edit" class="hidden">
+                                    {!! Form::text( 'tags', $ticket->tags->implode( 'text', ',' ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off', 'id' => 'tags' ] ) !!}
+                                </div>
+                            @endif
+                            <div id="tags_show" class="margin-top-10">
+                                @foreach ( $ticket->tags as $tag )
+                                    <a href="{{ route( 'tickets.index', [ 'tags' => $tag->text ] ) }}" class="label label-info small margin-right-10">
+                                        #{{ $tag->text }}
+                                    </a>
+                                @endforeach
+                            </div>
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
+		
+		@if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note">
+                        <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
+                            <i class="fa fa-chevron-circle-down text-success"></i>
+                            Входящий вызов
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
 
     </div>
     <div class="col-lg-6">
@@ -473,15 +491,6 @@
             </div>
         @endif
 
-        <hr />
-
-        @if ( $ticket->type && $ticket->type->need_act )
-            <div class="alert alert-warning">
-                <i class="glyphicon glyphicon-exclamation-sign"></i>
-                Требуется Акт выполненных работ
-            </div>
-        @endif
-
         <ul class="nav nav-tabs margin-top-15 margin-bottom-0">
             <li class="active">
                 <a href="#main">
@@ -522,11 +531,11 @@
 
                 @if ( $ticketManagement )
 
-                    <table class="table table-condensed">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th width="35%">
-                                    <a href="javascript:;" class="hidden-print">
+                                    <a href="javascript:;" class="hidden-print" data-edit="managements">
                                         <i class="fa fa-pencil"></i>
                                     </a>
                                     УО

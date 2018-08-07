@@ -21,6 +21,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
 
         Route::post( 'call', 'RestController@createOrUpdateCallDraft' );
         Route::post( 'customer', 'RestController@customer' );
+        Route::post( 'user', 'RestController@user' );
         Route::post( 'ticket-call', 'RestController@ticketCall' );
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
@@ -111,18 +112,20 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'export', 'Operator\TicketsController@export' )->name( 'tickets.export' );
             Route::get( 'rate/{ticket_management_id}', 'Operator\TicketsController@getRateForm' )->name( 'tickets.rate' );
             Route::post( 'rate/{ticket_management_id}', 'Operator\TicketsController@postRateForm' )->name( 'tickets.rate' );
-            Route::post( 'save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
+            Route::post( '{ticket_id}/save', 'Operator\TicketsController@postSave' )->name( 'tickets.save' );
             Route::get( 'cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
             Route::get( 'print/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
             Route::get( 'print/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
             Route::get( 'search/form', 'Operator\TicketsController@searchForm' )->name( 'tickets.search.form' );
             Route::post( 'search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
             Route::post( 'filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );
-            Route::post( 'tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
-            Route::post( 'tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
+            Route::post( '{ticket_id}/tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
+            Route::post( '{ticket_id}/tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutorForm' )->name( 'tickets.executor' );
-            Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutorForm' )->name( 'tickets.executor' );
+            Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor' );
+            Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor' );
+            Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements' );
+            Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements' );
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
@@ -216,10 +219,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'managements/{management_id}/act/{act_id}', 'Catalog\ManagementsController@act' )->name( 'managements.act' );
 
             Route::get( 'managements/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
+            Route::get( 'managements/search/form', 'Catalog\ManagementsController@searchForm' )->name( 'managements.search.form' );
 
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
-            Route::get( 'search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
+            Route::get( 'customers/search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
 
         });
 

@@ -37,10 +37,7 @@
                         {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.segments.add', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
                             <div class="col-md-12">
-                                <span id="segment" class="form-control text-muted">
-                                    Нажмите, чтобы выбрать
-                                </span>
-                                {!! Form::hidden( 'segment_id', \Input::old( 'segment_id' ), [ 'id' => 'segment_id' ] ) !!}
+                                {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
                             </div>
                         </div>
                         <div class="form-group">
@@ -145,38 +142,14 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootstrap-treeview.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
 
-            .on( 'click', '#segment', function ( e )
+            .ready( function ()
             {
 
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
-                {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
-                    {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
-                    });
-                });
+                $( '#segment_id' ).selectSegment();
 
             })
 

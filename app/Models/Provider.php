@@ -60,6 +60,12 @@ class Provider extends BaseModel
         return $this->belongsToMany( 'App\User', 'users_providers' );
     }
 
+    public function phoneSessions ()
+    {
+        return $this->hasMany( 'App\Models\PhoneSession' )
+            ->notClosed();
+    }
+
     public function scopeMine ( $query, User $user = null )
     {
         if ( ! $user ) $user = \Auth::user();
@@ -97,11 +103,9 @@ class Provider extends BaseModel
     public function addPhone ( $phone )
     {
         $attributes = [
-            'region_id'     => $this->id,
-            'phone'         => $phone
+            'provider_id'       => $this->id,
+            'phone'             => $phone
         ];
-        $validator = \Validator::make( $attributes, ProviderPhone::$rules );
-        if ( $validator->fails() ) return $validator;
         $providerPhone = ProviderPhone::create( $attributes );
         if ( $providerPhone instanceof MessageBag )
         {

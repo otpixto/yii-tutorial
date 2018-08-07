@@ -222,22 +222,18 @@
 
                 $( '#tags' ).on( 'itemAdded', function ( e )
                 {
-                    var id = $( '#ticket_id' ).val();
                     var tag = e.item;
-                    if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.tags.add' ) }}', {
-                        id: id,
+                    if ( ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.add', $ticket->id ) }}', {
                         tag: tag
                     });
                 });
 
                 $( '#tags' ).on( 'itemRemoved', function ( e )
                 {
-                    var id = $( '#ticket_id' ).val();
                     var tag = e.item;
-                    if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.tags.del' ) }}', {
-                        id: id,
+                    if ( ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.del', $ticket->id ) }}', {
                         tag: tag
                     });
                 });
@@ -295,8 +291,6 @@
 
             .on( 'change', '.autosave', function ( e )
             {
-                var id = $( '#ticket_id' ).val();
-                if ( ! id ) return;
                 var that = $( this );
                 if ( timers[ that.attr( 'name' ) ] )
                 {
@@ -307,8 +301,7 @@
                     timers[ that.attr( 'name' ) ] = null;
                     var field = that.attr( 'name' );
                     var value = that.is( '[type="checkbox"]' ) ? ( that.is( ':checked' ) ? 1 : 0 ) : that.val();
-                    $.post( '{{ route( 'tickets.save' ) }}', {
-                        id: id,
+                    $.post( '{{ route( 'tickets.save', $ticket->id ) }}', {
                         field: field,
                         value: value
                     });

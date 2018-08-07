@@ -189,6 +189,9 @@
                         $( '.mask_phone' ).inputmask( 'mask', {
                             'mask': '+7 (999) 999-99-99'
                         });
+
+                        $( '#segment_id' ).selectSegment();
+
                     });
                 }
             })

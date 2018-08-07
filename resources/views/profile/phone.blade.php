@@ -13,6 +13,17 @@
 
         <div class="form-group">
             <div class="col-xs-3 control-label">
+                Провайдер
+            </div>
+            <div class="col-xs-6">
+                <span class="form-control">
+                    {{ \Auth::user()->openPhoneSession->provider->name }}
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-3 control-label">
                 Номер
             </div>
             <div class="col-xs-6">

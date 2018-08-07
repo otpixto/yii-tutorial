@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Executor;
@@ -25,115 +26,169 @@ class ManagementsController extends BaseController
     public function index ( Request $request )
     {
 
-        $search = trim( $request->get( 'search', '' ) );
-        $provider_id = $request->get( 'provider_id' );
-        $category_id = $request->get( 'category_id' );
-        $building_id = $request->get( 'building_id' );
-        $type_id = $request->get( 'type_id' );
-
-        $managements = Management
-            ::mine()
-            ->orderBy( Management::$_table . '.name' );
-
-        if ( ! empty( $search ) )
+        if ( $request->ajax() || $request->get( 'export' ) == 1 )
         {
-            $managements
-                ->where( function ( $q ) use ( $search )
-                {
-                    $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-                    $p = mb_substr( preg_replace( '/\D/', '', $search ), - 10 );
-                    $q
-                        ->where( Management::$_table . '.name', 'like', $s )
-                        ->orWhere( Management::$_table . '.guid', 'like', $s )
-                        ->orWhereHas( 'building', function ( $building ) use ( $s )
-                        {
-                            return $building
-                                ->where( Building::$_table . '.name', 'like', $s );
-                        });
-                    if ( ! empty( $p ) )
+
+            $provider_id = $request->get( 'provider_id' );
+            $category_id = $request->get( 'category_id' );
+            $building_id = $request->get( 'building_id' );
+            $type_id = $request->get( 'type_id' );
+            $segment_id = $request->get( 'segment_id' );
+            $parent_id = $request->get( 'parent_id' );
+
+            $managements = Management
+                ::mine()
+                ->orderBy( Management::$_table . '.name' );
+
+            if ( ! empty( $request->get( 'name' ) ) )
+            {
+                $s = '%' . str_replace( ' ', '%', trim( $request->get( 'name' ) ) ) . '%';
+                $managements
+                    ->where( Management::$_table . '.name', 'like', $s );
+            }
+
+            if ( ! empty( $request->get( 'phone' ) ) )
+            {
+                $p = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), - 10 );
+                $managements
+                    ->where( function ( $q ) use ( $p )
                     {
                         $q
-                            ->orWhere( Management::$_table . '.phone', '=', $p )
+                            ->where( Management::$_table . '.phone', '=', $p )
                             ->orWhere( Management::$_table . '.phone2', '=', $p );
-                    }
-                });
-        }
-
-        if ( ! empty( $category_id ) )
-        {
-            $managements
-                ->category( $category_id );
-        }
-
-        if ( ! empty( $provider_id ) )
-        {
-            $managements
-                ->where( Management::$_table . '.provider_id', '=', $provider_id );
-        }
-
-        if ( ! empty( $building_id ) )
-        {
-            $managements
-                ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
-                {
-                    return $buildings
-                        ->where( Building::$_table . '.id', '=', $building_id );
-                });
-        }
-
-        if ( ! empty( $type_id ) )
-        {
-            $managements
-                ->whereHas( 'types', function ( $types ) use ( $type_id )
-                {
-                    return $types
-                        ->where( Type::$_table . '.id', '=', $type_id );
-                });
-        }
-
-        if ( \Input::get( 'export' ) == 1 )
-        {
-            $managements = $managements->get();
-            $data = [];
-            foreach ( $managements as $management )
-            {
-                $data[] = [
-                    'Категория'             => $management->getCategory(),
-                    'Услуги'                => $management->services,
-                    'Наименование'          => $management->name,
-                    'Телефон(ы)'            => $management->getPhones(),
-                    'Адрес'                 => $management->building->name ?? '',
-                    'График работы'         => $management->schedule,
-                    'ФИО руководителя'      => $management->director,
-                    'E-mail'                => $management->email,
-                    'Сайт'                  => $management->site,
-                ];
+                    });
             }
-            \Excel::create( 'УО', function ( $excel ) use ( $data )
+
+            if ( ! empty( $category_id ) )
             {
-                $excel->sheet( 'УО', function ( $sheet ) use ( $data )
+                $managements
+                    ->category( $category_id );
+            }
+
+            if ( ! empty( $segment_id ) )
+            {
+                $segment = Segment::find( $segment_id );
+                if ( $segment )
                 {
-                    $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
+                    $segmentChilds = new SegmentChilds( $segment );
+                    $segmentChildsIds = $segmentChilds->ids;
+                    $managements
+                        ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                        {
+                            return $building
+                                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                        });
+                }
+            }
+
+            if ( ! empty( $parent_id ) )
+            {
+                $managements
+                    ->where( Management::$_table . '.parent_id', '=', $parent_id );
+            }
+
+            if ( ! empty( $provider_id ) )
+            {
+                $managements
+                    ->where( Management::$_table . '.provider_id', '=', $provider_id );
+            }
+
+            if ( ! empty( $building_id ) )
+            {
+                $managements
+                    ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
+                    {
+                        return $buildings
+                            ->where( Building::$_table . '.id', '=', $building_id );
+                    });
+            }
+
+            if ( ! empty( $type_id ) )
+            {
+                $managements
+                    ->whereHas( 'types', function ( $types ) use ( $type_id )
+                    {
+                        return $types
+                            ->where( Type::$_table . '.id', '=', $type_id );
+                    });
+            }
+
+            if ( $request->get( 'export' ) == 1 )
+            {
+                $managements = $managements->get();
+                $data = [];
+                foreach ( $managements as $management )
+                {
+                    $data[] = [
+                        'Категория'             => $management->getCategory(),
+                        'Услуги'                => $management->services,
+                        'Наименование'          => $management->name,
+                        'Телефон(ы)'            => $management->getPhones(),
+                        'Адрес'                 => $management->building->name ?? '',
+                        'График работы'         => $management->schedule,
+                        'ФИО руководителя'      => $management->director,
+                        'E-mail'                => $management->email,
+                        'Сайт'                  => $management->site,
+                    ];
+                }
+                \Excel::create( 'УО', function ( $excel ) use ( $data )
+                {
+                    $excel->sheet( 'УО', function ( $sheet ) use ( $data )
+                    {
+                        $sheet->fromArray( $data );
+                    });
+                })->export( 'xls' );
+            }
+
+            $managements = $managements
+                ->with(
+                    'parent'
+                )
+                ->paginate( config( 'pagination.per_page' ) )
+                ->appends( $request->all() );
+
+            $providers = Provider
+                ::mine()
+                ->current()
+                ->orderBy( 'name' )
+                ->get();
+
+            return view( 'catalog.managements.parts.list' )
+                ->with( 'managements', $managements )
+                ->with( 'providers', $providers );
+
         }
 
-        $managements = $managements
-            ->with(
-                'parent'
-            )
-            ->paginate( config( 'pagination.per_page' ) )
-            ->appends( $request->all() );
+        return view( 'catalog.managements.index' )
+            ->with( 'request', $request );
+
+    }
+
+    public function searchForm ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'catalog.managements.search' ) )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
 
         $providers = Provider
             ::mine()
             ->current()
-            ->orderBy( 'name' )
-            ->get();
+            ->orderBy( Provider::$_table . '.name' )
+            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
-        return view( 'catalog.managements.index' )
-            ->with( 'managements', $managements )
-            ->with( 'providers', $providers );
+        $parents = Management
+            ::mine()
+            ->whereNull( Management::$_table . '.parent_id' )
+            ->orderBy( Management::$_table . '.name' )
+            ->pluck( Management::$_table . '.name', Management::$_table . '.id' );
+
+        return view( 'catalog.managements.parts.search' )
+            ->with( 'providers', $providers ?? [] )
+            ->with( 'parents', $parents ?? [] )
+            ->with( 'categories', Management::$categories );
 
     }
 
@@ -550,11 +605,20 @@ class ManagementsController extends BaseController
         }
 
         $segment = Segment::find( $request->get( 'segment_id' ) );
-        foreach ( $segment->buildings as $building )
+        if ( $segment )
         {
-            if ( ! $management->buildings->contains( $building->id ) )
+            $segmentChilds = new SegmentChilds( $segment );
+            $segmentChildsIds = $segmentChilds->ids;
+            $buildings = Building
+                ::mine()
+                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds )
+                ->get();
+            foreach ( $buildings as $building )
             {
-                $management->buildings()->attach( $building->id );
+                if ( ! $management->buildings->contains( $building->id ) )
+                {
+                    $management->buildings()->attach( $building->id );
+                }
             }
         }
 

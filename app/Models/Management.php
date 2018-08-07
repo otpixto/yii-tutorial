@@ -279,6 +279,16 @@ class Management extends BaseModel
         return $phones;
     }
 
+    public function getAddress ()
+    {
+        $addr = '';
+        if ( $this->building )
+        {
+            $addr .= $this->building->name . ' (' . $this->building->buildingType->name . ')';
+        }
+        return $addr;
+    }
+
     public function getCategory ()
     {
         return self::$categories[ $this->category_id ];

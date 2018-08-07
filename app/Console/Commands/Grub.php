@@ -122,18 +122,25 @@ class Grub extends Command
         return;*/
 		
 		/*$tickets = Ticket
-			::whereNull( 'actual_building_id' )
+			::whereNotNull( 'customer_id' )
+			->where( function ( $q )
+            {
+                return $q
+                    ->whereNull( 'actual_building_id' )
+                    ->orWhereNull( 'actual_flat' );
+            })
 			->get();
 		$bar = $this->output->createProgressBar($tickets->count());
         foreach ( $tickets as $ticket )
         {
 			$bar->advance();
-			if ( $ticket->customer )
-			{
-				$ticket->actual_building_id = $ticket->customer->actual_building_id;
-				$ticket->actual_flat = $ticket->customer->actual_flat;
-				$ticket->save();
-			}
+			$customer = Customer::withTrashed()->find( $ticket->customer_id );
+			if ( $customer )
+            {
+                $ticket->actual_building_id = $customer->actual_building_id;
+                $ticket->actual_flat = $customer->actual_flat;
+                $ticket->save();
+            }
         }
 		$bar->finish();
 
@@ -506,7 +513,7 @@ class Grub extends Command
         $this->info( 'Users End' );
 		*/
 		
-		$this->info( 'Customers Start' );
+		/*$this->info( 'Customers Start' );
 		
 		$page = 0;
         $pages = null;
@@ -636,7 +643,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 50;
+        $max_pages = 30;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -781,9 +788,11 @@ class Grub extends Command
 
         }
 
-        $this->info( 'Works End' );
+        $this->info( 'Works End' );*/
 
         \Cache::tags( 'works_counts' )->flush();
+
+        $admin_id = 1;
 
         $this->info( 'Tickets Start' );
         $page = 0;
@@ -1057,6 +1066,7 @@ class Grub extends Command
                 $ticketManagement->save();
 
                 $ticket->logs()->forceDelete();
+                $ticket->tags()->delete();
                 $ticketManagement->logs()->forceDelete();
                 $ticketManagement->statusesHistory()->forceDelete();
 

@@ -1,6 +1,6 @@
 @include( 'parts.head' )
 
-<body class="page-header-fixed page-sidebar-closed-hide-logo">
+<body>
 
 <!-- BEGIN CONTAINER -->
 <div class="wrapper">
@@ -9,7 +9,7 @@
     <header class="page-header">
         <nav class="navbar mega-menu" role="navigation">
             <div class="container-fluid">
-                <div class="clearfix navbar-fixed-top">
+                <div class="">
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">

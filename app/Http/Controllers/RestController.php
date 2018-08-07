@@ -34,7 +34,7 @@ class RestController extends Controller
     public function __construct ( Request $request )
     {
         $this->logs = new Logger( 'REST' );
-        $this->logs->pushHandler( new StreamHandler( storage_path( '/logs/rest.log' ) ) );
+        $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/rest.log' ) ) );
         $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
     }
 
@@ -54,28 +54,30 @@ class RestController extends Controller
             return $this->error( 100 );
         }
         \DB::beginTransaction();
+        $number = $auth->number;
+        $user_id = $auth->user_id;
+        $provider_id = $auth->provider_id;
+        $auth->delete();
         $asterisk = new Asterisk();
-        if ( ! $asterisk->queueAdd( $auth->number ) )
-        {
-            return $this->error( 106 );
-        }
         $phoneSession = PhoneSession::create([
-            'user_id'       => $auth->user_id,
-            'number'        => $auth->number
+            'provider_id'   => $provider_id,
+            'user_id'       => $user_id,
+            'number'        => $number
         ]);
         if ( $phoneSession instanceof MessageBag )
         {
-            $asterisk->queueRemove( $auth->number );
             return $this->error( 900 );
         }
         $phoneSession->save();
         $log = $phoneSession->addLog( 'Телефонная сессия началась' );
         if ( $log instanceof MessageBag )
         {
-            $asterisk->queueRemove( $auth->number );
             return $this->error( 900 );
         }
-        $auth->delete();
+        if ( ! $asterisk->queueAdd( $number ) )
+        {
+            return $this->error( 106 );
+        }
         \DB::commit();
         return $this->success();
     }
@@ -89,8 +91,9 @@ class RestController extends Controller
         }
 
         $response = [
-            'customer' => null,
-            'provider' => null,
+            'customer'  => null,
+            'provider'  => null,
+            'users'     => []
         ];
 
         $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
@@ -119,6 +122,7 @@ class RestController extends Controller
                     'name' => $customer->getName(),
                 ];
             }
+            $response[ 'users' ] = $provider->phoneSessions()->pluck( PhoneSession::$_table . '.user_id' )->toArray();
         }
 
         return $this->success( $response );
@@ -147,6 +151,12 @@ class RestController extends Controller
         }
 
         $user = $session->user;
+
+        $response = [
+            'ticket'    => null,
+            'provider'  => null,
+            'user'      => $user->id
+        ];
 
         $draft = Ticket
             ::draft( $user->id )
@@ -184,11 +194,45 @@ class RestController extends Controller
         if ( $provider )
         {
             $draft->provider_id = $provider->id;
+            $response[ 'provider' ] = $provider->name;
         }
 
         $draft->save();
 
-        return $this->success( $provider->name ?? '' );
+        $response[ 'ticket' ] = $draft->id;
+
+        return $this->success( $response );
+
+    }
+
+    public function user ( Request $request )
+    {
+
+        if ( ! $this->auth( $request ) )
+        {
+            return $this->error( 100 );
+        }
+
+        $session = PhoneSession
+            ::notClosed()
+            ->where( 'number', '=', $request->get( 'number' ) )
+            ->first();
+        if ( ! $session )
+        {
+            return $this->error( 101 );
+        }
+        if ( ! $session->user || ! $session->user->isActive() )
+        {
+            return $this->error( 102 );
+        }
+
+        $user = $session->user;
+
+        $response = [
+            'user' => $user->id
+        ];
+
+        return $this->success( $response );
 
     }
 

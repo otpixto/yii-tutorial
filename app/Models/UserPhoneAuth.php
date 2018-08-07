@@ -21,7 +21,16 @@ class UserPhoneAuth extends BaseModel
     private static $code_length = 3; // длина кода авторизации
     public static $timeout = 30; // таймаут авторизации
 
-    protected $fillable = [ 'user_id', 'number', 'code' ];
+    protected $nullable = [
+        'provider_id'
+    ];
+
+    protected $fillable = [
+        'provider_id',
+        'user_id',
+        'number',
+        'code'
+    ];
     private static $asterisk;
 
     public function __construct ( array $attributes = [] )
@@ -33,43 +42,26 @@ class UserPhoneAuth extends BaseModel
 
     public function user ()
     {
-        return $this->hasOne( 'App\User', 'id', 'user_id' );
+        return $this->belongsTo( 'App\User' );
+    }
+
+    public function provider ()
+    {
+        return $this->belongsTo ( 'App\Models\Provider' );
     }
 
     public static function create ( array $attributes = [] )
     {
 
-        $rules = [
-            'number' => 'required|min:2|max:4'
-        ];
-
-        $v = Validator::make ( $attributes, $rules );
-        if ( $v->fails () ) return $v->messages ();
-
-        if ( \Auth::user()->openPhoneSession )
-        {
-            return new MessageBag([ 'Пользовательский телефон уже зарегистрирован' ]);
-        }
-
-        $res = UserPhoneAuth
+        UserPhoneAuth
             ::where( 'user_id', '=', \Auth::user ()->id )
             ->orWhere( 'number', '=', $attributes['number'] )
-            ->get();
-        if ( $res->count() )
-        {
-            foreach ( $res as $r )
-            {
-                $r->delete();
-            }
-        }
-        $phoneAuth = new UserPhoneAuth( $attributes );
-        $phoneAuth->user_id = \Auth::user()->id;
-        $phoneAuth->code = self::genCode();
-        $phoneAuth->save();
+            ->delete();
 
-        return $phoneAuth;
+        $attributes[ 'code' ] = self::genCode();
+        $attributes[ 'user_id' ] = \Auth::user()->id;
 
-        //return self::callWithCode( $phoneAuth->number, $phoneAuth->code );
+        return parent::create( $attributes );
 
     }
 

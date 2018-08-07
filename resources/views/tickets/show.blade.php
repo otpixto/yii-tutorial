@@ -76,6 +76,14 @@
 
         @if ( isset( $ticketManagement ) )
 
+            function setManagements ()
+            {
+                $.get( '{{ route( 'tickets.managements', $ticketManagement->id ) }}', function ( response )
+                {
+                    Modal.createSimple( 'Назначить УО', response, 'managements' );
+                });
+            };
+
             function setExecutor ()
             {
                 $.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
@@ -90,28 +98,6 @@
 
             .ready( function ()
             {
-
-                $( '#tags' ).on( 'itemAdded', function ( e )
-                {
-                    var id = $( '#ticket-id' ).val();
-                    var tag = e.item;
-                    if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.tags.add' ) }}', {
-                        id: id,
-                        tag: tag
-                    });
-                });
-
-                $( '#tags' ).on( 'itemRemoved', function ( e )
-                {
-                    var id = $( '#ticket-id' ).val();
-                    var tag = e.item;
-                    if ( ! id || ! tag ) return;
-                    $.post( '{{ route( 'tickets.tags.del' ) }}', {
-                        id: id,
-                        tag: tag
-                    });
-                });
 
                 $( '#ticket-services' ).repeater({
                     show: function ()
@@ -139,6 +125,46 @@
                     }
                 });
 
+            })
+
+            .on( 'itemAdded', '#tags', function ( e )
+            {
+                var tag = e.item;
+                if ( ! tag ) return;
+                $.post( '{{ route( 'tickets.tags.add', $ticket->id ) }}', {
+                    tag: tag
+                });
+                var tags = $( this ).tagsinput( 'items' );
+                $( '#tags_show' ).empty();
+                $.each( tags, function ( i, tag )
+                {
+                    $( '#tags_show' ).append(
+                        $( '<a>' )
+                            .text( '#' + tag )
+                            .attr( 'href', '{{ route( 'tickets.index' ) }}?tags=' + tag )
+                            .attr( 'class', 'label label-info margin-right-10' )
+                    );
+                });
+            })
+
+            .on( 'itemRemoved', '#tags', function ( e )
+            {
+                var tag = e.item;
+                if ( ! tag ) return;
+                $.post( '{{ route( 'tickets.tags.del', $ticket->id ) }}', {
+                    tag: tag
+                });
+                var tags = $( this ).tagsinput( 'items' );
+                $( '#tags_show' ).empty();
+                $.each( tags, function ( i, tag )
+                {
+                    $( '#tags_show' ).append(
+                        $( '<a>' )
+                            .text( '#' + tag )
+                            .attr( 'href', '{{ route( 'tickets.index' ) }}?tags=' + tag )
+                            .attr( 'class', 'label label-info margin-right-10' )
+                    );
+                });
             })
 
             .on ( 'click', '.nav-tabs a', function ( e )
@@ -241,6 +267,9 @@
                 {
                     case 'executor':
                         setExecutor();
+                        break;
+                    case 'managements':
+                        setManagements();
                         break;
                     default:
                         $.get( '{{ route( 'tickets.edit', $ticket ) }}', {

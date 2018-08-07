@@ -65,9 +65,11 @@
                     </td>
                     <td>
                         <label for="management-{{ $management->id }}">
-                            <div class="text-muted">
-                                {{ $management->parent->name }}
-                            </div>
+                            @if ( $management->parent )
+                                <div class="text-muted">
+                                    {{ $management->parent->name }}
+                                </div>
+                            @endif
                             <div>
                                 {{ $management->name }}
                             </div>

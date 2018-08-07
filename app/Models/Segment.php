@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\User;
+use Illuminate\Support\Collection;
 
 class Segment extends BaseModel
 {
@@ -45,7 +46,18 @@ class Segment extends BaseModel
 
     public function getChildsIds ()
     {
+        $childsIds = [ $this->id ];
+        return $this->_getChildsIds( $childsIds );
+    }
 
+    private function _getChildsIds ( & $childsIds = [] )
+    {
+        foreach ( $this->childs as $child )
+        {
+            $childsIds[] = $child->id;
+            $child->_getChildsIds( $childsIds );
+        }
+        return $childsIds;
     }
 
     public function scopeMine ( $query, User $user = null )

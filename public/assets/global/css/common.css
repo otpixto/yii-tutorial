@@ -1,3 +1,7 @@
+body {
+    overflow-y: scroll;
+}
+
 .inherit {
     font-size: inherit;
     color: inherit;
@@ -10,19 +14,19 @@
 }
 
 .datepicker {
-    z-index: 9999 !important;
+    z-index: 100 !important;
+}
+
+.navbar-nav {
+    z-index: 90001 !important;
 }
 
 .modal-backdrop {
-    z-index: 99999 !important;
+    z-index: 90002 !important;
 }
 
-.modal {
-    z-index: 999999 !important;
-}
-
-.select2-container {
-    z-index: 9999999 !important;
+.modal, .page-header, .select2-container, .dropdown-menu  {
+    z-index: 90003 !important;
 }
 
 .media-buttons {

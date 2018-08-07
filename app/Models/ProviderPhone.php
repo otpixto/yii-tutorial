@@ -10,13 +10,8 @@ class ProviderPhone extends BaseModel
 
     public static $name = 'Внутренний номер поставщика';
 
-    public static $rules = [
-        'region_id'             => 'required|integer',
-        'phone'                 => 'required|regex:/\d/|max:10'
-    ];
-
     protected $fillable = [
-        'region_id',
+        'provider_id',
         'phone',
     ];
 

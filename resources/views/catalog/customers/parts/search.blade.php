@@ -22,17 +22,9 @@
         Сегмент
     </h4>
     <div class="col-md-10">
-        <span id="segment" class="form-control text-muted">
-            @if ( $segment )
-                {{ $segment->name }}
-            @else
-                Нажмите, чтобы выбрать
-            @endif
-        </span>
-        {!! Form::hidden( 'segment_id', \Input::old( 'segment_id', $segment->id ?? null ), [ 'id' => 'segment_id' ] ) !!}
+        {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
     </div>
 </div>
-<hr />
 <div class="row">
     <h4 class="col-md-2">
         ФИО заявителя
@@ -59,7 +51,6 @@
         {!! Form::text( 'phone', \Input::get( 'phone' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
     </div>
 </div>
-<hr />
 @if ( count( $providers ) > 1 )
     <div class="row margin-top-10">
         <h4 class="col-md-2">
@@ -70,7 +61,6 @@
         </div>
     </div>
 @endif
-<hr />
 <div class="row">
     <h4 class="col-md-2">
         Поиск по тегам
