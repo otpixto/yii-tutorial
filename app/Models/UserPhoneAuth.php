@@ -115,7 +115,7 @@ class UserPhoneAuth extends BaseModel
         $code = '';
         for ( $i = 0; $i < self::$code_length; $i ++ )
         {
-            $code .= rand( 0, 9 );
+            $code .= rand( 0, 8 );
         }
 
         return $code;

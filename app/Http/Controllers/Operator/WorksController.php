@@ -172,9 +172,8 @@ class WorksController extends BaseController
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
                     } );
-                $building = Building::where( 'id', '=', $request->get( 'building_id' ) )
-                    ->pluck( 'name', 'id' );
-                $filters[] = 'Здание: ' . $building->first()->name;
+                $building = Building::find( $request->get( 'building_id' ) );
+                $filters[] = 'Здание: ' . $building->name;
             }
 
 			/*

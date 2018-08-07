@@ -264,8 +264,8 @@ class BuildingsController extends BaseController
 
         $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
-            ->where( 'name', 'like', $s )
-            ->orderBy( 'name' );
+            ->where( Building::$_table . '.name', 'like', $s )
+            ->orderBy( Building::$_table . '.name' );
 
         if ( ! empty( $provider_id ) )
         {
@@ -315,9 +315,6 @@ class BuildingsController extends BaseController
         }
 
         $buildingManagements = $buildingManagements
-            ->with(
-                'buildingType'
-            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

@@ -111,7 +111,7 @@
                 @endif
                 @foreach ( $managementBuildings as $r )
                     <div class="margin-bottom-5">
-                        <button type="button" class="btn btn-xs btn-danger" data-delete="management-address" data-address="{{ $r->id }}">
+                        <button type="button" class="btn btn-xs btn-danger" data-delete="management-building" data-building="{{ $r->id }}">
                             <i class="fa fa-remove"></i>
                         </button>
                         <a href="{{ route( 'buildings.edit', $r->id ) }}">
@@ -153,12 +153,12 @@
 
             })
 
-            .on( 'click', '[data-delete="management-address"]', function ( e )
+            .on( 'click', '[data-delete="management-building"]', function ( e )
             {
 
                 e.preventDefault();
 
-                var address_id = $( this ).attr( 'data-address' );
+                var building_id = $( this ).attr( 'data-building' );
                 var obj = $( this ).closest( 'div' );
 
                 bootbox.confirm({
@@ -185,7 +185,7 @@
                                 url: '{{ route( 'managements.buildings.del', $management->id ) }}',
                                 method: 'delete',
                                 data: {
-                                    address_id: address_id
+                                    building_id: building_id
                                 },
                                 success: function ()
                                 {

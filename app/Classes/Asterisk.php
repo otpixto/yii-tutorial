@@ -256,7 +256,7 @@ class Asterisk
         {
             preg_match( '/(.*) has/', $e, $matches );
             $queue = trim( $matches[ 1 ] );
-            preg_match_all( '/(local|sip)\/(\d*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $e, $matches );
+            preg_match_all( '/(local|sip)\/(\d*)(.*)\ with\ penalty\ (\d)(.*)(not\ in\ use|busy|ringing)/i', $e, $matches );
             $count = count( $matches[ 0 ] );
             $data[ $queue ] = [
                 'list' => [],
@@ -266,9 +266,10 @@ class Asterisk
             ];
             for ( $i = 0; $i < $count; $i ++ )
             {
-                $isFree = preg_match( '/not\ in\ use/i', $matches[ 5 ][ $i ] );
-                $data[ $queue ][ 'list' ][ $matches[ 2 ][ $i ] ] = [
-                    'penalty' => (int) $matches[ 3 ][ $i ],
+                $isFree = preg_match( '/not\ in\ use/i', $matches[ 6 ][ $i ] );
+				$number = mb_substr( $matches[ 2 ][ $i ], -10 );
+                $data[ $queue ][ 'list' ][ $number ] = [
+                    'penalty' => (int) $matches[ 4 ][ $i ],
                     'isFree' => $isFree ? 1 : 0
                 ];
                 if ( ! $isFree )
