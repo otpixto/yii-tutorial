@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
+use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -101,9 +102,15 @@ class SessionsController extends BaseController
         {
             $operators[ $r->id ] = $r->getName();
         }
+		
+		$providers = Provider
+            ::mine()
+            ->orderBy( 'name' )
+            ->get();
 
         return view('admin.sessions.create' )
-            ->with( 'operators', $operators );
+            ->with( 'operators', $operators )
+            ->with( 'providers', $providers );
 
     }
 
@@ -142,14 +149,35 @@ class SessionsController extends BaseController
 
     public function store ( Request $request )
     {
+		
+		$rules = [
+			'provider_id'   => 'nullable|integer',
+			'user_id'       => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
+			'number'        => 'required|string|min:2'
+		];
 
-        $this->validate( $request, PhoneSession::$rules );
+        $this->validate( $request, $rules );
+		
+		$providers = Provider::mine()->get();
+        $attributes = $request->all();
+        if ( $providers->count() == 1 )
+        {
+            $attributes[ 'provider_id' ] = $providers->first()->id;
+        }
+        else if ( ! empty( $request->get( 'provider_id' ) ) )
+        {
+            $attributes[ 'provider_id' ] = $request->get( 'provider_id' );
+        }
+        else
+        {
+            return redirect()->back()->withInput()->withErrors( [ 'Выберите провайдера' ] );
+        }
 
         $asterisk = new Asterisk();
         \DB::beginTransaction();
         if ( ( $res = $asterisk->queueAdd( $request->get( 'number' ) ) ) )
         {
-            $phoneSession = PhoneSession::create( $request->all() );
+            $phoneSession = PhoneSession::create( $attributes );
             if ( $phoneSession instanceof MessageBag )
             {
                 $asterisk->queueRemove( $request->get( 'number' ) );

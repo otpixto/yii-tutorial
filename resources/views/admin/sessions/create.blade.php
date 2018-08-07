@@ -13,6 +13,15 @@
     @if ( \Auth::user()->can( 'admin.sessions.create' ) )
 
         {!! Form::open( [ 'url' => route( 'sessions.store' ) ] ) !!}
+		
+		@if ( $providers->count() > 1 )
+			<div class="form-group">
+				{!! Form::label( 'provider_id', 'Провайдер', [ 'class' => 'control-label col-xs-3' ] ) !!}
+				<div class="col-xs-6">
+					{!! Form::select( 'provider_id', $providers->pluck( 'name', 'id' ), \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+				</div>
+			</div>
+		@endif
 
         <div class="form-group">
             {!! Form::label( 'user_id', 'Пользователь', [ 'class' => 'control-label' ] ) !!}

@@ -24,12 +24,6 @@ class PhoneSession extends BaseModel
 
     public static $name = 'Телефонная сессия';
 
-    public static $rules = [
-        'provider_id'   => 'required|integer',
-        'user_id'       => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
-        'number'        => 'required|string|min:2'
-    ];
-
     protected $fillable = [
         'provider_id',
         'user_id',
