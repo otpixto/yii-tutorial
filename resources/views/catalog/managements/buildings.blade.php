@@ -41,7 +41,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-md-12">
+							{!! Form::label( 'type_id', 'Тип здания', [ 'class' => 'control-label col-md-4' ] ) !!}
+							<div class="col-md-4">
+								{!! Form::select( 'type_id', $buildingTypes, '', [ 'class' => 'form-control select2', 'id' => 'type_id', 'placeholder' => 'ВСЕ' ] ) !!}
+							</div>
+                            <div class="col-md-4">
                                 {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
                             </div>
                         </div>
@@ -115,7 +119,7 @@
                             <i class="fa fa-remove"></i>
                         </button>
                         <a href="{{ route( 'buildings.edit', $r->id ) }}">
-                            {{ $r->getAddress() }}
+                            {{ $r->getAddress( true ) }}
                         </a>
                     </div>
                 @endforeach

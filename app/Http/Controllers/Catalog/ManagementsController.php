@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
+use App\Models\BuildingType;
 use App\Models\Executor;
 use App\Models\Management;
 use App\Models\Provider;
@@ -532,11 +533,14 @@ class ManagementsController extends BaseController
             ->appends( $request->all() );
 
         $segmentsTypes = SegmentType::orderBy( 'sort' )->pluck( 'name', 'id' );
+		
+		$buildingTypes = BuildingType::mine()->orderBy( 'name' )->pluck( 'name', 'id' );
 
         return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )
             ->with( 'search', $search )
             ->with( 'segmentsTypes', $segmentsTypes )
+            ->with( 'buildingTypes', $buildingTypes )
             ->with( 'managementBuildings', $managementBuildings );
 
     }
@@ -608,6 +612,7 @@ class ManagementsController extends BaseController
 
         $rules = [
             'segment_id'             => 'required|integer',
+            'type_id'             	 => 'nullable|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -627,8 +632,13 @@ class ManagementsController extends BaseController
             $segmentChildsIds = $segmentChilds->ids;
             $buildings = Building
                 ::mine()
-                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds )
-                ->get();
+                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+			if ( ! empty( $request->get( 'type_id' ) ) )
+			{
+				$buildings
+					->where( Building::$_table . '.building_type_id', '=', $request->get( 'type_id' ) );
+			}
+            $buildings = $buildings->get();
             foreach ( $buildings as $building )
             {
                 if ( ! $management->buildings->contains( $building->id ) )

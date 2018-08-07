@@ -23,5 +23,16 @@ class BuildingType extends BaseModel
     {
         return $this->belongsTo( 'App\Models\Provider' );
     }
+	
+	public function scopeMine ( $query )
+    {
+        return $query
+            ->whereHas( 'provider', function ( $provider )
+            {
+                return $provider
+                    ->mine()
+                    ->current();
+            });
+    }
 
 }
