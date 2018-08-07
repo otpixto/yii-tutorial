@@ -553,17 +553,33 @@ class ManagementsController extends BaseController
         }
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+		
+		$provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
 
-        $buildings = Building
-            ::mine()
-            ->select(
-                Building::$_table . '.id',
-                Building::$_table . '.name AS text'
-            )
+        $res = Building
+            ::mine( Building::IGNORE_MANAGEMENT )
             ->where( Building::$_table . '.name', 'like', $s )
-            ->whereNotIn( Building::$_table . '.id', $management->buildings()->pluck( Building::$_table . '.id' ) )
-            ->orderBy( Building::$_table . '.name' )
+			->whereNotIn( Building::$_table . '.id', $management->buildings()->pluck( Building::$_table . '.id' ) )
+            ->orderBy( Building::$_table . '.name' );
+
+        if ( ! empty( $provider_id ) )
+        {
+            $res
+                ->where( Building::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        $res = $res
+			->with( 'buildingType' )
             ->get();
+			
+		$buildings = [];
+		foreach ( $res as $r )
+		{
+			$buildings[] = [
+				'id' => $r->id,
+				'text' => $r->name . ' (' . $r->buildingType->name . ')'
+			];
+		}
 
         return $buildings;
 
