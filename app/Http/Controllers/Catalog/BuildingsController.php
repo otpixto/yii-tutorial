@@ -264,8 +264,13 @@ class BuildingsController extends BaseController
 
         $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
-            ->where( Building::$_table . '.name', 'like', $s )
-            ->orderBy( Building::$_table . '.name' );
+            ->leftJoin( BuildingType::$_table, BuildingType::$_table . '.id', '=', Building::$_table . '.building_type_id' )
+            ->select(
+                Building::$_table . '.id',
+                \DB::raw( 'CONCAT_WS( \' \', ' . Building::$_table . '.name, CONCAT( \'(\', ' . BuildingType::$_table . '.name, \')\' ) ) AS fullname' )
+            )
+            ->having( 'fullname', 'like', $s )
+            ->orderBy( 'fullname' );
 
         if ( ! empty( $provider_id ) )
         {
@@ -274,7 +279,6 @@ class BuildingsController extends BaseController
         }
 
         $res = $res
-			->with( 'buildingType' )
             ->get();
 			
 		$buildings = [];
@@ -282,7 +286,7 @@ class BuildingsController extends BaseController
 		{
 			$buildings[] = [
 				'id' => $r->id,
-				'text' => $r->name . ' (' . $r->buildingType->name . ')'
+				'text' => $r->fullname
 			];
 		}
 
