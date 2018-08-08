@@ -524,14 +524,14 @@ class WorksController extends BaseController
             return redirect()->route( 'works.edit', $id );
         }
 
-        Title::add( 'Просмотр сообщения' );
-
         $work = Work::find( $id );
 
         if ( ! $work )
         {
             return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
         }
+
+        Title::add( 'Отключение #' . $work->id );
 
         return view( 'works.show' )
             ->with( 'work', $work );
@@ -552,14 +552,14 @@ class WorksController extends BaseController
             return redirect()->route( 'works.show', $id );
         }
 
-        Title::add( 'Редактировать сообщение' );
-
         $work = Work::find( $id );
 
         if ( ! $work )
         {
             return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
         }
+
+        Title::add( 'Редактировать отключение #' . $work->id );
 
         $managements = Management::orderBy( 'name' )->get();
 

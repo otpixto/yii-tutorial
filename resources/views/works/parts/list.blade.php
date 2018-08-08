@@ -43,7 +43,9 @@
         @foreach ( $works as $work )
             <tr class="{{ $work->getClass() }}">
                 <td>
-                    #{{ $work->id }}
+                    <a href="{{ route( 'works.edit', $work->id ) }}">
+                        #{{ $work->id }}
+                    </a>
                 </td>
                 <td>
                     <div class="small">
