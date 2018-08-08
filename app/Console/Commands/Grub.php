@@ -636,6 +636,8 @@ class Grub extends Command
 		}
 
         $this->info( 'Customers End' );
+		
+		*/
 
         $admin_id = 1;
 
@@ -643,7 +645,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 30;
+        $max_pages = 50;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -788,7 +790,7 @@ class Grub extends Command
 
         }
 
-        $this->info( 'Works End' );*/
+        $this->info( 'Works End' );
 
         \Cache::tags( 'works_counts' )->flush();
 

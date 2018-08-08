@@ -83,7 +83,12 @@
             <div class="form-group @if ( ! $work->management ) hidden @endif" id="executor">
                 {!! Form::label( 'executor_id', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-7">
-                    {!! Form::select( 'executor_id', $work->management ? $work->management->executors->pluck( 'name', 'id' ) : [], \Input::old( 'executor_id', $work->executor_id ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ' ] ) !!}
+                    <select name="executor_id" class="form-control select2">
+                        <option value=""> -- выберите из списка -- </option>
+                        @foreach ( $work->management->executors as $executor )
+                            <option value="{{ $executor->id }}" @if ( $executor->id == $work->executor_id ) selected="selected" @endif>{{ $executor->getName( true ) }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-xs-2">
                     <button type="button" class="btn btn-primary executor-toggle" data-toggle="#executor_create, #executor">

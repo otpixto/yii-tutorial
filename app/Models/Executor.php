@@ -56,6 +56,16 @@ class Executor extends BaseModel
             });
     }
 
+    public function getName ( $withPhone = false )
+    {
+        $name = $this->name;
+        if ( $withPhone && $this->phone )
+        {
+            $name .= ' (' . $this->phone . ')';
+        }
+        return $name;
+    }
+
     public function getPhone ( $html = false )
     {
         $phones = '';
