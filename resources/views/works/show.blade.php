@@ -20,7 +20,16 @@
                 {!! Form::label( null, 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->buildings->implode( 'name', '; ' ) }}
+                        @foreach ( $work->getAddressesGroupBySegment() as $segment )
+                            <div class="margin-top-5">
+                                <span class="small">
+                                    {{ $segment[ 0 ] }}
+                                </span>
+                                <span class="bold">
+                                    д. {{ implode( ', ', $segment[ 1 ] ) }}
+                                </span>
+                            </div>
+                        @endforeach
                     </span>
                 </div>
             </div>
@@ -29,16 +38,7 @@
                 {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->getCategory() }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control-static">
-                        {{ $work->composition }}
+                        {{ $work->category->name }}
                     </span>
                 </div>
             </div>
@@ -84,28 +84,28 @@
             </div>
 
             <div class="form-group">
+                {!! Form::label( null, 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->executor->getName( true ) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->composition }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( null, 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
                         {{ $work->reason }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Кто передал', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control-static">
-                        {{ $work->who }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( null, 'Контактный телефон', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    <span class="form-control-static">
-                        {{ $work->phone }}
                     </span>
                 </div>
             </div>
