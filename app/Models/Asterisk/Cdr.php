@@ -121,7 +121,7 @@ class Cdr extends BaseModel
 
     public function getMp3 ()
     {
-        return 'http://' . \Config::get( 'asterisk.ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
+        return 'http://' . \Config::get( 'asterisk.external_ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
     }
 
     public function getContext ()
