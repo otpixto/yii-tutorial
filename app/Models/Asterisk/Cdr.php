@@ -75,6 +75,7 @@ class Cdr extends BaseModel
         {
             $providers = Provider
                 ::mine()
+                ->current()
                 ->orderBy( 'name' )
                 ->get();
             $providerPhones = [];
