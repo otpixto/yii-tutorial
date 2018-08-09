@@ -47,7 +47,7 @@ class CallsController extends BaseController
             {
                 foreach ( $provider->phones as $providerPhone )
                 {
-                    $providerPhones[] = $providerPhone;
+                    $providerPhones[] = $providerPhone->phone;
                 }
             }
             $calls
