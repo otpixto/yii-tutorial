@@ -71,32 +71,28 @@ class Cdr extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( ! \Auth::user()->admin )
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->get();
+        $providerPhones = [];
+        $providerOutgoingContexts = [];
+        foreach ( $providers as $provider )
         {
-            $providers = Provider
-                ::mine()
-                ->current()
-                ->orderBy( 'name' )
-                ->get();
-            $providerPhones = [];
-            $providerOutgoingContexts = [];
-            foreach ( $providers as $provider )
+            $providerOutgoingContexts[] = $provider->outgoing_context;
+            foreach ( $provider->phones as $providerPhone )
             {
-                $providerOutgoingContexts[] = $provider->outgoing_context;
-                foreach ( $provider->phones as $providerPhone )
-                {
-                    $providerPhones[] = $providerPhone->phone;
-                }
+                $providerPhones[] = $providerPhone->phone;
             }
-            $query
-                ->where( function ( $q ) use ( $providerPhones, $providerOutgoingContexts )
-                {
-                    return $q
-                        ->whereIn( 'dcontext', $providerOutgoingContexts )
-                        ->orWhereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
-                });
         }
-        return $query;
+        return $query
+            ->where( function ( $q ) use ( $providerPhones, $providerOutgoingContexts )
+            {
+                return $q
+                    ->whereIn( 'dcontext', $providerOutgoingContexts )
+                    ->orWhereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
+            });
     }
 
     public function ticket ()
