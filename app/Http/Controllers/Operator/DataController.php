@@ -144,7 +144,7 @@ class DataController extends BaseController
                     'executor'          => $executor,
                     'composition'       => $r->composition,
                     'category'          => $r->category->name,
-                    'time_end'          => $r->time_end,
+                    'time_end'          => $r->time_end->format( 'd.m.Y H:i' ),
                 ];
             }
         }
