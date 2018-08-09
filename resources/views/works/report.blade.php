@@ -15,7 +15,7 @@
             </th>
             <th colspan="11">
                 <div>
-                    {{ implode( '</div>;<div>', $filters ) }}
+                    {!! implode( '</div>;<div>', $filters ) !!}
                 </div>
             </th>
         </tr>

@@ -158,34 +158,24 @@ class WorksController extends BaseController
                 $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
                 if ( $segments->count() )
                 {
-                    $filters[] = 'Сегменты: ' . $segments->implode( 'name', ', ' );
-                    $works
-                        ->where( function ( $q ) use ( $segments )
+                    $segmentsIds = [];
+                    foreach ( $segments as $segment )
+                    {
+                        $segmentName = $segment->type->name;
+                        if ( $segment->parent )
                         {
-                            $i = 0;
-                            foreach ( $segments as $segment )
-                            {
-                                $segmentChilds = new SegmentChilds( $segment );
-                                $segmentChildsIds = $segmentChilds->ids;
-                                if ( $i ++ == 0 )
-                                {
-                                    $q
-                                        ->whereHas( 'buildings', function ( $buildings ) use ( $segmentChildsIds )
-                                        {
-                                            return $buildings
-                                                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-                                        });
-                                }
-                                else
-                                {
-                                    $q
-                                        ->orWhereHas( 'buildings', function ( $buildings ) use ( $segmentChildsIds )
-                                        {
-                                            return $buildings
-                                                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-                                        });
-                                }
-                            }
+                            $segmentName .= ' ' . $segment->parent->name;
+                        }
+                        $segmentName .= ' ' . $segment->name;
+                        $filters[] = 'Сегмент: ' . $segmentName;
+                        $segmentChilds = new SegmentChilds( $segment );
+                        $segmentsIds += $segmentChilds->ids;
+                    }
+                    $works
+                        ->whereHas( 'buildings', function ( $buildings ) use ( $segmentsIds )
+                        {
+                            return $buildings
+                                ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
                         });
                 }
             }

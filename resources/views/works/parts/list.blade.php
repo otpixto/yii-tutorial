@@ -9,6 +9,23 @@
     </div>
 </div>
 
+<div class="row margin-top-15 margin-bottom-15">
+    <div class="col-xs-6">
+        @can( 'works.export' )
+            <a href="?export=data&{{ Request::getQueryString() }}" class="btn btn-default btn-lg hidden">
+                <i class="fa fa-download"></i>
+                Выгрузить в Excel
+            </a>
+    </div>
+    <div class="col-xs-6 text-right">
+            <a href="?export=report&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить Отчет
+            </a>
+        @endcan
+    </div>
+</div>
+
 <table class="table table-striped table-bordered table-hover">
     <thead>
     <tr class="info">

@@ -21,18 +21,6 @@
                         </a>
                     @endcan
                 </div>
-                <div class="col-xs-6 text-right">
-                    @can( 'works.export' )
-                        <a href="?export=data&{{ Request::getQueryString() }}" class="btn btn-default btn-lg hidden">
-                            <i class="fa fa-download"></i>
-                            Выгрузить в Excel
-                        </a>
-                        <a href="?export=report&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                            <i class="fa fa-download"></i>
-                            Отчет
-                        </a>
-                    @endcan
-                </div>
             </div>
         @endcan
 
@@ -54,7 +42,7 @@
 
         @endif
 
-        <div class="row margin-top-15">
+        <div class="row">
             <div class="col-xs-12">
 
                 <div id="works"></div>
