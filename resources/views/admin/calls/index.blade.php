@@ -13,43 +13,43 @@
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading hidden-print' ] ) !!}
         <div class="form-group">
-            {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-xs-3' ] ) !!}
-            <div class="col-xs-6">
+            {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-md-3 col-xs-2' ] ) !!}
+            <div class="col-md-6 col-xs-10">
                 {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
             </div>
         </div>
         <div class="form-group">
-            {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
-            <div class="col-md-3 col-xs-4">
+            {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
+            <div class="col-md-3 col-xs-5">
                 {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кто звонит' ] ) !!}
             </div>
-            <div class="col-md-3 col-xs-4">
+            <div class="col-md-3 col-xs-5">
                 {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кому звонят' ] ) !!}
             </div>
         </div>
 
         <div class="form-group">
-            {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
-            <div class="col-md-3 col-xs-4">
+            {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
+            <div class="col-md-3 col-xs-5">
                 {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'От' ] ) !!}
             </div>
-            <div class="col-md-3 col-xs-4">
+            <div class="col-md-3 col-xs-5">
                 {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'До' ] ) !!}
             </div>
         </div>
 
         <div class="form-group">
-            {!! Form::label( 'status', 'Статус', [ 'class' => 'col-md-3 col-xs-4 control-label' ] ) !!}
-            <div class="col-md-3 col-xs-4">
+            {!! Form::label( 'status', 'Статус', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
+            <div class="col-md-3 col-xs-5">
                 {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
-            <div class="col-md-3 col-xs-4">
+            <div class="col-md-3 col-xs-5">
                 {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
         </div>
 
         <div class="form-group">
-            <div class="col-xs-offset-4 col-md-offset-3 col-md-2 col-xs-4">
+            <div class="col-md-offset-3 col-md-3">
                 <button type="submit" class="btn btn-primary btn-block">
                     <i class="fa fa-search"></i>
                     Поиск

@@ -56,7 +56,7 @@
                                 {!! Form::text( 'model_id', \Input::old( 'model_id' ), [ 'class' => 'form-control' ] ) !!}
                             </th>
                             <th>
-                                {!! Form::select( 'author_id', [], \Input::old( 'author_id' ), [ 'class' => 'form-control select2' ] ) !!}
+                                {!! Form::select( 'author_id', [], \Input::old( 'author_id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'users.search' ), 'data-placeholder' => '' ] ) !!}
                             </th>
                             <th>
                                 {!! Form::text( 'text', \Input::old( 'text' ), [ 'class' => 'form-control' ] ) !!}

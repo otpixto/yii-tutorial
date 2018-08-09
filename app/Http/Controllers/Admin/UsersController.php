@@ -527,4 +527,42 @@ class UsersController extends BaseController
 
     }
 
+    public function search ( Request $request )
+    {
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
+
+        $res = User
+            ::mine()
+            ->select(
+                User::$_table . '.id',
+                \DB::raw( 'CONCAT_WS( \' \', ' . User::$_table . '.lastname, ' . User::$_table . '.firstname, ' . User::$_table . '.middlename ) AS fullname' )
+            )
+            ->where( 'active', '=', 1 )
+            ->having( 'fullname', 'like', $s )
+            ->orderBy( 'fullname' );
+
+        if ( ! empty( $provider_id ) )
+        {
+            $res
+                ->where( User::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        $res = $res
+            ->get();
+
+        $users = [];
+        foreach ( $res as $r )
+        {
+            $users[] = [
+                'id' => $r->id,
+                'text' => $r->fullname
+            ];
+        }
+
+        return $users;
+
+    }
+
 }

@@ -269,6 +269,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'perms/{perm_id}/users/add', 'Admin\PermsController@usersAdd' )->name( 'perms.users.add' );
             Route::delete( 'perms/{perm_id}/users/del', 'Admin\PermsController@usersDel' )->name( 'perms.users.del' );
 
+            Route::post( 'users/search', 'Admin\UsersController@search' )->name( 'users.search' );
             Route::post( 'users/{user_id}/managements/search', 'Admin\UsersController@managementsSearch' )->name( 'users.managements.search' );
             Route::get( 'users/{user_id}/logs', 'Admin\UsersController@logs' )->name( 'users.logs' );
             Route::get( 'users/{user_id}/providers', 'Admin\UsersController@providers' )->name( 'users.providers' );
