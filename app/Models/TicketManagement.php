@@ -82,6 +82,10 @@ class TicketManagement extends BaseModel
             'transferred_again',
             'in_process',
         ],
+        'in_process' => [
+            'waiting',
+            'not_verified',
+        ],
     ];
 
     protected $nullable = [

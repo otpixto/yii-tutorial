@@ -114,6 +114,10 @@ class Ticket extends BaseModel
             'waiting',
             'in_process',
         ],
+        'in_process' => [
+            'waiting',
+            'not_verified',
+        ],
     ];
 
     protected $nullable = [
