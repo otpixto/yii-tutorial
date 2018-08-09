@@ -110,7 +110,9 @@
                 @foreach ( $ticketManagements as $ticketManagement )
                     <tr>
                         <td>
-                            {{ $ticketManagement->getTicketNumber() }}
+                            <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
+                                {{ $ticketManagement->getTicketNumber() }}
+                            </a>
                         </td>
                         <td>
                             {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
