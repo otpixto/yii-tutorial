@@ -32,13 +32,19 @@ class Cdr extends BaseModel
     public function scopeIncoming ( $query )
     {
         return $query
-            ->where( 'dcontext', '=', 'incoming' );
+            ->contexts( 'incoming' );
     }
 
     public function scopeOutgoing ( $query )
     {
         return $query
-            ->where( 'dcontext', '=', 'outgoing' );
+            ->contexts( 'outgoing' );
+    }
+
+    public function scopeContexts ( $query, ... $contexts )
+    {
+        return $query
+            ->whereIn( \DB::RAW( 'LEFT( dcontext, 8 )' ), $contexts );
     }
 
     public function scopeAnswered ( $query )
@@ -65,10 +71,29 @@ class Cdr extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( Provider::getCurrent() )
+        if ( ! \Auth::user()->admin )
         {
+            $providers = Provider
+                ::mine()
+                ->orderBy( 'name' )
+                ->get();
+            $providerPhones = [];
+            $providerOutgoingContexts = [];
+            foreach ( $providers as $provider )
+            {
+                $providerOutgoingContexts[] = $provider->outgoing_context;
+                foreach ( $provider->phones as $providerPhone )
+                {
+                    $providerPhones[] = $providerPhone->phone;
+                }
+            }
             $query
-                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), Provider::$current->phones()->pluck( 'phone' ) );
+                ->where( function ( $q ) use ( $providerPhones, $providerOutgoingContexts )
+                {
+                    return $q
+                        ->whereIn( 'dcontext', $providerOutgoingContexts )
+                        ->orWhereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
+                });
         }
         return $query;
     }
@@ -99,11 +124,16 @@ class Cdr extends BaseModel
         return 'http://' . \Config::get( 'asterisk.ip' ) . '/mp3/' . $this->uniqueid . '.mp3';
     }
 
+    public function getContext ()
+    {
+        return mb_substr( $this->dcontext, 0, 8 );
+    }
+
     public function getOperator ()
     {
         if ( $this->_operator == '-1' )
         {
-            switch ( $this->dcontext )
+            switch ( $this->getContext() )
             {
                 case 'incoming':
                     $queueLog = $this->queueLogs()->completed()->orderBy( 'time', 'desc' )->first();
@@ -136,7 +166,7 @@ class Cdr extends BaseModel
     public function getCaller ()
     {
         $res = mb_substr( $this->src, -11 );
-        if ( $this->dcontext == 'outgoing' && mb_strlen( $this->src ) == 2 )
+        if ( $this->getContext() == 'outgoing' && mb_strlen( $this->src ) <= 3 )
         {
             $caller = $this->getOperator();
             if ( $caller )
@@ -150,7 +180,7 @@ class Cdr extends BaseModel
     public function getAnswer ()
     {
         $res = null;
-        if ( $this->dcontext == 'incoming' )
+        if ( $this->getContext() == 'incoming' )
         {
             $queueLog = $this->queueLogs()->completed()->orderBy( 'time', 'desc' )->first();
             if ( $queueLog && $queueLog->operator() )

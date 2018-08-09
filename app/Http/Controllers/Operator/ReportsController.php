@@ -495,14 +495,14 @@ class ReportsController extends BaseController
             {
                 continue;
             }
-            if ( $r->dcontext == 'incoming' )
+            if ( $r->getContext() == 'incoming' )
             {
                 $data[ $date ][ 'incoming' ][ 'calls' ] ++;
                 $data[ $date ][ 'incoming' ][ 'duration' ] += $r->duration;
                 $totals[ 'incoming' ][ 'calls' ] ++;
                 $totals[ 'incoming' ][ 'duration' ] += $r->duration;
             }
-            else if ( $r->dcontext == 'outgoing' )
+            else if ( $r->getContext() == 'outgoing' )
             {
                 $data[ $date ][ 'outgoing' ][ 'calls' ] ++;
                 $data[ $date ][ 'outgoing' ][ 'duration' ] += $r->duration;

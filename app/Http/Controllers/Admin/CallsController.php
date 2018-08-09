@@ -26,33 +26,10 @@ class CallsController extends BaseController
         $operator_id = $request->get( 'operator_id', null );
 
         $calls = Cdr
-            ::orderBy( 'id', 'desc' )
-            ->where( 'dst', '!=', 's' )
-            ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] )
-            ->select(
-                '*',
-                \DB::raw( 'REPLACE( src, \'79295070506\', \'88005503115\' ) src' ),
-                \DB::raw( 'REPLACE( dst, \'79295070506\', \'88005503115\' ) dst' )
-            );
-
-        $providers = Provider
             ::mine()
-            ->orderBy( 'name' )
-            ->get();
-
-        if ( ! \Auth::user()->admin )
-        {
-            $providerPhones = [];
-            foreach ( $providers as $provider )
-            {
-                foreach ( $provider->phones as $providerPhone )
-                {
-                    $providerPhones[] = $providerPhone->phone;
-                }
-            }
-            $calls
-                ->whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
-        }
+            ->orderBy( 'id', 'desc' )
+            ->where( 'dst', '!=', 's' )
+            ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] );
 
         if ( $operator_id )
         {
@@ -103,16 +80,13 @@ class CallsController extends BaseController
         switch ( $request->get( 'context' ) )
         {
             case 'incoming':
-                $calls
-                    ->incoming();
-                break;
             case 'outgoing':
                 $calls
-                    ->outgoing();
+                    ->contexts( $request->get( 'context' ) );
                 break;
             default:
                 $calls
-                    ->whereIn( 'dcontext', [ 'incoming', 'outgoing' ] );
+                    ->contexts( 'incoming', 'outgoing' );
                 break;
         }
 
@@ -120,14 +94,14 @@ class CallsController extends BaseController
         {
             $caller = mb_substr( preg_replace( '/\D/', '', $request->get( 'caller' ) ), - 10 );
             $calls
-                ->where( \DB::raw( 'RIGHT( REPLACE( src, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $caller );
+                ->where( \DB::raw( 'RIGHT( src, 10 )' ), '=', $caller );
         }
 
         if ( ! empty( $request->get( 'answer' ) ) )
         {
             $answer = mb_substr( preg_replace( '/\D/', '', $request->get( 'answer' ) ), - 10 );
             $calls
-                ->where( \DB::raw( 'RIGHT( REPLACE( dst, \'79295070506\', \'88005503115\' ), 10 )' ), '=', $answer );
+                ->where( \DB::raw( 'RIGHT( dst, 10 )' ), '=', $answer );
         }
 
         $calls = $calls
