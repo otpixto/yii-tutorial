@@ -351,6 +351,7 @@
                             if ( ! response ) return;
                             var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
                             var actual_building_id = $( '#actual_building_id' ).val();
+                            var building_id = $( '#building_id' ).val();
                             var actual_flat = $( '#actual_flat' ).val();
                             if ( ! phone && response.phone )
                             {
@@ -368,6 +369,24 @@
                             if ( ! actual_building_id && response.actual_building_id )
                             {
                                 $( '#actual_building_id' )
+                                    .append(
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
+                                    )
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! building_id && response.actual_building_id )
+                            {
+                                $( '#building_id' )
                                     .append(
                                         $( '<option>' )
                                             .val( response.actual_building_id )
@@ -416,6 +435,7 @@
                     var lastname = $.trim( $( '#lastname' ).val() );
                     var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
                     var actual_building_id = $( '#actual_building_id' ).val();
+                    var building_id = $( '#building_id' ).val();
                     var actual_flat = $( '#actual_flat' ).val();
                     if ( ! firstname || ! middlename || ! lastname || ! actual_building_id || ! actual_flat )
                     {
@@ -467,6 +487,24 @@
                             if ( ! actual_building_id && response.actual_building_id )
                             {
                                 $( '#actual_building_id' )
+                                    .append(
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
+                                    )
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
+                                    .pulsate({
+                                        repeat: 3,
+                                        speed: 500,
+                                        color: '#F1C40F',
+                                        glow: true,
+                                        reach: 15
+                                    });
+                            }
+                            if ( ! building_id && response.actual_building_id )
+                            {
+                                $( '#building_id' )
                                     .append(
                                         $( '<option>' )
                                             .val( response.actual_building_id )

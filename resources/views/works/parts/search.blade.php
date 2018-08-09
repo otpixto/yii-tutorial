@@ -5,7 +5,7 @@
         Номер сообщения
     </h4>
     <div class="col-md-4">
-        {!! Form::text( 'id', \Input::get( 'id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
+        {!! Form::text( 'id', '', [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
@@ -13,7 +13,7 @@
         Адрес работ
     </h4>
     <div class="col-md-10">
-        {!! Form::select( 'building_id', $building, \Input::get( 'building_id' ), [ 'id' => 'building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
+        {!! Form::select( 'building_id', [], '', [ 'id' => 'building_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
@@ -21,14 +21,7 @@
         Сегмент
     </h4>
     <div class="col-md-10">
-        <span id="segment" class="form-control text-muted">
-            @if ( $segment )
-                {{ $segment->name }}
-            @else
-                Нажмите, чтобы выбрать
-            @endif
-        </span>
-        {!! Form::hidden( 'segment_id', \Input::get( 'segment_id' ), [ 'id' => 'segment_id' ] ) !!}
+        <div id="segment_id" data-name="segments[]"></div>
     </div>
 </div>
 <div class="row margin-top-10">
@@ -56,7 +49,7 @@
             Поставщик
         </h4>
         <div class="col-md-10">
-            {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), \Input::get( 'provider_id' ), [ 'class' => 'form-control select2' ] ) !!}
+            {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), '', [ 'class' => 'form-control select2' ] ) !!}
         </div>
     </div>
 @endif
@@ -66,9 +59,9 @@
     </h4>
     <div class="col-md-4">
         <div class="input-group">
-            {!! Form::text( 'begin_from', \Input::get( 'begin_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            {!! Form::text( 'begin_from', '', [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
             <span class="input-group-addon">-</span>
-            {!! Form::text( 'begin_to', \Input::get( 'begin_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            {!! Form::text( 'begin_to', '', [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
         </div>
     </div>
 </div>
@@ -78,9 +71,9 @@
     </h4>
     <div class="col-md-4">
         <div class="input-group">
-            {!! Form::text( 'end_from', \Input::get( 'end_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            {!! Form::text( 'end_from', '', [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
             <span class="input-group-addon">-</span>
-            {!! Form::text( 'end_to', \Input::get( 'end_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            {!! Form::text( 'end_to', '', [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
         </div>
     </div>
 </div>
@@ -89,7 +82,7 @@
         Классификатор
     </h4>
     <div class="col-md-10">
-        {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+        {!! Form::select( 'category_id', [ null => ' -- все -- ' ] + $categories->toArray(), '', [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
@@ -97,7 +90,7 @@
         Основание
     </h4>
     <div class="col-md-10">
-        {!! Form::text( 'reason', \Input::get( 'reason' ), [ 'class' => 'form-control' ] ) !!}
+        {!! Form::text( 'reason', '', [ 'class' => 'form-control' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
@@ -105,7 +98,7 @@
         Состав работ
     </h4>
     <div class="col-md-10">
-        {!! Form::text( 'composition', \Input::get( 'composition' ), [ 'class' => 'form-control' ] ) !!}
+        {!! Form::text( 'composition', '', [ 'class' => 'form-control' ] ) !!}
     </div>
 </div>
 <hr />

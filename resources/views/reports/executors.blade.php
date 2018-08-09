@@ -147,6 +147,32 @@
                             {{ $ticketManagement->rate }}
                         </td>
                     </tr>
+                    <tr data-ticket-comments="{{ $ticketManagement->ticket->id }}">
+                        <td colspan="8">
+                            @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+                                <div class="note note-warning">
+                                    <span class="small text-muted">Комментарий к отложенной заявке:</span>
+                                    {{ $ticketManagement->ticket->postponed_comment }}
+                                </div>
+                            @endif
+                            @if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
+                                <div class="note note-danger">
+                                    <span class="small text-muted">Комментарий к оценке:</span>
+                                    {{ $ticketManagement->rate_comment }}
+                                </div>
+                            @endif
+                            @if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->ticket->comments->count() )
+                                <div class="text-center hidden-print">
+                                    <a class="text-primary small bold" data-toggle="#tickets-comments-{{ $ticketManagement->id }}">
+                                        Показать \ скрыть комментарии ({{ $ticketManagement->ticket->comments->count() }})
+                                    </a>
+                                </div>
+                                <div class="note note-info hidden" id="tickets-comments-{{ $ticketManagement->id }}">
+                                    @include( 'parts.comments', [ 'origin' => $ticketManagement->ticket, 'comments' => $ticketManagement->ticket->comments ] )
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
                 @endforeach
                 </tbody>
             </table>
@@ -173,6 +199,9 @@
                 font-weight: bold;
                 margin: 10px 0;
             }
+        }
+        .note {
+            margin: 5px 0;
         }
     </style>
 @endsection

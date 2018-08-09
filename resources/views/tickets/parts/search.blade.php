@@ -36,7 +36,7 @@
         Сегмент
     </h4>
     <div class="col-md-10">
-        {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
+        <div id="segment_id" data-name="segments[]"></div>
     </div>
 </div>
 <div class="row">

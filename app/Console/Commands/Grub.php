@@ -645,7 +645,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
         $per_page = 100;
-        $max_pages = 50;
+        $max_pages = 100;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -800,7 +800,7 @@ class Grub extends Command
         $page = 0;
         $pages = null;
 		$per_page = 100;
-        $max_pages = 50;
+        $max_pages = 100;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();

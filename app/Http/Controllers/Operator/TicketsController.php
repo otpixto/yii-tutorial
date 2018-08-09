@@ -254,18 +254,38 @@ class TicketsController extends BaseController
                                 ->where( Ticket::$_table . '.building_id', '=', $request->get( 'building_id' ) );
                         }
 
-                        if ( $request->get( 'segment_id' ) )
+                        if ( ! empty( $request->get( 'segments' ) ) )
                         {
-                            $segment = Segment::find( $request->get( 'segment_id' ) );
-                            if ( $segment )
+                            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                            if ( $segments->count() )
                             {
-                                $segmentChilds = new SegmentChilds( $segment );
-                                $segmentChildsIds = $segmentChilds->ids;
                                 $ticket
-                                    ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                                    ->where( function ( $q ) use ( $segments )
                                     {
-                                        return $building
-                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                        $i = 0;
+                                        foreach ( $segments as $segment )
+                                        {
+                                            $segmentChilds = new SegmentChilds( $segment );
+                                            $segmentChildsIds = $segmentChilds->ids;
+                                            if ( $i ++ == 0 )
+                                            {
+                                                $q
+                                                    ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                                                    {
+                                                        return $building
+                                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                                    });
+                                            }
+                                            else
+                                            {
+                                                $q
+                                                    ->orWhereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                                                    {
+                                                        return $building
+                                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                                    });
+                                            }
+                                        }
                                     });
                             }
                         }
@@ -1864,7 +1884,8 @@ class TicketsController extends BaseController
         $ticket = $ticketManagement->ticket;
 
         $managements = Management
-            ::mine()
+            ::mine( Management::IGNORE_MANAGEMENT )
+            ->where( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id )
             ->select(
                 Management::$_table . '.*'
             )

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Category;
@@ -152,16 +153,41 @@ class WorksController extends BaseController
                 $filters[] = 'Исполнитель: ' . Executor::find( $request->get( 'executor_id' ) )->name;
             }
 
-            if ( ! empty( $request->get( 'segment_id' ) ) )
+            if ( ! empty( $request->get( 'segments' ) ) )
             {
-                $segment = Segment::find( $request->get( 'segment_id' ) );
-                $works
-                    ->whereHas( 'buildings', function ( $buildings ) use ( $request )
-                    {
-                        return $buildings
-                            ->where( Building::$_table . '.segment_id', '=', $request->get( 'segment_id' ) );
-                    } );
-                $filters[] = 'Сегмент: ' . $segment->name;
+                $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                if ( $segments->count() )
+                {
+                    $filters[] = 'Сегменты: ' . $segments->implode( 'name', ', ' );
+                    $works
+                        ->where( function ( $q ) use ( $segments )
+                        {
+                            $i = 0;
+                            foreach ( $segments as $segment )
+                            {
+                                $segmentChilds = new SegmentChilds( $segment );
+                                $segmentChildsIds = $segmentChilds->ids;
+                                if ( $i ++ == 0 )
+                                {
+                                    $q
+                                        ->whereHas( 'buildings', function ( $buildings ) use ( $segmentChildsIds )
+                                        {
+                                            return $buildings
+                                                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                        });
+                                }
+                                else
+                                {
+                                    $q
+                                        ->orWhereHas( 'buildings', function ( $buildings ) use ( $segmentChildsIds )
+                                        {
+                                            return $buildings
+                                                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                        });
+                                }
+                            }
+                        });
+                }
             }
 
             if ( ! empty( $request->get( 'building_id' ) ) )
@@ -217,18 +243,29 @@ class WorksController extends BaseController
 
             if ( $request->get( 'export' ) == 'report' && \Auth::user()->can( 'works.export' ) )
             {
+                $categories = Category
+                    ::mine()
+                    ->where( 'works', '=', 1 )
+                    ->orderBy( 'sort' )
+                    ->get();
                 $works = $works
-                    ->whereHas( 'category', function ( $category )
-                    {
-                        return $category
-                            ->where( 'works', '=', 1 );
-                    })
+                    ->whereIn( Work::$_table . '.category_id', $categories->pluck( 'id' ) )
                     ->get();
                 $data = [];
                 $totals = [
                     'buildings' => 0,
                     'flats'     => 0
                 ];
+                foreach ( $categories as $category )
+                {
+                    $data[ $category->id ] = [
+                        'list' => [],
+                        'totals' => [
+                            'buildings' => 0,
+                            'flats'     => 0
+                        ]
+                    ];
+                }
                 foreach ( $works as $work )
                 {
                     $count_flats = 0;
@@ -238,40 +275,11 @@ class WorksController extends BaseController
                         $count_flats += $building->room_living_count;
                         $count_buildings ++;
                     }
-                    if ( ! isset( $data[ $work->category_id ] ) )
-                    {
-                        /*if ( $work->is_plan )
-                        {
-                            $period = $work->category->period_execution_plan;
-                        }
-                        else
-                        {
-                            $period = $work->category->period_execution;
-                        }
-                        if ( $period > 24 )
-                        {
-                            $period = ceil($period / 24 ) . ' д.';
-                        }
-                        else
-                        {
-                            $period = $period . ' ч.';
-                        }*/
-                        $data[ $work->category_id ] = [
-                            'title' => $work->category->name,
-                            'color' => $work->category->color,
-                            //'period' => $period,
-                            'works' => [],
-                            'totals' => [
-                                'buildings' => 0,
-                                'flats'     => 0
-                            ]
-                        ];
-                    }
                     $data[ $work->category_id ][ 'totals' ][ 'buildings' ] += $count_buildings;
                     $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
                     $totals[ 'flats' ] += $count_flats;
                     $totals[ 'buildings' ] += $count_buildings;
-                    $data[ $work->category_id ][ 'works' ][ $work->id ] = [
+                    $data[ $work->category_id ][ 'list' ][ $work->id ] = [
                         'addresses' => [],
                         'count_flats' => $count_flats,
                         'count_buildings' => $count_buildings,
@@ -284,7 +292,7 @@ class WorksController extends BaseController
                     ];
                     foreach ( $work->getAddressesGroupBySegment() as $segment )
                     {
-                        $data[ $work->category_id ][ 'works' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
+                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
                     }
                 }
 				
@@ -293,12 +301,13 @@ class WorksController extends BaseController
 				]);
 				$log->save();
 				
-                \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $data, $totals, $filters )
+                \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $categories, $data, $totals, $filters )
                 {
-                    $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $data, $totals, $filters )
+                    $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $categories, $data, $totals, $filters )
                     {
                         $sheet
                             ->loadView( 'works.report' )
+                            ->with( 'categories', $categories )
                             ->with( 'data', $data )
                             ->with( 'totals', $totals )
                             ->with( 'filters', $filters );
@@ -368,23 +377,11 @@ class WorksController extends BaseController
             ->orderBy( Category::$_table . '.name' )
             ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
-        if ( ! empty( $request->get( 'segment_id' ) ) )
-        {
-            $segment = Segment::find( $request->get( 'segment_id' ) );
-        }
-
-        if ( ! empty( $request->get( 'building_id' ) ) )
-        {
-            $building = Building::where( 'id', $request->get( 'building_id' ) )->pluck( 'name', 'id' );
-        }
-
         return view( 'works.parts.search' )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'managements', $managements )
             ->with( 'providers', $providers )
-            ->with( 'categories', $categories )
-            ->with( 'building', $building ?? [] )
-            ->with( 'segment', $segment ?? [] );
+            ->with( 'categories', $categories );
 
     }
 

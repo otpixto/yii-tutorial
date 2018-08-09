@@ -27,35 +27,105 @@ $.fn.selectSegment = function ()
         {
             elements.each( function ()
             {
-                var obj = $( this );
-                var value = $( '<input type="hidden">' ).attr( 'name', obj.attr( 'name' ) ).insertAfter( obj );
-                obj.removeAttr( 'name' ).attr( 'readonly', 'readonly' );
-                obj.on( 'click focus', function ()
+
+                var obj = $( this ).empty();
+                var name = obj.attr( 'data-name' );
+                var placeholder = obj.attr( 'data-placeholder' );
+
+                var inputGroup = $( '<div class="input-group"></div>' ).appendTo( obj );
+
+                var select = $( '<select>' )
+                    .attr( 'name', name )
+                    .attr( 'data-ajax--url', '/catalog/segments/search' )
+                    .addClass( 'form-control' )
+                    .appendTo( inputGroup );
+
+                if ( /\[|\]/.test( name ) )
                 {
-                    Modal.create( 'segment-modal', function ()
+                    select.attr( 'multiple', 'multiple' );
+                    if ( ! placeholder )
                     {
-                        Modal.setTitle( 'Выберите сегмент', 'segment-modal' );
-                        $.get( '/catalog/segments/tree', function ( response )
+                        placeholder = 'Выберите сегменты';
+                    }
+                }
+                else if ( ! placeholder )
+                {
+                    placeholder = 'Выберите сегмент';
+                }
+
+                select
+                    .attr( 'placeholder', placeholder )
+                    .attr( 'data-placeholder', placeholder );
+
+                var button = $( '<button type="button" class="btn btn-default"><i class="fa fa-plus"></i></button>' )
+                    .on( 'click', function ()
+                    {
+                        Modal.create( 'segment-modal', function ()
                         {
-                            var tree = $( '<div></div>' );
-                            Modal.setBody( tree, 'segment-modal' );
-                            tree.treeview({
-                                data: response,
-                                onNodeSelected: function ( event, node )
-                                {
-                                    value.val( node.id );
-                                    obj.val( node.text ).removeClass( 'text-muted' );
-                                    Modal.hide( 'segment-modal' );
-                                },
-                                onNodeUnselected: function ( event, node )
-                                {
-                                    value.val( '' );
-                                    obj.val( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                                }
+                            Modal.setTitle( 'Выберите сегмент', 'segment-modal' );
+                            $.get( '/catalog/segments/tree', function ( response )
+                            {
+                                var tree = $( '<div></div>' );
+                                Modal.setBody( tree, 'segment-modal' );
+                                tree.treeview({
+                                    data: response,
+                                    onNodeSelected: function ( event, node )
+                                    {
+                                        if ( select.find( 'option[value="' + node.id + '"]' ).length )
+                                        {
+                                            var values = select.select2( 'val' );
+                                            if ( values.indexOf( node.id ) == -1 )
+                                            {
+                                                values.push( node.id );
+                                            }
+                                            select.val( values ).trigger( 'change' );
+                                        }
+                                        else
+                                        {
+                                            var newOption = new Option( node.text, node.id, true, true );
+                                            select.append( newOption ).trigger( 'change' );
+                                        }
+                                        Modal.hide( 'segment-modal' );
+                                    }
+                                });
                             });
                         });
+                    })
+                    .appendTo( inputGroup )
+                    .wrap( '<span class="input-group-btn"></span>' );
+
+                select
+                    .select2({
+                        minimumInputLength: 3,
+                        minimumResultsForSearch: 30,
+                        ajax: {
+                            cache: true,
+                            type: 'post',
+                            delay: 450,
+                            data: function ( term )
+                            {
+                                var data = {
+                                    q: term.term,
+                                    provider_id: $( '#provider_id' ).val()
+                                };
+                                var _data = $( this ).closest( 'form' ).serializeArray();
+                                for( var i = 0; i < _data.length; i ++ )
+                                {
+                                    if ( _data[ i ].name != '_method' )
+                                    {
+                                        data[ _data[ i ].name ] = _data[ i ].value;
+                                    }
+                                }
+                                return data;
+                            },
+                            processResults: function ( data, page )
+                            {
+                                return {
+                                    results: data
+                                };
+                            }
+                        }
                     });
-                });
             });
         });
 };

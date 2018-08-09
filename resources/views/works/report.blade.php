@@ -62,83 +62,91 @@
     @php
         $last_category_id = null;
     @endphp
-    @foreach ( $data as $category_id => $row )
-        <tr style="background-color: {{ $row[ 'color' ] }};">
+    @foreach ( $categories as $category )
+        <tr style="background-color: {{ $category->color }};">
             <th>
-                Итого по {{ $row[ 'title' ] }}
+                Итого по {{ $category->name }}
             </th>
             <th class="text-center">
-                {{ $row[ 'totals' ][ 'buildings' ] }}
+                {{ $data[ $category->id ][ 'totals' ][ 'buildings' ] }}
             </th>
             <th class="text-center">
-                {{ $row[ 'totals' ][ 'flats' ] }}
+                {{ $data[ $category->id ][ 'totals' ][ 'flats' ] }}
             </th>
             <th colspan="9">
                 &nbsp;
             </th>
         </tr>
-        @foreach ( $row[ 'works' ] as $work )
-            <tr style="background-color: {{ $row[ 'color' ] }};">
-                @if ( $category_id != $last_category_id )
-                    <td rowspan="{{ count( $row[ 'works' ] ) }}">
-                        {{ $row[ 'title' ] }}
+        @if ( count( $data[ $category->id ][ 'list' ] ) )
+            @foreach ( $data[ $category->id ][ 'list' ] as $work )
+                <tr style="background-color: {{ $category->color }};">
+                    @if ( $category->id != $last_category_id )
+                        <td rowspan="{{ count( $data[ $category->id ][ 'list' ] ) }}">
+                            {{ $category->name }}
+                        </td>
+                        @php
+                            $last_category_id = $category->id;
+                        @endphp
+                    @else
+                        <td>
+                            &nbsp;
+                        </td>
+                    @endif
+                    <td class="text-center">
+                        {{ $work[ 'count_buildings' ] ?? 0 }}
                     </td>
-                    @php
-                        $last_category_id = $category_id;
-                    @endphp
-                @else
+                    <td class="text-center">
+                        {{ $work[ 'count_flats' ] ?? 0 }}
+                    </td>
+                    <td>
+                        @foreach ( $work[ 'addresses' ] as $address )
+                            <div>
+                                {{ $address }}
+                            </div>
+                        @endforeach
+                    </td>
                     <td>
                         &nbsp;
                     </td>
-                @endif
-                <td class="text-center">
-                    {{ $work[ 'count_buildings' ] ?? 0 }}
-                </td>
-                <td class="text-center">
-                    {{ $work[ 'count_flats' ] ?? 0 }}
-                </td>
-                <td>
-                    @foreach ( $work[ 'addresses' ] as $address )
-                        <div>
-                            {{ $address }}
-                        </div>
-                    @endforeach
-                </td>
-                <td>
-                    &nbsp;
-                </td>
-                <td>
-                    {{ $work[ 'time_begin' ]->format( 'd.m.Y H:i' ) }}
-                </td>
-                <td class="text-center">
-                    &nbsp;
-                </td>
-                <td>
-                    {{ $work[ 'time_end' ]->format( 'd.m.Y H:i' ) }}
-                </td>
-                <td>
-                    {{ $work[ 'composition' ] }}
-                </td>
-                <td>
-                    {{ $work[ 'management' ] }}
-                </td>
-                <td>
-                    @if ( $work[ 'executor_name' ] )
-                        {{ $work[ 'executor_name' ] }}
-                        @if ( $work[ 'executor_phone' ] )
-                            <div>
-                                Тел. {{ $work[ 'executor_phone' ] }}
-                            </div>
+                    <td>
+                        {{ $work[ 'time_begin' ]->format( 'd.m.Y H:i' ) }}
+                    </td>
+                    <td class="text-center">
+                        &nbsp;
+                    </td>
+                    <td>
+                        {{ $work[ 'time_end' ]->format( 'd.m.Y H:i' ) }}
+                    </td>
+                    <td>
+                        {{ $work[ 'composition' ] }}
+                    </td>
+                    <td>
+                        {{ $work[ 'management' ] }}
+                    </td>
+                    <td>
+                        @if ( $work[ 'executor_name' ] )
+                            {{ $work[ 'executor_name' ] }}
+                            @if ( $work[ 'executor_phone' ] )
+                                <div>
+                                    Тел. {{ $work[ 'executor_phone' ] }}
+                                </div>
+                            @endif
+                        @else
+                            -
                         @endif
-                    @else
-                        -
-                    @endif
-                </td>
-                <td>
-                    &nbsp;
+                    </td>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+            @endforeach
+        @else
+            <tr style="background-color: {{ $category->color }};">
+                <td colspan="12">
+                    Отключения отсутствуют
                 </td>
             </tr>
-        @endforeach
+        @endif
     @endforeach
     </tbody>
     <tfoot>

@@ -96,7 +96,6 @@
 @section( 'js' )
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-treeview.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         function loadWorks ( url )
@@ -216,38 +215,11 @@
                             selectAllValue: ''
                         });
 
+                        $( '#segment_id' ).selectSegment();
+
                     });
+
                 }
-            })
-
-            .on( 'click', '#segment', function ( e )
-            {
-
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
-                {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
-                    {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
-                    });
-                });
-
             });
 
     </script>

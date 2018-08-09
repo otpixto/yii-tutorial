@@ -11,7 +11,7 @@
 <!-- END GLOBAL MANDATORY STYLES -->
 <!-- BEGIN THEME GLOBAL STYLES -->
 <link href="/assets/global/css/components-rounded.min.css" rel="stylesheet" id="style_components" type="text/css" />
-<link href="/assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/global/css/plugins.min.css?v2" rel="stylesheet" type="text/css" />
 <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->

@@ -71,29 +71,35 @@ class SegmentsController extends BaseController
         $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
         $type_id = $request->get( 'type_id' );
 
-        $segments = Segment
+        $res = Segment
             ::mine()
-            ->select(
-                'id',
-                'name AS text'
-            )
             ->where( 'name', 'like', $s )
             ->orderBy( 'name' );
 
         if ( ! empty( $provider_id ) )
         {
-            $segments
+            $res
                 ->where( 'provider_id', '=', $provider_id );
         }
 
         if ( ! empty( $type_id ) )
         {
-            $segments
+            $res
                 ->where( 'type_id', '=', $type_id );
         }
 
-        $segments = $segments
+        $res = $res
             ->get();
+
+        $segments = [];
+        foreach ( $res as $r )
+        {
+            $segments[] = [
+                'id' => $r->id,
+                'value' => $r->name,
+                'text' => $r->getName()
+            ];
+        }
 
         return $segments;
 

@@ -406,8 +406,8 @@ class CustomersController extends BaseController
                     ->name( $firstname, $middlename, $lastname )
                     ->select(
                         'phone',
-                        'customer_building',
-                        'customer_flat'
+                        'actual_building_id',
+                        'actual_flat'
                     );
                 if ( $provider_id )
                 {

@@ -43,22 +43,23 @@ class Ticket extends BaseModel
 
     public static $statuses = [
         'draft'					            => 'Черновик',
-        'created'                           => 'Принято оператором ЕДС',
-        'from_lk'                           => 'Поступило из ЛК',
-        'transferred'                       => 'Передано в УО',
-        'transferred_again'                 => 'Передано в УО повторно',
-        'accepted'                          => 'Принято к исполнению',
+        'created'                           => 'Нераспределенная',
+        'from_lk'                           => 'Из ЛК клиента',
+        'transferred'                       => 'Ожидает принятия Ответственным',
+        'transferred_again'                 => 'Требует доработки',
+        'accepted'                          => 'Не назначен исполнитель',
         'assigned'                          => 'Назначен исполнитель',
         'completed_with_act'		        => 'Выполнено с актом',
         'completed_without_act'		        => 'Выполнено без акта',
-        'closed_with_confirm'		        => 'Закрыто с подтверждением',
-        'closed_without_confirm'	        => 'Закрыто без подтверждения',
+        'closed_with_confirm'		        => 'Закрыта с подтверждением',
+        'closed_without_confirm'	        => 'Закрыта без подтверждения',
         'not_verified'                      => 'Проблема не потверждена',
         'waiting'	                        => 'Отложено',
-        'cancel'				            => 'Отмена',
-        'rejected'                          => 'Отклонено',
+        'cancel'				            => 'Отменена',
+        'rejected'                          => 'Отклонена управляющим',
         'no_contract'                       => 'Отказ (нет договора с УО)',
         'in_process'                        => 'В работе',
+        'archive'                           => 'Архив',
     ];
 
     public static $not_notify = [

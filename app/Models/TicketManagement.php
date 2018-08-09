@@ -42,19 +42,16 @@ class TicketManagement extends BaseModel
             'accepted',
             'rejected',
             'waiting',
-            'in_process',
         ],
         'transferred_again' => [
             'accepted',
             'rejected',
             'waiting',
-            'in_process',
         ],
         'accepted' => [
             'waiting',
             'assigned',
             'waiting',
-            'in_process',
         ],
         'assigned' => [
             'completed_with_act',
@@ -70,16 +67,19 @@ class TicketManagement extends BaseModel
             'closed_with_confirm',
             'closed_without_confirm',
             'transferred_again',
+            'in_process',
         ],
         'completed_without_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
             'transferred_again',
+            'in_process',
         ],
         'not_verified' => [
             'closed_with_confirm',
             'closed_without_confirm',
             'transferred_again',
+            'in_process',
         ],
     ];
 
