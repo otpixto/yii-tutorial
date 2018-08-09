@@ -132,7 +132,7 @@
                                     </td>
                                     <td>
                                         @if ( $call->hasMp3() )
-                                            <a href="{{ $call->getMp3() }}" target="_blank">
+                                            <a href="{{ $call->getMp3() }}" target="_blank" class="tooltips" title="Прослушать звонок">
                                                 {{ $call->getMp3() }}
                                             </a>
                                         @else
@@ -147,13 +147,13 @@
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    @if ( $call->dcontext == 'incoming' && $call->ticket )
-                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
-                                            <i class="fa fa-chevron-right"></i>
+                                    @if ( $call->getContext() == 'incoming' && $call->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
+                                            #{{ $call->ticket->id }}
                                         </a>
-                                    @elseif ( $call->dcontext == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket )
-                                        <a href="{{ route( 'tickets.show', $call->ticketCall->ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $call->ticketCall->ticket->id }}">
-                                            <i class="fa fa-chevron-right"></i>
+                                    @elseif ( $call->getContext() == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticketCall->ticket->id ) }}" class="tooltips" title="Открыть заявку #{{ $call->ticketCall->ticket->id }}">
+                                            #{{ $call->ticketCall->ticket->id }}
                                         </a>
                                     @endif
                                 </td>
