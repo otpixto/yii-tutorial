@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Asterisk\Cdr;
+use App\Models\Log;
 use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
