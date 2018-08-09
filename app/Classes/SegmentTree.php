@@ -11,7 +11,7 @@ class SegmentTree extends Segments
 
     public function __construct ()
     {
-        if ( ! \Cache::tags( $this->cache_tags )->has( 'segments.tree' ) )
+        if ( ! \Cache::tags( self::$cache_tags )->has( 'segments.tree' ) )
         {
             $parentSegments = Segment
                 ::mine()
@@ -29,11 +29,11 @@ class SegmentTree extends Segments
                 }
                 $this->tree[] = $item;
             }
-            \Cache::tags( $this->cache_tags )->put( 'segments.tree', $this->tree, $this->cache_life );
+            \Cache::tags( self::$cache_tags )->put( 'segments.tree', $this->tree, self::$cache_life );
         }
         else
         {
-            $this->tree = \Cache::tags( $this->cache_tags )->get( 'segments.tree' );
+            $this->tree = \Cache::tags( self::$cache_tags )->get( 'segments.tree' );
         }
         return $this;
     }
@@ -63,10 +63,15 @@ class SegmentTree extends Segments
 
     private function getItem ( Segment $segment )
     {
+        $name = $segment->type->name . ' ' . $segment->name;
+        if ( $segment->parent )
+        {
+            $name = $segment->parent->name . ' ' . $name;
+        }
         return [
             'id'        => $segment->id,
-            'text'      => $segment->name,
-            'type'      => $segment->type->name,
+            'text'      => '<span class="small text-muted">' . $segment->type->name . '</span> ' . $segment->name,
+            'name'      => $name
         ];
     }
 

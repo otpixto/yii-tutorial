@@ -165,6 +165,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         {
 
             Route::get( 'segments/tree', 'Catalog\SegmentsController@tree' )->name( 'segments.tree' );
+            Route::get( 'segments/clear-cache', 'Catalog\SegmentsController@clearCache' )->name( 'segments.clear.cache' );
 
             Route::resource( 'managements', 'Catalog\ManagementsController' );
             Route::resource( 'executors', 'Catalog\ExecutorsController' );

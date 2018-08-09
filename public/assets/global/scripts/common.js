@@ -82,7 +82,7 @@ $.fn.selectSegment = function ()
                                         }
                                         else
                                         {
-                                            var newOption = new Option( node.text, node.id, true, true );
+                                            var newOption = new Option( node.name, node.id, true, true );
                                             select.append( newOption ).trigger( 'change' );
                                         }
                                         Modal.hide( 'segment-modal' );

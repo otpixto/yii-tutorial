@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.edit' ) )
+    @if ( \Auth::user()->admin )
 
         {!! Form::model( $perm, [ 'method' => 'put', 'route' => [ 'perms.update', $perm->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 

@@ -37,7 +37,7 @@
                         {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.segments.add', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
                             <div class="col-md-12">
-                                {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
+                                <div id="segment_id" data-name="segments[]"></div>
                             </div>
                         </div>
                         <div class="form-group">

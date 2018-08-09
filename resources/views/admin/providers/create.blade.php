@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.providers.create' ) )
+    @if ( \Auth::user()->admin )
 
         {!! Form::open( [ 'url' => route( 'providers.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 

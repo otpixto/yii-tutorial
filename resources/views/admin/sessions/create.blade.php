@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.sessions.create' ) )
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.create' ) )
 
         {!! Form::open( [ 'url' => route( 'sessions.store' ) ] ) !!}
 		

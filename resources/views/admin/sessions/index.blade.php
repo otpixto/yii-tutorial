@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.sessions.show' ) )
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
 		
 		<div class="portlet">
 			<div class="portlet-title">

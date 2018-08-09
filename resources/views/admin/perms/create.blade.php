@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.perms.create' ) )
+    @if ( \Auth::user()->admin )
 
         {!! Form::open( [ 'url' => route( 'perms.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 

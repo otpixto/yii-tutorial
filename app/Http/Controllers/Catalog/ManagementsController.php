@@ -611,8 +611,8 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'segment_id'             => 'required|integer',
-            'type_id'             	 => 'nullable|integer',
+            'segments'                  => 'required|array',
+            'type_id'             	    => 'nullable|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -625,25 +625,32 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $segment = Segment::find( $request->get( 'segment_id' ) );
-        if ( $segment )
+        if ( ! empty( $request->get( 'segments' ) ) )
         {
-            $segmentChilds = new SegmentChilds( $segment );
-            $segmentChildsIds = $segmentChilds->ids;
-            $buildings = Building
-                ::mine()
-                ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-			if ( ! empty( $request->get( 'type_id' ) ) )
-			{
-				$buildings
-					->where( Building::$_table . '.building_type_id', '=', $request->get( 'type_id' ) );
-			}
-            $buildings = $buildings->get();
-            foreach ( $buildings as $building )
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            if ( $segments->count() )
             {
-                if ( ! $management->buildings->contains( $building->id ) )
+                $segmentsIds = [];
+                foreach ( $segments as $segment )
                 {
-                    $management->buildings()->attach( $building->id );
+                    $segmentChilds = new SegmentChilds( $segment );
+                    $segmentsIds += $segmentChilds->ids;
+                }
+                $buildings = Building
+                    ::mine()
+                    ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
+                if ( ! empty( $request->get( 'type_id' ) ) )
+                {
+                    $buildings
+                        ->where( Building::$_table . '.building_type_id', '=', $request->get( 'type_id' ) );
+                }
+                $buildings = $buildings->get();
+                foreach ( $buildings as $building )
+                {
+                    if ( ! $management->buildings->contains( $building->id ) )
+                    {
+                        $management->buildings()->attach( $building->id );
+                    }
                 }
             }
         }

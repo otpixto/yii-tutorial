@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.providers.edit' ) )
+    @if ( \Auth::user()->admin )
 
         <div class="row">
 
@@ -42,17 +42,23 @@
                                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                             <div class="col-xs-6 text-right">
-                                <a href="{{ route( 'providers.buildings', $provider->id ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ route( 'buildings.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
                                     Здания
-                                    <span class="badge">{{ $provider->buildings()->count() }}</span>
+                                    <span class="badge">
+                                        {{ $provider->buildings()->count() }}
+                                    </span>
                                 </a>
-                                <a href="{{ route( 'providers.managements', $provider->id ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ route( 'managements.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
                                     УО
-                                    <span class="badge">{{ $provider->managements()->count() }}</span>
+                                    <span class="badge">
+                                        {{ $provider->managements()->count() }}
+                                    </span>
                                 </a>
-                                <a href="{{ route( 'providers.types', $provider->id ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ route( 'types.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
                                     Классификатор
-                                    <span class="badge">{{ $provider->types()->count() }}</span>
+                                    <span class="badge">
+                                        {{ $provider->types()->count() }}
+                                    </span>
                                 </a>
                             </div>
                         </div>

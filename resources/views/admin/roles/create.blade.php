@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.create' ) )
+    @if ( \Auth::user()->admin )
 
         {!! Form::open( [ 'url' => route( 'roles.store' ), 'class' => 'form-horizontal submit-loading' ] ) !!}
 

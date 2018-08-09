@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.edit' ) )
+    @if ( \Auth::user()->admin )
 
         {!! Form::model( $role, [ 'method' => 'put', 'route' => [ 'roles.update', $role->id ], 'id' => 'role-edit-form', 'class' => 'form-horizontal submit-loading' ] ) !!}
 

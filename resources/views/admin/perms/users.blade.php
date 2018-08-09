@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.perms.edit' ) )
+    @if ( \Auth::user()->admin )
 
         <div class="well">
             <a href="{{ route( 'perms.edit', $perm->id ) }}">

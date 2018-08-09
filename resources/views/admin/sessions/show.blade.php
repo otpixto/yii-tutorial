@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.sessions.show' ) )
+    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
 
         <div class="row margin-top-15">
             <div class="col-xs-12">

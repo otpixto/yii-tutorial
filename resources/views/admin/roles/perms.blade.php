@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.roles.edit' ) )
+    @if ( \Auth::user()->admin )
 
         <div class="well">
             <a href="{{ route( 'roles.edit', $role->id ) }}">

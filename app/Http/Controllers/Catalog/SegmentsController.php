@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\Segments;
 use App\Classes\SegmentTree;
 use App\Classes\Title;
 use App\Models\Building;
@@ -109,6 +110,11 @@ class SegmentsController extends BaseController
     {
         $segmentTree = new SegmentTree();
         return $segmentTree->getTree();
+    }
+
+    protected function clearCache ()
+    {
+        Segments::clearCache();
     }
 
 }

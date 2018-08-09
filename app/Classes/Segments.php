@@ -5,12 +5,12 @@ namespace App\Classes;
 class Segments
 {
 
-    protected $cache_tags = 'segments';
-    protected $cache_life = 120;
+    protected static $cache_tags = 'segments';
+    protected static $cache_life = 120;
 
-    public function clearCache ()
+    public static function clearCache ()
     {
-        \Cache::tags( $this->cache_tags )->flush();
+        \Cache::tags( self::$cache_tags )->flush();
     }
 
 }

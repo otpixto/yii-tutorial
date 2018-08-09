@@ -11,15 +11,15 @@ class SegmentChilds extends Segments
 
     public function __construct ( Segment $segment = null )
     {
-        if ( ! \Cache::tags( $this->cache_tags )->has( 'segments.childs.' . $segment->id ) )
+        if ( ! \Cache::tags( self::$cache_tags )->has( 'segments.childs.' . $segment->id ) )
         {
             $this->ids[] = $segment->id;
             $this->getChildsIds( $segment );
-            \Cache::tags( $this->cache_tags )->put( 'segments.childs.' . $segment->id, $this->ids, $this->cache_life );
+            \Cache::tags( self::$cache_tags )->put( 'segments.childs.' . $segment->id, $this->ids, self::$cache_life );
         }
         else
         {
-            $this->ids = \Cache::tags( $this->cache_tags )->get( 'segments.childs.' . $segment->id );
+            $this->ids = \Cache::tags( self::$cache_tags )->get( 'segments.childs.' . $segment->id );
         }
         return $this;
     }
