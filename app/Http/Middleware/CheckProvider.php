@@ -20,7 +20,7 @@ class CheckProvider
         {
             if ( Provider::isOperatorUrl() )
             {
-                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->admin )
+                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->hasRole( 'operator' ) )
                 {
                     return redirect()->route( 'error.403' );
                 }
