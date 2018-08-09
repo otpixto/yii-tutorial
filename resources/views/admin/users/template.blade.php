@@ -50,7 +50,7 @@
                         </a>
                     @endif
                 </div>
-                @if ( ( \Auth::user()->admin || \Auth::user()->can( 'admin.loginas' ) ) && \Auth::user()->id != $user->id && ( $user->can( 'supervisor.all_providers' ) || $user->providers()->count() ) )
+                @if ( ( \Auth::user()->admin || \Auth::user()->can( 'admin.loginas' ) ) && \Auth::user()->id != $user->id && ! $user->admin && ( $user->can( 'supervisor.all_providers' ) || $user->providers()->count() ) )
                     <a href="{{ route( 'loginas', $user->id ) }}" class="btn btn-warning btn-block btn-lg margin-top-10">
                         <i class="fa fa-sign-in"></i>
                         Войти под этим пользователем
