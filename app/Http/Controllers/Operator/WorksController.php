@@ -317,16 +317,15 @@ class WorksController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
+            $log = Log::create([
+                'text' => 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')'
+            ]);
+            $log->save();
+
             return view( 'works.parts.list' )
                 ->with( 'works', $works );
 
         }
-
-
-        $log = Log::create([
-            'text' => 'Просмотрел список отключений'
-        ]);
-        $log->save();
 
         return view( 'works.index' )
             ->with( 'request', $request );

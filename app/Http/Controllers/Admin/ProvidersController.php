@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Building;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Type;
@@ -49,6 +50,11 @@ class ProvidersController extends BaseController
         $providers = $providers
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
+
+        $log = Log::create([
+            'text' => 'Просмотрел список провайдеров (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view('admin.providers.index' )
             ->with( 'providers', $providers );

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Category;
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -38,6 +39,11 @@ class CategoriesController extends BaseController
         $categories = $categories
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
+
+        $log = Log::create([
+            'text' => 'Просмотрел список категорий (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view( 'catalog.categories.index' )
             ->with( 'categories', $categories );

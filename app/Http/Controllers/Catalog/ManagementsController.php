@@ -7,6 +7,7 @@ use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingType;
 use App\Models\Executor;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
@@ -153,6 +154,11 @@ class ManagementsController extends BaseController
                 ->current()
                 ->orderBy( 'name' )
                 ->get();
+
+            $log = Log::create([
+                'text' => 'Просмотрел список УО (стр.' . $request->get( 'page', 1 ) . ')'
+            ]);
+            $log->save();
 
             return view( 'catalog.managements.parts.list' )
                 ->with( 'managements', $managements )

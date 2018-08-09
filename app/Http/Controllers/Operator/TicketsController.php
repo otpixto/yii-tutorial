@@ -461,15 +461,15 @@ class TicketsController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
+            $log = Log::create([
+                'text' => 'Просмотрел список заявок (стр.' . $request->get( 'page', 1 ) . ')'
+            ]);
+            $log->save();
+
             return view( 'tickets.parts.list' )
                 ->with( 'ticketManagements', $ticketManagements );
 
         }
-
-        $log = Log::create([
-            'text' => 'Просмотрел список заявок'
-        ]);
-        $log->save();
 
         return view( 'tickets.index' )
             ->with( 'request', $request );

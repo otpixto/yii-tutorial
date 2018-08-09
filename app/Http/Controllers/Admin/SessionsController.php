@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
+use App\Models\Log;
 use App\Models\PhoneSession;
 use App\Models\Provider;
 use App\User;
@@ -75,6 +76,11 @@ class SessionsController extends BaseController
         $activeSessions = PhoneSession
             ::whereNull( 'closed_at' )
             ->get();
+
+        $log = Log::create([
+            'text' => 'Просмотрел список сессий (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view('admin.sessions.index' )
             ->with( 'sessions', $sessions )

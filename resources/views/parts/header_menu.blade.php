@@ -278,7 +278,7 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs.show' ) )
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs' ) )
                          <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'logs.index' ) }}" class="nav-link">
                                 Системные логи

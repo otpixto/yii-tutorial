@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingType;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use Illuminate\Http\Request;
@@ -82,6 +83,11 @@ class BuildingsController extends BaseController
         $buildingTypes = BuildingType
             ::orderBy( 'name' )
             ->get();
+
+        $log = Log::create([
+            'text' => 'Просмотрел список зданий (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view( 'catalog.buildings.index' )
             ->with( 'buildings', $buildings )

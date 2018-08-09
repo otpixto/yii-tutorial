@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Category;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Type;
@@ -101,6 +102,11 @@ class TypesController extends BaseController
             ->current()
             ->orderBy( 'name' )
             ->get();
+
+        $log = Log::create([
+            'text' => 'Просмотрел классификатор (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view( 'catalog.types.index' )
             ->with( 'types', $types )

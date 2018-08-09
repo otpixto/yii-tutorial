@@ -132,6 +132,11 @@ class CallsController extends BaseController
             \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
         }
 
+        $log = Log::create([
+            'text' => 'Просмотрел звонки (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
+
         return view('admin.calls.index' )
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )

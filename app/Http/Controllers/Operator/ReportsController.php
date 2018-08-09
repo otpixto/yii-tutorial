@@ -7,6 +7,7 @@ use App\Models\Building;
 use App\Models\Asterisk\Cdr;
 use App\Models\Category;
 use App\Models\Executor;
+use App\Models\Log;
 use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
@@ -83,6 +84,11 @@ class ReportsController extends BaseController
 
         ksort( $res );
         $availableManagements = $res;
+
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по исполнителям'
+        ]);
+        $log->save();
 
         return view( 'reports.executors' )
             ->with( 'ticketManagements', $ticketManagements )
@@ -240,6 +246,11 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по оценкам'
+        ]);
+        $log->save();
+
         return view( 'reports.rates' )
             ->with( 'data', $data )
             ->with( 'managements', $managements )
@@ -281,6 +292,11 @@ class ReportsController extends BaseController
         {
             $ticketManagements = new Collection();
         }
+
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по адресам'
+        ]);
+        $log->save();
 						
         return view( 'reports.addresses' )
             ->with( 'ticketManagements', $ticketManagements )
@@ -420,6 +436,11 @@ class ReportsController extends BaseController
         ksort( $res );
 
         $availableManagements = $res;
+
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по заявкам'
+        ]);
+        $log->save();
 
         return view( 'reports.tickets' )
             ->with( 'data', $data )
@@ -613,6 +634,11 @@ class ReportsController extends BaseController
             \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
         }
 
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по операторам'
+        ]);
+        $log->save();
+
         return view( 'reports.operators' )
             ->with( 'data', $data )
             ->with( 'totals', $totals )
@@ -761,6 +787,11 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
+        $log = Log::create([
+            'text' => 'Просмотрел отчет по категориям'
+        ]);
+        $log->save();
+
         return view( 'reports.types' )
             ->with( 'data', $data )
             ->with( 'categories', $categories )
@@ -776,12 +807,20 @@ class ReportsController extends BaseController
     public function map ()
     {
         Title::add( 'География обращений' );
+        $log = Log::create([
+            'text' => 'Просмотрел карту обращений'
+        ]);
+        $log->save();
         return view( 'reports.map' );
     }
 
     public function worksMap ()
     {
         Title::add( 'География работ на сетях' );
+        $log = Log::create([
+            'text' => 'Просмотрел карту отключений'
+        ]);
+        $log->save();
         return view( 'reports.works_map' );
     }
 

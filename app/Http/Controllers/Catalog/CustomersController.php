@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Customer;
+use App\Models\Log;
 use App\Models\Provider;
 use App\Models\Segment;
 use Illuminate\Http\Request;
@@ -115,6 +116,11 @@ class CustomersController extends BaseController
                 )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
+
+            $log = Log::create([
+                'text' => 'Просмотрел список заявителей (стр.' . $request->get( 'page', 1 ) . ')'
+            ]);
+            $log->save();
 
             return view( 'catalog.customers.parts.list' )
                 ->with( 'customers', $customers );

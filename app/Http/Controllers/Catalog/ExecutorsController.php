@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Executor;
+use App\Models\Log;
 use App\Models\Management;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -32,6 +33,11 @@ class ExecutorsController extends BaseController
             )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
+
+        $log = Log::create([
+            'text' => 'Просмотрел список исполнителей (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
 
         return view( 'catalog.executors.index' )
             ->with( 'executors', $executors );

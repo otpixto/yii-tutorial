@@ -71,6 +71,11 @@ class LogsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
+        $log = Log::create([
+            'text' => 'Просмотрел логи (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
+
         return view('admin.logs.index' )
             ->with( 'logs', $logs );
 

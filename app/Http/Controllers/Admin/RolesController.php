@@ -43,6 +43,11 @@ class RolesController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
+        $log = Log::create([
+            'text' => 'Просмотрел список ролей (стр.' . $request->get( 'page', 1 ) . ')'
+        ]);
+        $log->save();
+
         return view('admin.roles.index' )
             ->with( 'roles', $roles )
             ->with( 'guard', $guard )

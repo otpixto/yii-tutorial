@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\Models\Log;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -24,7 +25,7 @@ class PermsController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $guard = $request->get( 'guard', config( 'auth.defaults.guard' ) );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', $search ) . '%';
             $perms = Permission
@@ -39,9 +40,17 @@ class PermsController extends BaseController
                 ->orderBy( 'name' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
+            $log = Log::create([
+                'text' => 'Просмотрел список прав (стр.' . $request->get( 'page', 1 ) . ')'
+            ]);
+            $log->save();
         }
         else
         {
+            $log = Log::create([
+                'text' => 'Просмотрел список прав (дерево)'
+            ]);
+            $log->save();
             $perms_tree = Permission::getTree( $guard );
         }
 
