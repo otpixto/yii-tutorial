@@ -535,21 +535,27 @@
                         <thead>
                             <tr>
                                 <th width="35%">
-                                    <a href="javascript:;" class="hidden-print" data-edit="managements">
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
+                                    @if ( $ticketManagement->canSetManagement() )
+                                        <a href="javascript:;" class="hidden-print" data-edit="managements">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    @endif
                                     УО
                                 </th>
                                 <th width="35%">
-                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
+                                    @if ( $ticketManagement->canSetExecutor() )
+                                        <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    @endif
                                     Исполнитель
                                 </th>
                                 <th width="30%">
-                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
+                                    @if ( $ticketManagement->canSetExecutor() )
+                                        <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    @endif
                                     Запланировано
                                 </th>
                             </tr>

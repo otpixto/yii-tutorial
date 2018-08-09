@@ -31,6 +31,7 @@ class TicketManagement extends BaseModel
     private $can_print_act = null;
     private $can_rate = null;
     private $can_set_executor = null;
+    private $can_set_management = null;
 
     private $availableStatuses = null;
 
@@ -340,6 +341,22 @@ class TicketManagement extends BaseModel
             }
         }
         return $this->can_rate;
+    }
+
+    public function canSetManagement ()
+    {
+        if ( is_null( $this->can_set_management ) )
+        {
+            if ( \Auth::user()->can( 'tickets.management' ) )
+            {
+                $this->can_set_management = true;
+            }
+            else
+            {
+                $this->can_set_management = false;
+            }
+        }
+        return $this->can_set_management;
     }
 
     public function canSetExecutor ()
