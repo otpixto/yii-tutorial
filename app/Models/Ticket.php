@@ -61,7 +61,8 @@ class Ticket extends BaseModel
         'no_contract'                       => 'Отказ (нет договора с УО)',
         'in_process'                        => 'В работе',
         'archive'                           => 'Архив',
-        'confirmation'                      => 'Ожидает подтверждения центром'
+        'confirmation_operator'             => 'Ожидает подтверждения центром',
+        'confirmation_client'             	=> 'Ожидает подтверждения клиентом',
     ];
 
     public static $statuses_buttons = [

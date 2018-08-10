@@ -62,13 +62,13 @@ class TicketManagement extends BaseModel
             'accepted',
         ],
         'completed_with_act' => [
-            'confirmation',
+            'confirmation_operator',
         ],
         'completed_without_act' => [
-            'confirmation',
+            'confirmation_operator',
         ],
         'not_verified' => [
-            'confirmation',
+            'confirmation_operator',
         ],
         'in_process' => [
             'waiting',
@@ -76,6 +76,23 @@ class TicketManagement extends BaseModel
             'completed_with_act',
             'completed_without_act'
         ],
+		'from_lk' => [
+            'created',
+            'cancel',
+        ],
+        'from_dobrodel' => [
+            'created',
+            'cancel',
+        ],
+		'confirmation_operator' => [
+			'confirmation_client',
+			'transferred_again',
+		],
+		'confirmation_client' => [
+			'closed_with_confirm',
+			'closed_without_confirm',
+			'transferred_again',
+		],
     ];
 
     protected $nullable = [
