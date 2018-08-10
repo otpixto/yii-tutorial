@@ -229,11 +229,11 @@
             </div>
             <div class="col-xs-6">
                 <div class="note">
-                    @if ( $ticket->canCall() )
+                    {{--@if ( $ticket->canCall() )
                         <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
                             <i class="fa fa-phone"></i>
                         </button>
-                    @endif
+                    @endif--}}
                     <dl>
                         <dt>
                             @if ( $ticket->canEdit() )
@@ -657,11 +657,11 @@
                                     <div class="row">
                                         <div class="col-xs-5">
                                             <dl>
-                                                @if ( $ticket->canCall() )
+                                                {{--@if ( $ticket->canCall() )
                                                     <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $_ticketManagement->management->getPhones() }}">
                                                         <i class="fa fa-phone"></i>
                                                     </button>
-                                                @endif
+                                                @endif--}}
                                                 <dt>
                                                     <a href="{{ route( 'tickets.show', $_ticketManagement->getTicketNumber() ) }}">
                                                         @if ( $_ticketManagement->management->parent )
