@@ -181,24 +181,20 @@ class SessionsController extends BaseController
 
         $asterisk = new Asterisk();
         \DB::beginTransaction();
-        if ( ( $res = $asterisk->queueAdd( $request->get( 'number' ) ) ) )
+        $phoneSession = PhoneSession::create( $attributes );
+        if ( $phoneSession instanceof MessageBag )
         {
-            $phoneSession = PhoneSession::create( $attributes );
-            if ( $phoneSession instanceof MessageBag )
-            {
-                $asterisk->queueRemove( $request->get( 'number' ) );
-                return redirect()->back()
-                    ->withErrors( $phoneSession );
-            }
-            $phoneSession->save();
-            $log = $phoneSession->addLog( 'Телефонная сессия началась' );
-            if ( $log instanceof MessageBag )
-            {
-                return redirect()->back()
-                    ->withErrors( $log );
-            }
+            return redirect()->back()
+                ->withErrors( $phoneSession );
         }
-        else
+        $phoneSession->save();
+        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $log );
+        }
+        if ( ! $asterisk->queueAdd( $request->get( 'number' ) ) )
         {
             return redirect()->back()
                 ->withErrors( $asterisk->last_result );
