@@ -156,8 +156,6 @@ class Ticket extends BaseModel
         ],
         'accepted' => [
             'cancel',
-            'waiting',
-            'in_process',
         ],
     ];
 
