@@ -118,7 +118,7 @@ class RestController extends Controller
             if ( $customer )
             {
                 $response[ 'customer' ] = [
-                    'building' => $customer->getAddress(),
+                    'building' => $customer->getActualAddress(),
                     'name' => $customer->getName(),
                 ];
             }

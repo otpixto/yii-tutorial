@@ -415,33 +415,35 @@
 
             })
 
-            .on( 'confirmed', '[data-status="completed_with_act"]', function ( e, pe )
-            {
-
-                e.preventDefault();
-                pe.preventDefault();
-
-                if ( $( this ).hasClass( 'submit-loading' ) )
+            @if ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act )
+                .on( 'confirmed', '[data-status="completed_with_act"]', function ( e, pe )
                 {
-                    $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-                }
 
-                var form = $( pe.target );
+                    e.preventDefault();
+                    pe.preventDefault();
 
-                var model_name = form.find( '[name="model_name"]' ).val();
-                var model_id = form.find( '[name="model_id"]' ).val();
-                var status = form.find( '[name="status_code"]' ).val();
+                    if ( $( this ).hasClass( 'submit-loading' ) )
+                    {
+                        $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                    }
 
-                $.get( '/file', {
-                    model_name: model_name,
-                    model_id: model_id,
-                    status: status
-                }, function ( response )
-                {
-                    Modal.createSimple( 'Прикрепить оформленный Акт', response, 'file' );
-                });
+                    var form = $( pe.target );
 
-            })
+                    var model_name = form.find( '[name="model_name"]' ).val();
+                    var model_id = form.find( '[name="model_id"]' ).val();
+                    var status = form.find( '[name="status_code"]' ).val();
+
+                    $.get( '/file', {
+                        model_name: model_name,
+                        model_id: model_id,
+                        status: status
+                    }, function ( response )
+                    {
+                        Modal.createSimple( 'Прикрепить оформленный Акт', response, 'file' );
+                    });
+
+                })
+            @endif
 
             .on( 'confirmed', '[data-status="waiting"]', function ( e, pe )
             {

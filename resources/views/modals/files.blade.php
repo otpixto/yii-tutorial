@@ -4,7 +4,7 @@
 {!! Form::hidden( 'status', $status ) !!}
 <div class="form-group">
 	<div class="col-xs-12">
-		{!! Form::file( 'files[]', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл(ы)', 'multiple' ] ) !!}
+		{!! Form::file( 'files[]', [ 'class' => 'form-control', 'placeholder' => 'Выберите файл(ы)', 'multiple', 'required' ] ) !!}
 	</div>
 </div>
 {!! Form::close() !!}

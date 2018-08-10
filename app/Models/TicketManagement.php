@@ -63,18 +63,17 @@ class TicketManagement extends BaseModel
         ],
         'waiting' => [
             'accepted',
+            'in_process'
         ],
         'completed_with_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
             'transferred_again',
-            'in_process',
         ],
         'completed_without_act' => [
             'closed_with_confirm',
             'closed_without_confirm',
             'transferred_again',
-            'in_process',
         ],
         'not_verified' => [
             'closed_with_confirm',
@@ -85,6 +84,8 @@ class TicketManagement extends BaseModel
         'in_process' => [
             'waiting',
             'not_verified',
+            'completed_with_act',
+            'completed_without_act'
         ],
     ];
 

@@ -958,13 +958,15 @@ class TicketsController extends BaseController
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
         }
 
-        if ( \Auth::user()->can( 'calls.all' ) && $ticket->calls->count() )
+        if ( \Auth::user()->can( 'tickets.calls.all' ) || \Auth::user()->can( 'tickets.calls.mine' ) )
         {
-            $ticketCalls = $ticket->calls()->actual()->get();
-        }
-        else if ( \Auth::user()->can( 'calls.my' ) && $ticket->calls()->actual()->mine()->count() )
-        {
-            $ticketCalls = $ticket->calls()->actual()->mine()->get();
+            $ticketCalls = $ticket->calls()->actual();
+            if ( ! \Auth::user()->can( 'tickets.calls.all' ) )
+            {
+                $ticketCalls
+                    ->mine();
+            }
+            $ticketCalls = $ticketCalls->get();
         }
         else
         {

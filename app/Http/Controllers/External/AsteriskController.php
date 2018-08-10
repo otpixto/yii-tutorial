@@ -43,13 +43,11 @@ class AsteriskController extends BaseController
 
     public function call ( Request $request )
     {
-        if ( ! \Auth::user()->can( 'phone' ) || ! \Auth::user()->openPhoneSession ) return;
 
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
-
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
 
-        if ( ! $ticket || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
+        if ( ! $ticket || ! $ticket->canCall() || ! \Auth::user()->openPhoneSession || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
 
         $ticketCall = $ticket->createCall( $phone );
 
@@ -57,6 +55,8 @@ class AsteriskController extends BaseController
         {
             dd( $ticketCall );
         }
+
+        sleep( 1 );
 
         if ( ! $this->asterisk->connectTwo( \Auth::user()->openPhoneSession->number, $phone, $ticketCall->id ) )
         {
