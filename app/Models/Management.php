@@ -141,16 +141,6 @@ class Management extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-        if ( ! empty( $attributes[ 'phone' ] ) )
-        {
-            $attributes[ 'phone' ] = str_replace( '+7', '', $attributes[ 'phone' ] );
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
-        }
-        if ( ! empty( $attributes[ 'phone2' ] ) )
-        {
-            $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
-            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
-        }
 		$attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         $new = parent::create( $attributes );
         return $new;
@@ -158,17 +148,7 @@ class Management extends BaseModel
 
     public function edit ( array $attributes = [] )
     {
-        if ( ! empty( $attributes[ 'phone' ] ) )
-        {
-            $attributes[ 'phone' ] = str_replace( '+7', '', $attributes[ 'phone' ] );
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone' ] ), -10 );
-        }
-        if ( ! empty( $attributes[ 'phone2' ] ) )
-        {
-            $attributes[ 'phone2' ] = str_replace( '+7', '', $attributes[ 'phone2' ] );
-            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/[^0-9]/', '', $attributes[ 'phone2' ] ), -10 );
-        }
-        $attributes[ 'has_contract' ] = !empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
+        $attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         return parent::edit( $attributes );
     }
 

@@ -259,33 +259,17 @@ class TicketsController extends BaseController
                             $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
                             if ( $segments->count() )
                             {
+                                $segmentIds = [];
+                                foreach ( $segments as $segment )
+                                {
+                                    $segmentChilds = new SegmentChilds( $segment );
+                                    $segmentIds += $segmentChilds->ids;
+                                }
                                 $ticket
-                                    ->where( function ( $q ) use ( $segments )
+                                    ->whereHas( 'building', function ( $building ) use ( $segmentIds )
                                     {
-                                        $i = 0;
-                                        foreach ( $segments as $segment )
-                                        {
-                                            $segmentChilds = new SegmentChilds( $segment );
-                                            $segmentChildsIds = $segmentChilds->ids;
-                                            if ( $i ++ == 0 )
-                                            {
-                                                $q
-                                                    ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
-                                                    {
-                                                        return $building
-                                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-                                                    });
-                                            }
-                                            else
-                                            {
-                                                $q
-                                                    ->orWhereHas( 'building', function ( $building ) use ( $segmentChildsIds )
-                                                    {
-                                                        return $building
-                                                            ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-                                                    });
-                                            }
-                                        }
+                                        return $building
+                                            ->whereIn( Building::$_table . '.segment_id', $segmentIds );
                                     });
                             }
                         }
@@ -1720,49 +1704,6 @@ class TicketsController extends BaseController
             ->with( 'ticketManagements', $ticketManagements );
 
     }
-	
-	public function getAddManagement ( Request $request, $id )
-    {
-        $ticket = Ticket::find( $id );
-		$managements = Management
-			::whereNotIn( 'id', $ticket->managements()->pluck( 'management_id' ) )
-			->where( 'has_contract', '=', 1 )
-			->get();
-        return view( 'tickets.edit.add_management' )
-            ->with( 'ticket', $ticket )
-			->with( 'managements', $managements );
-    }
-	
-	public function postAddManagement ( Request $request, $id )
-    {
-        $ticket = Ticket::find( $request->get( 'id' ) );
-		if ( ! $ticket )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-		$management_id = $request->get( 'management_id' );
-		if ( ! $management_id )
-		{
-			return redirect()
-                ->route( 'tickets.show', $ticket->id )
-                ->withErrors( [ 'ЭО не выбрана' ] );
-		}
-        $ticketManagement = TicketManagement::create([
-			'ticket_id'         => $ticket->id,
-			'management_id'     => $request->get( 'management_id' ),
-		]);
-		return redirect()
-            ->route( 'tickets.show', $ticket->id )
-            ->with( 'success', 'ЭО успешно добавлена' );
-    }
-	
-	public function postDelManagement ( Request $request )
-    {
-        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
-		$ticketManagement->delete();
-    }
 
     public function getExecutor ( Request $request, $id )
     {
@@ -1931,7 +1872,8 @@ class TicketsController extends BaseController
         \DB::beginTransaction();
 
         $management = Management
-            ::mine()
+            ::mine( Management::IGNORE_MANAGEMENT )
+            ->where( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id )
             ->whereHas( 'types', function ( $types ) use ( $ticket )
             {
                 return $types
@@ -2218,8 +2160,9 @@ class TicketsController extends BaseController
     public function calendar ( Request $request, $date )
     {
         Title::add( 'Календарь' );
-        $beginDate = Carbon::parse( $date )->startOfMonth();
-        $endDate = Carbon::parse( $date )->endOfMonth();
+        list ( $month, $year ) = explode( '.', $date );
+        $beginDate = Carbon::create( $year, $month, 1 );
+        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth();
         $res = Management
             ::mine()
             ->whereHas( 'parent' )
@@ -2232,7 +2175,7 @@ class TicketsController extends BaseController
             $availableManagements[ $r->parent->name ][ $r->id ] = $r->name;
         }
         return view( 'tickets.calendar' )
-            ->with( 'date', Carbon::parse ( $date ) )
+            ->with( 'date', $date )
             ->with( 'beginDate', $beginDate )
             ->with( 'endDate', $endDate )
             ->with( 'availableManagements', $availableManagements );
@@ -2241,16 +2184,16 @@ class TicketsController extends BaseController
     public function calendarData ( Request $request )
     {
 
-        $date = Carbon::parse ( $request->get( 'date' ) );
-        $beginDate = Carbon::parse( $date )->startOfMonth();
-        $endDate = Carbon::parse( $date )->endOfMonth();
+        list ( $month, $year ) = explode( '.', $request->get( 'date' ) );
+        $beginDate = Carbon::create( $year, $month, 1 );
+        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth();
 
         $ticketManagements = TicketManagement
             ::mine()
             ->whereHas( 'ticket', function ( $ticket ) use ( $request )
             {
 
-                $ticket->inProcess();
+                $ticket->notCompleted();
 
                 if ( $request->get( 'building_id' ) )
                 {
@@ -2258,25 +2201,30 @@ class TicketsController extends BaseController
                         ->where( Ticket::$_table . '.building_id', $request->get( 'building_id' ) );
                 }
 
-                if ( $request->get( 'segment_id' ) )
+                if ( ! empty( $request->get( 'segments' ) ) )
                 {
-                    $segment = Segment::find( $request->get( 'segment_id' ) );
-                    if ( $segment )
+                    $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                    if ( $segments->count() )
                     {
-                        $segmentChilds = new SegmentChilds( $segment );
-                        $segmentChildsIds = $segmentChilds->ids;
+                        $segmentIds = [];
+                        foreach ( $segments as $segment )
+                        {
+                            $segmentChilds = new SegmentChilds( $segment );
+                            $segmentIds += $segmentChilds->ids;
+                        }
                         $ticket
-                            ->whereHas( 'building', function ( $building ) use ( $segmentChildsIds )
+                            ->whereHas( 'building', function ( $building ) use ( $segmentIds )
                             {
                                 return $building
-                                    ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
+                                    ->whereIn( Building::$_table . '.segment_id', $segmentIds );
                             });
                     }
                 }
 
             })
             ->whereNotNull( TicketManagement::$_table . '.scheduled_end' )
-            ->whereBetween( TicketManagement::$_table . '.scheduled_begin', [ $beginDate->toDateTimeString(), $endDate->toDateTimeString() ] );
+            ->where( \DB::raw( 'YEAR( scheduled_begin )' ), '=', $year )
+            ->where( \DB::raw( 'MONTH( scheduled_begin )' ), '=', $month );
 
         if ( count( $request->get( 'managements', [] ) ) )
         {
@@ -2287,7 +2235,9 @@ class TicketsController extends BaseController
         $ticketManagements = $ticketManagements->get();
 
         $data = [
-            'events' => []
+            'events' => [],
+            'beginDate' => $beginDate->format( 'Y-m-d' ),
+            'endDate' => $endDate->format( 'Y-m-d' ),
         ];
 
         foreach ( $ticketManagements as $ticketManagement )

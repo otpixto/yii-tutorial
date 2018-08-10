@@ -11,11 +11,11 @@
 
     {!! Form::open( [ 'id' => 'calendar-form' ] ) !!}
     <div class="row margin-top-10">
-        <div class="col-md-4">
+        <div class="col-md-3">
             {!! Form::label( 'date', 'Дата', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::date( 'date', $date->format( 'Y-m-d' ), [ 'class' => 'form-control', 'required' ] ) !!}
+            {!! Form::text( 'date', $date, [ 'class' => 'form-control monthpicker', 'required' ] ) !!}
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
             {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
             <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
                 @foreach ( $availableManagements as $management => $arr )
@@ -37,10 +37,7 @@
         </div>
         <div class="col-md-6">
             {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
-            <span id="segment" class="form-control text-muted">
-                Нажмите, чтобы выбрать
-            </span>
-            {!! Form::hidden( 'segment_id', \Input::get( 'segment_id' ), [ 'id' => 'segment_id' ] ) !!}
+            <div id="segment_id" data-name="segments[]"></div>
         </div>
     </div>
     <div class="row margin-top-10">
@@ -55,23 +52,41 @@
 @endsection
 
 @section( 'css' )
+    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/fullcalendar-3.9.0/fullcalendar.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/fullcalendar-3.9.0/fullcalendar.print.css" rel="stylesheet" type="text/css" media='print' />
     <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <style>
+        .ui-monthpicker {
+            margin-top: 18px;
+        }
+        .ui-monthpicker .ui-datepicker-month {
+            display: none;
+        }
+        .ui-monthpicker td span {
+            padding: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+    </style>
 @endsection
 
 @section( 'js' )
+    <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-ui/jquery-ui.rus.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-ui/jquery-monthpicker.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/fullcalendar-3.9.0/lib/moment.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/fullcalendar-3.9.0/fullcalendar.js" type="text/javascript"></script>
     <script src='/assets/global/plugins/fullcalendar-3.9.0/locale-all.js'></script>
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-treeview.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         $( document )
 
             .ready( function ()
             {
+
+                $( '.monthpicker' ).monthpicker({ dateFormat: 'mm.yy' });
 
                 $( '.mt-multiselect' ).multiselect({
                     disableIfEmpty: true,
@@ -89,6 +104,8 @@
                     selectAllText: 'Выбрать все',
                     selectAllValue: ''
                 });
+
+                $( '#segment_id' ).selectSegment();
 
             })
 
@@ -114,11 +131,11 @@
                             center: 'title',
                             right: 'month,agendaWeek,agendaDay,listDay'
                         },
-                        defaultDate: '{{ $date->format( 'Y-m-d' ) }}',
                         validRange: {
-                            start: '{{ $beginDate->format( 'Y-m-d' ) }}',
-                            end: '{{ $endDate->format( 'Y-m-d' ) }}'
+                            start: response.beginDate,
+                            end: response.endDate
                         },
+                        defaultDate: response.beginDate,
                         editable: false,
                         changeView: function ( changedView )
                         {
@@ -128,36 +145,6 @@
                         events: response.events
                     });
 
-                });
-
-            })
-
-            .on( 'click', '#segment', function ( e )
-            {
-
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
-                {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
-                    {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
-                    });
                 });
 
             });

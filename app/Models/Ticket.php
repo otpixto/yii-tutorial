@@ -267,6 +267,12 @@ class Ticket extends BaseModel
             ->whereIn( self::$_table . '.status_code', [ 'transferred', 'transferred_again' ] );
     }
 
+    public function scopeNotCompleted ( $query )
+    {
+        return $query
+            ->whereNotIn( self::$_table . '.status_code', [ 'completed_with_act', 'completed_without_act', 'not_verified' ] );
+    }
+
     public function scopeCompleted ( $query )
     {
         return $query

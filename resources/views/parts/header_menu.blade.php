@@ -57,7 +57,7 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.calendar' ) )
                         <li>
-                            <a href="{{ route( 'tickets.calendar', \Carbon\Carbon::now()->format( 'Y-m-d' ) ) }}">
+                            <a href="{{ route( 'tickets.calendar', \Carbon\Carbon::now()->format( 'm.Y' ) ) }}">
                                 Календарь
                             </a>
                         </li>
