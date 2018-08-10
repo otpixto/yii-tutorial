@@ -43,21 +43,29 @@
 
         @foreach ( $ticketManagements as $ticketManagement )
 
-            <div>
-                <h4 class="pull-left h4">
-                    @if ( $ticketManagement->management->parent )
-                        {{ $ticketManagement->management->parent->name }}
-                        <div class="small">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="h5">
+                        @if ( $ticketManagement->management->parent )
+                            {{ $ticketManagement->management->parent->name }}
+                            <div class="small">
+                                {{ $ticketManagement->management->name }}
+                            </div>
+                        @else
                             {{ $ticketManagement->management->name }}
-                        </div>
-                    @else
-                        {{ $ticketManagement->management->name }}
-                    @endif
-
-                </h4>
-                <h5 class="pull-right h5">
-                    Наряд-заказ по заявке № {{ $ticketManagement->getTicketNumber() }}
-                </h5>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <div class="h5">
+                        Наряд-заказ по заявке № {{ $ticketManagement->getTicketNumber() }}
+                        @if ( $ticketManagement->scheduled_begin && $ticketManagement->scheduled_end )
+                            <div class="small">
+                                Выполнение работ: {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }} - {{ $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <div class="clearfix"></div>
