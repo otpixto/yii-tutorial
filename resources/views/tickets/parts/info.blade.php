@@ -22,7 +22,7 @@
                                         {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
                                         {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
                                         {!! Form::hidden( 'status_code', $status_code ) !!}
-                                        {!! Form::submit( $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-primary margin-bottom-5 margin-right-5' ] ) !!}
+                                        {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
                                         {!! Form::close() !!}
                                     @endif
                                 @endforeach

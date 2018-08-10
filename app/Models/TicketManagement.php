@@ -42,12 +42,10 @@ class TicketManagement extends BaseModel
         'transferred' => [
             'accepted',
             'rejected',
-            'waiting',
         ],
         'transferred_again' => [
             'accepted',
             'rejected',
-            'waiting',
         ],
         'accepted' => [
             'waiting',
@@ -62,8 +60,8 @@ class TicketManagement extends BaseModel
             'in_process',
         ],
         'waiting' => [
-            'accepted',
-            'in_process'
+            'in_process',
+            'assigned',
         ],
         'completed_with_act' => [
             'closed_with_confirm',

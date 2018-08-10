@@ -62,6 +62,49 @@ class Ticket extends BaseModel
         'archive'                           => 'Архив',
     ];
 
+    public static $statuses_buttons = [
+        'rejected' => [
+            'name'          => 'Отклонить',
+            'class'         => 'red-soft',
+        ],
+        'cancel' => [
+            'name'          => 'Отменить',
+            'class'         => 'red-soft',
+        ],
+        'transferred_again' => [
+            'name'          => 'Требует доработки',
+            'class'         => 'yellow-soft',
+        ],
+        'accepted' => [
+            'name'          => 'Принять',
+            'class'         => 'green-soft',
+        ],
+        'assigned' => [
+            'name'          => 'Назначить исполнителя',
+            'class'         => 'green-soft',
+        ],
+        'in_process' => [
+            'name'          => 'Начать работу',
+            'class'         => 'green-soft',
+        ],
+        'completed_with_act' => [
+            'name'          => 'Выполнено с актом',
+            'class'         => 'green-soft',
+        ],
+        'completed_without_act' => [
+            'name'          => 'Выполнено без акта',
+            'class'         => 'green-soft',
+        ],
+        'waiting' => [
+            'name'          => 'Отложить',
+            'class'         => 'yellow-soft',
+        ],
+        'not_verified' => [
+            'name'          => 'Проблема не потверждена',
+            'class'         => 'yellow-soft',
+        ],
+    ];
+
     public static $not_notify = [
         'draft',
         'created',
@@ -97,17 +140,12 @@ class Ticket extends BaseModel
         'from_lk' => [
             'transferred',
             'cancel',
-            'waiting',
         ],
         'transferred' => [
             'cancel',
-            'waiting',
-            'in_process',
         ],
         'transferred_again' => [
             'cancel',
-            'waiting',
-            'in_process',
         ],
         'accepted' => [
             'cancel',
