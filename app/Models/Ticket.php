@@ -45,6 +45,7 @@ class Ticket extends BaseModel
         'draft'					            => 'Черновик',
         'created'                           => 'Нераспределенная',
         'from_lk'                           => 'Из ЛК клиента',
+        'from_dobrodel'                     => 'Из добродела',
         'transferred'                       => 'Ожидает принятия Ответственным',
         'transferred_again'                 => 'Требует доработки',
         'accepted'                          => 'Не назначен исполнитель',
@@ -60,6 +61,7 @@ class Ticket extends BaseModel
         'no_contract'                       => 'Отказ (нет договора с УО)',
         'in_process'                        => 'В работе',
         'archive'                           => 'Архив',
+        'confirmation'                      => 'Ожидает подтверждения центром'
     ];
 
     public static $statuses_buttons = [
@@ -109,6 +111,7 @@ class Ticket extends BaseModel
         'draft',
         'created',
         'from_lk',
+        'from_dobrodel',
         'cancel',
         'completed_with_act',
         'completed_without_act',
@@ -138,7 +141,11 @@ class Ticket extends BaseModel
             'cancel',
         ],
         'from_lk' => [
-            'transferred',
+            'created',
+            'cancel',
+        ],
+        'from_dobrodel' => [
+            'created',
             'cancel',
         ],
         'transferred' => [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Iphome\Permission\Models\Permission;
