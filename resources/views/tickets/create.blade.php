@@ -251,6 +251,12 @@
 
             })
 
+            .on( 'click', '[data-action="create_another"]', function ()
+            {
+                $( '#create_another' ).val( '1' );
+                this.form.submit();
+            })
+
             .on ( 'click', '.nav-tabs a', function ( e )
             {
                 $( this ).tab( 'show' );

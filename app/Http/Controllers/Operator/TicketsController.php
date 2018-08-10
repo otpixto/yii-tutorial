@@ -807,6 +807,7 @@ class TicketsController extends BaseController
             'customer_id'               => 'nullable|integer',
             'text'                      => 'required',
             'managements'               => 'required|array',
+            'create_another'            => 'nullable|boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -871,8 +872,15 @@ class TicketsController extends BaseController
 
             if ( $ticketManagement->management->has_contract )
             {
-                $status_code = 'created';
-                $res = $ticketManagement->changeStatus( 'created', true );
+                if ( $request->get( 'create_another' ) )
+                {
+                    $status_code = 'transferred';
+                }
+                else
+                {
+                    $status_code = 'created';
+                }
+                $res = $ticketManagement->changeStatus( $status_code, true );
                 if ( $res instanceof MessageBag )
                 {
                     return redirect()->back()
@@ -906,12 +914,46 @@ class TicketsController extends BaseController
                 ->withErrors( $res );
         }
 
+        if ( $request->get( 'create_another' ) )
+        {
+
+            $redirect = route( 'tickets.create' );
+
+            $anotherTicket = Ticket::create();
+
+            if ( $anotherTicket instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors( $anotherTicket );
+            }
+
+            $anotherTicket->fill([
+                'firstname'                     => $ticket->firstname,
+                'middlename'                    => $ticket->middlename,
+                'lastname'                      => $ticket->lastname,
+                'phone'                         => $ticket->phone,
+                'phone2'                        => $ticket->phone2,
+                'actual_building_id'            => $ticket->actual_building_id,
+                'actual_flat'                   => $ticket->actual_flat,
+            ]);
+
+            $anotherTicket->call_phone = $ticket->call_phone;
+            $anotherTicket->call_id = $ticket->call_id;
+            $anotherTicket->save();
+
+        }
+        else
+        {
+            $redirect = route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id );
+        }
+
 		\DB::commit();
 
         \Cache::tags( 'tickets_counts' )->flush();
 
         return redirect()
-            ->route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id )
+            ->to( $redirect )
             ->with( 'success', 'Заявка успешно добавлена' );
 
     }

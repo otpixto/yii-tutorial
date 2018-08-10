@@ -161,29 +161,29 @@
 
 <div class="row margin-top-10">
 
-    <div class="col-xs-7">
+    <div class="col-md-6">
 
         {!! Form::label( 'tags', 'Теги', [ 'class' => 'control-label' ] ) !!}
         {!! Form::text( 'tags', \Input::old( 'tags', $ticket->tags->implode( 'text', ',' ) ), [ 'class' => 'form-control input-large', 'data-role' => 'tagsinput', 'autocomplete' => 'off' ] ) !!}
 
     </div>
 
-    <div class="col-xs-5 text-right">
-        <button type="submit" class="btn green btn-lg btn-block">
+    <div class="col-md-6 text-right">
+        <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите очистить заявку?">
+            <i class="fa fa-remove"></i>
+            Очистить
+        </a>
+        <button type="button" class="btn yellow" data-action="create_another">
             <i class="fa fa-plus"></i>
-            Добавить заявку
+            Сохранить и создать еще
         </button>
-        <div class="text-right margin-top-10">
-            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn btn-danger" data-confirm="Вы уверены, что хотите очистить заявку?">
-                <i class="fa fa-remove"></i>
-                Очистить
-            </a>
-        </div>
+        <button type="submit" class="btn green">
+            <i class="fa fa-check"></i>
+            Сохранить
+        </button>
     </div>
 
 </div>
 
-{!! Form::hidden( 'customer_id', \Input::old( 'customer_id', $ticket->customer_id ?? null ), [ 'id' => 'customer_id', 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
-{!! Form::hidden( 'selected_managements', implode( ',', \Input::old( 'managements', [] ) ), [ 'id' => 'selected_managements', 'autocomplete' => 'off' ] ) !!}
-
+{!! Form::hidden( 'create_another', '0', [ 'id' => 'create_another' ] ) !!}
 {!! Form::close() !!}
