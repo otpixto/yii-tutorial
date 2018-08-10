@@ -96,7 +96,7 @@ class RestController extends Controller
             'users'     => []
         ];
 
-        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
+        $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
 
         $provider = Provider
             ::whereHas( 'phones', function ( $phones ) use ( $phone_office )
