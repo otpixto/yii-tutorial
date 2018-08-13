@@ -343,7 +343,7 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_rate ) )
         {
-            if ( \Auth::user()->can( 'tickets.rate' ) && ! $this->rate && in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'closed_with_confirm' ] ) )
+            if ( \Auth::user()->can( 'tickets.rate' ) && ! $this->rate && in_array( $this->status_code, [ 'confirmation_client' ] ) )
             {
                 $this->can_rate = true;
             }

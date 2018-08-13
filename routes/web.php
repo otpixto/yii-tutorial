@@ -93,6 +93,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'search', 'Operator\WorksController@search' )->name( 'works.search' );
             Route::post( 'filter', 'Operator\WorksController@filter' )->name( 'works.filter' );
             Route::get( 'search/form', 'Operator\WorksController@searchForm' )->name( 'works.search.form' );
+            Route::post( 'buildings/search', 'Operator\WorksController@buildingsSearch' )->name( 'works.buildings.search' );
         });
 
         Route::prefix( 'tickets' )->group( function ()

@@ -33,43 +33,6 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'buildings[]', 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-4' ] ) !!}
-                <div class="col-xs-4">
-                    {!! Form::text( 'date_begin', \Input::old( 'date_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_begin', \Input::old( 'time_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время начала работ', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
-                <div class="col-xs-4">
-                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (план.)', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
-                <div class="col-xs-4">
-                    {!! Form::text( 'date_end_fact', \Input::old( 'date_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y' ) : null ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (факт.)' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_end_fact', \Input::old( 'time_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'H:i' ) : null ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (факт.)' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id', $work->type_id ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
@@ -77,23 +40,9 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'deadline', 'Предельное время устранения', [ 'class' => 'control-label col-xs-6' ] ) !!}
-                <div class="col-xs-3">
-                    {!! Form::number( 'deadline', \Input::old( 'deadline', $work->deadline ), [ 'class' => 'form-control', 'min' => 0, 'step' => 1 ] ) !!}
-                </div>
-                <div class="col-xs-3">
-                    {!! Form::select( 'deadline_unit', \App\Models\Work::$deadline_units, \Input::old( 'deadline_unit', $work->deadline_unit ), [ 'class' => 'form-control' ] ) !!}
-                </div>
-            </div>
-
-        </div>
-
-        <div class="col-lg-6">
-
-            <div class="form-group">
                 {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $managements->pluck( 'name', 'id' )->toArray(), \Input::old( 'management_id', $work->management_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
+                    {!! Form::select( 'management_id', $availableManagements, \Input::old( 'management_id', $work->management_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Исполнитель работ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -135,6 +84,57 @@
                     </div>
                 </div>
 
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
+                    {!! Form::text( 'date_begin', \Input::old( 'date_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_begin', \Input::old( 'time_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время начала работ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
+                    {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_end', \Input::old( 'time_end', \Carbon\Carbon::parse( $work->time_end )->format( 'H:i' ) ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (план.)', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
+                    {!! Form::text( 'date_end_fact', \Input::old( 'date_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y' ) : null ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (факт.)' ] ) !!}
+                </div>
+                <div class="col-xs-4">
+                    {!! Form::text( 'time_end_fact', \Input::old( 'time_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'H:i' ) : null ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (факт.)' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'deadline', 'Предельное время устранения', [ 'class' => 'control-label col-xs-6' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::number( 'deadline', \Input::old( 'deadline', $work->deadline ), [ 'class' => 'form-control', 'min' => 0, 'step' => 1 ] ) !!}
+                </div>
+                <div class="col-xs-3">
+                    {!! Form::select( 'deadline_unit', \App\Models\Work::$deadline_units, \Input::old( 'deadline_unit', $work->deadline_unit ), [ 'class' => 'form-control' ] ) !!}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="form-group">
+                {!! Form::label( 'buildings[]', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
+                </div>
             </div>
 
             <div class="form-group">
@@ -226,6 +226,33 @@
                     showSeconds: false,
                     showMeridian: false,
                     defaultTime: false
+                });
+
+                $( '#buildings' ).select2({
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 30,
+                    ajax: {
+                        url: '{{ route( 'works.buildings.search' ) }}',
+                        cache: true,
+                        type: 'post',
+                        delay: 450,
+                        data: function ( term )
+                        {
+                            var data = {
+                                q: term.term,
+                                provider_id: $( '#provider_id' ).val(),
+                                category_id: $( '#category_id' ).val(),
+                                management_id: $( '#management_id' ).val()
+                            };
+                            return data;
+                        },
+                        processResults: function ( data, page )
+                        {
+                            return {
+                                results: data
+                            };
+                        }
+                    }
                 });
 
             })

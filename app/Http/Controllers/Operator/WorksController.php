@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Operator;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
+use App\Models\BuildingType;
 use App\Models\Category;
 use App\Models\Executor;
 use App\Models\Log;
@@ -410,9 +411,19 @@ class WorksController extends BaseController
 			->orderBy( Category::$_table . '.name' )
 			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
+        $res = Management
+            ::mine()
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
+        $availableManagements = [];
+        foreach ( $res as $r )
+        {
+            $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
+        }
+
         return view( 'works.create' )
-            ->with( 'managements', Management::mine()->orderBy( 'name' )->get() )
-            ->with( 'types', Type::orderBy( 'name' )->get() )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'providers', $providers )
             ->with( 'buildings', $buildings )
             ->with( 'categories', $categories );
@@ -554,8 +565,6 @@ class WorksController extends BaseController
 
         Title::add( 'Редактировать отключение #' . $work->id );
 
-        $managements = Management::orderBy( 'name' )->get();
-
         $providers = Provider
             ::mine()
             ->current()
@@ -567,9 +576,20 @@ class WorksController extends BaseController
 			->orderBy( Category::$_table . '.name' )
 			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
+        $res = Management
+            ::mine()
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
+        $availableManagements = [];
+        foreach ( $res as $r )
+        {
+            $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
+        }
+
         return view( 'works.edit' )
             ->with( 'work', $work )
-            ->with( 'managements', $managements )
+            ->with( 'availableManagements', $availableManagements )
             ->with( 'providers', $providers )
             ->with( 'categories', $categories );
 
@@ -723,6 +743,47 @@ class WorksController extends BaseController
             return view( 'works.select' )
                 ->with( 'works', $works );
         }
+
+    }
+
+    public function buildingsSearch ( Request $request )
+    {
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
+        $management_id = $request->get( 'management_id' );
+        $category_id = $request->get( 'category_id' );
+
+        $buildings = Building
+            ::mine( Building::IGNORE_MANAGEMENT )
+            ->leftJoin( BuildingType::$_table, BuildingType::$_table . '.id', '=', Building::$_table . '.building_type_id' )
+            ->select(
+                Building::$_table . '.id',
+                \DB::raw( 'CONCAT_WS( \' \', ' . Building::$_table . '.name, CONCAT( \'(\', ' . BuildingType::$_table . '.name, \')\' ) ) AS text' )
+            )
+            ->whereHas( 'managements', function ( $managements ) use ( $management_id, $category_id )
+            {
+                return $managements
+                    ->where( Management::$_table . '.id', '=', $management_id )
+                    ->whereHas( 'types', function ( $types ) use ( $category_id )
+                    {
+                        return $types
+                            ->where( Management::$_table . '.category_id', '=', $category_id );
+                    });
+            })
+            ->having( 'text', 'like', $s )
+            ->orderBy( 'text' );
+
+        if ( ! empty( $provider_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        $buildings = $buildings
+            ->get();
+
+        return $buildings;
 
     }
 
