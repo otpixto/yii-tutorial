@@ -799,7 +799,7 @@ class Grub extends Command
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
-		$per_page = 1000;
+		$per_page = 100;
         $max_pages = 30;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();

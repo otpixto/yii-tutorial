@@ -11,57 +11,62 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-        @if ( \Auth::user()->can( 'tickets.create' ) || \Auth::user()->can( 'tickets.export' ) )
-            <div class="row margin-bottom-15 hidden-print">
-                <div class="col-xs-6">
-                    @if( \Auth::user()->can( 'tickets.create' ) )
-                        <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
-                            <i class="fa fa-plus"></i>
-                            Добавить заявку
+        <div class="row margin-bottom-15 hidden-print">
+            <div class="col-xs-12">
+                @if( \Auth::user()->can( 'tickets.create' ) )
+                    <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
+                        <i class="fa fa-plus"></i>
+                        Добавить заявку
+                    </a>
+                @endif
+                <a href="?statuses=created" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'created' ) btn-info @endif">
+                    Нераспределенные
+                </a>
+                <a href="?statuses=confirmation_operator" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'confirmation_operator' ) btn-info @endif">
+                    Требуют подтверждения центром
+                </a>
+                <a href="?statuses=confirmation_client" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'confirmation_client' ) btn-info @endif">
+                    Требуют подтверждения клиентом
+                </a>
+                <a href="?statuses=rejected" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'rejected' ) btn-info @endif">
+                    Отклоненные заявки
+                </a>
+            </div>
+            {{--@if ( \Auth::user()->can( 'tickets.export' ) )
+                <div class="col-xs-6 text-right">
+                    @if( $ticketManagements->total() < 1000 )
+                        <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                            <i class="fa fa-download"></i>
+                            Выгрузить в Excel
                         </a>
+                    @else
+                        <span class="text-muted small">
+                            Для выгрузки уточните критерии поиска
+                        </span>
                     @endif
                 </div>
-                {{--@if ( \Auth::user()->can( 'tickets.export' ) )
-                    <div class="col-xs-6 text-right">
-                        @if( $ticketManagements->total() < 1000 )
-                            <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                                <i class="fa fa-download"></i>
-                                Выгрузить в Excel
-                            </a>
-                        @else
-                            <span class="text-muted small">
-                                Для выгрузки уточните критерии поиска
-                            </span>
-                        @endif
-                    </div>
-                @endif--}}
-            </div>
-        @endif
+            @endif--}}
+        </div>
 
-        <div class="row">
+        <div class="row hidden-print">
             <div class="col-xs-12">
-                <a href="{{ route( 'tickets.index' ) }}" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' ) btn-info @endif">
-                    <i class="fa fa-list"></i>
+                <a href="{{ route( 'tickets.index' ) }}" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' && $request->get( 'statuses', '' ) == '' ) btn-info @endif">
                     Все заявки
                 </a>
                 |
                 <a href="?show=not_processed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'not_processed' ) btn-info @endif">
-                    <i class="fa fa-clock-o"></i>
                     Необработанные заявки
                 </a>
                 >
                 <a href="?show=in_process" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'in_process' ) btn-info @endif">
-                    <i class="fa fa-wrench"></i>
                     Заявки в работе
                 </a>
                 >
                 <a href="?show=completed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'completed' ) btn-info @endif">
-                    <i class="fa fa-check-circle"></i>
                     Выполненные заявки
                 </a>
                 >
                 <a href="?show=closed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'closed' ) btn-info @endif">
-                    <i class="fa fa-dot-circle-o"></i>
                     Закрытые заявки
                 </a>
             </div>
