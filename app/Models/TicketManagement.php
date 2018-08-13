@@ -38,6 +38,7 @@ class TicketManagement extends BaseModel
     public static $workflow = [
         'created' => [
             'no_contract',
+            'transferred',
         ],
         'transferred' => [
             'accepted',
