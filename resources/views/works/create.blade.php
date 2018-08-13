@@ -28,7 +28,7 @@
             <div class="form-group">
                 {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория', 'required' ] ) !!}
+                    {!! Form::select( 'category_id', $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -40,8 +40,8 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
+                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
                     {!! Form::text( 'date_begin', \Input::old( 'date_begin', date( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
@@ -50,12 +50,29 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
+                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
                     {!! Form::text( 'date_end', \Input::old( 'date_end', date( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
                     {!! Form::text( 'time_end', \Input::old( 'time_end' ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (план.)', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'deadline', 'Предельное время устранения', [ 'class' => 'control-label col-xs-6' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::number( 'deadline', \Input::old( 'deadline' ), [ 'class' => 'form-control', 'min' => 0, 'step' => 1 ] ) !!}
+                </div>
+                <div class="col-xs-3">
+                    {!! Form::select( 'deadline_unit', \App\Models\Work::$deadline_units, \Input::old( 'deadline_unit' ), [ 'class' => 'form-control' ] ) !!}
                 </div>
             </div>
 
@@ -108,14 +125,14 @@
             <div class="form-group">
                 {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::text( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
+                    {!! Form::textarea( 'composition', \Input::old( 'composition' ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required', 'rows' => 6 ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание', 'required' ] ) !!}
+                    {!! Form::text( 'reason', \Input::old( 'reason' ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                 </div>
             </div>
 

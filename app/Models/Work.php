@@ -28,6 +28,10 @@ class Work extends BaseModel
         'provider_id',
         'phone',
         'executor_id',
+        'type_id',
+        'deadline',
+        'deadline_unit',
+        'reason',
     ];
 
     protected $fillable = [
@@ -41,6 +45,20 @@ class Work extends BaseModel
 		'time_begin',
 		'time_end',
         'time_end_fact',
+        'type_id',
+        'deadline',
+        'deadline_unit',
+    ];
+
+    public static $types = [
+        'Авария',
+        'Технологический инцидент',
+        'Плановое отключение',
+    ];
+
+    public static $deadline_units = [
+        'часы',
+        'дни',
     ];
 
     public function category ()

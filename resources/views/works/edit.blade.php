@@ -40,8 +40,8 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
+                {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
                     {!! Form::text( 'date_begin', \Input::old( 'date_begin', \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата начала работ', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
@@ -50,8 +50,8 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
+                {!! Form::label( 'date_end', 'Дата окончания работ (план.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
                     {!! Form::text( 'date_end', \Input::old( 'date_end', \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (план.)', 'required' ] ) !!}
                 </div>
                 <div class="col-xs-4">
@@ -60,12 +60,29 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-5">
+                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
+                <div class="col-xs-4">
                     {!! Form::text( 'date_end_fact', \Input::old( 'date_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y' ) : null ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (факт.)' ] ) !!}
                 </div>
                 <div class="col-xs-4">
                     {!! Form::text( 'time_end_fact', \Input::old( 'time_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'H:i' ) : null ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (факт.)' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id', $work->type_id ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( 'deadline', 'Предельное время устранения', [ 'class' => 'control-label col-xs-6' ] ) !!}
+                <div class="col-xs-3">
+                    {!! Form::number( 'deadline', \Input::old( 'deadline', $work->deadline ), [ 'class' => 'form-control', 'min' => 0, 'step' => 1 ] ) !!}
+                </div>
+                <div class="col-xs-3">
+                    {!! Form::select( 'deadline_unit', \App\Models\Work::$deadline_units, \Input::old( 'deadline_unit', $work->deadline_unit ), [ 'class' => 'form-control' ] ) !!}
                 </div>
             </div>
 
@@ -123,14 +140,14 @@
             <div class="form-group">
                 {!! Form::label( 'composition', 'Состав работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::text( 'composition', \Input::old( 'composition', $work->composition ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required' ] ) !!}
+                    {!! Form::textarea( 'composition', \Input::old( 'composition', $work->composition ), [ 'class' => 'form-control', 'placeholder' => 'Состав работ', 'required', 'rows' => 8 ] ) !!}
                 </div>
             </div>
 
             <div class="form-group">
                 {!! Form::label( 'reason', 'Основание', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::text( 'reason', \Input::old( 'reason', $work->reason ), [ 'class' => 'form-control', 'placeholder' => 'Основание', 'required' ] ) !!}
+                    {!! Form::text( 'reason', \Input::old( 'reason', $work->reason ), [ 'class' => 'form-control', 'placeholder' => 'Основание' ] ) !!}
                 </div>
             </div>
 
@@ -139,14 +156,17 @@
     </div>
 
     <div class="row margin-top-10">
-        <div class="col-lg-6 margin-bottom-10">
+        <div class="col-xs-offset-6 col-xs-6">
             <button type="submit" class="btn green btn-block btn-lg">
-                <i class="fa fa-edit"></i>
+                <i class="fa fa-plus"></i>
                 Сохранить
             </button>
         </div>
-        @if ( \Auth::user()->can( 'works.comments' ) )
-            <div class="col-lg-6">
+    </div>
+
+    @if ( \Auth::user()->can( 'works.comments' ) )
+        <div class="row margin-top-10">
+            <div class="col-lg-12">
                 <div class="note">
                     @if ( $work->canComment() )
                         <button type="button" class="btn blue btn-lg pull-right" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-origin-model-name="{{ get_class( $work ) }}" data-origin-model-id="{{ $work->id }}" data-file="1">
@@ -160,8 +180,8 @@
                     @endif
                 </div>
             </div>
-        @endif
-    </div>
+        </div>
+    @endif
 
     {!! Form::close() !!}
 
