@@ -406,7 +406,7 @@ class WorksController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 			
-		$categories = Category
+		$availableCategories = Category
 			::mine()
 			->orderBy( Category::$_table . '.name' )
 			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
@@ -426,7 +426,7 @@ class WorksController extends BaseController
             ->with( 'availableManagements', $availableManagements )
             ->with( 'providers', $providers )
             ->with( 'buildings', $buildings )
-            ->with( 'categories', $categories );
+            ->with( 'availableCategories', $availableCategories );
 
     }
 
@@ -443,8 +443,8 @@ class WorksController extends BaseController
             'provider_id'       => 'nullable|integer',
             'category_id'       => 'required|integer',
             'buildings'         => 'required|array',
-            'management_id'     => 'required|integer',
-            'executor_id'       => 'nullable|integer',
+            'managements'       => 'required|array',
+            'executors'         => 'required|array',
             'executor_name'     => 'nullable|max:255',
             'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'comment'           => 'max:255',
@@ -499,6 +499,12 @@ class WorksController extends BaseController
                     ->withErrors( $comment );
             }
         }
+
+        $work->managements()
+            ->sync( $request->get( 'managements', [] ) );
+
+        $work->executors()
+            ->sync( $request->get( 'executors', [] ) );
 
         $work->buildings()
             ->sync( $request->get( 'buildings', [] ) );
@@ -570,11 +576,11 @@ class WorksController extends BaseController
             ->current()
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-			
-		$categories = Category
-			::mine()
-			->orderBy( Category::$_table . '.name' )
-			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+
+        $availableCategories = Category
+            ::mine()
+            ->orderBy( Category::$_table . '.name' )
+            ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
         $res = Management
             ::mine()
@@ -591,7 +597,7 @@ class WorksController extends BaseController
             ->with( 'work', $work )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'providers', $providers )
-            ->with( 'categories', $categories );
+            ->with( 'availableCategories', $availableCategories );
 
     }
 
@@ -609,8 +615,8 @@ class WorksController extends BaseController
             'provider_id'       => 'nullable|integer',
             'category_id'       => 'required|integer',
             'buildings'         => 'required|array',
-            'management_id'     => 'required|integer',
-            'executor_id'       => 'nullable|integer',
+            'managements'       => 'required|array',
+            'executors'         => 'required|array',
             'executor_name'     => 'nullable|max:255',
             'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'comment'           => 'max:255',
@@ -662,6 +668,12 @@ class WorksController extends BaseController
             $work->executor_id = $executor->id;
             $work->save();
         }
+
+        $work->managements()
+            ->sync( $request->get( 'managements', [] ) );
+
+        $work->executors()
+            ->sync( $request->get( 'executors', [] ) );
 
         $work->buildings()
             ->sync( $request->get( 'buildings', [] ) );
@@ -751,7 +763,7 @@ class WorksController extends BaseController
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
         $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
-        $management_id = $request->get( 'management_id' );
+        $managements_ids = $request->get( 'managements', [] );
         $category_id = $request->get( 'category_id' );
 
         $buildings = Building
@@ -761,10 +773,10 @@ class WorksController extends BaseController
                 Building::$_table . '.id',
                 \DB::raw( 'CONCAT_WS( \' \', ' . Building::$_table . '.name, CONCAT( \'(\', ' . BuildingType::$_table . '.name, \')\' ) ) AS text' )
             )
-            ->whereHas( 'managements', function ( $managements ) use ( $management_id, $category_id )
+            ->whereHas( 'managements', function ( $managements ) use ( $managements_ids, $category_id )
             {
                 return $managements
-                    ->where( Management::$_table . '.id', '=', $management_id )
+                    ->whereIn( Management::$_table . '.id', $managements_ids )
                     ->whereHas( 'types', function ( $types ) use ( $category_id )
                     {
                         return $types

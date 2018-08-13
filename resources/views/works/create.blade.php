@@ -26,13 +26,6 @@
             @endif
 
             <div class="form-group">
-                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-9">
-                    {!! Form::select( 'category_id', $categories->toArray(), \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
@@ -40,25 +33,25 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'management_id', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( 'managements[]', 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'management_id', $availableManagements, \Input::old( 'management_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                    {!! Form::select( 'managements[]', $availableManagements, \Input::old( 'managements' ), [ 'class' => 'form-control select2', 'required', 'multiple', 'id' => 'managements' ] ) !!}
                 </div>
             </div>
 
-            <div class="form-group hidden" id="executor">
-                {!! Form::label( 'executor_id', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                <div class="col-xs-7">
-                    {!! Form::select( 'executor_id', [], \Input::old( 'executor_id' ), [ 'class' => 'form-control select2', 'data-placeholder' => ' -- выберите из списка -- ' ] ) !!}
+                <div class="form-group @if ( ! count( \Input::old( 'managements', [] ) ) ) hidden @endif" id="executor">
+                {!! Form::label( 'executors[]', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'executors[]', [], \Input::old( 'executors' ), [ 'class' => 'form-control select2', 'multiple', 'id' => 'executors' ] ) !!}
                 </div>
-                <div class="col-xs-2">
+                {{--<div class="col-xs-2">
                     <button type="button" class="btn btn-primary executor-toggle" data-toggle="#executor_create, #executor">
                         <i class="fa fa-plus"></i>
                     </button>
-                </div>
+                </div>--}}
             </div>
 
-            <div class="hidden" id="executor_create">
+            {{--<div class="hidden" id="executor_create">
 
                 <div class="form-group">
                     {!! Form::label( 'executor_name', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -79,7 +72,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div>--}}
 
             <div class="form-group">
                 {!! Form::label( 'date_begin', 'Дата и время начала работ', [ 'class' => 'control-label col-xs-4' ] ) !!}
@@ -114,6 +107,13 @@
         </div>
 
         <div class="col-lg-6">
+
+            <div class="form-group">
+                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    {!! Form::select( 'category_id', $availableCategories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                </div>
+            </div>
 
             <div class="form-group">
                 {!! Form::label( 'buildings', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -293,6 +293,35 @@
 
         };
 
+        function getExecutors ( selected )
+        {
+            var managements = $( '#managements' ).val();
+            $( '#executors' ).empty();
+            if ( managements.length )
+            {
+                $( '#executor' ).removeClass( 'hidden' );
+                $.get( '{{ route( 'managements.executors.search' ) }}', {
+                    managements: managements
+                }, function ( response )
+                {
+                    $.each( response, function ( i, executor )
+                    {
+                        $( '#executors' ).append(
+                            $( '<option>' ).val( executor.id ).text( executor.name )
+                        );
+                    });
+                    if ( selected )
+                    {
+                        $( '#executors' ).val( selected ).trigger( 'change' );
+                    }
+                });
+            }
+            else
+            {
+                $( '#executor' ).addClass( 'hidden' );
+            }
+        };
+
         $( document )
 
             .ready( function ()
@@ -327,7 +356,7 @@
                                 q: term.term,
                                 provider_id: $( '#provider_id' ).val(),
                                 category_id: $( '#category_id' ).val(),
-                                management_id: $( '#management_id' ).val()
+                                managements: $( '#managements' ).val()
                             };
                             return data;
                         },
@@ -339,6 +368,8 @@
                         }
                     }
                 });
+
+                getExecutors( '{{ implode( ',', \Input::old( 'executors', [] ) ) }}'.split( ',' ) );
 
             })
 
@@ -355,32 +386,9 @@
                 $( '#executor_name, #executor_phone' ).val( '' );
             })
 
-            .on( 'change', '#management_id', function ( e )
-            {
-                var management_id = $( this ).val();
-                $( '#executor_id' ).empty();
-                if ( management_id )
-                {
-                    $( '#executor' ).removeClass( 'hidden' );
-                    $.get( '{{ route( 'managements.executors.search' ) }}', {
-                        management_id: management_id
-                    }, function ( response )
-                    {
-                        $.each( response, function ( i, executor )
-                        {
-                            $( '#executor_id' ).append(
-                                $( '<option>' ).val( executor.id ).text( executor.name )
-                            );
-                        });
-                    });
-                }
-                else
-                {
-                    $( '#executor' ).addClass( 'hidden' );
-                }
-            })
+            .on( 'change', '#managements', getExecutors )
 
-            .on( 'change', '#provider_id, #management_id, #category_id', function ( e )
+            .on( 'change', '#provider_id, #managements, #category_id', function ( e )
             {
                 $( '#buildings' ).val( '' ).trigger( 'change' );
             });

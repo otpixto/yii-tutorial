@@ -89,14 +89,16 @@
                     </div>
                 </td>
                 <td>
-                    <div class="small">
-                        @if ( $work->management->parent )
-                            <div class="text-muted">
-                                {{ $work->management->parent->name }}
-                            </div>
-                        @endif
-                        {{ $work->management->name }}
-                    </div>
+                    @foreach ( $work->managements as $management )
+                        <div class="small">
+                            @if ( $management->parent )
+                                <span class="text-muted">
+                                    {{ $management->parent->name }}
+                                </span>
+                            @endif
+                            {{ $management->name }}
+                        </div>
+                    @endforeach
                 </td>
                 <td>
                     <div class="small">

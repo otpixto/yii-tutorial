@@ -40,6 +40,23 @@ class Grub extends Command
     public function handle ()
     {
 
+        /*$works = Work
+            ::whereDoesntHave( 'managements' )
+            ->get();
+        $bar = $this->output->createProgressBar( $works->count() );
+        foreach ( $works as $work )
+        {
+            $bar->advance();
+            $work->managements()->attach( $work->management_id );
+            if ( $work->executor_id )
+            {
+                $work->executors()->attach( $work->executor_id );
+            }
+        }
+
+        $bar->finish();
+        return;*/
+
         /*$users = User
             ::whereDoesntHave( 'managements' )
             ->whereDoesntHave( 'roles' )

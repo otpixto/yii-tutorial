@@ -433,12 +433,29 @@ class ManagementsController extends BaseController
 
     public function executorsSearch ( Request $request )
     {
-        $management = Management::find( $request->get( 'management_id' ) );
-        if ( ! $management )
+        if ( $request->has( 'managements' ) )
+        {
+            $ids = $request->get( 'managements' );
+        }
+        else if ( $request->has( 'management_id' ) )
+        {
+            $ids = [ $request->get( 'management_id' ) ];
+        }
+        else
+        {
+            $ids = [];
+        }
+        $managements = Management::mine()->whereIn( Management::$_table . '.id', $ids )->get();
+        if ( ! $managements->count() )
         {
             return false;
         }
-        return $management->executors;
+        $executors = [];
+        foreach ( $managements as $management )
+        {
+            $executors += $management->executors->toArray();
+        }
+        return $executors;
     }
 
     public function telegramOn ( Request $request, $id )

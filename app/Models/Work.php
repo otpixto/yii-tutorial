@@ -27,7 +27,6 @@ class Work extends BaseModel
         'time_end_fact',
         'provider_id',
         'phone',
-        'executor_id',
         'type_id',
         'deadline',
         'deadline_unit',
@@ -37,8 +36,6 @@ class Work extends BaseModel
     protected $fillable = [
         'provider_id',
         'category_id',
-        'management_id',
-        'executor_id',
         'reason',
         'text',
         'composition',
@@ -79,6 +76,16 @@ class Work extends BaseModel
     public function executor ()
     {
         return $this->belongsTo( 'App\Models\Executor' );
+    }
+
+    public function managements ()
+    {
+        return $this->belongsToMany( 'App\Models\Management', 'works_managements' );
+    }
+
+    public function executors ()
+    {
+        return $this->belongsToMany( 'App\Models\Executor', 'works_executors' );
     }
 
     public function provider ()
@@ -128,8 +135,8 @@ class Work extends BaseModel
         }
         $message .= 'Категория: ' . $work->category->name . PHP_EOL;
         $message .= 'Основание: ' . $work->reason . PHP_EOL;
-        $message .= 'Исполнитель работ: ' . $work->management->name . PHP_EOL;
-        $message .= 'Кто передал: ' . $work->who . PHP_EOL;
+        $message .= 'Исполнитель работ: ' . $work->managements->implode( 'name', '; ' ) . PHP_EOL;
+        $message .= 'Ответственный: ' . $work->executors->implode( 'name', '; ' ) . PHP_EOL;
         $message .= 'Состав работ: ' . $work->composition . PHP_EOL . PHP_EOL;
 
         $message .= 'Начало работ: ' . $work->time_begin . PHP_EOL;
