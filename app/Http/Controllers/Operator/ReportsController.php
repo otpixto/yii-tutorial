@@ -76,6 +76,41 @@ class ReportsController extends BaseController
 		
         $ticketManagements = $ticketManagements->get();
 
+        if ( $request->get( 'export' ) == '1' && \Auth::user()->can( 'reports.export' ) )
+        {
+            $data = [];
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+                $data[] = [
+                    'Номер заявки' => $ticketManagement->ticket->id,
+                    'Дата создания' => $ticketManagement->created_at->format( 'd.m.Y H:i' ),
+                    'Адрес заявки' => $ticketManagement->ticket->getAddress(),
+                    'Классификатор' => $ticketManagement->ticket->type->name,
+                    'Выполненные работы' => $ticketManagement->services->implode( 'name', '; ' ),
+                    'Статус заявки' => $ticketManagement->status_name,
+                    'Дата выполнения' => $ticketManagement->ticket->completed_at ? $ticketManagement->ticket->completed_at->format( 'd.m.Y H:i' ) : '',
+                    'Оценка' => $ticketManagement->rate,
+                ];
+            }
+
+            $log = Log::create([
+                'text' => 'Выгрузил отчет по исполнителям'
+            ]);
+            $log->save();
+
+            \Excel::create( 'Отчет по исполнителям', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'Отчет по исполнителям', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                } );
+            } )
+                ->export( 'xls' );
+
+            die;
+
+        }
+
         $res = [];
         foreach ( $availableManagements as $availableManagement )
         {

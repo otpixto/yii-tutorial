@@ -56,8 +56,14 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-3">
+        <div class="col-xs-offset-3 col-xs-9">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+            @if ( $ticketManagements->count() && \Auth::user()->can( 'reports.export' ) )
+                <a href="?export=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default">
+                    <i class="fa fa-download"></i>
+                    Выгрузить в Excel
+                </a>
+            @endif
         </div>
     </div>
     {!! Form::close() !!}
