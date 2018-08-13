@@ -78,6 +78,10 @@ class Ticket extends BaseModel
             'name'          => 'Отказ (нет договора с УО)',
             'class'         => 'red-thunderbird',
         ],
+        'transferred' => [
+            'name'          => 'Передать в УО',
+            'class'         => 'green-soft',
+        ],
         'transferred_again' => [
             'name'          => 'Требует доработки',
             'class'         => 'yellow-soft',
