@@ -105,14 +105,19 @@
                             </div>
                         @endforeach
                     </td>
-                    <td>
-                        &nbsp;
+                    <td class="text-center">
+                        {{ $work[ 'type' ] ?? '-' }}
                     </td>
                     <td>
                         {{ $work[ 'time_begin' ]->format( 'd.m.Y H:i' ) }}
                     </td>
                     <td class="text-center">
-                        &nbsp;
+                        @if ( isset( $work[ 'deadline' ] ) )
+                            {{ $work[ 'deadline' ] }}
+                            {{ $work[ 'deadline_unit' ] }}
+                        @else
+                            -
+                        @endif
                     </td>
                     <td>
                         {{ $work[ 'time_end' ]->format( 'd.m.Y H:i' ) }}

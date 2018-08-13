@@ -279,7 +279,13 @@ class WorksController extends BaseController
                         'management' => $work->management->name ?? null,
                         'executor_name' => $work->executor->name ?? null,
                         'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
+                        'type' => $work->type_id ? Work::$types[ $work->type_id ] : null,
                     ];
+                    if ( isset( Work::$deadline_units[ $work->deadline_unit ] ) )
+                    {
+                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline' ] = $work->deadline;
+                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline_unit' ] = mb_substr( Work::$deadline_units[ $work->deadline_unit ], 0, 1 );
+                    }
                     foreach ( $work->getAddressesGroupBySegment() as $segment )
                     {
                         $data[ $work->category_id ][ 'list' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
