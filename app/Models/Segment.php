@@ -44,6 +44,11 @@ class Segment extends BaseModel
         return $this->belongsTo( 'App\Models\Provider' );
     }
 
+    public function path ()
+    {
+        return $this->hasOne( 'App\Models\SegmentPath' );
+    }
+
     public function getChildsIds ()
     {
         $childsIds = [ $this->id ];

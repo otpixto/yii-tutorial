@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Category;
 use App\Models\ManagementAct;
+use App\Models\SegmentPath;
 use App\Models\Type;
 use App\Models\Work;
 use GuzzleHttp\Client;
@@ -39,6 +40,25 @@ class Grub extends Command
 
     public function handle ()
     {
+
+        /*$segments = Segment::whereDoesntHave( 'path' )->get();
+        foreach ( $segments as $segment )
+        {
+            $current = $segment;
+            $ids = [];
+            while ( $current->parent )
+            {
+                $current = $current->parent;
+                $ids[] = $current->id;
+            }
+            krsort( $ids );
+            $segmentPath = new SegmentPath();
+            $segmentPath->segment_id = $segment->id;
+            $segmentPath->path = '.' . implode( '.', $ids ) . '.';
+            $segmentPath->save();
+        }
+
+        return;*/
 
         /*$works = Work
             ::whereDoesntHave( 'managements' )
@@ -661,8 +681,8 @@ class Grub extends Command
         $this->info( 'Works Start' );
         $page = 0;
         $pages = null;
-        $per_page = 100;
-        $max_pages = 30;
+        $per_page = 1000;
+        $max_pages = 50;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -714,7 +734,6 @@ class Grub extends Command
                 $work->fill([
                     'provider_id'       => 1,
                     'category_id'       => $type->category_id,
-                    'management_id'     => $management_id,
                     'reason'            => $_work->client_description,
                     'composition'       => $_work->description,
                     'time_begin'        => Carbon::parse( $_work->time_begin )->toDateTimeString(),
@@ -761,7 +780,6 @@ class Grub extends Command
                         $executor->management_id = $management_id;
                         $executor->name = $executor_name;
                     }
-                    $work->executor_id = $executor->id;
                     if ( ! empty( $_work->responsible->responsible_phone ) )
                     {
                         $executor->phone = $work->phone;
@@ -770,6 +788,24 @@ class Grub extends Command
                 }
 
                 $work->save();
+
+                if ( $management_id )
+                {
+                    $work->managements()->sync( [ $management_id ] );
+                }
+                else
+                {
+                    $work->managements()->delete();
+                }
+
+                if ( $executor )
+                {
+                    $work->executors()->sync( [ $executor->id ] );
+                }
+                else
+                {
+                    $work->executors()->delete();
+                }
 
                 $work->logs()->forceDelete();
 
@@ -816,8 +852,8 @@ class Grub extends Command
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
-		$per_page = 100;
-        $max_pages = 30;
+		$per_page = 1000;
+        $max_pages = 50;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();
@@ -828,8 +864,9 @@ class Grub extends Command
 			3 => 'in_process',
 			5 => 'accepted',
 			6 => 'assigned',
+			7 => 'confirmation_operator',
 			8 => 'rejected',
-			10 => 'completed_with_act',
+			10 => 'confirmation_client',
 			11 => 'closed_with_confirm',
 			14 => 'transferred_again',
 			15 => 'from_lk',
@@ -870,16 +907,6 @@ class Grub extends Command
 
 				switch ( $_ticket->status )
 				{
-					case 7:
-						if ( $_ticket->act_id )
-						{
-							$status_code = 'completed_with_act';
-						}
-						else
-						{
-							$status_code = 'completed_without_act';
-						}
-						break;
 					case 11:
 						if ( $_ticket->rating && $_ticket->rating != -1 )
 						{

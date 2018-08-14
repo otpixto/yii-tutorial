@@ -12,6 +12,14 @@ class Management extends BaseModel
 
     public static $name = 'ЭО';
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'contract_begin',
+        'contract_end',
+    ];
+
     public static $categories = [
         1 => 'УК',
         2 => 'ЖСК, ТСН (ТСЖ)',
@@ -39,6 +47,9 @@ class Management extends BaseModel
         'site',
         'services',
         'category_id',
+        'contract_number',
+        'contract_begin',
+        'contract_end',
     ];
 
     protected $fillable = [
@@ -55,6 +66,9 @@ class Management extends BaseModel
         'services',
         'category_id',
         'has_contract',
+        'contract_number',
+        'contract_begin',
+        'contract_end',
     ];
 
     public function executors ()
@@ -141,7 +155,6 @@ class Management extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-		$attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         $new = parent::create( $attributes );
         return $new;
     }

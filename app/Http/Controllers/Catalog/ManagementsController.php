@@ -13,6 +13,7 @@ use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
 use App\Models\Type;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -329,6 +330,52 @@ class ManagementsController extends BaseController
         $this->validate( $request, $rules );
 
         $res = $management->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+
+        self::clearCache();
+
+        return redirect()->route( 'managements.edit', $management->id )
+            ->with( 'success', 'УО успешно отредактирована' );
+
+    }
+
+    public function contract ( Request $request, $id )
+    {
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $rules = [
+            'has_contract'                  => 'required|boolean',
+            'contract_number'               => 'nullable|string',
+            'contract_begin'                => 'nullable|required_with:contract_end|date',
+            'contract_end'                  => 'nullable|required_with:contract_begin|date',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $attributes = $request->all();
+
+        if ( ! empty( $attributes[ 'contract_begin' ] ) )
+        {
+            $attributes[ 'contract_begin' ] = Carbon::parse( $attributes[ 'contract_begin' ] )->toDateTimeString();
+        }
+
+        if ( ! empty( $attributes[ 'contract_end' ] ) )
+        {
+            $attributes[ 'contract_end' ] = Carbon::parse( $attributes[ 'contract_end' ] )->toDateTimeString();
+        }
+
+        $res = $management->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()

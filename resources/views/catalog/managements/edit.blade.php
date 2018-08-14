@@ -96,27 +96,6 @@
 
                 </div>
 
-                <h3>Договор</h3>
-
-                <div class="form-group">
-                    <div class="col-xs-4">
-                        {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control', 'placeholder' => 'Заключен договор' ] ) !!}
-                    </div>
-                    <div class="col-xs-4">
-                        {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
-                    </div>
-                    <div class="col-xs-4">
-                        {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
-                        <div class="input-group">
-                            {!! Form::text( 'contract_begin', $management->contract_begin, [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ' ] ) !!}
-                            <span class="input-group-addon">-</span>
-                            {!! Form::text( 'contract_end', $management->contract_end, [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО' ] ) !!}
-                        </div>
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <div class="col-xs-6">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
@@ -149,125 +128,210 @@
 
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    Акты
-                </h3>
-            </div>
-            <div class="panel-body">
+        @if ( \Auth::user()->can( 'catalog.managements.contract' ) )
 
-                @foreach ( $management->acts as $act )
-                    <div>
-                        <a href="{{ route( 'managements.act', [ $management->id, $act->id ] ) }}">
-                            {{ $act->name }}
-                        </a>
-                    </div>
-                @endforeach
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Договор
+                    </h3>
+                </div>
+                <div class="panel-body">
 
-            </div>
+                    {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.contract', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-        </div>
-
-        <div class="row">
-
-            <div class="col-lg-6">
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            Оповещения в Telegram
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <div class="form-group">
-                            @if ( ! $management->telegram_code )
-                                <div class="col-xs-12">
-                                    <button type="button" class="btn btn-success" data-action="telegram-on">Подключить</button>
-                                </div>
-                            @else
-                                <div class="col-xs-6">
-                                    <button type="button" class="btn btn-danger" data-action="telegram-off">Отключить</button>
-                                </div>
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        Пин-код
-                                    </span>
-                                    {!! Form::text( null, $management->telegram_code, [ 'class' => 'form-control', 'readonly' ] ) !!}
-                                </div>
-                            @endif
+                    <div class="form-group">
+                        <div class="col-xs-2">
+                            {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control' ] ) !!}
                         </div>
+                        <div class="col-xs-4">
+                            {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
+                        </div>
+                        <div class="col-xs-6">
+                            {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
+                            <div class="input-group">
+                                {!! Form::text( 'contract_begin', $management->contract_begin ? $management->contract_begin->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                                <span class="input-group-addon">-</span>
+                                {!! Form::text( 'contract_end', $management->contract_end ? $management->contract_end->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                            </div>
+                        </div>
+                    </div>
 
-                        @if ( $management->telegram_code )
-                            <div class="form-group">
-                                <div class="col-xs-12">
-                                    <h3>
-                                        Подписки
-                                        ({{ $management->subscriptions->count() }})
-                                    </h3>
-                                    @if ( $management->subscriptions->count() )
-                                        <ul class="list-group">
-                                            @foreach ( $management->subscriptions as $subscription )
-                                                <li class="list-group-item" data-subscribe="{{ $subscription->id }}">
-                                                    {{ $subscription->getName() }}
-                                                    @if ( $subscription->username )
-                                                        <strong>&#64;{{ $subscription->username }}</strong>
-                                                    @endif
-                                                    <small>[{{ $subscription->telegram_id }}]</small>
-                                                    <a href="javascript:;" class="badge badge-danger" data-action="telegram-unsubscribe" data-id="{{ $subscription->id }}">
-                                                        <i class="fa fa-remove"></i>
-                                                        отписать
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        @include( 'parts.error', [ 'error' => 'Активных подписок нет' ] )
-                                    @endif
-                                </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                        </div>
+                    </div>
+
+                    {!! Form::close() !!}
+
+                </div>
+
+            </div>
+
+        @endif
+
+        @if ( \Auth::user()->can( 'catalog.managements.acts' ) )
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Акты
+                    </h3>
+                </div>
+                <div class="panel-body">
+
+                    <div class="list-group">
+                        @if ( $management->parent )
+                            @foreach ( $management->parent->acts as $act )
+                                <a href="{{ route( 'managements.act', [ $management->parent_id, $act->id ] ) }}" class="list-group-item">
+                                    {{ $act->name }}
+                                </a>
+                            @endforeach
+                        @endif
+                        @foreach ( $management->acts as $act )
+                            <a href="{{ route( 'managements.act', [ $management->id, $act->id ] ) }}" class="list-group-item">
+                                {{ $act->name }}
+                            </a>
+                        @endforeach
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
+
+        @if ( \Auth::user()->can( 'catalog.managements.telegram' ) )
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Оповещения в Telegram
+                    </h3>
+                </div>
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        @if ( ! $management->telegram_code )
+                            <div class="col-xs-12">
+                                <button type="button" class="btn btn-success" data-action="telegram-on">Подключить</button>
+                            </div>
+                        @else
+                            <div class="col-xs-6">
+                                <button type="button" class="btn btn-danger" data-action="telegram-off">Отключить</button>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    Пин-код
+                                </span>
+                                {!! Form::text( null, $management->telegram_code, [ 'class' => 'form-control', 'readonly' ] ) !!}
                             </div>
                         @endif
-
                     </div>
+
+                    @if ( $management->telegram_code )
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <h3>
+                                    Подписки
+                                    ({{ $management->subscriptions->count() }})
+                                </h3>
+                                @if ( $management->subscriptions->count() )
+                                    <ul class="list-group">
+                                        @foreach ( $management->subscriptions as $subscription )
+                                            <li class="list-group-item" data-subscribe="{{ $subscription->id }}">
+                                                {{ $subscription->getName() }}
+                                                @if ( $subscription->username )
+                                                    <strong>&#64;{{ $subscription->username }}</strong>
+                                                @endif
+                                                <small>[{{ $subscription->telegram_id }}]</small>
+                                                <a href="javascript:;" class="badge badge-danger" data-action="telegram-unsubscribe" data-id="{{ $subscription->id }}">
+                                                    <i class="fa fa-remove"></i>
+                                                    отписать
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    @include( 'parts.error', [ 'error' => 'Активных подписок нет' ] )
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                 </div>
 
             </div>
 
-            <div class="col-lg-6">
+        @endif
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            Пользователи
-                            <span class="badge">{{ $management->users->count() }}</span>
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        @if ( $management->users->count() )
-                            <ul class="list-group">
-                                @foreach ( $management->users as $user )
+        @if ( \Auth::user()->can( 'catalog.managements.users' ) )
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Пользователи
+                        <span class="badge">{{ $management->users->count() }}</span>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    @if ( $management->users->count() )
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        ФИО
+                                    </th>
+                                    <th>
+                                        E-mail
+                                    </th>
+                                    <th>
+                                        Роль
+                                    </th>
                                     @if ( \Auth::user()->can( 'admin.users.edit' ) )
-                                        <a href="{{ route( 'users.edit', $user->id ) }}" class="list-group-item">
-                                            {!! $user->getName( true ) !!}
-                                        </a>
-                                    @else
-                                        <li class="list-group-item">
-                                            {!! $user->getName( true ) !!}
-                                        </li>
+                                        <th>
+                                            &nbsp;
+                                        </th>
                                     @endif
-                                @endforeach
-                            </ul>
-                        @else
-                            @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
-                        @endif
-                    </div>
-                </div>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ( $management->users as $user )
+                                <tr>
+                                    <td>
+                                        {!! $user->getName( true ) !!}
+                                    </td>
+                                    <td>
+                                        {{ $user->email }}
+                                    </td>
+                                    <td>
+                                        {{ $user->roles->implode( 'name', ', ' ) }}
+                                    </td>
+                                    @if ( \Auth::user()->can( 'admin.users.edit' ) )
+                                        <td class="text-right">
+                                            <a href="{{ route( 'users.edit', $user->id ) }}">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                        <ul class="list-group">
 
+                        </ul>
+                    @else
+                        @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                    @endif
+
+                </div>
             </div>
 
-        </div>
+        @endif
 
     @else
 

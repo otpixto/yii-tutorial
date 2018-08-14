@@ -318,7 +318,7 @@ class WorksController extends BaseController
                 ->with(
                     'comments',
                     'buildings',
-                    'management',
+                    'managements',
                     'category'
                 )
                 ->paginate( config( 'pagination.per_page' ) )

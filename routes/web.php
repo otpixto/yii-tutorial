@@ -222,6 +222,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::get( 'managements/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
             Route::get( 'managements/search/form', 'Catalog\ManagementsController@searchForm' )->name( 'managements.search.form' );
+            Route::put( 'managements/{management_id}/contract', 'Catalog\ManagementsController@contract' )->name( 'managements.contract' );
 
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
