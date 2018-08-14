@@ -15,6 +15,9 @@ class Customer extends BaseModel
     private $_calls = null;
     private $_limit = null;
 
+    private $addressTickets = null;
+    private $phoneTickets = null;
+
     protected $nullable = [
         'provider_id',
         'email',
@@ -163,16 +166,20 @@ class Customer extends BaseModel
 	
 	public function getPhones ( $html = false )
     {
-        $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
-        if ( $html )
+        $phones = '';
+        if ( ! empty( $this->phone ) )
         {
-            $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+            if ( $html )
+            {
+                $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
+            }
+            else
+            {
+                $phones .= $phone;
+            }
         }
-        else
-        {
-            $phones = $phone;
-        }
-        if ( !empty( $this->phone2 ) )
+        if ( ! empty( $this->phone2 ) )
         {
             $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
             $phones .= '; ';
@@ -200,6 +207,34 @@ class Customer extends BaseModel
             $addr .= ', кв. ' . $this->actual_flat;
         }
         return $addr;
+    }
+
+    public function getAddressTickets ( $force = false )
+    {
+        if ( $force || is_null( $this->addressTickets ) )
+        {
+            $this->addressTickets = Ticket
+                ::mine()
+                ->where( Ticket::$_table . '.actual_building_id', '=', $this->actual_building_id )
+                ->where( Ticket::$_table . '.actual_flat', '=', $this->actual_flat )
+                ->get();
+        }
+        return $this->addressTickets;
+    }
+
+    public function getPhoneTickets ( $force = false )
+    {
+        if ( $force || is_null( $this->phoneTickets ) )
+        {
+            $this->phoneTickets = $this->tickets()
+                ->whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->get();
+        }
+        return $this->phoneTickets;
     }
 
 }

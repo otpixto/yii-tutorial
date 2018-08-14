@@ -49,15 +49,7 @@
                 <div class="form-group">
 
                     <div class="col-md-4">
-                    {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
-                        <span id="segment" class="form-control text-muted">
-                            @if ( $building->segment )
-                                {{ $building->segment->name }}
-                            @else
-                                Нажмите, чтобы выбрать
-                            @endif
-                        </span>
-                        {!! Form::hidden( 'segment_id', \Input::old( 'segment_id', $building->segment_id ) ) !!}
+                        <div id="segment_id" data-name="segment_id"></div>
                     </div>
 
                     <div class="col-md-4">
@@ -179,6 +171,45 @@
             </div>
         @endif
 
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>
+                            Этаж
+                        </th>
+                        @for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
+                            <th class="text-center">
+                                Подъезд #{{ $porch }}
+                            </th>
+                        @endfor
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for( $floor = $building->floor_count; $floor >= 1; $floor -- )
+                        <tr @if ( $floor == 1 && ! $building->is_first_floor_living ) class="bg-grey" @endif>
+                            <td>
+                                Этаж #{{ $floor }}
+                            </td>
+                            @if ( $floor == 1 && ! $building->is_first_floor_living )
+                                <td colspan="{{ $building->porches_count }}" class="text-center">
+                                    Нежилой
+                                </td>
+                            @else
+                                @for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
+                                    <td class="text-center">
+                                        <div data-floor="{{ $floor }}" data-porch="{{ $porch }}"></div>
+                                    </td>
+                                @endfor
+                            @endif
+                        </tr>
+                    @endfor
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     @else
 
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
@@ -192,6 +223,9 @@
     <style>
         #map {
             height: 600px;
+        }
+        .btn-room {
+            min-width: 40px;
         }
     </style>
 @endsection
@@ -228,35 +262,20 @@
                     });
                 @endif
 
-            })
-
-            .on( 'click', '#segment', function ( e )
-            {
-
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
+                $.get( '{{ route( 'data.buildings.rooms', $building->id ) }}', function ( response )
                 {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
+                    $.each( response, function ( i, room )
                     {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
+                        $( '[data-floor="' + room.floor + '"][data-porch="' + room.porch + '"]' ).append(
+                            $( '<a class="btn btn-sm btn-room">' )
+                                .text( room.number )
+                                .attr( 'data-room', room.id )
+                                .addClass( room.is_technical ? 'btn-warning' : 'btn-info' )
+                        );
                     });
                 });
+
+                $( '#segment_id' ).selectSegment();
 
             });
 

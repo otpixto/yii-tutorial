@@ -321,9 +321,6 @@
                             @endforeach
                             </tbody>
                         </table>
-                        <ul class="list-group">
-
-                        </ul>
                     @else
                         @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                     @endif

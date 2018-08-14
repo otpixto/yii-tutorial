@@ -159,6 +159,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::prefix( 'data' )->group( function ()
         {
             Route::get( 'buildings', 'Operator\DataController@buildings' )->name( 'data.buildings' );
+            Route::get( 'buildings/{building_id}/rooms', 'Operator\DataController@buildingsRooms' )->name( 'data.buildings.rooms' );
             Route::get( 'works-buildings', 'Operator\DataController@worksBuildings' )->name( 'data.works_buildings' );
         });
 
@@ -174,6 +175,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'types', 'Catalog\TypesController' );
             Route::resource( 'segments', 'Catalog\SegmentsController' );
             Route::resource( 'buildings', 'Catalog\BuildingsController' );
+            Route::resource( 'rooms', 'Catalog\RoomsController' );
             Route::resource( 'categories', 'Catalog\CategoriesController' );
 
             Route::get( 'clear-cache', 'Catalog\BaseController@clearCacheAndRedirect' )->name( 'catalog.clear_cache' );
@@ -227,6 +229,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
             Route::get( 'customers/search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
+
+            Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
 
         });
 

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\BuildingRoom;
 use App\Models\Category;
 use App\Models\ManagementAct;
 use App\Models\SegmentPath;
@@ -188,6 +189,48 @@ class Grub extends Command
         $headers = [
             'Authorization'         => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIwYzY5MDNmMi0yOWU3LTQyNmMtOTI4Zi0yYWQzZjk0MWQ2MjciLCJzdWIiOiJtdmVyaW5AbWFpbC5ydSIsInR5cGUiOiJlbWFpbCIsImlhdCI6MTUzMDAyMDMxOCwianRpIjoiMDk4Y2VmYTc4MGRlMDUzYmE1YWJhMjQ1YTE1MDgyZTY2N2U3ZjBiNyJ9.ENhadqF_iqEfaPPCZJ7h23OJTO7jJa9tZXJH-cy5lRE',
         ];
+
+        $this->info( 'Rooms Start' );
+
+        $buildings = Building::all();
+        $bar = $this->output->createProgressBar( $buildings->count() );
+        foreach ( $buildings as $building )
+        {
+            $bar->advance();
+            $url = $api_url . 'rooms?building_id=' . $building->id;
+            $response = $this->client->get( $url, [
+                'headers' => $headers
+            ]);
+            $json_string = $response->getBody();
+            $rooms = json_decode( $json_string );
+            foreach ( $rooms->data as $_room )
+            {
+                $room = BuildingRoom::withTrashed()->find( $_room->id );
+                if ( $room ) continue;
+                $room = new BuildingRoom();
+                $room->id = $_room->id;
+                $room->fill([
+                    'building_id'       => $_room->building_id,
+                    'floor'             => $_room->floor,
+                    'porch'             => $_room->porch,
+                    'number'            => $_room->room_number,
+                    'living_area'       => $_room->living_area,
+                    'total_area'        => $_room->total_area,
+                ]);
+                $room->is_living = $_room->is_living ? 1 : 0;
+                $room->is_technical = $_room->is_technical ? 1 : 0;
+                $room->save();
+                if ( $_room->deleted )
+                {
+                    $room->delete();
+                }
+            }
+        }
+        $bar->finish();
+
+        $this->info( 'Rooms End' );
+
+        return;
 
         $this->info( 'Types Start' );
 

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Models\BuildingRoom;
 use App\Models\Ticket;
-use App\Models\Management;
 use App\Models\Work;
+use Illuminate\Http\Request;
 
 class DataController extends BaseController
 {
@@ -80,6 +81,14 @@ class DataController extends BaseController
         }
 
         return array_values( $data );
+
+    }
+
+    public function buildingsRooms ( Request $request, $id )
+    {
+
+        $rooms = BuildingRoom::where( 'building_id', '=', $id )->get();
+        return $rooms;
 
     }
 

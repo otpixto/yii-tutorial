@@ -384,6 +384,20 @@ $( document )
 
 	})
 
+    .on( 'click', '[data-room]', function ( e )
+    {
+        e.preventDefault();
+        var room_id = $( this ).attr( 'data-room' );
+        Modal.create( 'room-' + room_id, function ()
+        {
+            Modal.setTitle( 'Информация о помещении' );
+            $.get( '/catalog/rooms/' + room_id + '/info', function ( response )
+            {
+                Modal.setBody( response );
+            });
+        });
+    })
+
     .on( 'click', '[data-user]', function ( e )
     {
         e.preventDefault();

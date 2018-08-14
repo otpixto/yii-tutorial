@@ -75,6 +75,11 @@ class Building extends BaseModel
         return $this->hasMany( 'App\Models\Customer', 'id', 'actual_address_id' );
     }
 
+    public function rooms ()
+    {
+        return $this->hasMany( 'App\Models\BuildingRoom' );
+    }
+
     public function getAddress ( $withType = false )
     {
         //return $this->address . ' д. ' . $this->home;
