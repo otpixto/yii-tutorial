@@ -226,13 +226,13 @@ class WorksController extends BaseController
                         $data[] = [
                             '#' => $work->id,
                             'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
-                            'Основание' => $work->reason,
                             'Категория работ' => $work->category->name,
                             'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
                             'Адрес работ' => $address,
                             'Дома' => $buildings,
                             'Исполнитель работ' => implode( '; ', $managements ),
                             'Ответственный' => implode( '; ', $executors ),
+                            'Основание' => $work->reason,
                             'Состав работ' => $work->composition,
                             'Время начала работ' => Carbon::parse( $work->time_begin )
                                 ->format( 'd.m.y H:i' ),
