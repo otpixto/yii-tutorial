@@ -610,6 +610,8 @@ class TicketsController extends BaseController
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
 
+        $ticket->addLog( 'Просмотрел список заявок заявителя' );
+
         return view( 'tickets.mini_table' )
             ->with( 'tickets', $tickets )
             ->with( 'link', route( 'tickets.index', [ 'phone' => $ticket->phone ] ) );
@@ -636,6 +638,8 @@ class TicketsController extends BaseController
             ->where( 'phone', '!=', $ticket->phone )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
+
+        $ticket->addLog( 'Просмотрел список заявок соседей' );
 
         return view( 'tickets.mini_table' )
             ->with( 'tickets', $tickets )
@@ -664,6 +668,8 @@ class TicketsController extends BaseController
             ->where( 'category_id', '=', $ticket->type->category_id )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
+
+        $ticket->addLog( 'Просмотрел список отключений' );
 
         return view( 'tickets.works' )
             ->with( 'works', $works )

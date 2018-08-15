@@ -355,7 +355,6 @@
                             var data = {
                                 q: term.term,
                                 provider_id: $( '#provider_id' ).val(),
-                                category_id: $( '#category_id' ).val(),
                                 managements: $( '#managements' ).val()
                             };
                             return data;
@@ -388,7 +387,7 @@
 
             .on( 'change', '#managements', getExecutors )
 
-            .on( 'change', '#provider_id, #managements, #category_id', function ( e )
+            .on( 'change', '#provider_id, #managements', function ( e )
             {
                 $( '#buildings' ).val( '' ).trigger( 'change' );
             });

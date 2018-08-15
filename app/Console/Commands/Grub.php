@@ -190,6 +190,7 @@ class Grub extends Command
             'Authorization'         => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIwYzY5MDNmMi0yOWU3LTQyNmMtOTI4Zi0yYWQzZjk0MWQ2MjciLCJzdWIiOiJtdmVyaW5AbWFpbC5ydSIsInR5cGUiOiJlbWFpbCIsImlhdCI6MTUzMDAyMDMxOCwianRpIjoiMDk4Y2VmYTc4MGRlMDUzYmE1YWJhMjQ1YTE1MDgyZTY2N2U3ZjBiNyJ9.ENhadqF_iqEfaPPCZJ7h23OJTO7jJa9tZXJH-cy5lRE',
         ];
 
+        /*
         $this->info( 'Rooms Start' );
 
         $buildings = Building::all();
@@ -231,6 +232,7 @@ class Grub extends Command
         $this->info( 'Rooms End' );
 
         return;
+        */
 
         $this->info( 'Types Start' );
 
@@ -724,8 +726,8 @@ class Grub extends Command
         $this->info( 'Works Start' );
         $page = 0;
         $pages = null;
-        $per_page = 1000;
-        $max_pages = 50;
+        $per_page = 100;
+        $max_pages = 30;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
         {
@@ -895,8 +897,8 @@ class Grub extends Command
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
-		$per_page = 1000;
-        $max_pages = 50;
+		$per_page = 100;
+        $max_pages = 30;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
 		#\DB::connection( 'eds_verin' )->table( 'files' )->delete();
