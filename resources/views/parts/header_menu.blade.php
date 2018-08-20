@@ -18,7 +18,7 @@
                         </span>
                         @if ( \Auth::user()->can( 'tickets.call' ) )
                             <span class="badge badge-warning bold">
-                                {{ \App\Classes\Counter::ticketsCompletedCount() }}
+                                {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client' ) }}
                             </span>
                         @endif
                     @endif
@@ -45,11 +45,11 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
-                            <a href="{{ route( 'tickets.index' ) }}?show=completed">
+                            <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client' ] ) }}">
                                 Обзвон
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">
-                                        {{ \App\Classes\Counter::ticketsCompletedCount() }}
+                                        {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client' ) }}
                                     </span>
                                 @endif
                             </a>

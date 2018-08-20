@@ -726,7 +726,7 @@ class Grub extends Command
         $this->info( 'Works Start' );
         $page = 0;
         $pages = null;
-        $per_page = 100;
+        $per_page = 300;
         $max_pages = 30;
 
         while ( is_null( $pages ) || ( $pages > $page && $page < $max_pages ) )
@@ -897,7 +897,7 @@ class Grub extends Command
         $this->info( 'Tickets Start' );
         $page = 0;
         $pages = null;
-		$per_page = 100;
+		$per_page = 300;
         $max_pages = 30;
 
 		#\DB::connection( 'eds_verin' )->table( 'comments' )->delete();
@@ -913,6 +913,7 @@ class Grub extends Command
 			8 => 'rejected',
 			10 => 'confirmation_client',
 			11 => 'closed_with_confirm',
+			13 => 'conflict',
 			14 => 'transferred_again',
 			15 => 'from_lk',
 			16 => 'cancel',

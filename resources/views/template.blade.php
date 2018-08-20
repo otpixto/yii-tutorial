@@ -41,7 +41,7 @@
 
                         {{--@include( 'parts.notification' )--}}
 
-                        @include( 'parts.count' )
+                        {{--@include( 'parts.count' )--}}
 
                         @include( 'parts.phone' )
                         @include( 'parts.user_profile' )

@@ -8,13 +8,21 @@ use App\Models\Work;
 class Counter
 {
 
-    private static $cache_life = 30; // minutes
+    private static $cache_life = 60; // minutes
 
     private static $tickets_count = null;
     private static $tickets_overdue_count = null;
     private static $tickets_not_processed_count = null;
     private static $tickets_in_process_count = null;
     private static $tickets_completed_count = null;
+    private static $tickets_created_count = null;
+    private static $tickets_rejected_count = null;
+    private static $tickets_from_lk_count = null;
+    private static $tickets_conflict_count = null;
+    private static $tickets_confirmation_operator_count = null;
+    private static $tickets_confirmation_client_count = null;
+
+    private static $statuses = [];
 
     private static $works_count = null;
     private static $works_overdue_count = null;
@@ -122,6 +130,63 @@ class Counter
             }
         }
         return self::$tickets_completed_count;
+    }
+
+    public static function ticketsCountByStatus ( $status_code )
+    {
+        if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets.' . $status_code ) )
+        {
+            $count = TicketManagement
+                ::mine()
+                ->where( TicketManagement::$_table . '.status_code', '=', $status_code )
+                ->count();
+            \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets.' . $status_code, $count, self::$cache_life );
+        }
+        else
+        {
+            $count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets.' . $status_code );
+        }
+        return $count;
+    }
+
+    public static function ticketsCreatedCount ()
+    {
+        if ( is_null( self::$tickets_created_count ) )
+        {
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_created_count' ) )
+            {
+                self::$tickets_created_count = TicketManagement
+                    ::mine()
+                    ->where( TicketManagement::$_table . '.status_code', '=', 'created' )
+                    ->count();
+                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_created_count', self::$tickets_created_count, self::$cache_life );
+            }
+            else
+            {
+                self::$tickets_created_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_created_count' );
+            }
+        }
+        return self::$tickets_created_count;
+    }
+
+    public static function ticketsConflictCount ()
+    {
+        if ( is_null( self::$tickets_conflict_count ) )
+        {
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_conflict_count' ) )
+            {
+                self::$tickets_conflict_count = TicketManagement
+                    ::mine()
+                    ->where( TicketManagement::$_table . '.status_code', '=', 'conflict' )
+                    ->count();
+                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_conflict_count', self::$tickets_conflict_count, self::$cache_life );
+            }
+            else
+            {
+                self::$tickets_conflict_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_conflict_count' );
+            }
+        }
+        return self::$tickets_conflict_count;
     }
 
     public static function worksCount ()

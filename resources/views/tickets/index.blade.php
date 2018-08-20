@@ -72,45 +72,45 @@
 
         <div class="row margin-top-15 hidden-print" data-toggle="buttons">
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="created" @if ( $request->get( 'statuses' ) == 'created' ) checked @endif>
                     НЕРАСПРЕД.
-                    ({{ $counts->where( 'status_code', 'created' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'created' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="rejected" @if ( $request->get( 'statuses' ) == 'rejected' ) checked @endif>
                     ОТКЛОНЕННЫЕ
-                    ({{ $counts->where( 'status_code', 'rejected' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'rejected' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="from_lk" @if ( $request->get( 'statuses' ) == 'from_lk' ) checked @endif>
                     ИЗ ЛК КЛИЕНТА
-                    ({{ $counts->where( 'status_code', 'from_lk' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'from_lk' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="conflict" @if ( $request->get( 'statuses' ) == 'conflict' ) checked @endif>
                     КОНФЛИКТНЫЕ
-                    ({{ $counts->where( 'status_code', 'conflict' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'conflict' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="confirmation_operator" @if ( $request->get( 'statuses' ) == 'confirmation_operator' ) checked @endif>
                     ЗАВЕРШЕННЫЕ
-                    ({{ $counts->where( 'status_code', 'confirmation_operator' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_operator' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
-                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="confirmation_client" @if ( $request->get( 'statuses' ) == 'confirmation_client' ) checked @endif>
                     ОЖ. ОЦЕНКИ
-                    ({{ $counts->where( 'status_code', 'confirmation_client' )->count() }})
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client' ) }})
                 </label>
             </div>
         </div>
@@ -298,7 +298,11 @@
         function filterTickets ( e )
         {
 
-            e.preventDefault();
+            if ( e )
+            {
+                e.preventDefault();
+            }
+
             url = '{{ route( 'tickets.index' ) }}';
             var elements = $( '.tickets-filter:checkbox:checked, .tickets-filter:radio:checked' );
             var url = '{{ route( 'tickets.index' ) }}';
@@ -360,9 +364,11 @@
                 if ( e.keyCode == 13 )
                 {
                     e.preventDefault();
-                    var url = '{{ route( 'tickets.index' ) }}?ticket_id=' + $( this ).val();
-                    clearFilter();
-                    loadTickets( url );
+                    $( this ).attr( 'disabled', 'disabled' ).addClass( 'loading' );
+                    var url = '/tickets/' + $( this ).val();
+                    window.location.href = url;
+                    //clearFilter();
+                    //loadTickets( url );
                 }
             })
 
@@ -370,6 +376,14 @@
             {
                 e.preventDefault();
                 loadTickets( $( this ).attr( 'href' ) );
+            })
+
+            .on( 'click', 'label.radio.active', function ( e )
+            {
+                e.preventDefault();
+                e.stopPropagation();
+                $( this ).removeClass( 'active' ).find( ':radio' ).prop( 'checked', false );
+                filterTickets( e );
             })
 
             .on( 'change', '.tickets-filter', filterTickets )
