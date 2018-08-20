@@ -35,10 +35,10 @@ class ParseAddress extends Command
         {
             $exp = explode( 'д.', $addr->name );
             if ( count( $exp ) != 2 ) continue;
-            $home = trim( str_replace( ',', '', $exp[1] ) );
+            $number = trim( str_replace( ',', '', $exp[1] ) );
             $address = trim( trim( $exp[0] ), ',' );
             $addr->address = $address;
-            $addr->home = $home;
+            $addr->number = $number;
             $addr->save();
         }
 

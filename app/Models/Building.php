@@ -16,6 +16,7 @@ class Building extends BaseModel
     protected $nullable = [
         'hash',
         'guid',
+        'number',
         'lon',
         'lat',
         'date_of_construction',
@@ -36,6 +37,7 @@ class Building extends BaseModel
         'hash',
         'guid',
         'name',
+        'number',
         'lon',
         'lat',
         'date_of_construction',
@@ -91,13 +93,13 @@ class Building extends BaseModel
 		return $name;
     }
 
-    public function getFullName ( $withHome = true )
+    public function getFullName ( $withNumber = true )
     {
         $segments = $this->getSegments();
         $name = $segments->implode( 'name', ', ' );
-        if ( $withHome && $this->home )
+        if ( $withNumber && $this->number )
         {
-            $name .= ', д.' . $this->home;
+            $name .= ', д.' . $this->number;
         }
         return $name;
     }

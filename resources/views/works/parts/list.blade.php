@@ -126,7 +126,7 @@
                     </a>
                 </td>
             </tr>
-            @if ( $work->comments->count() )
+            {{--@if ( $work->comments->count() )
                 <tr>
                     <td colspan="10">
                         <div class="note note-info">
@@ -134,7 +134,7 @@
                         </div>
                     </td>
                 </tr>
-            @endif
+            @endif--}}
         @endforeach
         </tbody>
     @endif

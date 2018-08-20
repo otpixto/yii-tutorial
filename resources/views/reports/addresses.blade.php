@@ -50,8 +50,14 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-3">
+        <div class="col-xs-offset-3 col-xs-9">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+            @if ( $ticketManagements->count() && \Auth::user()->can( 'reports.export' ) )
+                <a href="?export=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default">
+                    <i class="fa fa-download"></i>
+                    Выгрузить в Excel
+                </a>
+            @endif
         </div>
     </div>
     {!! Form::close() !!}
@@ -97,7 +103,9 @@
                 @foreach ( $ticketManagements as $ticketManagement )
                     <tr>
                         <td>
-                            {{ $ticketManagement->getTicketNumber() }}
+                            <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
+                                {{ $ticketManagement->ticket->id }}
+                            </a>
                         </td>
                         <td>
                             {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
@@ -131,6 +139,11 @@
                             {{ $ticketManagement->ticket->completed_at }}
                         </td>
                         <td>
+                            @if ( $ticketManagement->management->parent )
+                                <div class="text-muted">
+                                    {{ $ticketManagement->management->parent->name }}
+                                </div>
+                            @endif
                             {{ $ticketManagement->management->name }}
                         </td>
                     </tr>

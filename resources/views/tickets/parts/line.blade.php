@@ -149,6 +149,7 @@
         </a>
     </td>
 </tr>
+{{--
 @if ( ! isset( $hideComments ) || ! $hideComments )
     @include( 'tickets.parts.comments', [ 'ticket' => $ticketManagement->ticket, 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->ticket->comments ] )
-@endif
+@endif--}}

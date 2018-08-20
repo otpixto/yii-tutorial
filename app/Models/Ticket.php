@@ -63,6 +63,7 @@ class Ticket extends BaseModel
         'archive'                           => 'Архив',
         'confirmation_operator'             => 'Ожидает подтверждения центром',
         'confirmation_client'             	=> 'Ожидает подтверждения клиентом',
+        'conflict'             	            => 'Конфликтная',
     ];
 
     public static $statuses_buttons = [
@@ -722,7 +723,7 @@ class Ticket extends BaseModel
 
     public function overdueDeadlineAcceptance ()
     {
-        if ( $this->deadline_acceptance && ( $this->accepted_at ?? Carbon::now() )->timestamp > $this->deadline_acceptance->timestamp )
+        if ( $this->overdueDeadlinePostponed() && $this->deadline_acceptance && ( $this->accepted_at ?? Carbon::now() )->timestamp > $this->deadline_acceptance->timestamp )
         {
             return true;
         }

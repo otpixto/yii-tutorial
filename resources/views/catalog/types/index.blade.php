@@ -171,8 +171,8 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'types.managements', $type->id ) }}" class="badge badge-{{ $type->managements()->mine()->count() ? 'info' : 'default' }} bold">
-                                                    {{ $type->managements()->mine()->count() }}
+                                                <a href="{{ route( 'types.managements', $type->id ) }}" class="badge badge-{{ $type->managements->count() ? 'info' : 'default' }} bold">
+                                                    {{ $type->managements->count() }}
                                                 </a>
                                             </td>
                                         @endif

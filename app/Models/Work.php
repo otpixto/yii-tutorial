@@ -281,7 +281,7 @@ class Work extends BaseModel
         $result = [];
         foreach ( $this->buildings as $building )
         {
-			$name = $building->home;
+			$name = $building->number;
 			if ( $withBuildingType )
 			{
 				$name .= ' (' . $building->buildingType->name . ')';

@@ -124,13 +124,13 @@
                                             {{ $executor->getPhone() }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'tickets.index', [ 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->tickets()->count() ? 'info' : 'default' }} bold">
-                                                {{ $executor->tickets()->count() }}
+                                            <a href="{{ route( 'tickets.index', [ 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->tickets->count() ? 'info' : 'default' }} bold">
+                                                {{ $executor->tickets->count() }}
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'works.index', [ 'show' => 'all', 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->works()->count() ? 'info' : 'default' }} bold">
-                                                {{ $executor->works()->count() }}
+                                            <a href="{{ route( 'works.index', [ 'show' => 'all', 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->works->count() ? 'info' : 'default' }} bold">
+                                                {{ $executor->works->count() }}
                                             </a>
                                         </td>
                                         <td class="text-right">

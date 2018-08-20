@@ -23,11 +23,6 @@
             <th>
                 Адрес
             </th>
-            @if ( \Auth::user()->can( 'tickets.show' ) )
-                <th class="text-center">
-                    Заявки
-                </th>
-            @endif
             <th class="text-center">
                 ЛК
             </th>
@@ -52,13 +47,6 @@
                         {{ $customer->getActualAddress() }}
                     </span>
                 </td>
-                @if ( \Auth::user()->can( 'tickets.show' ) )
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'phone' => $customer->phone ] ) }}" class="badge badge-{{ $customer->tickets()->mine()->count() ? 'info' : 'default' }} bold">
-                            {{ $customer->tickets()->mine()->count() }}
-                        </a>
-                    </td>
-                @endif
                 <td class="text-center">
                     <a href="javascript:;" data-customer-lk="{{ $customer->id }}">
                         @if ( $customer->user && $customer->user->isActive() )

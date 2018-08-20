@@ -103,6 +103,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'calendar', 'Operator\TicketsController@calendarData' )->name( 'tickets.calendar_data' );
 
             Route::get( '{ticket_id}/neighbors', 'Operator\TicketsController@neighborsTickets' )->name( 'tickets.neighbors' );
+            Route::get( '{ticket_id}/address', 'Operator\TicketsController@addressTickets' )->name( 'tickets.address' );
             Route::get( '{ticket_id}/customers', 'Operator\TicketsController@customersTickets' )->name( 'tickets.customers' );
             Route::get( '{ticket_id}/works', 'Operator\TicketsController@works' )->name( 'tickets.works' );
 

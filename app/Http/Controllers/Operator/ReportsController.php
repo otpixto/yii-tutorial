@@ -33,12 +33,14 @@ class ReportsController extends BaseController
     public function executors ( Request $request )
     {
 
-        Title::add( 'Отчет по исполнителям' );
+        Title::add( 'Отчет по исполнителю' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $management_id = $request->get( 'management_id' );
         $executor_id = $request->get( 'executor_id' );
+        $rate_from = $request->get( 'rate_from' );
+        $rate_to = $request->get( 'rate_to' );
 
         if ( $date_from->timestamp > $date_to->timestamp )
         {
@@ -52,6 +54,7 @@ class ReportsController extends BaseController
 
         $ticketManagements = TicketManagement
             ::mine()
+            ->whereBetween( 'rate', [ $rate_from, $rate_to ] )
             ->whereBetween( 'created_at', [ $date_from, $date_to ] );
 
         if ( $management_id )
@@ -141,7 +144,7 @@ class ReportsController extends BaseController
     public function rates ( Request $request )
     {
 
-        Title::add( 'Отчет по оценкам' );
+        Title::add( 'Статистика оценок' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
@@ -298,7 +301,7 @@ class ReportsController extends BaseController
     public function addresses ( Request $request )
     {
 
-        Title::add( 'Отчет по адресам' );
+        Title::add( 'Отчет по адресу' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
@@ -328,8 +331,48 @@ class ReportsController extends BaseController
             $ticketManagements = new Collection();
         }
 
+        if ( $request->get( 'export' ) == '1' && \Auth::user()->can( 'reports.export' ) )
+        {
+            $data = [];
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+                $management_name = $ticketManagement->management->name;
+                if ( $ticketManagement->management->parent )
+                {
+                    $management_name = $ticketManagement->management->parent->name . ' ' . $management_name;
+                }
+                $data[] = [
+                    'Номер заявки' => $ticketManagement->ticket->id,
+                    'Дата создания' => $ticketManagement->created_at->format( 'd.m.Y H:i' ),
+                    'Адрес заявки' => $ticketManagement->ticket->getAddress(),
+                    'Классификатор' => $ticketManagement->ticket->type->name,
+                    'Выполненные работы' => $ticketManagement->services->implode( 'name', '; ' ),
+                    'Статус заявки' => $ticketManagement->status_name,
+                    'Дата выполнения' => $ticketManagement->ticket->completed_at ? $ticketManagement->ticket->completed_at->format( 'd.m.Y H:i' ) : '',
+                    'Зона' => $management_name,
+                ];
+            }
+
+            $log = Log::create([
+                'text' => 'Выгрузил отчет по адресу'
+            ]);
+            $log->save();
+
+            \Excel::create( 'Отчет по адресу', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'Отчет по адресу', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                } );
+            } )
+                ->export( 'xls' );
+
+            die;
+
+        }
+
         $log = Log::create([
-            'text' => 'Просмотрел отчет по адресам'
+            'text' => 'Просмотрел отчет по адресу'
         ]);
         $log->save();
 						
@@ -345,7 +388,7 @@ class ReportsController extends BaseController
     public function tickets ( Request $request )
     {
 
-        Title::add( 'Отчет по заявкам' );
+        Title::add( 'Статистика заявок' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
@@ -488,6 +531,8 @@ class ReportsController extends BaseController
 
     public function operators ( Request $request )
     {
+
+        Title::add( 'Статистика по операторам' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
@@ -687,7 +732,7 @@ class ReportsController extends BaseController
     public function types ( Request $request )
     {
 
-        Title::add( 'Отчет по категориям' );
+        Title::add( 'Статистика по категориям' );
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );

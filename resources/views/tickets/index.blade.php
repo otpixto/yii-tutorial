@@ -11,26 +11,48 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
-        <div class="row margin-bottom-15 hidden-print">
-            <div class="col-xs-12">
+        <div class="row hidden-print">
+            <div class="col-lg-2 col-md-3 col-sm-6">
                 @if( \Auth::user()->can( 'tickets.create' ) )
-                    <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-lg">
+                    <a href="{{ route( 'tickets.create' ) }}" class="btn btn-success btn-block btn-lg tooltips margin-top-10" title="Добавить заявку">
                         <i class="fa fa-plus"></i>
-                        Добавить заявку
+                        Добавить
                     </a>
                 @endif
-                <a href="?statuses=created" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'created' ) btn-info @endif">
-                    Нераспределенные
-                </a>
-                <a href="?statuses=confirmation_operator" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'confirmation_operator' ) btn-info @endif">
-                    Требуют подтверждения центром
-                </a>
-                <a href="?statuses=confirmation_client" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'confirmation_client' ) btn-info @endif">
-                    Требуют подтверждения клиентом
-                </a>
-                <a href="?statuses=rejected" class="tickets-tabs btn btn-default @if ( $request->get( 'statuses', '' ) == 'rejected' ) btn-info @endif">
-                    Отклоненные заявки
-                </a>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <div class="input-group margin-top-10">
+                    <span class="input-group-addon">#</span>
+                    {!! Form::text( 'ticket_id', '', [ 'class' => 'form-control input-lg', 'placeholder' => '', 'id' => 'ticket_id' ] ) !!}
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
+                            <input type="checkbox" class="toggle tickets-filter" name="overdue_acceptance" value="1" @if ( $request->get( 'overdue_acceptance' ) == 1 ) checked @endif>
+                            ПР. ПРИНЯТИЕ
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
+                            <input type="checkbox" class="toggle tickets-filter" name="overdue_execution" value="1" @if ( $request->get( 'overdue_execution' ) == 1 ) checked @endif>
+                            ПР. ИСПОЛНЕНИЕ
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
+                            <input type="checkbox" class="toggle tickets-filter" name="dobrodel" value="1" @if ( $request->get( 'dobrodel' ) == 1 ) checked @endif>
+                            ДОБРОДЕЛ
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
+                            <input type="checkbox" class="toggle tickets-filter" name="emergency" value="1" @if ( $request->get( 'emergency' ) == 1 ) checked @endif>
+                            АВАРИЙНЫЕ
+                        </label>
+                    </div>
+                </div>
             </div>
             {{--@if ( \Auth::user()->can( 'tickets.export' ) )
                 <div class="col-xs-6 text-right">
@@ -48,27 +70,48 @@
             @endif--}}
         </div>
 
-        <div class="row hidden-print">
-            <div class="col-xs-12">
-                <a href="{{ route( 'tickets.index' ) }}" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == '' && $request->get( 'statuses', '' ) == '' ) btn-info @endif">
-                    Все заявки
-                </a>
-                |
-                <a href="?show=not_processed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'not_processed' ) btn-info @endif">
-                    Необработанные заявки
-                </a>
-                >
-                <a href="?show=in_process" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'in_process' ) btn-info @endif">
-                    Заявки в работе
-                </a>
-                >
-                <a href="?show=completed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'completed' ) btn-info @endif">
-                    Выполненные заявки
-                </a>
-                >
-                <a href="?show=closed" class="tickets-tabs btn btn-default @if ( $request->get( 'show', '' ) == 'closed' ) btn-info @endif">
-                    Закрытые заявки
-                </a>
+        <div class="row margin-top-15 hidden-print" data-toggle="buttons">
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="created" @if ( $request->get( 'statuses' ) == 'created' ) checked @endif>
+                    НЕРАСПРЕД.
+                    ({{ $counts->where( 'status_code', 'created' )->count() }})
+                </label>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="rejected" @if ( $request->get( 'statuses' ) == 'rejected' ) checked @endif>
+                    ОТКЛОНЕННЫЕ
+                    ({{ $counts->where( 'status_code', 'rejected' )->count() }})
+                </label>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="from_lk" @if ( $request->get( 'statuses' ) == 'from_lk' ) checked @endif>
+                    ИЗ ЛК КЛИЕНТА
+                    ({{ $counts->where( 'status_code', 'from_lk' )->count() }})
+                </label>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="conflict" @if ( $request->get( 'statuses' ) == 'conflict' ) checked @endif>
+                    КОНФЛИКТНЫЕ
+                    ({{ $counts->where( 'status_code', 'conflict' )->count() }})
+                </label>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="confirmation_operator" @if ( $request->get( 'statuses' ) == 'confirmation_operator' ) checked @endif>
+                    ЗАВЕРШЕННЫЕ
+                    ({{ $counts->where( 'status_code', 'confirmation_operator' )->count() }})
+                </label>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
+                <label class="margin-top-10 btn btn-default btn-block border-red-pink">
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="confirmation_client" @if ( $request->get( 'statuses' ) == 'confirmation_client' ) checked @endif>
+                    ОЖ. ОЦЕНКИ
+                    ({{ $counts->where( 'status_code', 'confirmation_client' )->count() }})
+                </label>
             </div>
         </div>
 
@@ -184,6 +227,14 @@
         .portlet {
             margin-bottom: 0;
         }
+        .border-green-jungle.active {
+            background: #26C281 !important;
+            color: #fff;
+        }
+        .border-red-pink.active {
+            color: #fff;
+            background-color: #E08283 !important;
+        }
     </style>
 @endsection
 
@@ -228,6 +279,10 @@
 
         function loadTickets ( url )
         {
+            if ( url )
+            {
+                window.history.pushState( '', '', url );
+            }
             $( '#tickets' ).loading();
             $.ajax({
                 url: url || window.location.href,
@@ -240,6 +295,34 @@
             });
         };
 
+        function filterTickets ( e )
+        {
+
+            e.preventDefault();
+            url = '{{ route( 'tickets.index' ) }}';
+            var elements = $( '.tickets-filter:checkbox:checked, .tickets-filter:radio:checked' );
+            var url = '{{ route( 'tickets.index' ) }}';
+            var filter = [];
+            elements.each( function ()
+            {
+                var key = $( this ).attr( 'name' );
+                var val = $( this ).val();
+                if ( key && val )
+                {
+                    filter.push( key + '=' + encodeURIComponent( val ) );
+                }
+            });
+
+            url += '?' + filter.join( '&' );
+            loadTickets( url );
+
+        };
+
+        function clearFilter ()
+        {
+            $( '.tickets-filter' ).removeAttr( 'checked' ).parent().removeClass( 'active' );
+        };
+
         $( document )
 
             .ready( function ()
@@ -247,6 +330,8 @@
 
                 loadTickets();
                 checkTicketCheckbox();
+
+                $( '.tickets-filter:checked' ).parent().addClass( 'active' );
 
             })
 
@@ -263,26 +348,31 @@
                     data: $( this ).serialize(),
                     success: function ( response )
                     {
-                        $( '#tickets' ).html( response );
+                        var url = '?' + $.param( response );
+                        loadTickets( url );
                         button.removeAttr( 'disabled' ).removeClass( 'loading' );
                     }
                 });
             })
 
+            .on( 'keypress', '#ticket_id', function ( e )
+            {
+                if ( e.keyCode == 13 )
+                {
+                    e.preventDefault();
+                    var url = '{{ route( 'tickets.index' ) }}?ticket_id=' + $( this ).val();
+                    clearFilter();
+                    loadTickets( url );
+                }
+            })
+
             .on( 'click', '.pagination a', function ( e )
             {
                 e.preventDefault();
-                var url = $( this ).attr( 'href' );
-                loadTickets( url );
-                window.history.pushState( '', '', url );
+                loadTickets( $( this ).attr( 'href' ) );
             })
 
-            /*.on( 'click', 'a[href].ticket-tabs', function ( e )
-            {
-                e.preventDefault();
-                $( 'a[href].ticket-tabs' ).removeClass( 'btn-info' );
-                $( this ).addClass( 'btn-info' );
-            })*/
+            .on( 'change', '.tickets-filter', filterTickets )
 
             .on( 'click', '[data-load="search"]', function ( e )
             {
@@ -380,7 +470,7 @@
                             'mask': '+7 (999) 999-99-99'
                         });
 
-                        $( '#segment_id' ).selectSegment();
+                        $( '#segment_id' ).selectSegments();
 
                     });
                 }

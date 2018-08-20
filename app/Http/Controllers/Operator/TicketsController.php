@@ -439,8 +439,11 @@ class TicketsController extends BaseController
                     'ticket.type',
                     'ticket.type.category',
                     'ticket.building',
-                    'ticket.comments',
-                    'management'
+                    'ticket.building.buildingType',
+                    #'ticket.comments',
+                    'management',
+                    'management.parent',
+                    'executor'
                 )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
@@ -455,8 +458,14 @@ class TicketsController extends BaseController
 
         }
 
+        $counts = TicketManagement
+            ::mine()
+            ->whereIn( TicketManagement::$_table . '.status_code', [ 'created', 'rejected', 'from_lk', 'conflict', 'confirmation_operator', 'confirmation_client' ] )
+            ->get();
+
         return view( 'tickets.index' )
-            ->with( 'request', $request );
+            ->with( 'request', $request )
+            ->with( 'counts', $counts );
 
     }
 
@@ -615,6 +624,35 @@ class TicketsController extends BaseController
         return view( 'tickets.mini_table' )
             ->with( 'tickets', $tickets )
             ->with( 'link', route( 'tickets.index', [ 'phone' => $ticket->phone ] ) );
+
+    }
+
+    public function addressTickets ( Request $request, $id )
+    {
+
+        $ticket = Ticket::find( $id );
+        if ( ! $ticket )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Произошла ошибка. Заявка не найдена' );
+        }
+
+        $tickets = $ticket
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
+            ->where( 'building_id', '=', $ticket->building_id )
+            ->where( 'flat', '=', $ticket->flat )
+            ->orderBy( 'id', 'desc' )
+            ->paginate( config( 'pagination.per_page' ) );
+
+        $ticket->addLog( 'Просмотрел список заявок, оформленных на тот же адрес' );
+
+        return view( 'tickets.mini_table' )
+            ->with( 'tickets', $tickets )
+            ->with( 'link', route( 'tickets.index', [ 'building_id' => $ticket->building_id, 'flat' => $ticket->flat ] ) );
 
     }
 
@@ -1073,6 +1111,16 @@ class TicketsController extends BaseController
                 ->count();
         }
 
+        $addressTicketsCount = $ticket
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
+            ->where( 'building_id', '=', $ticket->building_id )
+            ->where( 'flat', '=', $ticket->flat )
+            ->count();
+
         return view( $request->ajax() ? 'tickets.parts.info' : 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
@@ -1081,6 +1129,7 @@ class TicketsController extends BaseController
             ->with( 'comments', $comments )
             ->with( 'worksCount', $worksCount )
             ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
+            ->with( 'addressTicketsCount', $addressTicketsCount )
             ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 );
 
     }
@@ -1184,11 +1233,22 @@ class TicketsController extends BaseController
                 ->count();
         }
 
+        $addressTicketsCount = $ticket
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            })
+            ->where( 'building_id', '=', $ticket->building_id )
+            ->where( 'flat', '=', $ticket->flat )
+            ->count();
+
         return view( 'tickets.parts.select' )
             ->with( 'ticket', $ticket )
             ->with( 'managements', $managements )
             ->with( 'worksCount', $worksCount )
             ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
+            ->with( 'addressTicketsCount', $addressTicketsCount )
             ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 );
 
     }
@@ -1669,33 +1729,9 @@ class TicketsController extends BaseController
         if ( $act )
         {
 
-            $management = $ticketManagement->management->name;
-            if ( $ticketManagement->management->parent )
-            {
-                $management = $ticketManagement->management->parent->name . '<br />' . $management;
-            }
-            $content = $act->content;
-            $content = str_replace( '[[object]]', $management, $content );
-            $content = str_replace( '[[emergency]]', $ticket->emergency ? 'Авария' : '', $content );
-            $content = str_replace( '[[urgent]]', $ticket->urgently ? 'Срочно' : '', $content );
-            $content = str_replace( '[[urgent_details]]', '', $content );
-            $content = str_replace( '[[number]]', $ticket->id, $content );
-            $content = str_replace( '[[client]]', $ticket->getName(), $content );
-            $content = str_replace( '[[phone]]', $ticket->getPhones(), $content );
-            $content = str_replace( '[[address]]', $ticket->getAddress(), $content );
-            $content = str_replace( '[[executor_name]]', $ticketManagement->executor->name ?? '', $content );
-            $content = str_replace( '[[problem]]', $ticket->type->name, $content );
-            $content = str_replace( '[[details]]', $ticket->text, $content );
-            $content = str_replace( '[[execution_date]]', $ticket->scheduled_begin ? $ticket->scheduled_begin->format( 'd.m.Y' ) : '', $content );
-            $content = str_replace( '[[execution_time]]', $ticket->scheduled_begin ? $ticket->scheduled_begin->format( 'H:i' ) : '', $content );
+            $content = $act->getPreparedContent( $ticketManagement );
 
-            $content = str_replace( '[[additional_phones]]', '', $content );
-            $content = str_replace( '[[porch]]', '', $content );
-            $content = str_replace( '[[floor]]', '', $content );
-            $content = str_replace( '[[flat]]', '', $content );
-            $content = str_replace( '[[executor_position]]', '', $content );
-
-            return view( 'tickets.act2' )
+            return view( 'tickets.management_act' )
                 ->with( 'content', $content );
 
         }
@@ -2100,6 +2136,9 @@ class TicketsController extends BaseController
             'phone2'                    => null,
             'customer_id'               => null,
             'text'                      => null,
+            'firstname'                 => null,
+            'lastname'                  => null,
+            'middlename'                => null,
         ]);
         $ticket->emergency = 0;
         $ticket->urgently = 0;
@@ -2203,7 +2242,14 @@ class TicketsController extends BaseController
             $data[ 'phone' ] = preg_replace( '/[^0-9_]/', '', $data[ 'phone' ] );
         }
 
-        return redirect()->route( 'tickets.index', $data );
+        if ( $request->ajax() )
+        {
+            return $data;
+        }
+        else
+        {
+            return redirect()->route( 'tickets.index', $data );
+        }
 
     }
 

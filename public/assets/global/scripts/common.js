@@ -19,7 +19,7 @@ jQuery.cachedScript = function( url, options ) {
     return jQuery.ajax( options );
 };
 
-$.fn.selectSegment = function ()
+$.fn.selectSegments = function ()
 {
     var elements = this;
     $.cachedScript( '/assets/global/plugins/bootstrap-treeview.js' )
@@ -62,7 +62,7 @@ $.fn.selectSegment = function ()
                     {
                         Modal.create( 'segment-modal', function ()
                         {
-                            Modal.setTitle( 'Выберите сегмент', 'segment-modal' );
+                            Modal.setTitle( 'Выберите сегменты', 'segment-modal' );
                             $.get( '/catalog/segments/tree', function ( response )
                             {
                                 var tree = $( '<div></div>' );
@@ -88,6 +88,95 @@ $.fn.selectSegment = function ()
                                         Modal.hide( 'segment-modal' );
                                     }
                                 });
+                            });
+                        });
+                    })
+                    .appendTo( inputGroup )
+                    .wrap( '<span class="input-group-btn"></span>' );
+
+                select
+                    .select2({
+                        minimumInputLength: 3,
+                        minimumResultsForSearch: 30,
+                        ajax: {
+                            cache: true,
+                            type: 'post',
+                            delay: 450,
+                            data: function ( term )
+                            {
+                                var data = {
+                                    q: term.term,
+                                    provider_id: $( '#provider_id' ).val()
+                                };
+                                var _data = $( this ).closest( 'form' ).serializeArray();
+                                for( var i = 0; i < _data.length; i ++ )
+                                {
+                                    if ( _data[ i ].name != '_method' )
+                                    {
+                                        data[ _data[ i ].name ] = _data[ i ].value;
+                                    }
+                                }
+                                return data;
+                            },
+                            processResults: function ( data, page )
+                            {
+                                return {
+                                    results: data
+                                };
+                            }
+                        }
+                    });
+            });
+        });
+};
+
+$.fn.selectBuildings = function ()
+{
+    var elements = this;
+    $.cachedScript( '/assets/global/plugins/select2/js/select2.full.min.js' )
+        .done( function ( script, textStatus )
+        {
+            elements.each( function ()
+            {
+
+                var obj = $( this ).empty();
+                var name = obj.attr( 'data-name' );
+                var placeholder = obj.attr( 'data-placeholder' );
+
+                var inputGroup = $( '<div class="input-group"></div>' ).appendTo( obj );
+
+                var select = $( '<select>' )
+                    .attr( 'name', name )
+                    .attr( 'data-ajax--url', '/catalog/buildings/search' )
+                    .addClass( 'form-control' )
+                    .appendTo( inputGroup );
+
+                if ( /\[|\]/.test( name ) )
+                {
+                    select.attr( 'multiple', 'multiple' );
+                    if ( ! placeholder )
+                    {
+                        placeholder = 'Выберите адреса';
+                    }
+                }
+                else if ( ! placeholder )
+                {
+                    placeholder = 'Выберите адрес';
+                }
+
+                select
+                    .attr( 'placeholder', placeholder )
+                    .attr( 'data-placeholder', placeholder );
+
+                var button = $( '<button type="button" class="btn btn-default"><i class="fa fa-plus"></i></button>' )
+                    .on( 'click', function ()
+                    {
+                        Modal.create( 'building-modal', function ()
+                        {
+                            Modal.setTitle( 'Выберите Адреса', 'segment-modal' );
+                            $.get( '/catalog/buildings/select', function ( response )
+                            {
+                                Modal.setBody( response, 'segment-modal' );
                             });
                         });
                     })

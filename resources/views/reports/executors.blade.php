@@ -55,6 +55,14 @@
             {!! Form::select( 'executor_id', $executors->count() ? [ null => ' -- выберите из списка -- ' ] + $executors->pluck( 'name', 'id' )->toArray() : [ null => 'Ничего не найдено' ], \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
         </div>
     </div>
+    <div id="rate" class="form-group">
+        {!! Form::label( 'rate', 'Оценка', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-6">
+            <div id="rate_slider" class="noUi-danger"></div>
+            {!! Form::hidden( 'rate_from', \Input::get( 'rate_from', 1 ), [ 'id' => 'rate_from' ] ) !!}
+            {!! Form::hidden( 'rate_to', \Input::get( 'rate_to', 5 ), [ 'id' => 'rate_to' ] ) !!}
+        </div>
+    </div>
     <div class="form-group">
         <div class="col-xs-offset-3 col-xs-9">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
@@ -117,7 +125,7 @@
                     <tr>
                         <td>
                             <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
-                                {{ $ticketManagement->getTicketNumber() }}
+                                {{ $ticketManagement->ticket->id }}
                             </a>
                         </td>
                         <td>
@@ -195,6 +203,8 @@
 @section( 'css' )
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/nouislider/nouislider.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/nouislider/nouislider.pips.css" rel="stylesheet" type="text/css" />
     <style>
         @media print {
             td, th {
@@ -218,6 +228,8 @@
 
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/nouislider/wNumb.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/nouislider/nouislider.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
 
@@ -225,6 +237,60 @@
 
             .ready(function()
             {
+
+                var rateSlider = function() {
+                    var tooltipSlider = document.getElementById('rate_slider');
+
+                    noUiSlider.create(tooltipSlider, {
+                        start: [1, 5],
+                        connect: true,
+                        step: 1,
+                        range: {
+                            'min': 1,
+                            'max': 5
+                        }
+                    });
+
+                    var tipHandles = tooltipSlider.getElementsByClassName('noUi-handle'),
+                        tooltips = [];
+
+                    // Add divs to the slider handles.
+                    for ( var i = 0; i < tipHandles.length; i++ ){
+                        tooltips[i] = document.createElement( 'div' );
+                        tipHandles[i].appendChild(tooltips[i]);
+                    }
+
+                    // Add a class for styling
+                    tooltips[1].className += 'noUi-tooltip';
+                    // Add additional markup
+                    tooltips[1].innerHTML = '<span class="small text-muted">Оценка: </span><strong></strong>';
+                    // Replace the tooltip reference with the span we just added
+                    tooltips[1] = tooltips[1].getElementsByTagName( 'strong' )[0];
+
+                    // Add a class for styling
+                    tooltips[0].className += 'noUi-tooltip';
+                    // Add additional markup
+                    tooltips[0].innerHTML = '<span class="small text-muted">Оценка: </span><strong></strong>';
+                    // Replace the tooltip reference with the span we just added
+                    tooltips[0] = tooltips[0].getElementsByTagName( 'strong' )[0];
+
+                    tooltipSlider.noUiSlider.set( [ $( '#rate_from' ).val(), $( '#rate_to' ).val() ] );
+
+                    // When the slider changes, write the value to the tooltips.
+                    tooltipSlider.noUiSlider.on('update', function( values, handle ){
+                        tooltips[handle].innerHTML = Number( values[handle] );
+                        if ( handle == 0 )
+                        {
+                            $( '#rate_from' ).val( Number( values[handle] ) );
+                        }
+                        else
+                        {
+                            $( '#rate_to' ).val( Number( values[handle] ) );
+                        }
+                    });
+                };
+
+                rateSlider();
 
                 $( '.datetimepicker' ).datetimepicker({
                     isRTL: App.isRTL(),

@@ -1,3 +1,54 @@
+@if ( count( $availableStatuses ) )
+    <div class="row hidden-print">
+        <div class="col-xs-12">
+            <div class="note note-info">
+                <dl>
+                    <dt>Сменить статус:</dt>
+                    <dd>
+                        @if ( \Auth::user()->can( 'supervisor.all_statuses.edit' ) )
+                            {!! Form::open( [ 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
+                            {!! Form::hidden( 'model_name', get_class( $ticketManagement ?? $ticket ) ) !!}
+                            {!! Form::hidden( 'model_id', ( $ticketManagement ?? $ticket )->id ) !!}
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <select name="status_code" id="status_code" class="form-control select2">
+                                        <option value="">
+                                            -- выберите из списка --
+                                        </option>
+                                        @foreach( $availableStatuses as $status_code => $availableStatus )
+                                            <option value="{{ $status_code }}">
+                                                {{ $availableStatus[ 'status_name' ] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
+                                </div>
+                            </div>
+                            {!! Form::close() !!}
+                        @else
+                            @foreach( $availableStatuses as $status_code => $availableStatus )
+                                @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
+                                    @php
+                                        continue;
+                                    @endphp
+                                @endif
+                                {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
+                                {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
+                                {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
+                                {!! Form::hidden( 'status_code', $status_code ) !!}
+                                {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
+                                {!! Form::close() !!}
+                            @endforeach
+                        @endif
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="row">
     <div class="col-lg-6">
 
@@ -5,33 +56,6 @@
             <div class="row hidden-print">
                 <div class="col-xs-12">
                     @include( 'parts.rate_form', [ 'ticketManagement' => $ticketManagement ] )
-                </div>
-            </div>
-        @endif
-
-        @if ( count( $availableStatuses ) )
-            <div class="row hidden-print">
-                <div class="col-xs-12">
-                    <div class="note note-info">
-                        <dl>
-                            <dt>Сменить статус:</dt>
-                            <dd>
-                                @foreach( $availableStatuses as $status_code => $availableStatus )
-                                    @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
-                                        @php
-                                            continue;
-                                        @endphp
-                                    @endif
-                                    {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
-                                    {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
-                                    {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
-                                    {!! Form::hidden( 'status_code', $status_code ) !!}
-                                    {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
-                                    {!! Form::close() !!}
-                                @endforeach
-                            </dd>
-                        </dl>
-                    </div>
                 </div>
             </div>
         @endif
@@ -107,7 +131,7 @@
         @endif
 
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="note">
                     <dl>
                         <dt>
@@ -126,60 +150,6 @@
                                 </span>
                             @else
                                 -
-                            @endif
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="note">
-                    <dl>
-                        <dt>
-                            @if ( $ticket->canEdit() )
-                                <a href="javascript:;" class="hidden-print" data-edit="mark">
-                                    <i class="fa fa-pencil"></i>
-                                </a>
-                            @endif
-                            Дополнительные метки:
-                        </dt>
-                        <dd>
-                            @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
-                                <span class="badge badge-warning bold">
-                                    Платно
-                                </span>
-                                &nbsp;
-                            @endif
-                            @if ( $ticket->emergency )
-                                <span class="badge badge-danger bold">
-                                    <i class="icon-fire"></i>
-                                    Авария
-                                </span>
-                                &nbsp;
-                            @endif
-                            @if ( $ticket->urgently )
-                                <span class="badge badge-danger bold">
-                                    <i class="icon-speedometer"></i>
-                                    Срочно
-                                </span>
-                                &nbsp;
-                            @endif
-                            @if ( $ticket->dobrodel )
-                                <span class="badge badge-danger bold">
-                                    <i class="icon-heart"></i>
-                                    Добродел
-                                </span>
-                            @endif
-                            @if ( $ticket->group_uuid )
-                                <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
-                                    Сгруппировано
-                                </a>
-                                &nbsp;
-                            @endif
-                            @if ( $ticket->type && $ticket->type->need_act )
-                                <span class="badge bg-purple-plum bold">
-                                    <i class="glyphicon glyphicon-exclamation-sign"></i>
-                                    Требуется Акт выполненных работ
-                                </span>
                             @endif
                         </dd>
                     </dl>
@@ -277,128 +247,8 @@
 
         <hr />
 
-        @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="note note-{{ $ticket->overdueDeadlineAcceptance() ? 'danger' : 'success' }}">
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <dl>
-                                    <dt>Принять до:</dt>
-                                    <dd>
-                                        {{ $ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
-                                    </dd>
-                                </dl>
-                            </div>
-                            @if ( $ticket->accepted_at )
-                                <div class="col-xs-6">
-                                    <dl>
-                                        <dt>Принято:</dt>
-                                        <dd>
-                                            {{ $ticket->accepted_at->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
-                                </div>
-                            @endif
-                        </div>
-                        @if ( $ticket->overdueDeadlineAcceptance() )
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <span class="badge badge-danger">
-                                        <i class="fa fa-warning"></i>
-                                        Просрочено
-                                    </span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="note note-{{ $ticket->overdueDeadlineExecution() ? 'danger' : 'success' }}">
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <dl>
-                                    <dt>Выполнить до:</dt>
-                                    <dd>
-                                        {{ $ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
-                                    </dd>
-                                </dl>
-                            </div>
-                            @if ( $ticket->completed_at )
-                                <div class="col-xs-6">
-                                    <dl>
-                                        <dt>Выполнено:</dt>
-                                        <dd>
-                                            {{ $ticket->completed_at->format( 'd.m.Y H:i' ) }}
-                                        </dd>
-                                    </dl>
-                                </div>
-                            @endif
-                        </div>
-                        @if ( $ticket->overdueDeadlineExecution() )
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <span class="badge badge-danger">
-                                        <i class="fa fa-warning"></i>
-                                        Просрочено
-                                    </span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if ( ! is_null( $ticket->duration_work ) )
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note note-info">
-                        <b>Продолжительность работы УО в часах: </b>
-                        {{ $ticket->duration_work }}
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if ( $ticketManagement && $ticketManagement->rate )
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <b>Оценка работы УО: </b>
-                        @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
-                        @if ( $ticketManagement->rate_comment )
-                            <p>
-                                {{ $ticketManagement->rate_comment }}
-                            </p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if ( $ticketCalls->count() )
-            @foreach ( $ticketCalls as $ticketCall )
-                @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="note">
-                                <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
-                                    <i class="fa fa-chevron-circle-up text-danger"></i>
-                                    Исходящий вызов
-                                    <span class="text-muted small">
-                                        {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        @endif
-
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
                 <div class="note">
                     <dl>
                         <dt>
@@ -416,30 +266,73 @@
                                 </div>
                             @endif
                             <div id="tags_show" class="margin-top-10">
-                                @foreach ( $ticket->tags as $tag )
+                                @forelse ( $ticket->tags as $tag )
                                     <a href="{{ route( 'tickets.index', [ 'tags' => $tag->text ] ) }}" class="label label-info small margin-right-10">
                                         #{{ $tag->text }}
                                     </a>
-                                @endforeach
+                                @empty
+                                    -
+                                @endforelse
                             </div>
                         </dd>
                     </dl>
                 </div>
             </div>
-        </div>
-		
-		@if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="note">
-                        <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
-                            <i class="fa fa-chevron-circle-down text-success"></i>
-                            Входящий вызов
-                        </a>
-                    </div>
+            <div class="col-xs-6">
+                <div class="note">
+                    <dl>
+                        <dt>
+                            @if ( $ticket->canEdit() )
+                                <a href="javascript:;" class="hidden-print" data-edit="mark">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                            @endif
+                            Дополнительные метки:
+                        </dt>
+                        <dd>
+                            @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
+                                <span class="badge badge-warning bold">
+                                    Платно
+                                </span>
+                                &nbsp;
+                            @endif
+                            @if ( $ticket->emergency )
+                                <span class="badge badge-danger bold">
+                                    <i class="icon-fire"></i>
+                                    Авария
+                                </span>
+                                &nbsp;
+                            @endif
+                            @if ( $ticket->urgently )
+                                <span class="badge badge-danger bold">
+                                    <i class="icon-speedometer"></i>
+                                    Срочно
+                                </span>
+                                &nbsp;
+                            @endif
+                            @if ( $ticket->dobrodel )
+                                <span class="badge badge-danger bold">
+                                    <i class="icon-heart"></i>
+                                    Добродел
+                                </span>
+                            @endif
+                            @if ( $ticket->group_uuid )
+                                <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
+                                    Сгруппировано
+                                </a>
+                                &nbsp;
+                            @endif
+                            @if ( $ticket->type && $ticket->type->need_act )
+                                <span class="badge bg-purple-plum bold">
+                                    <i class="glyphicon glyphicon-exclamation-sign"></i>
+                                    Требуется Акт выполненных работ
+                                </span>
+                            @endif
+                        </dd>
+                    </dl>
                 </div>
             </div>
-        @endif
+        </div>
 
     </div>
     <div class="col-lg-6">
@@ -448,8 +341,10 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="note">
-                        <strong>Сезонность устранения: </strong>
-                        {{ $ticket->type->season }}
+                        <dl>
+                            <dt>Сезонность устранения:</dt>
+                            <dd>{{ $ticket->type->season ?? '-' }}</dd>
+                        </dl>
                     </div>
                 </div>
             </div>
@@ -494,6 +389,146 @@
             </div>
         @endif
 
+        <hr />
+
+        @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="note note-{{ $ticket->overdueDeadlineAcceptance() ? 'danger' : 'success' }}">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <dl>
+                                    <dt>Принять до:</dt>
+                                    <dd>
+                                        {{ $ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+                                    </dd>
+                                </dl>
+                            </div>
+                            @if ( $ticket->accepted_at )
+                                <div class="col-xs-6">
+                                    <dl>
+                                        <dt>Принято:</dt>
+                                        <dd>
+                                            {{ $ticket->accepted_at->format( 'd.m.Y H:i' ) }}
+                                        </dd>
+                                    </dl>
+                                </div>
+                            @endif
+                        </div>
+                        @if ( $ticket->overdueDeadlineAcceptance() )
+                            <div class="row">
+                                <div class="col-xs-12">
+                                <span class="badge badge-danger">
+                                    <i class="fa fa-warning"></i>
+                                    Просрочено
+                                </span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="note note-{{ $ticket->overdueDeadlineExecution() ? 'danger' : 'success' }}">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <dl>
+                                    <dt>Выполнить до:</dt>
+                                    <dd>
+                                        {{ $ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+                                    </dd>
+                                </dl>
+                            </div>
+                            @if ( $ticket->completed_at )
+                                <div class="col-xs-6">
+                                    <dl>
+                                        <dt>Выполнено:</dt>
+                                        <dd>
+                                            {{ $ticket->completed_at->format( 'd.m.Y H:i' ) }}
+                                        </dd>
+                                    </dl>
+                                </div>
+                            @endif
+                        </div>
+                        @if ( $ticket->overdueDeadlineExecution() )
+                            <div class="row">
+                                <div class="col-xs-12">
+                                <span class="badge badge-danger">
+                                    <i class="fa fa-warning"></i>
+                                    Просрочено
+                                </span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if ( ! is_null( $ticket->duration_work ) )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note note-info">
+                        <b>Продолжительность работы УО в часах: </b>
+                        {{ $ticket->duration_work }}
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if ( $ticketManagement && $ticketManagement->rate )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note">
+                        <b>Оценка работы УО: </b>
+                        @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
+                        @if ( $ticketManagement->rate_comment )
+                            <p>
+                                {{ $ticketManagement->rate_comment }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="note">
+                        <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
+                            <i class="fa fa-chevron-circle-down text-success"></i>
+                            Входящий вызов
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if ( $ticketCalls->count() )
+            @foreach ( $ticketCalls as $ticketCall )
+                @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="note">
+                                <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
+                                    <i class="fa fa-chevron-circle-up text-danger"></i>
+                                    Исходящий вызов
+                                    <span class="text-muted small">
+                                    {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
+                                </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+        @endif
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-ld-12">
         <ul class="nav nav-tabs margin-top-15 margin-bottom-0">
             <li class="active">
                 <a href="#main">
@@ -510,6 +545,14 @@
                     </a>
                 </li>
             @endif
+            <li>
+                <a href="#address_tickets">
+                    Заявки на этот адрес
+                    <span class="badge {{ $addressTicketsCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
+                        {{ $addressTicketsCount }}
+                    </span>
+                </a>
+            </li>
             <li>
                 <a href="#neighbors_tickets">
                     Заявки соседей
@@ -536,64 +579,64 @@
 
                     <table class="table">
                         <thead>
-                            <tr>
-                                <th width="35%">
-                                    @if ( $ticketManagement->canSetManagement() )
-                                        <a href="javascript:;" class="hidden-print" data-edit="managements">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                    @endif
-                                    УО
-                                </th>
-                                <th width="35%">
-                                    @if ( $ticketManagement->canSetExecutor() )
-                                        <a href="javascript:;" class="hidden-print" data-edit="executor">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                    @endif
-                                    Исполнитель
-                                </th>
-                                <th width="30%">
-                                    @if ( $ticketManagement->canSetExecutor() )
-                                        <a href="javascript:;" class="hidden-print" data-edit="executor">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                    @endif
-                                    Запланировано
-                                </th>
-                            </tr>
+                        <tr>
+                            <th width="35%">
+                                @if ( $ticketManagement->canSetManagement() )
+                                    <a href="javascript:;" class="hidden-print" data-edit="managements">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                @endif
+                                УО
+                            </th>
+                            <th width="35%">
+                                @if ( $ticketManagement->canSetExecutor() )
+                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                @endif
+                                Исполнитель
+                            </th>
+                            <th width="30%">
+                                @if ( $ticketManagement->canSetExecutor() )
+                                    <a href="javascript:;" class="hidden-print" data-edit="executor">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                @endif
+                                Запланировано
+                            </th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    @if ( $ticketManagement->management->parent )
-                                        <div class="text-muted">
-                                            {{ $ticketManagement->management->parent->name }}
-                                        </div>
-                                    @endif
-                                    {{ $ticketManagement->management->name }}
-                                </td>
-                                <td>
-                                    @if ( $ticketManagement->executor )
-                                        {{ $ticketManagement->executor->name }}
-                                    @else
-                                        <span class="text-danger">
+                        <tr>
+                            <td>
+                                @if ( $ticketManagement->management->parent )
+                                    <div class="text-muted">
+                                        {{ $ticketManagement->management->parent->name }}
+                                    </div>
+                                @endif
+                                {{ $ticketManagement->management->name }}
+                            </td>
+                            <td>
+                                @if ( $ticketManagement->executor )
+                                    {{ $ticketManagement->executor->name }}
+                                @else
+                                    <span class="text-danger">
                                             Исполнитель не назначен
                                         </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ( $ticketManagement->scheduled_begin && $ticketManagement->scheduled_end )
-                                        {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }}
-                                        -
-                                        {{ $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) }}
-                                    @else
-                                        <span class="text-danger">
+                                @endif
+                            </td>
+                            <td>
+                                @if ( $ticketManagement->scheduled_begin && $ticketManagement->scheduled_end )
+                                    {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }}
+                                    -
+                                    {{ $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) }}
+                                @else
+                                    <span class="text-danger">
                                             Не запланировано
                                         </span>
-                                    @endif
-                                </td>
-                            </tr>
+                                @endif
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
 
@@ -815,7 +858,7 @@
                                                 </button>
                                             </div>
                                             <div class="col-xs-6 text-right">
-                                                <button type="submit" class="btn btn-sm btn-success">
+                                                <button type="submit" class="btn btn-success">
                                                     <i class="fa fa-check"></i>
                                                     Сохранить
                                                 </button>
@@ -855,7 +898,21 @@
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="note">
-                                <h4>Комментарии</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h4>
+                                            Комментарии
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        @if ( $ticket && $ticket->canComment() )
+                                            <button type="button" class="btn btn-primary hidden-print" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+                                                <i class="fa fa-commenting"></i>
+                                                Добавить комментарий
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
                                 @if ( $comments->count() )
                                     <div id="ticket-comments">
                                         @include( 'parts.comments', [ 'origin' => $ticket, 'comments' => $comments ] )
@@ -868,26 +925,13 @@
                     </div>
                 @endif
 
-                @if ( $ticket && $ticket->canComment() )
-                    <div class="row hidden-print">
-                        <div class="col-xs-12">
-                            <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
-                                <i class="fa fa-commenting"></i>
-                                Добавить комментарий
-                            </button>
-                        </div>
-                    </div>
-                @endif
-
             </div>
 
             <div id="customer_tickets" class="tab-pane fade margin-top-15"></div>
-
             <div id="neighbors_tickets" class="tab-pane fade margin-top-15"></div>
-
+            <div id="address_tickets" class="tab-pane fade margin-top-15"></div>
             <div id="works" class="tab-pane fade margin-top-15"></div>
 
         </div>
-
     </div>
 </div>

@@ -105,7 +105,7 @@
                     selectAllValue: ''
                 });
 
-                $( '#segment_id' ).selectSegment();
+                $( '#segment_id' ).selectSegments();
 
             })
 

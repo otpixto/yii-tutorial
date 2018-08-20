@@ -123,42 +123,42 @@
                     @if ( \Auth::user()->can( 'reports.tickets' ) )
                         <li>
                             <a href="{{ route( 'reports.tickets' ) }}">
-                                Отчет по заявкам
+                                Статистика по заявокам
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'reports.types' ) )
                         <li>
                             <a href="{{ route( 'reports.types' ) }}">
-                                Отчет по категориям
+                                Статистика по категориям
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'reports.rates' ) )
                         <li>
                             <a href="{{ route( 'reports.rates' ) }}">
-                                Отчет по оценкам
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->can( 'reports.executors' ) )
-                        <li>
-                            <a href="{{ route( 'reports.executors' ) }}">
-                                Отчет по исполнителям
-                            </a>
-                        </li>
-                    @endif
-                    @if ( \Auth::user()->can( 'reports.addresses' ) )
-                        <li>
-                            <a href="{{ route( 'reports.addresses' ) }}">
-                                Отчет по адресам
+                                Статистика оценок
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'reports.operators' ) )
                         <li>
                             <a href="{{ route( 'reports.operators' ) }}">
-                                Отчет по операторам
+                                Статистика по операторам
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'reports.executors' ) )
+                        <li>
+                            <a href="{{ route( 'reports.executors' ) }}">
+                                Отчет по исполнителю
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'reports.addresses' ) )
+                        <li>
+                            <a href="{{ route( 'reports.addresses' ) }}">
+                                Отчет по адресу
                             </a>
                         </li>
                     @endif

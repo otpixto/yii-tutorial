@@ -87,7 +87,8 @@ class TypesController extends BaseController
 
         $types = $types
             ->with(
-                'category'
+                'category',
+                'managements'
             )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );

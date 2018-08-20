@@ -174,27 +174,47 @@
                 {
 
                     case '#customer_tickets':
-                        $( '#customer_tickets' ).loading();
-                        $.get( '{{ route( 'tickets.customers', $ticket->id ) }}', function ( response )
+                        if ( $( '#customer_tickets' ).text() == '' )
                         {
-                            $( '#customer_tickets' ).html( response );
-                        });
+                            $( '#customer_tickets' ).loading();
+                            $.get( '{{ route( 'tickets.customers', $ticket->id ) }}', function ( response )
+                            {
+                                $( '#customer_tickets' ).html( response );
+                            });
+                        }
+                        break;
+
+                    case '#address_tickets':
+                        if ( $( '#address_tickets' ).text() == '' )
+                        {
+                            $( '#address_tickets' ).loading();
+                            $.get( '{{ route( 'tickets.address', $ticket->id ) }}', function ( response )
+                            {
+                                $( '#address_tickets' ).html( response );
+                            });
+                        }
                         break;
 
                     case '#neighbors_tickets':
-                        $( '#neighbors_tickets' ).loading();
-                        $.get( '{{ route( 'tickets.neighbors', $ticket->id ) }}', function ( response )
+                        if ( $( '#neighbors_tickets' ).text() == '' )
                         {
-                            $( '#neighbors_tickets' ).html( response );
-                        });
+                            $( '#neighbors_tickets' ).loading();
+                            $.get( '{{ route( 'tickets.neighbors', $ticket->id ) }}', function ( response )
+                            {
+                                $( '#neighbors_tickets' ).html( response );
+                            });
+                        }
                         break;
 
                     case '#works':
-                        $( '#works' ).loading();
-                        $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
+                        if ( $( '#works' ).text() == '' )
                         {
-                            $( '#works' ).html( response );
-                        });
+                            $( '#works' ).loading();
+                            $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
+                            {
+                                $( '#works' ).html( response );
+                            });
+                        }
                         break;
 
                 }

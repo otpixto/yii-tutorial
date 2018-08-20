@@ -77,6 +77,10 @@ class BuildingsController extends BaseController
         }
 
         $buildings = $buildings
+            ->with(
+                'buildingType',
+                'managements'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

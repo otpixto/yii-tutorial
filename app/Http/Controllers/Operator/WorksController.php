@@ -341,9 +341,11 @@ class WorksController extends BaseController
 
             $works = $works
                 ->with(
-                    'comments',
+                    #'comments',
                     'buildings',
+                    'buildings.buildingType',
                     'managements',
+                    'managements.parent',
                     'category'
                 )
                 ->paginate( config( 'pagination.per_page' ) )

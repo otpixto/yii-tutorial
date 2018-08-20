@@ -20,12 +20,12 @@
                 <div class="form-group">
 
                     @if ( $providers->count() > 1 )
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::select( 'provider_id', \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик' ] ) !!}
                         </div>
                     @else
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
                             <span class="form-control">
                                 {{ $building->provider->name }}
@@ -34,14 +34,14 @@
                         {!! Form::hidden( 'provider_id', $building->provider_id ) !!}
                     @endif
 
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $building->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
                     </div>
 
                     <div class="col-md-2">
-                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'guid', \Input::old( 'guid', $building->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'number', \Input::old( 'number', $building->number ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
                     </div>
 
                 </div>
@@ -49,17 +49,23 @@
                 <div class="form-group">
 
                     <div class="col-md-4">
+                        {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
                         <div id="segment_id" data-name="segment_id"></div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         {!! Form::label( 'date_of_construction', 'Дата постройки', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'date_of_construction', \Input::old( 'date_of_construction', \Carbon\Carbon::parse( $building->date_of_construction )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'placeholder' => 'Адрес', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         {!! Form::label( 'eirts_number', 'Код ЕИРЦ', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'eirts_number', \Input::old( 'eirts_number', $building->eirts_number ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                    </div>
+
+                    <div class="col-md-4">
+                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'guid', \Input::old( 'guid', $building->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
                     </div>
 
                 </div>
@@ -275,7 +281,7 @@
                     });
                 });
 
-                $( '#segment_id' ).selectSegment();
+                $( '#segment_id' ).selectSegments();
 
             });
 
