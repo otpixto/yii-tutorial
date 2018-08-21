@@ -123,7 +123,7 @@
                     @if ( \Auth::user()->can( 'reports.tickets' ) )
                         <li>
                             <a href="{{ route( 'reports.tickets' ) }}">
-                                Статистика по заявокам
+                                Статистика по заявкам
                             </a>
                         </li>
                     @endif
