@@ -348,13 +348,13 @@ class User extends BaseModel implements
 
     public function scopeMine ( $query )
     {
-        /*return $query
+        return $query
             ->whereHas( 'providers', function ( $providers )
             {
                 return $providers
                     ->mine()
                     ->current();
-            });*/
+            });
     }
 
     public function sendEmail ( $message, $url = null )

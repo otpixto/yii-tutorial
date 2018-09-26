@@ -116,6 +116,50 @@ class TypesController extends BaseController
 
     }
 
+    public function json ( Request $request )
+    {
+
+        $provider_id = trim( $request->get( 'provider_id', '' ) );
+
+        $types = Type
+            ::mine()
+            ->select(
+                Type::$_table . '.*',
+                Category::$_table . '.name AS category_name'
+            )
+            ->join( 'categories', 'categories.id', '=', 'types.category_id' )
+            ->orderBy( Category::$_table . '.name' )
+            ->orderBy( Type::$_table .'.name' );
+
+        if ( ! empty( $provider_id ) )
+        {
+            $types
+                ->where( Type::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        $types = $types->get();
+
+        $data = [];
+        foreach ( $types as $type )
+        {
+            if ( ! isset( $data[ $type->category_id ] ) )
+            {
+                $data[ $type->category_id ] = [
+                    'id' => '',
+                    'text' => $type->category_name,
+                    'children' => [],
+                ];
+            }
+            $data[ $type->category_id ][ 'children' ][] = [
+                'id' => $type->id,
+                'text' => $type->name,
+            ];
+        }
+
+        return array_values( $data );
+
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -204,10 +248,15 @@ class TypesController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
+        $categories = Category
+            ::mine()
+            ->orderBy( Category::$_table . '.name' )
+            ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
             ->with( 'parents', $parents )
-            ->with( 'categories', Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' ) );
+            ->with( 'categories', $categories );
     }
 
     /**

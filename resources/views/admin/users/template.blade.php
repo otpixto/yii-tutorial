@@ -10,7 +10,7 @@
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'admin.users.edit' ) )
+    @if ( \Auth::user()->can( 'admin.users.edit' ) || \Auth::user()->admin )
 
         <div class="row">
             <div class="col-md-3">

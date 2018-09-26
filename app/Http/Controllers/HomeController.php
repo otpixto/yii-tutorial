@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Title;
-use App\Models\Type;
 
 class HomeController extends Controller
 {

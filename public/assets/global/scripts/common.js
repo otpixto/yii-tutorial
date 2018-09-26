@@ -410,6 +410,23 @@ function genPassword ( length )
 
 $( document )
 
+    .ajaxError( function ( err, err2 )
+    {
+        if ( err2.status == 401 )
+        {
+            swal({
+                title: 'Ошибка',
+                text: 'Требуется авторизация',
+                type: 'error',
+                allowOutsideClick: true
+            });
+            setTimeout( function ()
+            {
+                window.location.href = '/login';
+            }, 5000 );
+        }
+    })
+
 	.ready ( function ()
 	{
 
@@ -573,16 +590,11 @@ $( document )
 	{
         if ( response && response.success )
 		{
-            App.alert({
-                container: '#success-message', // alerts parent container(by default placed after the page breadcrumbs)
-                place: 'append', // append or prepent in container
-                type: 'success',  // alert's type
-                message: response.success,  // alert's message
-                close: true, // make alert closable
-                reset: false, // close all previouse alerts first
-                focus: true, // auto scroll to the alert after shown
-                closeInSeconds: 5, // auto close after defined seconds
-                icon: 'fa fa-check' // put icon before the message
+            swal({
+                title: 'Успешно',
+                text: response.success,
+                type: 'success',
+                allowOutsideClick: true
             });
 		}
 	})
@@ -593,16 +605,11 @@ $( document )
         {
             $.each( response.responseJSON, function ( i, error )
             {
-                App.alert({
-                    container: '#errors-message', // alerts parent container(by default placed after the page breadcrumbs)
-                    place: 'append', // append or prepent in container
-                    type: 'danger',  // alert's type
-                    message: error,  // alert's message
-                    close: true, // make alert closable
-                    reset: false, // close all previouse alerts first
-                    focus: true, // auto scroll to the alert after shown
-                    closeInSeconds: 5, // auto close after defined seconds
-                    icon: 'fa fa-close' // put icon before the message
+                swal({
+                    title: 'Ошибка',
+                    text: error,
+                    type: 'error',
+                    allowOutsideClick: true
                 });
             });
         }

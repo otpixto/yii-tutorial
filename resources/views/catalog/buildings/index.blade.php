@@ -93,7 +93,7 @@
                                             <a href="?building_type_id={{ $buildingType->id }}">
                                                 {{ $buildingType->name }}
                                                 <span class="badge badge-info pull-right">
-                                                    {{ $buildingType->buildings()->count() }}
+                                                    {{ $buildingType->buildings()->mine( \App\Models\BaseModel::IGNORE_MANAGEMENT )->count() }}
                                                 </span>
                                             </a>
                                         </li>

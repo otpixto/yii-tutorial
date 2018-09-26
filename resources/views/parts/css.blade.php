@@ -14,6 +14,7 @@
 <link href="/assets/global/css/plugins.min.css?v2" rel="stylesheet" type="text/css" />
 <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/assets/global/plugins/bootstrap-sweetalert/sweetalert.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
 <link href="/assets/layouts/layout5/css/layout.css" rel="stylesheet" type="text/css" />

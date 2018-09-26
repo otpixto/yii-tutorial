@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CreateUser;
+use App\Console\Commands\FixAddresses;
 use App\Console\Commands\FixDates;
 use App\Console\Commands\FixRelations;
 use App\Console\Commands\Grub;
@@ -21,10 +23,12 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Sync::class,
         FixDates::class,
+        FixAddresses::class,
         ImportAddress::class,
         FixRelations::class,
         Grub::class,
         ImportVerin::class,
+        CreateUser::class,
     ];
 
     /**

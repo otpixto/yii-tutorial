@@ -12,8 +12,6 @@ class BaseModel extends Model
 
     use SoftDeletes;
 
-    protected $connection = 'eds_verin';
-
     const IGNORE_PROVIDER = 1;
     const IGNORE_ADDRESS = 2;
     const IGNORE_MANAGEMENT = 3;

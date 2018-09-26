@@ -232,6 +232,7 @@ class ManagementsController extends BaseController
 
         $rules = [
             'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'provider_id'           => 'nullable|integer',
             'name'                  => 'required|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -248,8 +249,6 @@ class ManagementsController extends BaseController
                 ->withErrors( $management );
         }
         $management->save();
-
-        $management->providers()->attach( $request->get( 'provider_id' ) );
 
         self::clearCache();
 

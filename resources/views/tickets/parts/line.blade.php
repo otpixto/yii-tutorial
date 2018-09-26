@@ -113,19 +113,19 @@
                 </span>
             @endif
         </div>
-        {{--@if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )--}}
-            {{--<hr />--}}
-            {{--<div class="bold">--}}
-                {{--Выполненные работы:--}}
-            {{--</div>--}}
-            {{--<ol style="margin: 0; padding: 0 15px;">--}}
-                {{--@foreach ( $ticketManagement->services as $service )--}}
-                    {{--<li class="small">--}}
-                        {{--{{ $service->name }}--}}
-                    {{--</li>--}}
-                {{--@endforeach--}}
-            {{--</ol>--}}
-        {{--@endif--}}
+        @if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
+            <hr />
+            <div class="bold">
+                Выполненные работы:
+            </div>
+            <ol style="margin: 0; padding: 0 15px;">
+                @foreach ( $ticketManagement->services as $service )
+                    <li class="small">
+                        {{ $service->name }}
+                    </li>
+                @endforeach
+            </ol>
+        @endif
     </td>
     <td>
         <div>
@@ -149,7 +149,29 @@
         </a>
     </td>
 </tr>
-{{--
 @if ( ! isset( $hideComments ) || ! $hideComments )
-    @include( 'tickets.parts.comments', [ 'ticket' => $ticketManagement->ticket, 'ticketManagement' => $ticketManagement, 'comments' => $ticketManagement->ticket->comments ] )
-@endif--}}
+    <tr class="comments @if ( $ticketManagement->ticket->isFinalStatus() ) text-muted opacity @endif">
+        <td colspan="6">
+            @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+                <div class="note note-warning">
+                    <span class="small text-muted">Комментарий к отложенной заявке:</span>
+                    {{ $ticketManagement->ticket->postponed_comment }}
+                </div>
+            @endif
+            @if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
+                <div class="note note-danger">
+                    <span class="small text-muted">Комментарий к оценке:</span>
+                    {{ $ticketManagement->rate_comment }}
+                </div>
+            @endif
+            <div data-ticket-comments="{{ $ticketManagement->ticket->id }}" class="hidden">
+                <div class="text-center hidden-print">
+                    <a class="text-primary small bold" data-toggle="#tickets-comments-{{ $ticketManagement->id }}">
+                        Показать \ скрыть комментарии
+                    </a>
+                </div>
+                <div class="note note-info hidden comments" id="tickets-comments-{{ $ticketManagement->id }}"></div>
+            </div>
+        </td>
+    </tr>
+@endif

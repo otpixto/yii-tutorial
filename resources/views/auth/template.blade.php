@@ -6,9 +6,13 @@
         <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
         <p>
             @if ( \App\Models\Provider::isOperatorUrl() )
-                <span class="text-danger">Оператор</span>
+                <span class="font-red-intense">
+                    Оператор
+                </span>
             @elseif ( \App\Models\Provider::getCurrent() )
-                {{ \App\Models\Provider::$current->name }}
+                <span class="font-white">
+                    {{ \App\Models\Provider::$current->name }}
+                </span>
             @endif
         </p>
     </a>

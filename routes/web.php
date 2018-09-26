@@ -106,6 +106,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( '{ticket_id}/address', 'Operator\TicketsController@addressTickets' )->name( 'tickets.address' );
             Route::get( '{ticket_id}/customers', 'Operator\TicketsController@customersTickets' )->name( 'tickets.customers' );
             Route::get( '{ticket_id}/works', 'Operator\TicketsController@works' )->name( 'tickets.works' );
+            Route::get( '{ticket_management_id}/services', 'Operator\TicketsController@services' )->name( 'tickets.services' );
 
             Route::get( '{ticket_id}/postpone', 'Operator\TicketsController@postpone' )->name( 'tickets.postpone' );
 
@@ -132,7 +133,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
             Route::get( 'history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
-            Route::post( 'comments/{id}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
+            Route::post( 'comments/{id?}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::get( '{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
 
@@ -194,6 +195,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'buildings/{building_id}/providers/del', 'Catalog\BuildingsController@providersDel' )->name( 'buildings.providers.del' );
             Route::delete( 'buildings/{building_id}/providers/empty', 'Catalog\BuildingsController@providersEmpty' )->name( 'buildings.providers.empty' );
 
+            Route::post( 'types/json', 'Catalog\TypesController@json' )->name( 'types.json' );
             Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
             Route::get( 'types/{type_id}/managements', 'Catalog\TypesController@managements' )->name( 'types.managements' );
             Route::post( 'types/{type_id}/managements/search', 'Catalog\TypesController@managementsSearch' )->name( 'types.managements.search' );

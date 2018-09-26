@@ -19,7 +19,7 @@
 .page-header {
   margin: 0;
   padding: 0;
-  background: #2f373e;
+  background: #0c4270;
   border-bottom-color: #384047;
   /* Navbar */
   /* Navbar Brand */
@@ -54,7 +54,7 @@
       float: left;
       position: relative;
       display: inline-block;
-      background: #2f373e; }
+      background: #0c4270; }
       .page-header .topbar-actions .search-form .input-group {
         display: inherit; }
         .page-header .topbar-actions .search-form .input-group .form-control {
@@ -65,7 +65,7 @@
           border-top: none;
           border-bottom: none;
           color: #4e5962;
-          background: #2f373e;
+          background: #0c4270;
           width: 250px;
           height: 60px;
           font-size: 15px;
@@ -161,14 +161,14 @@
             float: right;
             font-size: 12px;
             padding: 4px 8px;
-            background: #2f373e; }
+            background: #0c4270; }
           .page-header .topbar-actions .btn-group-notification .dropdown-menu-v2 .dropdown-menu-list > li > a:hover {
             text-decoration: none; }
     .page-header .topbar-actions .btn-group-img .btn {
       padding: 0;
       border-radius: 0;
       line-height: normal;
-      background: #333c43;
+      background: #ef801a;
       height: 60px;
       border-left: 1px solid #384047; }
       .page-header .topbar-actions .btn-group-img .btn > span {
@@ -216,7 +216,7 @@
       .page-header .topbar-actions .search-form {
         z-index: 9;
         margin-left: 0;
-        background: #2f373e;
+        background: #0c4270;
         width: 60px; }
         .page-header .topbar-actions .search-form.open {
           right: 0;
@@ -292,7 +292,7 @@
 ----------------------------------------------------*/
 /* Body */
 body {
-  background: #2f373e url(../img/bg_01.jpg) no-repeat;
+  background: #0c4270 url(../img/bg_01.jpg) no-repeat;
   background-position: center center;
   background-size: cover;
   background-attachment: fixed; }
@@ -600,7 +600,7 @@ Page sidebar
           font-weight: 600; }
       .page-sidebar .page-sidebar-menu > li > a,
       .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu > li > a {
-        color: #2f373e;
+        color: #0c4270;
         display: block;
         position: relative;
         margin: 1px 0 0 0;
@@ -723,7 +723,7 @@ Page sidebar
             color: #94e8ff; }
         .page-sidebar .page-sidebar-menu .sub-menu li > a,
         .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu .sub-menu li > a {
-          color: #2f373e;
+          color: #0c4270;
           display: block;
           margin: 0;
           padding: 9px 14px 9px 30px;

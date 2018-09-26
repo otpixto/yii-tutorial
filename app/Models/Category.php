@@ -36,7 +36,12 @@ class Category extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereIn( self::$_table . '.provider_id', \Auth::user()->providers()->pluck( Provider::$_table . '.id' ) );
+            ->whereHas( 'provider', function ( $provider )
+            {
+                return $provider
+                    ->mine()
+                    ->current();
+            });
     }
 
 }

@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env( 'DB_CONNECTION','eds' ),
+    'default' => env( 'DB_CONNECTION','eds2' ),
 
     /*
     |--------------------------------------------------------------------------
@@ -53,11 +53,11 @@ return [
             'engine' => null,
         ],
 		
-		'eds_verin' => [
+		'eds2' => [
             'driver' => 'mysql',
             'host' => '10.10.10.5',
             'port' => '3306',
-            'database' => 'eds_verin',
+            'database' => 'eds2',
             'username' => 'eds',
             'password' => 'dZzwgrxE6eBp9dA1',
             'charset' => 'utf8mb4',

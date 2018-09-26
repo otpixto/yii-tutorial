@@ -76,23 +76,25 @@
                                     {{ $provider->name }}
                                 </td>
                                 <td>
-                                    {{ $provider->domain }}
+                                    <a href="//{{ $provider->domain }}">
+                                        {{ $provider->domain }}
+                                    </a>
                                 </td>
                                 <td>
                                     {{ $provider->phones->implode( 'phone', ', ' ) }}
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'buildings.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->buildings()->count() ? 'info' : 'default' }} bold">
+                                    <a href="//{{ $provider->domain }}/{{ route( 'buildings.index', null, false ) }}" class="badge badge-{{ $provider->buildings()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->buildings()->count() }}
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'managements.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->managements()->count() ? 'info' : 'default' }} bold">
+                                    <a href="//{{ $provider->domain }}/{{ route( 'managements.index', null, false ) }}" class="badge badge-{{ $provider->managements()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->managements()->count() }}
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route( 'types.index', [ 'provider_id' => $provider->id ] ) }}" class="badge badge-{{ $provider->types()->count() ? 'info' : 'default' }} bold">
+                                    <a href="//{{ $provider->domain }}/{{ route( 'types.index', null, false ) }}" class="badge badge-{{ $provider->types()->count() ? 'info' : 'default' }} bold">
                                         {{ $provider->types()->count() }}
                                     </a>
                                 </td>

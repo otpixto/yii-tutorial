@@ -87,6 +87,6 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', 'eds_verin' ),
+    'prefix' => env('CACHE_PREFIX', 'eds2' ),
 
 ];

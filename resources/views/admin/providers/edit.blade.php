@@ -85,14 +85,23 @@
                                         <i class="fa fa-remove"></i>
                                     </button>
                                     {{ $phone->phone }}
+                                    @if ( $phone->description )
+                                        <span class="text-muted small">
+                                            ({{ $phone->description }})
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
                             {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.phones.add', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
-                            <div class="col-xs-12">
-                                {!! Form::label( 'phone', 'Добавить телефон', [ 'class' => 'control-label' ] ) !!}
+                            <div class="col-xs-6">
+                                {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                            </div>
+                            <div class="col-xs-6">
+                                {!! Form::label( 'description', 'Описание', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'description', null, [ 'class' => 'form-control', 'placeholder' => 'Описание' ] ) !!}
                             </div>
                         </div>
                         <div class="form-group hidden-print">

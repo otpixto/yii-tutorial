@@ -70,30 +70,6 @@
                     </div>
                 </div>
             </div>
-            <div class="portlet light ">
-                <div class="portlet-title">
-                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                        <span class="caption-subject font-green-sharp bold uppercase">Поставщики</span>
-                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
-                    </div>
-                </div>
-                <div class="portlet-body todo-project-list-content" style="height: auto;">
-                    <div class="todo-project-list">
-                        <ul class="nav nav-stacked">
-                            @foreach ( $providers as $provider )
-                                <li @if ( \Input::get( 'provider_id' ) == $provider->id ) class="active" @endif>
-                                    <a href="?provider_id={{ $provider->id }}">
-                                        {{ $provider->name }}
-                                        <span class="badge badge-info pull-right">
-                                            {{ $provider->users()->count() }}
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- END TODO SIDEBAR -->
 
@@ -187,7 +163,7 @@
                                         @endif
                                     </td>
                                     <td class="text-right">
-                                        @if ( \Auth::user()->can( 'admin.users.edit' ) )
+                                        @if ( \Auth::user()->can( 'admin.users.edit' ) || \Auth::user()->admin )
                                             <a href="{{ route( 'users.edit', $user->id ) }}" class="btn btn-info">
                                                 <i class="fa fa-edit"></i>
                                             </a>

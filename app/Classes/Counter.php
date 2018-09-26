@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\Provider;
 use App\Models\TicketManagement;
 use App\Models\Work;
 
@@ -31,17 +32,17 @@ class Counter
     {
         if ( is_null( self::$tickets_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_count' ) )
             {
                 self::$tickets_count = TicketManagement
                     ::mine()
                     ->notFinaleStatuses()
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_count', self::$tickets_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_count', self::$tickets_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_count' );
+                self::$tickets_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_count' );
             }
         }
         return self::$tickets_count;
@@ -51,7 +52,7 @@ class Counter
     {
         if ( is_null( self::$tickets_overdue_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_overdue_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count' ) )
             {
                 self::$tickets_overdue_count = TicketManagement
                     ::mine()
@@ -62,11 +63,11 @@ class Counter
                             ->overdue();
                     })
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_overdue_count', self::$tickets_overdue_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count', self::$tickets_overdue_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_overdue_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_overdue_count' );
+                self::$tickets_overdue_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count' );
             }
         }
         return self::$tickets_overdue_count;
@@ -76,17 +77,17 @@ class Counter
     {
         if ( is_null( self::$tickets_not_processed_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_not_processed_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_not_processed_count' ) )
             {
                 self::$tickets_not_processed_count = TicketManagement
                     ::mine()
                     ->notProcessed()
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_not_processed_count', self::$tickets_not_processed_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_not_processed_count', self::$tickets_not_processed_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_not_processed_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_not_processed_count' );
+                self::$tickets_not_processed_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_not_processed_count' );
             }
         }
         return self::$tickets_not_processed_count;
@@ -96,17 +97,17 @@ class Counter
     {
         if ( is_null( self::$tickets_in_process_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_in_process_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_in_process_count' ) )
             {
                 self::$tickets_in_process_count = TicketManagement
                     ::mine()
                     ->inProcess()
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_in_process_count', self::$tickets_in_process_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_in_process_count', self::$tickets_in_process_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_in_process_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_in_process_count' );
+                self::$tickets_in_process_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_in_process_count' );
             }
         }
         return self::$tickets_in_process_count;
@@ -116,17 +117,17 @@ class Counter
     {
         if ( is_null( self::$tickets_completed_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_completed_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_completed_count' ) )
             {
                 self::$tickets_completed_count = TicketManagement
                     ::mine()
                     ->completed()
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_completed_count', self::$tickets_completed_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_completed_count', self::$tickets_completed_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_completed_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_completed_count' );
+                self::$tickets_completed_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_completed_count' );
             }
         }
         return self::$tickets_completed_count;
@@ -134,17 +135,17 @@ class Counter
 
     public static function ticketsCountByStatus ( $status_code )
     {
-        if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets.' . $status_code ) )
+        if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code ) )
         {
             $count = TicketManagement
                 ::mine()
                 ->where( TicketManagement::$_table . '.status_code', '=', $status_code )
                 ->count();
-            \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets.' . $status_code, $count, self::$cache_life );
+            \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code, $count, self::$cache_life );
         }
         else
         {
-            $count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets.' . $status_code );
+            $count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code );
         }
         return $count;
     }
@@ -153,17 +154,17 @@ class Counter
     {
         if ( is_null( self::$tickets_created_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_created_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_created_count' ) )
             {
                 self::$tickets_created_count = TicketManagement
                     ::mine()
                     ->where( TicketManagement::$_table . '.status_code', '=', 'created' )
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_created_count', self::$tickets_created_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_created_count', self::$tickets_created_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_created_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_created_count' );
+                self::$tickets_created_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_created_count' );
             }
         }
         return self::$tickets_created_count;
@@ -173,17 +174,17 @@ class Counter
     {
         if ( is_null( self::$tickets_conflict_count ) )
         {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'user.' . \Auth::user()->id . '.tickets_conflict_count' ) )
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_conflict_count' ) )
             {
                 self::$tickets_conflict_count = TicketManagement
                     ::mine()
                     ->where( TicketManagement::$_table . '.status_code', '=', 'conflict' )
                     ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'user.' . \Auth::user()->id . '.tickets_conflict_count', self::$tickets_conflict_count, self::$cache_life );
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_conflict_count', self::$tickets_conflict_count, self::$cache_life );
             }
             else
             {
-                self::$tickets_conflict_count = \Cache::tags( 'tickets_counts' )->get( 'user.' . \Auth::user()->id . '.tickets_conflict_count' );
+                self::$tickets_conflict_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_conflict_count' );
             }
         }
         return self::$tickets_conflict_count;
@@ -193,17 +194,17 @@ class Counter
     {
         if ( is_null( self::$works_count ) )
         {
-            if ( ! \Cache::tags( 'works_counts' )->has( 'user.' . \Auth::user()->id . '.works_count' ) )
+            if ( ! \Cache::tags( 'works_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_count' ) )
             {
                 self::$works_count = Work
                     ::mine()
                     ->current()
                     ->count();
-                \Cache::tags( 'works_counts' )->put( 'user.' . \Auth::user()->id . '.works_count', self::$works_count, self::$cache_life );
+                \Cache::tags( 'works_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_count', self::$works_count, self::$cache_life );
             }
             else
             {
-                self::$works_count = \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_count' );
+                self::$works_count = \Cache::tags( 'works_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_count' );
             }
         }
         return self::$works_count;
@@ -213,18 +214,18 @@ class Counter
     {
         if ( is_null( self::$works_overdue_count ) )
         {
-            if ( ! \Cache::tags( 'works_counts' )->has( 'user.' . \Auth::user()->id . '.works_overdue_count' ) )
+            if ( ! \Cache::tags( 'works_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_overdue_count' ) )
             {
                 self::$works_overdue_count = Work
                     ::mine()
                     ->current()
                     ->overdue()
                     ->count();
-                \Cache::tags( 'works_counts' )->put( 'user.' . \Auth::user()->id . '.works_overdue_count', self::$works_overdue_count, self::$cache_life );
+                \Cache::tags( 'works_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_overdue_count', self::$works_overdue_count, self::$cache_life );
             }
             else
             {
-                self::$works_overdue_count = \Cache::tags( 'works_counts' )->get( 'user.' . \Auth::user()->id . '.works_overdue_count' );
+                self::$works_overdue_count = \Cache::tags( 'works_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.works_overdue_count' );
             }
         }
         return self::$works_overdue_count;

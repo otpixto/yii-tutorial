@@ -17,7 +17,7 @@
     <meta content="{{ \App\Classes\Title::render() }}" name="description" />
     <meta content="{{ \Config::get( 'app.author' ) }}" name="author" />
     <title>{{ \App\Classes\Title::render() }}</title>
-    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <link rel="shortcut icon" href="{{ \App\Models\Provider::getLogo() }}" />
     @include( 'parts.css' )
 </head>
 <!-- END HEAD -->

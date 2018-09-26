@@ -31,6 +31,7 @@ class Ticket extends BaseModel
         'deadline_acceptance',
         'deadline_execution',
         'postponed_to',
+        'vendor_date',
     ];
 
     public static $places = [
@@ -171,6 +172,9 @@ class Ticket extends BaseModel
 
     protected $nullable = [
         'provider_id',
+        'vendor_id',
+        'vendor_date',
+        'vendor_number',
         'customer_id',
         'phone2',
         'flat',
@@ -184,6 +188,9 @@ class Ticket extends BaseModel
 
     protected $fillable = [
         'provider_id',
+        'vendor_id',
+        'vendor_date',
+        'vendor_number',
         'type_id',
         'building_id',
         'flat',
@@ -228,6 +235,11 @@ class Ticket extends BaseModel
     public function type ()
     {
         return $this->belongsTo( 'App\Models\Type' );
+    }
+
+    public function vendor ()
+    {
+        return $this->belongsTo( 'App\Models\Vendor' );
     }
 
     public function parent ()

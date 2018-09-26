@@ -6,9 +6,7 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
-                    <span class="hidden-md">
-                        Заявки
-                    </span>
+                    Заявки
                     @if ( \Auth::user()->can( 'tickets.counter' ) )
                         <span class="badge badge-info bold">
                             {{ \App\Classes\Counter::ticketsCount() }}
@@ -70,9 +68,7 @@
             <li class="dropdown more-dropdown @if ( Request::is( 'works*' ) ) selected @endif">
                 <a href="{{ route( 'works.index' ) }}" class="text-uppercase">
                     <i class="fa fa-wrench"></i>
-                    <span class="hidden-md">
-                        Отключения
-                    </span>
+                    Отключения
                     @if ( ( \Auth::user()->can( 'works.counter' ) ) )
                         <span class="badge badge-info bold">
                             {{ \App\Classes\Counter::worksCount() }}

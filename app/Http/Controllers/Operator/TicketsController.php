@@ -6,6 +6,7 @@ use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendStream;
 use App\Models\Building;
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Log;
@@ -15,6 +16,7 @@ use App\Models\Segment;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use App\Models\Vendor;
 use App\Models\Work;
 use App\User;
 use Carbon\Carbon;
@@ -305,11 +307,25 @@ class TicketsController extends BaseController
                         if ( ! empty( $request->get( 'provider_id' ) ) )
                         {
                             $ticket
-                                ->where( function ( $q ) use ( $request )
-                                {
-                                    return $q
-                                        ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
-                                });
+                                ->where( Ticket::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
+                        }
+
+                        if ( ! empty( $request->get( 'vendor_id' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.vendor_id', '=', $request->get( 'vendor_id' ) );
+                        }
+
+                        if ( ! empty( $request->get( 'vendor_date' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.vendor_date', '=', $request->get( 'vendor_date' ) );
+                        }
+
+                        if ( ! empty( $request->get( 'vendor_number' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.vendor_number', '=', $request->get( 'vendor_number' ) );
                         }
 
                         if ( $request->get( 'show' ) == 'overdue' )
@@ -529,6 +545,11 @@ class TicketsController extends BaseController
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
+        $vendors = Vendor
+            ::orderBy( Vendor::$_table . '.name' )
+            ->pluck( Vendor::$_table . '.name', Vendor::$_table . '.id' )
+            ->toArray();
+
         $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
         $res = Type::mine()->with( 'category' )->get()->sortBy( 'name' );
         $availableTypes = [];
@@ -592,6 +613,7 @@ class TicketsController extends BaseController
             ->with( 'managements', $managements ?? [] )
             ->with( 'operators', $operators ?? [] )
             ->with( 'providers', $providers ?? [] )
+            ->with( 'vendors', $vendors ?? [] )
             ->with( 'building', $building ?? [] )
             ->with( 'segment', $segment ?? [] )
             ->with( 'actual_building', $actual_building ?? [] )
@@ -621,7 +643,7 @@ class TicketsController extends BaseController
 
         $ticket->addLog( 'Просмотрел список заявок заявителя' );
 
-        return view( 'tickets.mini_table' )
+        return view( 'tickets.tabs.mini_table' )
             ->with( 'tickets', $tickets )
             ->with( 'link', route( 'tickets.index', [ 'phone' => $ticket->phone ] ) );
 
@@ -650,7 +672,7 @@ class TicketsController extends BaseController
 
         $ticket->addLog( 'Просмотрел список заявок, оформленных на тот же адрес' );
 
-        return view( 'tickets.mini_table' )
+        return view( 'tickets.tabs.mini_table' )
             ->with( 'tickets', $tickets )
             ->with( 'link', route( 'tickets.index', [ 'building_id' => $ticket->building_id, 'flat' => $ticket->flat ] ) );
 
@@ -679,9 +701,26 @@ class TicketsController extends BaseController
 
         $ticket->addLog( 'Просмотрел список заявок соседей' );
 
-        return view( 'tickets.mini_table' )
+        return view( 'tickets.tabs.mini_table' )
             ->with( 'tickets', $tickets )
             ->with( 'link', route( 'tickets.index', [ 'building_id' => $ticket->building_id ] ) );
+
+    }
+
+    public function services ( Request $request, $id )
+    {
+
+        $ticketManagement = TicketManagement::find( $id );
+        if ( ! $ticketManagement )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Произошла ошибка. Заявка не найдена' );
+        }
+
+        $ticketManagement->addLog( 'Просмотрел список выполненных работ' );
+
+        return view( 'tickets.tabs.services' )
+            ->with( 'ticketManagement', $ticketManagement );
 
     }
 
@@ -709,7 +748,7 @@ class TicketsController extends BaseController
 
         $ticket->addLog( 'Просмотрел список отключений' );
 
-        return view( 'tickets.works' )
+        return view( 'tickets.tabs.works' )
             ->with( 'works', $works )
             ->with( 'link', route( 'works.index', [ 'building_id' => $ticket->building_id, 'category_id' => $ticket->type->category_id ] ) );
 
@@ -745,31 +784,45 @@ class TicketsController extends BaseController
 
     }
 
-    public function comments ( Request $request, $id )
+    public function comments ( Request $request, $id = null )
     {
 
-        $ticket = Ticket
-            ::whereHas( 'managements', function ( $managements )
-            {
-                return $managements
-                    ->mine();
-            })
-            ->where( 'id', '=', $id )
-            ->first();
-
-        if ( ! $ticket ) return;
-
-        if ( $request->get( 'commentsOnly', false ) )
+        if ( $id )
         {
+            $ticket = Ticket
+                ::whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->where( 'id', '=', $id )
+                ->first();
             return view( 'parts.comments' )
                 ->with( 'origin', $ticket )
                 ->with( 'comments', $ticket->getComments() );
         }
-        else
+        else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
         {
-            return view( 'parts.ticket_comments' )
-                ->with( 'ticket', $ticket )
-                ->with( 'comments', $ticket->getComments() );
+            $tickets = Ticket
+                ::whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->whereIn( 'id', $request->get( 'ids' ) )
+                ->get();
+            $response = [];
+            foreach ( $tickets as $ticket )
+            {
+                if ( $ticket->comments->count() )
+                {
+                    $response[ $ticket->id ] = view( 'parts.comments' )
+                        ->with( 'origin', $ticket )
+                        ->with( 'comments', $ticket->comments )
+                        ->render();
+                }
+            }
+            return $response;
         }
 
     }
@@ -796,18 +849,20 @@ class TicketsController extends BaseController
 
         $res = Type
             ::mine()
-            ->orderBy( Type::$_table . '.name' )
+            ->select(
+                Type::$_table . '.*',
+                Category::$_table . '.name AS category_name'
+            )
+            ->join( 'categories', 'categories.id', '=', 'types.category_id' )
+            ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
+            ->orderBy( Category::$_table . '.name' )
+            ->orderBy( Type::$_table .'.name' )
             ->get();
 
         $types = [];
         foreach ( $res as $r )
         {
-            $name = $r->name;
-            if ( $r->is_pay )
-            {
-                $name .= ' (платно)';
-            }
-            $types[ $r->category->name ][ $r->id ] = $name;
+            $types[ $r->category->name ][ $r->id ] = $r->name;
         }
 
         $providers = Provider
@@ -816,10 +871,16 @@ class TicketsController extends BaseController
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', 'id' );
 
+        $vendors = Vendor
+            ::orderBy( Vendor::$_table . '.name' )
+            ->pluck( Vendor::$_table . '.name', 'id' )
+            ->toArray();
+
         return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'ticket', $ticket )
             ->with( 'providers', $providers )
+            ->with( 'vendors', $vendors )
             ->with( 'places', Ticket::$places );
     }
 
@@ -834,6 +895,8 @@ class TicketsController extends BaseController
 
         $rules = [
             'provider_id'               => 'nullable|integer',
+            'vendor_id'                 => 'nullable|integer',
+            'vendor_date'               => 'nullable|date',
             'type_id'                   => 'required|integer',
             'building_id'               => 'required|integer',
             'flat'                      => 'nullable',
@@ -1021,6 +1084,21 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
+        if ( $ticket->status_code == 'draft' )
+        {
+            if ( $ticket->author_id == \Auth::user()->id )
+            {
+                return redirect()
+                    ->route( 'tickets.create' );
+            }
+            else
+            {
+                return redirect()
+                    ->route( 'tickets.index' )
+                    ->withErrors( [ 'Заявка не найдена' ] );
+            }
+        }
+
         $comments = $ticket->comments;
 
         if ( $ticket_management_id )
@@ -1037,11 +1115,15 @@ class TicketsController extends BaseController
             }
             $ticketManagement->addLog( 'Просмотрел заявку №' . $ticketManagement->getTicketNumber() );
             Title::add( 'Заявка #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+            $servicesCount = $ticketManagement
+                ->services()
+                ->count();
         }
         else
         {
             $ticket->addLog( 'Просмотрел заявку №' . $ticket->id );
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+            $servicesCount = 0;
         }
 
         if ( \Auth::user()->can( 'tickets.calls.all' ) || \Auth::user()->can( 'tickets.calls.mine' ) )
@@ -1086,7 +1168,7 @@ class TicketsController extends BaseController
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $ticket->building_id );
             })
-            ->where( 'category_id', '=', $ticket->type->category_id )
+            ->where( 'category_id', '=', $ticket->type->category_id ?? '' )
             ->count();
 
         $neighborsTicketsCount = $ticket
@@ -1096,7 +1178,7 @@ class TicketsController extends BaseController
                 return $managements
                     ->mine();
             })
-            ->where( 'phone', '!=', $ticket->phone )
+            ->where( 'flat', '!=', $ticket->flat )
             ->count();
 
         if ( $ticket->phone )
@@ -1128,6 +1210,7 @@ class TicketsController extends BaseController
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
             ->with( 'worksCount', $worksCount )
+            ->with( 'servicesCount', $servicesCount )
             ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
             ->with( 'addressTicketsCount', $addressTicketsCount )
             ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 );
@@ -1186,7 +1269,7 @@ class TicketsController extends BaseController
             ->select(
                 Management::$_table . '.*'
             )
-            ->join( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
+            ->leftJoin( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
             ->whereHas( 'types', function ( $types ) use ( $ticket )
             {
                 return $types
@@ -1860,9 +1943,17 @@ class TicketsController extends BaseController
                 ]);
                 if ( $executor instanceof MessageBag )
                 {
-                    return redirect()
-                        ->back()
-                        ->withErrors( $executor );
+                    if ( $request->ajax() )
+                    {
+                        $error = $executor->first();
+                        return compact( 'error' );
+                    }
+                    else
+                    {
+                        return redirect()
+                            ->back()
+                            ->withErrors( $executor );
+                    }
                 }
             }
             else
@@ -1881,20 +1972,49 @@ class TicketsController extends BaseController
         $res = $ticketManagement->changeStatus( 'assigned', true );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
-                ->withErrors( $res );
+            if ( $request->ajax() )
+            {
+                $error = $res->first();
+                return compact( 'error' );
+            }
+            else
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( $res );
+            }
         }
         $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $executor->name . '" на время с "' . $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) . '" до "' . $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) . '"' );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
-                ->withErrors( $res );
+            if ( $request->ajax() )
+            {
+                $error = $res->first();
+                return compact( 'error' );
+            }
+            else
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( $res );
+            }
         }
         \DB::commit();
 
         $this->dispatch( new SendStream( 'update', $ticket ) );
 
-        return redirect()->back()->with( 'success', 'Исполнитель успешно назначен' );
+        $success = 'Исполнитель успешно назначен';
+
+        if ( $request->ajax() )
+        {
+            return compact( 'success' );
+        }
+        else
+        {
+            return redirect()
+                ->back()
+                ->with( 'success', $success );
+        }
 
     }
 
@@ -1912,11 +2032,16 @@ class TicketsController extends BaseController
 
         $managements = Management
             ::mine( Management::IGNORE_MANAGEMENT )
-            ->where( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id )
+            ->where( function ( $q ) use ( $ticketManagement )
+            {
+                return $q
+                    ->whereNull( Management::$_table . '.parent_id' )
+                    ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
+            })
             ->select(
                 Management::$_table . '.*'
             )
-            ->join( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
+            ->leftJoin( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
             ->whereHas( 'types', function ( $types ) use ( $ticket )
             {
                 return $types
@@ -2079,6 +2204,15 @@ class TicketsController extends BaseController
                     $ticket->addTag( $tag );
                 }
                 break;
+            case 'type_id':
+                $res = $ticket->edit([
+                    $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
+                ]);
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+                break;
             default:
                 $res = $ticket->edit([
                     $request->get( 'field' ) => $request->get( 'value' )
@@ -2126,6 +2260,7 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Невозможно отменить добавленную заявку' ] );
         }
         $ticket->fill([
+            'provider_id'               => Provider::$current->id ?? null,
             'type_id'                   => null,
             'building_id'               => null,
             'place_id'                  => null,

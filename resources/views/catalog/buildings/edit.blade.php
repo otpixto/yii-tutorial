@@ -22,7 +22,7 @@
                     @if ( $providers->count() > 1 )
                         <div class="col-md-3">
                             {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'provider_id', \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик' ] ) !!}
+                            {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик' ] ) !!}
                         </div>
                     @else
                         <div class="col-md-3">
@@ -55,12 +55,12 @@
 
                     <div class="col-md-2">
                         {!! Form::label( 'date_of_construction', 'Дата постройки', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'date_of_construction', \Input::old( 'date_of_construction', \Carbon\Carbon::parse( $building->date_of_construction )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'placeholder' => 'Адрес', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                        {!! Form::text( 'date_of_construction', \Input::old( 'date_of_construction', \Carbon\Carbon::parse( $building->date_of_construction )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'placeholder' => 'Дата постройки', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                     </div>
 
                     <div class="col-md-2">
                         {!! Form::label( 'eirts_number', 'Код ЕИРЦ', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'eirts_number', \Input::old( 'eirts_number', $building->eirts_number ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::text( 'eirts_number', \Input::old( 'eirts_number', $building->eirts_number ), [ 'class' => 'form-control', 'placeholder' => 'Код ЕИРЦ' ] ) !!}
                     </div>
 
                     <div class="col-md-4">
@@ -74,17 +74,17 @@
 
                     <div class="col-md-3">
                         {!! Form::label( 'total_area', 'Общая площадь', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'total_area', \Input::old( 'total_area', $building->total_area ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+                        {!! Form::text( 'total_area', \Input::old( 'total_area', $building->total_area ), [ 'class' => 'form-control', 'placeholder' => 'Общая площадь' ] ) !!}
                     </div>
 
                     <div class="col-md-3">
                         {!! Form::label( 'living_area', 'Жилая площадь', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'living_area', \Input::old( 'living_area', $building->living_area ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::text( 'living_area', \Input::old( 'living_area', $building->living_area ), [ 'class' => 'form-control', 'placeholder' => 'Жилая площадь' ] ) !!}
                     </div>
 
                     <div class="col-md-3">
                         {!! Form::label( 'room_mask', 'Маска нумерации', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'room_mask', \Input::old( 'room_mask', $building->room_mask ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::text( 'room_mask', \Input::old( 'room_mask', $building->room_mask ), [ 'class' => 'form-control', 'placeholder' => 'Маска нумерации' ] ) !!}
                     </div>
 
                     <div class="col-md-3">

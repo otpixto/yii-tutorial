@@ -13,6 +13,7 @@ class ProviderPhone extends BaseModel
     protected $fillable = [
         'provider_id',
         'phone',
+        'description',
     ];
 
     public function provider ()

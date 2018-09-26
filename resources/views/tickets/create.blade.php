@@ -136,9 +136,9 @@
         {
 
             var type_id = $( '#type_id' ).val();
-            if ( !type_id )
+            if ( ! type_id || type_id == '0' )
             {
-                $( '#type_info' ).addClass( 'hidden' );
+                $( '#info-block' ).addClass( 'hidden' );
                 return;
             };
             $.post( '{{ route( 'types.search' ) }}', {
@@ -195,6 +195,30 @@
                     $( '#select' ).html( response );
                 });
             }, 600 );
+        };
+
+        function GetTypes ( provider_id )
+        {
+            $( '#type_id' )
+                .empty()
+                .append(
+                    $( '<option>' ).val( '0' ).text( ' -- выберите из списка -- ' )
+                )
+                .trigger( 'change' );
+            $( '#building_id' ).val( '' ).trigger( 'change' );
+            $.post( '{{ route( 'types.json' ) }}',
+            {
+                provider_id: provider_id || null
+            }, function ( response )
+            {
+                if ( response.length )
+                {
+                    $( '#type_id' ).select2( 'destroy' );
+                    $( '#type_id' ).select2({
+                        'data': response
+                    });
+                }
+            });
         };
 
         $( document )
@@ -295,6 +319,18 @@
                 $( '#building_id, #flat, #actual_building_id, #actual_flat' ).val( '' ).trigger( 'change' );
             })
 
+            .on( 'change', '#vendor_id', function ( e )
+            {
+                if ( $( this ).val() )
+                {
+                    $( '.vendor' ).removeClass( 'hidden' );
+                }
+                else
+                {
+                    $( '.vendor' ).addClass( 'hidden' );
+                }
+            })
+
             .on( 'change', '.autosave', function ( e )
             {
                 var that = $( this );
@@ -320,6 +356,11 @@
                 {
                     ToggleMicrophone();
                 }
+            })
+
+            .on( 'change', '#provider_id', function ( e )
+            {
+                GetTypes( $( this ).val() );
             })
 
             .on( 'change', '#type_id', function ( e )

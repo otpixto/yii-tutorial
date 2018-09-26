@@ -4,7 +4,7 @@
 
     <!-- BEGIN LOGIN FORM -->
     {!! Form::open( [ 'class' => 'submit-loading' ] ) !!}
-        <h3 class="form-title font-green">Авторизация</h3>
+        <h3 class="form-title">Авторизация</h3>
 
         @include( 'parts.errors' )
         @include( 'parts.success' )

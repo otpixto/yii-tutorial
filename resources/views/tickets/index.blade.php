@@ -26,7 +26,7 @@
                     {!! Form::text( 'ticket_id', '', [ 'class' => 'form-control input-lg', 'placeholder' => '', 'id' => 'ticket_id' ] ) !!}
                 </div>
             </div>
-            <div class="col-lg-8">
+            <div class="col-lg-8 col-md-12 col-sm-12">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
                         <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
@@ -291,6 +291,7 @@
                 success: function ( response )
                 {
                     $( '#tickets' ).html( response );
+                    LoadComments();
                 }
             });
         };
@@ -325,6 +326,34 @@
         function clearFilter ()
         {
             $( '.tickets-filter' ).removeAttr( 'checked' ).parent().removeClass( 'active' );
+        };
+
+        function LoadComments ()
+        {
+
+            var ids = [];
+            $( '[data-ticket-comments]' ).each( function ()
+            {
+                var id = $( this ).attr( 'data-ticket-comments' );
+                if ( ids.indexOf( id ) == -1 )
+                {
+                    ids.push( id );
+                }
+            });
+
+            $.post( '{{ route( 'tickets.comments' ) }}', {
+                ids: ids
+            }, function ( response )
+            {
+                $.each( response, function ( id, comments )
+                {
+                    $( '[data-ticket-comments="' + id + '"]' )
+                        .removeClass( 'hidden' )
+                        .find( '.comments' )
+                        .html( comments );
+                });
+            });
+
         };
 
         $( document )
@@ -386,7 +415,25 @@
                 filterTickets( e );
             })
 
+            .on( 'click', '#filter-clear', function ( e )
+            {
+                $( '#search' ).empty().addClass( 'hidden' );
+                loadTickets( '{{ route( 'tickets.index' ) }}' );
+            })
+
             .on( 'change', '.tickets-filter', filterTickets )
+
+            .on( 'change', '#vendor_id', function ( e )
+            {
+                if ( $( this ).val() )
+                {
+                    $( '.vendor' ).removeClass( 'hidden' );
+                }
+                else
+                {
+                    $( '.vendor' ).addClass( 'hidden' );
+                }
+            })
 
             .on( 'click', '[data-load="search"]', function ( e )
             {

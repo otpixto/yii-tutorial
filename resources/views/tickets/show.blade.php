@@ -207,15 +207,22 @@
                         break;
 
                     case '#works':
-                        if ( $( '#works' ).text() == '' )
+                        $( '#works' ).loading();
+                        $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
                         {
-                            $( '#works' ).loading();
-                            $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
-                            {
-                                $( '#works' ).html( response );
-                            });
-                        }
+                            $( '#works' ).html( response );
+                        });
                         break;
+
+                @if ( $ticketManagement )
+                    case '#services':
+                        $( '#services' ).loading();
+                        $.get( '{{ route( 'tickets.services', $ticketManagement->id ) }}', function ( response )
+                        {
+                            $( '#services' ).html( response );
+                        });
+                        break;
+                @endif
 
                 }
             })

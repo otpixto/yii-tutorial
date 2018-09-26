@@ -9,7 +9,7 @@
     <header class="page-header">
         <nav class="navbar mega-menu" role="navigation">
             <div class="container-fluid">
-                <div class="">
+                <div class="page-nav">
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
@@ -28,9 +28,13 @@
                         <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
                         <span class="page-title">
                             @if ( \App\Models\Provider::isOperatorUrl() )
-                                <span class="text-danger">Оператор</span>
+                                <span class="font-red-intense">
+                                    Оператор
+                                </span>
                             @elseif ( \App\Models\Provider::getCurrent() )
-                                {{ \App\Models\Provider::$current->name }}
+                                <span class="font-white">
+                                    {{ \App\Models\Provider::$current->name }}
+                                </span>
                             @endif
                         </span>
                     </a>
@@ -63,7 +67,24 @@
             <!-- BEGIN BREADCRUMBS -->
             <div class="breadcrumbs">
 
-                <h1>{{ \App\Classes\Title::get() }}</h1>
+                <h1 class="title">
+                    {{ \App\Classes\Title::get() }}
+                    @if ( isset( $ticket ) && $ticket->vendor && $ticket->vendor_number )
+                        <span class="small">
+                            {{ $ticket->vendor->name }}
+                            №
+                            <b>
+                                {{ $ticket->vendor_number }}
+                            </b>
+                            @if ( $ticket->vendor_date )
+                                от
+                                <b>
+                                    {{ $ticket->vendor_date->format( 'd.m.Y' ) }}
+                                </b>
+                            @endif
+                        </span>
+                    @endif
+                </h1>
 
                 @yield( 'breadcrumbs' )
 

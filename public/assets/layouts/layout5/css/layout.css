@@ -18,6 +18,7 @@
 /*--------------------------------------------------
 	[PAGE HEADER]
 ----------------------------------------------------*/
+
 .page-header {
   margin: 0;
   padding: 0;
@@ -49,6 +50,8 @@
       float: left;
       height: 50px;
       max-height: 50px;
+      margin-top: 10px;
+      margin-bottom: 10px;
       margin-right: 75px; }
 .page-header .navbar .page-logo .page-title {
   margin: 0 0;
@@ -123,7 +126,7 @@
           line-height: 1.4;
           position: absolute;
           background: transparent;
-          border: 2px solid #2f373e;
+          border: 2px solid #0c4270;
           font-size: 9px !important;
           background: #fff; }
       .page-header .navbar .topbar-actions .btn-group-notification .external {
@@ -208,14 +211,14 @@
         padding: 0;
         position: relative;
         line-height: normal;
-        background: #333c43;
+        background: #3b7fc4;
         height: 35px; }
         .page-header .navbar .topbar-actions .btn-group-img .btn > span {
           padding: 9px;
           line-height: 1.4;
           display: inline-block;
           vertical-align: middle;
-          color: #009dc7;
+          color: #fff;
           text-transform: uppercase; }
         .page-header .navbar .topbar-actions .btn-group-img .btn > img {
           margin-top: -1px;
@@ -230,11 +233,10 @@
           background-clip: padding-box;
           height: 35px; }
     .page-header .navbar .navbar-nav > li > a {
-      color: #636e77;
-      font-size: 15px;
+      color: #fff;
+      font-size: 13px;
       font-weight: 400;
-      padding: 20px;
-      background: #39424a;
+      background: #3b7fc4;
       font-family: 'Oswald', sans-serif; }
       .page-header .navbar .navbar-nav > li > a > i {
         position: relative;
@@ -256,7 +258,9 @@
       background: #f9f9f9;
       color: #2a3239; }
     .page-header .navbar .navbar-nav li.selected > a {
-      color: #fff; }
+      color: #333;
+      background: #fff;
+    }
     .page-header .navbar .navbar-nav li.open.selected > a {
       color: #2a3239; }
     .page-header .navbar .navbar-nav .dropdown-menu {
@@ -311,6 +315,9 @@
   /* 991px */
   .page-header .navbar-toggle {
     display: block; }
+  .page-header .navbar-collapse {
+    clear: both;
+  }
   .page-header .navbar-collapse.collapse {
     display: none !important; }
   .page-header .navbar-collapse.collapse.in {
@@ -480,7 +487,7 @@
       left: 0;
       right: 0;
       padding: 20px 25px;
-      background: #2f373e;
+      background: #0c4270;
       transition-duration: 300ms;
       transition-property: all;
       transition-timing-function: cubic-bezier(0.7, 1, 0.7, 1); }
@@ -515,18 +522,7 @@
         .page-header .navbar-collapse .navbar-nav li.opened > .dropdown-menu {
           display: block; }
         .page-header .navbar-collapse .navbar-nav .more-dropdown > a {
-          padding-right: 57px;
           position: relative; }
-          .page-header .navbar-collapse .navbar-nav .more-dropdown > a:after {
-            top: 22px;
-            right: 30px;
-            color: #6c7b88;
-            font-size: 20px;
-            content: "\f107";
-            position: absolute;
-            font-weight: normal;
-            display: inline-block;
-            font-family: FontAwesome; }
         .page-header .navbar-collapse .navbar-nav .more-dropdown:hover > a {
           background: #f9f9f9;
           color: #2a3239; }
@@ -722,7 +718,7 @@
 /* Body */
 body {
   font-size: 14px;
-  background: #2f373e; }
+  background: #0c4270; }
 
 /* Go2top */
 .go2top i,

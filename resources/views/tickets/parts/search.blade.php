@@ -15,6 +15,22 @@
 </div>
 <div class="row margin-top-10">
     <h4 class="col-md-2">
+        Поступило из
+    </h4>
+    <div class="col-md-4">
+        {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::get( 'vendor_id' ), [ 'class' => 'form-control select2', 'id' => 'vendor_id' ] ) !!}
+    </div>
+    <div class="col-md-6 vendor hidden">
+        <div class="input-group">
+            <span class="input-group-addon">№</span>
+            {!! Form::text( 'vendor_number', \Input::old( 'vendor_number' ), [ 'class' => 'form-control', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
+            <span class="input-group-addon">от</span>
+            {!! Form::date( 'vendor_date', \Input::old( 'vendor_date' ), [ 'class' => 'form-control', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+        </div>
+    </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
         Адрес проблемы
     </h4>
     <div class="col-md-10">
@@ -258,9 +274,7 @@
 <div class="row">
     <div class="col-xs-12">
         {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
-		<a href="{{ route( 'tickets.index' ) }}" class="btn btn-danger btn-lg">
-			Сбросить фильтр
-		</a>
+        {!! Form::button( 'Сбросить фильтр', [ 'class' => 'btn btn-danger btn-lg', 'id' => 'filter-clear' ] ) !!}
     </div>
 </div>
 {!! Form::close() !!}

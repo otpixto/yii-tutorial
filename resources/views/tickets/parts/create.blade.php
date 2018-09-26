@@ -17,7 +17,7 @@
         <div class="form-group">
             {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
-                {!! Form::select( 'type_id', [ null => ' -- выберите из списка -- ' ] + $types, \Input::old( 'type_id', $ticket->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => 'Тип заявки', 'required', 'autocomplete' => 'off' ] ) !!}
+                {!! Form::select( 'type_id', $types, \Input::old( 'type_id', $ticket->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
             </div>
         </div>
 
@@ -42,6 +42,21 @@
         </div>
 
         <div class="form-group">
+            {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-3">
+                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
+            </div>
+            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @endif">
+                <div class="input-group">
+                    <span class="input-group-addon">№</span>
+                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
+                    <span class="input-group-addon">от</span>
+                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
             {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-3">
                 <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
@@ -57,16 +72,7 @@
                     Срочно
                 </label>
             </div>
-            <div class="col-xs-3">
-                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                    {!! Form::checkbox( 'dobrodel', 1, \Input::old( 'dobrodel', $ticket->dobrodel ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
-                    <span></span>
-                    Добродел
-                </label>
-            </div>
         </div>
-
-        <hr style="margin-top: 30px;" />
 
         <div class="form-group ">
             {!! Form::label( null, 'ФИО', [ 'class' => 'control-label col-xs-3' ] ) !!}
@@ -143,7 +149,7 @@
 
 </div>
 
-<hr />
+<hr class="visible-sm" />
 
 <div class="row">
 

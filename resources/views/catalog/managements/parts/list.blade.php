@@ -21,7 +21,10 @@
                 Наименование
             </th>
             <th>
-                Адрес \ телефон(ы)
+                Адрес офиса
+            </th>
+            <th>
+                Телефон(ы)
             </th>
             @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
                 <th class="text-center">
@@ -67,14 +70,10 @@
                     {{ $management->name }}
                 </td>
                 <td>
-                    @if ( $management->building )
-                        <div>
-                            {{ $management->getAddress() }}
-                        </div>
-                    @endif
-                    <div class="margin-top-10">
-                        {!! $management->getPhones( true ) !!}
-                    </div>
+                    {{ $management->getAddress() }}
+                </td>
+                <td>
+                    {!! $management->getPhones( true ) !!}
                 </td>
                 @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
                     <td class="text-center">

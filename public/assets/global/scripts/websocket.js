@@ -86,7 +86,7 @@ socket
     .on( 'stream', function ( data )
     {
         if ( ! data || ! data.action ) return;
-        //console.log( data );
+        console.log( data );
         switch ( data.action )
         {
             case 'create':
@@ -208,15 +208,10 @@ socket
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
                     $.post( '/tickets/comments/' + data.ticket_id,
-                        {
-                            commentsOnly: true
-                        },
                         function ( response )
                         {
                             if ( ! response ) return;
-                            var comments = $( '#ticket-comments' );
-                            comments
-                                .removeAttr( 'class' )
+                            $( '[data-ticket-comments="' + data.ticket_id + '"]' )
                                 .html( response )
                                 .pulsate({
                                     repeat: 3,
@@ -231,39 +226,34 @@ socket
                 else
                 {
                     var lines = $( '[data-ticket-comments="' + data.ticket_id + '"]' );
-                    var isHidden = $( '[data-ticket="' + data.ticket_id + '"]' ).hasClass( 'hidden' );
                     var isNew = $( '[data-ticket="' + data.ticket_id + '"]' ).hasClass( 'new' );
                     if ( ! lines.length ) return;
                     $.post( '/tickets/comments/' + data.ticket_id,
                         function ( response )
                         {
                             if ( ! response ) return;
-                            var newComments = $( response );
-                            lines.replaceWith( newComments );
-                            if ( isHidden )
-                            {
-                                newComments.addClass( 'hidden' );
-                            }
-                            else
-                            {
-                                newComments.removeClass( 'hidden' );
-                            }
                             if ( isNew )
                             {
-                                newComments.addClass( 'new' );
+                                lines
+                                    .addClass( 'new' );
                             }
                             else
                             {
-                                newComments.removeClass( 'new' );
+                                lines
+                                    .removeClass( 'hidden' )
+                                    .removeClass( 'new' );
                             }
-                            newComments
+                            lines
                                 .pulsate({
                                     repeat: 3,
                                     speed: 500,
                                     color: '#F1C40F',
                                     glow: true,
                                     reach: 15
-                                });
+                                })
+                                .find( '.comments' )
+                                .removeClass( 'hidden' )
+                                .html( response );
                         }
                     );
                 }

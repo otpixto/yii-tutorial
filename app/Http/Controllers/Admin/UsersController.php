@@ -26,7 +26,6 @@ class UsersController extends BaseController
 
         $search = trim( $request->get( 'search', '' ) );
         $role = trim( $request->get( 'role', '' ) );
-        $provider_id = trim( $request->get( 'provider_id', '' ) );
 
         if ( ! empty( $role ) )
         {
@@ -43,25 +42,12 @@ class UsersController extends BaseController
                 ->search( $search );
         }
 
-        if ( ! empty( $provider_id ) )
-        {
-            $users
-                ->whereHas( 'providers', function ( $providers ) use ( $provider_id )
-                {
-                    return $providers
-                        ->where( Provider::$_table . '.id', '=', $provider_id );
-                });
-        }
-
         $users = $users
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $roles = Role::orderBy( 'name' )->get();
-
-        $providers = Provider
+        $roles = Role
             ::mine()
-            ->current()
             ->orderBy( 'name' )
             ->get();
 
@@ -74,7 +60,6 @@ class UsersController extends BaseController
             ->with( 'users', $users )
             ->with( 'roles', $roles )
             ->with( 'role', $role )
-            ->with( 'providers', $providers )
             ->with( 'search', $search );
 
     }
@@ -294,7 +279,7 @@ class UsersController extends BaseController
             ->appends( $request->all() );
 
         $availableManagements = Management
-            ::mine()
+            ::mine( Management::IGNORE_MANAGEMENT )
             ->whereNotIn( Management::$_table . '.id', $user->managements()->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();

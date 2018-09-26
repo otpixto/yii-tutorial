@@ -61,38 +61,8 @@
         @endif
 
         <div class="row">
-            <div class="col-xs-6">
-                <div class="note note-{{ ( $ticketManagement ?? $ticket )->getClass() }}">
-                    <dl>
-                        <dt>Статус:</dt>
-                        <dd>
-                            @if ( $ticketManagement )
-                                @if ( \Auth::user()->can( 'tickets.history' ) )
-                                    <a href="{{ route( 'tickets.history', $ticketManagement->getTicketNumber() ) }}">
-                                        {{ $ticketManagement->status_name }}
-                                    </a>
-                                @else
-                                    {{ $ticketManagement->status_name }}
-                                @endif
-                                @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_to )
-                                    <span class="mark">
-                                        до {{ $ticketManagement->ticket->postponed_to->format( 'd.m.Y' ) }}
-                                    </span>
-                                @endif
-                            @else
-                                {{ $ticket->status_name }}
-                                @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
-                                    <span class="mark">
-                                        до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
-                                    </span>
-                                @endif
-                            @endif
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="note">
+            <div class="col-xs-12">
+                <div class="note bg-grey-steel font-blue-ebonyclay">
                     <dl>
                         <dt>
                             @if ( $ticket->canEdit() )
@@ -100,7 +70,7 @@
                                     <i class="fa fa-pencil"></i>
                                 </a>
                             @endif
-                            Тип заявки:
+                            Классификатор:
                         </dt>
                         <dd>
                             {{ $ticket->type->name ?? '' }}
@@ -110,29 +80,9 @@
             </div>
         </div>
 
-        @if ( $ticketManagement )
-            @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_comment )
-                <div class="note note-warning">
-                    <dl>
-                        <dt>Комментарий к отложенной заявке:</dt>
-                        <dd>{{ $ticketManagement->ticket->postponed_comment }}</dd>
-                    </dl>
-                </div>
-            @endif
-        @else
-            @if ( $ticket->status_code == 'waiting' && $ticket->postponed_comment )
-                <div class="note note-warning">
-                    <dl>
-                        <dt>Комментарий отложенной заявки:</dt>
-                        <dd>{{ $ticket->postponed_comment }}</dd>
-                    </dl>
-                </div>
-            @endif
-        @endif
-
         <div class="row">
             <div class="col-xs-12">
-                <div class="note">
+                <div class="note bg-grey-steel font-blue-ebonyclay">
                     <dl>
                         <dt>
                             @if ( $ticket->canEdit() )
@@ -170,14 +120,12 @@
                             Текст заявки:
                         </dt>
                         <dd>
-                            {{ $ticket->text }}
+                            {{ $ticket->text ?: '-' }}
                         </dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <hr />
 
         <div class="row">
             <div class="col-xs-6">
@@ -192,7 +140,7 @@
                             ФИО Заявителя:
                         </dt>
                         <dd>
-                            {{ $ticket->getName() }}
+                            {{ $ticket->getName() ?: '-' }}
                         </dd>
                     </dl>
                 </div>
@@ -214,7 +162,7 @@
                             Телефон(ы) Заявителя:
                         </dt>
                         <dd>
-                            {{ $ticket->getPhones() }}
+                            {{ $ticket->getPhones() ?: '-' }}
                         </dd>
                     </dl>
                 </div>
@@ -244,8 +192,6 @@
                 </div>
             </div>
         </div>
-
-        <hr />
 
         <div class="row">
             <div class="col-xs-6">
@@ -336,6 +282,59 @@
 
     </div>
     <div class="col-lg-6">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="note note-{{ ( $ticketManagement ?? $ticket )->getClass() }}">
+                    <dl>
+                        <dt>Статус:</dt>
+                        <dd>
+                            @if ( $ticketManagement )
+                                @if ( \Auth::user()->can( 'tickets.history' ) )
+                                    <a href="{{ route( 'tickets.history', $ticketManagement->getTicketNumber() ) }}">
+                                        {{ $ticketManagement->status_name }}
+                                    </a>
+                                @else
+                                    {{ $ticketManagement->status_name }}
+                                @endif
+                                @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_to )
+                                    <span class="mark">
+                                            до {{ $ticketManagement->ticket->postponed_to->format( 'd.m.Y' ) }}
+                                        </span>
+                                @endif
+                            @else
+                                {{ $ticket->status_name }}
+                                @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
+                                    <span class="mark">
+                                            до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
+                                        </span>
+                                @endif
+                            @endif
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        @if ( $ticketManagement )
+            @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_comment )
+                <div class="note note-warning">
+                    <dl>
+                        <dt>Комментарий к отложенной заявке:</dt>
+                        <dd>{{ $ticketManagement->ticket->postponed_comment }}</dd>
+                    </dl>
+                </div>
+            @endif
+        @else
+            @if ( $ticket->status_code == 'waiting' && $ticket->postponed_comment )
+                <div class="note note-warning">
+                    <dl>
+                        <dt>Комментарий отложенной заявки:</dt>
+                        <dd>{{ $ticket->postponed_comment }}</dd>
+                    </dl>
+                </div>
+            @endif
+        @endif
 
         @if ( $ticket->type )
             <div class="row">
@@ -491,38 +490,35 @@
             </div>
         @endif
 
-        @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
-            <div class="row">
-                <div class="col-xs-12">
+        <div class="row">
+            <div class="col-xs-6">
+                @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
                     <div class="note">
                         <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
                             <i class="fa fa-chevron-circle-down text-success"></i>
                             Входящий вызов
                         </a>
                     </div>
-                </div>
+                @endif
             </div>
-        @endif
-
-        @if ( $ticketCalls->count() )
-            @foreach ( $ticketCalls as $ticketCall )
-                @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
-                    <div class="row">
-                        <div class="col-xs-12">
+            <div class="col-xs-6">
+                @if ( $ticketCalls->count() )
+                    @foreach ( $ticketCalls as $ticketCall )
+                        @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
                             <div class="note">
                                 <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
                                     <i class="fa fa-chevron-circle-up text-danger"></i>
                                     Исходящий вызов
                                     <span class="text-muted small">
-                                    {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
-                                </span>
+                                        {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
+                                    </span>
                                 </a>
                             </div>
-                        </div>
-                    </div>
+                        @endif
+                    @endforeach
                 @endif
-            @endforeach
-        @endif
+            </div>
+        </div>
 
     </div>
 </div>
@@ -532,13 +528,13 @@
         <ul class="nav nav-tabs margin-top-15 margin-bottom-0">
             <li class="active">
                 <a href="#main">
-                    Текущая заявка
+                    Заявка
                 </a>
             </li>
             @if ( $ticket->phone )
                 <li>
                     <a href="#customer_tickets">
-                        Заявки заявителя
+                        Заявки с этого телефона
                         <span class="badge {{ $customerTicketsCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
                             {{ $customerTicketsCount }}
                         </span>
@@ -569,6 +565,16 @@
                     </span>
                 </a>
             </li>
+            @if ( $ticketManagement && \Auth::user()->can( 'tickets.services.show' ) )
+                <li>
+                    <a href="#services">
+                        Выполненные работы
+                        <span class="badge {{ $servicesCount ? 'bg-green-jungle bold' : 'bg-grey-salt' }}">
+                            {{ $servicesCount }}
+                        </span>
+                    </a>
+                </li>
+            @endif
         </ul>
 
         <div class="tab-content">
@@ -780,120 +786,6 @@
 
                 @endif
 
-                @if ( $ticketManagement && \Auth::user()->can( 'tickets.services.show' ) )
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="note note-info">
-                                <h4>Выполненные работы</h4>
-                                <div class="row margin-bottom-10">
-                                    <label class="col-xs-5 control-label text-muted">Наименование</label>
-                                    <label class="col-xs-2 control-label text-muted text-right">Кол-во</label>
-                                    <label class="col-xs-2 control-label text-muted">Е.И.</label>
-                                    <label class="col-xs-2 control-label text-muted text-right">Стоимость</label>
-                                </div>
-                                @if ( \Auth::user()->can( 'tickets.services.edit' ) )
-                                    {!! Form::model( $ticketManagement, [ 'method' => 'put', 'route' => [ 'tickets.services.save', $ticketManagement->id ], 'class' => 'submit-loading' ] ) !!}
-                                    <div class="mt-repeater" id="ticket-services">
-                                        <div data-repeater-list="services">
-                                            @if ( $ticketManagement->services->count() )
-                                                @foreach ( $ticketManagement->services as $service )
-                                                    <div data-repeater-item="" class="row margin-bottom-10">
-                                                        <div class="col-xs-5">
-                                                            {!! Form::hidden( 'id', $service->id ) !!}
-                                                            {!! Form::text( 'name', $service->name, [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
-                                                        </div>
-                                                        <div class="col-xs-2">
-                                                            {!! Form::text( 'quantity', $service->quantity, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
-                                                        </div>
-                                                        <div class="col-xs-2">
-                                                            {!! Form::text( 'unit', $service->unit, [ 'class' => 'form-control', 'required' ] ) !!}
-                                                        </div>
-                                                        <div class="col-xs-2">
-                                                            {!! Form::text( 'amount', $service->amount ?? null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
-                                                        </div>
-                                                        <div class="col-xs-1 text-right hidden-print">
-                                                            <button type="button" data-repeater-delete="" class="btn btn-danger">
-                                                                <i class="fa fa-close"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            @else
-                                                <div data-repeater-item="" class="row margin-bottom-10 hidden-print">
-                                                    <div class="col-xs-5">
-                                                        {!! Form::hidden( 'id', '' ) !!}
-                                                        {!! Form::text( 'name', '', [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
-                                                    </div>
-                                                    <div class="col-xs-2">
-                                                        {!! Form::text( 'quantity', 1, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
-                                                    </div>
-                                                    <div class="col-xs-2">
-                                                        {!! Form::text( 'unit', 'шт', [ 'class' => 'form-control', 'required' ] ) !!}
-                                                    </div>
-                                                    <div class="col-xs-2">
-                                                        {!! Form::text( 'amount', '', [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
-                                                    </div>
-                                                    <div class="col-xs-1 text-right hidden-print">
-                                                        <button type="button" data-repeater-delete="" class="btn btn-danger">
-                                                            <i class="fa fa-close"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="row margin-bottom-10 bg-info">
-                                            <div class="col-xs-9 text-right bold">
-                                                Итого:
-                                            </div>
-                                            <div class="col-xs-2 text-right bold" id="ticket-services-total">
-                                                {{ number_format( $ticketManagement->services->sum( function ( $service ){ return $service[ 'amount' ] * $service[ 'quantity' ]; } ), 2, '.', '' ) }}
-                                            </div>
-                                        </div>
-                                        <hr class="hidden-print" />
-                                        <div class="row hidden-print">
-                                            <div class="col-xs-6">
-                                                <button type="button" data-repeater-create="" class="btn btn-sm btn-default mt-repeater-add">
-                                                    <i class="fa fa-plus"></i>
-                                                    Добавить
-                                                </button>
-                                            </div>
-                                            <div class="col-xs-6 text-right">
-                                                <button type="submit" class="btn btn-success">
-                                                    <i class="fa fa-check"></i>
-                                                    Сохранить
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {!! Form::close() !!}
-                                @else
-                                    @if ( $ticketManagement->services->count() )
-                                        @foreach ( $ticketManagement->services as $service )
-                                            <div class="row margin-bottom-10">
-                                                <div class="col-xs-6">
-                                                    {{ $service->name }}
-                                                </div>
-                                                <div class="col-xs-2 text-right">
-                                                    {{ $service->quantity }}
-                                                </div>
-                                                <div class="col-xs-2">
-                                                    {{ $service->unit }}
-                                                </div>
-                                                <div class="col-xs-2 text-right">
-                                                    {{ $service->amount }}
-                                                </div>
-                                            </div>
-                                            <hr />
-                                        @endforeach
-                                    @else
-                                        <div class="small text-danger">Выполненных работ нет</div>
-                                    @endif
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
                 @if ( \Auth::user()->can( 'tickets.comments' ) )
                     <div class="row">
                         <div class="col-xs-12">
@@ -913,13 +805,15 @@
                                         @endif
                                     </div>
                                 </div>
-                                @if ( $comments->count() )
-                                    <div id="ticket-comments">
+                                <div data-ticket-comments="{{ $ticket->id }}">
+                                    @if ( $comments->count() )
                                         @include( 'parts.comments', [ 'origin' => $ticket, 'comments' => $comments ] )
-                                    </div>
-                                @else
-                                    <div class="small text-danger" id="ticket-comments">Комментарии отсутствуют</div>
-                                @endif
+                                    @else
+                                        <div class="small text-danger">
+                                            Комментарии отсутствуют
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -931,6 +825,8 @@
             <div id="neighbors_tickets" class="tab-pane fade margin-top-15"></div>
             <div id="address_tickets" class="tab-pane fade margin-top-15"></div>
             <div id="works" class="tab-pane fade margin-top-15"></div>
+            <div id="services" class="tab-pane fade margin-top-15"></div>
+            <div id="comments" class="tab-pane fade margin-top-15"></div>
 
         </div>
     </div>
