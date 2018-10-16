@@ -1,6 +1,6 @@
 <!-- BEGIN HEADER MENU -->
 <div class="nav-collapse collapse navbar-collapse navbar-responsive-collapse">
-    <ul class="nav navbar-nav">
+    <ul class="nav navbar-nav pull-right">
 
         @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.create', 'tickets.call' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'tickets*' ) ) selected @endif">
@@ -305,6 +305,26 @@
             </li>
         @endif
 
+        <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
+            <a href="javascript:;" class="text-uppercase">
+                <i class="fa fa-user"></i>
+                <span class="hidden-md">
+                    {{ \Auth::user()->getShortName( true ) }}
+                </span>
+            </a>
+            <ul class="dropdown-menu">
+                <li aria-haspopup="true" class="">
+                    <a href="{{ route( 'profile.phone' ) }}">
+                        Телефон
+                    </a>
+                </li>
+                <li aria-haspopup="true" class="">
+                    <a href="{{ route( 'logout' ) }}" class="nav-link">
+                        Выход
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
 </div>
 <!-- END HEADER MENU -->

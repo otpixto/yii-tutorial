@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\Mosreg;
 use App\Classes\Title;
 use App\Jobs\SendStream;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -334,6 +335,11 @@ class TicketManagement extends BaseModel
         }
     }
 
+    public function getBackgroundClass ()
+    {
+        return $this->ticket->getBackgroundClass( $this->status_code );
+    }
+
     public function getTicketNumber ()
     {
         return $this->ticket_id . '/' . $this->id;
@@ -343,7 +349,7 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_rate ) )
         {
-            if ( \Auth::user()->can( 'tickets.rate' ) && ! $this->rate && in_array( $this->status_code, [ 'confirmation_client' ] ) )
+            if ( \Auth::user()->can( 'tickets.rate' ) /*&& ! $this->rate && in_array( $this->status_code, [ 'confirmation_client' ] )*/ )
             {
                 $this->can_rate = true;
             }
@@ -440,14 +446,9 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
 
-        $statusHistory = $this
-            ->statusesHistory()
-            ->orderBy( StatusHistory::$_table . '.id', 'desc' )
-            ->first();
-
-        if ( $statusHistory && $statusHistory->status_code == $status_code )
+        if ( $this->status_code == $status_code )
         {
-            return false;
+            return new MessageBag([ 'Невозможно повторно установить статус!' ]);
         }
 
         \DB::beginTransaction();
@@ -544,6 +545,19 @@ class TicketManagement extends BaseModel
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
+
+                break;
+
+            case 'in_process':
+
+                if ( $this->mosreg_id )
+                {
+                    if ( $this->management->hasMosreg( $management ) )
+                    {
+                        $mosreg = new Mosreg( $management->mosreg_username, $management->mosreg_password );
+                        $mosreg->changeStatus( $this->mosreg_id, 'IN_WORK' );
+                    }
+                }
 
                 break;
 
@@ -763,5 +777,7 @@ class TicketManagement extends BaseModel
         }
         return $count;
     }
+
+
 
 }

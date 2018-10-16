@@ -9,6 +9,7 @@ use App\Console\Commands\FixRelations;
 use App\Console\Commands\Grub;
 use App\Console\Commands\ImportAddress;
 use App\Console\Commands\ImportVerin;
+use App\Console\Commands\Mosreg;
 use App\Console\Commands\Sync;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -29,6 +30,7 @@ class Kernel extends ConsoleKernel
         Grub::class,
         ImportVerin::class,
         CreateUser::class,
+        Mosreg::class,
     ];
 
     /**

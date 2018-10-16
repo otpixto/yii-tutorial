@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'srm' => [
-            #'throttle:150,5',
+            'throttle:1500,5',
             'check.provider',
         ],
 

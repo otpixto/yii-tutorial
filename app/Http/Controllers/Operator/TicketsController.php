@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\Mosreg;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendStream;
@@ -696,6 +697,7 @@ class TicketsController extends BaseController
                     ->mine();
             })
             ->where( 'phone', '!=', $ticket->phone )
+            ->where( 'flat', '!=', $ticket->flat )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
 
@@ -945,10 +947,12 @@ class TicketsController extends BaseController
             return redirect()->back()->withErrors( $ticket );
         }
 
-        if ( $ticket->customer )
+        $customer = $ticket->customer()->mine()->first();
+
+        if ( $customer )
         {
-            $ticket->customer->edit( $request->all() );
-            $ticket->customer_id = $ticket->customer->id;
+            $customer->edit( $request->all() );
+            $ticket->customer_id = $customer->id;
         }
         else
         {
@@ -994,6 +998,34 @@ class TicketsController extends BaseController
                         ->withInput()
                         ->withErrors( $res );
                 }
+
+                if ( $ticket->type->mosreg_id && $ticket->building->mosreg_id )
+                {
+                    if ( $ticketManagement->management->hasMosreg( $management ) )
+                    {
+                        $mosreg = new Mosreg( $management->mosreg_username, $management->mosreg_password );
+                        $res = $mosreg->createTicket([
+                            'operator-claim-form-username'          => $ticket->getName(),
+                            'operator-claim-form-email'             => null,
+                            'operator-claim-form-phone'             => '7' . $ticket->phone,
+                            'companyId'                             => $management->mosreg_id,
+                            'addressId'                             => $ticket->building->mosreg_id,
+                            'operator-claim-form-flat'              => $ticket->flat,
+                            'categoryId'                            => $ticket->type->mosreg_id,
+                            'operator-claim-form-text'              => $ticket->text,
+                            'files'                                 => null,
+                        ]);
+                        if ( ! $res )
+                        {
+                            return redirect()
+                                ->back()
+                                ->withErrors( [ 'Не удалось создать заявку в МОСРЕГ' ] );
+                        }
+                        $ticketManagement->mosreg_id = $res->id;
+                        $ticketManagement->save();
+                    }
+                }
+
             }
             else
             {
@@ -1178,6 +1210,7 @@ class TicketsController extends BaseController
                 return $managements
                     ->mine();
             })
+            ->where( 'phone', '!=', $ticket->phone )
             ->where( 'flat', '!=', $ticket->flat )
             ->count();
 
@@ -1203,9 +1236,18 @@ class TicketsController extends BaseController
             ->where( 'flat', '=', $ticket->flat )
             ->count();
 
+        $progressData = $ticket->getProgressData();
+
+        $need_act = $ticket->type->need_act;
+        if ( Provider::getCurrent() && ! Provider::$current->need_act )
+        {
+            $need_act = 0;
+        }
+
         return view( $request->ajax() ? 'tickets.parts.info' : 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
+            ->with( 'progressData', $progressData )
             ->with( 'availableStatuses', $availableStatuses )
             ->with( 'ticketCalls', $ticketCalls )
             ->with( 'comments', $comments )
@@ -1213,7 +1255,8 @@ class TicketsController extends BaseController
             ->with( 'servicesCount', $servicesCount )
             ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
             ->with( 'addressTicketsCount', $addressTicketsCount )
-            ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 );
+            ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 )
+            ->with( 'need_act', $need_act );
 
     }
 
@@ -1302,6 +1345,7 @@ class TicketsController extends BaseController
                     ->mine();
             })
             ->where( 'phone', '!=', $ticket->phone )
+            ->where( 'flat', '!=', $ticket->flat )
             ->count();
 
         if ( $ticket->phone )
@@ -1336,42 +1380,35 @@ class TicketsController extends BaseController
 
     }
 
-    public function history ( Request $request, $ticket_id, $ticket_management_id )
+    public function history ( Request $request, $id )
     {
 
-        $ticket = Ticket
-            ::whereHas( 'managements', function ( $managements )
-            {
-                return $managements
-                    ->mine();
-            })
-            ->find( $ticket_id );
-        if ( ! $ticket )
-        {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
-
-        $ticketManagement = $ticket
-            ->managements()
-            ->find( $ticket_management_id );
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->find( $id );
         if ( ! $ticketManagement )
         {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
+            return view( 'parts.errors' )
+                ->with( 'error', 'Заявка не найдена' );
         }
 
         $ticketManagement->addLog( 'Просмотрел историю заявки №' . $ticketManagement->getTicketNumber() );
 
-        Title::add( 'История изменений заявки #' . $ticketManagement->getTicketNumber() . ' от ' . $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) );
+        $statuses = $ticketManagement
+            ->statusesHistory()
+            ->orderBy( 'id' )
+            ->with( 'author' )
+            ->get();
 
-        $statuses = $ticketManagement->statusesHistory->sortBy( 'id' );
-        $logs = $ticketManagement->logs->merge( $ticket->logs )->sortBy( 'id' );
+        $logs = $ticketManagement
+            ->logs()
+            ->orderBy( 'id' )
+            ->with(
+                'author'
+            )
+            ->get();
 
-        return view( 'tickets.history' )
-            ->with( 'ticket', $ticket )
+        return view( 'tickets.tabs.history' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'statuses', $statuses )
             ->with( 'logs', $logs );
@@ -1389,9 +1426,21 @@ class TicketsController extends BaseController
 
         $ticket = Ticket::find( $id );
 		$param = $request->get( 'param' );
-		
+		$id = $request->get( 'id' );
+
 		switch ( $param )
 		{
+
+            case 'rate':
+
+                $ticketManagement = $ticket->managements()->find( $id );
+                if ( $ticketManagement )
+                {
+                    return view( 'parts.rate_form' )
+                        ->with( 'ticketManagement', $ticketManagement );
+                }
+
+                break;
 			
 			case 'type':
 			
@@ -2486,6 +2535,15 @@ class TicketsController extends BaseController
 
         return $data;
 
+    }
+
+    public function progress ( Request $request, $id )
+    {
+        $ticket = Ticket::find( $id );
+        if ( $ticket )
+        {
+            return $ticket->getProgressData();
+        }
     }
 
     public function clearCache ()

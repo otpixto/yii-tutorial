@@ -17,6 +17,7 @@ class Type extends BaseModel
         'guid',
         'description',
         'parent_id',
+        'mosreg_id',
     ];
 
     protected $fillable = [
@@ -30,6 +31,7 @@ class Type extends BaseModel
         'is_pay',
         'emergency',
         'need_act',
+        'mosreg_id',
     ];
 
     public function managements ()

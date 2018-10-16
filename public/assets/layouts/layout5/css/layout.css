@@ -498,7 +498,7 @@
       transition-property: all;
       transition-timing-function: cubic-bezier(0.7, 1, 0.7, 1); }
     .page-header .navbar-collapse {
-      margin-top: 83px; }
+      margin-top: 35px; }
       .page-header .navbar-collapse .navbar-nav {
         /* More Dropdown */
         /* More Dropdown Sub */ }
@@ -673,7 +673,7 @@
   .page-content-row .page-content-col {
     vertical-align: top;
     display: table-cell;
-    padding-left: 20px; }
+  }
 
 /* Material Design */
 .page-md .page-sidebar .navbar-nav {

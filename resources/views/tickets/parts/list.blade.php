@@ -15,9 +15,9 @@
         <th width="250">
             Статус \ Номер заявки \ Оценка
         </th>
-        <th width="220">
+        {{--<th width="220">
             Даты \ Сроки
-        </th>
+        </th>--}}
         <th width="200">
             @if ( \Auth::user()->can( 'tickets.field_management' ) )
                 УО \
@@ -50,6 +50,12 @@
     @endif
     </tbody>
 </table>
+
+{{--@if ( $ticketManagements->count() )
+    @foreach ( $ticketManagements as $ticketManagement )
+        @include( 'tickets.parts.line', [ 'ticketManagement' => $ticketManagement ] )
+    @endforeach
+@endif--}}
 
 {{ $ticketManagements->render() }}
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Building;
+use App\Models\BuildingRoom;
 use App\Models\BuildingType;
 use App\Models\Log;
 use App\Models\Management;
@@ -107,10 +108,43 @@ class BuildingsController extends BaseController
      */
     public function create ()
     {
+
+        /*$floors = 5;
+        $porches = 4;
+        $flat_by_floor = 4;
+
+        for ( $porch = 1; $porch <= $porches; $porch ++ )
+        {
+            for ( $floor = 1; $floor <= $floors; $floor ++ )
+            {
+                for ( $number = 1; $number <= $flat_by_floor; $number ++ )
+                {
+                    $buildingRoom = BuildingRoom
+                        ::create([
+                            'building_id'       => 70057,
+                            'floor'             => $floor,
+                            'porch'             => $porch,
+                            'number'            => $number,
+                            'living_area'       => 0,
+                            'total_area'        => 0,
+                        ]);
+                    $buildingRoom->save();
+                }
+            }
+        }*/
+
         Title::add( 'Добавить здание' );
-        $providers = Provider::mine()->orderBy( 'name' )->pluck( 'name', 'id' );
+        $providers = Provider
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        $buildingTypes = BuildingType
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
         return view( 'catalog.buildings.create' )
-            ->with( 'providers', $providers );
+            ->with( 'providers', $providers )
+            ->with( 'buildingTypes', $buildingTypes );
     }
 
     /**
@@ -125,8 +159,10 @@ class BuildingsController extends BaseController
         $rules = [
             'provider_id'           => 'required|integer',
             'segment_id'            => 'required|integer',
+            'building_type_id'      => 'required|integer',
             'guid'                  => 'nullable|unique:buildings,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required|unique:buildings,name|max:255',
+            'number'                => 'required',
         ];
 
         $this->validate( $request, $rules );
@@ -227,7 +263,7 @@ class BuildingsController extends BaseController
 		
 		$rules = [
             'provider_id'           => 'required|integer',
-            'segment_id'            => 'required|integer',
+            'building_type_id'      => 'required|integer',
             'guid'                  => 'nullable|unique:buildings,guid,' . $building->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required|unique:buildings,name,' . $building->id . '|max:255',
             'date_of_construction'  => 'nullable|date',

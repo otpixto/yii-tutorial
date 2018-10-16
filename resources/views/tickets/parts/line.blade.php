@@ -1,3 +1,13 @@
+{{--<div class="row">
+    <div class="col-md-2">
+        <label class="mt-checkbox mt-checkbox-outline">
+            {!! Form::checkbox( 'ids[]', $ticketManagement->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
+            <input type="checkbox" >
+            <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
+            <span></span>
+        </label>
+    </div>
+</div>--}}
 <tr class="tickets @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) text-muted opacity @elseif ( $ticketManagement->ticket->emergency ) danger @endif @if ( isset( $hide ) && $hide ) hidden @endif" id="ticket-management-{{ $ticketManagement->id }}" data-ticket-management="{{ $ticketManagement->id }}" data-ticket="{{ $ticketManagement->ticket->id }}">
     <td>
         <div class="mt-element-ribbon">
@@ -25,7 +35,7 @@
             </span>
         @endif
     </td>
-    <td>
+    {{--<td>
         <div class="small">
             <span class="text-muted">
                 Создано
@@ -66,7 +76,8 @@
             </span>
             </div>
         @endif
-    </td>
+    </td>--}}
+
     <td>
         @if ( \Auth::user()->can( 'tickets.field_management' ) )
             @if ( $ticketManagement->management->parent )
@@ -151,7 +162,7 @@
 </tr>
 @if ( ! isset( $hideComments ) || ! $hideComments )
     <tr class="comments @if ( $ticketManagement->ticket->isFinalStatus() ) text-muted opacity @endif">
-        <td colspan="6">
+        <td colspan="5">
             @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
                 <div class="note note-warning">
                     <span class="small text-muted">Комментарий к отложенной заявке:</span>

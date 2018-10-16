@@ -34,8 +34,12 @@
         .d-inline {
             display: inline;
         }
-        #customer_tickets table *, #neighbors_tickets table * {
-            font-size: 12px;
+        .status {
+            font-size: 25px;
+            font-weight: bold;
+        }
+        .status .progress {
+            height: 10px;
         }
         @media print
         {
@@ -57,8 +61,11 @@
 	<script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <script src="//api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script type="text/javascript">
+
+        var progressTimer = null;
 
         function calcTotals ()
         {
@@ -94,36 +101,40 @@
 
         @endif
 
+        function getProgressData ()
+        {
+            $.get( '{{ route( 'tickets.progress', $ticket->id ) }}', function ( response )
+            {
+                if ( ! response.percent )
+                {
+                    $( '#progress .progress-bar' ).remove();
+                    window.clearInterval( progressTimer );
+                    progressTimer = null;
+                }
+                else
+                {
+                    $( '#progress' ).attr( 'title', response.title );
+                    $( '#progress .progress-bar' )
+                        .attr( 'class', response.class )
+                        .css( 'width', response.percent + '%' );
+                }
+                if ( response.percent >= 100 )
+                {
+                    window.clearInterval( progressTimer );
+                    progressTimer = null;
+                }
+            });
+        };
+
         $( document )
 
             .ready( function ()
             {
 
-                $( '#ticket-services' ).repeater({
-                    show: function ()
-                    {
-                        $( this ).slideDown();
-                    },
-                    hide: function ( deleteElement )
-                    {
-                        if ( confirm( 'Уверены, что хотите удалить строку?' ) )
-                        {
-                            $( this ).slideUp( deleteElement, function ()
-                            {
-                                $( this ).remove();
-                                calcTotals();
-                            });
-                        }
-                    },
-                    ready: function ( setIndexes )
-                    {
-
-                    },
-                    defaultValues: {
-                        quantity: '1.00',
-                        unit: 'шт'
-                    }
-                });
+                if ( $( '#progress .progress-bar' ).length )
+                {
+                    var progressTimer = window.setInterval( getProgressData, 10000 );
+                }
 
             })
 
@@ -214,12 +225,74 @@
                         });
                         break;
 
+                    case '#location':
+
+                        @if ( $ticket->building->lon != -1 && $ticket->building->lat != -1 )
+                            if ( $( '#location-map' ).attr( 'data-init' ) != '1' )
+                            {
+                                $( '#location-map' ).attr( 'data-init', '1' );
+                                ymaps.ready( function ()
+                                {
+                                    var myMap = new ymaps.Map( 'location-map', {
+                                        center: [{{ $ticket->building->lat }}, {{ $ticket->building->lon }}],
+                                        zoom: 17,
+                                        controls: [ 'zoomControl' ]
+                                    }, {
+                                        searchControlProvider: 'yandex#search'
+                                    });
+                                    myMap.geoObjects
+                                        .add(
+                                            new ymaps.Placemark( [{{ $ticket->building->lat }}, {{ $ticket->building->lon }}], {
+                                                balloonContent: '{{ $ticket->building->name }}'
+                                            })
+                                        );
+                                    myMap.behaviors.disable( 'scrollZoom' );
+                                });
+                            }
+                        @endif
+
+                        break;
+
                 @if ( $ticketManagement )
+
+                    case '#history':
+                        $( '#history' ).loading();
+                        $.get( '{{ route( 'tickets.history', $ticketManagement->id ) }}', function ( response )
+                        {
+                            $( '#history' ).html( response );
+                        });
+                        break;
+
                     case '#services':
                         $( '#services' ).loading();
                         $.get( '{{ route( 'tickets.services', $ticketManagement->id ) }}', function ( response )
                         {
                             $( '#services' ).html( response );
+                            $( '#ticket-services' ).repeater({
+                                show: function ()
+                                {
+                                    $( this ).slideDown();
+                                },
+                                hide: function ( deleteElement )
+                                {
+                                    if ( confirm( 'Уверены, что хотите удалить строку?' ) )
+                                    {
+                                        $( this ).slideUp( deleteElement, function ()
+                                        {
+                                            $( this ).remove();
+                                            calcTotals();
+                                        });
+                                    }
+                                },
+                                ready: function ( setIndexes )
+                                {
+
+                                },
+                                defaultValues: {
+                                    quantity: '1.00',
+                                    unit: 'шт'
+                                }
+                            });
                         });
                         break;
                 @endif
@@ -269,7 +342,7 @@
 									else {
                                         form
                                             .append(
-                                                $( '<input type="hidden" name="delayed_to" />' ).val( result )
+                                                $( '<input type="hidden" name="comment" />' ).val( result )
                                             );
                                         form.submit();
 									}
@@ -290,6 +363,7 @@
 			{
 				e.preventDefault();
 				var param = $( this ).attr( 'data-edit' );
+				var id = $( this ).attr( 'data-id' );
 				switch ( param )
                 {
                     case 'executor':
@@ -300,7 +374,8 @@
                         break;
                     default:
                         $.get( '{{ route( 'tickets.edit', $ticket ) }}', {
-                            param: param
+                            param: param,
+                            id: id,
                         }, function ( response )
                         {
                             Modal.createSimple( 'Редактировать заявку', response, 'edit-' + param );
@@ -442,7 +517,7 @@
 
             })
 
-            @if ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act )
+            @if ( $need_act )
                 .on( 'confirmed', '[data-status="completed_with_act"]', function ( e, pe )
                 {
 
@@ -496,17 +571,20 @@
                 }, function ( response )
                 {
                     Modal.createSimple( 'Отложить заявку до', response, 'postpone' );
-                    Modal.onSubmit = function ( e )
+                    Modal.onSubmit = function ( e, id )
                     {
-                        e.preventDefault();
-                        var thisForm = $( this );
-                        form
-                            .removeAttr( 'data-confirm' )
-                            .append(
-                                $( '<input type="hidden" name="postponed_to">' ).val( thisForm.find( '[name="postponed_to"]' ).val() ),
-                                $( '<input type="hidden" name="postponed_comment">' ).val( thisForm.find( '[name="postponed_comment"]' ).val() )
-                            );
-                        form.submit();
+                        if ( id == 'postpone' )
+                        {
+                            e.preventDefault();
+                            var thisForm = $( this );
+                            form
+                                .removeAttr( 'data-confirm' )
+                                .append(
+                                    $( '<input type="hidden" name="postponed_to">' ).val( thisForm.find( '[name="postponed_to"]' ).val() ),
+                                    $( '<input type="hidden" name="postponed_comment">' ).val( thisForm.find( '[name="postponed_comment"]' ).val() )
+                                );
+                            form.submit();
+                        }
                     };
                 });
 

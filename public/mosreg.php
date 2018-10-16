@@ -8,10 +8,11 @@ $ch = curl_init();
 
 curl_setopt( $ch, CURLOPT_URL,'https://eds.mosreg.ru/login' );
 curl_setopt( $ch, CURLOPT_POST, true );
-curl_setopt( $ch, CURLOPT_POSTFIELDS, [
+$data = [
     'login-form-email' => '5010049460',
     'login-form-password' => 'lb52OxCNp',
-]);
+];
+curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
 curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 //curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
@@ -24,6 +25,31 @@ $err = curl_error( $ch );
 if ( $err )
 {
     die( 'ERROR: ' . $error );
+}
+
+if ( isset( $_GET[ 'create' ] ) )
+{
+    $data = [
+        'operator-claim-form-username'          => 'Иванов Иван Иванович',
+        'operator-claim-form-email'             => null,
+        'operator-claim-form-phone'             => '74951234567',
+        'companyId'                             => 18823,
+        'addressId'                             => 510583,
+        'operator-claim-form-flat'              => '666',
+        'categoryId'                            => 1,
+        'operator-claim-form-text'              => 'test',
+        'files'                                 => null,
+    ];
+    curl_setopt( $ch, CURLOPT_URL,'https://eds.mosreg.ru/api/operator/claim' );
+    curl_setopt( $ch, CURLOPT_POST, true );
+    curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+    $response = curl_exec( $ch );
+    $err = curl_error( $ch );
+    if ( $err )
+    {
+        die( 'ERROR: ' . $error );
+    }
+    die( $response );
 }
 
 curl_setopt( $ch, CURLOPT_URL,'https://eds.mosreg.ru/claims' );

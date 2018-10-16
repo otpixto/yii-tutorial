@@ -44,7 +44,7 @@
         <div class="form-group">
             {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-3">
-                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
+                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
             </div>
             <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @endif">
                 <div class="input-group">

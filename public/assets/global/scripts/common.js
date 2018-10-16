@@ -32,6 +32,9 @@ $.fn.selectSegments = function ()
                 var name = obj.attr( 'data-name' );
                 var placeholder = obj.attr( 'data-placeholder' );
 
+                var value = obj.attr( 'data-value' ) || '';
+                var title = obj.attr( 'data-title' ) || '';
+
                 var inputGroup = $( '<div class="input-group"></div>' ).appendTo( obj );
 
                 var select = $( '<select>' )
@@ -56,6 +59,13 @@ $.fn.selectSegments = function ()
                 select
                     .attr( 'placeholder', placeholder )
                     .attr( 'data-placeholder', placeholder );
+
+                if ( value && title )
+                {
+                    select.append(
+                        $( '<option></option>' ).val( value ).text( title )
+                    ).val( value );
+                }
 
                 var button = $( '<button type="button" class="btn btn-default"><i class="fa fa-plus"></i></button>' )
                     .on( 'click', function ()
@@ -331,7 +341,7 @@ var Modal = {
 			Modal.addSubmit( 'Готово', id );
             $( '#modals [data-id="' + id + '"] .modal-body form' ).submit( function ( e )
             {
-                Modal.onSubmit.call( this, e );
+                Modal.onSubmit.call( this, e, id );
             });
 		}
 		

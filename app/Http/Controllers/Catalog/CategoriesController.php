@@ -23,7 +23,8 @@ class CategoriesController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
 
         $categories = Category
-            ::orderBy( 'name' );
+            ::mine()
+            ->orderBy( 'name' );
 
         if ( ! empty( $search ) )
         {

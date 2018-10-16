@@ -733,6 +733,62 @@ class Ticket extends BaseModel
 
     }
 
+    public function getProgressData ()
+    {
+        $title = '';
+        $percent = 0;
+        $class = 'progress-bar';
+        if ( $this->deadline_acceptance && $this->deadline_execution && ! $this->isFinalStatus() )
+        {
+            $now = Carbon::now();
+            if ( ! $this->accepted_at && ! $this->completed_at )
+            {
+                $title = 'Принять до ' . $this->deadline_acceptance->format( 'd.m.Y H:i' );
+                if ( $now->timestamp < $this->deadline_acceptance->timestamp )
+                {
+                    $percent = 100 - ( $this->type->period_acceptance ? ceil( $now->diffInMinutes( $this->deadline_acceptance ) / ( $this->type->period_acceptance * 60 ) * 100 ) : 0 );
+                }
+                else
+                {
+                    $percent = 100;
+                    $title .= ' (Просрочено)';
+                }
+            }
+            else if ( ! $this->completed_at )
+            {
+                $title = 'Выполнить до ' . $this->deadline_execution->format( 'd.m.Y H:i' );
+                if ( $now->timestamp < $this->deadline_execution->timestamp )
+                {
+                    $percent = 100 - ( $this->type->period_execution ? ceil( $now->diffInMinutes( $this->deadline_execution ) / ( $this->type->period_execution * 60 ) * 100 ) : 0 );
+                }
+                else
+                {
+                    $percent = 100;
+                    $title .= ' (Просрочено)';
+                }
+            }
+            if ( $percent < 0 ) $percent = 0;
+            if ( $percent >= 100 )
+            {
+                $percent = 100;
+                $class .= ' progress-bar-danger';
+            }
+            else if ( $percent >= 60 )
+            {
+                $class .= ' progress-bar-striped active progress-bar-danger';
+            }
+            else if ( $percent >= 30 )
+            {
+                $class .= ' progress-bar-striped active progress-bar-warning';
+            }
+            else
+            {
+                $class .= ' progress-bar-striped active progress-bar-success';
+            }
+        }
+        return compact( 'title', 'percent', 'class' );
+    }
+
     public function overdueDeadlineAcceptance ()
     {
         if ( $this->overdueDeadlinePostponed() && $this->deadline_acceptance && ( $this->accepted_at ?? Carbon::now() )->timestamp > $this->deadline_acceptance->timestamp )
@@ -797,11 +853,33 @@ class Ticket extends BaseModel
         return '';
     }
 
+    public function getBackgroundClass ( $status_code = null )
+    {
+        if ( ! $status_code ) $status_code = $this->status_code;
+        if ( isset( self::$statuses_buttons[ $status_code ] ) )
+        {
+            $class = 'bg-' . self::$statuses_buttons[ $status_code ][ 'class' ];
+        }
+        else
+        {
+            $class = 'bg-grey-salt';
+        }
+        if ( $this->overdueDeadlineAcceptance() )
+        {
+            $class = 'bg-yellow-gold';
+        }
+        if ( $this->overdueDeadlineExecution() )
+        {
+            $class = 'bg-red-thunderbird';
+        }
+        return $class;
+    }
+
     public function getStatus ( $html = false )
     {
         if ( $html )
         {
-            return '<div class="' . $this->getClass() . '">' . $this->status_name . '</div>';
+            return '<div class="' . $this->getBackgroundClass() . '">' . $this->status_name . '</div>';
         }
         else
         {

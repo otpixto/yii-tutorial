@@ -349,11 +349,21 @@ class User extends BaseModel implements
     public function scopeMine ( $query )
     {
         return $query
-            ->whereHas( 'providers', function ( $providers )
+            ->where( function ( $q )
             {
-                return $providers
-                    ->mine()
-                    ->current();
+                return $q
+                    ->whereHas( 'provider', function ( $provider )
+                    {
+                        return $provider
+                            ->mine()
+                            ->current();
+                    })
+                    ->orWhereHas( 'providers', function ( $providers )
+                    {
+                        return $providers
+                            ->mine()
+                            ->current();
+                    });
             });
     }
 

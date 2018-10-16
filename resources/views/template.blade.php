@@ -40,18 +40,18 @@
                     </a>
                     <!-- END LOGO -->
                     
-                    <!-- BEGIN TOPBAR ACTIONS -->
+                    {{--<!-- BEGIN TOPBAR ACTIONS -->
                     <div class="topbar-actions">
 
-                        {{--@include( 'parts.notification' )--}}
+                        --}}{{--@include( 'parts.notification' )--}}{{--
 
-                        {{--@include( 'parts.count' )--}}
+                        --}}{{--@include( 'parts.count' )--}}{{--
 
                         @include( 'parts.phone' )
                         @include( 'parts.user_profile' )
 
                     </div>
-                    <!-- END TOPBAR ACTIONS -->
+                    <!-- END TOPBAR ACTIONS -->--}}
                 </div>
 
                 @include( 'parts.header_menu' )
@@ -65,7 +65,7 @@
         <div class="page-content">
 
             <!-- BEGIN BREADCRUMBS -->
-            <div class="breadcrumbs">
+            <div class="breadcrumbs" id="breadcrumbs">
 
                 <h1 class="title">
                     {{ \App\Classes\Title::get() }}

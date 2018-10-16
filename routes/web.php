@@ -109,6 +109,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( '{ticket_management_id}/services', 'Operator\TicketsController@services' )->name( 'tickets.services' );
 
             Route::get( '{ticket_id}/postpone', 'Operator\TicketsController@postpone' )->name( 'tickets.postpone' );
+            Route::get( '{ticket_id}/progress', 'Operator\TicketsController@progress' )->name( 'tickets.progress' );
 
             Route::post( '{ticket_id}/select', 'Operator\TicketsController@select' )->name( 'tickets.select' );
 
@@ -132,7 +133,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
-            Route::get( 'history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
+            Route::get( 'history/{ticket_management_id}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
             Route::post( 'comments/{id?}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::get( '{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );

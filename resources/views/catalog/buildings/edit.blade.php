@@ -50,7 +50,11 @@
 
                     <div class="col-md-4">
                         {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
-                        <div id="segment_id" data-name="segment_id"></div>
+                        @if ( $building->segment )
+                            <div id="segment_id" data-name="segment_id" data-value="{{ $building->segment->id }}" data-title="{{ $building->segment->getName() }}"></div>
+                        @else
+                            <div id="segment_id" data-name="segment_id"></div>
+                        @endif
                     </div>
 
                     <div class="col-md-2">
@@ -105,7 +109,7 @@
 
                     <div class="col-md-3">
                         {!! Form::label( 'floor_count', 'Кол-во этажей', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::number( 'floor_count', \Input::old( 'floor_count', $building->floor_count ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::number( 'floor_count', \Input::old( 'floor_count', $building->floor_count ), [ 'class' => 'form-control', 'placeholder' => 'Кол-во этажей' ] ) !!}
                     </div>
 
                     <div class="col-md-3">
@@ -115,7 +119,7 @@
 
                     <div class="col-md-3">
                         {!! Form::label( 'first_floor_index', 'Номер первого этажа', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::number( 'first_floor_index', \Input::old( 'first_floor_index', $building->first_floor_index ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        {!! Form::number( 'first_floor_index', \Input::old( 'first_floor_index', $building->first_floor_index ), [ 'class' => 'form-control', 'placeholder' => 'Номер первого этажа' ] ) !!}
                     </div>
 
                 </div>

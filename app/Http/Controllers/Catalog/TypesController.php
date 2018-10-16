@@ -170,7 +170,10 @@ class TypesController extends BaseController
 
         Title::add( 'Добавить Классификатор' );
 
-        $categories = Category::orderBy( Category::$_table . '.name' )->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+        $categories = Category
+            ::mine()
+            ->orderBy( Category::$_table . '.name' )
+            ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
         return view( 'catalog.types.create' )
             ->with( 'categories', $categories );

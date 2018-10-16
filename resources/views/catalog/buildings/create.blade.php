@@ -16,17 +16,12 @@
 
         <div class="form-group">
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ' ] ) !!}
+                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
             </div>
 
-            <div class="col-xs-6">
-                {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-            </div>
-
-            <div class="col-xs-2">
+            <div class="col-md-6">
                 {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::text( 'guid', \Input::old( 'guid' ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
             </div>
@@ -35,12 +30,28 @@
 
         <div class="form-group">
 
+            <div class="col-md-4">
+                {!! Form::label( 'building_type_id', 'Тип здания', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'building_type_id', $buildingTypes, \Input::old( 'building_type_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+            </div>
+
+            <div class="col-md-6">
+                {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
+            </div>
+
+            <div class="col-md-2">
+                {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::text( 'number', \Input::old( 'number' ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+            </div>
+
+        </div>
+
+        <div class="form-group">
+
             <div class="col-md-12">
                 {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
-                <span id="segment" class="form-control text-muted">
-                    Нажмите, чтобы выбрать
-                </span>
-                {!! Form::hidden( 'segment_id', \Input::old( 'segment_id' ) ) !!}
+                <div id="segment_id" data-name="segment_id"></div>
             </div>
 
         </div>
@@ -67,33 +78,10 @@
 
         $( document )
 
-            .on( 'click', '#segment', function ( e )
+            .ready( function ( e )
             {
 
-                e.preventDefault();
-
-                Modal.create( 'segment-modal', function ()
-                {
-                    Modal.setTitle( 'Выберите сегмент' );
-                    $.get( '{{ route( 'segments.tree' ) }}', function ( response )
-                    {
-                        var tree = $( '<div></div>' ).attr( 'id', 'segment-tree' );
-                        Modal.setBody( tree );
-                        tree.treeview({
-                            data: response,
-                            onNodeSelected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( node.id );
-                                $( '#segment' ).text( node.text ).removeClass( 'text-muted' );
-                            },
-                            onNodeUnselected: function ( event, node )
-                            {
-                                $( '#segment_id' ).val( '' );
-                                $( '#segment' ).text( 'Нажмите, чтобы выбрать' ).addClass( 'text-muted' );
-                            }
-                        });
-                    });
-                });
+                $( '#segment_id' ).selectSegments();
 
             });
 

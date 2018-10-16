@@ -200,7 +200,7 @@
             right: 0;
             width: 100%;
             z-index: 9999999;
-            background: #2f373e;
+            background: #0c4270;
             padding: 15px 0;
             text-align: center;
         }

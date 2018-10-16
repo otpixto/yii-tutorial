@@ -77,10 +77,10 @@ class Segment extends BaseModel
         return $query;
     }
 
-    public function getName ()
+    public function getName ( $withParent = false )
     {
         $name = $this->type->name;
-        if ( $this->parent )
+        if ( $withParent && $this->parent )
         {
             $name .= ' ' . $this->parent->name;
         }

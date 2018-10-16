@@ -29,11 +29,13 @@ class Building extends BaseModel
         'room_total_count',
         'first_floor_index',
         'is_first_floor_living',
+        'mosreg_id',
     ];
 
     protected $fillable = [
         'provider_id',
         'segment_id',
+        'building_type_id',
         'hash',
         'guid',
         'name',
@@ -50,6 +52,7 @@ class Building extends BaseModel
         'room_total_count',
         'first_floor_index',
         'is_first_floor_living',
+        'mosreg_id',
     ];
 
     public function managements ()

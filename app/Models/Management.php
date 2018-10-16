@@ -50,6 +50,8 @@ class Management extends BaseModel
         'contract_number',
         'contract_begin',
         'contract_end',
+        'mosreg_username',
+        'mosreg_password',
     ];
 
     protected $fillable = [
@@ -69,6 +71,8 @@ class Management extends BaseModel
         'contract_number',
         'contract_begin',
         'contract_end',
+        'mosreg_username',
+        'mosreg_password',
     ];
 
     public function executors ()
@@ -285,6 +289,21 @@ class Management extends BaseModel
     public function getCategory ()
     {
         return self::$categories[ $this->category_id ];
+    }
+
+    public function hasMosreg ( Management & $management = null )
+    {
+        if ( $this->mosreg_id && $this->mosreg_username && $this->mosreg_password )
+        {
+            $management = $this;
+            return true;
+        }
+        if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
+        {
+            $management = $this->parent;
+            return true;
+        }
+        return false;
     }
 
 }

@@ -42,6 +42,12 @@ class UsersController extends BaseController
                 ->search( $search );
         }
 
+        if ( ! \Auth::user()->admin )
+        {
+            $users
+                ->where( 'admin', '!=', 1 );
+        }
+
         $users = $users
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
