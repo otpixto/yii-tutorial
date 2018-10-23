@@ -79,9 +79,11 @@
                             <span class="small">
                                 {{ $segment[ 0 ] }}
                             </span>
-                            <span class="bold">
-                                д. {{ implode( ', ', $segment[ 1 ] ) }}
-                            </span>
+                            @if ( ! empty( $segment[ 1 ] ) )
+                                <span class="bold">
+                                    д. {{ implode( ', ', $segment[ 1 ] ) }}
+                                </span>
+                            @endif
                         </div>
                     @endforeach
                 </td>

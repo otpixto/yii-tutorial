@@ -435,6 +435,7 @@ class WorksController extends BaseController
 			
 		$availableCategories = Category
 			::mine()
+            ->where( 'works', '=', 1 )
 			->orderBy( Category::$_table . '.name' )
 			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
@@ -481,8 +482,6 @@ class WorksController extends BaseController
             'time_begin'        => 'required|date_format:G:i',
             'date_end'          => 'required|date_format:d.m.Y',
             'time_end'          => 'required|date_format:G:i',
-            'date_end_fact'     => 'nullable|date_format:d.m.Y',
-            'time_end_fact'     => 'nullable|date_format:G:i',
         ];
 
         $this->validate( $request, $rules );
@@ -556,11 +555,6 @@ class WorksController extends BaseController
     public function show ( $id )
     {
 
-        if ( \Auth::user()->can( 'works.edit' ) )
-        {
-            return redirect()->route( 'works.edit', $id );
-        }
-
         $work = Work::find( $id );
 
         if ( ! $work )
@@ -596,6 +590,11 @@ class WorksController extends BaseController
             return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
         }
 
+        if ( $work->time_end_fact )
+        {
+            return redirect()->route( 'works.show', $id );
+        }
+
         Title::add( 'Редактировать отключение #' . $work->id );
 
         $providers = Provider
@@ -606,6 +605,7 @@ class WorksController extends BaseController
 
         $availableCategories = Category
             ::mine()
+            ->where( 'works', '=', 1 )
             ->orderBy( Category::$_table . '.name' )
             ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
 
@@ -653,8 +653,6 @@ class WorksController extends BaseController
             'time_begin'        => 'required|date_format:G:i',
             'date_end'          => 'required|date_format:d.m.Y',
             'time_end'          => 'required|date_format:G:i',
-            'date_end_fact'     => 'nullable|date_format:d.m.Y',
-            'time_end_fact'     => 'nullable|date_format:G:i',
         ];
 
         $this->validate( $request, $rules );
@@ -693,6 +691,12 @@ class WorksController extends BaseController
             }
             $executor->save();
             $work->executor_id = $executor->id;
+            $work->save();
+        }
+
+        if ( $request->get( 'closed' ) == 1 )
+        {
+            $work->time_end_fact = Carbon::now()->toDateTimeString();
             $work->save();
         }
 

@@ -108,31 +108,6 @@ class BuildingsController extends BaseController
      */
     public function create ()
     {
-
-        /*$floors = 5;
-        $porches = 4;
-        $flat_by_floor = 4;
-
-        for ( $porch = 1; $porch <= $porches; $porch ++ )
-        {
-            for ( $floor = 1; $floor <= $floors; $floor ++ )
-            {
-                for ( $number = 1; $number <= $flat_by_floor; $number ++ )
-                {
-                    $buildingRoom = BuildingRoom
-                        ::create([
-                            'building_id'       => 70057,
-                            'floor'             => $floor,
-                            'porch'             => $porch,
-                            'number'            => $number,
-                            'living_area'       => 0,
-                            'total_area'        => 0,
-                        ]);
-                    $buildingRoom->save();
-                }
-            }
-        }*/
-
         Title::add( 'Добавить здание' );
         $providers = Provider
             ::mine()
@@ -236,10 +211,16 @@ class BuildingsController extends BaseController
             $building->save();
         }
 
+        $buildingTypes = BuildingType
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'catalog.buildings.edit' )
             ->with( 'building', $building )
             ->with( 'providers', $providers )
-            ->with( 'segments', $segments );
+            ->with( 'segments', $segments )
+            ->with( 'buildingTypes', $buildingTypes );
 
     }
 
@@ -288,6 +269,65 @@ class BuildingsController extends BaseController
 
         return redirect()->route( 'buildings.edit', $building->id )
             ->with( 'success', 'Здание успешно отредактировано' );
+
+    }
+
+    public function storeRooms ( Request $request, $id )
+    {
+
+        $building = Building::find( $id );
+
+        if ( ! $building )
+        {
+            return redirect()->route( 'buildings.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        if ( $building->room_total_count > 0 && $building->porches_count > 0 && $building->floor_count > 0 )
+        {
+
+            $rooms_by_floor = ceil( abs( $building->room_total_count / ( $building->is_first_floor_living ? $building->floor_count : $building->floor_count - 1 ) / $building->porches_count ) );
+            $room_number = 1;
+
+            $buildingRooms = $building->rooms;
+
+            for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
+            {
+                for ( $floor = $building->first_floor_index; $floor <= $building->floor_count; $floor ++ )
+                {
+                    if ( $floor == $building->first_floor_index && ! $building->is_first_floor_living ) continue;
+                    for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
+                    {
+                        if ( ! $buildingRooms->where( 'number', $room_number )->count() )
+                        {
+                            $buildingRoom = BuildingRoom
+                                ::create([
+                                    'building_id'       => $building->id,
+                                    'floor'             => $floor,
+                                    'porch'             => $porch,
+                                    'number'            => $room_number,
+                                    'living_area'       => 0,
+                                    'total_area'        => 0,
+                                ]);
+                            $buildingRoom->save();
+                        }
+                        $room_number ++;
+                    }
+                }
+            }
+
+            $building
+                ->rooms()
+                ->where( 'number', '>', $room_number )
+                ->orWhere( 'floor', '<', $building->first_floor_index )
+                ->orWhere( 'floor', '>', $building->floor_count )
+                ->orWhere( 'porch', '>', $building->porches_count )
+                ->delete();
+
+        }
+
+        return redirect()->route( 'buildings.edit', $building->id )
+            ->with( 'success', 'Комнаты успешно пересчитаны' );
 
     }
 

@@ -108,7 +108,7 @@ class Asterisk
     callerId - отображаемых номер
     */
 
-    public function originate ( $number, $callerId = null, $priority = 1 )
+    public function originate ( $exten, $number, $callerId = null, $priority = 1 )
     {
 
         if ( ! $this->auth ) return false;
@@ -339,8 +339,9 @@ class Asterisk
 
     public function getContext ( $number )
     {
-        $context = mb_strlen( $number ) >= 10 ? 'outgoing' : 'default';
-        return $context;
+        //$context = mb_strlen( $number ) >= 10 ? 'outgoing' : 'default';
+        //return $context;
+        return 'default';
     }
 
     public function __destruct ()

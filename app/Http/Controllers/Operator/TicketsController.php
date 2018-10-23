@@ -1436,7 +1436,7 @@ class TicketsController extends BaseController
                 $ticketManagement = $ticket->managements()->find( $id );
                 if ( $ticketManagement )
                 {
-                    return view( 'parts.rate_form' )
+                    return view( 'tickets.parts.rate_form' )
                         ->with( 'ticketManagement', $ticketManagement );
                 }
 
@@ -2194,7 +2194,7 @@ class TicketsController extends BaseController
             return view( 'parts.error' )
                 ->with( 'error', 'По данной заявке уже имеется оценка' );
         }
-        return view( 'parts.rate_form' )
+        return view( 'tickets.parts.rate_form' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'closed_with_confirm', 1 );
     }

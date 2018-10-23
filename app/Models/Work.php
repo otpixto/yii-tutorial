@@ -286,18 +286,25 @@ class Work extends BaseModel
 			{
 				$name .= ' (' . $building->buildingType->name . ')';
 			}
-            if ( ! isset( $result[ $building->segment_id ] ) )
+			if ( $building->segment_id )
             {
-                $result[ $building->segment_id ] = [
-                    $building->getFullName( false ),
-                    [
-                        $name
-                    ]
-                ];
+                if ( ! isset( $result[ $building->segment_id ] ) )
+                {
+                    $result[ $building->segment_id ] = [
+                        $building->getFullName( false ),
+                        [
+                            $name
+                        ]
+                    ];
+                }
+                else
+                {
+                    $result[ $building->segment_id ][ 1 ][] = $name;
+                }
             }
             else
             {
-                $result[ $building->segment_id ][ 1 ][] = $name;
+                $result[] = [ $building->name ];
             }
         }
         return $result;

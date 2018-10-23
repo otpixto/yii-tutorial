@@ -28,18 +28,21 @@
         dl, .alert {
             margin: 0px;
         }
-        .note {
-            margin: 5px 0;
-        }
         .d-inline {
             display: inline;
         }
-        .status {
+        .status .status-name {
             font-size: 25px;
             font-weight: bold;
         }
         .status .progress {
             height: 10px;
+            margin-bottom: 0;
+        }
+        #ticket-show .note {
+            padding: 10px;
+            margin: 3px 0;
+            border-width: 2px;
         }
         @media print
         {
@@ -113,7 +116,7 @@
                 }
                 else
                 {
-                    $( '#progress' ).attr( 'title', response.title );
+                    $( '#status-title' ).text( response.title );
                     $( '#progress .progress-bar' )
                         .attr( 'class', response.class )
                         .css( 'width', response.percent + '%' );
@@ -330,7 +333,7 @@
 
 						form.find( '[name="rate"]' ).val( rate );
 
-						if ( rate < 4 )
+						if ( rate < 4 || rate == '5+' )
 						{
 							bootbox.prompt({
 								title: 'Введите комментарий к оценке',

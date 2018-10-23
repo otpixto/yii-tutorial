@@ -4,7 +4,7 @@
         @if ( $ticketManagement && $ticketManagement->canRate() )
             <div class="row hidden-print">
                 <div class="col-xs-12">
-                    @include( 'parts.rate_form', [ 'ticketManagement' => $ticketManagement ] )
+                    @include( 'tickets.parts.rate_form', [ 'ticketManagement' => $ticketManagement ] )
                 </div>
             </div>
         @endif
@@ -328,7 +328,7 @@
                 <div class="col-xs-12">
                     <div class="note">
                         <b>Оценка работы УО: </b>
-                        @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
+                        @include( 'tickets.parts.rate', [ 'ticketManagement' => $ticketManagement ] )
                         @if ( $ticketManagement->rate_comment )
                             <p>
                                 {{ $ticketManagement->rate_comment }}

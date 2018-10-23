@@ -14,28 +14,38 @@
 <div class="row">
     <div class="col-lg-6">
         <div class="status">
-            {{ $ticketManagement->status_name ?? $ticket->status_name }}
-            @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
-                до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
-            @endif
-            @if ( $ticketManagement && $ticketManagement->rate )
-                @include( 'parts.rate' )
-            @endif
-            <div class="progress tooltips" title="{{ $progressData[ 'title' ] }}" id="progress">
+            <div class="status-name">
+                <span class="text-muted small">Статус:</span>
+                <span id="status">
+                    {{ $ticketManagement->status_name ?? $ticket->status_name }}
+                </span>
+                @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
+                    до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
+                @endif
+                @if ( $ticketManagement && $ticketManagement->rate )
+                    <span data-edit="rate" data-id="{{ $ticketManagement->id }}">
+                        @include( 'tickets.parts.rate' )
+                    </span>
+                @endif
+            </div>
+            <div class="progress" id="progress">
                 @if ( $progressData[ 'percent' ] )
                     <div class="{{ $progressData[ 'class' ] }}" role="progressbar" style="width: {{ $progressData[ 'percent' ] }}%"></div>
                 @endif
             </div>
+            <div id="status-title">
+                {{ $progressData[ 'title' ] }}
+            </div>
         </div>
     </div>
     <div class="col-lg-6 hidden-print">
-        @if ( count( $availableStatuses ) )
-            @if ( \Auth::user()->can( 'supervisor.all_statuses.edit' ) )
-                {!! Form::open( [ 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
-                {!! Form::hidden( 'model_name', get_class( $ticketManagement ?? $ticket ) ) !!}
-                {!! Form::hidden( 'model_id', ( $ticketManagement ?? $ticket )->id ) !!}
-                <div class="form-group">
-                    <div class="col-md-6">
+        <div class="margin-top-15">
+            @if ( count( $availableStatuses ) )
+                @if ( \Auth::user()->can( 'supervisor.all_statuses.edit' ) )
+                    {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement ? $ticketManagement->getTicketNumber() : $ticket->id ), 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
+                    {!! Form::hidden( 'model_name', get_class( $ticketManagement ?? $ticket ) ) !!}
+                    {!! Form::hidden( 'model_id', ( $ticketManagement ?? $ticket )->id ) !!}
+                    <div class="input-group input-group-lg">
                         <select name="status_code" id="status_code" class="form-control select2">
                             <option value="">
                                 -- выберите из списка --
@@ -46,28 +56,28 @@
                                 </option>
                             @endforeach
                         </select>
+                        <span class="input-group-btn">
+                            {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
+                        </span>
                     </div>
-                    <div class="col-md-6">
-                        {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
-                    </div>
-                </div>
-                {!! Form::close() !!}
-            @else
-                @foreach( $availableStatuses as $status_code => $availableStatus )
-                    @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
-                        @php
-                            continue;
-                        @endphp
-                    @endif
-                    {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
-                    {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
-                    {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
-                    {!! Form::hidden( 'status_code', $status_code ) !!}
-                    {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-lg margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
                     {!! Form::close() !!}
-                @endforeach
+                @else
+                    @foreach( $availableStatuses as $status_code => $availableStatus )
+                        @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
+                            @php
+                                continue;
+                            @endphp
+                        @endif
+                        {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
+                        {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
+                        {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
+                        {!! Form::hidden( 'status_code', $status_code ) !!}
+                        {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-lg margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
+                        {!! Form::close() !!}
+                    @endforeach
+                @endif
             @endif
-        @endif
+        </div>
     </div>
 </div>
 
@@ -245,11 +255,11 @@
                     </div>
                     <div class="col-xs-6">
                         <div class="note">
-                            {{--@if ( $ticket->canCall() )
+                            @if ( $ticket->canCall() )
                                 <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
                                     <i class="fa fa-phone"></i>
                                 </button>
-                            @endif--}}
+                            @endif
                             <dl>
                                 <dt>
                                     @if ( $ticket->canEdit() )
@@ -806,7 +816,7 @@
                             </a>
                         @endif
                         <b>Оценка работы УО: </b>
-                        @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
+                        @include( 'tickets.parts.rate', [ 'ticketManagement' => $ticketManagement ] )
                         @if ( $ticketManagement->rate_comment )
                             <p>
                                 {{ $ticketManagement->rate_comment }}

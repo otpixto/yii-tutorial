@@ -99,10 +99,17 @@ class Building extends BaseModel
     public function getFullName ( $withNumber = true )
     {
         $segments = $this->getSegments();
-        $name = $segments->implode( 'name', ', ' );
-        if ( $withNumber && $this->number )
+        if ( $segments->count() )
         {
-            $name .= ', д.' . $this->number;
+            $name = $segments->implode( 'name', ', ' );
+            if ( $withNumber && $this->number )
+            {
+                $name .= ', д.' . $this->number;
+            }
+        }
+        else
+        {
+            $name = $this->name;
         }
         return $name;
     }

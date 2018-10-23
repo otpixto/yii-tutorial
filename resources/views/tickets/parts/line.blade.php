@@ -31,7 +31,7 @@
         @endif
         @if ( $ticketManagement->rate )
             <span class="pull-right">
-                @include( 'parts.rate', [ 'ticketManagement' => $ticketManagement ] )
+                @include( 'tickets.parts.rate', [ 'ticketManagement' => $ticketManagement ] )
             </span>
         @endif
     </td>

@@ -17,28 +17,28 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( null, 'Адрес работы', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        @foreach ( $work->getAddressesGroupBySegment() as $segment )
-                            <div class="margin-top-5">
-                                <span class="small">
-                                    {{ $segment[ 0 ] }}
-                                </span>
-                                <span class="bold">
-                                    д. {{ implode( ', ', $segment[ 1 ] ) }}
-                                </span>
-                            </div>
-                        @endforeach
+                        {{ \App\Models\Work::$types[ $work->type_id ] }}
                     </span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->category->name }}
+                        {{ $work->managements->implode( 'name' ) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                {!! Form::label( null, 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->executors->implode( 'name' ) }}
                     </span>
                 </div>
             </div>
@@ -75,19 +75,30 @@
         <div class="col-lg-6">
 
             <div class="form-group">
-                {!! Form::label( null, 'Исполнитель работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->management->name }}
+                        {{ $work->category->name }}
                     </span>
                 </div>
             </div>
 
             <div class="form-group">
-                {!! Form::label( null, 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                {!! Form::label( null, 'Адрес(а) работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
-                        {{ $work->executor->getName( true ) }}
+                        @foreach ( $work->getAddressesGroupBySegment() as $segment )
+                            <div class="margin-top-5">
+                                <span class="small">
+                                    {{ $segment[ 0 ] }}
+                                </span>
+                                @if ( ! empty( $segment[ 1 ] ) )
+                                    <span class="bold">
+                                        д. {{ implode( ', ', $segment[ 1 ] ) }}
+                                    </span>
+                                @endif
+                            </div>
+                        @endforeach
                     </span>
                 </div>
             </div>

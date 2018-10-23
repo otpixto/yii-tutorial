@@ -746,7 +746,7 @@ class Ticket extends BaseModel
                 $title = 'Принять до ' . $this->deadline_acceptance->format( 'd.m.Y H:i' );
                 if ( $now->timestamp < $this->deadline_acceptance->timestamp )
                 {
-                    $percent = 100 - ( $this->type->period_acceptance ? ceil( $now->diffInMinutes( $this->deadline_acceptance ) / ( $this->type->period_acceptance * 60 ) * 100 ) : 0 );
+                    $percent = 100 - ( $this->type->period_acceptance ? ceil( $now->diffInMinutes( $this->deadline_acceptance ) / ( $this->type->period_acceptance * 60 ) * 100 ) : 1 );
                 }
                 else
                 {
@@ -759,7 +759,7 @@ class Ticket extends BaseModel
                 $title = 'Выполнить до ' . $this->deadline_execution->format( 'd.m.Y H:i' );
                 if ( $now->timestamp < $this->deadline_execution->timestamp )
                 {
-                    $percent = 100 - ( $this->type->period_execution ? ceil( $now->diffInMinutes( $this->deadline_execution ) / ( $this->type->period_execution * 60 ) * 100 ) : 0 );
+                    $percent = 100 - ( $this->type->period_execution ? ceil( $now->diffInMinutes( $this->deadline_execution ) / ( $this->type->period_execution * 60 ) * 100 ) : 1 );
                 }
                 else
                 {
@@ -767,8 +767,14 @@ class Ticket extends BaseModel
                     $title .= ' (Просрочено)';
                 }
             }
-            if ( $percent < 0 ) $percent = 0;
-            if ( $percent >= 100 )
+            else
+            {
+                $percent = 100;
+                $class .= ' progress-bar-primary';
+                return compact( 'title', 'percent', 'class' );
+            }
+            if ( $percent <= 0 ) $percent = 0;
+            else if ( $percent >= 100 )
             {
                 $percent = 100;
                 $class .= ' progress-bar-danger';
@@ -785,6 +791,11 @@ class Ticket extends BaseModel
             {
                 $class .= ' progress-bar-striped active progress-bar-success';
             }
+        }
+        else
+        {
+            $percent = 100;
+            $class .= ' progress-bar-primary';
         }
         return compact( 'title', 'percent', 'class' );
     }

@@ -593,7 +593,10 @@ class TicketManagement extends BaseModel
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
                 $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
 
-                $message .= 'Исполнитель: ' . $this->executor->name . PHP_EOL;
+                if ( $this->executor )
+                {
+                    $message .= 'Исполнитель: ' . $this->executor->name . PHP_EOL;
+                }
 
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 

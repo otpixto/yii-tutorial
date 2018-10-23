@@ -40,6 +40,11 @@ class Provider extends BaseModel
         return $this->hasMany( 'App\Models\Building' );
     }
 
+    public function groups ()
+    {
+        return $this->hasMany( 'App\Models\Group' );
+    }
+
     public function managements ()
     {
         return $this->hasMany( 'App\Models\Management' );
@@ -80,7 +85,7 @@ class Provider extends BaseModel
 
     public function scopeCurrent ( $query )
     {
-        if ( ! self::isOperatorUrl() )
+        if ( ! self::subDomainIs( 'operator', 'system' ) )
         {
             $query
                 ->where( self::$_table . '.domain', '=', \Request::getHost() );

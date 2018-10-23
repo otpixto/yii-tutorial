@@ -124,12 +124,11 @@
 
                     $( '#calendar' ).fullCalendar({
                         locale: 'ru',
-                        defaultView: 'month',
                         eventLimit: true,
                         header: {
-                            left: 'prev,next today',
+                            left: 'prev,next',
                             center: 'title',
-                            right: 'month,agendaWeek,agendaDay,listDay'
+                            right: 'month,agendaWeek,agendaDay'
                         },
                         validRange: {
                             start: response.beginDate,
@@ -137,13 +136,17 @@
                         },
                         defaultDate: response.beginDate,
                         editable: false,
-                        changeView: function ( changedView )
+                        dayClick: function ( date, event, view )
                         {
-                            console.log( changedView );
-                            // do anything with the view that will be changed
+                            if ( view.name != 'agendaDay' )
+                            {
+                                $( '#calendar' ).fullCalendar( 'changeView', 'agendaDay', date );
+                            }
                         },
                         events: response.events
                     });
+
+                    $( '#calendar' ).fullCalendar( 'changeView', 'agendaDay', new Date() );
 
                 });
 

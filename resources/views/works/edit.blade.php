@@ -95,16 +95,6 @@
             </div>
 
             <div class="form-group">
-                {!! Form::label( 'date_end_fact', 'Дата окончания работ (факт.)', [ 'class' => 'control-label col-xs-4' ] ) !!}
-                <div class="col-xs-4">
-                    {!! Form::text( 'date_end_fact', \Input::old( 'date_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y' ) : null ), [ 'class' => 'form-control datepicker', 'data-date-format' => 'dd.mm.yyyy', 'placeholder' => 'Дата окончания работ (факт.)' ] ) !!}
-                </div>
-                <div class="col-xs-4">
-                    {!! Form::text( 'time_end_fact', \Input::old( 'time_end_fact', $work->time_end_fact ? \Carbon\Carbon::parse( $work->time_end_fact )->format( 'H:i' ) : null ), [ 'class' => 'form-control timepicker timepicker-24', 'placeholder' => 'Время окончания работ (факт.)' ] ) !!}
-                </div>
-            </div>
-
-            <div class="form-group">
                 {!! Form::label( 'deadline', 'Предельное время устранения', [ 'class' => 'control-label col-xs-6' ] ) !!}
                 <div class="col-xs-3">
                     {!! Form::number( 'deadline', \Input::old( 'deadline', $work->deadline ), [ 'class' => 'form-control', 'min' => 0, 'step' => 1 ] ) !!}
@@ -151,8 +141,15 @@
     </div>
 
     <div class="row margin-top-10">
-        <div class="col-xs-offset-6 col-xs-6">
-            <button type="submit" class="btn green btn-block btn-lg">
+        <div class="col-xs-6">
+            <button type="button" class="btn btn-danger btn-lg" id="work-close">
+                <i class="fa fa-close"></i>
+                Завершить
+            </button>
+        </div>
+        <div class="col-xs-6 text-right">
+            {!! Form::hidden( 'closed', '0', [ 'id' => 'closed' ] ) !!}
+            <button type="submit" class="btn green btn-lg">
                 <i class="fa fa-plus"></i>
                 Сохранить
             </button>
@@ -285,6 +282,13 @@
             .on( 'click', '.executor-toggle', function ( e )
             {
                 $( '#executor_name, #executor_phone' ).val( '' );
+            })
+
+            .on( 'click', '#work-close', function ( e )
+            {
+                if ( ! confirm( 'Вы уверены?' ) ) return;
+                $( '#closed' ).val( '1' );
+                $( this ).closest( 'form' ).submit();
             })
 
             .on( 'change', '#managements', getExecutors )

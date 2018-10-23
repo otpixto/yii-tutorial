@@ -12,7 +12,7 @@
         #{{ $ticket->id }}
         @if ( $ticket->rate )
             <span class="pull-right">
-                @include( 'parts.rate', [ 'ticket' => $ticket ] )
+                @include( 'tickets.parts.rate', [ 'ticket' => $ticket ] )
             </span>
         @endif
     </td>

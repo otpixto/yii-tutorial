@@ -36,7 +36,8 @@ class Group extends BaseModel
             ->whereHas( 'provider', function ( $provider )
             {
                 return $provider
-                    ->mine();
+                    ->mine()
+                    ->current();
             });
     }
 

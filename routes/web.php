@@ -6,6 +6,8 @@ Route::prefix( 'error' )->group( function ()
 {
     Route::any( '404', 'ErrorsController@error404' )->name( 'error.404' );
     Route::any( '403', 'ErrorsController@error403' )->name( 'error.403' );
+    Route::any( '423', 'ErrorsController@error423' )->name( 'error.423' );
+    Route::any( '429', 'ErrorsController@error429' )->name( 'error.429' );
     Route::any( '500', 'ErrorsController@error500' )->name( 'error.500' );
 });
 
@@ -26,6 +28,20 @@ Route::group( [ 'middleware' => 'api' ], function ()
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
 
+    });
+
+    Route::prefix( 'asterisk' )->group( function ()
+    {
+        Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
+        Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
+        Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
+    });
+
+    Route::prefix( 'devices' )->group( function ()
+    {
+        Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
+        Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
+        Route::any( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
     });
 
 });
@@ -178,6 +194,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'types', 'Catalog\TypesController' );
             Route::resource( 'segments', 'Catalog\SegmentsController' );
             Route::resource( 'buildings', 'Catalog\BuildingsController' );
+            Route::resource( 'groups', 'Catalog\GroupsController' );
             Route::resource( 'rooms', 'Catalog\RoomsController' );
             Route::resource( 'categories', 'Catalog\CategoriesController' );
 
@@ -195,6 +212,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'buildings/{building_id}/providers/add', 'Catalog\BuildingsController@providersAdd' )->name( 'buildings.providers.add' );
             Route::delete( 'buildings/{building_id}/providers/del', 'Catalog\BuildingsController@providersDel' )->name( 'buildings.providers.del' );
             Route::delete( 'buildings/{building_id}/providers/empty', 'Catalog\BuildingsController@providersEmpty' )->name( 'buildings.providers.empty' );
+            Route::post( 'buildings/{building_id}/store-rooms', 'Catalog\BuildingsController@storeRooms' )->name( 'buildings.store.rooms' );
 
             Route::post( 'types/json', 'Catalog\TypesController@json' )->name( 'types.json' );
             Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
@@ -235,6 +253,13 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'customers/search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
 
             Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
+
+            Route::get( 'groups/{group_id}/buildings', 'Catalog\GroupsController@buildings' )->name( 'groups.buildings' );
+            Route::post( 'groups/{group_id}/buildings/search', 'Catalog\GroupsController@buildingsSearch' )->name( 'groups.buildings.search' );
+            Route::put( 'groups/{group_id}/buildings/add', 'Catalog\GroupsController@buildingsAdd' )->name( 'groups.buildings.add' );
+            Route::put( 'groups/{group_id}/segments/add', 'Catalog\GroupsController@segmentsAdd' )->name( 'groups.segments.add' );
+            Route::delete( 'groups/{group_id}/buildings/del', 'Catalog\GroupsController@buildingsDel' )->name( 'groups.buildings.del' );
+            Route::delete( 'groups/{group_id}/buildings/empty', 'Catalog\GroupsController@buildingsEmpty' )->name( 'groups.buildings.empty' );
 
         });
 
@@ -296,13 +321,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         });
 
-    });
-
-    Route::prefix( 'asterisk' )->group( function ()
-    {
-        Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
-        Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
-        Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
     });
 
 });

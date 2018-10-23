@@ -219,6 +219,13 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'catalog.groups.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'groups.index' ) }}" class="nav-link">
+                                Группы
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'catalog.types.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'types.index' ) }}" class="nav-link">

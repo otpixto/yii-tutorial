@@ -51,18 +51,18 @@
                                     {!! Form::text( 'amount', '', [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                 </div>
                                 <div class="col-xs-1 text-right hidden-print">
-                                    <button type="button" data-repeater-delete="" class="btn btn-danger">
+                                    <button type="button" data-repeater-delete="" class="btn btn-danger btn-block">
                                         <i class="fa fa-close"></i>
                                     </button>
                                 </div>
                             </div>
                         @endif
                     </div>
-                    <div class="row margin-bottom-10 bg-info">
-                        <div class="col-xs-9 text-right bold">
+                    <div class="row margin-bottom-10">
+                        <div class="col-xs-9 text-right bold h4">
                             Итого:
                         </div>
-                        <div class="col-xs-2 text-right bold" id="ticket-services-total">
+                        <div class="col-xs-2 text-right bold h4" id="ticket-services-total">
                             {{ number_format( $ticketManagement->services->sum( function ( $service ){ return $service[ 'amount' ] * $service[ 'quantity' ]; } ), 2, '.', '' ) }}
                         </div>
                     </div>

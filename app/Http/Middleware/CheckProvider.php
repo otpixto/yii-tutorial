@@ -25,7 +25,7 @@ class CheckProvider
                     return redirect()->route( 'error.403' );
                 }
             }
-            else
+            else if ( ! Provider::isSystemUrl() )
             {
                 $provider = Provider::getCurrent();
                 if ( ! $provider )

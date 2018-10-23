@@ -27,6 +27,12 @@ class BaseModel extends Model
         'id'
     ];
 
+    public function __construct ( array $attributes = [] )
+    {
+        $this->connection = env( 'DB_CONNECTION', 'eds' );
+        parent::__construct( $attributes );
+    }
+
     public function addComment ( $text )
     {
         $comment = Comment::create([

@@ -22,6 +22,16 @@ class ErrorsController extends Controller
         return view( 'errors.403' );
     }
 
+    public function error423 ()
+    {
+        return view( 'errors.423' );
+    }
+
+    public function error429 ()
+    {
+        return view( 'errors.429' );
+    }
+
     public function error500 ()
     {
         return view( 'errors.500' );

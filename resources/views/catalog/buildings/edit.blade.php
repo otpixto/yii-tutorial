@@ -77,6 +77,11 @@
                 <div class="form-group">
 
                     <div class="col-md-3">
+                        {!! Form::label( 'building_type_id', 'Тип здания', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'building_type_id', $buildingTypes,\Input::old( 'building_type_id', $building->building_type_id ), [ 'class' => 'form-control', 'placeholder' => 'Тип здания' ] ) !!}
+                    </div>
+
+                    <div class="col-md-3">
                         {!! Form::label( 'total_area', 'Общая площадь', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'total_area', \Input::old( 'total_area', $building->total_area ), [ 'class' => 'form-control', 'placeholder' => 'Общая площадь' ] ) !!}
                     </div>
@@ -86,12 +91,12 @@
                         {!! Form::text( 'living_area', \Input::old( 'living_area', $building->living_area ), [ 'class' => 'form-control', 'placeholder' => 'Жилая площадь' ] ) !!}
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         {!! Form::label( 'room_mask', 'Маска нумерации', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'room_mask', \Input::old( 'room_mask', $building->room_mask ), [ 'class' => 'form-control', 'placeholder' => 'Маска нумерации' ] ) !!}
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-1">
                         {!! Form::label( 'room_mask', '1-й этаж жилой', [ 'class' => 'control-label' ] ) !!}
                         <label class="form-control">
                             {!! Form::checkbox( 'is_first_floor_living', 1, $building->is_first_floor_living ) !!}
@@ -217,6 +222,11 @@
                     @endfor
                     </tbody>
                 </table>
+            </div>
+            <div class="panel-footer">
+                {!! Form::open( [ 'url' => route( 'buildings.store.rooms', $building->id ) ] ) !!}
+                {!! Form::submit( 'Пересчитать комнаты', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
+                {!! Form::close() !!}
             </div>
         </div>
 
