@@ -148,6 +148,18 @@ class BaseModel extends Model
         {
             $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
         }
+        if ( ! empty( $attributes[ 'firstname' ] ) )
+        {
+            $attributes[ 'firstname' ] = ucfirst( $attributes[ 'firstname' ] );
+        }
+        if ( ! empty( $attributes[ 'middlename' ] ) )
+        {
+            $attributes[ 'middlename' ] = ucfirst( $attributes[ 'middlename' ] );
+        }
+        if ( ! empty( $attributes[ 'lastname' ] ) )
+        {
+            $attributes[ 'lastname' ] = ucfirst( $attributes[ 'lastname' ] );
+        }
         $new = new static( $attributes );
         if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && ! $new->author_id && \Auth::user() )
         {
@@ -180,6 +192,18 @@ class BaseModel extends Model
         if ( ! empty( $attributes[ 'phone2' ] ) )
         {
             $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
+        }
+        if ( ! empty( $attributes[ 'firstname' ] ) )
+        {
+            $attributes[ 'firstname' ] = ucfirst( $attributes[ 'firstname' ] );
+        }
+        if ( ! empty( $attributes[ 'middlename' ] ) )
+        {
+            $attributes[ 'middlename' ] = ucfirst( $attributes[ 'middlename' ] );
+        }
+        if ( ! empty( $attributes[ 'lastname' ] ) )
+        {
+            $attributes[ 'lastname' ] = ucfirst( mb_strtolower( $attributes[ 'lastname' ] ) );
         }
         $res = $this->saveLogs( $attributes );
         if ( $res instanceof MessageBag )

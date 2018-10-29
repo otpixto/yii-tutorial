@@ -58,3 +58,8 @@
     </div>
 </div>
 {!! Form::close() !!}
+<script type="text/javascript">
+    $( '.mask_phone' ).inputmask( 'mask', {
+        'mask': '+7 (999) 999-99-99'
+    });
+</script>

@@ -39,45 +39,50 @@
         </div>
     </div>
     <div class="col-lg-6 hidden-print">
-        <div class="margin-top-15">
-            @if ( count( $availableStatuses ) )
-                @if ( \Auth::user()->can( 'supervisor.all_statuses.edit' ) )
-                    {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement ? $ticketManagement->getTicketNumber() : $ticket->id ), 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
-                    {!! Form::hidden( 'model_name', get_class( $ticketManagement ?? $ticket ) ) !!}
-                    {!! Form::hidden( 'model_id', ( $ticketManagement ?? $ticket )->id ) !!}
-                    <div class="input-group input-group-lg">
-                        <select name="status_code" id="status_code" class="form-control select2">
-                            <option value="">
-                                -- выберите из списка --
-                            </option>
-                            @foreach( $availableStatuses as $status_code => $availableStatus )
-                                <option value="{{ $status_code }}">
-                                    {{ $availableStatus[ 'status_name' ] }}
+        @if ( $ticketManagement && $ticketManagement->status_code == 'closed_with_confirm' && ! $ticketManagement->rate )
+            @include( 'tickets.parts.rate_form' )
+        @else
+            <div class="margin-top-15">
+                @if ( count( $availableStatuses ) )
+                    @if ( \Auth::user()->can( 'supervisor.all_statuses.edit' ) )
+                        {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement ? $ticketManagement->getTicketNumber() : $ticket->id ), 'class' => 'd-inline submit-loading form-horizontal' ] ) !!}
+                        {!! Form::hidden( 'model_name', get_class( $ticketManagement ?? $ticket ) ) !!}
+                        {!! Form::hidden( 'model_id', ( $ticketManagement ?? $ticket )->id ) !!}
+                        <div class="input-group input-group-lg">
+                            <select name="status_code" id="status_code" class="form-control select2">
+                                <option value="">
+                                    -- выберите из списка --
                                 </option>
-                            @endforeach
-                        </select>
-                        <span class="input-group-btn">
-                            {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
-                        </span>
-                    </div>
-                    {!! Form::close() !!}
-                @else
-                    @foreach( $availableStatuses as $status_code => $availableStatus )
-                        @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
-                            @php
-                                continue;
-                            @endphp
-                        @endif
-                        {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
-                        {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
-                        {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
-                        {!! Form::hidden( 'status_code', $status_code ) !!}
-                        {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-lg margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
+                                @foreach( $availableStatuses as $status_code => $availableStatus )
+                                    <option value="{{ $status_code }}">
+                                        {{ $availableStatus[ 'status_name' ] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="input-group-btn">
+                                {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
+                            </span>
+                        </div>
                         {!! Form::close() !!}
-                    @endforeach
+                    @else
+                        @foreach( $availableStatuses as $status_code => $availableStatus )
+                            @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
+                                @php
+                                    continue;
+                                @endphp
+                            @endif
+                            {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
+                            {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
+                            {!! Form::hidden( 'model_id', $availableStatus[ 'model_id' ] ) !!}
+                            {!! Form::hidden( 'status_code', $status_code ) !!}
+                            {!! Form::submit( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'name' ] ?? $availableStatus[ 'status_name' ], [ 'class' => 'btn btn-lg margin-bottom-5 margin-right-5 ' . ( \App\Models\Ticket::$statuses_buttons[ $status_code ][ 'class' ] ?? 'btn-primary' ) ] ) !!}
+                            {!! Form::close() !!}
+                        @endforeach
+                    @endif
                 @endif
-            @endif
-        </div>
+            </div>
+        @endif
+
     </div>
 </div>
 

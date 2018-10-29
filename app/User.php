@@ -6,6 +6,7 @@ use App\Classes\Asterisk;
 use App\Jobs\SendEmail;
 use App\Models\BaseModel;
 use App\Models\Ticket;
+use App\Models\UserPosition;
 use App\Notifications\MailResetPasswordToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Notifications\Notifiable;
@@ -286,13 +287,15 @@ class User extends BaseModel implements
         {
             return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
         }
-        $number = $this->openPhoneSession->number;
+        $number = $this->exten;
         $asterisk = new Asterisk();
         if ( ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
         $this->openPhoneSession->close();
+        $this->exten = null;
+        $this->save();
         \Cookie::forget( 'phone' );
     }
 
@@ -370,6 +373,23 @@ class User extends BaseModel implements
     public function sendEmail ( $message, $url = null )
     {
         $this->dispatch( new SendEmail( $this, $message, $url ) );
+    }
+
+    public function setPosition ( $lon, $lat )
+    {
+        $this->lon = $lon;
+        $this->lat = $lat;
+        $this->save();
+        $userPosition = UserPosition::create([
+            'user_id'       => $this->id,
+            'lon'           => $this->lon,
+            'lat'           => $this->lat,
+        ]);
+        if ( $userPosition instanceof MessageBag )
+        {
+            return $userPosition;
+        }
+        $userPosition->save();
     }
 
 }

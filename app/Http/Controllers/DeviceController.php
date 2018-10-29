@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 
 use App\Classes\Devices;
 use App\Models\Ticket;
+use App\Models\TicketManagement;
+use App\Models\UserPosition;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\MessageBag;
 
 class DeviceController extends Controller
 {
@@ -15,7 +19,7 @@ class DeviceController extends Controller
     const CACHE_LIFE_MINUTES = 60;
     const UPDATES_LIFE_SECONDS = 10;
 
-    private function authToken ( Request $request, & $output = null ) : bool
+    private function authToken ( Request $request, & $output = null, & $httpCode = 200 ) : bool
     {
 
         $timestamp = Carbon::now()->timestamp - self::UPDATES_LIFE_SECONDS;
@@ -29,6 +33,7 @@ class DeviceController extends Controller
             foreach ( $validation->errors() as $error )
             {
                 $output = $error->getMessage();
+                $httpCode = 400;
                 return false;
             }
         }
@@ -38,6 +43,7 @@ class DeviceController extends Controller
         if ( ! \Cache::has( 'device.token.' . $token ) )
         {
             $output = trans('device.token' );
+            $httpCode = 403;
             return false;
         }
 
@@ -48,12 +54,14 @@ class DeviceController extends Controller
         if ( ! $user )
         {
             $output = trans('device.user_not_found' );
+            $httpCode = 400;
             return false;
         }
 
         if ( ! $user->isActive() )
         {
             $output = trans('device.user_not_active' );
+            $httpCode = 400;
             return false;
         }
 
@@ -69,7 +77,7 @@ class DeviceController extends Controller
 
     }
 
-    public function auth ( Request $request ) : array
+    public function auth ( Request $request ) : Response
     {
 
         $timestamp = Carbon::now()->timestamp - self::UPDATES_LIFE_SECONDS;
@@ -81,12 +89,12 @@ class DeviceController extends Controller
 
         if ( $validation->fails() )
         {
-            return [ 'errors' => $validation->errors() ];
+            return $this->error( $validation->errors()->first() );
         }
 
         if ( ! \Auth::guard()->attempt( $request->toArray() ) )
         {
-            return [ 'errors' => [ 'username' => trans('auth.failed' ) ] ];
+            return $this->error( trans('auth.failed' ), 403 );
         }
 
         $user = \Auth::user();
@@ -105,20 +113,20 @@ class DeviceController extends Controller
         \Cache::put( 'device.token.' . $token, [ $user->id, $timestamp ], self::CACHE_LIFE_MINUTES );
         \Cache::put( 'device.user.' . $user->id, $token, self::CACHE_LIFE_MINUTES );
 
-        return [
+        return $this->success([
             'id'            => $user->id,
             'fullname'      => $user->getName(),
             'token'         => $token
-        ];
+        ]);
 
     }
 
-    public function tickets ( Request $request ) : array
+    public function tickets ( Request $request ) : Response
     {
 
-        if ( ! $this->authToken( $request, $data ) )
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
         {
-            return $this->error( $data );
+            return $this->error( $data, $httpCode );
         }
 
         $tickets = Ticket
@@ -127,21 +135,24 @@ class DeviceController extends Controller
             ->orderBy( 'id', 'desc' )
             ->with(
                 'comments',
+                'comments.author',
                 'building',
-                'author'
+                'author',
+                'type',
+                'type.category'
             )
             ->get();
 
-        return Devices::ticketsInfo( $tickets );
+        return $this->success( Devices::ticketsInfo( $tickets ) );
 
     }
 
-    public function updates ( Request $request ) : array
+    public function updates ( Request $request ) : Response
     {
 
-        if ( ! $this->authToken( $request, $data ) )
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
         {
-            return $this->error( $data );
+            return $this->error( $data, $httpCode );
         }
 
         $response = [];
@@ -153,8 +164,11 @@ class DeviceController extends Controller
             ->orderBy( 'id', 'desc' )
             ->with(
                 'comments',
+                'comments.author',
                 'building',
-                'author'
+                'author',
+                'type',
+                'type.category'
             )
             ->get();
 
@@ -185,13 +199,165 @@ class DeviceController extends Controller
 
         $response[ 'deleted' ] = $ticketsDeleted;
 
-        return $response;
+        return $this->success( $response );
 
     }
 
-    private function error ( $error ) : array
+    public function contacts ( Request $request )
     {
-        return compact( 'error' );
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        $employees = [];
+
+        foreach ( \Auth::user()->managements as $management )
+        {
+            foreach ( $management->executors as $executor )
+            {
+                $employees[] = [
+                    'fullname'      => $executor->name,
+                    'phone'         => $executor->phone
+                ];
+            }
+        }
+
+        $tickets = Ticket
+            ::mine()
+            ->where( 'status_code', '!=', 'draft' )
+            ->groupBy( 'phone' )
+            ->get();
+
+        $clients = [];
+
+        foreach ( $tickets as $ticket )
+        {
+            $clients[] = [
+                'fullname'          => $ticket->getName(),
+                'phone'             => $ticket->phone,
+                'phone2'            => $ticket->phone2
+            ];
+        }
+
+        return $this->success( compact( 'employees', 'clients' ) );
+
+    }
+
+    public function position ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'lon'           => 'required|numeric',
+            'lat'           => 'required|numeric',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        $res = $user = \Auth::user()->setPosition( $request->get( 'lon' ), $request->get( 'lat' ) );
+        if ( $res instanceof MessageBag )
+        {
+            return $this->error( $res->first() );
+        }
+
+        return $this->success( 'OK' );
+
+    }
+
+    /*public function complete ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'id'            => 'required|integer',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        $tickets = TicketManagement
+            ::mine()
+            ->whereHas( 'executor', function ( $executor )
+            {
+                return $executor
+                    ->where( 'id', '=',  );
+            })
+            ->where( 'status_code', '!=', 'draft' )
+            ->groupBy( 'phone' )
+            ->get();
+
+        $user = \Auth::user();
+        $user->lon = $request->get( 'lon' );
+        $user->lat = $request->get( 'lat' );
+        $user->save();
+
+        return $this->success( 'OK' );
+
+    }*/
+
+    public function comment ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'id'            => 'required|integer',
+            'text'          => 'required|string|max:1000',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        $ticket = Ticket
+            ::mine()
+            ->find( $request->get( 'id' ) );
+
+        if ( ! $ticket )
+        {
+            return $this->error( 'Заявка не найдена' );
+        }
+
+        $res = $ticket->addComment( $request->get( 'text' ) );
+        if ( $res instanceof MessageBag )
+        {
+            return $this->error( $res->first() );
+        }
+
+        return $this->success( 'OK' );
+
+    }
+
+    private function error ( $error, $httpCode = 400 ) : Response
+    {
+        return response( compact( 'error' ), $httpCode );
+    }
+
+    private function success ( $response ) : Response
+    {
+        return response( $response, 200 );
     }
 
 }

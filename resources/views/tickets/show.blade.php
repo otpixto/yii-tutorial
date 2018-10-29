@@ -414,7 +414,7 @@
 
 				})
 			
-				.on( 'confirmed', '[data-status="confirmation_client"]', function ( e, pe )
+				.on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
 				{
 
 					if ( $( '#rate' ).length ) return;

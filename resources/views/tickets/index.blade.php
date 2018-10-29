@@ -54,20 +54,6 @@
                     </div>
                 </div>
             </div>
-            {{--@if ( \Auth::user()->can( 'tickets.export' ) )
-                <div class="col-xs-6 text-right">
-                    @if( $ticketManagements->total() < 1000 )
-                        <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
-                            <i class="fa fa-download"></i>
-                            Выгрузить в Excel
-                        </a>
-                    @else
-                        <span class="text-muted small">
-                            Для выгрузки уточните критерии поиска
-                        </span>
-                    @endif
-                </div>
-            @endif--}}
         </div>
 
         <div class="row margin-top-15 hidden-print" data-toggle="buttons">
@@ -87,16 +73,16 @@
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
-                    <input type="radio" class="toggle tickets-filter" name="statuses" value="from_lk" @if ( $request->get( 'statuses' ) == 'from_lk' ) checked @endif>
-                    ИЗ ЛК КЛИЕНТА
-                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'from_lk' ) }})
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="waiting" @if ( $request->get( 'statuses' ) == 'waiting' ) checked @endif>
+                    ОТЛОЖЕННЫЕ
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'waiting' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
-                    <input type="radio" class="toggle tickets-filter" name="statuses" value="conflict" @if ( $request->get( 'statuses' ) == 'conflict' ) checked @endif>
-                    КОНФЛИКТНЫЕ
-                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'conflict' ) }})
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="in_process" @if ( $request->get( 'statuses' ) == 'in_process' ) checked @endif>
+                    В РАБОТЕ
+                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'in_process' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
@@ -143,12 +129,21 @@
 
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <div id="controls" style="display: none;">
-                {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox' ] ) !!}
-                {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
-                <button type="submit" class="btn btn-default btn-lg">
-                    Распечатать наряд-заказы (<span id="ids-count">0</span>)
-                </button>
-                {!! Form::close(); !!}
+                @if ( $request->get( 'show' ) == 'mine' )
+                    {!! Form::open( [ 'url' => route( 'tickets.owner' ), 'method' => 'post', 'id' => 'form-checkbox ajax' ] ) !!}
+                    {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                    <button type="submit" class="btn btn-warning btn-lg font-dark">
+                        Присвоить себе (<span id="ids-count">0</span>)
+                    </button>
+                    {!! Form::close(); !!}
+                @else
+                    {!! Form::open( [ 'url' => route( 'tickets.waybill' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox' ] ) !!}
+                    {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                    <button type="submit" class="btn btn-default btn-lg">
+                        Распечатать наряд-заказы (<span id="ids-count">0</span>)
+                    </button>
+                    {!! Form::close(); !!}
+                @endif
                 <a href="javascript:;" class="text-default" id="cancel-checkbox">
                     отмена
                 </a>

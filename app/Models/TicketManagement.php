@@ -57,11 +57,16 @@ class TicketManagement extends BaseModel
             'created',
         ],
         'assigned' => [
-            'waiting',
             'in_process',
         ],
         'waiting' => [
             'accepted',
+        ],
+        'in_process' => [
+            'waiting',
+            'not_verified',
+            'completed_with_act',
+            'completed_without_act'
         ],
         'completed_with_act' => [
             'confirmation_operator',
@@ -71,12 +76,6 @@ class TicketManagement extends BaseModel
         ],
         'not_verified' => [
             'confirmation_operator',
-        ],
-        'in_process' => [
-            'waiting',
-            'not_verified',
-            'completed_with_act',
-            'completed_without_act'
         ],
 		'from_lk' => [
             'created',
@@ -180,15 +179,8 @@ class TicketManagement extends BaseModel
         $query
 			->whereHas( 'ticket', function ( $ticket )
 			{
-                $ticket
-                    ->where( Ticket::$_table . '.author_id', '=', \Auth::user()->id )
-                    ->orWhereHas( 'provider', function ( $provider )
-                    {
-                        return $provider
-                            ->mine()
-                            ->current();
-                    });
-                return $ticket;
+                return $ticket
+                    ->mine();
 			});
         if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
         {

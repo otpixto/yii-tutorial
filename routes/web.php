@@ -42,6 +42,10 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
         Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
         Route::any( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
+        Route::any( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
+        Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
+        Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
+        Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
     });
 
 });
@@ -136,6 +140,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'cancel/{ticket_id}', 'Operator\TicketsController@cancel' )->name( 'tickets.cancel' );
             Route::get( 'print/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
             Route::get( 'print/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
+            Route::post( 'owner', 'Operator\TicketsController@owner' )->name( 'tickets.owner' );
             Route::get( 'search/form', 'Operator\TicketsController@searchForm' )->name( 'tickets.search.form' );
             Route::post( 'search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
             Route::post( 'filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );

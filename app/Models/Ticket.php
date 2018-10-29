@@ -349,9 +349,16 @@ class Ticket extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         return $query
-            ->where( function ( $q ) use ( $flags )
+            ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+            ->orWhere( function ( $q ) use ( $flags )
             {
                 $q
+                    ->where( function ( $q )
+                    {
+                        return $q
+                            ->whereNull( 'owner_id' )
+                            ->orWhere( 'owner_id', '=', \Auth::user()->id );
+                    })
                     ->whereHas( 'provider', function ( $provider )
                     {
                         return $provider
@@ -361,27 +368,16 @@ class Ticket extends BaseModel
                 if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                 {
                     $q
-                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
-                        ->orWhereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                        ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                 }
-                if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+                if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
                 {
                     $q
-                        ->where( function ( $q2 )
+                        ->whereHas( 'managements', function ( $managements )
                         {
-                            return $q2
-                                ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
-                                ->orWhereHas( 'managements', function ( $managements )
-                                {
-                                    return $managements
-                                        ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
-                                });
+                            return $managements
+                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
                         });
-                }
-                else
-                {
-                    $q
-                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id );
                 }
                 return $q;
             });

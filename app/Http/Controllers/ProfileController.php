@@ -59,7 +59,7 @@ class ProfileController extends Controller
 
         $asterisk = new Asterisk();
         $queue = $asterisk->queue( \Auth::user()->openPhoneSession->provider->queue );
-        $exten = \Auth::user()->openPhoneSession->number;
+        $exten = \Auth::user()->exten;
 
         if ( ! isset( $queue[ 'list' ][ $exten ] ) )
         {
@@ -84,7 +84,7 @@ class ProfileController extends Controller
 
     public function getPhone ()
     {
-        if ( ! \Auth::user()->openPhoneSession )
+        if ( ! \Auth::user()->exten )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -94,7 +94,7 @@ class ProfileController extends Controller
 
     public function getPhoneReg ()
     {
-        if ( \Auth::user()->openPhoneSession )
+        if ( \Auth::user()->exten )
         {
             return redirect()->route( 'profile.phone' );
         }
@@ -109,7 +109,7 @@ class ProfileController extends Controller
 
     public function postPhoneReg ( Request $request )
     {
-        if ( \Auth::user()->openPhoneSession )
+        if ( \Auth::user()->exten )
         {
             return redirect()->route( 'profile.phone' );
         }

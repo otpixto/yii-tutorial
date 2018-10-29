@@ -43,7 +43,7 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
-                            <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client' ] ) }}">
+                            <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client', 'show' => 'mine' ] ) }}">
                                 Обзвон
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">

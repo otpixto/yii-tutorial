@@ -6,9 +6,11 @@ use App\Jobs\SendStream;
 use App\Models\File;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\MessageBag;
 
 class CommentsController extends Controller
 {
@@ -78,6 +80,9 @@ class CommentsController extends Controller
 
             }
 
+            $ticket->updated_at = Carbon::now()->toDateTimeString();
+            $ticket->save();
+
             $this->dispatch( new SendStream( 'comment', $ticket ) );
 
         }
@@ -102,6 +107,9 @@ class CommentsController extends Controller
                 $message .= PHP_EOL . $ticketManagement->getUrl() . PHP_EOL;
 
                 $ticketManagement->sendTelegram( $message );
+
+                $ticket->updated_at = Carbon::now()->toDateTimeString();
+                $ticket->save();
 
             }
 

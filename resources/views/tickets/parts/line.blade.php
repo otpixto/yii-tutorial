@@ -34,6 +34,13 @@
                 @include( 'tickets.parts.rate', [ 'ticketManagement' => $ticketManagement ] )
             </span>
         @endif
+        @if ( $ticketManagement->ticket->owner_id == \Auth::user()->id )
+            <div class="margin-top-15">
+                <span class="label label-warning bold">
+                    Принадлежит мне
+                </span>
+            </div>
+        @endif
     </td>
     {{--<td>
         <div class="small">

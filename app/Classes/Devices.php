@@ -24,13 +24,14 @@ class Devices
             'id'            => $ticket->id,
             'address'       => $ticket->getAddress( true ),
             'fullname'      => $ticket->getName(),
+            'category'      => $ticket->type->category->name ?? null,
             'type'          => $ticket->type->name,
             'text'          => $ticket->text,
             'phone'         => $ticket->phone,
             'phone2'        => $ticket->phone2,
             'operator'      => [
                 'fullname'  => $ticket->author->getName(),
-                'exten'     => $ticket->author->openPhoneSession->number ?? null
+                'exten'     => $ticket->author->exten
             ],
             'comments'      => []
         ];

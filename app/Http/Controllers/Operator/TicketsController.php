@@ -1433,87 +1433,164 @@ class TicketsController extends BaseController
 
             case 'rate':
 
-                $ticketManagement = $ticket->managements()->find( $id );
-                if ( $ticketManagement )
+                if ( \Auth::user()->can( 'tickets.rate' ) )
                 {
-                    return view( 'tickets.parts.rate_form' )
-                        ->with( 'ticketManagement', $ticketManagement );
+                    $ticketManagement = $ticket->managements()->find( $id );
+                    if ( $ticketManagement )
+                    {
+                        return view( 'tickets.parts.rate_form' )
+                            ->with( 'ticketManagement', $ticketManagement );
+                    }
+                    else
+                    {
+                        return view( 'parts.error' )
+                            ->with( 'error', 'Заявка не найдена' );
+                    }
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
                 }
 
                 break;
 			
 			case 'type':
-			
-				$res = Type
-					::orderBy( 'name' )
-					->get();
-			
-				$types = [];
-				foreach ( $res as $r )
-				{
-					$types[ $r->category->name ][ $r->id ] = $r->name;
-				}
-			
-				return view( 'tickets.edit.type' )
-					->with( 'ticket', $ticket )
-					->with( 'types', $types )
-					->with( 'param', $param );
+
+			    if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    $res = Type
+                        ::orderBy( 'name' )
+                        ->get();
+
+                    $types = [];
+                    foreach ( $res as $r )
+                    {
+                        $types[ $r->category->name ][ $r->id ] = $r->name;
+                    }
+                    return view( 'tickets.edit.type' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'types', $types )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 			
 				break;
 				
 			case 'building':
-			
-				return view( 'tickets.edit.building' )
-					->with( 'ticket', $ticket )
-					->with( 'param', $param );
+
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.building' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 			
 				break;
 
             case 'actual_building':
 
-                return view( 'tickets.edit.actual_building' )
-                    ->with( 'ticket', $ticket )
-                    ->with( 'param', $param );
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.actual_building' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 
                 break;
 				
 			case 'mark':
-			
-				return view( 'tickets.edit.mark' )
-					->with( 'ticket', $ticket )
-					->with( 'param', $param );
+
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.mark' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 			
 				break;
 				
 			case 'text':
-			
-				return view( 'tickets.edit.text' )
-					->with( 'ticket', $ticket )
-					->with( 'param', $param );
+
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.text' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 			
 				break;
 				
 			case 'name':
-			
-				return view( 'tickets.edit.name' )
-					->with( 'ticket', $ticket )
-					->with( 'param', $param );
+
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.name' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 			
 				break;
 				
 			case 'phone':
-			
-				return view( 'tickets.edit.phone' )
-					->with( 'ticket', $ticket )
-					->with( 'param', $param );
+
+                if ( \Auth::user()->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.phone' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
 			
 				break;
 
             case 'schedule':
 
-                return view( 'tickets.edit.schedule' )
-                    ->with( 'ticket', $ticket )
-                    ->with( 'param', $param );
+                if ( \Auth::user()->can( 'tickets.executor' ) )
+                {
+                    return view( 'tickets.edit.schedule' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                }
+                else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
 
                 break;
 				
@@ -2544,6 +2621,51 @@ class TicketsController extends BaseController
         {
             return $ticket->getProgressData();
         }
+    }
+
+    public function owner ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.owner' ) )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Доступ запрещен' ] );
+        }
+
+        $ids = explode( ',', $request->get( 'ids', '' ) );
+        if ( ! count( $ids ) )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявки не выбраны' ] );
+        }
+
+        $tickets = Ticket
+            ::whereHas( 'managements', function ( $ticketManagements ) use ( $ids )
+            {
+                return $ticketManagements
+                    ->mine()
+                    ->whereIn( 'id', $ids );
+            })
+            ->get();
+        if ( ! $tickets->count() )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Заявки не найдены' ] );
+        }
+
+        foreach ( $tickets as $ticket )
+        {
+            $ticket->owner_id = \Auth::user()->id;
+            $ticket->save();
+        }
+
+        return redirect()
+            ->back()
+            ->with( 'success', 'Готово' );
+
     }
 
     public function clearCache ()
