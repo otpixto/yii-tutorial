@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Classes\Devices;
 use App\Models\Ticket;
-use App\Models\TicketManagement;
-use App\Models\UserPosition;
+use App\Traits\Logs;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,6 +13,8 @@ use Illuminate\Support\MessageBag;
 
 class DeviceController extends Controller
 {
+
+    use Logs;
 
     const CACHE_LIFE_MINUTES = 60;
     const UPDATES_LIFE_SECONDS = 10;
@@ -113,6 +113,8 @@ class DeviceController extends Controller
         \Cache::put( 'device.token.' . $token, [ $user->id, $timestamp ], self::CACHE_LIFE_MINUTES );
         \Cache::put( 'device.user.' . $user->id, $token, self::CACHE_LIFE_MINUTES );
 
+        $this->addLog( 'Авторизовался' );
+
         return $this->success([
             'id'            => $user->id,
             'fullname'      => $user->getName(),
@@ -129,21 +131,32 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
-        $tickets = Ticket
-            ::mine()
-            ->where( 'status_code', '!=', 'draft' )
-            ->orderBy( 'id', 'desc' )
-            ->with(
-                'comments',
-                'comments.author',
-                'building',
-                'author',
-                'type',
-                'type.category'
-            )
-            ->get();
+        if ( \Cache::has( 'device.tickets.' . \Auth::user()->id ) )
+        {
+            $tickets = \Cache::get( 'device.tickets.' . \Auth::user()->id );
+        }
+        else
+        {
+            $tickets = Ticket
+                ::mine()
+                ->where( 'status_code', '!=', 'draft' )
+                ->orderBy( 'id', 'desc' )
+                ->with(
+                    'comments',
+                    'comments.author',
+                    'building',
+                    'author',
+                    'type',
+                    'type.category'
+                )
+                ->get();
+            $tickets = Devices::ticketsInfo( $tickets );
+            \Cache::put( 'device.tickets.' . \Auth::user()->id, $tickets, self::CACHE_LIFE_MINUTES );
+        }
 
-        return $this->success( Devices::ticketsInfo( $tickets ) );
+        $this->addLog( 'Запросил список заявок' );
+
+        return $this->success( $tickets );
 
     }
 
@@ -199,6 +212,8 @@ class DeviceController extends Controller
 
         $response[ 'deleted' ] = $ticketsDeleted;
 
+        $this->addLog( 'Запросил список изменений' );
+
         return $this->success( $response );
 
     }
@@ -211,45 +226,46 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
-        $employees = [];
-
-        foreach ( \Auth::user()->managements as $management )
+        if ( \Cache::has( 'device.contacts.' . \Auth::user()->id ) )
         {
-            foreach ( $management->executors as $executor )
+            $contacts = \Cache::get( 'device.contacts.' . \Auth::user()->id );
+        }
+        else
+        {
+            $contacts = [];
+            $count = 0;
+            foreach ( \Auth::user()->managements as $management )
             {
-                $employees[] = [
-                    'fullname'      => $executor->name,
-                    'phone'         => $executor->phone
-                ];
+                foreach ( $management->executors as $executor )
+                {
+                    $contacts[] = [
+                        'fullname'      => $executor->name,
+                        'phone'         => $executor->phone
+                    ];
+                    if ( ++ $count >= 5 )
+                    {
+                        break 2;
+                    }
+                }
             }
+            \Cache::put( 'device.contacts.' . \Auth::user()->id, $contacts, self::CACHE_LIFE_MINUTES );
         }
 
-        $tickets = Ticket
-            ::mine()
-            ->where( 'status_code', '!=', 'draft' )
-            ->groupBy( 'phone' )
-            ->get();
+        $this->addLog( 'Запросил список контактов' );
 
-        $clients = [];
-
-        foreach ( $tickets as $ticket )
-        {
-            $clients[] = [
-                'fullname'          => $ticket->getName(),
-                'phone'             => $ticket->phone,
-                'phone2'            => $ticket->phone2
-            ];
-        }
-
-        return $this->success( compact( 'employees', 'clients' ) );
+        return $this->success( $contacts );
 
     }
 
     public function position ( Request $request )
     {
 
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
         $validation = \Validator::make( $request->all(), [
-            'token'         => 'required',
             'lon'           => 'required|numeric',
             'lat'           => 'required|numeric',
         ]);
@@ -259,16 +275,13 @@ class DeviceController extends Controller
             return $this->error( $validation->errors()->first() );
         }
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
-        }
-
         $res = $user = \Auth::user()->setPosition( $request->get( 'lon' ), $request->get( 'lat' ) );
         if ( $res instanceof MessageBag )
         {
             return $this->error( $res->first() );
         }
+
+        $this->addLog( 'Сообщил о своем местоположении' );
 
         return $this->success( 'OK' );
 
@@ -315,8 +328,12 @@ class DeviceController extends Controller
     public function comment ( Request $request )
     {
 
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
         $validation = \Validator::make( $request->all(), [
-            'token'         => 'required',
             'id'            => 'required|integer',
             'text'          => 'required|string|max:1000',
         ]);
@@ -324,11 +341,6 @@ class DeviceController extends Controller
         if ( $validation->fails() )
         {
             return $this->error( $validation->errors()->first() );
-        }
-
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
         }
 
         $ticket = Ticket
@@ -345,6 +357,23 @@ class DeviceController extends Controller
         {
             return $this->error( $res->first() );
         }
+
+        return $this->success( 'OK' );
+
+    }
+
+    public function clearCache ( Request $request )
+    {
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        \Cache::forget( 'device.contacts.' . \Auth::user()->id );
+        \Cache::forget( 'device.tickets.' . \Auth::user()->id );
+
+        $this->addLog( 'Очистил кеш' );
 
         return $this->success( 'OK' );
 

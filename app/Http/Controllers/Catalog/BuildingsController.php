@@ -89,10 +89,7 @@ class BuildingsController extends BaseController
             ::orderBy( 'name' )
             ->get();
 
-        $log = Log::create([
-            'text' => 'Просмотрел список зданий (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список зданий (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.buildings.index' )
             ->with( 'buildings', $buildings )

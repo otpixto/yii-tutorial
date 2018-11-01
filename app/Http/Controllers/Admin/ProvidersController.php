@@ -51,10 +51,7 @@ class ProvidersController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $log = Log::create([
-            'text' => 'Просмотрел список провайдеров (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список провайдеров (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view('admin.providers.index' )
             ->with( 'providers', $providers );

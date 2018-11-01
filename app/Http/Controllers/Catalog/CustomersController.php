@@ -117,10 +117,7 @@ class CustomersController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
-            $log = Log::create([
-                'text' => 'Просмотрел список заявителей (стр.' . $request->get( 'page', 1 ) . ')'
-            ]);
-            $log->save();
+            $this->addLog( 'Просмотрел список заявителей (стр.' . $request->get( 'page', 1 ) . ')' );
 
             return view( 'catalog.customers.parts.list' )
                 ->with( 'customers', $customers );

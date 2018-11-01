@@ -41,10 +41,7 @@ class CategoriesController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $log = Log::create([
-            'text' => 'Просмотрел список категорий (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список категорий (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.categories.index' )
             ->with( 'categories', $categories );

@@ -57,10 +57,7 @@ class UsersController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
-        $log = Log::create([
-            'text' => 'Просмотрел список пользователей стр.' . $request->get( 'page', 1 )
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список пользователей (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view('admin.users.index' )
             ->with( 'users', $users )

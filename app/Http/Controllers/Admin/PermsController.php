@@ -40,17 +40,11 @@ class PermsController extends BaseController
                 ->orderBy( 'name' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
-            $log = Log::create([
-                'text' => 'Просмотрел список прав (стр.' . $request->get( 'page', 1 ) . ')'
-            ]);
-            $log->save();
+            $this->addLog( 'Просмотрел список прав (стр.' . $request->get( 'page', 1 ) . ')' );
         }
         else
         {
-            $log = Log::create([
-                'text' => 'Просмотрел список прав (дерево)'
-            ]);
-            $log->save();
+            $this->addLog( 'Просмотрел список прав (дерево)' );
             $perms_tree = Permission::getTree( $guard );
         }
 

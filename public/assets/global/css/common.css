@@ -9,6 +9,10 @@ body {
     background-color: inherit;
 }
 
+.sweet-alert {
+    z-index: 20000 !important;
+}
+
 .page-header .navbar .topbar-actions .btn-phone .btn {
     top: 7px;
 }

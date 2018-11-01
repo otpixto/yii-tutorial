@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\NormalizeValues;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
@@ -10,7 +11,7 @@ use Illuminate\Support\MessageBag;
 class BaseModel extends Model
 {
 
-    use SoftDeletes;
+    use SoftDeletes, NormalizeValues;
 
     const IGNORE_PROVIDER = 1;
     const IGNORE_ADDRESS = 2;
@@ -130,6 +131,7 @@ class BaseModel extends Model
 
     public static function create ( array $attributes = [] )
     {
+        self::normalizeValues( $attributes );
         if ( isset( $attributes[ 'model_name' ], $attributes[ 'model_id' ] ) )
         {
             $model = new $attributes[ 'model_name' ];
@@ -139,26 +141,6 @@ class BaseModel extends Model
             {
                 return new MessageBag( [ 'Некорректные данные' ] );
             }
-        }
-        if ( ! empty( $attributes[ 'phone' ] ) )
-        {
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
-        }
-        if ( ! empty( $attributes[ 'phone2' ] ) )
-        {
-            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
-        }
-        if ( ! empty( $attributes[ 'firstname' ] ) )
-        {
-            $attributes[ 'firstname' ] = ucfirst( $attributes[ 'firstname' ] );
-        }
-        if ( ! empty( $attributes[ 'middlename' ] ) )
-        {
-            $attributes[ 'middlename' ] = ucfirst( $attributes[ 'middlename' ] );
-        }
-        if ( ! empty( $attributes[ 'lastname' ] ) )
-        {
-            $attributes[ 'lastname' ] = ucfirst( $attributes[ 'lastname' ] );
         }
         $new = new static( $attributes );
         if ( Schema::hasColumn( $new->getTable(), 'author_id' ) && ! $new->author_id && \Auth::user() )
@@ -185,26 +167,7 @@ class BaseModel extends Model
 
     public function edit ( array $attributes = [] )
     {
-        if ( ! empty( $attributes[ 'phone' ] ) )
-        {
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone' ] ), - 10 );
-        }
-        if ( ! empty( $attributes[ 'phone2' ] ) )
-        {
-            $attributes[ 'phone2' ] = mb_substr( preg_replace( '/\D/', '', $attributes[ 'phone2' ] ), - 10 );
-        }
-        if ( ! empty( $attributes[ 'firstname' ] ) )
-        {
-            $attributes[ 'firstname' ] = ucfirst( $attributes[ 'firstname' ] );
-        }
-        if ( ! empty( $attributes[ 'middlename' ] ) )
-        {
-            $attributes[ 'middlename' ] = ucfirst( $attributes[ 'middlename' ] );
-        }
-        if ( ! empty( $attributes[ 'lastname' ] ) )
-        {
-            $attributes[ 'lastname' ] = ucfirst( mb_strtolower( $attributes[ 'lastname' ] ) );
-        }
+        self::normalizeValues( $attributes );
         $res = $this->saveLogs( $attributes );
         if ( $res instanceof MessageBag )
         {
@@ -244,7 +207,7 @@ class BaseModel extends Model
             'author_id'     => $author_id,
             'model_id'      => $this->id,
             'model_name'    => get_class( $this ),
-            'text'          => $text
+            'text'          => $text,
         ]);
         if ( $log instanceof MessageBag )
         {
@@ -261,6 +224,18 @@ class BaseModel extends Model
     public static function genHash ( $string )
     {
         return md5( mb_strtolower( trim( preg_replace( '/[^a-zA-ZА-Яа-я0-9]/iu', '', $string ) ) ) );
+    }
+
+    public function scopeWhereLike ( $query, $field, $value )
+    {
+        return $query
+            ->where( $field, 'like', '%' . str_replace( ' ', '%', $value ) . '%' );
+    }
+
+    public function scopeOrWhereLike ( $query, $field, $value )
+    {
+        return $query
+            ->orWhere( $field, 'like', '%' . str_replace( ' ', '%', $value ) . '%' );
     }
 
 }

@@ -21,17 +21,12 @@ class LogsController extends BaseController
     {
 
         $logs = Log
-            ::orderBy( 'id', 'desc' );
-
-        if ( ! \Auth::user()->admin )
-        {
-            $logs
-                ->whereHas( 'author', function ( $author )
-                {
-                    return $author
-                        ->mine();
-                });
-        }
+            ::orderBy( 'id', 'desc' )
+            ->whereHas( 'author', function ( $author )
+            {
+                return $author
+                    ->mine();
+            });
 
         if ( ! empty( $request->get( 'date' ) ) )
         {
@@ -41,21 +36,20 @@ class LogsController extends BaseController
 
         if ( ! empty( $request->get( 'text' ) ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $request->get( 'text' ) ) ) . '%';
             $logs
-                ->where( 'text', 'like', $s );
+                ->whereLike( 'text', $request->get( 'text' ) );
         }
 
-        if ( ! empty( $request->get( 'model_name' ) ) )
+        if ( ! empty( $request->get( 'ip' ) ) )
         {
             $logs
-                ->where( 'model_name', '=', $request->get( 'model_name' ) );
+                ->where( 'ip', '=', $request->get( 'ip' ) );
         }
 
-        if ( ! empty( $request->get( 'model_id' ) ) )
+        if ( ! empty( $request->get( 'host' ) ) )
         {
             $logs
-                ->where( 'model_id', '=', $request->get( 'model_id' ) );
+                ->where( 'host', '=', $request->get( 'host' ) );
         }
 
         if ( ! empty( $request->get( 'author_id' ) ) )
@@ -71,10 +65,7 @@ class LogsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $log = Log::create([
-            'text' => 'Просмотрел логи (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел логи (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view('admin.logs.index' )
             ->with( 'logs', $logs );

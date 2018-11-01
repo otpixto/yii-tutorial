@@ -1,6 +1,7 @@
 <?php
 namespace App\Classes;
 
+use App\Models\Provider;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\MessageBag;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -10,9 +11,9 @@ class SessionGuardExtended extends SessionGuard
 
     public function login ( AuthenticatableContract $user, $remember = false )
     {
-        if ( $user )
+        if ( $user && ! Provider::isSystemUrl() )
         {
-            $log = $user->addLog( 'Авторизовался с IP ' . \Input::ip() . ' Host ' . \Input::getHost(), $user->id );
+            $log = $user->addLog( 'Авторизовался' );
             if ( $log instanceof MessageBag )
             {
                 return redirect()->back()->withErrors( $log );

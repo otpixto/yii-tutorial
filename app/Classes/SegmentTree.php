@@ -63,14 +63,14 @@ class SegmentTree extends Segments
 
     private function getItem ( Segment $segment )
     {
-        $name = $segment->type->name . ' ' . $segment->name;
+        $name = $segment->segmentType->name . ' ' . $segment->name;
         if ( $segment->parent )
         {
             $name = $segment->parent->name . ' ' . $name;
         }
         return [
             'id'        => $segment->id,
-            'text'      => '<span class="small text-muted">' . $segment->type->name . '</span> ' . $segment->name,
+            'text'      => '<span class="small text-muted">' . $segment->segmentType->name . '</span> ' . $segment->name,
             'name'      => $name
         ];
     }

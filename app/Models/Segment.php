@@ -13,13 +13,18 @@ class Segment extends BaseModel
 
     public static $name = 'Сегмент';
 
+    protected $nullable = [
+        'parent_id',
+    ];
+
     protected $fillable = [
         'name',
         'parent_id',
+        'provider_id',
         'segment_type_id',
     ];
 
-    public function type ()
+    public function segmentType ()
     {
         return $this->belongsTo('App\Models\SegmentType');
     }
@@ -65,21 +70,20 @@ class Segment extends BaseModel
         return $childsIds;
     }
 
-    public function scopeMine ( $query, User $user = null )
+    public function scopeMine ( $query )
     {
-        if ( ! $user ) $user = \Auth::user();
-        if ( ! $user ) return false;
-        if ( ! Provider::subDomainIs( 'operator', 'system' ) )
-        {
-            $query
-                ->whereIn( self::$_table . '.provider_id', $user->providers()->pluck( Provider::$_table . '.id' ) );
-        }
-        return $query;
+        return $query
+            ->whereHas( 'provider', function ( $provider )
+            {
+                return $provider
+                    ->mine()
+                    ->current();
+            });
     }
 
     public function getName ( $withParent = false )
     {
-        $name = $this->type->name;
+        $name = $this->segmentType->name;
         if ( $withParent && $this->parent )
         {
             $name .= ' ' . $this->parent->name;

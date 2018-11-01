@@ -77,10 +77,7 @@ class SessionsController extends BaseController
             ::whereNull( 'closed_at' )
             ->get();
 
-        $log = Log::create([
-            'text' => 'Просмотрел список сессий (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список сессий (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view('admin.sessions.index' )
             ->with( 'sessions', $sessions )

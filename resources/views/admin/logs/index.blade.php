@@ -33,10 +33,10 @@
                                 Дата
                             </th>
                             <th>
-                                Объект
+                                IP
                             </th>
                             <th>
-                                ID
+                                HOST
                             </th>
                             <th>
                                 Пользователь
@@ -50,10 +50,10 @@
                                 {!! Form::text( 'date', \Input::old( 'date' ), [ 'class' => 'form-control datepicker' ] ) !!}
                             </th>
                             <th>
-                                {!! Form::select( 'model_name', [], \Input::old( 'model_name' ), [ 'class' => 'form-control select2' ] ) !!}
+                                {!! Form::text( 'ip', \Input::old( 'ip' ), [ 'class' => 'form-control' ] ) !!}
                             </th>
                             <th>
-                                {!! Form::text( 'model_id', \Input::old( 'model_id' ), [ 'class' => 'form-control' ] ) !!}
+                                {!! Form::text( 'host', \Input::old( 'host' ), [ 'class' => 'form-control' ] ) !!}
                             </th>
                             <th>
                                 {!! Form::select( 'author_id', [], \Input::old( 'author_id' ), [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'users.search' ), 'data-placeholder' => '' ] ) !!}
@@ -85,26 +85,15 @@
                             <td>
                                 {{ $log->created_at->format( 'd.m.Y H:i' ) }}
                             </td>
-                            @if ( $log->model_name && $log->model_id )
-                                <td>
-                                    @if ( $log->parent && isset( $log->parent::$name ) )
-                                        {{ $log->parent::$name }}
-                                    @endif
-                                    <span class="small text-muted">
-                                        ({{ $log->model_name }})
-                                    </span>
-                                </td>
-                                <td>
-                                    {{ $log->model_id ?: '-' }}
-                                </td>
-                            @else
-                                <td colspan="2">
-                                    -
-                                </td>
-                            @endif
+                            <td>
+                                {{ $log->ip }}
+                            </td>
+                            <td>
+                                {{ $log->host }}
+                            </td>
                             <td>
                                 @if ( $log->author )
-                                    {!! $log->author->getName() !!}
+                                    {!! $log->author->getShortName() !!}
                                 @endif
                             </td>
                             <td>

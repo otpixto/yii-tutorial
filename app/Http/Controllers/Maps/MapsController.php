@@ -11,20 +11,14 @@ class MapsController extends BaseController
     public function tickets ()
     {
         Title::add( 'География обращений' );
-        $log = Log::create([
-            'text' => 'Просмотрел карту обращений'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел карту обращений' );
         return view( 'maps.tickets' );
     }
 
     public function works ()
     {
         Title::add( 'География отключений' );
-        $log = Log::create([
-            'text' => 'Просмотрел карту отключений'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел карту отключений' );
         return view( 'maps.works' );
     }
 

@@ -46,6 +46,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
         Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
         Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
+        Route::any( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
     });
 
 });
@@ -148,6 +149,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( '{ticket_id}/tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
             Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor' );
+            Route::post( 'executor/check', 'Operator\TicketsController@checkExecutor' )->name( 'tickets.executor.check' );
             Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor' );
             Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements' );
             Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements' );
@@ -191,6 +193,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         {
 
             Route::get( 'segments/tree', 'Catalog\SegmentsController@tree' )->name( 'segments.tree' );
+            Route::get( 'segments/{segment_id}/buildings', 'Catalog\SegmentsController@buildings' )->name( 'segments.buildings' );
             Route::get( 'segments/clear-cache', 'Catalog\SegmentsController@clearCache' )->name( 'segments.clear.cache' );
 
             Route::resource( 'managements', 'Catalog\ManagementsController' );

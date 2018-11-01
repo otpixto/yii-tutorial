@@ -37,10 +37,7 @@ class ExecutorsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $log = Log::create([
-            'text' => 'Просмотрел список исполнителей (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел список исполнителей (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.executors.index' )
             ->with( 'executors', $executors );

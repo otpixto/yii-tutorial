@@ -52,16 +52,13 @@ class GroupsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $log = Log::create([
-            'text' => 'Просмотрел список групп (стр.' . $request->get( 'page', 1 ) . ')'
-        ]);
-        $log->save();
-
         $providers = Provider
             ::mine()
             ->current()
             ->orderBy( Provider::$_table . '.name' )
             ->get();
+
+        $this->addLog( 'Просмотрел список групп (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.groups.index' )
             ->with( 'groups', $groups )

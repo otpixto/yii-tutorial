@@ -465,10 +465,7 @@ class TicketsController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
-            $log = Log::create([
-                'text' => 'Просмотрел список заявок (стр.' . $request->get( 'page', 1 ) . ')'
-            ]);
-            $log->save();
+            $this->addLog( 'Просмотрел список заявок (стр.' . $request->get( 'page', 1 ) . ')' );
 
             return view( 'tickets.parts.list' )
                 ->with( 'ticketManagements', $ticketManagements );
@@ -2094,35 +2091,41 @@ class TicketsController extends BaseController
             'scheduled_end'         => Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) )->toDateTimeString(),
         ];
         $ticketManagement->fill( $attributes );
-        $ticketManagement->save();
-        $res = $ticketManagement->changeStatus( 'assigned', true );
-        if ( $res instanceof MessageBag )
+        if ( $ticketManagement->isDirty() )
         {
-            if ( $request->ajax() )
+            $ticketManagement->save();
+            $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $executor->name . '" на время с "' . $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) . '" до "' . $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) . '"' );
+            if ( $res instanceof MessageBag )
             {
-                $error = $res->first();
-                return compact( 'error' );
+                if ( $request->ajax() )
+                {
+                    $error = $res->first();
+                    return compact( 'error' );
+                }
+                else
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors( $res );
+                }
             }
-            else
+            if ( $ticketManagement->status_code == 'accepted' )
             {
-                return redirect()
-                    ->back()
-                    ->withErrors( $res );
-            }
-        }
-        $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $executor->name . '" на время с "' . $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) . '" до "' . $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) . '"' );
-        if ( $res instanceof MessageBag )
-        {
-            if ( $request->ajax() )
-            {
-                $error = $res->first();
-                return compact( 'error' );
-            }
-            else
-            {
-                return redirect()
-                    ->back()
-                    ->withErrors( $res );
+                $res = $ticketManagement->changeStatus( 'assigned', true );
+                if ( $res instanceof MessageBag )
+                {
+                    if ( $request->ajax() )
+                    {
+                        $error = $res->first();
+                        return compact( 'error' );
+                    }
+                    else
+                    {
+                        return redirect()
+                            ->back()
+                            ->withErrors( $res );
+                    }
+                }
             }
         }
         \DB::commit();
@@ -2141,6 +2144,49 @@ class TicketsController extends BaseController
                 ->back()
                 ->with( 'success', $success );
         }
+
+    }
+
+    public function checkExecutor ( Request $request )
+    {
+
+        $this->validate( $request, [
+            'executor_id'               => 'required|integer',
+            'scheduled_begin_date'      => 'required|date_format:Y-m-d',
+            'scheduled_begin_time'      => 'required|date_format:H:i',
+            'scheduled_end_date'        => 'required|date_format:Y-m-d',
+            'scheduled_end_time'        => 'required|date_format:H:i',
+        ]);
+
+        $scheduled_begin = Carbon::parse( $request->get( 'scheduled_begin_date' ) . ' ' . $request->get( 'scheduled_begin_time' ) );
+        $scheduled_end = Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) );
+
+        if ( $scheduled_begin->timestamp > $scheduled_end->timestamp )
+        {
+            return new MessageBag( [ 'Дата начала не может быть поздне даты окончания' ] );
+        }
+
+        $scheduled_begin = $scheduled_begin->toDateTimeString();
+        $scheduled_end = $scheduled_end->toDateTimeString();
+
+        $ticketManagement = TicketManagement
+            ::whereBetween( 'scheduled_begin', [ $scheduled_begin, $scheduled_end ] )
+            ->whereBetween( 'scheduled_end', [ $scheduled_begin, $scheduled_end ] )
+            ->where( 'executor_id', '=', $request->get( 'executor_id' ) )
+            ->first();
+
+        if ( $ticketManagement )
+        {
+            return [
+                'finded' => [
+                    'number'                => $ticketManagement->getTicketNumber(),
+                    'scheduled_begin'       => $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ),
+                    'scheduled_end'         => $ticketManagement->scheduled_end->format( 'd.m.Y H:i' )
+                ]
+            ];
+        }
+
+        return '0';
 
     }
 
@@ -2232,22 +2278,24 @@ class TicketsController extends BaseController
         }
 
         $ticketManagement->management_id = $management->id;
-        $ticketManagement->executor_id = null;
-        $ticketManagement->scheduled_begin = null;
-        $ticketManagement->scheduled_end = null;
-        $ticketManagement->save();
 
-        $management_name = $management->name;
-        if ( $management->parent )
+        if ( $ticketManagement->isDirty() )
         {
-            $management_name = $management->parent->name . ' ' . $management_name;
-        }
-
-        $res = $ticketManagement->addLog( 'Назначено УО "' . $management_name . '"' );
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $res );
+            $ticketManagement->executor_id = null;
+            $ticketManagement->scheduled_begin = null;
+            $ticketManagement->scheduled_end = null;
+            $ticketManagement->save();
+            $management_name = $management->name;
+            if ( $management->parent )
+            {
+                $management_name = $management->parent->name . ' ' . $management_name;
+            }
+            $res = $ticketManagement->addLog( 'Назначено УО "' . $management_name . '"' );
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withErrors( $res );
+            }
         }
 
         \DB::commit();

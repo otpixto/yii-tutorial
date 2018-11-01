@@ -399,6 +399,74 @@
 
 			@if ( isset( $ticketManagement ) )
 
+                .on( 'submit', '#executor-form', function ( e )
+                {
+
+                    e.preventDefault();
+
+                    var form = $( this ).closest( 'form' );
+                    var data = $( this ).serialize();
+
+                    function sendData ()
+                    {
+                        $.post( form.attr( 'action' ), data, function ()
+                        {
+                            Modal.hide( 'executor' );
+                            swal({
+                                title: 'Успешно',
+                                //text: response.success,
+                                type: 'success',
+                                allowOutsideClick: true
+                            });
+                        });
+                    };
+
+                    $.post( '{{ route( 'tickets.executor.check' ) }}', data, function ( response )
+                    {
+                        if ( response == '0' )
+                        {
+                            sendData();
+                        }
+                        else if ( response.finded )
+                        {
+                            bootbox.confirm({
+                                message: 'Исполнителю уже назначено время с ' + response.finded.scheduled_begin + ' по ' + response.finded.scheduled_end + ' для заявки #' + response.finded.number + '. Все равно назначить?',
+                                buttons: {
+                                    confirm: {
+                                        label: 'Да',
+                                        className: 'btn-success'
+                                    },
+                                    cancel: {
+                                        label: 'Нет',
+                                        className: 'btn-danger'
+                                    }
+                                },
+                                callback: function ( result )
+                                {
+                                    if ( result )
+                                    {
+                                        sendData();
+                                    }
+                                }
+                            });
+                        }
+                    })
+                    .fail( function ( err )
+                    {
+                        $.each( err.responseJSON, function ( field, error )
+                        {
+                            swal({
+                                title: 'Ошибка',
+                                text: error,
+                                type: 'error',
+                                allowOutsideClick: true
+                            });
+                            return;
+                        });
+                    });
+
+                })
+
 				.on( 'confirmed', '[data-status="assigned"]', function ( e, pe )
 				{
 

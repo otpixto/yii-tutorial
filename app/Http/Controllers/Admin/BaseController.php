@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Http\Controllers\Controller;
+use App\Traits\Logs;
 
 class BaseController extends Controller
 {
+
+    use Logs;
 
     private $guards = null;
 

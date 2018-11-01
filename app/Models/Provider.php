@@ -40,6 +40,11 @@ class Provider extends BaseModel
         return $this->hasMany( 'App\Models\Building' );
     }
 
+    public function segments ()
+    {
+        return $this->hasMany( 'App\Models\Segment' );
+    }
+
     public function groups ()
     {
         return $this->hasMany( 'App\Models\Group' );

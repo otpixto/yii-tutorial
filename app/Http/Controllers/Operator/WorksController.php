@@ -241,11 +241,8 @@ class WorksController extends BaseController
                         ];
                     }
                 }
-				
-				$log = Log::create([
-					'text' => 'Выгрузил данные по отключениям'
-				]);
-				$log->save();
+
+                $this->addLog( 'Выгрузил данные по отключениям' );
 				
                 \Excel::create( 'Отключения', function ( $excel ) use ( $data )
                 {
@@ -351,10 +348,7 @@ class WorksController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
-            $log = Log::create([
-                'text' => 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')'
-            ]);
-            $log->save();
+            $this->addLog( 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')' );
 
             return view( 'works.parts.list' )
                 ->with( 'works', $works );

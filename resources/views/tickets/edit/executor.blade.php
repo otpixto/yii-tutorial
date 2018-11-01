@@ -58,6 +58,9 @@
     </div>
 </div>
 {!! Form::close() !!}
+<div class="margin-top-15 alert alert-warning hidden" id="executor-notice">
+    Выбранное время занято
+</div>
 <script type="text/javascript">
     $( '.mask_phone' ).inputmask( 'mask', {
         'mask': '+7 (999) 999-99-99'

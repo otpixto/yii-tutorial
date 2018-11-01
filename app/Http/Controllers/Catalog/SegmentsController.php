@@ -5,9 +5,6 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Segments;
 use App\Classes\SegmentTree;
 use App\Classes\Title;
-use App\Models\Building;
-use App\Models\BuildingType;
-use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
@@ -26,19 +23,104 @@ class SegmentsController extends BaseController
     public function index ( Request $request )
     {
 
+        $search = trim( $request->get( 'search', '' ) );
+        $provider_id = $request->get( 'provider_id' );
+        $segment_type_id = $request->get( 'segment_type_id' );
+
+        $segments = Segment
+            ::mine()
+            ->orderBy( Segment::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $segments
+                ->where( Segment::$_table . '.name', 'like', $s );
+        }
+
+        if ( ! empty( $provider_id ) )
+        {
+            $segments
+                ->where( Segment::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        if ( ! empty( $segment_type_id ) )
+        {
+            $segments
+                ->where( Segment::$_table . '.segment_type_id', '=', $segment_type_id );
+        }
+
+        $segments = $segments
+            ->with( 'segmentType' )
+            ->paginate( config( 'pagination.per_page' ) )
+            ->appends( $request->all() );
+
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( Provider::$_table . '.name' )
+            ->get();
+
+        $segmentTypes = SegmentType
+            ::mine()
+            ->orderBy( SegmentType::$_table . '.sort' )
+            ->orderBy( SegmentType::$_table . '.name' )
+            ->get();
+
+        $this->addLog( 'Просмотрел список сегментов (стр.' . $request->get( 'page', 1 ) . ')' );
+
+        return view( 'catalog.segments.index' )
+            ->with( 'segments', $segments )
+            ->with( 'providers', $providers )
+            ->with( 'segmentTypes', $segmentTypes );
 
     }
 
     public function create ()
     {
         Title::add( 'Добавить сегмент' );
-        return view( 'catalog.buildings.create' );
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( Provider::$_table . '.name' )
+            ->pluck( 'name', 'id' );
+        $segmentTypes = SegmentType
+            ::mine()
+            ->orderBy( SegmentType::$_table . '.sort' )
+            ->orderBy( SegmentType::$_table . '.name' )
+            ->pluck( 'name', 'id' );
+        return view( 'catalog.segments.create' )
+            ->with( 'providers', $providers )
+            ->with( 'segmentTypes', $segmentTypes );
     }
 
     public function store ( Request $request )
     {
 
+        $rules = [
+            'provider_id'           => 'required|integer',
+            'parent_id'             => 'nullable|integer',
+            'segment_type_id'       => 'required|integer',
+            'name'                  => 'required|unique:buildings,name|max:255',
+        ];
 
+        $this->validate( $request, $rules );
+
+        $segment = Segment::create( $request->all() );
+
+        if ( $segment instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $segment );
+        }
+
+        $segment->save();
+
+        self::clearCache();
+
+        return redirect()->route( 'segments.edit', $segment->id )
+            ->with( 'success', 'Сегмент успешно добавлен' );
 
     }
 
@@ -52,11 +134,63 @@ class SegmentsController extends BaseController
 
         Title::add( 'Редактировать сегмент' );
 
+        $segment = Segment::find( $id );
+
+        if ( ! $segment )
+        {
+            return redirect()->route( 'segments.index' )
+                ->withErrors( [ 'Сегмент не найден' ] );
+        }
+
+        $providers = Provider
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        $segmentTypes = SegmentType
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        return view( 'catalog.segments.edit' )
+            ->with( 'segment', $segment )
+            ->with( 'providers', $providers )
+            ->with( 'segmentTypes', $segmentTypes );
+
     }
 
     public function update ( Request $request, $id )
     {
 
+        $segment = Segment::find( $id );
+
+        if ( ! $segment )
+        {
+            return redirect()->route( 'segments.index' )
+                ->withErrors( [ 'Сегмент не найден' ] );
+        }
+
+        $rules = [
+            'provider_id'           => 'required|integer',
+            'parent_id'             => 'nullable|integer',
+            'segment_type_id'       => 'required|integer',
+            'name'                  => 'required|unique:buildings,name|max:255',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $res = $segment->edit( $request->all() );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $res );
+        }
+
+        self::clearCache();
+
+        return redirect()->route( 'segments.edit', $segment->id )
+            ->with( 'success', 'Сегмент успешно отредактирован' );
 
     }
 

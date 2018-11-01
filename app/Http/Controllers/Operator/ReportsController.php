@@ -96,10 +96,7 @@ class ReportsController extends BaseController
                 ];
             }
 
-            $log = Log::create([
-                'text' => 'Выгрузил отчет по исполнителям'
-            ]);
-            $log->save();
+            $this->addLog( 'Выгрузил отчет по исполнителям' );
 
             \Excel::create( 'Отчет по исполнителям', function ( $excel ) use ( $data )
             {
@@ -123,10 +120,7 @@ class ReportsController extends BaseController
         ksort( $res );
         $availableManagements = $res;
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по исполнителям'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по исполнителям' );
 
         return view( 'reports.executors' )
             ->with( 'ticketManagements', $ticketManagements )
@@ -284,10 +278,7 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по оценкам'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по оценкам' );
 
         return view( 'reports.rates' )
             ->with( 'data', $data )
@@ -371,10 +362,7 @@ class ReportsController extends BaseController
 
         }
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по адресу'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по адресу' );
 						
         return view( 'reports.addresses' )
             ->with( 'ticketManagements', $ticketManagements )
@@ -515,10 +503,7 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по заявкам'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по заявкам' );
 
         return view( 'reports.tickets' )
             ->with( 'data', $data )
@@ -714,10 +699,7 @@ class ReportsController extends BaseController
             \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
         }
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по операторам'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по операторам' );
 
         return view( 'reports.operators' )
             ->with( 'data', $data )
@@ -867,10 +849,7 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
-        $log = Log::create([
-            'text' => 'Просмотрел отчет по категориям'
-        ]);
-        $log->save();
+        $this->addLog( 'Просмотрел отчет по категориям' );
 
         return view( 'reports.types' )
             ->with( 'data', $data )
@@ -882,26 +861,6 @@ class ReportsController extends BaseController
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
-    }
-
-    public function map ()
-    {
-        Title::add( 'География обращений' );
-        $log = Log::create([
-            'text' => 'Просмотрел карту обращений'
-        ]);
-        $log->save();
-        return view( 'reports.map' );
-    }
-
-    public function worksMap ()
-    {
-        Title::add( 'География работ на сетях' );
-        $log = Log::create([
-            'text' => 'Просмотрел карту отключений'
-        ]);
-        $log->save();
-        return view( 'reports.works_map' );
     }
 
 }
