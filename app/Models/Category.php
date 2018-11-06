@@ -10,11 +10,8 @@ class Category extends BaseModel
 
     public static $name = 'Категория';
 
-    public static $rules = [
-        'name'              => 'required|string|max:255',
-    ];
-
     protected $fillable = [
+        'provider_id',
         'name',
         'color',
         'is_pay',

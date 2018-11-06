@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Category;
 use App\Models\Log;
+use App\Models\Provider;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -14,7 +15,7 @@ class CategoriesController extends BaseController
     public function __construct ()
     {
         parent::__construct();
-        Title::add( 'Категории обращений' );
+        Title::add( 'Категории классификатора' );
     }
 
     public function index ( Request $request )
@@ -28,13 +29,8 @@ class CategoriesController extends BaseController
 
         if ( ! empty( $search ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $categories
-                ->where( function ( $q ) use ( $s )
-                {
-                    return $q
-                        ->where( 'name', 'like', $s );
-                } );
+                ->whereLike( 'name', $search );
         }
 
         $categories = $categories
@@ -55,8 +51,14 @@ class CategoriesController extends BaseController
      */
     public function create ()
     {
-        Title::add( 'Добавить категорию обращений' );
-        return view( 'catalog.categories.create' );
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+        Title::add( 'Добавить категорию классификатора' );
+        return view( 'catalog.categories.create' )
+            ->with( 'providers', $providers );
     }
 
     /**
@@ -68,7 +70,12 @@ class CategoriesController extends BaseController
     public function store ( Request $request )
     {
 
-        $this->validate( $request, Category::$rules );
+        $rules = [
+            'provider_id'       => 'required|integer',
+            'name'              => 'required|string|max:255',
+        ];
+
+        $this->validate( $request, $rules );
 
         $category = Category::create( $request->all() );
         if ( $category instanceof MessageBag )
@@ -82,7 +89,7 @@ class CategoriesController extends BaseController
         self::clearCache();
 
         return redirect()
-            ->route( 'categories.index' )
+            ->route( 'categories.edit', $category->id )
             ->with( 'success', 'Категория успешно добавлена' );
 
     }
@@ -109,8 +116,22 @@ class CategoriesController extends BaseController
 
         $category = Category::find( $id );
 
+        if ( ! $category )
+        {
+            return redirect()
+                ->route( 'categories.index' )
+                ->withErrors( [ 'Категория не найдена' ] );
+        }
+
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'catalog.categories.edit' )
-            ->with( 'category', $category );
+            ->with( 'category', $category )
+            ->with( 'providers', $providers );
 
     }
 
@@ -133,7 +154,16 @@ class CategoriesController extends BaseController
                 ->withErrors( [ 'Категория не найдена' ] );
         }
 
-        $this->validate( $request, Category::$rules );
+        $rules = [
+            'provider_id'       => 'required|integer',
+            'name'              => 'required|string|max:255',
+            'need_act'          => 'boolean',
+            'emergency'         => 'boolean',
+            'is_pay'            => 'boolean',
+            'works'             => 'boolean',
+        ];
+
+        $this->validate( $request, $rules );
         $attributes = $request->all();
         $attributes[ 'need_act' ] = $request->get( 'need_act', 0 );
         $attributes[ 'emergency' ] = $request->get( 'emergency', 0 );

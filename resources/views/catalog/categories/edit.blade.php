@@ -3,28 +3,28 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Классификатор', route( 'types.index' ) ],
+        [ 'Категории классификатора', route( 'categories.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
 
 @section( 'content' )
 
-    @if ( \Auth::user()->can( 'catalog.types.edit_category' ) )
+    @if ( \Auth::user()->can( 'catalog.categories.edit' ) )
+
+        {!! Form::model( $category, [ 'method' => 'put', 'route' => [ 'categories.update', $category->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
         <div class="panel panel-default">
             <div class="panel-body">
 
-                {!! Form::model( $category, [ 'method' => 'put', 'route' => [ 'categories.update', $category->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
                 <div class="form-group">
-                    <div class="col-xs-8">
+                    <div class="col-md-4">
+                        {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $category->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                    </div>
+                    <div class="col-md-8">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $category->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
-                    </div>
-                    <div class="col-xs-4">
-                        {!! Form::label( 'color', 'Цвет', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::color( 'color', \Input::old( 'color', $category->color ), [ 'class' => 'form-control', 'placeholder' => 'Цвет' ] ) !!}
                     </div>
                 </div>
 
@@ -42,8 +42,6 @@
                     </div>
                 </div>
 
-                {!! Form::close() !!}
-
             </div>
         </div>
 
@@ -53,11 +51,12 @@
             </div>
             <div class="panel-body">
 
-                {!! Form::model( $category, [ 'method' => 'put', 'route' => [ 'categories.update', $category->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-                {!! Form::hidden( 'name', $category->name ) !!}
-
                 <div class="form-group">
-                    <div class="col-xs-12">
+                    <div class="col-md-4">
+                        {!! Form::label( 'color', 'Цвет', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::color( 'color', \Input::old( 'color', $category->color ), [ 'class' => 'form-control', 'placeholder' => 'Цвет' ] ) !!}
+                    </div>
+                    <div class="col-md-8">
                         <div class="mt-checkbox-list">
                             <label class="mt-checkbox mt-checkbox-outline">
                                 Требуется акт
@@ -89,10 +88,10 @@
                     </div>
                 </div>
 
-                {!! Form::close() !!}
-
             </div>
         </div>
+
+        {!! Form::close() !!}
 
     @else
 

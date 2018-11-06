@@ -190,16 +190,16 @@
             <div class="panel-body">
                 <table class="table table-hover table-striped">
                     <thead>
-                    <tr>
-                        <th>
-                            Этаж
-                        </th>
-                        @for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
-                            <th class="text-center">
-                                Подъезд #{{ $porch }}
+                        <tr>
+                            <th>
+                                Этаж
                             </th>
-                        @endfor
-                    </tr>
+                            @for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
+                                <th class="text-center">
+                                    Подъезд #{{ $porch }}
+                                </th>
+                            @endfor
+                        </tr>
                     </thead>
                     <tbody>
                     @for( $floor = $building->floor_count; $floor >= 1; $floor -- )
@@ -234,6 +234,12 @@
 
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
 
+    @endif
+
+    @if ( \Auth::user()->can( 'catalog.buildings.delete' ) )
+        {!! Form::model( $building, [ 'method' => 'delete', 'route' => [ 'buildings.destroy', $building->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены, что хотите удалить здание?' ] ) !!}
+        {!! Form::submit( 'Удалить здание', [ 'class' => 'btn btn-danger' ] ) !!}
+        {!! Form::close() !!}
     @endif
 
 @endsection

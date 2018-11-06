@@ -108,6 +108,7 @@ class BuildingsController extends BaseController
         Title::add( 'Добавить здание' );
         $providers = Provider
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
         $buildingTypes = BuildingType
@@ -189,7 +190,11 @@ class BuildingsController extends BaseController
 
         $segments = $building->getSegments();
 
-        $providers = Provider::mine()->orderBy( 'name' )->pluck( 'name', 'id' );
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
         if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
         {
@@ -254,7 +259,25 @@ class BuildingsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $res = $building->edit( $request->all() );
+        $attributes = $request->all();
+
+        if ( $building->name != $attributes[ 'name' ] )
+        {
+            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $attributes[ 'name' ] ) ) );
+            if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
+            {
+                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
+                $attributes[ 'lon' ] = $pos[0];
+                $attributes[ 'lat' ] = $pos[1];
+            }
+            else
+            {
+                $attributes[ 'lon' ] = -1;
+                $attributes[ 'lat' ] = -1;
+            }
+        }
+
+        $res = $building->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
@@ -336,7 +359,20 @@ class BuildingsController extends BaseController
      */
     public function destroy ( $id )
     {
-        //
+
+        $building = Building::find( $id );
+
+        if ( ! $building )
+        {
+            return redirect()->route( 'buildings.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $building->delete();
+
+        return redirect()->route( 'buildings.index' )
+            ->with( 'success', 'Здание успешно удалено' );
+
     }
 
     public function search ( Request $request )

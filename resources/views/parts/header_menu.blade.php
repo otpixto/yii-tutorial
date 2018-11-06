@@ -233,6 +233,13 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'catalog.categories.show' ) )
+                        <li aria-haspopup="true" class=" ">
+                            <a href="{{ route( 'categories.index' ) }}" class="nav-link">
+                                Категории классификатора
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'catalog.types.show' ) )
                         <li aria-haspopup="true" class=" ">
                             <a href="{{ route( 'types.index' ) }}" class="nav-link">

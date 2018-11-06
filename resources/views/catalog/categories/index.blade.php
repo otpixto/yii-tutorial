@@ -66,6 +66,17 @@
                                     <th>
                                         Наименование
                                     </th>
+                                    <th class="text-center">
+                                        Отключения
+                                    </th>
+                                    <th class="text-center">
+                                        Цвет
+                                    </th>
+                                    @if ( \Auth::user()->can( 'catalog.types.show' ) )
+                                        <th class="text-center">
+                                            Классификатор
+                                        </th>
+                                    @endif
                                     <th class="text-right">
                                         &nbsp;
                                     </th>
@@ -77,9 +88,28 @@
                                         <td>
                                             {{ $category->name }}
                                         </td>
+                                        <td class="text-center">
+                                            @if ( $category->works )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div style="background-color: {{ $category->color }}; border: 1px solid #999999;">
+                                                &nbsp;
+                                            </div>
+                                        </td>
+                                        @if ( \Auth::user()->can( 'catalog.types.show' ) )
+                                            <td class="text-center">
+                                                <a href="{{ route( 'types.index', [ 'category_id' => $category->id ] ) }}" class="badge badge-{{ $category->types->count() ? 'info' : 'default' }} bold">
+                                                    {{ $category->types->count() }}
+                                                </a>
+                                            </td>
+                                        @endif
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.categories.edit' ) )
-                                                <a href="{{ route( 'categories.edit', $category->id ) }}" class="btn btn-xs btn-info">
+                                                <a href="{{ route( 'categories.edit', $category->id ) }}" class="btn btn-info">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                             @endif

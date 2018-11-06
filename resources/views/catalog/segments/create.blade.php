@@ -18,7 +18,7 @@
 
             <div class="col-md-6">
                 {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $providers->count() == 1 ? $providers->keys()[ 0 ] : null ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
             </div>
 
             <div class="col-md-6">
