@@ -131,7 +131,7 @@
                 </span>
             @endif
         </div>
-        @if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
+        {{--@if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
             <hr />
             <div class="bold">
                 Выполненные работы:
@@ -143,7 +143,7 @@
                     </li>
                 @endforeach
             </ol>
-        @endif
+        @endif--}}
     </td>
     <td>
         <div>

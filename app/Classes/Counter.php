@@ -133,12 +133,12 @@ class Counter
         return self::$tickets_completed_count;
     }
 
-    public static function ticketsCountByStatus ( $status_code )
+    public static function ticketsCountByStatus ( $status_code, $owner = false )
     {
         if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code ) )
         {
             $count = TicketManagement
-                ::mine()
+                ::mine( $owner ? TicketManagement::I_AM_OWNER : TicketManagement::NOTHING )
                 ->where( TicketManagement::$_table . '.status_code', '=', $status_code )
                 ->count();
             \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code, $count, self::$cache_life );

@@ -13,10 +13,12 @@ class BaseModel extends Model
 
     use SoftDeletes, NormalizeValues;
 
+    const NOTHING = 0;
     const IGNORE_PROVIDER = 1;
     const IGNORE_ADDRESS = 2;
     const IGNORE_MANAGEMENT = 3;
     const IGNORE_STATUS = 4;
+    const I_AM_OWNER = 5;
 
     protected $dates = [
         'created_at',

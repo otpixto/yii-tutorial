@@ -11,6 +11,25 @@
 
     @if ( \Auth::user()->canOne( 'tickets.show', 'tickets.all' ) )
 
+        @if ( $scheduledTicketManagements->count() )
+            <div class="portlet box red" id="scheduled-tickets">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-info"></i>
+                        Требуется действие
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                        <a href="javascript:;" class="fullscreen" data-original-title="" title=""> </a>
+                        <a href="javascript:;" class="reload" data-original-title="" title=""> </a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    @include( 'tickets.parts.scheduled_tickets' )
+                </div>
+            </div>
+        @endif
+
         <div class="row hidden-print">
             <div class="col-lg-2 col-md-3 col-sm-6">
                 @if( \Auth::user()->can( 'tickets.create' ) )
@@ -134,6 +153,13 @@
                     {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
                     <button type="submit" class="btn btn-warning btn-lg font-dark">
                         Присвоить себе (<span id="ids-count">0</span>)
+                    </button>
+                    {!! Form::close(); !!}
+                @elseif ( $request->get( 'show' ) == 'owner' )
+                    {!! Form::open( [ 'url' => route( 'tickets.owner.cancel' ), 'method' => 'post', 'id' => 'form-checkbox ajax' ] ) !!}
+                    {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                    <button type="submit" class="btn btn-warning btn-lg font-dark">
+                        Снять с себя (<span id="ids-count">0</span>)
                     </button>
                     {!! Form::close(); !!}
                 @else
@@ -291,6 +317,30 @@
             });
         };
 
+        function setExecutor ( ticket_management_id )
+        {
+            $.get( '{{ route( 'tickets.executor' ) }}',
+                {
+                    ticket_management_id: ticket_management_id
+                },
+                function ( response )
+                {
+                    Modal.createSimple( 'Назначить исполнителя', response, 'executor' );
+                });
+        };
+
+        function postponed ( ticket_id )
+        {
+            $.get( '{{ route( 'tickets.postponed' ) }}',
+                {
+                    ticket_id: ticket_id
+                },
+                function ( response )
+                {
+                    Modal.createSimple( 'Отложить заявку', response, 'postponed' );
+                });
+        };
+
         function filterTickets ( e )
         {
 
@@ -360,6 +410,10 @@
                 checkTicketCheckbox();
 
                 $( '.tickets-filter:checked' ).parent().addClass( 'active' );
+
+                $( '#scheduled-tickets' ).pulsate({
+                    color: '#bf1c56'
+                });
 
             })
 

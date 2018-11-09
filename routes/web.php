@@ -76,9 +76,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
 
-        Route::resource( 'works', 'Operator\WorksController' );
-        Route::resource( 'tickets', 'Operator\TicketsController' );
-
         Route::get( '/', 'HomeController@index' )->name( 'home' );
         Route::get( '/about', 'HomeController@about' )->name( 'about' );
         Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
@@ -130,6 +127,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( '{ticket_management_id}/services', 'Operator\TicketsController@services' )->name( 'tickets.services' );
 
             Route::get( '{ticket_id}/postpone', 'Operator\TicketsController@postpone' )->name( 'tickets.postpone' );
+            Route::get( 'postponed', 'Operator\TicketsController@getPostponed' )->name( 'tickets.postponed' );
+            Route::post( 'postponed/{ticket_id}', 'Operator\TicketsController@postPostponed' )->name( 'tickets.postponed.update' );
             Route::get( '{ticket_id}/progress', 'Operator\TicketsController@progress' )->name( 'tickets.progress' );
 
             Route::post( '{ticket_id}/select', 'Operator\TicketsController@select' )->name( 'tickets.select' );
@@ -142,15 +141,16 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'print/act/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@act' )->name( 'tickets.act' );
             Route::get( 'print/waybill', 'Operator\TicketsController@waybill' )->name( 'tickets.waybill' );
             Route::post( 'owner', 'Operator\TicketsController@owner' )->name( 'tickets.owner' );
+            Route::post( 'owner.cancel', 'Operator\TicketsController@ownerCancel' )->name( 'tickets.owner.cancel' );
             Route::get( 'search/form', 'Operator\TicketsController@searchForm' )->name( 'tickets.search.form' );
             Route::post( 'search', 'Operator\TicketsController@search' )->name( 'tickets.search' );
             Route::post( 'filter', 'Operator\TicketsController@filter' )->name( 'tickets.filter' );
             Route::post( '{ticket_id}/tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
             Route::post( '{ticket_id}/tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::get( 'executor/{ticket_management_id}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor' );
+            Route::get( 'executor/{ticket_management_id?}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor' );
             Route::post( 'executor/check', 'Operator\TicketsController@checkExecutor' )->name( 'tickets.executor.check' );
-            Route::post( 'executor/{ticket_management_id}', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor' );
+            Route::post( 'executor', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor' );
             Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements' );
             Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements' );
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
@@ -162,6 +162,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
 
         });
+
+        Route::resource( 'works', 'Operator\WorksController' );
+        Route::resource( 'tickets', 'Operator\TicketsController' );
 
         Route::prefix( 'reports' )->group( function ()
         {
@@ -195,16 +198,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'segments/tree', 'Catalog\SegmentsController@tree' )->name( 'segments.tree' );
             Route::get( 'segments/{segment_id}/buildings', 'Catalog\SegmentsController@buildings' )->name( 'segments.buildings' );
             Route::get( 'segments/clear-cache', 'Catalog\SegmentsController@clearCache' )->name( 'segments.clear.cache' );
-
-            Route::resource( 'managements', 'Catalog\ManagementsController' );
-            Route::resource( 'executors', 'Catalog\ExecutorsController' );
-            Route::resource( 'customers', 'Catalog\CustomersController' );
-            Route::resource( 'types', 'Catalog\TypesController' );
-            Route::resource( 'segments', 'Catalog\SegmentsController' );
-            Route::resource( 'buildings', 'Catalog\BuildingsController' );
-            Route::resource( 'groups', 'Catalog\GroupsController' );
-            Route::resource( 'rooms', 'Catalog\RoomsController' );
-            Route::resource( 'categories', 'Catalog\CategoriesController' );
 
             Route::get( 'clear-cache', 'Catalog\BaseController@clearCacheAndRedirect' )->name( 'catalog.clear_cache' );
 
@@ -262,12 +255,23 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
 
+            Route::get( 'groups/select/buildings', 'Catalog\GroupsController@selectBuildings' )->name( 'groups.select.buildings' );
             Route::get( 'groups/{group_id}/buildings', 'Catalog\GroupsController@buildings' )->name( 'groups.buildings' );
             Route::post( 'groups/{group_id}/buildings/search', 'Catalog\GroupsController@buildingsSearch' )->name( 'groups.buildings.search' );
             Route::put( 'groups/{group_id}/buildings/add', 'Catalog\GroupsController@buildingsAdd' )->name( 'groups.buildings.add' );
             Route::put( 'groups/{group_id}/segments/add', 'Catalog\GroupsController@segmentsAdd' )->name( 'groups.segments.add' );
             Route::delete( 'groups/{group_id}/buildings/del', 'Catalog\GroupsController@buildingsDel' )->name( 'groups.buildings.del' );
             Route::delete( 'groups/{group_id}/buildings/empty', 'Catalog\GroupsController@buildingsEmpty' )->name( 'groups.buildings.empty' );
+
+            Route::resource( 'managements', 'Catalog\ManagementsController' );
+            Route::resource( 'executors', 'Catalog\ExecutorsController' );
+            Route::resource( 'customers', 'Catalog\CustomersController' );
+            Route::resource( 'types', 'Catalog\TypesController' );
+            Route::resource( 'segments', 'Catalog\SegmentsController' );
+            Route::resource( 'buildings', 'Catalog\BuildingsController' );
+            Route::resource( 'groups', 'Catalog\GroupsController' );
+            Route::resource( 'rooms', 'Catalog\RoomsController' );
+            Route::resource( 'categories', 'Catalog\CategoriesController' );
 
         });
 

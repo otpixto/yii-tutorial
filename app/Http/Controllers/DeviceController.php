@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classes\Devices;
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use App\Traits\Logs;
 use App\User;
 use Carbon\Carbon;
@@ -137,17 +138,19 @@ class DeviceController extends Controller
         }
         else
         {
-            $tickets = Ticket
+            $tickets = TicketManagement
                 ::mine()
+                ->notFinaleStatuses()
                 ->where( 'status_code', '!=', 'draft' )
-                ->orderBy( 'id', 'desc' )
+                //->orderBy( 'id', 'desc' )
                 ->with(
-                    'comments',
-                    'comments.author',
-                    'building',
-                    'author',
-                    'type',
-                    'type.category'
+                    'ticket',
+                    'ticket.comments',
+                    'ticket.comments.author',
+                    'ticket.building',
+                    'ticket.author',
+                    'ticket.type',
+                    'ticket.type.category'
                 )
                 ->get();
             $tickets = Devices::ticketsInfo( $tickets );
@@ -170,47 +173,50 @@ class DeviceController extends Controller
 
         $response = [];
 
-        $ticketsAdded = Ticket
+        $ticketsAdded = TicketManagement
             ::mine()
-            ->where( 'status_code', '!=', 'draft' )
+            ->notFinaleStatuses()
             ->where( 'created_at', '>=', date( 'Y-m-d H:i:s', $data[ 1 ] ) )
-            ->orderBy( 'id', 'desc' )
             ->with(
-                'comments',
-                'comments.author',
-                'building',
-                'author',
-                'type',
-                'type.category'
+                'ticket',
+                'ticket.comments',
+                'ticket.comments.author',
+                'ticket.building',
+                'ticket.author',
+                'ticket.type',
+                'ticket.type.category'
             )
             ->get();
 
         $response[ 'added' ] = Devices::ticketsInfo( $ticketsAdded );
 
-        $ticketsUpdated = Ticket
+        $ticketsUpdated = TicketManagement
             ::mine()
-            ->where( 'status_code', '!=', 'draft' )
+            ->notFinaleStatuses()
             ->where( 'updated_at', '>=', date( 'Y-m-d H:i:s', $data[ 1 ] ) )
             ->whereRaw( 'updated_at != created_at' )
-            ->orderBy( 'id', 'desc' )
             ->with(
-                'comments',
-                'building',
-                'author'
+                'ticket',
+                'ticket.comments',
+                'ticket.comments.author',
+                'ticket.building',
+                'ticket.author',
+                'ticket.type',
+                'ticket.type.category'
             )
             ->get();
 
         $response[ 'updated' ] = Devices::ticketsInfo( $ticketsUpdated );
 
-        $ticketsDeleted = Ticket
+        /*$ticketsDeleted = TicketManagement
             ::mine()
             ->withTrashed()
-            ->where( 'status_code', '!=', 'draft' )
             ->where( 'deleted_at', '>=', date( 'Y-m-d H:i:s', $data[ 1 ] ) )
             ->pluck( 'id' )
             ->toArray();
 
-        $response[ 'deleted' ] = $ticketsDeleted;
+        $response[ 'deleted' ] = $ticketsDeleted;*/
+        $response[ 'deleted' ] = [];
 
         $this->addLog( 'Запросил список изменений' );
 

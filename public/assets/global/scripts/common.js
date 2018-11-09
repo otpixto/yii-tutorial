@@ -500,6 +500,49 @@ $( document )
 
 	})
 
+    .on( 'click', '[data-empty]', function ( e )
+    {
+        e.preventDefault();
+        var selector = $( this ).data( 'empty' );
+        $( selector ).empty().trigger( 'change' );
+    })
+
+    .on( 'click', '[data-group-buildings]', function ( e )
+    {
+        e.preventDefault();
+        var selector = $( this ).data( 'group-buildings' );
+        Modal.create( 'group-select', function ()
+        {
+            Modal.setTitle( 'Выберите группу' );
+            $.get( '/catalog/groups/select/buildings',
+                {
+                    selector: selector
+                },
+                function ( response )
+                {
+                    Modal.setBody( response );
+                }
+            );
+        });
+    })
+
+    .on( 'click', '[data-group-data]', function ( e )
+    {
+        e.preventDefault();
+        var selector = $( this ).data( 'group-selector' );
+        var data = $( this ).data( 'group-data' );
+        Modal.hide( 'group-select' );
+        $.each( data, function ( key, val )
+        {
+            if ( ! $( selector ).find( 'option[value="' + key + '"]' ).length )
+            {
+                var newOption = new Option( val, key, true, true );
+                $( selector ).append( newOption );
+            }
+        });
+        $( selector ).trigger( 'change' );
+    })
+
     .on( 'click', '[data-room]', function ( e )
     {
         e.preventDefault();

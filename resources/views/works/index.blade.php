@@ -11,6 +11,25 @@
 
     @if ( \Auth::user()->canOne( 'works.show', 'works.all' ) )
 
+        @if ( $scheduledTicketManagements->count() )
+            <div class="portlet box red" id="scheduled-tickets">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-info"></i>
+                        Требуется действие
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                        <a href="javascript:;" class="fullscreen" data-original-title="" title=""> </a>
+                        <a href="javascript:;" class="reload" data-original-title="" title=""> </a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    @include( 'tickets.parts.scheduled_tickets' )
+                </div>
+            </div>
+        @endif
+
         @if( \Auth::user()->canOne( 'works.create', 'works.export' ) )
             <div class="row margin-bottom-15 hidden-print">
                 <div class="col-xs-6">
@@ -60,6 +79,9 @@
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
     <style>
+        .d-inline {
+            display: inline;
+        }
         .alert {
             margin-bottom: 0;
         }
@@ -84,6 +106,7 @@
 @section( 'js' )
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         function loadWorks ( url )
@@ -100,12 +123,40 @@
             });
         };
 
+        function setExecutor ( ticket_management_id )
+        {
+            $.get( '{{ route( 'tickets.executor' ) }}',
+                {
+                    ticket_management_id: ticket_management_id
+                },
+                function ( response )
+                {
+                    Modal.createSimple( 'Назначить исполнителя', response, 'executor' );
+                });
+        };
+
+        function postponed ( ticket_id )
+        {
+            $.get( '{{ route( 'tickets.postponed' ) }}',
+                {
+                    ticket_id: ticket_id
+                },
+                function ( response )
+                {
+                    Modal.createSimple( 'Отложить заявку', response, 'postponed' );
+                });
+        };
+
         $( document )
 
             .ready( function ()
             {
 
                 loadWorks();
+
+                $( '#scheduled-tickets' ).pulsate({
+                    color: '#bf1c56'
+                });
 
             })
 

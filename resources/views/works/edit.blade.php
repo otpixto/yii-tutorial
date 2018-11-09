@@ -118,7 +118,19 @@
             <div class="form-group">
                 {!! Form::label( 'buildings[]', 'Адрес работ', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default tooltips" title="Очистить адреса" data-empty="#buildings">
+                                -
+                            </button>
+                        </span>
+                        {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
+                        <span class="input-group-btn">
+                            <button class="btn btn-default tooltips" title="Добавить адреса" data-group-buildings="#buildings">
+                                +
+                            </button>
+                        </span>
+                    </div>
                 </div>
             </div>
 

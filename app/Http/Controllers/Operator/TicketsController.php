@@ -336,6 +336,12 @@ class TicketsController extends BaseController
                                 ->overdue();
                         }
 
+                        if ( $request->get( 'show' ) == 'owner' )
+                        {
+                            $ticket
+                                ->where( 'owner_id', '=', \Auth::user()->id );
+                        }
+
                     });
 
                     if ( count( $statuses ) )
@@ -472,14 +478,35 @@ class TicketsController extends BaseController
 
         }
 
-        $counts = TicketManagement
+        if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+        {
+            $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
+        }
+        else
+        {
+            $now = Carbon::now()->toDateTimeString();
+            $scheduledTicketManagements = TicketManagement
+                ::mine()
+                ->where( 'status_code', '=', 'assigned' )
+                ->where( 'scheduled_begin', '<=', $now )
+                ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+                {
+                    return $ticket
+                        ->whereNotNull( 'postponed_to' )
+                        ->where( 'postponed_to', '>', $now );
+                })
+                ->get();
+            \Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+        }
+
+        /*$counts = TicketManagement
             ::mine()
             ->whereIn( TicketManagement::$_table . '.status_code', [ 'created', 'rejected', 'from_lk', 'conflict', 'confirmation_operator', 'confirmation_client' ] )
-            ->get();
+            ->get();*/
 
         return view( 'tickets.index' )
             ->with( 'request', $request )
-            ->with( 'counts', $counts );
+            ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
 
     }
 
@@ -1756,6 +1783,52 @@ class TicketsController extends BaseController
 
     }
 
+    public function getPostponed ( Request $request )
+    {
+        $this->validate( $request, [
+            'ticket_id'      => 'required|integer',
+        ]);
+        $ticket = Ticket
+            ::mine()
+            ->find( $request->get( 'ticket_id' ) );
+        if ( ! $ticket )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Заявка не найдена' );
+        }
+        return view( 'tickets.edit.postponed' )
+            ->with( 'ticket', $ticket );
+    }
+
+    public function postPostponed ( Request $request, $ticket_id )
+    {
+        $this->validate( $request, [
+            'postponed_to'              => 'required|date',
+            'postponed_comment'         => 'nullable',
+        ]);
+        $ticket = Ticket
+            ::mine()
+            ->find( $ticket_id );
+        if ( ! $ticket )
+        {
+            return redirect()->back()
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+        $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+        if ( ! empty( $request->get( 'postponed_comment' ) ) )
+        {
+            $ticket->postponed_comment = $request->get( 'postponed_comment' );
+        }
+        $ticket->save();
+        $res = $ticket->changeStatus( 'waiting', true );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withErrors( $res );
+        }
+        return redirect()->back()->with( 'success', 'Статус изменен' );
+    }
+
     public function postpone ( Request $request, $id )
     {
         $ticket = Ticket::find( $id );
@@ -1997,10 +2070,10 @@ class TicketsController extends BaseController
 
     }
 
-    public function getExecutor ( Request $request, $id )
+    public function getExecutor ( Request $request, $ticket_management_id = null )
     {
 
-        $ticketManagement = TicketManagement::find( $id );
+        $ticketManagement = TicketManagement::find( $request->get( 'ticket_management_id', $ticket_management_id ) );
         if ( ! $ticketManagement )
         {
             return view( 'parts.error' )
@@ -2017,10 +2090,11 @@ class TicketsController extends BaseController
 			
     }
 
-    public function postExecutor ( Request $request, $id )
+    public function postExecutor ( Request $request )
     {
 
         $this->validate( $request, [
+            'ticket_management_id'      => 'required|integer',
             'executor_id'               => 'required_without:executor_name|nullable|integer',
             'executor_name'             => 'required_without:executor_id|nullable',
             'scheduled_begin_date'      => 'required|date_format:Y-m-d',
@@ -2029,7 +2103,7 @@ class TicketsController extends BaseController
             'scheduled_end_time'        => 'required|date_format:H:i',
         ]);
 
-        $ticketManagement = TicketManagement::find( $id );
+        $ticketManagement = TicketManagement::find( $request->get( 'ticket_management_id' ) );
         if ( ! $ticketManagement )
         {
             return redirect()
@@ -2133,6 +2207,8 @@ class TicketsController extends BaseController
         $this->dispatch( new SendStream( 'update', $ticket ) );
 
         $success = 'Исполнитель успешно назначен';
+
+        \Cache::tags( 'tickets.scheduled.now' )->flush();
 
         if ( $request->ajax() )
         {
@@ -2696,6 +2772,7 @@ class TicketsController extends BaseController
                     ->mine()
                     ->whereIn( 'id', $ids );
             })
+            ->whereNull( 'owner_id' )
             ->get();
         if ( ! $tickets->count() )
         {
@@ -2709,6 +2786,56 @@ class TicketsController extends BaseController
             $ticket->owner_id = \Auth::user()->id;
             $ticket->save();
         }
+
+        \Cache::tags( 'tickets_counts' )->flush();
+
+        return redirect()
+            ->back()
+            ->with( 'success', 'Готово' );
+
+    }
+
+    public function ownerCancel ( Request $request )
+    {
+
+        if ( ! \Auth::user()->can( 'tickets.owner' ) )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Доступ запрещен' ] );
+        }
+
+        $ids = explode( ',', $request->get( 'ids', '' ) );
+        if ( ! count( $ids ) )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявки не выбраны' ] );
+        }
+
+        $tickets = Ticket
+            ::whereHas( 'managements', function ( $ticketManagements ) use ( $ids )
+            {
+                return $ticketManagements
+                    ->mine()
+                    ->whereIn( 'id', $ids );
+            })
+            ->where( 'owner_id', '=', \Auth::user()->id )
+            ->get();
+        if ( ! $tickets->count() )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Заявки не найдены' ] );
+        }
+
+        foreach ( $tickets as $ticket )
+        {
+            $ticket->owner_id = null;
+            $ticket->save();
+        }
+
+        \Cache::tags( 'tickets_counts' )->flush();
 
         return redirect()
             ->back()

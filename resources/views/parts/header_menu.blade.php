@@ -52,6 +52,16 @@
                                 @endif
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client', 'show' => 'owner' ] ) }}">
+                                Обзвон (мои)
+                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                    <span class="badge badge-warning bold">
+                                    {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client', true ) }}
+                                </span>
+                                @endif
+                            </a>
+                        </li>
                     @endif
                     @if ( \Auth::user()->can( 'tickets.calendar' ) )
                         <li>

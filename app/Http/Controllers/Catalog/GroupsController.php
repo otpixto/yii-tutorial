@@ -403,4 +403,16 @@ class GroupsController extends BaseController
 
     }
 
+    public function selectBuildings ( Request $request )
+    {
+        $groups = Group
+            ::mine()
+            ->orderBy( 'name' )
+            ->with( 'buildings' )
+            ->get();
+        return view( 'catalog.groups.select_buildings' )
+            ->with( 'groups', $groups )
+            ->with( 'selector', $request->get( 'selector' ) );
+    }
+
 }

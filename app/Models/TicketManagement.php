@@ -177,10 +177,16 @@ class TicketManagement extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         $query
-			->whereHas( 'ticket', function ( $ticket )
+			->whereHas( 'ticket', function ( $ticket ) use ( $flags )
 			{
-                return $ticket
+                $ticket
                     ->mine();
+                if ( in_array( self::I_AM_OWNER, $flags ) )
+                {
+                    $ticket
+                        ->where( 'owner_id', '=', \Auth::user()->id );
+                }
+                return $ticket;
 			});
         if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
         {
@@ -551,6 +557,8 @@ class TicketManagement extends BaseModel
                     }
                 }
 
+                \Cache::tags( 'tickets.scheduled.now' )->flush();
+
                 break;
 
             case 'accepted':
@@ -594,6 +602,8 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegram( $message, true );
 
+                \Cache::tags( 'tickets.scheduled.now' )->flush();
+
                 break;
 				
             case 'completed_with_act':
@@ -627,6 +637,8 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
+
+                \Cache::tags( 'tickets.scheduled.now' )->flush();
 
                 break;
 

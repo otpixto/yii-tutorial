@@ -3,6 +3,7 @@
 namespace App\Classes;
 
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use Illuminate\Support\Collection;
 
 class Devices
@@ -18,10 +19,14 @@ class Devices
         return $response;
     }
 
-    public static function ticketInfo ( Ticket $ticket )
+    public static function ticketInfo ( TicketManagement $ticketManagement )
     {
+        $ticket = $ticketManagement->ticket;
         $info = [
             'id'            => $ticket->id,
+            'id2'           => $ticketManagement->id,
+            'status_code'   => $ticketManagement->status_code,
+            'status_name'   => $ticketManagement->status_name,
             'address'       => $ticket->getAddress( true ),
             'fullname'      => $ticket->getName(),
             'category'      => $ticket->type->category->name ?? null,
@@ -33,7 +38,9 @@ class Devices
                 'fullname'  => $ticket->author->getName(),
                 'exten'     => $ticket->author->exten
             ],
-            'comments'      => []
+            'comments'      => [],
+            'scheduled_begin'   => $ticketManagement->scheduled_begin->timestamp ?? null,
+            'scheduled_end'     => $ticketManagement->scheduled_end->timestamp ?? null,
         ];
         foreach ( $ticket->comments as $comment )
         {

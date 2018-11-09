@@ -12,6 +12,7 @@ use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
+use App\Models\TicketManagement;
 use App\Models\Type;
 use App\Models\Work;
 use Carbon\Carbon;
@@ -355,8 +356,30 @@ class WorksController extends BaseController
 
         }
 
+        if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+        {
+            $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
+        }
+        else
+        {
+            $now = Carbon::now()->toDateTimeString();
+            $scheduledTicketManagements = TicketManagement
+                ::mine()
+                ->where( 'status_code', '=', 'assigned' )
+                ->where( 'scheduled_begin', '<=', $now )
+                ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+                {
+                    return $ticket
+                        ->whereNotNull( 'postponed_to' )
+                        ->where( 'postponed_to', '>', $now );
+                })
+                ->get();
+            \Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+        }
+
         return view( 'works.index' )
-            ->with( 'request', $request );
+            ->with( 'request', $request )
+            ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
 
     }
 

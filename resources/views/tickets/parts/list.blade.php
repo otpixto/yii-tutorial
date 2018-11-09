@@ -26,9 +26,9 @@
         </th>
         <th width="300">
             Классификатор
-            @if ( \Auth::user()->can( 'tickets.services.show' ) )
+            {{--@if ( \Auth::user()->can( 'tickets.services.show' ) )
                 \ Выполненные работы
-            @endif
+            @endif--}}
         </th>
         <th colspan="2">
             Адрес проблемы \ Заявитель

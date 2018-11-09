@@ -190,6 +190,8 @@ return [
         \App\Providers\StreamServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
 
+        //\App\Providers\ComposerServiceProvider::class,
+
     ],
 
     /*
