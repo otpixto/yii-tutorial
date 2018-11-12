@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CreateSegments;
 use App\Console\Commands\CreateUser;
 use App\Console\Commands\FixAddresses;
 use App\Console\Commands\FixDates;
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
         ImportVerin::class,
         CreateUser::class,
         Mosreg::class,
+        CreateSegments::class,
     ];
 
     /**

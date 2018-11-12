@@ -11,11 +11,6 @@ class FixAddresses extends Command
 
     protected $signature = 'fix:addresses';
 
-    public function __construct ()
-    {
-        parent::__construct();
-    }
-
     public function handle ()
     {
 
@@ -24,37 +19,33 @@ class FixAddresses extends Command
             ->orWhereNull( 'segment_id' )
             ->get();
 
-        $types = [];
-
         foreach ( $buildings as $building )
         {
-            $exp = explode( ',', $building->name );
+            $save = false;
+            $name = trim( $building->name );
+            if ( mb_substr( $name, -1 ) == ',' )
+            {
+                $name = mb_substr( $name, 0, mb_strlen( $name ) - 1 );
+                $building->name = $name;
+                $save = true;
+            }
+            $exp = explode( ',', $name );
             $cnt = count( $exp );
-            if ( mb_strpos( $exp[ $cnt - 1 ], 'д.' ) !== false )
+            $number = trim( $exp[ $cnt - 1 ] );
+            if ( mb_strpos( $number, 'д.' ) !== false )
             {
                 if ( ! $building->number )
                 {
-                    $building->number = trim( mb_substr( $exp[ $cnt - 1 ], 3 ) );
-                    $building->save();
+                    $building->number = trim( mb_substr( $number, 2 ) );
+                    $save = true;
                 }
-                array_pop( $exp );
                 //echo $building->number . PHP_EOL;
             }
-            if ( ! isset( $exp[ 0 ] ) ) continue;
-            $first = trim( $exp[ 0 ] );
-            $types[ $first ] = 1;
-            /*foreach ( $exp as $item )
+            if ( $save )
             {
-                $item = trim( $item );
-                if ( mb_strpos( $item, 'гараж' ) !== false ) continue;
-                if ( mb_strpos( $item, 'стр' ) !== false ) continue;
-                if ( mb_strpos( $item, 'здание' ) !== false ) continue;
-                if ( mb_strpos( $item, 'км' ) !== false ) continue;
-                $types[ $item ] = 1;
-            }*/
+                $building->save();
+            }
         }
-
-        print_r( $types );
 
     }
 

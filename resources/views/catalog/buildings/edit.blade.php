@@ -166,7 +166,7 @@
                     @foreach( $segments as $segment )
                         <tr>
                             <td class="text-right text-muted">
-                                {{ $segment->type->name }}
+                                {{ $segment->segmentType->name }}
                             </td>
                             <td>
                                 {{ $segment->name }}

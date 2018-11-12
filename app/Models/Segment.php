@@ -73,12 +73,7 @@ class Segment extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereHas( 'provider', function ( $provider )
-            {
-                return $provider
-                    ->mine()
-                    ->current();
-            });
+            ->mineProvider();
     }
 
     public function getName ( $withParent = false )

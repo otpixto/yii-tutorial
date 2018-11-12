@@ -158,13 +158,14 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
             Route::get( 'history/{ticket_management_id}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
             Route::post( 'comments/{id?}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
-            Route::get( '{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
 
         });
 
         Route::resource( 'works', 'Operator\WorksController' );
         Route::resource( 'tickets', 'Operator\TicketsController' );
+
+        Route::get( '/tickets/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@show' )->name( 'tickets.show' );
 
         Route::prefix( 'reports' )->group( function ()
         {

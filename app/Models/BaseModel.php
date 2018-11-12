@@ -240,4 +240,16 @@ class BaseModel extends Model
             ->orWhere( $field, 'like', '%' . str_replace( ' ', '%', $value ) . '%' );
     }
 
+    public function scopeMineProvider ( $query )
+    {
+        return $query
+            ->whereNull( static::$_table . '.provider_id' )
+            ->orWhereHas( 'provider', function ( $provider )
+            {
+                return $provider
+                    ->mine()
+                    ->current();
+            });
+    }
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Operator;
 use App\Models\BuildingRoom;
 use App\Models\Ticket;
 use App\Models\Work;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DataController extends BaseController
@@ -31,11 +32,13 @@ class DataController extends BaseController
                     ->where( 'lon', '!=', - 1 )
                     ->where( 'lat', '!=', - 1 );
             })
+            ->where( 'created_at', '>=', Carbon::now()->subMonth()->toDateTimeString() )
             ->with(
                 'building',
                 'managements',
                 'managements.management'
             )
+            ->orderBy( 'id', 'desc' )
             ->get();
 
         $data = [];
