@@ -359,12 +359,7 @@ class Ticket extends BaseModel
                             ->whereNull( 'owner_id' )
                             ->orWhere( 'owner_id', '=', \Auth::user()->id );
                     })
-                    ->whereHas( 'provider', function ( $provider )
-                    {
-                        return $provider
-                            ->mine()
-                            ->current();
-                    });
+                    ->mineProvider();
                 if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                 {
                     $q

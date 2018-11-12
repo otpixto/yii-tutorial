@@ -142,12 +142,7 @@ class Management extends BaseModel
 		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
 		{
 			$query
-				->whereHas( 'provider', function ( $provider )
-				{
-					return $provider
-						->mine()
-						->current();
-				});
+				->mineProvider();
 		}
         if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {

@@ -1,4 +1,4 @@
-{!! Form::open( [ 'url' => route( 'tickets.executor', $ticketManagement->id ), 'id' => 'executor-form', 'class' => 'submit-loading form-horizontal ajax' ] ) !!}
+{!! Form::open( [ 'url' => route( 'tickets.executor.save', $ticketManagement->id ), 'id' => 'executor-form', 'class' => 'submit-loading form-horizontal ajax' ] ) !!}
 @if ( \Auth::user()->can( 'catalog.executors.create' ) )
     <div class="form-group" id="executor">
         {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label col-xs-3' ] ) !!}

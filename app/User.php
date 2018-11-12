@@ -355,12 +355,7 @@ class User extends BaseModel implements
             ->where( function ( $q )
             {
                 return $q
-                    ->whereHas( 'provider', function ( $provider )
-                    {
-                        return $provider
-                            ->mine()
-                            ->current();
-                    })
+                    ->mineProvider()
                     ->orWhereHas( 'providers', function ( $providers )
                     {
                         return $providers

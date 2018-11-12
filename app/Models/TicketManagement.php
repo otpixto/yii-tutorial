@@ -759,7 +759,7 @@ class TicketManagement extends BaseModel
         if ( $providerDomain )
         {
             if ( ! $this->management || ! $this->management->provider || ! $this->management->provider->domain ) return null;
-            $url = \Config::get( 'app.ssl' ) ? 'https://' : 'http://';
+            $url = $this->management->provider->ssl ? 'https://' : 'http://';
             $url .= $this->management->provider->domain;
             $url .= route( 'tickets.show', $this->getTicketNumber(), false );
         }

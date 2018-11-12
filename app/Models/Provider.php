@@ -83,7 +83,7 @@ class Provider extends BaseModel
         if ( ! self::subDomainIs( 'operator', 'system' ) )
         {
             $query
-                ->whereIn( self::$_table . '.id', $user->providers()->pluck( Provider::$_table . '.id' ) );
+                ->whereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
         }
         return $query;
     }
@@ -93,7 +93,7 @@ class Provider extends BaseModel
         if ( ! self::subDomainIs( 'operator', 'system' ) )
         {
             $query
-                ->where( self::$_table . '.domain', '=', \Request::getHost() );
+                ->where( 'domain', '=', \Request::getHost() );
         }
         return $query;
     }
@@ -176,6 +176,13 @@ class Provider extends BaseModel
         {
             return self::getDefaultLogo();
         }
+    }
+
+    public function getUrl ()
+    {
+        $url = $this->ssl ? 'https://' : 'http://';
+        $url .= $this->domain;
+        return $url;
     }
 
     public static function getDefaultLogo ()

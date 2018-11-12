@@ -125,7 +125,7 @@
 
         function setExecutor ( ticket_management_id )
         {
-            $.get( '{{ route( 'tickets.executor' ) }}',
+            $.get( '{{ route( 'tickets.executor.select' ) }}',
                 {
                     ticket_management_id: ticket_management_id
                 },

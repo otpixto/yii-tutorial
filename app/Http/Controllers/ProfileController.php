@@ -37,7 +37,8 @@ class ProfileController extends Controller
             return redirect()->route( 'users.index' )
                 ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
         }
-        $redirect = ( \Config::get( 'app.ssl' ) ? 'https://' : 'http://' ) . $user->providers->first()->domain;
+        $provider = $user->providers->first();
+        $redirect = ( $provider->ssl ? 'https://' : 'http://' ) . $provider->domain;
         \Auth::login( $user );
         return redirect()->to( $redirect );
     }

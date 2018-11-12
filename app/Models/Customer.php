@@ -93,12 +93,7 @@ class Customer extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->whereHas( 'provider', function ( $provider )
-            {
-                return $provider
-                    ->mine()
-                    ->current();
-            });
+            ->mineProvider();
     }
 
     public function scopeName ( $query, $firstname, $middlename, $lastname )

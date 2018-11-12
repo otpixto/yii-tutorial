@@ -208,7 +208,7 @@ class BaseModel extends Model
         $log = Log::create([
             'author_id'     => $author_id,
             'model_id'      => $this->id,
-            'model_name'    => get_class( $this ),
+            'model_name'    => static::class,
             'text'          => $text,
         ]);
         if ( $log instanceof MessageBag )
@@ -243,7 +243,7 @@ class BaseModel extends Model
     public function scopeMineProvider ( $query )
     {
         return $query
-            ->whereNull( static::$_table . '.provider_id' )
+            ->whereNull( static::getTable() . '.provider_id' )
             ->orWhereHas( 'provider', function ( $provider )
             {
                 return $provider

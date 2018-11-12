@@ -43,12 +43,7 @@ class News extends BaseModel
     public function scopeMine ( $query )
     {
         $query
-            ->whereHas( 'provider', function ( $q )
-            {
-                return $q
-                    ->mine()
-                    ->current();
-            });
+            ->mineProvider();
     }
 
     public function getType ()

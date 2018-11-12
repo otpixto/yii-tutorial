@@ -188,12 +188,7 @@ class Work extends BaseModel
             ->whereHas( 'buildings', function ( $buildings )
             {
                 return $buildings
-                    ->whereHas( 'provider', function ( $provider )
-                    {
-                        return $provider
-                            ->mine()
-                            ->current();
-                    });
+                    ->mineProvider();
             });
         if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {

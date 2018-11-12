@@ -88,7 +88,7 @@
 
             function setManagements ()
             {
-                $.get( '{{ route( 'tickets.managements', $ticketManagement->id ) }}', function ( response )
+                $.get( '{{ route( 'tickets.managements.select', $ticketManagement->id ) }}', function ( response )
                 {
                     Modal.createSimple( 'Назначить УО', response, 'managements' );
                 });
@@ -96,7 +96,7 @@
 
             function setExecutor ()
             {
-                $.get( '{{ route( 'tickets.executor', $ticketManagement->id ) }}', function ( response )
+                $.get( '{{ route( 'tickets.executor.select', $ticketManagement->id ) }}', function ( response )
                 {
                     Modal.createSimple( 'Назначить исполнителя', response, 'executor' );
                 });

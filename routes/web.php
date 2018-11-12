@@ -148,11 +148,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( '{ticket_id}/tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
             Route::post( '{ticket_id}/tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::get( 'executor/{ticket_management_id?}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor' );
+            Route::get( 'executor/{ticket_management_id?}/select', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor.select' );
             Route::post( 'executor/check', 'Operator\TicketsController@checkExecutor' )->name( 'tickets.executor.check' );
-            Route::post( 'executor', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor' );
-            Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements' );
-            Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements' );
+            Route::post( 'executor/save', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor.save' );
+            Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements.select' );
+            Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements.save' );
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
