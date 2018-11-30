@@ -76,126 +76,127 @@
     </div>
     {!! Form::close() !!}
 
-    @if ( $management || $executor )
-
-        <div class="visible-print title">
-            Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
-            Исполнитель
-            @if ( $management )
-                {{ $management->name }}
-            @endif
-            @if ( $executor )
-                {{ $executor->name }}
-            @endif
-        </div>
-
-        @if ( $ticketManagements->count() )
-
-            <table class="table table-striped sortable" id="data">
-                <thead>
-                <tr>
-                    <th>
-                        № заявки
-                    </th>
-                    <th>
-                        Дата создания
-                    </th>
-                    <th>
-                        Адрес заявки
-                    </th>
-                    <th>
-                        Категория и тип
-                    </th>
-                    <th>
-                        Выполненные работы
-                    </th>
-                    <th>
-                        Статус заявки
-                    </th>
-                    <th>
-                        Дата
-                    </th>
-                    <th>
-                        Оценка
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach ( $ticketManagements as $ticketManagement )
-                    <tr>
-                        <td>
-                            <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
-                                {{ $ticketManagement->ticket->id }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
-                        </td>
-                        <td>
-                            {{ $ticketManagement->ticket->getAddress( true ) }}
-                        </td>
-                        <td>
-                            @if ( $ticketManagement->ticket->type )
-                                <div>
-                                    {{ $ticketManagement->ticket->type->category->name }}
-                                </div>
-                                <div>
-                                    {{ $ticketManagement->ticket->type->name }}
-                                </div>
-                            @endif
-                        </td>
-                        <td>
-                            <ol class="list-unstyled">
-                                @foreach ( $ticketManagement->services as $service )
-                                    <li>
-                                        {{ $service->name }}
-                                    </li>
-                                @endforeach
-                            </ol>
-                        </td>
-                        <td>
-                            {{ $ticketManagement->status_name }}
-                        </td>
-                        <td>
-                            {{ $ticketManagement->ticket->completed_at }}
-                        </td>
-                        <td>
-                            {{ $ticketManagement->rate }}
-                        </td>
-                    </tr>
-                    <tr data-ticket-comments="{{ $ticketManagement->ticket->id }}">
-                        <td colspan="8">
-                            @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
-                                <div class="note note-warning">
-                                    <span class="small text-muted">Комментарий к отложенной заявке:</span>
-                                    {{ $ticketManagement->ticket->postponed_comment }}
-                                </div>
-                            @endif
-                            @if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
-                                <div class="note note-danger">
-                                    <span class="small text-muted">Комментарий к оценке:</span>
-                                    {{ $ticketManagement->rate_comment }}
-                                </div>
-                            @endif
-                            @if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->ticket->comments->count() )
-                                <div class="text-center hidden-print">
-                                    <a class="text-primary small bold" data-toggle="#tickets-comments-{{ $ticketManagement->id }}">
-                                        Показать \ скрыть комментарии ({{ $ticketManagement->ticket->comments->count() }})
-                                    </a>
-                                </div>
-                                <div class="note note-info hidden" id="tickets-comments-{{ $ticketManagement->id }}">
-                                    @include( 'parts.comments', [ 'origin' => $ticketManagement->ticket, 'comments' => $ticketManagement->ticket->comments ] )
-                                </div>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        @else
-            @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
+    <div class="visible-print title">
+        Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
+        Исполнитель
+        @if ( $management )
+            {{ $management->name }}
         @endif
+        @if ( $executor )
+            {{ $executor->name }}
+        @endif
+    </div>
 
+    @if ( $ticketManagements->count() )
+
+        {{ $ticketManagements->render() }}
+
+        <table class="table table-striped sortable" id="data">
+            <thead>
+            <tr>
+                <th>
+                    № заявки
+                </th>
+                <th>
+                    Дата создания
+                </th>
+                <th>
+                    Адрес заявки
+                </th>
+                <th>
+                    Категория и тип
+                </th>
+                <th>
+                    Выполненные работы
+                </th>
+                <th>
+                    Статус заявки
+                </th>
+                <th>
+                    Дата
+                </th>
+                <th>
+                    Оценка
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ( $ticketManagements as $ticketManagement )
+                <tr>
+                    <td>
+                        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
+                            {{ $ticketManagement->ticket->id }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
+                    </td>
+                    <td>
+                        {{ $ticketManagement->ticket->getAddress( true ) }}
+                    </td>
+                    <td>
+                        @if ( $ticketManagement->ticket->type )
+                            <div>
+                                {{ $ticketManagement->ticket->type->category->name }}
+                            </div>
+                            <div>
+                                {{ $ticketManagement->ticket->type->name }}
+                            </div>
+                        @endif
+                    </td>
+                    <td>
+                        <ol class="list-unstyled">
+                            @foreach ( $ticketManagement->services as $service )
+                                <li>
+                                    {{ $service->name }}
+                                </li>
+                            @endforeach
+                        </ol>
+                    </td>
+                    <td>
+                        {{ $ticketManagement->status_name }}
+                    </td>
+                    <td>
+                        {{ $ticketManagement->ticket->completed_at }}
+                    </td>
+                    <td>
+                        {{ $ticketManagement->rate }}
+                    </td>
+                </tr>
+                <tr data-ticket-comments="{{ $ticketManagement->ticket->id }}">
+                    <td colspan="8">
+                        @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+                            <div class="note note-warning">
+                                <span class="small text-muted">Комментарий к отложенной заявке:</span>
+                                {{ $ticketManagement->ticket->postponed_comment }}
+                            </div>
+                        @endif
+                        @if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
+                            <div class="note note-danger">
+                                <span class="small text-muted">Комментарий к оценке:</span>
+                                {{ $ticketManagement->rate_comment }}
+                            </div>
+                        @endif
+                        @if ( \Auth::user()->can( 'tickets.comments' ) && $ticketManagement->ticket->comments->count() )
+                            <div class="text-center hidden-print">
+                                <a class="text-primary small bold" data-toggle="#tickets-comments-{{ $ticketManagement->id }}">
+                                    Показать \ скрыть комментарии ({{ $ticketManagement->ticket->comments->count() }})
+                                </a>
+                            </div>
+                            <div class="note note-info hidden" id="tickets-comments-{{ $ticketManagement->id }}">
+                                @include( 'parts.comments', [ 'origin' => $ticketManagement->ticket, 'comments' => $ticketManagement->ticket->comments ] )
+                            </div>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+
+        {{ $ticketManagements->render() }}
+
+    @else
+        @include( 'parts.error', [ 'error' => 'По Вашему запросу ничего не найдено' ] )
     @endif
 
 @endsection

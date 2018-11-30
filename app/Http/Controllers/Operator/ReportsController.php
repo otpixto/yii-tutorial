@@ -39,8 +39,8 @@ class ReportsController extends BaseController
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $management_id = $request->get( 'management_id' );
         $executor_id = $request->get( 'executor_id' );
-        $rate_from = $request->get( 'rate_from' );
-        $rate_to = $request->get( 'rate_to' );
+        $rate_from = $request->get( 'rate_from', 1 );
+        $rate_to = $request->get( 'rate_to', 5 );
 
         if ( $date_from->timestamp > $date_to->timestamp )
         {
@@ -76,11 +76,10 @@ class ReportsController extends BaseController
         {
             $executors = new Collection();
         }
-		
-        $ticketManagements = $ticketManagements->get();
 
         if ( $request->get( 'export' ) == '1' && \Auth::user()->can( 'reports.export' ) )
         {
+            $ticketManagements = $ticketManagements->get();
             $data = [];
             foreach ( $ticketManagements as $ticketManagement )
             {
@@ -109,6 +108,12 @@ class ReportsController extends BaseController
 
             die;
 
+        }
+        else
+        {
+            $ticketManagements = $ticketManagements
+                ->paginate( config( 'pagination.per_page' ) )
+                ->appends( $request->all() );
         }
 
         $res = [];

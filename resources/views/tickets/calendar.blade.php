@@ -81,6 +81,13 @@
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script type="text/javascript">
 
+        function parseDate ( date )
+        {
+            var d = new Date();
+            d.setTime( Date.parse( date ) );
+            return d;
+        };
+
         $( document )
 
             .ready( function ()
@@ -126,14 +133,14 @@
                         locale: 'ru',
                         eventLimit: true,
                         header: {
-                            left: 'prev,next',
+                            //left: 'prev,next',
                             center: 'title',
                             right: 'month,agendaWeek,agendaDay'
                         },
-                        validRange: {
+                        /*validRange: {
                             start: response.beginDate,
                             end: response.endDate
-                        },
+                        },*/
                         defaultDate: response.beginDate,
                         editable: false,
                         dayClick: function ( date, event, view )

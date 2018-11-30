@@ -444,37 +444,33 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
 
-        if ( $this->status_code == $status_code )
-        {
-            return new MessageBag([ 'Невозможно повторно установить статус!' ]);
-        }
-
         \DB::beginTransaction();
 
-        $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . Ticket::$statuses[ $status_code ] . '"' );
-        if ( $log instanceof MessageBag )
+        $status_name = Ticket::$statuses[ $status_code ];
+
+        if ( $this->status_code != $status_code )
         {
-            return redirect()->back()
-                ->withErrors( $log );
+            $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . $status_name . '"' );
+            if ( $log instanceof MessageBag )
+            {
+                return $log;
+            }
+            $statusHistory = StatusHistory::create([
+                'model_id'          => $this->id,
+                'model_name'        => get_class( $this ),
+                'status_code'       => $status_code,
+                'status_name'       => $status_name,
+            ]);
+            if ( $statusHistory instanceof MessageBag )
+            {
+                return $statusHistory;
+            }
+            $statusHistory->save();
         }
 
         $this->status_code = $status_code;
-        $this->status_name = Ticket::$statuses[ $status_code ];
+        $this->status_name = $status_name;
         $this->save();
-
-        $statusHistory = StatusHistory::create([
-            'model_id'          => $this->id,
-            'model_name'        => get_class( $this ),
-            'status_code'       => $status_code,
-            'status_name'       => Ticket::$statuses[ $status_code ],
-        ]);
-
-        if ( $statusHistory instanceof MessageBag )
-        {
-            return $statusHistory;
-        }
-
-        $statusHistory->save();
 
         $res = $this->processStatus();
         if ( $res instanceof MessageBag )
@@ -785,6 +781,16 @@ class TicketManagement extends BaseModel
         return $count;
     }
 
-
+    public function needAct ()
+    {
+        if ( ! $this->management->need_act )
+        {
+            return false;
+        }
+        else
+        {
+            return $this->ticket->needAct();
+        }
+    }
 
 }

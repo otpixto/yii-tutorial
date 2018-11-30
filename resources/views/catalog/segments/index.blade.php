@@ -132,6 +132,9 @@
                                         Тип
                                     </th>
                                     <th>
+                                        Родитель
+                                    </th>
+                                    <th>
                                         Наименование
                                     </th>
                                     @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
@@ -149,6 +152,9 @@
                                     <tr>
                                         <td>
                                             {{ $segment->segmentType->name ?? '-' }}
+                                        </td>
+                                        <td>
+                                            {{ $segment->parent->name ?? '-' }}
                                         </td>
                                         <td>
                                             {{ $segment->name }}

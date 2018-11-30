@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Devices;
-use App\Models\Ticket;
+use App\Classes\Asterisk;
+use App\Models\File;
 use App\Models\TicketManagement;
 use App\Traits\Logs;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\MessageBag;
 
 class DeviceController extends Controller
@@ -19,6 +21,16 @@ class DeviceController extends Controller
 
     const CACHE_LIFE_MINUTES = 60;
     const UPDATES_LIFE_SECONDS = 10;
+
+    public function __construct ()
+    {
+        \Debugbar::disable();
+    }
+
+    public function index ( Request $request, $route )
+    {
+        return $this->success( 'Hello, World!' );
+    }
 
     private function authToken ( Request $request, & $output = null, & $httpCode = 200 ) : bool
     {
@@ -66,6 +78,13 @@ class DeviceController extends Controller
             return false;
         }
 
+        if ( ! $user->can( 'rest.auth' ) )
+        {
+            $output = trans('device.denied' );
+            $httpCode = 403;
+            return false;
+        }
+
         \Auth::login( $user );
 
         $output = $data;
@@ -100,6 +119,12 @@ class DeviceController extends Controller
 
         $user = \Auth::user();
 
+        if ( ! $user->can( 'rest.auth' ) )
+        {
+            \Auth::logout();
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
         $token = md5( $user->id . $user->getName() . time() );
 
         if ( \Cache::has( 'device.user.' . $user->id ) )
@@ -132,6 +157,11 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
+        if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
         if ( \Cache::has( 'device.tickets.' . \Auth::user()->id ) )
         {
             $tickets = \Cache::get( 'device.tickets.' . \Auth::user()->id );
@@ -152,6 +182,7 @@ class DeviceController extends Controller
                     'ticket.type',
                     'ticket.type.category'
                 )
+                ->take( 10 )
                 ->get();
             $tickets = Devices::ticketsInfo( $tickets );
             \Cache::put( 'device.tickets.' . \Auth::user()->id, $tickets, self::CACHE_LIFE_MINUTES );
@@ -169,6 +200,11 @@ class DeviceController extends Controller
         if ( ! $this->authToken( $request, $data, $httpCode ) )
         {
             return $this->error( $data, $httpCode );
+        }
+
+        if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
         }
 
         $response = [];
@@ -232,6 +268,11 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
+        if ( ! \Auth::user()->can( 'rest.contacts.show' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
         if ( \Cache::has( 'device.contacts.' . \Auth::user()->id ) )
         {
             $contacts = \Cache::get( 'device.contacts.' . \Auth::user()->id );
@@ -271,6 +312,11 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
+        if ( ! \Auth::user()->can( 'rest.position' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
         $validation = \Validator::make( $request->all(), [
             'lon'           => 'required|numeric',
             'lat'           => 'required|numeric',
@@ -293,7 +339,163 @@ class DeviceController extends Controller
 
     }
 
-    /*public function complete ( Request $request )
+    public function complete ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'id'            => 'required|integer',
+            'force'         => 'boolean',
+            'files.*'       => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        if ( ! \Auth::user()->can( 'rest.tickets.edit' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->find( $request->get( 'id' ) );
+
+        if ( ! $ticketManagement )
+        {
+            return $this->error( 'Заявка не найдена', 404 );
+        }
+
+        \DB::beginTransaction();
+
+        $files = $request->allFiles();
+
+        if ( $ticketManagement->needAct() )
+        {
+            if ( ! count( $files ) )
+            {
+                return $this->error( 'Необходимо прикрепить файл(ы)' );
+            }
+            $res = $ticketManagement->changeStatus( 'completed_with_act', $request->get( 'force', false ) );
+            if ( $res instanceof MessageBag )
+            {
+                return $this->error( $res->first() );
+            }
+        }
+        else
+        {
+            $res = $ticketManagement->changeStatus( 'completed_without_act', $request->get( 'force', false ) );
+            if ( $res instanceof MessageBag )
+            {
+                return $this->error( $res->first() );
+            }
+        }
+
+        foreach ( $files as $_file )
+        {
+            $path = Storage::putFile( 'files', $_file );
+            $file = File::create([
+                'model_id'      => $ticketManagement->id,
+                'model_name'    => get_class( $ticketManagement ),
+                'path'          => $path,
+                'name'          => $_file->getClientOriginalName()
+            ]);
+            if ( $file instanceof MessageBag )
+            {
+                return $this->error( $file->first() );
+            }
+            $file->save();
+            $file->parent->addLog( 'Загрузил файл "' . $file->name . '"' );
+        }
+
+        \DB::commit();
+
+        return $this->success( 'OK' );
+
+    }
+
+    public function getPhone ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'id'            => 'required|integer',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        $ticketManagement = TicketManagement::find( $request->get( 'id' ) );
+
+        if ( ! $ticketManagement )
+        {
+            return $this->error( 'Заявка не найдена', 404 );
+        }
+
+        $phone = $request->get( 'phone', $ticketManagement->ticket->phone );
+
+        return response( $phone, 200, [
+            'Content-Type' => 'text/plain'
+        ]);
+
+    }
+	
+	public function call ( Request $request )
+	{
+	
+		$validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'id'            => 'required|integer',
+            'source'        => 'required|digits:10',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        if ( ! \Auth::user()->can( 'rest.tickets.call' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->find( $request->get( 'id' ) );
+
+        if ( ! $ticketManagement )
+        {
+            return $this->error( 'Заявка не найдена', 404 );
+        }
+		
+		$number_from = mb_substr( preg_replace( '/\D/', '', $request->get( 'source', '' ) ), -10 );
+        #$number_to = $ticketManagement->ticket->phone;
+		$number_to = 9647269122;
+		
+		$asterisk = new Asterisk();
+		if ( ! $asterisk->originate( $number_from, $number_to ) )
+		{
+		    return $this->error( $asterisk->last_result );
+		}
+		
+		return $this->success( 'OK' );
+	
+	}
+
+    public function calls ( Request $request )
     {
 
         $validation = \Validator::make( $request->all(), [
@@ -311,25 +513,35 @@ class DeviceController extends Controller
             return $this->error( $data, $httpCode );
         }
 
-        $tickets = TicketManagement
+        if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
+        $ticketManagement = TicketManagement
             ::mine()
-            ->whereHas( 'executor', function ( $executor )
-            {
-                return $executor
-                    ->where( 'id', '=',  );
-            })
-            ->where( 'status_code', '!=', 'draft' )
-            ->groupBy( 'phone' )
-            ->get();
+            ->find( $request->get( 'id' ) );
 
-        $user = \Auth::user();
-        $user->lon = $request->get( 'lon' );
-        $user->lat = $request->get( 'lat' );
-        $user->save();
+        if ( ! $ticketManagement )
+        {
+            return $this->error( 'Заявка не найдена', 404 );
+        }
 
-        return $this->success( 'OK' );
+        $calls = [];
+        foreach ( $ticketManagement->ticket->calls as $call )
+        {
+            $calls[] = [
+                'call_phone' => $call->call_phone,
+                'agent_name' => $call->author->getName(),
+                'agent_number' => $call->agent_number,
+            ];
+        }
 
-    }*/
+        $this->addLog( 'Запросил список звонков по заявке ' . $ticketManagement->getTicketNumber() );
+
+        return $this->success( $calls );
+
+    }
 
     public function comment ( Request $request )
     {
@@ -337,6 +549,11 @@ class DeviceController extends Controller
         if ( ! $this->authToken( $request, $data, $httpCode ) )
         {
             return $this->error( $data, $httpCode );
+        }
+
+        if ( ! \Auth::user()->can( 'rest.tickets.comment' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
         }
 
         $validation = \Validator::make( $request->all(), [
@@ -349,16 +566,16 @@ class DeviceController extends Controller
             return $this->error( $validation->errors()->first() );
         }
 
-        $ticket = Ticket
+        $ticketManagement = TicketManagement
             ::mine()
             ->find( $request->get( 'id' ) );
 
-        if ( ! $ticket )
+        if ( ! $ticketManagement )
         {
-            return $this->error( 'Заявка не найдена' );
+            return $this->error( 'Заявка не найдена', 404 );
         }
 
-        $res = $ticket->addComment( $request->get( 'text' ) );
+        $res = $ticketManagement->ticket->addComment( $request->get( 'text' ) );
         if ( $res instanceof MessageBag )
         {
             return $this->error( $res->first() );

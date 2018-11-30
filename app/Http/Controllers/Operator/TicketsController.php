@@ -477,26 +477,33 @@ class TicketsController extends BaseController
 
         }
 
-        if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
-        {
-            $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
-        }
-        else
-        {
-            $now = Carbon::now()->toDateTimeString();
-            $scheduledTicketManagements = TicketManagement
-                ::mine()
-                ->where( 'status_code', '=', 'assigned' )
-                ->where( 'scheduled_begin', '<=', $now )
-                ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
-                {
-                    return $ticket
-                        ->whereNotNull( 'postponed_to' )
-                        ->where( 'postponed_to', '>', $now );
-                })
-                ->get();
-            \Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
-        }
+		if ( \Auth::user()->can( 'tickets.scheduled' ) )
+		{
+			if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+			{
+				$scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
+			}
+			else
+			{
+				$now = Carbon::now()->toDateTimeString();
+				$scheduledTicketManagements = TicketManagement
+					::mine()
+					->where( 'status_code', '=', 'assigned' )
+					->where( 'scheduled_begin', '<=', $now )
+					->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+					{
+						return $ticket
+							->whereNotNull( 'postponed_to' )
+							->where( 'postponed_to', '>', $now );
+					})
+					->get();
+				\Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+			}
+		}
+		else
+		{
+			$scheduledTicketManagements = new Collection();
+		}
 
         /*$counts = TicketManagement
             ::mine()
@@ -1131,6 +1138,7 @@ class TicketsController extends BaseController
     {
 
         $ticket = Ticket::find( $ticket_id );
+        $ticketManagement = null;
 
         if ( ! $ticket )
         {
@@ -1205,7 +1213,7 @@ class TicketsController extends BaseController
             $availableStatuses[ $status_code ] = compact( 'status_name', 'model_name', 'model_id', 'url' );
         }
 
-        if ( isset( $ticketManagement ) )
+        if ( $ticketManagement )
         {
             $model_name = get_class( $ticketManagement );
             $model_id = $ticketManagement->id;
@@ -1261,10 +1269,13 @@ class TicketsController extends BaseController
 
         $progressData = $ticket->getProgressData();
 
-        $need_act = $ticket->type->need_act;
-        if ( Provider::getCurrent() && ! Provider::$current->need_act )
+        if ( $ticketManagement )
         {
-            $need_act = 0;
+            $need_act = $ticketManagement->needAct();
+        }
+        else
+        {
+            $need_act = $ticket->needAct();
         }
 
         return view( $request->ajax() ? 'tickets.parts.info' : 'tickets.show' )
@@ -1425,11 +1436,20 @@ class TicketsController extends BaseController
 
         $logs = $ticketManagement
             ->logs()
-            ->orderBy( 'id' )
             ->with(
                 'author'
             )
             ->get();
+			
+		$ticketLogs = $ticketManagement
+			->ticket
+            ->logs()
+            ->with(
+                'author'
+            )
+            ->get();
+			
+		$logs = $logs->merge( $ticketLogs )->sortBy( 'id' );
 
         return view( 'tickets.tabs.history' )
             ->with( 'ticketManagement', $ticketManagement )
@@ -1677,7 +1697,7 @@ class TicketsController extends BaseController
         else
         {
             return redirect()
-                ->route( 'tickets.show', $ticket->id )
+                ->back()
                 ->with( 'success', $success );
         }
 		
@@ -2089,11 +2109,10 @@ class TicketsController extends BaseController
 			
     }
 
-    public function postExecutor ( Request $request )
+    public function postExecutor ( Request $request, $id )
     {
 
         $this->validate( $request, [
-            'ticket_management_id'      => 'required|integer',
             'executor_id'               => 'required_without:executor_name|nullable|integer',
             'executor_name'             => 'required_without:executor_id|nullable',
             'scheduled_begin_date'      => 'required|date_format:Y-m-d',
@@ -2102,7 +2121,7 @@ class TicketsController extends BaseController
             'scheduled_end_time'        => 'required|date_format:H:i',
         ]);
 
-        $ticketManagement = TicketManagement::find( $request->get( 'ticket_management_id' ) );
+        $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
             return redirect()
@@ -2182,22 +2201,19 @@ class TicketsController extends BaseController
                         ->withErrors( $res );
                 }
             }
-            if ( $ticketManagement->status_code == 'accepted' )
+            $res = $ticketManagement->changeStatus( 'assigned', true );
+            if ( $res instanceof MessageBag )
             {
-                $res = $ticketManagement->changeStatus( 'assigned', true );
-                if ( $res instanceof MessageBag )
+                if ( $request->ajax() )
                 {
-                    if ( $request->ajax() )
-                    {
-                        $error = $res->first();
-                        return compact( 'error' );
-                    }
-                    else
-                    {
-                        return redirect()
-                            ->back()
-                            ->withErrors( $res );
-                    }
+                    $error = $res->first();
+                    return compact( 'error' );
+                }
+                else
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors( $res );
                 }
             }
         }

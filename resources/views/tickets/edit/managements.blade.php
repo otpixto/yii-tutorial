@@ -1,4 +1,4 @@
-{!! Form::model( $ticketManagement, [ 'method' => 'put', 'route' => [ 'tickets.managements', $ticketManagement->id ], 'class' => 'form-horizontal submit-loading ajax' ] ) !!}
+{!! Form::model( $ticketManagement, [ 'method' => 'put', 'route' => [ 'tickets.managements.save', $ticketManagement->id ], 'class' => 'form-horizontal submit-loading ajax' ] ) !!}
 <table class="table table-hover table-striped table-condensed">
     <thead>
     <tr>

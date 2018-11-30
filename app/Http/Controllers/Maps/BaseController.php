@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Maps;
 
 use App\Classes\Title;
 use App\Http\Controllers\Controller;
-use App\Traits\Logs;
+use App\Traits\LogsTrait;
 
 class BaseController extends Controller
 {
 
-    use Logs;
+    use LogsTrait;
 
     public function __construct ()
     {

@@ -11,7 +11,7 @@ class SegmentTree extends Segments
 
     public function __construct ()
     {
-        if ( ! \Cache::tags( self::$cache_tags )->has( 'segments.tree' ) )
+        if ( ! \Cache::tags( self::$cache_tags )->has( 'segments.tree.' . \Auth::user()->id ) )
         {
             $parentSegments = Segment
                 ::mine()
@@ -29,11 +29,11 @@ class SegmentTree extends Segments
                 }
                 $this->tree[] = $item;
             }
-            \Cache::tags( self::$cache_tags )->put( 'segments.tree', $this->tree, self::$cache_life );
+            \Cache::tags( self::$cache_tags )->put( 'segments.tree.' . \Auth::user()->id, $this->tree, self::$cache_life );
         }
         else
         {
-            $this->tree = \Cache::tags( self::$cache_tags )->get( 'segments.tree' );
+            $this->tree = \Cache::tags( self::$cache_tags )->get( 'segments.tree.' . \Auth::user()->id );
         }
         return $this;
     }

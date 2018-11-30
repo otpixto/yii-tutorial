@@ -1,4 +1,5 @@
-var socket = io( 'https://system.eds-region.ru:8444', { secure: true } );
+//var socket = io( 'https://system.eds-region.ru:8444', { secure: true } );
+var socket = io( 'http://system.eds-juk.ru:8444' );
 var number = $( 'meta[name="user-phone"]' ).attr( 'content' ) || null;
 var connected = false;
 var auth = false;

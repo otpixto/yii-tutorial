@@ -136,7 +136,7 @@
 
                 if ( $( '#progress .progress-bar' ).length )
                 {
-                    var progressTimer = window.setInterval( getProgressData, 10000 );
+                    var progressTimer = window.setInterval( getProgressData, 60000 );
                 }
 
             })
@@ -402,13 +402,22 @@
                 .on( 'submit', '#executor-form', function ( e )
                 {
 
+                    var form = $( this ).closest( 'form' );
+                    var confirmed = form.attr( 'data-confirmed' );
+
+                    if ( confirmed == 1 ) return true;
+
                     e.preventDefault();
 
-                    var form = $( this ).closest( 'form' );
                     var data = $( this ).serialize();
 
                     function sendData ()
                     {
+                        if ( ! connected )
+                        {
+                            form.submit();
+                            return true;
+                        }
                         $.post( form.attr( 'action' ), data, function ()
                         {
                             Modal.hide( 'executor' );
@@ -425,6 +434,7 @@
                     {
                         if ( response == '0' )
                         {
+                            form.attr( 'data-confirmed', 1 );
                             sendData();
                         }
                         else if ( response.finded )
@@ -445,6 +455,7 @@
                                 {
                                     if ( result )
                                     {
+                                        form.attr( 'data-confirmed', 1 );
                                         sendData();
                                     }
                                 }

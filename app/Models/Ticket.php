@@ -951,7 +951,7 @@ class Ticket extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( !$force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
+        if ( ! $force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
@@ -1142,11 +1142,13 @@ class Ticket extends BaseModel
     public function createCall ( $phone )
     {
         if ( ! \Auth::user()->openPhoneSession ) return;
+        $number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
         $ticketCall = TicketCall
             ::whereNull( TicketCall::$_table . '.call_id' )
+            ->where( TicketCall::$_table . '.author_id', '=', \Auth::user()->id )
             ->where( TicketCall::$_table . '.ticket_id', '=', $this->id )
             ->where( TicketCall::$_table . '.call_phone', '=', $phone )
-            ->where( TicketCall::$_table . '.agent_number', '=', \Auth::user()->openPhoneSession->number )
+            ->where( TicketCall::$_table . '.agent_number', '=', $number )
             ->first();
         if ( $ticketCall )
         {
@@ -1157,7 +1159,7 @@ class Ticket extends BaseModel
             $ticketCall = TicketCall::create([
                 'ticket_id'     => $this->id,
                 'call_phone'    => $phone,
-                'agent_number'  => \Auth::user()->openPhoneSession->number
+                'agent_number'  => $number
             ]);
             if ( $ticketCall instanceof MessageBag )
             {
@@ -1171,6 +1173,18 @@ class Ticket extends BaseModel
     public function canComment ()
     {
         return \Auth::user()->can( 'tickets.comments_add' );
+    }
+
+    public function needAct ()
+    {
+        if ( ! $this->type->need_act )
+        {
+            return false;
+        }
+        else
+        {
+            return $this->provider->need_act;
+        }
     }
 
 }

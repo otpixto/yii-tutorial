@@ -336,7 +336,7 @@
             </li>
         @endif
 
-        <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
+        {{--<li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
             <a href="javascript:;" class="text-uppercase">
                 <i class="fa fa-user"></i>
                 <span class="hidden-md">
@@ -355,7 +355,8 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li>--}}
+
     </ul>
 </div>
 <!-- END HEADER MENU -->

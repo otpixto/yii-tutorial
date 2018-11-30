@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Asterisk;
 use App\Models\PhoneSession;
 use App\Models\Provider;
+use App\Models\ProviderPhone;
 use App\Models\Ticket;
 use App\Models\TicketCall;
 use App\Models\UserPhoneAuth;
@@ -98,31 +99,30 @@ class RestController extends Controller
 
         $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
 
-        $provider = Provider
-            ::whereHas( 'phones', function ( $phones ) use ( $phone_office )
-            {
-                return $phones
-                    ->where( 'phone', '=', $phone_office );
-            })
+        $providerPhone = ProviderPhone
+            ::where( 'phone', '=', $phone_office )
             ->first();
 
-        if ( $provider )
+        if ( $providerPhone )
         {
-            $response[ 'provider' ] = $provider->name;
-            $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
-            $customer = $provider->customers()
-                ->where( 'phone', '=', $call_phone )
-                ->orWhere( 'phone2', '=', $call_phone )
-                ->orderBy( 'id', 'desc' )
-                ->first();
-            if ( $customer )
+            $response[ 'provider' ] = $providerPhone->name;
+            if ( $providerPhone->provider )
             {
-                $response[ 'customer' ] = [
-                    'building' => $customer->getActualAddress(),
-                    'name' => $customer->getName(),
-                ];
+                $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
+                $customer = $providerPhone->provider->customers()
+                    ->where( 'phone', '=', $call_phone )
+                    ->orWhere( 'phone2', '=', $call_phone )
+                    ->orderBy( 'id', 'desc' )
+                    ->first();
+                if ( $customer )
+                {
+                    $response[ 'customer' ] = [
+                        'building' => $customer->getActualAddress(),
+                        'name' => $customer->getName(),
+                    ];
+                }
+                $response[ 'users' ] = $providerPhone->provider->phoneSessions()->pluck( PhoneSession::$_table . '.user_id' )->toArray();
             }
-            $response[ 'users' ] = $provider->phoneSessions()->pluck( PhoneSession::$_table . '.user_id' )->toArray();
         }
 
         return $this->success( $response );

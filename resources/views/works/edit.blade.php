@@ -162,7 +162,7 @@
         <div class="col-xs-6 text-right">
             {!! Form::hidden( 'closed', '0', [ 'id' => 'closed' ] ) !!}
             <button type="submit" class="btn green btn-lg">
-                <i class="fa fa-plus"></i>
+                <i class="fa fa-check"></i>
                 Сохранить
             </button>
         </div>

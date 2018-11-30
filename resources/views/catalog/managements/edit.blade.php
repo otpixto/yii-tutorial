@@ -22,12 +22,12 @@
 
                 <div class="form-group">
 
-                    <div class="col-xs-4">
+                    <div class="col-md-4">
                         {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'category_id', \App\Models\Management::$categories, \Input::old( 'category_id', $management->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
                     </div>
 
-                    <div class="col-xs-8">
+                    <div class="col-md-8">
                         {!! Form::label( 'building_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'building_id', $management->building ? $management->building()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ) : [], \Input::old( 'building_id', $management->building_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес офиса' ] ) !!}
                     </div>
@@ -36,12 +36,12 @@
 
                 <div class="form-group">
 
-                    <div class="col-xs-4">
+                    <div class="col-md-4">
                         {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'parent_id', $management->parent ? $management->parent()->pluck( \App\Models\Management::$_table . '.name', \App\Models\Management::$_table . '.id' ) : [], \Input::old( 'parent_id', $management->parent_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Родитель', 'data-ajax--url' => route( 'managements.parents.search', $management->id ), 'data-placeholder' => 'Родитель' ] ) !!}
                     </div>
 
-                    <div class="col-xs-8">
+                    <div class="col-md-8">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $management->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                     </div>
@@ -79,28 +79,39 @@
 
                 <div class="form-group">
 
-                    <div class="col-xs-4">
+                    <div class="col-md-6">
                         {!! Form::label( 'services', 'Услуги', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'services', \Input::old( 'services', $management->services ), [ 'class' => 'form-control', 'placeholder' => 'Услуги' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                    <div class="col-md-6">
                         {!! Form::label( 'schedule', 'График работы', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'schedule', \Input::old( 'schedule', $management->schedule ), [ 'class' => 'form-control', 'placeholder' => 'График работы' ] ) !!}
                     </div>
 
-                    <div class="col-xs-4">
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-md-6">
                         {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
                     </div>
-
+                    <div class="col-md-6">
+                        <div class="mt-checkbox-list">
+                            <label class="mt-checkbox mt-checkbox-outline">
+                                Требуется акт
+                                {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $management->need_act ) ) !!}
+                                <span></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <div class="col-xs-6">
+                    <div class="col-md-6">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
-                    <div class="col-xs-6 text-right">
+                    <div class="col-md-6 text-right">
                         <a href="{{ route( 'managements.buildings', $management->id ) }}" class="btn btn-default btn-circle">
                             Адреса
                             <span class="badge">
@@ -141,15 +152,15 @@
                     {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.contract', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
                     <div class="form-group">
-                        <div class="col-xs-2">
+                        <div class="col-md-2">
                             {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control' ] ) !!}
                         </div>
-                        <div class="col-xs-4">
+                        <div class="col-md-4">
                             {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
                         </div>
-                        <div class="col-xs-6">
+                        <div class="col-md-6">
                             {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
                             <div class="input-group">
                                 {!! Form::text( 'contract_begin', $management->contract_begin ? $management->contract_begin->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
@@ -160,7 +171,7 @@
                     </div>
 
                     <div class="form-group">
-                        <div class="col-xs-12">
+                        <div class="col-md-12">
                             {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                         </div>
                     </div>
@@ -216,11 +227,11 @@
 
                     <div class="form-group">
                         @if ( ! $management->telegram_code )
-                            <div class="col-xs-12">
+                            <div class="col-md-12">
                                 <button type="button" class="btn btn-success" data-action="telegram-on">Подключить</button>
                             </div>
                         @else
-                            <div class="col-xs-6">
+                            <div class="col-md-6">
                                 <button type="button" class="btn btn-danger" data-action="telegram-off">Отключить</button>
                             </div>
                             <div class="input-group">
@@ -234,7 +245,7 @@
 
                     @if ( $management->telegram_code )
                         <div class="form-group">
-                            <div class="col-xs-12">
+                            <div class="col-md-12">
                                 <h3>
                                     Подписки
                                     ({{ $management->subscriptions->count() }})

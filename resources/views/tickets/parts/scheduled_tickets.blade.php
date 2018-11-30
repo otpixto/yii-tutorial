@@ -23,7 +23,11 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="bold">
-                                    {{ $ticketManagement->executor->getName() }}
+                                    @if ( $ticketManagement->executor )
+                                        {{ $ticketManagement->executor->getName() }}
+                                    @else
+                                        Исполнитель не назначен
+                                    @endif
                                 </div>
                                 {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }}
                                 -

@@ -371,7 +371,7 @@ class UsersController extends BaseController
 
     }
 
-    public function logs ( $id )
+    public function userLogs ( $id )
     {
 
         Title::add( 'Редактировать пользователя' );

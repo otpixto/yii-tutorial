@@ -33,9 +33,18 @@ class FilesController extends Controller
 
         try
         {
-            $path = storage_path( 'app/' . $file->path );
-            $file->parent->addLog( 'Скачал файл "' . $file->name . '"' );
-            return response()->download( $path, $file->name );
+			if ( $file->parent )
+			{
+				if ( $file->parent->origin_model_name && $file->parent->parentOriginal )
+				{
+					$file->parent->parentOriginal->addLog( 'Скачал файл "' . $file->name . '"' );
+				}
+				else
+				{
+					$file->parent->addLog( 'Скачал файл "' . $file->name . '"' );
+				}
+			}
+            return response()->download( storage_path( 'app/' . $file->path ), $file->name );
         }
         catch ( \Exception $e )
         {

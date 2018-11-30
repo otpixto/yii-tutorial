@@ -52,11 +52,16 @@
                 {
                     if ( data.action == 'select_node' || data.action == 'deselect_node' )
                     {
+                        var perms = [];
+                        $.each( data.selected, function ( i, perm )
+                        {
+                            perms.push( perm.replace( 'permission-', '' ) );
+                        });
                         $.ajax({
                             url: '{{ route( 'users.perms.update', $user->id ) }}',
                             method: 'put',
                             data: {
-                                perms: data.selected
+                                perms: perms
                             },
                             success: function ()
                             {

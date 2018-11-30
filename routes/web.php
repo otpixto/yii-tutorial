@@ -32,21 +32,26 @@ Route::group( [ 'middleware' => 'api' ], function ()
 
     Route::prefix( 'asterisk' )->group( function ()
     {
-        Route::get( 'queues', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
+        Route::get( 'queues/{queue?}', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
+        Route::post( 'queues/{queue}', 'External\AsteriskController@queuesView' )->name( 'asterisk.queues' );
         Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
         Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
     });
 
     Route::prefix( 'devices' )->group( function ()
     {
+        //Route::get( '{route}', 'DeviceController@index' );
         Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
-        Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
-        Route::any( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
-        Route::any( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
-        Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
-        Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
-        Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
-        Route::any( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
+        Route::post( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
+        Route::post( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
+        Route::post( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
+        Route::post( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );
+        Route::any( 'call', 'DeviceController@call' )->name( 'devices.call' );
+        Route::post( 'position', 'DeviceController@position' )->name( 'devices.position' );
+        Route::post( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
+        Route::post( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
+        Route::post( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
+        Route::get( 'get/phone', 'DeviceController@getPhone' )->name( 'devices.get_phone' );
     });
 
 });
@@ -148,9 +153,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( '{ticket_id}/tags/add', 'Operator\TicketsController@addTag' )->name( 'tickets.tags.add' );
             Route::post( '{ticket_id}/tags/del', 'Operator\TicketsController@delTag' )->name( 'tickets.tags.del' );
             Route::post( 'change-status/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@changeStatus' )->name( 'tickets.status' );
-            Route::get( 'executor/{ticket_management_id?}/select', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor.select' );
+            Route::get( 'executor/select/{ticket_management_id?}', 'Operator\TicketsController@getExecutor' )->name( 'tickets.executor.select' );
             Route::post( 'executor/check', 'Operator\TicketsController@checkExecutor' )->name( 'tickets.executor.check' );
-            Route::post( 'executor/save', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor.save' );
+            Route::post( 'executor/{ticket_management_id}/save', 'Operator\TicketsController@postExecutor' )->name( 'tickets.executor.save' );
             Route::get( 'managements/{ticket_management_id}', 'Operator\TicketsController@getManagements' )->name( 'tickets.managements.select' );
             Route::put( 'managements/{ticket_management_id}', 'Operator\TicketsController@postManagements' )->name( 'tickets.managements.save' );
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
@@ -302,8 +307,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'providers/{provider_id}/types/add', 'Admin\ProvidersController@typesAdd' )->name( 'providers.types.add' );
             Route::delete( 'providers/{provider_id}/types/del', 'Admin\ProvidersController@typesDel' )->name( 'providers.types.del' );
             Route::delete( 'providers/{provider_id}/types/empty', 'Admin\ProvidersController@typesEmpty' )->name( 'providers.types.empty' );
-            Route::put( 'providers/{provider_id}/phones/add', 'Admin\ProvidersController@phonesAdd' )->name( 'providers.phones.add' );
             Route::delete( 'providers/{provider_id}/phones/del', 'Admin\ProvidersController@phonesDel' )->name( 'providers.phones.del' );
+            Route::get( 'providers/{provider_id}/phones/create', 'Admin\ProvidersController@phonesCreate' )->name( 'providers.phones.create' );
+            Route::put( 'providers/{provider_id}/phones/store', 'Admin\ProvidersController@phonesStore' )->name( 'providers.phones.store' );
+            Route::get( 'providers/{provider_id}/phones/{phone_id}/edit', 'Admin\ProvidersController@phonesEdit' )->name( 'providers.phones.edit' );
+            Route::post( 'providers/{provider_id}/phones/{phone_id}/update', 'Admin\ProvidersController@phonesUpdate' )->name( 'providers.phones.update' );
             Route::put( 'providers/{provider_id}/logo/upload', 'Admin\ProvidersController@uploadLogo' )->name( 'providers.logo.upload' );
             Route::delete( 'providers/{provider_id}/logo/delete', 'Admin\ProvidersController@deleteLogo' )->name( 'providers.logo.delete' );
 
@@ -319,7 +327,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::post( 'users/search', 'Admin\UsersController@search' )->name( 'users.search' );
             Route::post( 'users/{user_id}/managements/search', 'Admin\UsersController@managementsSearch' )->name( 'users.managements.search' );
-            Route::get( 'users/{user_id}/logs', 'Admin\UsersController@logs' )->name( 'users.logs' );
+            Route::get( 'users/{user_id}/logs', 'Admin\UsersController@userLogs' )->name( 'users.logs' );
             Route::get( 'users/{user_id}/providers', 'Admin\UsersController@providers' )->name( 'users.providers' );
             Route::put( 'users/{user_id}/providers/add', 'Admin\UsersController@providersAdd' )->name( 'users.providers.add' );
             Route::delete( 'users/{user_id}/providers/del', 'Admin\UsersController@providersDel' )->name( 'users.providers.del' );

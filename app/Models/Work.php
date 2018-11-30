@@ -185,20 +185,26 @@ class Work extends BaseModel
     public function scopeMine ( $query )
     {
         $query
-            ->whereHas( 'buildings', function ( $buildings )
+            ->where( 'author_id', '=', \Auth::user()->id )
+            ->orWhere( function ( $q )
             {
-                return $buildings
-                    ->mineProvider();
-            });
-        if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
-        {
-            $query
-                ->whereHas( 'management', function ( $management )
+                $q
+                    ->whereHas( 'buildings', function ( $buildings )
+                    {
+                        return $buildings
+                            ->mine();
+                    });
+                if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
                 {
-                    return $management
-                        ->mine();
-                });
-        }
+                    $q
+                        ->whereHas( 'managements', function ( $managements )
+                        {
+                            return $managements
+                                ->mineProvider();
+                        });
+                }
+                return $q;
+            });
         return $query;
     }
 

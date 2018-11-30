@@ -51,7 +51,10 @@ class SegmentsController extends BaseController
         }
 
         $segments = $segments
-            ->with( 'segmentType' )
+            ->with(
+                'segmentType',
+                'parent'
+            )
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 

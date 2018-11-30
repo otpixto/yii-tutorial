@@ -196,6 +196,8 @@ class SessionsController extends BaseController
             return redirect()->back()
                 ->withErrors( $asterisk->last_result );
         }
+        $phoneSession->user->number = $phoneSession->number;
+        $phoneSession->user->save();
         \DB::commit();
 
         return redirect()->route( 'sessions.index' )

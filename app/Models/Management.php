@@ -73,6 +73,7 @@ class Management extends BaseModel
         'contract_end',
         'mosreg_username',
         'mosreg_password',
+        'need_act',
     ];
 
     public function executors ()
@@ -154,12 +155,15 @@ class Management extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
+        $attributes[ 'need_act' ] = ! empty( $attributes[ 'need_act' ] ) ? 1 : 0;
+        $attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         $new = parent::create( $attributes );
         return $new;
     }
 
     public function edit ( array $attributes = [] )
     {
+        $attributes[ 'need_act' ] = ! empty( $attributes[ 'need_act' ] ) ? 1 : 0;
         $attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
         return parent::edit( $attributes );
     }

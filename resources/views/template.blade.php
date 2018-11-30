@@ -1,7 +1,6 @@
 @include( 'parts.head' )
 
 <body>
-
 <!-- BEGIN CONTAINER -->
 <div class="wrapper">
 
@@ -26,6 +25,7 @@
                     <a id="index" class="page-logo" href="/">
 
                         <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
+
                         <span class="page-title">
                             @if ( \App\Models\Provider::isOperatorUrl() )
                                 <span class="font-red-intense">
@@ -114,6 +114,18 @@
     </div>
 </div>
 <!-- END CONTAINER -->
+
+<div class="hidden-md hidden-xs small" id="user-info">
+    @include( 'parts.queues' )
+    @include( 'parts.phone' )
+    <i class="fa fa-user"></i>
+    <span class="bold">
+        {{ \Auth::user()->getShortName() }}
+    </span>
+    <a href="{{ route( 'logout' ) }}">
+        [выход]
+    </a>
+</div>
 
 @include( 'parts.js' )
 

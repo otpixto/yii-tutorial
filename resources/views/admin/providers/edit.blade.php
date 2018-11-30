@@ -37,6 +37,15 @@
 
                         </div>
 
+                        <div class="form-group">
+
+                            <div class="col-xs-12">
+                                {!! Form::label( 'need_act', 'Требовать акт выполненных работ', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $provider->need_act ) ) !!}
+                            </div>
+
+                        </div>
+
                         <div class="form-group hidden-print">
                             <div class="col-xs-6">
                                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
@@ -78,38 +87,53 @@
                         <h3 class="panel-title">Телефоны</h3>
                     </div>
                     <div class="panel-body">
-                        @foreach ( $provider->phones as $phone )
-                            <div class="row margin-top-5 margin-bottom-5">
-                                <div class="col-xs-12">
-                                    <button type="button" class="btn btn-xs btn-danger" data-delete="provider-phone" data-phone="{{ $phone->id }}">
-                                        <i class="fa fa-remove"></i>
-                                    </button>
-                                    {{ $phone->phone }}
-                                    @if ( $phone->description )
-                                        <span class="text-muted small">
-                                            ({{ $phone->description }})
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                            {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.phones.add', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-                        <div class="form-group">
-                            <div class="col-xs-6">
-                                {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
-                            </div>
-                            <div class="col-xs-6">
-                                {!! Form::label( 'description', 'Описание', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::text( 'description', null, [ 'class' => 'form-control', 'placeholder' => 'Описание' ] ) !!}
-                            </div>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Номер
+                                    </th>
+                                    <th>
+                                        Наименование
+                                    </th>
+                                    <th>
+                                        Описание
+                                    </th>
+                                    <th>
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ( $provider->phones as $phone )
+                                <tr>
+                                    <td>
+                                        {{ $phone->phone }}
+                                    </td>
+                                    <td>
+                                        {{ $phone->name }}
+                                    </td>
+                                    <td>
+                                        {{ $phone->description }}
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-xs btn-danger" data-delete="provider-phone" data-phone="{{ $phone->id }}">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                        <a href="{{ route( 'providers.phones.edit', [ $provider->id, $phone->id ] ) }}" class="btn btn-info btn-xs">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                        <div class="margin-top-15">
+                            <a href="{{ route( 'providers.phones.create', $provider->id ) }}" class="btn btn-primary">
+                                <i class="fa fa-plus"></i>
+                                Добавить
+                            </a>
                         </div>
-                        <div class="form-group hidden-print">
-                            <div class="col-xs-12">
-                                {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
                     </div>
                 </div>
 
@@ -227,7 +251,7 @@
                 e.preventDefault();
 
                 var phone_id = $( this ).attr( 'data-phone' );
-                var obj = $( this ).closest( '.row' );
+                var obj = $( this ).closest( 'tr' );
 
                 bootbox.confirm({
                     message: 'Удалить телефон?',

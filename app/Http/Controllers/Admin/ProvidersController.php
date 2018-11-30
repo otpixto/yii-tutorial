@@ -81,6 +81,91 @@ class ProvidersController extends BaseController
 
     }
 
+    public function phonesCreate ( Request $request, $provider_id )
+    {
+        Title::add( 'Добавить телефон' );
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        return view('admin.providers.create_phone' )
+            ->with( 'provider', $provider );
+    }
+
+    public function phonesStore ( Request $request, $provider_id )
+    {
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $rules = [
+            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'name'                  => 'required|max:100',
+            'description'           => 'nullable',
+        ];
+        $this->validate( $request, $rules );
+        $phone = $provider->addPhone( $request->all() );
+        if ( $phone instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $phone );
+        }
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Номер успешно добавлен' );
+
+    }
+
+    public function phonesEdit ( Request $request, $provider_id, $phone_id )
+    {
+        Title::add( 'Редактировать телефон' );
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $phone = $provider->phones()->find( $phone_id );
+        if ( ! $phone )
+        {
+            return redirect()->route( 'providers.edit', $provider->id )
+                ->withErrors( [ 'Телефон не найден' ] );
+        }
+        return view('admin.providers.edit_phone' )
+            ->with( 'provider', $provider )
+            ->with( 'phone', $phone );
+    }
+
+    public function phonesUpdate ( Request $request, $provider_id, $phone_id )
+    {
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $phone = $provider->phones()->find( $phone_id );
+        if ( ! $phone )
+        {
+            return redirect()->route( 'providers.edit', $provider->id )
+                ->withErrors( [ 'Телефон не найден' ] );
+        }
+        $rules = [
+            'phone'                 => 'required|unique:providers_phones,phone,' . $phone->id . ',id',
+            'name'                  => 'required',
+            'description'           => 'nullable',
+        ];
+        $this->validate( $request, $rules );
+        $phone->edit( $request->all() );
+        return redirect()->route( 'providers.edit', $provider->id )
+            ->with( 'success', 'Номер успешно отредактирован' );
+
+    }
+
     public function buildings ( Request $request, $id )
     {
 

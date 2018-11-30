@@ -152,3 +152,14 @@ body {
     font-size: 12px !important;
     vertical-align: middle !important;
 }
+
+#user-info {
+    color: #ffffff;
+    position: absolute;
+    right: 30px;
+    top: 15px;
+}
+
+#queues {
+    color: #ffffff;
+}

@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\CommentsTrait;
+use App\Traits\LogsTrait;
 use App\Traits\NormalizeValues;
+use App\Traits\TagsTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\MessageBag;
@@ -11,7 +15,9 @@ use Illuminate\Support\MessageBag;
 class BaseModel extends Model
 {
 
-    use SoftDeletes, NormalizeValues;
+    use SoftDeletes, NormalizeValues, LogsTrait, TagsTrait, CommentsTrait;
+
+    protected $connection = 'eds';
 
     const NOTHING = 0;
     const IGNORE_PROVIDER = 1;
@@ -30,76 +36,10 @@ class BaseModel extends Model
         'id'
     ];
 
-    public function __construct ( array $attributes = [] )
-    {
-        $this->connection = env( 'DB_CONNECTION', 'eds' );
-        parent::__construct( $attributes );
-    }
-
-    public function addComment ( $text )
-    {
-        $comment = Comment::create([
-            'model_id'     	            => $this->id,
-            'model_name'	            => get_class( $this ),
-            'origin_model_id'			=> $this->id,
-            'origin_model_name'		    => get_class( $this ),
-            'text'                      => $text
-        ]);
-        if ( $comment instanceof MessageBag )
-        {
-            return $comment;
-        }
-        $comment->save();
-        $res = $comment->addLog( 'Добавлен комментарий' );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-        return $comment;
-    }
-
-    public function addTag ( $text )
-    {
-        $tag = Tag::create([
-            'model_id'     	=> $this->id,
-            'model_name'	=> get_class( $this ),
-            'text'          => $text
-        ]);
-        if ( $tag instanceof MessageBag )
-        {
-            return $tag;
-        }
-        $tag->save();
-        $res = $tag->addLog( 'Добавлен тег' );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-        return $tag;
-    }
-
-    public function comments ()
-    {
-        return $this->hasMany( 'App\Models\Comment', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
-    public function tags ()
-    {
-        return $this->hasMany( 'App\Models\Tag', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
-    public function logs ()
-    {
-        return $this->hasMany( 'App\Models\Log', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
-    }
-
     public function files ()
     {
         return $this->hasMany( 'App\Models\File', 'model_id' )
-            ->where( 'model_name', '=', get_class( $this ) );
+            ->where( 'model_name', '=', static::class );
     }
 
     public function parent ()
@@ -110,7 +50,6 @@ class BaseModel extends Model
 
     public function parentOriginal ()
     {
-        if ( ! Schema::hasColumn( $this->getTable(), 'origin_model_name' ) ) return null;
         return $this->belongsTo( $this->origin_model_name, 'origin_model_id' );
     }
 
@@ -178,44 +117,6 @@ class BaseModel extends Model
         $this->fill( $attributes );
         $this->save();
         return $this;
-    }
-
-    public function saveLogs ( array $newValues = [] )
-    {
-        $oldValues = $this->getAttributes();
-        foreach ( $newValues as $field => $val )
-        {
-            if ( ! isset( $oldValues[ $field ] ) || $oldValues[ $field ] == $val || in_array( $field, $this->guarded ) ) continue;
-            $log = $this->saveLog( $field, $oldValues[ $field ], $val );
-            if ( $log instanceof MessageBag )
-            {
-                return $log;
-            }
-        }
-    }
-
-    public function saveLog ( $field, $oldValue, $newValue )
-    {
-        $log = $this->addLog( '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"' );
-        if ( $log instanceof MessageBag )
-        {
-            return $log;
-        }
-    }
-
-    public function addLog ( $text, $author_id = null )
-    {
-        $log = Log::create([
-            'author_id'     => $author_id,
-            'model_id'      => $this->id,
-            'model_name'    => static::class,
-            'text'          => $text,
-        ]);
-        if ( $log instanceof MessageBag )
-        {
-            return $log;
-        }
-        $log->save();
     }
 
     public function canComment ()

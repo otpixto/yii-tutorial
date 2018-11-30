@@ -42,8 +42,14 @@ class CommentsController extends Controller
 	
 	public function store ( Request $request )
     {
+
+        $rules = [
+            'model_id'      => 'required|integer',
+            'model_name'    => 'required',
+            'text'          => 'required|max:1000',
+        ];
         
-		$this->validate( $request, Comment::$rules );
+		$this->validate( $request, $rules );
 
         $comment = Comment::create( $request->all() );
         $comment->save();

@@ -703,7 +703,7 @@ class ManagementsController extends BaseController
                     $segmentsIds += $segmentChilds->ids;
                 }
                 $buildings = Building
-                    ::mine()
+                    ::mine( Building::IGNORE_MANAGEMENT )
                     ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
                 if ( ! empty( $request->get( 'type_id' ) ) )
                 {

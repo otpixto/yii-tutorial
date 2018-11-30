@@ -23,20 +23,23 @@ class Devices
     {
         $ticket = $ticketManagement->ticket;
         $info = [
-            'id'            => $ticket->id,
-            'id2'           => $ticketManagement->id,
+            'number'        => (int) $ticket->id,
+            'id'            => (int) $ticketManagement->id,
             'status_code'   => $ticketManagement->status_code,
             'status_name'   => $ticketManagement->status_name,
             'address'       => $ticket->getAddress( true ),
+            'lon'           => (float) $ticket->building->lon,
+            'lat'           => (float) $ticket->building->lat,
             'fullname'      => $ticket->getName(),
             'category'      => $ticket->type->category->name ?? null,
             'type'          => $ticket->type->name,
+            'need_act'      => $ticketManagement->needAct(),
             'text'          => $ticket->text,
             'phone'         => $ticket->phone,
             'phone2'        => $ticket->phone2,
             'operator'      => [
                 'fullname'  => $ticket->author->getName(),
-                'exten'     => $ticket->author->exten
+                'number'     => $ticket->author->number
             ],
             'comments'      => [],
             'scheduled_begin'   => $ticketManagement->scheduled_begin->timestamp ?? null,
@@ -46,7 +49,7 @@ class Devices
         {
             $info[ 'comments' ][] = [
                 'author'    => $comment->author->getName(),
-                'datetime'  => $comment->created_at->format( 'd.m.Y H:i' ),
+                'datetime'  => $comment->created_at->timestamp,
                 'text'      => $comment->text
             ];
         }

@@ -60,19 +60,19 @@ class ProfileController extends Controller
 
         $asterisk = new Asterisk();
         $queue = $asterisk->queue( \Auth::user()->openPhoneSession->provider->queue );
-        $exten = \Auth::user()->exten;
+        $number = \Auth::user()->number;
 
-        if ( ! isset( $queue[ 'list' ][ $exten ] ) )
+        if ( ! isset( $queue[ 'list' ][ $number ] ) )
         {
             return 'ERROR: Телефон не авторизован';
         }
 
-        if ( ! $queue[ 'list' ][ $exten ][ 'isFree' ] )
+        if ( ! $queue[ 'list' ][ $number ][ 'isFree' ] )
         {
             return 'ERROR: Занято';
         }
 
-        if ( $asterisk->redirect( $channel, $exten, 'outgoing' ) )
+        if ( $asterisk->redirect( $channel, $number, 'outgoing' ) )
         {
             return 'SUCCESS: Переадресация прошла успешно';
         }
@@ -85,7 +85,7 @@ class ProfileController extends Controller
 
     public function getPhone ()
     {
-        if ( ! \Auth::user()->exten )
+        if ( ! \Auth::user()->number )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -95,7 +95,7 @@ class ProfileController extends Controller
 
     public function getPhoneReg ()
     {
-        if ( \Auth::user()->exten )
+        if ( \Auth::user()->number )
         {
             return redirect()->route( 'profile.phone' );
         }
@@ -110,13 +110,13 @@ class ProfileController extends Controller
 
     public function postPhoneReg ( Request $request )
     {
-        if ( \Auth::user()->exten )
+        if ( \Auth::user()->number )
         {
             return redirect()->route( 'profile.phone' );
         }
         $rules = [
             'provider_id'   => 'nullable|integer',
-            'number'        => 'required|min:2|max:4',
+            'number'        => 'required|min:2|max:10',
         ];
         $this->validate( $request, $rules );
         $providers = Provider::mine()->get();

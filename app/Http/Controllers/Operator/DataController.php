@@ -143,17 +143,13 @@ class DataController extends BaseController
                         'works' => []
                     ];
                 }
-                $management = $r->management->name;
-                if ( $r->management->parent )
-                {
-                    $management = $r->management->parent->name . ' ' . $management;
-                }
-                $executor = $r->executor ? $r->executor->name : null;
+                $managements = $r->managements()->mine()->get()->implode( 'name', '; ' );
+                $executors = $r->executors()->mine()->get()->implode( 'name', '; ' );
                 $data[ $building->id ][ 'works' ][] = [
                     'id'                => $r->id,
                     'url'               => route( 'works.show', $r->id ),
-                    'management'        => $management,
-                    'executor'          => $executor,
+                    'management'        => $managements,
+                    'executor'          => $executors,
                     'composition'       => $r->composition,
                     'category'          => $r->category->name,
                     'time_end'          => $r->time_end->format( 'd.m.Y H:i' ),

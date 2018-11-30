@@ -5,6 +5,7 @@ namespace App\Http\Controllers\External;
 use App\Classes\Asterisk;
 use App\Models\PhoneSession;
 use App\Models\Ticket;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -19,9 +20,27 @@ class AsteriskController extends BaseController
         parent::__construct();
     }
 
-    public function queues ()
+    public function queues ( $queue = null )
     {
-        return $this->asterisk->queues( true );
+        return $queue ? $this->asterisk->queue( $queue ) : $this->asterisk->queues( true );
+    }
+
+    public function queuesView ( $queue )
+    {
+        $states = $this->asterisk->queue( $queue );
+		$numbers = array_keys( $states[ 'list' ] );
+		if ( count( $numbers ) )
+		{
+			$users = User
+				::whereIn( 'number', array_keys( $states[ 'list' ] ) )
+				->get();
+			foreach ( $states[ 'list' ] as $number => & $state )
+			{
+				$state[ 'operator' ] = $users->where( 'number', $number )->first();
+			}
+		}
+        return view( 'asterisk.list' )
+            ->with( 'states', $states );
     }
 
     public function remove ( $number )
@@ -49,6 +68,8 @@ class AsteriskController extends BaseController
 
         if ( ! $ticket || ! $ticket->canCall() || ! \Auth::user()->openPhoneSession || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
 
+        $number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
+
         $ticketCall = $ticket->createCall( $phone );
 
         if ( $ticketCall instanceof MessageBag )
@@ -58,7 +79,7 @@ class AsteriskController extends BaseController
 
         sleep( 1 );
 
-        if ( ! $this->asterisk->connectTwo( \Auth::user()->openPhoneSession->number, $phone, $ticketCall->id ) )
+        if ( ! $this->asterisk->originate( $number, $phone, $ticketCall->id ) )
         {
             dd( $this->asterisk->last_result );
         }

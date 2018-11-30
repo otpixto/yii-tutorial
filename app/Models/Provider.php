@@ -28,6 +28,7 @@ class Provider extends BaseModel
         'password',
         'name',
         'domain',
+        'need_act',
     ];
 
     public function phones ()
@@ -100,28 +101,40 @@ class Provider extends BaseModel
 
     public static function create ( array $attributes = [] )
     {
-        $region = parent::create( $attributes );
-        return $region;
+        if ( ! isset( $attributes[ 'need_act' ] ) )
+        {
+            $attributes[ 'need_act' ] = 0;
+        }
+        $provider = parent::create( $attributes );
+        return $provider;
     }
 
     public function edit ( array $attributes = [] )
     {
-        $region = parent::edit( $attributes );
-        return $region;
+        if ( ! isset( $attributes[ 'need_act' ] ) )
+        {
+            $attributes[ 'need_act' ] = 0;
+        }
+        $provider = parent::edit( $attributes );
+        return $provider;
     }
 
-    public function addPhone ( $phone )
+    public function addPhone ( array $attributes = [] )
     {
-        $attributes = [
-            'provider_id'       => $this->id,
-            'phone'             => $phone
-        ];
+        self::normalizeValues( $attributes );
+        $old = ProviderPhone::where( 'phone', '=', $attributes[ 'phone' ] )->first();
+        if ( $old )
+        {
+            return new MessageBag( [ 'Номер "' . $old->phone . '" уже есть в базе данных' ] );
+        }
+        $attributes[ 'provider_id' ] = $this->id;
         $providerPhone = ProviderPhone::create( $attributes );
         if ( $providerPhone instanceof MessageBag )
         {
             return $providerPhone;
         }
-        $this->addLog( 'Добавлен телефон "' . $phone . '"' );
+        $this->addLog( 'Добавлен телефон "' . $providerPhone->phone . '"' );
+        $providerPhone->save();
         return $providerPhone;
     }
 

@@ -5,32 +5,32 @@ namespace App\Classes;
 
 class Asterisk
 {
-
-    private $asterisk_host;
-    private $asterisk_port;
-    private $asterisk_user;
-    private $asterisk_pass;
+	
+	private $config = [
+		'ip' 		=> 'localhost',
+		'post' 		=> '5038',
+		'user' 		=> 'asterisk',
+		'pass' 		=> 'asterisk',
+	];
 
     private $socket = false;
     private $auth = false;
 
-    private $size = 3000;
-    private $timeout = 10;
+    const LENGTH = 4096;
+    const TIMEOUT = 5;
+	const EOL = "\r\n";
 
     public $last_result = null;
 
-    public function __construct ()
+    public function __construct ( array $config = [] )
     {
-        $this->asterisk_host = \Config( 'asterisk.ip' );
-        $this->asterisk_port = \Config( 'asterisk.port' );
-        $this->asterisk_user = \Config( 'asterisk.user' );
-        $this->asterisk_pass = \Config( 'asterisk.pass' );
+        $this->config = config( 'asterisk' );
         return $this->connect();
     }
 
     private function connect ( $autologin = true )
     {
-        $this->socket = fsockopen( $this->asterisk_host, $this->asterisk_port, $errno, $errstr, $this->timeout );
+        $this->socket = fsockopen( $this->config[ 'ip' ], $this->config[ 'port' ], $errno, $errstr, self::TIMEOUT );
         return $autologin ? $this->login() : ( $this->socket ? true : false );
     }
 
@@ -39,13 +39,10 @@ class Asterisk
 
         if ( ! $this->socket ) return false;
 
-        // Пропускаем приветствие
-        $this->read();
-
-        $packet = 'Action: login' . PHP_EOL;
-        $packet .= 'Username: ' . $this->asterisk_user . PHP_EOL;
-        $packet .= 'Secret: ' . $this->asterisk_pass . PHP_EOL;
-        $packet .= 'Events: off' . PHP_EOL . PHP_EOL;
+        $packet = 'Action: login' . self::EOL;
+        $packet .= 'Username: ' . $this->config[ 'user' ] . self::EOL;
+        $packet .= 'Secret: ' . $this->config[ 'pass' ] . self::EOL;
+        $packet .= 'Events: off' . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -58,17 +55,30 @@ class Asterisk
     private function logout ()
     {
         if ( ! $this->auth ) return false;
-        $packet = 'Action: logoff' . PHP_EOL . PHP_EOL;
+        $packet = 'Action: logoff' . self::EOL . self::EOL;
         $this->write( $packet );
         $this->auth = false;
     }
 
     private function read ()
     {
-        usleep( 500000 ); //полсекунды
-        $result = fread( $this->socket, $this->size );
-        $this->last_result = $result;
-        return $result;
+		$this->last_result = '';
+		$result = '';
+		while ( ! feof( $this->socket ) )
+		{
+			$line = fgets( $this->socket, self::LENGTH );
+			$status = socket_get_status( $this->socket );
+			if ( $line == self::EOL && ! $status[ 'unread_bytes' ] )
+			{
+				break;
+			}
+			else
+			{
+				$result .= $line;
+			}
+		}
+		$this->last_result = trim( $result );
+        return $this->last_result;
     }
 
     private function write ( $packet )
@@ -83,68 +93,49 @@ class Asterisk
         return ! empty( $result ) && preg_match( '/response: success/i', $result ) ? true : false;
     }
 
-    /*
-    Exten: Название екстеншена, статус которого проверяем.
-    Context: Контекст, где находиться екстеншен.
-    ActionID: Необязательный ID команды, который будет возвращен в ответе.
-    */
-
     public function status ( $channel )
     {
 
         if ( ! $this->auth ) return false;
 
-        $packet = 'Action: Status' . PHP_EOL;
-        $packet .= 'Channel: ' . $channel . PHP_EOL . PHP_EOL;
+        $packet = 'Action: Status' . self::EOL;
+        $packet .= 'Channel: ' . $channel . self::EOL . self::EOL;
 
         $result = $this->write( $packet );
 
         return $result;
 
     }
-
-    /*
-    number - номер для вызова
-    callerId - отображаемых номер
-    */
-
-    public function originate ( $exten, $number, $callerId = null, $priority = 1 )
+	
+    public function originate ( $number_from, $number_to, $callerId = null, $priority = 1 )
     {
 
         if ( ! $this->auth ) return false;
 
-        $context = $this->getContext( $number );
+        $exten = $this->prepareNumber( $number_from );
+        $channel = $this->prepareChannel( $number_to );
+        //$context = $this->getContext( $number_to );
+		$context = 'outgoing';
+		
+		//dd( $exten, $channel, $context );
 
-        $number = $this->prepareNumber( $number );
-        $channel = $this->prepareChannel( $number );
+        $packet = 'Action: originate' . self::EOL;
+        $packet .= 'Channel: ' . $channel . self::EOL;
+        $packet .= 'Context: ' . $context . self::EOL;
+        $packet .= 'Exten: ' . $exten . self::EOL;
+        $packet .= 'Priority: ' . $priority . self::EOL;
+        $packet .= 'Async: true' . self::EOL;
 
-        $packet = 'Action: originate' . PHP_EOL;
-        $packet .= 'Channel: ' . $channel . PHP_EOL;
-        $packet .= 'MaxRetries: 1' . PHP_EOL;
-        $packet .= 'Context: ' . $context . PHP_EOL;
-        $packet .= 'Exten: ' . $number . PHP_EOL;
-        $packet .= 'Priority: ' . $priority . PHP_EOL;
-        $packet .= 'Async: true' . PHP_EOL;
-
-        if ( !is_null( $callerId ) )
+        if ( ! is_null( $callerId ) )
         {
-            $packet .= 'CallerID: ' . $callerId . PHP_EOL;
+            $packet .= 'CallerID: ' . $callerId . self::EOL;
         }
 
-        $packet .= PHP_EOL;
+        $packet .= self::EOL;
 
         $this->write( $packet );
 
         return $this->isSuccess();
-
-    }
-
-    public function connectTwo ( $number1, $number2 )
-    {
-
-        if ( ! $this->auth ) return false;
-
-        return ( $this->originate( $number1, $number2 ) && $this->originate( $number2, $number1 ) && $this->bridge( $number1, $number2 ) );
 
     }
 
@@ -156,8 +147,8 @@ class Asterisk
         $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
 
-        $packet = 'Action: hangup' . PHP_EOL;
-        $packet .= 'Channel: ' . $channel . PHP_EOL . PHP_EOL;
+        $packet = 'Action: hangup' . self::EOL;
+        $packet .= 'Channel: ' . $channel . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -165,19 +156,14 @@ class Asterisk
 
     }
 
-    public function bridge ( $number1, $number2 )
+    public function bridge ( $channel1, $channel2 )
     {
 
         if ( ! $this->auth ) return false;
 
-        $number1 = $this->prepareNumber( $number1 );
-        $number2 = $this->prepareNumber( $number2 );
-        $channel1 = $this->prepareChannel( $number1 );
-        $channel2 = $this->prepareChannel( $number2 );
-
-        $packet = 'Action: bridge' . PHP_EOL;
-        $packet .= 'Channel1: ' . $channel1 . PHP_EOL;
-        $packet .= 'Channel2: ' . $channel2 . PHP_EOL . PHP_EOL;
+        $packet = 'Action: bridge' . self::EOL;
+        $packet .= 'Channel1: ' . $channel1 . self::EOL;
+        $packet .= 'Channel2: ' . $channel2 . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -201,11 +187,11 @@ class Asterisk
             $queue = \Config::get( 'asterisk.queue' );
         }
 
-        $packet = 'Action: QueueAdd' . PHP_EOL;
-        $packet .= 'Queue: ' . $queue . PHP_EOL;
-        $packet .= 'Interface: ' . $channel . PHP_EOL;
-        $packet .= 'Penalty: ' . $penalty . PHP_EOL;
-        $packet .= 'Paused: ' . $paused . PHP_EOL . PHP_EOL;
+        $packet = 'Action: QueueAdd' . self::EOL;
+        $packet .= 'Queue: ' . $queue . self::EOL;
+        $packet .= 'Interface: ' . $channel . self::EOL;
+        $packet .= 'Penalty: ' . $penalty . self::EOL;
+        $packet .= 'Paused: ' . $paused . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -226,9 +212,9 @@ class Asterisk
             $queue = \Config::get( 'asterisk.queue' );
         }
 
-        $packet = 'Action: QueueRemove' . PHP_EOL;
-        $packet .= 'Queue: ' . $queue . PHP_EOL;
-        $packet .= 'Interface: ' . $channel . PHP_EOL . PHP_EOL;
+        $packet = 'Action: QueueRemove' . self::EOL;
+        $packet .= 'Queue: ' . $queue . self::EOL;
+        $packet .= 'Interface: ' . $channel . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -236,16 +222,11 @@ class Asterisk
 
     }
 
-    /*
-     * return Array
-     * list = [ penalty, isBusy ]
-     */
-
     public function queues ( $parse = false )
     {
         if ( ! $this->auth ) return false;
-        $packet = 'Action: Queues' . PHP_EOL . PHP_EOL;
-        $result = trim( $this->write( $packet ) );
+        $packet = 'Action: Queues' . self::EOL . self::EOL;
+        $result = $this->write( $packet );
         if ( ! $parse )
         {
             return $result;
@@ -295,11 +276,11 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $packet = 'Action: redirect' . PHP_EOL;
-        $packet .= 'Channel: ' . $channel . PHP_EOL;
-        $packet .= 'Context: ' . $context . PHP_EOL;
-        $packet .= 'Exten: ' . $exten . PHP_EOL;
-        $packet .= 'Priority: ' . $priority . PHP_EOL . PHP_EOL;
+        $packet = 'Action: redirect' . self::EOL;
+        $packet .= 'Channel: ' . $channel . self::EOL;
+        $packet .= 'Context: ' . $context . self::EOL;
+        $packet .= 'Exten: ' . $exten . self::EOL;
+        $packet .= 'Priority: ' . $priority . self::EOL . self::EOL;
 
         $this->write( $packet );
 
@@ -312,9 +293,9 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $packet = 'Action: ExtensionState' . PHP_EOL;
-        $packet .= 'Context: ' . $context . PHP_EOL;
-        $packet .= 'Exten: ' . $exten . PHP_EOL . PHP_EOL;
+        $packet = 'Action: ExtensionState' . self::EOL;
+        $packet .= 'Context: ' . $context . self::EOL;
+        $packet .= 'Exten: ' . $exten . self::EOL . self::EOL;
 
         $result = $this->write( $packet );
 
@@ -324,6 +305,7 @@ class Asterisk
 
     public function prepareNumber ( $number )
     {
+        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         if ( mb_strlen( $number ) >= 10 )
         {
             $number = '98' . mb_substr( $number, -10 );
@@ -333,15 +315,16 @@ class Asterisk
 
     public function prepareChannel ( $number )
     {
-        $channel = mb_strlen( $number ) >= 10 ? 'LOCAL/' . $number . '@outgoing' : 'SIP/' . $number;
+        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
+        $channel = mb_strlen( $number ) >= 10 ? 'SIP/' . $number . '@m9295070506' : 'SIP/' . $number;
         return $channel;
     }
 
     public function getContext ( $number )
     {
-        //$context = mb_strlen( $number ) >= 10 ? 'outgoing' : 'default';
-        //return $context;
-        return 'default';
+        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
+        $context = mb_strlen( $number ) >= 10 ? 'incoming' : 'default';
+        return $context;
     }
 
     public function __destruct ()
