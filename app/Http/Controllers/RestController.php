@@ -79,6 +79,8 @@ class RestController extends Controller
         {
             return $this->error( 106 );
         }
+		$phoneSession->user->number = $phoneSession->number;
+		$phoneSession->user->save();
         \DB::commit();
         return $this->success();
     }
