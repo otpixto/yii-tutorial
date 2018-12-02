@@ -27,7 +27,7 @@ class SessionGuardExtended extends SessionGuard
         $user = $this->user();
         if ( $user )
         {
-            $log = $user->addLog( 'Выход из системы с IP ' . \Input::ip() . ' Host ' . \Input::getHost() );
+            $log = $user->addLog( 'Вышел из системы' );
             if ( $log instanceof MessageBag )
             {
                 return redirect()->back()->withErrors( $log );
