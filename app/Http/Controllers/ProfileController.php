@@ -133,13 +133,14 @@ class ProfileController extends Controller
         {
             return redirect()->back()->withInput()->withErrors( [ 'Выберите провайдера' ] );
         }
-
         $phoneAuth = UserPhoneAuth::create( $attributes );
         if ( $phoneAuth instanceof MessageBag )
         {
             return redirect()->back()->withErrors( $phoneAuth );
         }
         $phoneAuth->save();
+		\Auth::user()->number = $phoneAuth->number;
+		\Auth::user()->save();
         return view( 'profile.phone_confirm' )
             ->with( 'phoneAuth', $phoneAuth );
     }
