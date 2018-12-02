@@ -8,6 +8,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use Iphome\Permission\Exceptions\PermissionDoesNotExist;
 
 class RolesController extends BaseController
 {
@@ -146,7 +147,17 @@ class RolesController extends BaseController
                 ->withErrors( [ 'Роль не найдена' ] );
         }
 
-        $role->syncPermissions( $request->get( 'perms', [] ) );
+		try
+		{
+			\DB::beginTransaction();
+			$role->syncPermissions( $request->get( 'perms', [] ) );
+			\DB::commit();
+		}
+		catch ( PermissionDoesNotExist $e )
+		{
+			\DB::rollback();
+			return redirect()->back()->withErrors( [ $e->getMessage() ] );
+		}
 
         $this->clearCache( 'users' );
 
