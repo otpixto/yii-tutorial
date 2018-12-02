@@ -112,7 +112,7 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $exten = $number_from;
+        $exten = $this->prepareNumber( $number_from );
         $channel = $this->prepareChannel( $number_to );
         $context = $this->getContext( $number_to );
 		
@@ -305,7 +305,7 @@ class Asterisk
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         if ( mb_strlen( $number ) >= 10 )
         {
-            $number = '+7' . mb_substr( $number, -10 );
+            $number = '98' . mb_substr( $number, -10 );
         }
         return $number;
     }
@@ -313,7 +313,7 @@ class Asterisk
     public function prepareChannel ( $number )
     {
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        $channel = mb_strlen( $number ) >= 10 ? 'SIP/' . $number . '@m9295070506' : 'SIP/' . $number;
+        $channel = mb_strlen( $number ) >= 10 ? 'LOCAL/+7' . $number . '@m9295070506' : 'SIP/' . $number;
         return $channel;
     }
 
