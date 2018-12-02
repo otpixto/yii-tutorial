@@ -107,14 +107,14 @@ class Asterisk
 
     }
 	
-    public function originate ( $number_from, $number_to, $callerId = null, $priority = 1 )
+    public function originate ( $context, $number_from, $number_to, $callerId = null, $priority = 1 )
     {
 
         if ( ! $this->auth ) return false;
 
-        $exten = $this->prepareNumber( $number_from );
+        //$exten = $this->prepareNumber( $number_from );
+		$exten = $number_from;
         $channel = $this->prepareChannel( $number_to );
-        $context = $this->getContext( $number_to );
 		
         $packet = 'Action: originate' . self::EOL;
         $packet .= 'Channel: ' . $channel . self::EOL;
@@ -173,7 +173,6 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
 
         $penalty = 1;
@@ -181,7 +180,7 @@ class Asterisk
 
         if ( is_null( $queue ) )
         {
-            $queue = \Config::get( 'asterisk.queue' );
+            $queue = config( 'asterisk.queue' );
         }
 
         $packet = 'Action: QueueAdd' . self::EOL;
@@ -201,12 +200,11 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
 
         if ( is_null( $queue ) )
         {
-            $queue = \Config::get( 'asterisk.queue' );
+            $queue = config( 'asterisk.queue' );
         }
 
         $packet = 'Action: QueueRemove' . self::EOL;
@@ -313,15 +311,8 @@ class Asterisk
     public function prepareChannel ( $number )
     {
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        $channel = mb_strlen( $number ) >= 10 ? 'LOCAL/+7' . $number . '@m9295070506' : 'SIP/' . $number;
+        $channel = mb_strlen( $number ) >= 10 ? 'SIP/98' . $number . '@m9295070506' : 'SIP/' . $number;
         return $channel;
-    }
-
-    public function getContext ( $number )
-    {
-        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        $context = mb_strlen( $number ) >= 10 ? 'outgoing' : 'default';
-        return $context;
     }
 
     public function __destruct ()
