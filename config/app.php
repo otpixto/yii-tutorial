@@ -12,6 +12,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
+    'version' => env('APP_VERSION', 'v2.0' ),
     'name' => env('APP_NAME', 'ЕДС ЖУКОВСКИЙ' ),
     'author' => env('APP_AUTHOR', 'Дмитрий Скабелин' ),
 
