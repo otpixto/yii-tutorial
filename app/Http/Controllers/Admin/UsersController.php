@@ -7,10 +7,10 @@ use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\User;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use Iphome\Permission\Models\Permission;
-use Iphome\Permission\Models\Role;
 
 class UsersController extends BaseController
 {
