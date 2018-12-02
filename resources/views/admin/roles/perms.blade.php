@@ -86,7 +86,7 @@
                             $.each( data.selected, function ( i, code )
                             {
                                 $( '#perms-results' ).append(
-                                    $( '<input type="hidden" name="perms[]">' ).val( code )
+                                    $( '<input type="hidden" name="perms[]">' ).val( code.replace( 'permission-', '' ) )
                                 );
                             });
                         })
