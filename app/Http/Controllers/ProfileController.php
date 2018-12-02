@@ -91,7 +91,7 @@ class ProfileController extends Controller
 
     public function getPhone ()
     {
-        if ( ! \Auth::user()->number )
+        if ( ! \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone_reg' );
         }
@@ -101,7 +101,7 @@ class ProfileController extends Controller
 
     public function getPhoneReg ()
     {
-        if ( \Auth::user()->number )
+        if ( \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone' );
         }
@@ -116,7 +116,7 @@ class ProfileController extends Controller
 
     public function postPhoneReg ( Request $request )
     {
-        if ( \Auth::user()->number )
+        if ( \Auth::user()->openPhoneSession )
         {
             return redirect()->route( 'profile.phone' );
         }
