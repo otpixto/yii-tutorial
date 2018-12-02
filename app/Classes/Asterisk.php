@@ -244,7 +244,15 @@ class Asterisk
             for ( $i = 0; $i < $count; $i ++ )
             {
                 $isFree = preg_match( '/not\ in\ use/i', $matches[ 6 ][ $i ] );
-				$number = mb_substr( $matches[ 2 ][ $i ], -10 );
+				if ( ! empty( $matches[ 3 ][ $i ] ) )
+				{
+					$number_exp = explode( '@', $matches[ 3 ][ $i ] );
+					$number = mb_substr( $number_exp[ 0 ], -10 );
+				}
+				else
+				{
+					$number = mb_substr( $matches[ 2 ][ $i ], -10 );
+				}
                 $data[ $queue ][ 'list' ][ $number ] = [
                     'penalty' => (int) $matches[ 4 ][ $i ],
                     'isFree' => $isFree ? 1 : 0

@@ -70,7 +70,7 @@ class ProfileController extends Controller
 
         if ( ! isset( $queue[ 'list' ][ $number ] ) )
         {
-            return 'ERROR: Телефон не авторизован';
+            return 'ERROR: Телефон не найден в очереди';
         }
 
         if ( ! $queue[ 'list' ][ $number ][ 'isFree' ] )
