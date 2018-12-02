@@ -112,13 +112,10 @@ class Asterisk
 
         if ( ! $this->auth ) return false;
 
-        $exten = $this->prepareNumber( $number_from );
+        $exten = $number_from;
         $channel = $this->prepareChannel( $number_to );
-        //$context = $this->getContext( $number_to );
-		$context = 'outgoing';
+        $context = $this->getContext( $number_to );
 		
-		//dd( $exten, $channel, $context );
-
         $packet = 'Action: originate' . self::EOL;
         $packet .= 'Channel: ' . $channel . self::EOL;
         $packet .= 'Context: ' . $context . self::EOL;
@@ -308,7 +305,7 @@ class Asterisk
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         if ( mb_strlen( $number ) >= 10 )
         {
-            $number = '98' . mb_substr( $number, -10 );
+            $number = '+7' . mb_substr( $number, -10 );
         }
         return $number;
     }
@@ -323,7 +320,7 @@ class Asterisk
     public function getContext ( $number )
     {
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        $context = mb_strlen( $number ) >= 10 ? 'incoming' : 'default';
+        $context = mb_strlen( $number ) >= 10 ? 'outgoing' : 'default';
         return $context;
     }
 

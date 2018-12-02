@@ -65,10 +65,10 @@ class AsteriskController extends BaseController
 
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
+		
+		$number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
 
-        if ( ! $ticket || ! $ticket->canCall() || ! \Auth::user()->openPhoneSession || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
-
-        $number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
+        if ( ! $ticket || ! $ticket->canCall() || ! $number || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
 
         $ticketCall = $ticket->createCall( $phone );
 
@@ -76,8 +76,6 @@ class AsteriskController extends BaseController
         {
             dd( $ticketCall );
         }
-
-        sleep( 1 );
 
         if ( ! $this->asterisk->originate( $number, $phone, $ticketCall->id ) )
         {

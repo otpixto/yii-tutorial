@@ -35,7 +35,7 @@ class ProfileController extends Controller
         if ( ! $user->providers->count() )
         {
             return redirect()->route( 'users.index' )
-                ->withErrors( [ 'У пользователя нет привязанных регионов' ] );
+                ->withErrors( [ 'У пользователя нет привязанных провайдеров' ] );
         }
         $provider = $user->providers->first();
         $redirect = ( $provider->ssl ? 'https://' : 'http://' ) . $provider->domain;
@@ -60,7 +60,13 @@ class ProfileController extends Controller
 
         $asterisk = new Asterisk();
         $queue = $asterisk->queue( \Auth::user()->openPhoneSession->provider->queue );
-        $number = \Auth::user()->number;
+		
+		if ( ! $queue )
+        {
+            return 'ERROR: Очередь не найдена';
+        }
+		
+        $number = \Auth::user()->openPhoneSession->number;
 
         if ( ! isset( $queue[ 'list' ][ $number ] ) )
         {
