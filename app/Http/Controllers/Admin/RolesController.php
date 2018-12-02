@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Log;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
-use Iphome\Permission\Models\Permission;
-use Iphome\Permission\Models\Role;
 
 class RolesController extends BaseController
 {
@@ -25,10 +25,11 @@ class RolesController extends BaseController
         $guard = $request->get( 'guard', config( 'auth.defaults.guard' ) );
 
         $roles = Role
-            ::where( 'guard', '=', $guard )
+			::mine()
+            ->where( 'guard', '=', $guard )
             ->orderBy( 'code' );
 
-        if ( !empty( $search ) )
+        if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $roles
@@ -63,7 +64,7 @@ class RolesController extends BaseController
 
         Title::add( 'Редактировать роль' );
 
-        $role = Role::find( $id );
+        $role = Role::mine()->find( $id );
 
         if ( ! $role )
         {
@@ -90,7 +91,7 @@ class RolesController extends BaseController
     public function update ( Request $request, $id )
     {
 
-        $role = Role::find( $id );
+        $role = Role::mine()->find( $id );
 
         if ( ! $role )
         {
@@ -118,7 +119,7 @@ class RolesController extends BaseController
 
         Title::add( 'Права доступа' );
 
-        $role = Role::find( $id );
+        $role = Role::mine()->find( $id );
 
         if ( ! $role )
         {
@@ -137,7 +138,7 @@ class RolesController extends BaseController
     public function updatePerms ( Request $request, $id )
     {
 
-        $role = Role::find( $id );
+        $role = Role::mine()->find( $id );
 
         if ( ! $role )
         {
@@ -160,7 +161,6 @@ class RolesController extends BaseController
         $this->validate( $request, Role::getRules() );
 
         $role = Role::create( $request->all() );
-        $role->syncPermissions( $request->get( 'perms', [] ) );
 
         return redirect()->route( 'roles.index' )
             ->with( 'success', 'Роль успешно добавлена' );

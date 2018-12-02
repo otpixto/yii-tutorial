@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Classes\Title;
 use App\Models\Log;
 use App\User;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Iphome\Permission\Models\Permission;
-use Iphome\Permission\Models\Role;
 
 class PermsController extends BaseController
 {
@@ -62,7 +62,8 @@ class PermsController extends BaseController
         Title::add( 'Создать права доступа' );
 
         $roles = Role
-            ::orderBy( 'name' )
+			::mine()
+            ->orderBy( 'name' )
             ->get();
 
         return view('admin.perms.create' )
@@ -228,7 +229,8 @@ class PermsController extends BaseController
         }
 
         $roles = Role
-            ::where( 'guard', '=', $perm->guard )
+			::mine()
+            ->where( 'guard', '=', $perm->guard )
             ->get();
 
         return view('admin.perms.roles' )
@@ -248,7 +250,7 @@ class PermsController extends BaseController
                 ->withErrors( [ 'Права доступа не найдены' ] );
         }
 
-        $roles = Role::all();
+        $roles = Role::mine()->get();
         $selected_roles = $request->get( 'selected_roles', [] );
 
         foreach ( $roles as $role )
@@ -284,8 +286,11 @@ class PermsController extends BaseController
         {
             foreach ( $request[ 'roles' ] as $code )
             {
-                $role = Role::findByCode( $code );
-                $role->givePermissionTo( $perm->code );
+                $role = Role::mine()->findByCode( $code );
+				if ( $role )
+				{
+					$role->givePermissionTo( $perm->code );
+				}
             }
             $this->clearCache( 'users' );
         }
