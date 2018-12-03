@@ -18,7 +18,6 @@
                 </a>
             </div>
         </div>
-        <div class="clearfix"></div>
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <label class="mt-checkbox mt-checkbox-outline">
                 {!! Form::checkbox( 'ids[]', $ticketManagement->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
@@ -29,6 +28,9 @@
         @else
             <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
         @endif
+        <div class="small text-muted">
+            {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
+        </div>
         @if ( $ticketManagement->rate )
             <span class="pull-right">
                 @include( 'tickets.parts.rate', [ 'ticketManagement' => $ticketManagement ] )
