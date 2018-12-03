@@ -161,7 +161,7 @@ class Building extends BaseModel
         {
             return new MessageBag( [ 'Такой адрес уже существует' ] );
         }
-        return parent::edit( $building );
+        return parent::edit( $attributes );
     }
 
     public function scopeMine ( $query, ... $flags )
