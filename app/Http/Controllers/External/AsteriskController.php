@@ -77,7 +77,7 @@ class AsteriskController extends BaseController
             dd( $ticketCall );
         }
 
-        if ( ! $this->asterisk->originate( 'default', $number, $phone, $ticketCall->id ) )
+        if ( ! $this->asterisk->originate( $number, $phone, 'outgoing-autodial', $ticketCall->id ) )
         {
             dd( $this->asterisk->last_result );
         }

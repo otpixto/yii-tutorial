@@ -107,7 +107,7 @@ class Asterisk
 
     }
 	
-    public function originate ( $context, $number_from, $number_to, $callerId = null, $priority = 1 )
+    public function originate ( $number_from, $number_to, $context = 'default', $callerId = null, $priority = 1 )
     {
 
         if ( ! $this->auth ) return false;
@@ -275,10 +275,12 @@ class Asterisk
         return $queues[ $queue ] ?? null;
     }
 
-    public function redirect ( $channel, $exten, $context = 'default', $priority = 1 )
+    public function redirect ( $channel, $number, $context = 'default', $priority = 1 )
     {
 
         if ( ! $this->auth ) return false;
+
+        $exten = $this->prepareNumber( $number );
 
         $packet = 'Action: redirect' . self::EOL;
         $packet .= 'Channel: ' . $channel . self::EOL;
