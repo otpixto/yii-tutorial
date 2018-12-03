@@ -63,21 +63,23 @@ class AsteriskController extends BaseController
     public function call ( Request $request )
     {
 
-        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
+        $number_from = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
+        if ( ! $number_from ) return;
+
+        $number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
+        if ( ! $number_to ) return;
+
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
-		
-		$number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
+        if ( ! $ticket || ! $ticket->canCall() || ( $ticket->phone != $number_to && $ticket->phone2 != $number_to ) ) return;
 
-        if ( ! $ticket || ! $ticket->canCall() || ! $number || ( $ticket->phone != $phone && $ticket->phone2 != $phone ) ) return;
-
-        $ticketCall = $ticket->createCall( $phone );
+        $ticketCall = $ticket->createCall( $number_from, $number_to );
 
         if ( $ticketCall instanceof MessageBag )
         {
             dd( $ticketCall );
         }
 
-        if ( ! $this->asterisk->originate( $number, $phone, 'outgoing-autodial', $ticketCall->id ) )
+        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $ticketCall->id ) )
         {
             dd( $this->asterisk->last_result );
         }

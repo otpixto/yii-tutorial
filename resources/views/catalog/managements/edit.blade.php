@@ -90,22 +90,6 @@
                     </div>
 
                 </div>
-                
-                <div class="form-group">
-                    <div class="col-md-6">
-                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mt-checkbox-list">
-                            <label class="mt-checkbox mt-checkbox-outline">
-                                Требуется акт
-                                {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $management->need_act ) ) !!}
-                                <span></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="form-group">
                     <div class="col-md-6">
@@ -139,50 +123,62 @@
 
         </div>
 
-        @if ( \Auth::user()->can( 'catalog.managements.contract' ) )
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Настройки
+                </h3>
+            </div>
+            <div class="panel-body">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Договор
-                    </h3>
-                </div>
-                <div class="panel-body">
+                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.contract', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-                    {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.contract', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
-                    <div class="form-group">
-                        <div class="col-md-2">
-                            {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control' ] ) !!}
-                        </div>
-                        <div class="col-md-4">
-                            {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
-                        </div>
-                        <div class="col-md-6">
-                            {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
-                            <div class="input-group">
-                                {!! Form::text( 'contract_begin', $management->contract_begin ? $management->contract_begin->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                                <span class="input-group-addon">-</span>
-                                {!! Form::text( 'contract_end', $management->contract_end ? $management->contract_end->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
-                            </div>
+                <div class="form-group">
+                    <div class="col-md-2">
+                        {!! Form::label( 'has_contract', 'Заключен договор', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'has_contract', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'has_contract', $management->has_contract ), [ 'class' => 'form-control' ] ) !!}
+                    </div>
+                    <div class="col-md-4">
+                        {!! Form::label( 'contract_number', 'Номер договора', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'contract_number', $management->contract_number, [ 'class' => 'form-control', 'placeholder' => 'Номер договора' ] ) !!}
+                    </div>
+                    <div class="col-md-6">
+                        {!! Form::label( 'contract_begin', 'Действие договора', [ 'class' => 'control-label' ] ) !!}
+                        <div class="input-group">
+                            {!! Form::text( 'contract_begin', $management->contract_begin ? $management->contract_begin->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ОТ', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
+                            <span class="input-group-addon">-</span>
+                            {!! Form::text( 'contract_end', $management->contract_end ? $management->contract_end->format( 'd.m.Y' ) : '', [ 'class' => 'form-control datepicker', 'placeholder' => 'ДО', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                <div class="form-group">
+                    <div class="col-md-6">
+                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mt-checkbox-list">
+                            <label class="mt-checkbox mt-checkbox-outline">
+                                Требуется акт
+                                {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $management->need_act ) ) !!}
+                                <span></span>
+                            </label>
                         </div>
                     </div>
-
-                    {!! Form::close() !!}
-
                 </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
 
             </div>
 
-        @endif
+        </div>
 
         @if ( \Auth::user()->can( 'catalog.managements.acts' ) )
 

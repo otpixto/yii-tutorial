@@ -1139,16 +1139,14 @@ class Ticket extends BaseModel
 
     }
 
-    public function createCall ( $phone )
+    public function createCall ( $number_from, $number_to )
     {
-        if ( ! \Auth::user()->openPhoneSession ) return;
-        $number = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
         $ticketCall = TicketCall
             ::whereNull( TicketCall::$_table . '.call_id' )
             ->where( TicketCall::$_table . '.author_id', '=', \Auth::user()->id )
             ->where( TicketCall::$_table . '.ticket_id', '=', $this->id )
-            ->where( TicketCall::$_table . '.call_phone', '=', $phone )
-            ->where( TicketCall::$_table . '.agent_number', '=', $number )
+            ->where( TicketCall::$_table . '.call_phone', '=', $number_to )
+            ->where( TicketCall::$_table . '.agent_number', '=', $number_from )
             ->first();
         if ( $ticketCall )
         {
@@ -1158,8 +1156,8 @@ class Ticket extends BaseModel
         {
             $ticketCall = TicketCall::create([
                 'ticket_id'     => $this->id,
-                'call_phone'    => $phone,
-                'agent_number'  => $number
+                'call_phone'    => $number_to,
+                'agent_number'  => $number_from
             ]);
             if ( $ticketCall instanceof MessageBag )
             {

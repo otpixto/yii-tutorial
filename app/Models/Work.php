@@ -246,16 +246,20 @@ class Work extends BaseModel
     public function sendTelegram ( $message = null )
     {
 
-        if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract ) return;
+        if ( ! config( 'telegram.active' ) || empty( $message ) ) return;
 
-        foreach ( $this->management->subscriptions as $subscription )
+        foreach ( $this->managements as $management )
         {
-            \Telegram::sendMessage([
-                'chat_id'                   => $subscription->telegram_id,
-                'text'                      => $message,
-                'parse_mode'                => 'html',
-                'disable_web_page_preview'  => true
-            ]);
+            if ( ! $management->has_contract ) continue;
+            foreach ( $management->subscriptions as $subscription )
+            {
+                \Telegram::sendMessage([
+                    'chat_id'                   => $subscription->telegram_id,
+                    'text'                      => $message,
+                    'parse_mode'                => 'html',
+                    'disable_web_page_preview'  => true
+                ]);
+            }
         }
 
     }

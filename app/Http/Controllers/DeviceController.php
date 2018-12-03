@@ -484,12 +484,22 @@ class DeviceController extends Controller
 		$number_from = mb_substr( preg_replace( '/\D/', '', $request->get( 'source', '' ) ), -10 );
         #$number_to = $ticketManagement->ticket->phone;
 		$number_to = 9647269122;
-		
-		$asterisk = new Asterisk();
-		if ( ! $asterisk->originate( $number_from, $number_to ) )
-		{
-		    return $this->error( $asterisk->last_result );
-		}
+
+		\DB::beginTransaction();
+
+		$ticketCall = $ticketManagement->ticket->createCall( $number_from, $number_to );
+		if ( $ticketCall instanceof MessageBag )
+        {
+            return $this->error( $ticketCall->first() );
+        }
+
+        $asterisk = new Asterisk();
+        if ( ! $asterisk->originate( $number_from, $number_to, 'outgoing-autodial' ) )
+        {
+            return $this->error( $asterisk->last_result );
+        }
+
+        \DB::commit();
 		
 		return $this->success( 'OK' );
 	
@@ -531,9 +541,10 @@ class DeviceController extends Controller
         foreach ( $ticketManagement->ticket->calls as $call )
         {
             $calls[] = [
-                'call_phone' => $call->call_phone,
-                'agent_name' => $call->author->getName(),
-                'agent_number' => $call->agent_number,
+                'datetime' => $call->created_at->timestamp,
+                'fullname' => $call->author->getName(),
+                'number_from' => $call->agent_number,
+                'number_to' => $call->call_phone,
             ];
         }
 

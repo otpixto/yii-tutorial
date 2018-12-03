@@ -45,7 +45,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::post( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
         Route::post( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
         Route::post( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
-        Route::post( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );
+        Route::any( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );
         Route::any( 'call', 'DeviceController@call' )->name( 'devices.call' );
         Route::post( 'position', 'DeviceController@position' )->name( 'devices.position' );
         Route::post( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
