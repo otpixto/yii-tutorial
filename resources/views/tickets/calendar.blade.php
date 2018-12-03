@@ -83,9 +83,9 @@
 
         function parseDate ( date )
         {
-            var d = new Date();
-            d.setTime( Date.parse( date ) );
-            return d;
+            var dt = new Date();
+            dt.setTime( Date.parse( date ) );
+            return dt;
         };
 
         $( document )
@@ -129,17 +129,22 @@
                     $( '#calendar' ).fullCalendar( 'destroy' );
                     $( '#calendar' ).empty();
 
+                    var beginDate = parseDate( response.beginDate );
+                    var endDate = parseDate( response.endDate );
+                    var dt = new Date();
+
                     $( '#calendar' ).fullCalendar({
                         locale: 'ru',
                         eventLimit: true,
+                        firstDay: 1,
                         header: {
                             //left: 'prev,next',
                             center: 'title',
                             right: 'month,agendaWeek,agendaDay'
                         },
                         /*validRange: {
-                            start: response.beginDate,
-                            end: response.endDate
+                            start: beginDate,
+                            end: endDate
                         },*/
                         defaultDate: response.beginDate,
                         editable: false,
@@ -153,7 +158,10 @@
                         events: response.events
                     });
 
-                    $( '#calendar' ).fullCalendar( 'changeView', 'agendaDay', new Date() );
+                    if ( dt.getTime() >= beginDate.getTime() && dt.getTime() < endDate.getTime() )
+                    {
+                        $( '#calendar' ).fullCalendar( 'changeView', 'agendaDay', dt );
+                    }
 
                 });
 

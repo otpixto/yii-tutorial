@@ -2657,8 +2657,8 @@ class TicketsController extends BaseController
     {
         Title::add( 'Календарь' );
         list ( $month, $year ) = explode( '.', $date );
-        $beginDate = Carbon::create( $year, $month, 1 );
-        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth();
+        $beginDate = Carbon::create( $year, $month, 1 )->setTime( 0, 0, 0 )->toDateTimeString();
+        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth()->setTime( 23, 59, 59 )->toDateTimeString();
         $res = Management
             ::mine()
             ->whereHas( 'parent' )
