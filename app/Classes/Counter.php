@@ -135,17 +135,18 @@ class Counter
 
     public static function ticketsCountByStatus ( $status_code, $owner = false )
     {
-        if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code ) )
+        $key = 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code . ( $owner ? '1' : '0' );
+        if ( ! \Cache::tags( 'tickets_counts' )->has( $key ) )
         {
             $count = TicketManagement
                 ::mine( $owner ? TicketManagement::I_AM_OWNER : TicketManagement::NOTHING )
                 ->where( TicketManagement::$_table . '.status_code', '=', $status_code )
                 ->count();
-            \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code, $count, self::$cache_life );
+            \Cache::tags( 'tickets_counts' )->put( $key, $count, self::$cache_life );
         }
         else
         {
-            $count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . $status_code );
+            $count = \Cache::tags( 'tickets_counts' )->get( $key );
         }
         return $count;
     }
