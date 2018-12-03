@@ -1,5 +1,5 @@
 @if ( $works->count() )
-    <table class="table table-hover table-striped table-condensed">
+    <table class="table table-hover table-striped">
         <thead>
         <tr>
             <th>
