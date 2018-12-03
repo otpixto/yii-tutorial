@@ -18,6 +18,7 @@
                 </a>
             </div>
         </div>
+        <div class="clearfix"></div>
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <label class="mt-checkbox mt-checkbox-outline">
                 {!! Form::checkbox( 'ids[]', $ticketManagement->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
