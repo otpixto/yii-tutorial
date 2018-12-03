@@ -108,6 +108,7 @@ class ProfileController extends Controller
         Title::add( 'Регистрация телефона' );
         $providers = Provider
             ::mine()
+            ->current()
             ->orderBy( 'name' )
             ->get();
         return view('profile.phone_reg' )
@@ -125,7 +126,7 @@ class ProfileController extends Controller
             'number'        => 'required|min:2|max:10',
         ];
         $this->validate( $request, $rules );
-        $providers = Provider::mine()->get();
+        $providers = Provider::mine()->current()->get();
         $attributes = $request->all();
         if ( $providers->count() == 1 )
         {
