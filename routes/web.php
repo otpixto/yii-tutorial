@@ -11,10 +11,10 @@ Route::prefix( 'error' )->group( function ()
     Route::any( '500', 'ErrorsController@error500' )->name( 'error.500' );
 });
 
+Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
+
 Route::group( [ 'middleware' => 'api' ], function ()
 {
-
-    Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 
     Route::prefix( 'rest' )->group( function ()
     {
