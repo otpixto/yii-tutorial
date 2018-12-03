@@ -131,16 +131,17 @@ class Building extends BaseModel
     public static function create ( array $attributes = [] )
     {
         $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
-        $address = self
+        $building = self
             ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
             ->where( 'hash', '=', $attributes[ 'hash' ] )
             ->first();
-        if ( $address )
+        if ( $building )
         {
             return new MessageBag( [ 'Такой адрес уже существует' ] );
         }
-        $address = parent::create( $attributes );
-        return $address;
+        $building = parent::create( $attributes );
+        $building->save();
+        return $building;
     }
 
     public function edit ( array $attributes = [] )
@@ -151,16 +152,16 @@ class Building extends BaseModel
             $attributes[ 'date_of_construction' ] = Carbon::parse( $attributes[ 'date_of_construction' ] )->format( 'Y-m-d' );
         }
         $attributes[ 'is_first_floor_living' ] = ! empty( $attributes[ 'is_first_floor_living' ] ) ? 1 : 0;
-        $address = self
+        $building = self
             ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
             ->where( 'hash', '=', $attributes[ 'hash' ] )
             ->where( 'id', '!=', $this->id )
             ->first();
-        if ( $address )
+        if ( $building )
         {
             return new MessageBag( [ 'Такой адрес уже существует' ] );
         }
-        return parent::edit( $attributes );
+        return parent::edit( $building );
     }
 
     public function scopeMine ( $query, ... $flags )

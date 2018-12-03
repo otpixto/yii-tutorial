@@ -133,8 +133,8 @@ class BuildingsController extends BaseController
             'provider_id'           => 'required|integer',
             'segment_id'            => 'required|integer',
             'building_type_id'      => 'required|integer',
-            'guid'                  => 'nullable|unique:buildings,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|unique:buildings,name|max:255',
+            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|max:255',
             'number'                => 'required',
         ];
 
@@ -247,8 +247,8 @@ class BuildingsController extends BaseController
 		$rules = [
             'provider_id'           => 'required|integer',
             'building_type_id'      => 'required|integer',
-            'guid'                  => 'nullable|unique:buildings,guid,' . $building->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|unique:buildings,name,' . $building->id . '|max:255',
+            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|max:255',
             'date_of_construction'  => 'nullable|date',
             'porches_count'         => 'nullable|integer',
             'floor_count'           => 'nullable|integer',
