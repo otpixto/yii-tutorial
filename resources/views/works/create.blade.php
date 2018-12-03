@@ -309,7 +309,7 @@
         {
             var managements = $( '#managements' ).val();
             $( '#executors' ).empty();
-            if ( managements.length )
+            if ( managements )
             {
                 $( '#executor' ).removeClass( 'hidden' );
                 $.get( '{{ route( 'managements.executors.search' ) }}', {
