@@ -418,20 +418,34 @@ function genPassword ( length )
     return text;
 };
 
-function getQueues ( queue )
+function getQueues ( queue, modal )
 {
-    if ( $( '#queues' ).length && ! $( '#queues' ).hasClass( 'loading' ) )
+    if ( modal )
     {
-        $( '#queues' ).addClass( 'loading' );
-        $.getJSON( '/asterisk/queues/' + queue, function ( response )
+        Modal.create( 'asterisk-list', function ()
         {
-            if ( response )
+            Modal.setTitle( 'Очередь звонков' );
+            $.post( '/asterisk/queues/' + queue, function ( response )
             {
-                $( '#queues-count' ).text( response.busy + ' / ' + response.count + ' / ' + response.callers );
-                $( '#queues-info' ).removeClass( 'hidden' );
-                $( '#queues' ).removeClass( 'loading' );
-            }
+                Modal.setBody( response, 'asterisk-list' );
+            });
         });
+    }
+    else
+    {
+        if ( $( '#queues' ).length && ! $( '#queues' ).hasClass( 'loading' ) )
+        {
+            $( '#queues' ).addClass( 'loading' );
+            $.getJSON( '/asterisk/queues/' + queue, function ( response )
+            {
+                if ( response )
+                {
+                    $( '#queues-count' ).text( response.busy + ' / ' + response.count + ' / ' + response.callers );
+                    $( '#queues-info' ).removeClass( 'hidden' );
+                    $( '#queues' ).removeClass( 'loading' );
+                }
+            });
+        }
     }
 };
 
@@ -456,8 +470,6 @@ $( document )
 
 	.ready ( function ()
 	{
-
-        getQueues( 'eds-zhuk' );
 
         $( '.test' ).loading();
 
@@ -518,24 +530,6 @@ $( document )
         });
 
 	})
-
-    .on( 'click', '#queues-info', function ( e )
-    {
-        e.preventDefault();
-        Modal.create( 'asterisk-list', function ()
-        {
-            Modal.setTitle( 'Очередь звонков' );
-            $.post( '/asterisk/queues/eds-zhuk', function ( response )
-            {
-                Modal.setBody( response, 'asterisk-list' );
-            });
-        });
-    })
-
-    .on( 'mouseover', '#queues-info', function ()
-    {
-        getQueues( 'eds-zhuk' );
-    })
 
     .on( 'click', '[data-empty]', function ( e )
     {

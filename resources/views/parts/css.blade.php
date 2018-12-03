@@ -17,9 +17,9 @@
 <link href="/assets/global/plugins/bootstrap-sweetalert/sweetalert.css" rel="stylesheet" type="text/css" />
 <!-- END THEME GLOBAL STYLES -->
 <!-- BEGIN THEME LAYOUT STYLES -->
-<link href="/assets/layouts/layout5/css/layout.css" rel="stylesheet" type="text/css" />
-<link href="/assets/layouts/layout5/css/custom.css" rel="stylesheet" type="text/css" />
-<link href="/assets/global/css/common.css?v8" rel="stylesheet" type="text/css" />
-<link href="/assets/global/css/print.css?v3" rel="stylesheet" type="text/css" media="print" />
+<link href="/assets/layouts/layout5/css/layout.css?v2" rel="stylesheet" type="text/css" />
+<link href="/assets/layouts/layout5/css/custom.css?v2" rel="stylesheet" type="text/css" />
+<link href="/assets/global/css/common.css?v9" rel="stylesheet" type="text/css" />
+<link href="/assets/global/css/print.css?v4" rel="stylesheet" type="text/css" media="print" />
 <!-- END THEME LAYOUT STYLES -->
 @yield( 'css' )
