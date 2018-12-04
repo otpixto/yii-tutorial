@@ -2115,9 +2115,9 @@ class TicketsController extends BaseController
         $this->validate( $request, [
             'executor_id'               => 'required_without:executor_name|nullable|integer',
             'executor_name'             => 'required_without:executor_id|nullable',
-            'scheduled_begin_date'      => 'required|date_format:Y-m-d',
+            'scheduled_begin_date'      => 'required|date|date_format:Y-m-d',
             'scheduled_begin_time'      => 'required|date_format:H:i',
-            'scheduled_end_date'        => 'required|date_format:Y-m-d',
+            'scheduled_end_date'        => 'required|date|date_format:Y-m-d|after_or_equal:scheduled_begin_date',
             'scheduled_end_time'        => 'required|date_format:H:i',
         ]);
 
