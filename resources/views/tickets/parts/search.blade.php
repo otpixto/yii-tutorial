@@ -186,7 +186,7 @@
         </select>
     </div>
 </div>
-@if ( \Auth::user()->can( 'tickets.field_management' ) && count( $availableManagements ) > 1 )
+@if ( \Auth::user()->can( 'tickets.field_management' ) )
     <div class="row margin-top-10">
         <h4 class="col-md-2">
             УО
