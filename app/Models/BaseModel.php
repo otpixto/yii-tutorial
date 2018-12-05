@@ -144,13 +144,17 @@ class BaseModel extends Model
     public function scopeMineProvider ( $query )
     {
         return $query
-            ->whereNull( static::getTable() . '.provider_id' )
-            ->orWhereHas( 'provider', function ( $provider )
-            {
-                return $provider
-                    ->mine()
-                    ->current();
-            });
+			->where( function ( $q )
+			{
+				return $q
+					->whereNull( static::getTable() . '.provider_id' )
+					->orWhereHas( 'provider', function ( $provider )
+					{
+						return $provider
+							->mine()
+							->current();
+					});
+			});
     }
 
 }
