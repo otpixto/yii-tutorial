@@ -99,7 +99,7 @@ socket
                     function ( response )
                     {
                         if ( ! response ) return;
-                        $( response ).addClass( 'new' ).insertAfter( '#tickets-new-message' );
+                        $( response ).addClass( 'new' ).addClass( 'hidden' ).insertAfter( '#tickets-new-message' );
                         var count = $( '#tickets .tickets.new.hidden' ).length;
                         $( '#tickets-new-count' ).text( count );
                         if ( count )
