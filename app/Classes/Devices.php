@@ -38,12 +38,13 @@ class Devices
             'phone'         => $ticket->phone,
             'phone2'        => $ticket->phone2,
             'operator'      => [
-                'fullname'  => $ticket->author->getName(),
-                'number'     => $ticket->author->number
+                'fullname'      => $ticket->author->getName(),
+                'number'        => $ticket->author->number
             ],
-            'comments'      => [],
             'scheduled_begin'   => $ticketManagement->scheduled_begin->timestamp ?? null,
             'scheduled_end'     => $ticketManagement->scheduled_end->timestamp ?? null,
+            'comments'          => [],
+            'calls'             => [],
         ];
         foreach ( $ticket->comments as $comment )
         {
@@ -51,6 +52,15 @@ class Devices
                 'author'    => $comment->author->getName(),
                 'datetime'  => $comment->created_at->timestamp,
                 'text'      => $comment->text
+            ];
+        }
+        foreach ( $ticket->calls as $call )
+        {
+            $info[ 'calls' ][] = [
+                'author'        => $call->author->getName(),
+                'datetime'      => $call->created_at->timestamp,
+                'number_from'   => $call->agent_number,
+                'number_to'     => $call->call_phone,
             ];
         }
         return $info;

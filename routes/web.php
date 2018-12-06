@@ -42,7 +42,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
     {
         //Route::get( '{route}', 'DeviceController@index' );
         Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
-        Route::post( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
+        Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
         Route::post( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
         Route::post( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
         Route::any( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );

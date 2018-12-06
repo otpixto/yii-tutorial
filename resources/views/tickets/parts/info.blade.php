@@ -1,16 +1,3 @@
-{{--<div class="row">
-    <div class="col-xs-12">
-        <div class="text-center h1">
-            {{ $ticketManagement->status_name }}
-            @if ( $ticketManagement->status_code == 'waiting' && $ticket->postponed_to )
-                до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
-            @endif
-        </div>
-        <div class="progress tooltips" title="{{ $ticket->getProgressTitle() . ( $progressPercent >= 100 ? ' (Просрочено)' : '' ) }}">
-            <div class="progress-bar {{ $progressPercent < 100 ? 'progress-bar-warning' : 'progress-bar-danger' }}" role="progressbar" style="width: {{ $progressPercent }}%" aria-valuenow="{{ $progressPercent }}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-    </div>
-</div>--}}
 <div class="row">
     <div class="col-lg-6">
         <div class="status">
@@ -85,6 +72,12 @@
 
     </div>
 </div>
+
+@if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+    <div class="alert alert-warning">
+        {{ $ticketManagement->ticket->postponed_comment }}
+    </div>
+@endif
 
 <ul class="nav nav-tabs margin-top-15 margin-bottom-0">
     <li class="active">
@@ -393,59 +386,6 @@
                     </div>
                 </div>
 
-                {{--<div class="row">
-                    <div class="col-xs-12">
-                        <div class="note note-{{ ( $ticketManagement ?? $ticket )->getClass() }}">
-                            <dl>
-                                <dt>Статус:</dt>
-                                <dd>
-                                    @if ( $ticketManagement )
-                                        @if ( \Auth::user()->can( 'tickets.history' ) )
-                                            <a href="{{ route( 'tickets.history', $ticketManagement->getTicketNumber() ) }}">
-                                                {{ $ticketManagement->status_name }}
-                                            </a>
-                                        @else
-                                            {{ $ticketManagement->status_name }}
-                                        @endif
-                                        @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_to )
-                                            <span class="mark">
-                                            до {{ $ticketManagement->ticket->postponed_to->format( 'd.m.Y' ) }}
-                                        </span>
-                                        @endif
-                                    @else
-                                        {{ $ticket->status_name }}
-                                        @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
-                                            <span class="mark">
-                                            до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
-                                        </span>
-                                        @endif
-                                    @endif
-                                </dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>--}}
-
-                {{--@if ( $ticketManagement )
-                    @if ( $ticketManagement->status_code == 'waiting' && $ticketManagement->ticket->postponed_comment )
-                        <div class="note note-warning">
-                            <dl>
-                                <dt>Комментарий к отложенной заявке:</dt>
-                                <dd>{{ $ticketManagement->ticket->postponed_comment }}</dd>
-                            </dl>
-                        </div>
-                    @endif
-                @else
-                    @if ( $ticket->status_code == 'waiting' && $ticket->postponed_comment )
-                        <div class="note note-warning">
-                            <dl>
-                                <dt>Комментарий отложенной заявки:</dt>
-                                <dd>{{ $ticket->postponed_comment }}</dd>
-                            </dl>
-                        </div>
-                    @endif
-                @endif--}}
-
             </div>
         </div>
 
@@ -489,6 +429,11 @@
                             </div>
                         @endif
                         {{ $ticketManagement->management->name }}
+                        @if ( $ticketManagement->management->building )
+                            <div class="small">
+                                {{ $ticketManagement->management->building->name }}
+                            </div>
+                        @endif
                     </td>
                     <td>
                         @if ( $ticketManagement->executor )

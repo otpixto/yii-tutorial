@@ -180,7 +180,8 @@ class DeviceController extends Controller
                     'ticket.building',
                     'ticket.author',
                     'ticket.type',
-                    'ticket.type.category'
+                    'ticket.type.category',
+                    'ticket.calls'
                 )
                 ->take( 10 )
                 ->get();
@@ -220,7 +221,8 @@ class DeviceController extends Controller
                 'ticket.building',
                 'ticket.author',
                 'ticket.type',
-                'ticket.type.category'
+                'ticket.type.category',
+                'ticket.calls'
             )
             ->get();
 
