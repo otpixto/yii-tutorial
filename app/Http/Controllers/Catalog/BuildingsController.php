@@ -354,6 +354,10 @@ class BuildingsController extends BaseController
                                 'number'            => $room_number,
                             ]);
                         }
+                        if ( $room_number >= $building->room_total_count )
+                        {
+                            break 3;
+                        }
                     }
                 }
             }
