@@ -151,6 +151,24 @@ class Counter
         return $count;
     }
 
+    public static function ticketsCountByStatuses ( ... $statuses )
+    {
+        $key = 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.' . implode( '.', $statuses );
+        if ( ! \Cache::tags( 'tickets_counts' )->has( $key ) )
+        {
+            $count = TicketManagement
+                ::mine()
+                ->whereIn( TicketManagement::$_table . '.status_code', $statuses )
+                ->count();
+            \Cache::tags( 'tickets_counts' )->put( $key, $count, self::$cache_life );
+        }
+        else
+        {
+            $count = \Cache::tags( 'tickets_counts' )->get( $key );
+        }
+        return $count;
+    }
+
     public static function ticketsCreatedCount ()
     {
         if ( is_null( self::$tickets_created_count ) )

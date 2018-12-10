@@ -99,9 +99,9 @@
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
-                    <input type="radio" class="toggle tickets-filter" name="statuses" value="in_process" @if ( $request->get( 'statuses' ) == 'in_process' ) checked @endif>
-                    В РАБОТЕ
-                    ({{ \App\Classes\Counter::ticketsCountByStatus( 'in_process' ) }})
+                    <input type="radio" class="toggle tickets-filter" name="statuses" value="transferred,accepted,assigned,in_process,completed_with_act,completed_without_act" @if ( $request->get( 'statuses' ) == 'transferred,accepted,assigned,in_process,completed_with_act,completed_without_act' ) checked @endif>
+                    НЕЗАВЕРШЕННЫЕ
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'transferred', 'accepted', 'assigned', 'in_process', 'completed_with_act', 'completed_without_act' ) }})
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
