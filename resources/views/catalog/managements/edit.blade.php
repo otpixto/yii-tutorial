@@ -158,13 +158,8 @@
                         {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
                     </div>
                     <div class="col-md-6">
-                        <div class="mt-checkbox-list">
-                            <label class="mt-checkbox mt-checkbox-outline">
-                                Требуется акт
-                                {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $management->need_act ) ) !!}
-                                <span></span>
-                            </label>
-                        </div>
+                        {!! Form::label( 'need_act', 'Требуется акт', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'need_act', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'need_act', $management->need_act ), [ 'class' => 'form-control' ] ) !!}
                     </div>
                 </div>
 

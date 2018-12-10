@@ -181,7 +181,8 @@ class DeviceController extends Controller
                     'ticket.author',
                     'ticket.type',
                     'ticket.type.category',
-                    'ticket.calls'
+                    'ticket.calls',
+                    'ticket.statusesHistory'
                 )
                 ->take( 10 )
                 ->get();
@@ -222,7 +223,8 @@ class DeviceController extends Controller
                 'ticket.author',
                 'ticket.type',
                 'ticket.type.category',
-                'ticket.calls'
+                'ticket.calls',
+                'ticket.statusesHistory'
             )
             ->get();
 
@@ -240,7 +242,9 @@ class DeviceController extends Controller
                 'ticket.building',
                 'ticket.author',
                 'ticket.type',
-                'ticket.type.category'
+                'ticket.type.category',
+                'ticket.calls',
+                'ticket.statusesHistory'
             )
             ->get();
 

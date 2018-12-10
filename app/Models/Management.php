@@ -153,21 +153,6 @@ class Management extends BaseModel
         return $query;
     }
 
-    public static function create ( array $attributes = [] )
-    {
-        $attributes[ 'need_act' ] = ! empty( $attributes[ 'need_act' ] ) ? 1 : 0;
-        $attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
-        $new = parent::create( $attributes );
-        return $new;
-    }
-
-    public function edit ( array $attributes = [] )
-    {
-        $attributes[ 'need_act' ] = ! empty( $attributes[ 'need_act' ] ) ? 1 : 0;
-        $attributes[ 'has_contract' ] = ! empty( $attributes[ 'has_contract' ] ) ? 1 : 0;
-        return parent::edit( $attributes );
-    }
-
     public function addExecutor ( $name, $phone = null )
     {
         if ( ! empty( $phone ) )

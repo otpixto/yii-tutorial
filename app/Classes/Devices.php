@@ -45,6 +45,7 @@ class Devices
             'scheduled_end'     => $ticketManagement->scheduled_end->timestamp ?? null,
             'comments'          => [],
             'calls'             => [],
+            'history'           => [],
         ];
         foreach ( $ticket->comments as $comment )
         {
@@ -61,6 +62,15 @@ class Devices
                 'datetime'      => $call->created_at->timestamp,
                 'number_from'   => $call->agent_number,
                 'number_to'     => $call->call_phone,
+            ];
+        }
+        foreach ( $ticket->statusesHistory as $statusHistory )
+        {
+            $info[ 'history' ][] = [
+                'author'        => $statusHistory->author->getName(),
+                'datetime'      => $statusHistory->created_at->timestamp,
+                'status_code'   => $statusHistory->status_code,
+                'status_name'   => $statusHistory->status_name,
             ];
         }
         return $info;

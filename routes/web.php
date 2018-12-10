@@ -43,14 +43,14 @@ Route::group( [ 'middleware' => 'api' ], function ()
         //Route::get( '{route}', 'DeviceController@index' );
         Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
         Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
-        Route::post( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
-        Route::post( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
+        Route::any( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
+        Route::any( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
         Route::any( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );
         Route::any( 'call', 'DeviceController@call' )->name( 'devices.call' );
-        Route::post( 'position', 'DeviceController@position' )->name( 'devices.position' );
-        Route::post( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
-        Route::post( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
-        Route::post( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
+        Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
+        Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
+        Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
+        Route::any( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
         Route::get( 'get/phone', 'DeviceController@getPhone' )->name( 'devices.get_phone' );
     });
 
