@@ -320,7 +320,7 @@ class BuildingsController extends BaseController
         {
 
             $rooms_by_floor = ceil( abs( $building->room_total_count / ( $building->is_first_floor_living ? $building->floor_count : $building->floor_count - 1 ) / $building->porches_count ) );
-            $room_number = 1;
+            $room_number = 0;
 
             $buildingRooms = $building->rooms;
 
@@ -349,12 +349,9 @@ class BuildingsController extends BaseController
                         else
                         {
                             $buildingRoom->edit([
-                                'building_id'       => $building->id,
                                 'floor'             => $floor,
                                 'porch'             => $porch,
                                 'number'            => $room_number,
-                                'living_area'       => 0,
-                                'total_area'        => 0,
                             ]);
                         }
                     }
