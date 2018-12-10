@@ -230,7 +230,7 @@
 
                     case '#location':
 
-                        @if ( $ticket->building->lon != -1 && $ticket->building->lat != -1 )
+                        @if ( $ticket->building && $ticket->building->lon != -1 && $ticket->building->lat != -1 )
                             if ( $( '#location-map' ).attr( 'data-init' ) != '1' )
                             {
                                 $( '#location-map' ).attr( 'data-init', '1' );

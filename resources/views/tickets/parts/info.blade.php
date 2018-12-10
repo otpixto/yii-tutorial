@@ -199,8 +199,8 @@
                                     @if ( $ticket->building )
                                         {{ $ticket->getAddress() }}
                                         <span class="small text-muted">
-                                    ({{ $ticket->getPlace() }})
-                                </span>
+                                            ({{ $ticket->getPlace() }})
+                                        </span>
                                     @else
                                         -
                                     @endif
