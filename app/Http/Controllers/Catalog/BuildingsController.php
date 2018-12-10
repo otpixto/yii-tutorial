@@ -332,7 +332,8 @@ class BuildingsController extends BaseController
                     for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
                     {
                         ++ $room_number;
-                        if ( ! $buildingRooms->where( 'number', $room_number )->count() )
+                        $buildingRoom = $buildingRooms->where( 'number', $room_number )->first();
+                        if ( ! $buildingRoom )
                         {
                             $buildingRoom = BuildingRoom
                                 ::create([
@@ -344,6 +345,17 @@ class BuildingsController extends BaseController
                                     'total_area'        => 0,
                                 ]);
                             $buildingRoom->save();
+                        }
+                        else
+                        {
+                            $buildingRoom->edit([
+                                'building_id'       => $building->id,
+                                'floor'             => $floor,
+                                'porch'             => $porch,
+                                'number'            => $room_number,
+                                'living_area'       => 0,
+                                'total_area'        => 0,
+                            ]);
                         }
                     }
                 }
