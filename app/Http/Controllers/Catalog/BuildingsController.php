@@ -331,6 +331,7 @@ class BuildingsController extends BaseController
                     if ( $floor == $building->first_floor_index && ! $building->is_first_floor_living ) continue;
                     for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
                     {
+                        ++ $room_number;
                         if ( ! $buildingRooms->where( 'number', $room_number )->count() )
                         {
                             $buildingRoom = BuildingRoom
@@ -344,7 +345,6 @@ class BuildingsController extends BaseController
                                 ]);
                             $buildingRoom->save();
                         }
-                        $room_number ++;
                     }
                 }
             }
