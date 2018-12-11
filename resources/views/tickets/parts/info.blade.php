@@ -424,7 +424,7 @@
                 <tr>
                     <td>
                         @if ( $ticket->canCall() )
-                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->phone }}">
+                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->management->getPhones() }}">
                                 <i class="fa fa-phone"></i>
                             </button>
                         @endif

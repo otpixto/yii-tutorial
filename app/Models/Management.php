@@ -232,7 +232,7 @@ class Management extends BaseModel
     public function getPhones ( $html = false )
     {
         $phones = '';
-        if ( !empty( $this->phone ) )
+        if ( ! empty( $this->phone ) )
         {
             $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
             if ( $html )
@@ -244,7 +244,7 @@ class Management extends BaseModel
                 $phones .= $phone;
             }
         }
-        if ( !empty( $this->phone2 ) )
+        if ( ! empty( $this->phone2 ) )
         {
             $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
             $phones .= '; ';
