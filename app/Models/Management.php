@@ -235,7 +235,6 @@ class Management extends BaseModel
         if ( ! empty( $this->phone ) )
         {
             $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
-            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
             if ( $html )
             {
                 $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a>';
