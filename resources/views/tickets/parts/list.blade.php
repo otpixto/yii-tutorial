@@ -1,11 +1,15 @@
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-6">
         {{ $ticketManagements->render() }}
     </div>
-    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+    <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
         <span class="label label-info">
             Найдено: <b>{{ $ticketManagements->total() }}</b>
         </span>
+        @if ( \Auth::user()->can( 'tickets.export' ) )
+            |
+            <a href="{{ route( 'tickets.export', Request::getQueryString() ) }}">Выгрузить</a>
+        @endif
     </div>
 </div>
 
