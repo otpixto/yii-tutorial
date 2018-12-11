@@ -138,14 +138,12 @@
             var type_id = $( '#type_id' ).val();
             if ( ! type_id || type_id == '0' )
             {
-                $( '#info-block' ).addClass( 'hidden' );
                 return;
             };
             $.post( '{{ route( 'types.search' ) }}', {
                 type_id: type_id
             }, function ( response )
             {
-                $( '#info-block' ).removeClass( 'hidden' );
                 $( '#period_acceptance' ).text( response.period_acceptance + ' ч.' );
                 $( '#period_execution' ).text( response.period_execution + ' ч.' );
                 $( '#season' ).text( response.season || '-' );
@@ -181,7 +179,6 @@
 
         function GetSelect ()
         {
-            if ( ! $( '#type_id' ).val() || ! $( '#building_id' ).val() ) return;
             $( '#select' ).loading();
             if ( timers[ 'select' ] )
             {
@@ -368,7 +365,15 @@
                 GetTypeInfo();
             })
 
-            .on( 'change', '#building_id, #type_id, #phone', function ( e )
+            .on( 'change', '#building_id, #type_id', function ( e )
+            {
+                if ( $( '#type_id' ).val() && $( '#building_id' ).val() )
+                {
+                    GetSelect();
+                }
+            })
+
+            .on( 'change', '#phone', function ( e )
             {
                 GetSelect();
             })

@@ -990,76 +990,94 @@ class TicketsController extends BaseController
                 ->with( 'error', 'Заявка не найдена' );
         }
 
-        $managements = Management
-            ::mine()
-            ->select(
-                Management::$_table . '.*'
-            )
-            ->leftJoin( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
-            ->whereHas( 'types', function ( $types ) use ( $ticket )
-            {
-                return $types
-                    ->where( Type::$_table . '.id', '=', $ticket->type_id );
-            })
-            ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
-            {
-                return $buildings
-                    ->where( Building::$_table . '.id', '=', $ticket->building_id );
-            })
-            ->orderBy( 'parent.name' )
-            ->orderBy( Management::$_table . '.name' )
-            ->get();
-
-        $worksCount = Work
-            ::current()
-            ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
-            {
-                return $buildings
-                    ->where( Building::$_table . '.id', '=', $ticket->building_id );
-            })
-            ->where( 'category_id', '=', $ticket->type->category_id )
-            ->count();
-
-        $neighborsTicketsCount = $ticket
-            ->neighborsTickets()
-            ->whereHas( 'managements', function ( $managements )
-            {
-                return $managements
-                    ->mine();
-            })
-            ->where( 'phone', '!=', $ticket->phone )
-            ->where( 'flat', '!=', $ticket->flat )
-            ->count();
-
-        if ( $ticket->phone )
+        if ( $ticket->type_id && $ticket->building_id )
         {
-            $customerTicketsCount = $ticket
+
+            $managements = Management
+                ::mine()
+                ->select(
+                    Management::$_table . '.*'
+                )
+                ->leftJoin( Management::$_table . ' AS parent', 'parent.id', '=', Management::$_table . '.parent_id' )
+                ->whereHas( 'types', function ( $types ) use ( $ticket )
+                {
+                    return $types
+                        ->where( Type::$_table . '.id', '=', $ticket->type_id );
+                })
+                ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
+                {
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $ticket->building_id );
+                })
+                ->orderBy( 'parent.name' )
+                ->orderBy( Management::$_table . '.name' )
+                ->get();
+
+            $worksCount = Work
+                ::current()
+                ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
+                {
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $ticket->building_id );
+                })
+                ->where( 'category_id', '=', $ticket->type->category_id )
+                ->count();
+
+            $neighborsTicketsCount = $ticket
+                ->neighborsTickets()
+                ->whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->where( 'phone', '!=', $ticket->phone )
+                ->where( 'flat', '!=', $ticket->flat )
+                ->count();
+
+            $addressTicketsCount = $ticket
+                ->whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->where( 'building_id', '=', $ticket->building_id )
+                ->where( 'flat', '=', $ticket->flat )
+                ->count();
+
+            if ( $ticket->phone )
+            {
+                $customerTicketsCount = $ticket
+                    ->customerTickets()
+                    ->whereHas( 'managements', function ( $managements )
+                    {
+                        return $managements
+                            ->mine();
+                    })
+                    ->count();
+            }
+
+        }
+        else if ( $ticket->phone )
+        {
+            $customerTickets = $ticket
                 ->customerTickets()
                 ->whereHas( 'managements', function ( $managements )
                 {
                     return $managements
                         ->mine();
                 })
-                ->count();
+                ->paginate( config( 'pagination.per_page' ) );
+            $customerTicketsCount = $customerTickets->count();
         }
-
-        $addressTicketsCount = $ticket
-            ->whereHas( 'managements', function ( $managements )
-            {
-                return $managements
-                    ->mine();
-            })
-            ->where( 'building_id', '=', $ticket->building_id )
-            ->where( 'flat', '=', $ticket->flat )
-            ->count();
 
         return view( 'tickets.parts.select' )
             ->with( 'ticket', $ticket )
-            ->with( 'managements', $managements )
-            ->with( 'worksCount', $worksCount )
-            ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
-            ->with( 'addressTicketsCount', $addressTicketsCount )
-            ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 );
+            ->with( 'managements', $managements ?? collect() )
+            ->with( 'worksCount', $worksCount ?? 0 )
+            ->with( 'neighborsTicketsCount', $neighborsTicketsCount ?? 0 )
+            ->with( 'addressTicketsCount', $addressTicketsCount ?? 0 )
+            ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 )
+            ->with( 'customerTickets', $customerTickets ?? collect() );
 
     }
 

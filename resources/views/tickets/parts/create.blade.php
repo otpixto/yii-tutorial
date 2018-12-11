@@ -111,35 +111,43 @@
 
     </div>
 
-    <div class="col-lg-5 hidden" id="info-block">
+    <div class="col-lg-5" id="info-block">
 
         <hr class="visible-sm" />
 
         <div class="form-group">
             {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
             <div class="col-md-7 col-xs-6">
-                <span class="form-control-static bold text-info" id="category"></span>
+                <span class="form-control-static bold text-info" id="category">
+                    ---
+                </span>
             </div>
         </div>
 
         <div class="form-group">
             {!! Form::label( null, 'Сезонность устранения', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
             <div class="col-md-7 col-xs-6">
-                <span class="form-control-static bold text-info" id="season"></span>
+                <span class="form-control-static bold text-info" id="season">
+                    ---
+                </span>
             </div>
         </div>
 
         <div class="form-group">
             {!! Form::label( null, 'Период на принятие заявки в работу', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
             <div class="col-md-5 col-xs-6">
-                <span class="form-control-static bold text-info" id="period_acceptance"></span>
+                <span class="form-control-static bold text-info" id="period_acceptance">
+                    ---
+                </span>
             </div>
         </div>
 
         <div class="form-group">
             {!! Form::label( null, 'Период на исполнение', [ 'class' => 'control-label col-md-7 col-xs-6 text-muted' ] ) !!}
             <div class="col-md-5 col-xs-6">
-                <span class="form-control-static bold text-info" id="period_execution"></span>
+                <span class="form-control-static bold text-info" id="period_execution">
+                    ---
+                </span>
             </div>
         </div>
 
