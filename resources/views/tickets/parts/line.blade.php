@@ -134,6 +134,12 @@
                 </span>
             @endif
         </div>
+        @if ( \Auth::user()->can( 'tickets.field_text' ) )
+            <hr />
+            <div class="small">
+                {{ $ticketManagement->ticket->text }}
+            </div>
+        @endif
         {{--@if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
             <hr />
             <div class="bold">

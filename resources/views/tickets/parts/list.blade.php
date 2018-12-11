@@ -26,6 +26,9 @@
         </th>
         <th width="300">
             Классификатор
+            @if ( \Auth::user()->can( 'tickets.field_text' ) )
+                \ Текст обращения
+            @endif
             {{--@if ( \Auth::user()->can( 'tickets.services.show' ) )
                 \ Выполненные работы
             @endif--}}
