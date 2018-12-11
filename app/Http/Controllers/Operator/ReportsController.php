@@ -721,8 +721,8 @@ class ReportsController extends BaseController
 
         Title::add( 'Статистика по категориям' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
-        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) )->setTime( 0, 0, 0 );
+        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) )->setTime( 23, 59, 59 );
 
         $availableManagements = Management
             ::mine()
@@ -772,6 +772,7 @@ class ReportsController extends BaseController
 
             $ticketManagements = $management
                 ->tickets()
+                ->mine()
                 ->whereNotIn( 'status_code', [ 'draft' ] )
                 ->whereBetween( 'created_at', [ $date_from, $date_to ] )
                 ->with(
