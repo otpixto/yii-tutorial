@@ -328,13 +328,6 @@ class TicketsController extends BaseController
                                 ->where( Ticket::$_table . '.vendor_number', '=', $request->get( 'vendor_number' ) );
                         }
 
-                        if ( $request->get( 'show' ) == 'overdue' )
-                        {
-                            $ticket
-								->notFinaleStatuses()
-                                ->overdue();
-                        }
-
                         if ( $request->get( 'show' ) == 'owner' )
                         {
                             $ticket
@@ -377,6 +370,10 @@ class TicketsController extends BaseController
 
             switch ( $request->get( 'show' ) )
             {
+                case 'overdue':
+                    $ticketManagements
+                        ->overdue();
+                    break;
                 case 'call':
                     $ticketManagements
                         ->select(

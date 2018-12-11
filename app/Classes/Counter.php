@@ -56,12 +56,7 @@ class Counter
             {
                 self::$tickets_overdue_count = TicketManagement
                     ::mine()
-                    ->whereHas( 'ticket', function ( $ticket )
-                    {
-                        return $ticket
-                            ->notFinaleStatuses()
-                            ->overdue();
-                    })
+                    ->overdue()
                     ->count();
                 \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count', self::$tickets_overdue_count, self::$cache_life );
             }
