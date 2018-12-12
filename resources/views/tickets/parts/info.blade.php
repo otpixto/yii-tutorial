@@ -73,9 +73,9 @@
     </div>
 </div>
 
-@if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+@if ( $ticket->status_code == 'waiting' && ! empty( $ticket->postponed_comment ) )
     <div class="alert alert-warning">
-        {{ $ticketManagement->ticket->postponed_comment }}
+        {{ $ticket->postponed_comment }}
     </div>
 @endif
 
