@@ -59,7 +59,7 @@
         @endforeach
         </tbody>
     </table>
-    @if ( $tickets->total() > 15 )
+    @if ( isset( $link ) && $tickets->total() > 15 )
         <a href="{{ $link }}" class="btn btn-info margin-top-15">
             Показать все ({{ $tickets->total() }})
         </a>
