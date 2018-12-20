@@ -176,4 +176,24 @@ class CommentsController extends Controller
 
     }
 
+    public function fix ()
+    {
+        $comments = Comment
+            ::where( 'model_name', '=', TicketManagement::class )
+            ->get();
+        foreach ( $comments as $comment )
+        {
+            if ( $comment->parent && $comment->parent->ticket )
+            {
+                $comment->model_name = $comment->origin_model_name = Ticket::class;
+                $comment->model_id = $comment->origin_model_id = $comment->parent->ticket->id;
+                $comment->save();
+            }
+            else
+            {
+                $comment->delete();
+            }
+        }
+    }
+
 }
