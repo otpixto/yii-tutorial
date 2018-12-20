@@ -480,7 +480,7 @@ class TicketsController extends BaseController
                 ->first();
             return view( 'parts.comments' )
                 ->with( 'origin', $ticket )
-                ->with( 'comments', $ticket->getComments() );
+                ->with( 'comments', $ticket->comments );
         }
         else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
         {
