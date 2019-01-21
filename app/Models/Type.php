@@ -94,7 +94,17 @@ class Type extends BaseModel
 		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
 		{
 			$query
-				->mineProvider();
+                ->where( function ( $q )
+                {
+                    return $q
+                        ->whereNull( 'provider_id' )
+                        ->orWhereHas( 'provider', function ( $provider )
+                        {
+                            return $provider
+                                ->mine()
+                                ->current();
+                        });
+                });
 		}
 		return $query;
     }
