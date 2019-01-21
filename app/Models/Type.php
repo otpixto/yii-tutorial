@@ -97,7 +97,7 @@ class Type extends BaseModel
                 ->where( function ( $q )
                 {
                     return $q
-                        ->whereNull( 'provider_id' )
+                        ->whereNull( self::$_table . '.provider_id' )
                         ->orWhereHas( 'provider', function ( $provider )
                         {
                             return $provider
