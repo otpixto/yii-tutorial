@@ -535,7 +535,7 @@ class TicketsController extends BaseController
                 Category::$_table . '.name AS category_name'
             )
             ->join( 'categories', 'categories.id', '=', 'types.category_id' )
-            ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
+            //->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
             ->orderBy( Category::$_table . '.name' )
             ->orderBy( Type::$_table .'.name' )
             ->get();
