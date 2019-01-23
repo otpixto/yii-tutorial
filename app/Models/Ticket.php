@@ -55,7 +55,7 @@ class Ticket extends BaseModel
         'completed_without_act'		        => 'Выполнено без акта',
         'closed_with_confirm'		        => 'Закрыта с подтверждением',
         'closed_without_confirm'	        => 'Закрыта без подтверждения',
-        'not_verified'                      => 'Проблема не потверждена',
+        'not_verified'                      => 'Проблема не подтверждена',
         'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отменена',
         'rejected'                          => 'Отклонена управляющим',
@@ -113,7 +113,7 @@ class Ticket extends BaseModel
             'class'         => 'yellow-soft',
         ],
         'not_verified' => [
-            'name'          => 'Проблема не потверждена',
+            'name'          => 'Проблема не подтверждена',
             'class'         => 'yellow-soft',
         ],
     ];
