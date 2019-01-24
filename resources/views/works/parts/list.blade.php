@@ -1,23 +1,21 @@
-@if ( \Input::get( 'show' ) != 'all' )
-    <div class="row">
-        <div class="col-xs-6">
-            @can( 'works.export' )
-                <a href="?export=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default btn-lg">
-                    <i class="fa fa-download"></i>
-                    Выгрузить в Excel
-                </a>
-            @endcan
-        </div>
-        <div class="col-xs-6 text-right">
-            @can( 'works.report' )
-                <a href="?report=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default btn-lg">
-                    <i class="fa fa-download"></i>
-                    Выгрузить Отчет
-                </a>
-            @endcan
-        </div>
+<div class="row">
+    <div class="col-xs-6">
+        @can( 'works.export' )
+            <a href="{{ route( 'works.export', Request::getQueryString() ) }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить в Excel
+            </a>
+        @endcan
     </div>
-@endif
+    <div class="col-xs-6 text-right">
+        @if ( \Input::get( 'show' ) != 'all' && \Auth::user()->can( 'works.report' ) )
+            <a href="{{ route( 'works.report', Request::getQueryString() ) }}" class="btn btn-default btn-lg">
+                <i class="fa fa-download"></i>
+                Выгрузить Отчет
+            </a>
+        @endcan
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-8">
