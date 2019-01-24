@@ -107,13 +107,13 @@ class Asterisk
 
     }
 	
-    public function originate ( $number_from, $number_to, $context = 'default', $callerId = null, $priority = 1 )
+    public function originate ( $number_from, $number_to, $context = 'default', $callerId = null, $priority = 1, $data = [] )
     {
 
         if ( ! $this->auth ) return false;
 
-		$exten = $this->prepareNumber( $number_from );
-        $channel = $this->prepareChannel( $number_to );
+        $channel = $this->prepareChannel( $number_from );
+        $exten = $this->prepareNumber( $number_to );
 		
         $packet = 'Action: originate' . self::EOL;
         $packet .= 'Channel: ' . $channel . self::EOL;
@@ -125,6 +125,11 @@ class Asterisk
         if ( ! is_null( $callerId ) )
         {
             $packet .= 'CallerID: ' . $callerId . self::EOL;
+        }
+
+        if ( count( $data ) )
+        {
+            $packet .= 'Variable: ' . http_build_query( $data ) . self::EOL;
         }
 
         $packet .= self::EOL;

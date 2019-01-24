@@ -34,6 +34,7 @@ class RestController extends Controller
 
     public function __construct ( Request $request )
     {
+        \Debugbar::disable();
         $this->logs = new Logger( 'REST' );
         $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/rest.log' ) ) );
         $this->logs->addInfo( 'Запрос от ' . $request->ip(), $request->all() );
@@ -241,26 +242,12 @@ class RestController extends Controller
     public function ticketCall ( Request $request )
     {
 
-        if ( ! $this->auth( $request ) )
+        $ticketCall = TicketCall::find( $request->get( 'ticket_call_id' ) );
+        if ( $ticketCall )
         {
-            return $this->error( 100 );
+            $ticketCall->call_id = $request->get( 'uniqueid' );
+            $ticketCall->save();
         }
-
-        $ticketCall = TicketCall
-            ::whereNull( 'call_id' )
-            ->where( 'agent_number', '=', $request->get( 'agent_number' ) )
-            ->where( 'call_phone', '=', $request->get( 'call_phone' ) )
-            ->first();
-
-        if ( ! $ticketCall )
-        {
-            return $this->error( 104 );
-        }
-
-        $ticketCall->call_id = $request->get( 'call_id' );
-        $ticketCall->save();
-
-        return $this->success( '' );
 
     }
 

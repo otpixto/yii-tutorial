@@ -172,8 +172,8 @@ class DeviceController extends Controller
                 ::mine()
                 ->notFinaleStatuses()
                 ->where( 'status_code', '!=', 'draft' )
-                //->orderBy( 'id', 'desc' )
-                ->with(
+                ->orderBy( 'id', 'desc' )
+                /*->with(
                     'ticket',
                     'ticket.comments',
                     'ticket.comments.author',
@@ -183,8 +183,8 @@ class DeviceController extends Controller
                     'ticket.type.category',
                     'ticket.calls',
                     'ticket.statusesHistory'
-                )
-                ->take( 10 )
+                )*/
+                ->take( 50 )
                 ->get();
             $tickets = Devices::ticketsInfo( $tickets );
             \Cache::put( 'device.tickets.' . \Auth::user()->id, $tickets, self::CACHE_LIFE_MINUTES );
@@ -427,6 +427,53 @@ class DeviceController extends Controller
 
     }
 
+    public function inProcess ( Request $request )
+    {
+
+        $validation = \Validator::make( $request->all(), [
+            'token'         => 'required',
+            'id'            => 'required|integer',
+            'force'         => 'boolean',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        {
+            return $this->error( $data, $httpCode );
+        }
+
+        if ( ! \Auth::user()->can( 'rest.tickets.edit' ) )
+        {
+            return $this->error( trans('device.denied' ), 403 );
+        }
+
+        $ticketManagement = TicketManagement
+            ::mine()
+            ->find( $request->get( 'id' ) );
+
+        if ( ! $ticketManagement )
+        {
+            return $this->error( 'Заявка не найдена', 404 );
+        }
+
+        \DB::beginTransaction();
+
+        $res = $ticketManagement->changeStatus( 'in_process', $request->get( 'force', false ) );
+        if ( $res instanceof MessageBag )
+        {
+            return $this->error( $res->first() );
+        }
+
+        \DB::commit();
+
+        return $this->success( 'OK' );
+
+    }
+
     public function getPhone ( Request $request )
     {
 
@@ -460,7 +507,8 @@ class DeviceController extends Controller
 		$validation = \Validator::make( $request->all(), [
             'token'         => 'required',
             'id'            => 'required|integer',
-            'source'        => 'required|digits:10',
+            'number_from'   => 'required|digits:10',
+            'number_to'     => 'required|digits:10',
         ]);
 
         if ( $validation->fails() )
@@ -487,9 +535,9 @@ class DeviceController extends Controller
             return $this->error( 'Заявка не найдена', 404 );
         }
 		
-		$number_from = mb_substr( preg_replace( '/\D/', '', $request->get( 'source', '' ) ), -10 );
+		$number_from = mb_substr( preg_replace( '/\D/', '', $request->get( 'number_from', '' ) ), -10 );
+		$number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'number_to', '' ) ), -10 );
         #$number_to = $ticketManagement->ticket->phone;
-		$number_to = 9647269122;
 
 		\DB::beginTransaction();
 
@@ -500,7 +548,7 @@ class DeviceController extends Controller
         }
 
         $asterisk = new Asterisk();
-        if ( ! $asterisk->originate( $number_from, $number_to, 'outgoing-autodial' ) )
+        if ( ! $asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, [ 'ticket_call_id' => $ticketCall->id ] ) )
         {
             return $this->error( $asterisk->last_result );
         }

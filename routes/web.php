@@ -24,8 +24,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::post( 'call', 'RestController@createOrUpdateCallDraft' );
         Route::post( 'customer', 'RestController@customer' );
         Route::post( 'user', 'RestController@user' );
-        Route::post( 'ticket-call', 'RestController@ticketCall' );
-        Route::any( 'ticket-call-id', 'RestController@ticketCallId' );
+        Route::any( 'ticket-call', 'RestController@ticketCall' );
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
 
@@ -120,6 +119,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'filter', 'Operator\WorksController@filter' )->name( 'works.filter' );
             Route::get( 'search/form', 'Operator\WorksController@searchForm' )->name( 'works.search.form' );
             Route::post( 'buildings/search', 'Operator\WorksController@buildingsSearch' )->name( 'works.buildings.search' );
+            Route::get( 'export', 'Operator\WorksController@export' )->name( 'works.export' );
+            Route::get( 'report', 'Operator\WorksController@report' )->name( 'works.report' );
         });
 
         Route::prefix( 'tickets' )->group( function ()
