@@ -246,6 +246,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'managements/{management_id}/types/del', 'Catalog\ManagementsController@typesDel' )->name( 'managements.types.del' );
             Route::delete( 'managements/{management_id}/types/empty', 'Catalog\ManagementsController@typesEmpty' )->name( 'managements.types.empty' );
             Route::get( 'managements/{management_id}/buildings', 'Catalog\ManagementsController@buildings' )->name( 'managements.buildings' );
+            Route::get( 'managements/{management_id}/buildings/export', 'Catalog\ManagementsController@buildingsExport' )->name( 'managements.buildings.export' );
             Route::post( 'managements/{management_id}/buildings/search', 'Catalog\ManagementsController@buildingsSearch' )->name( 'managements.buildings.search' );
             Route::put( 'managements/{management_id}/buildings/add', 'Catalog\ManagementsController@buildingsAdd' )->name( 'managements.buildings.add' );
             Route::put( 'managements/{management_id}/segments/add', 'Catalog\ManagementsController@segmentsAdd' )->name( 'managements.segments.add' );

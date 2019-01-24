@@ -108,23 +108,39 @@
         <div class="panel panel-default">
             <div class="panel-body">
 
-                {{ $managementBuildings->render() }}
+                @if ( $managementBuildings->count() )
 
-                @if ( ! $managementBuildings->count() )
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ $managementBuildings->render() }}
+                        </div>
+                        <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
+                        <span class="label label-info">
+                            Найдено: <b>{{ $managementBuildings->total() }}</b>
+                        </span>
+                            @if ( \Auth::user()->can( 'catalog.buildings.export' ) )
+                                |
+                                <a href="{{ route( 'managements.buildings.export', [ $management->id, Request::getQueryString() ] ) }}">Выгрузить</a>
+                            @endif
+                        </div>
+                    </div>
+
+                    @foreach ( $managementBuildings as $r )
+                        <div class="margin-bottom-5">
+                            <button type="button" class="btn btn-xs btn-danger" data-delete="management-building" data-building="{{ $r->id }}">
+                                <i class="fa fa-remove"></i>
+                            </button>
+                            <a href="{{ route( 'buildings.edit', $r->id ) }}">
+                                {{ $r->getAddress( true ) }}
+                            </a>
+                        </div>
+                    @endforeach
+
+                    {{ $managementBuildings->render() }}
+
+                @else
                     @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                 @endif
-                @foreach ( $managementBuildings as $r )
-                    <div class="margin-bottom-5">
-                        <button type="button" class="btn btn-xs btn-danger" data-delete="management-building" data-building="{{ $r->id }}">
-                            <i class="fa fa-remove"></i>
-                        </button>
-                        <a href="{{ route( 'buildings.edit', $r->id ) }}">
-                            {{ $r->getAddress( true ) }}
-                        </a>
-                    </div>
-                @endforeach
-
-                {{ $managementBuildings->render() }}
 
                 {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.buildings.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
                 <div class="form-group margin-top-15">

@@ -627,6 +627,60 @@ class ManagementsController extends BaseController
 
     }
 
+    public function buildingsExport ( Request $request, $id )
+    {
+
+        Title::add( 'Привязка Зданий' );
+
+        $management = Management::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementBuildings = $management->buildings()
+            ->orderBy( Building::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $managementBuildings
+                ->where( Building::$_table . '.name', 'like', $s );
+        }
+
+        $managementBuildings = $managementBuildings->get();
+
+        $data = [];
+        $i = 0;
+        foreach ( $managementBuildings as $building )
+        {
+            $data[ $i ] = [
+                'id дома'                    => $building->id,
+                'Наименование адреса'        => $building->name,
+                'Тип (дом/бизнес-центр)'     => $building->buildingType->name ?? '',
+                'Наименование сегмента'      => $building->segment->name ?? '',
+                'GUID'                       => $building->guid,
+            ];
+            $i ++;
+        }
+
+        $this->addLog( 'Выгрузил список зданий' );
+
+        \Excel::create( 'ЗДАНИЯ', function ( $excel ) use ( $data )
+        {
+            $excel->sheet( 'ЗДАНИЯ', function ( $sheet ) use ( $data )
+            {
+                $sheet->fromArray( $data );
+            });
+        })->export( 'xls' );
+
+        die;
+
+    }
+
     public function buildingsSearch ( Request $request, $id )
     {
 
