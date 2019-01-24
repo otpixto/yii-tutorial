@@ -278,13 +278,16 @@ class TicketManagement extends BaseModel
                                 {
                                     $tag = trim( $tag );
                                     if ( empty( $tag ) ) continue;
+                                    $tag = '%' . str_replace( ' ', '%', $tag ) . '%';
                                     if ( $i ++ == 0 )
                                     {
-                                        $tags->where( 'text', '=', $tag );
+                                        $tags
+                                            ->where( 'text', 'LIKE', $tag );
                                     }
                                     else
                                     {
-                                        $tags->orWhere( 'text', '=', $tag );
+                                        $tags
+                                            ->orWhere( 'text', 'LIKE', $tag );
                                     }
                                 }
                                 return $tags;

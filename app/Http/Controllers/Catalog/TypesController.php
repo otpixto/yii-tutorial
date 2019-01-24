@@ -186,8 +186,8 @@ class TypesController extends BaseController
     {
 
         $rules = [
-            'guid'                  => 'nullable|unique:types,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|unique:types,name|string|max:255',
+            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required|string|max:255',
             'category_id'           => 'required|integer',
             'period_acceptance'     => 'numeric',
             'period_execution'      => 'numeric',
@@ -195,6 +195,22 @@ class TypesController extends BaseController
         ];
 
         $this->validate( $request, $rules );
+
+        $old = Type
+            ::mine()
+            ->where( function ( $q ) use ( $request )
+            {
+                return $q
+                    ->where( 'name', '=', $request->get( 'name' ) )
+                    ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+            })
+            ->first();
+        if ( $old )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Классификатор уже существует' ] );
+        }
 
         $type = Type::create( $request->all() );
         if ( $type instanceof MessageBag )

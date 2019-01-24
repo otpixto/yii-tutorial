@@ -228,7 +228,7 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'guid'                  => 'nullable|unique:managements,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'provider_id'           => 'nullable|integer',
             'name'                  => 'required|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
@@ -238,6 +238,22 @@ class ManagementsController extends BaseController
         ];
 
         $this->validate( $request, $rules );
+
+        $old = Management
+            ::mine( Management::IGNORE_MANAGEMENT )
+            ->where( function ( $q ) use ( $request )
+            {
+                return $q
+                    ->where( 'name', '=', $request->get( 'name' ) )
+                    ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+            })
+            ->first();
+        if ( $old )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'УО уже существует' ] );
+        }
 
         $management = Management::create( $request->all() );
         if ( $management instanceof MessageBag )

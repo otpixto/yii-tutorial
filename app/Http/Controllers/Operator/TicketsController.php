@@ -1788,6 +1788,14 @@ class TicketsController extends BaseController
             'scheduled_end_time'        => 'required|date_format:H:i',
         ]);
 
+        $scheduled_begin = Carbon::parse( $request->get( 'scheduled_begin_date' ) . ' ' . $request->get( 'scheduled_begin_time' ) );
+        $scheduled_end = Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) );
+
+        if ( $scheduled_begin->timestamp < 0 || $scheduled_end->timestamp < 0  )
+        {
+            return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
+        }
+
         $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
         {
@@ -1846,8 +1854,8 @@ class TicketsController extends BaseController
         }
         $attributes = [
             'executor_id'           => $executor->id,
-            'scheduled_begin'       => Carbon::parse( $request->get( 'scheduled_begin_date' ) . ' ' . $request->get( 'scheduled_begin_time' ) )->toDateTimeString(),
-            'scheduled_end'         => Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) )->toDateTimeString(),
+            'scheduled_begin'       => $scheduled_begin->toDateTimeString(),
+            'scheduled_end'         => $scheduled_end->toDateTimeString(),
         ];
         $ticketManagement->fill( $attributes );
         if ( $ticketManagement->isDirty() )
