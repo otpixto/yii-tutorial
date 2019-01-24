@@ -390,6 +390,441 @@ class WorksController extends BaseController
 
     }
 
+    public function export ( Request $request )
+    {
+
+        $works = Work
+            ::mine()
+            ->orderBy( Work::$_table . '.id', 'desc' );
+
+        switch ( $request->get( 'show' ) )
+        {
+            case 'overdue':
+                $works
+                    ->current()
+                    ->overdue();
+                break;
+        }
+
+        if ( ! empty( $request->get( 'id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
+        }
+
+        if ( ! empty( $request->get( 'category_id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'composition' ) ) )
+        {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
+            $works
+                ->where( Work::$_table . '.composition', 'like', $q );
+        }
+
+        if ( ! empty( $request->get( 'reason' ) ) )
+        {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
+            $works
+                ->where( Work::$_table . '.reason', 'like', $q );
+        }
+
+        if ( ! empty( $request->get( 'begin_from' ) ) )
+        {
+            $begin_from = Carbon::parse( $request->get( 'begin_from' ) )
+                ->toDateTimeString();
+            $works
+                ->where( Work::$_table . '.time_begin', '>=', $begin_from );
+        }
+
+        if ( ! empty( $request->get( 'begin_to' ) ) )
+        {
+            $begin_to = Carbon::parse( $request->get( 'begin_to' ) )
+                ->toDateTimeString();
+            $works
+                ->where( Work::$_table . '.time_begin', '<=', $begin_to );
+        }
+
+        if ( ! empty( $request->get( 'end_from' ) ) )
+        {
+            $end_from = Carbon::parse( $request->get( 'end_from' ) )
+                ->toDateTimeString();
+            $works
+                ->where( function ( $q ) use ( $end_from )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '>=', $end_from )
+                        ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
+                });
+        }
+
+        if ( ! empty( $request->get( 'end_to' ) ) )
+        {
+            $end_to = Carbon::parse( $request->get( 'end_to' ) )
+                ->toDateTimeString();
+            $works
+                ->where( function ( $q ) use ( $end_to )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '<=', $end_to )
+                        ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
+                });
+        }
+
+        if ( count( $request->get( 'managements' ) ) )
+        {
+            $works
+                ->whereIn( Work::$_table . '.management_id', $request->get( 'managements' ) );
+        }
+
+        if ( ! empty( $request->get( 'executor_id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
+        }
+
+        if ( ! empty( $request->get( 'segments' ) ) )
+        {
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            if ( $segments->count() )
+            {
+                $segmentsIds = [];
+                foreach ( $segments as $segment )
+                {
+                    $segmentName = $segment->type->name;
+                    if ( $segment->parent )
+                    {
+                        $segmentName .= ' ' . $segment->parent->name;
+                    }
+                    $segmentName .= ' ' . $segment->name;
+                    $segmentChilds = new SegmentChilds( $segment );
+                    $segmentsIds += $segmentChilds->ids;
+                }
+                $works
+                    ->whereHas( 'buildings', function ( $buildings ) use ( $segmentsIds )
+                    {
+                        return $buildings
+                            ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
+                    });
+            }
+        }
+
+        if ( ! empty( $request->get( 'building_id' ) ) )
+        {
+            $works
+                ->whereHas( 'buildings', function ( $buildings ) use ( $request )
+                {
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
+                } );
+        }
+
+        $works = $works->get();
+        $data = [];
+        foreach ( $works as $work )
+        {
+            foreach ( $work->getAddressesGroupBySegment() as $segment )
+            {
+                $address = $segment[ 0 ];
+                $buildings = implode( ', ', $segment[ 1 ] );
+                $managements = [];
+                $executors = [];
+                foreach ( $work->managements as $management )
+                {
+                    $management_name = $management->name;
+                    if ( $management->parent )
+                    {
+                        $management_name = $management->parent->name . ' ' . $management_name;
+                    }
+                    $managements[] = $management_name;
+                }
+                foreach ( $work->executors as $executor )
+                {
+                    $executor_name = $executor->name;
+                    if ( $executor->phone )
+                    {
+                        $executor_name .= ' ' . $executor->phone;
+                    }
+                    $executors[] = $executor_name;
+                }
+                $data[] = [
+                    '#' => $work->id,
+                    'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
+                    'Категория работ' => $work->category->name,
+                    'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
+                    'Адрес работ' => $address,
+                    'Дома' => $buildings,
+                    'Исполнитель работ' => implode( '; ', $managements ),
+                    'Ответственный' => implode( '; ', $executors ),
+                    'Основание' => $work->reason,
+                    'Состав работ' => $work->composition,
+                    'Время начала работ' => Carbon::parse( $work->time_begin )
+                        ->format( 'd.m.y H:i' ),
+                    'Время окончания работ' => Carbon::parse( $work->time_end )
+                        ->format( 'd.m.y H:i' ),
+                ];
+            }
+
+            $this->addLog( 'Выгрузил данные по отключениям' );
+
+            \Excel::create( 'Отключения', function ( $excel ) use ( $data )
+            {
+                $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
+                {
+                    $sheet->fromArray( $data );
+                } );
+            } )
+                ->export( 'xls' );
+
+        }
+
+        die;
+
+    }
+
+    public function report ( Request $request )
+    {
+
+        $managements = $request->get( 'managements' );
+        $filters = [];
+
+        $works = Work
+            ::mine()
+            ->orderBy( Work::$_table . '.id', 'desc' );
+
+        switch ( $request->get( 'show' ) )
+        {
+            case 'all':
+                $filters[] = 'Отключения за все время';
+                break;
+            case 'overdue':
+                $works
+                    ->current()
+                    ->overdue();
+                $filters[] = 'Просроченные отключения';
+                break;
+            default:
+                $works
+                    ->current();
+                $filters[] = 'Активные отключения';
+                break;
+        }
+
+        if ( ! empty( $request->get( 'id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
+            $filters[] = 'Номер сообщения: ' . $request->get( 'id' );
+        }
+
+        if ( ! empty( $request->get( 'category_id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
+            $filters[] = 'Ресурс отключения: ' . Category::find( $request->get( 'category_id' ) )->name;
+        }
+
+        if ( ! empty( $request->get( 'composition' ) ) )
+        {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
+            $works
+                ->where( Work::$_table . '.composition', 'like', $q );
+            $filters[] = 'Состав работ: ' . $request->get( 'composition' );
+        }
+
+        if ( ! empty( $request->get( 'reason' ) ) )
+        {
+            $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
+            $works
+                ->where( Work::$_table . '.reason', 'like', $q );
+            $filters[] = 'Основание: ' . $request->get( 'reason' );
+        }
+
+        if ( ! empty( $request->get( 'begin_from' ) ) )
+        {
+            $begin_from = Carbon::parse( $request->get( 'begin_from' ) )
+                ->toDateTimeString();
+            $works
+                ->where( Work::$_table . '.time_begin', '>=', $begin_from );
+            $filters[] = 'Время начала от: ' . $begin_from;
+        }
+
+        if ( ! empty( $request->get( 'begin_to' ) ) )
+        {
+            $begin_to = Carbon::parse( $request->get( 'begin_to' ) )
+                ->toDateTimeString();
+            $works
+                ->where( Work::$_table . '.time_begin', '<=', $begin_to );
+            $filters[] = 'Время начала до: ' . $begin_to;
+        }
+
+        if ( ! empty( $request->get( 'end_from' ) ) )
+        {
+            $end_from = Carbon::parse( $request->get( 'end_from' ) )
+                ->toDateTimeString();
+            $works
+                ->where( function ( $q ) use ( $end_from )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '>=', $end_from )
+                        ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
+                });
+            $filters[] = 'Время окончания от: ' . $end_from;
+        }
+
+        if ( ! empty( $request->get( 'end_to' ) ) )
+        {
+            $end_to = Carbon::parse( $request->get( 'end_to' ) )
+                ->toDateTimeString();
+            $works
+                ->where( function ( $q ) use ( $end_to )
+                {
+                    return $q
+                        ->where( Work::$_table . '.time_end', '<=', $end_to )
+                        ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
+                });
+            $filters[] = 'Время окончания до: ' . $end_to;
+        }
+
+        if ( count( $managements ) )
+        {
+            $works
+                ->whereIn( Work::$_table . '.management_id', $managements );
+            $filters[] = 'УО: ' . Management::whereIn( 'id', $managements )->get()->implode( 'name', ', ' );
+        }
+
+        if ( ! empty( $request->get( 'executor_id' ) ) )
+        {
+            $works
+                ->where( Work::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
+            $filters[] = 'Исполнитель: ' . Executor::find( $request->get( 'executor_id' ) )->name;
+        }
+
+        if ( ! empty( $request->get( 'segments' ) ) )
+        {
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            if ( $segments->count() )
+            {
+                $segmentsIds = [];
+                foreach ( $segments as $segment )
+                {
+                    $segmentName = $segment->type->name;
+                    if ( $segment->parent )
+                    {
+                        $segmentName .= ' ' . $segment->parent->name;
+                    }
+                    $segmentName .= ' ' . $segment->name;
+                    $filters[] = 'Сегмент: ' . $segmentName;
+                    $segmentChilds = new SegmentChilds( $segment );
+                    $segmentsIds += $segmentChilds->ids;
+                }
+                $works
+                    ->whereHas( 'buildings', function ( $buildings ) use ( $segmentsIds )
+                    {
+                        return $buildings
+                            ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
+                    });
+            }
+        }
+
+        if ( ! empty( $request->get( 'building_id' ) ) )
+        {
+            $works
+                ->whereHas( 'buildings', function ( $buildings ) use ( $request )
+                {
+                    return $buildings
+                        ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
+                } );
+            $building = Building::find( $request->get( 'building_id' ) );
+            $filters[] = 'Здание: ' . $building->name;
+        }
+
+
+        $categories = Category
+            ::mine()
+            ->where( 'works', '=', 1 )
+            ->orderBy( 'sort' )
+            ->get();
+        $works = $works
+            ->whereIn( Work::$_table . '.category_id', $categories->pluck( 'id' ) )
+            ->get();
+        $data = [];
+        $totals = [
+            'buildings' => 0,
+            'flats'     => 0
+        ];
+        foreach ( $categories as $category )
+        {
+            $data[ $category->id ] = [
+                'list' => [],
+                'totals' => [
+                    'buildings' => 0,
+                    'flats'     => 0
+                ]
+            ];
+        }
+        foreach ( $works as $work )
+        {
+            $count_flats = 0;
+            $count_buildings = 0;
+            foreach ( $work->buildings as $building )
+            {
+                $count_flats += $building->room_living_count;
+                $count_buildings ++;
+            }
+            $data[ $work->category_id ][ 'totals' ][ 'buildings' ] += $count_buildings;
+            $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
+            $totals[ 'flats' ] += $count_flats;
+            $totals[ 'buildings' ] += $count_buildings;
+            $data[ $work->category_id ][ 'list' ][ $work->id ] = [
+                'addresses' => [],
+                'count_flats' => $count_flats,
+                'count_buildings' => $count_buildings,
+                'time_begin' => Carbon::parse( $work->time_begin ),
+                'time_end' => Carbon::parse( $work->time_end ),
+                'composition' => $work->composition,
+                'management' => $work->management->name ?? null,
+                'executor_name' => $work->executor->name ?? null,
+                'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
+                'type' => $work->type_id ? Work::$types[ $work->type_id ] : null,
+            ];
+            if ( isset( Work::$deadline_units[ $work->deadline_unit ] ) )
+            {
+                $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline' ] = $work->deadline;
+                $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline_unit' ] = mb_substr( Work::$deadline_units[ $work->deadline_unit ], 0, 1 );
+            }
+            foreach ( $work->getAddressesGroupBySegment() as $segment )
+            {
+                $data[ $work->category_id ][ 'list' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
+            }
+        }
+
+        $log = Log::create([
+            'text' => 'Скачал отчет по отключениям'
+        ]);
+        $log->save();
+
+        \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $categories, $data, $totals, $filters )
+        {
+            $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $categories, $data, $totals, $filters )
+            {
+                $sheet
+                    ->loadView( 'works.report' )
+                    ->with( 'categories', $categories )
+                    ->with( 'data', $data )
+                    ->with( 'totals', $totals )
+                    ->with( 'filters', $filters );
+            });
+
+        })->export( 'xls' );
+
+        die;
+
+    }
+
     public function searchForm ( Request $request )
     {
 
