@@ -98,6 +98,86 @@ class BuildingsController extends BaseController
 
     }
 
+    public function export ( Request $request )
+    {
+
+        $search = trim( $request->get( 'search', '' ) );
+        $provider_id = $request->get( 'provider_id' );
+        $segment_id = $request->get( 'segment_id' );
+        $building_type_id = $request->get( 'building_type_id' );
+        $management_id = $request->get( 'management_id' );
+
+        $buildings = Building
+            ::mine( Building::IGNORE_MANAGEMENT )
+            ->orderBy( Building::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $buildings
+                ->where( Building::$_table . '.name', 'like', $s )
+                ->orWhere( Building::$_table . '.guid', 'like', $s )
+                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
+        }
+
+        if ( ! empty( $provider_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        if ( ! empty( $segment_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.segment_id', '=', $segment_id );
+        }
+
+        if ( ! empty( $building_type_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.building_type_id', '=', $building_type_id );
+        }
+
+        if ( ! empty( $management_id ) )
+        {
+            $buildings
+                ->whereHas( 'managements', function ( $q ) use ( $management_id )
+                {
+                    return $q
+                        ->where( Management::$_table . '.id', '=', $management_id );
+                });
+        }
+
+        $buildings = $buildings->get();
+
+        $data = [];
+        $i = 0;
+        foreach ( $buildings as $building )
+        {
+            $data[ $i ] = [
+                'id дома'                    => $building->id,
+                'Наименование адреса'        => $building->name,
+                'Тип (дом/бизнес-центр)'     => $building->buildingType->name ?? '',
+                'Наименование сегмента'      => $building->segment->name ?? '',
+                'GUID'                       => $building->guid,
+            ];
+            $i ++;
+        }
+
+        $this->addLog( 'Выгрузил список зданий' );
+
+        \Excel::create( 'ЗДАНИЯ', function ( $excel ) use ( $data )
+        {
+            $excel->sheet( 'ЗДАНИЯ', function ( $sheet ) use ( $data )
+            {
+                $sheet->fromArray( $data );
+            });
+        })->export( 'xls' );
+
+        die;
+
+    }
+
     /**
      * Show the form for creating a new resource.
      *

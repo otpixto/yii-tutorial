@@ -25,6 +25,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::post( 'customer', 'RestController@customer' );
         Route::post( 'user', 'RestController@user' );
         Route::post( 'ticket-call', 'RestController@ticketCall' );
+        Route::any( 'ticket-call-id', 'RestController@ticketCallId' );
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
 
@@ -49,6 +50,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::any( 'call', 'DeviceController@call' )->name( 'devices.call' );
         Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
         Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
+        Route::any( 'in-process', 'DeviceController@inProcess' )->name( 'devices.in_process' );
         Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
         Route::any( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
         Route::get( 'get/phone', 'DeviceController@getPhone' )->name( 'devices.get_phone' );
@@ -190,6 +192,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'tickets', 'Maps\MapsController@tickets' )->name( 'maps.tickets' );
             Route::get( 'works', 'Maps\MapsController@works' )->name( 'maps.works' );
             Route::post( 'zones/load', 'Maps\ZonesController@load' )->name( 'zones.load' );
+            Route::get( 'positions', 'Maps\MapsController@positions' )->name( 'maps.positions' );
         });
 
         Route::prefix( 'data' )->group( function ()
@@ -197,6 +200,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'buildings', 'Operator\DataController@buildings' )->name( 'data.buildings' );
             Route::get( 'buildings/{building_id}/rooms', 'Operator\DataController@buildingsRooms' )->name( 'data.buildings.rooms' );
             Route::get( 'works-buildings', 'Operator\DataController@worksBuildings' )->name( 'data.works_buildings' );
+            Route::get( 'positions', 'Operator\DataController@positions' )->name( 'data.positions' );
         });
 
         Route::prefix( 'catalog' )->group( function ()
@@ -221,6 +225,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'buildings/{building_id}/providers/del', 'Catalog\BuildingsController@providersDel' )->name( 'buildings.providers.del' );
             Route::delete( 'buildings/{building_id}/providers/empty', 'Catalog\BuildingsController@providersEmpty' )->name( 'buildings.providers.empty' );
             Route::post( 'buildings/{building_id}/store-rooms', 'Catalog\BuildingsController@storeRooms' )->name( 'buildings.store.rooms' );
+            Route::get( 'buildings/export', 'Catalog\BuildingsController@export' )->name( 'buildings.export' );
 
             Route::post( 'types/json', 'Catalog\TypesController@json' )->name( 'types.json' );
             Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
