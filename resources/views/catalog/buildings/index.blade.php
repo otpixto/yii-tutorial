@@ -115,13 +115,17 @@
                         @if ( $buildings->count() )
 
                             <div class="row">
-                                <div class="col-md-8">
+                                <div class="col-md-6">
                                     {{ $buildings->render() }}
                                 </div>
-                                <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
+                                <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
                                     <span class="label label-info">
                                         Найдено: <b>{{ $buildings->total() }}</b>
                                     </span>
+                                    @if ( \Auth::user()->can( 'catalog.buildings.export' ) )
+                                        |
+                                        <a href="{{ route( 'buildings.export', Request::getQueryString() ) }}">Выгрузить</a>
+                                    @endif
                                 </div>
                             </div>
 
