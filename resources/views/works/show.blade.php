@@ -17,6 +17,15 @@
         <div class="col-lg-6">
 
             <div class="form-group">
+                {!! Form::label( null, 'Автор', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->author->getName() }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( null, 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
