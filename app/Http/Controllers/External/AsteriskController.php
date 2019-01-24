@@ -79,7 +79,8 @@ class AsteriskController extends BaseController
             dd( $ticketCall );
         }
 
-        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, [ 'ticket_call_id' => $ticketCall->id ] ) )
+        $rest_curl_url = config( 'rest.curl_url' ) . '/ticket-call?ticket_call_id=' . (int) $ticketCall->id;
+        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, [ 'url' => $rest_curl_url ] ) )
         {
             dd( $this->asterisk->last_result );
         }
