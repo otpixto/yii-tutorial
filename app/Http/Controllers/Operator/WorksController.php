@@ -557,7 +557,7 @@ class WorksController extends BaseController
                         '#' => $work->id,
                         'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
                         'Категория работ' => $work->category->name,
-                        'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
+                        'Тип отключения' => ( Work::$types[ $work->type_id ] ?? '-' ),
                         'Адрес работ' => $address,
                         'Дома' => $buildings,
                         'Исполнитель работ' => implode( '; ', $managements ),
@@ -579,7 +579,7 @@ class WorksController extends BaseController
                         '#' => $work->id,
                         'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
                         'Категория работ' => $work->category->name,
-                        'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
+                        'Тип отключения' => ( Work::$types[ $work->type_id ] ?? '-' ),
                         'Адрес работ' => $building->name,
                         'Дома' => $building->number,
                         'Исполнитель работ' => implode( '; ', $managements ),
@@ -594,18 +594,18 @@ class WorksController extends BaseController
                 }
             }
 
-            $this->addLog( 'Выгрузил данные по отключениям' );
-
-            \Excel::create( 'Отключения', function ( $excel ) use ( $data )
-            {
-                $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
-                {
-                    $sheet->fromArray( $data );
-                } );
-            } )
-                ->export( 'xls' );
-
         }
+
+        $this->addLog( 'Выгрузил данные по отключениям' );
+
+        \Excel::create( 'Отключения', function ( $excel ) use ( $data )
+        {
+            $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
+            {
+                $sheet->fromArray( $data );
+            } );
+        } )
+            ->export( 'xls' );
 
         die;
 
