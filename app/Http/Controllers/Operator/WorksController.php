@@ -526,46 +526,72 @@ class WorksController extends BaseController
         $data = [];
         foreach ( $works as $work )
         {
-            foreach ( $work->getAddressesGroupBySegment() as $segment )
+            $managements = [];
+            $executors = [];
+            foreach ( $work->managements as $management )
             {
-                $address = $segment[ 0 ];
-                $buildings = implode( ', ', $segment[ 1 ] );
-                $managements = [];
-                $executors = [];
-                foreach ( $work->managements as $management )
+                $management_name = $management->name;
+                if ( $management->parent )
                 {
-                    $management_name = $management->name;
-                    if ( $management->parent )
-                    {
-                        $management_name = $management->parent->name . ' ' . $management_name;
-                    }
-                    $managements[] = $management_name;
+                    $management_name = $management->parent->name . ' ' . $management_name;
                 }
-                foreach ( $work->executors as $executor )
+                $managements[] = $management_name;
+            }
+            foreach ( $work->executors as $executor )
+            {
+                $executor_name = $executor->name;
+                if ( $executor->phone )
                 {
-                    $executor_name = $executor->name;
-                    if ( $executor->phone )
-                    {
-                        $executor_name .= ' ' . $executor->phone;
-                    }
-                    $executors[] = $executor_name;
+                    $executor_name .= ' ' . $executor->phone;
                 }
-                $data[] = [
-                    '#' => $work->id,
-                    'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
-                    'Категория работ' => $work->category->name,
-                    'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
-                    'Адрес работ' => $address,
-                    'Дома' => $buildings,
-                    'Исполнитель работ' => implode( '; ', $managements ),
-                    'Ответственный' => implode( '; ', $executors ),
-                    'Основание' => $work->reason,
-                    'Состав работ' => $work->composition,
-                    'Время начала работ' => Carbon::parse( $work->time_begin )
-                        ->format( 'd.m.y H:i' ),
-                    'Время окончания работ' => Carbon::parse( $work->time_end )
-                        ->format( 'd.m.y H:i' ),
-                ];
+                $executors[] = $executor_name;
+            }
+            $segments = $work->getAddressesGroupBySegment();
+            if ( count( $segments ) )
+            {
+                foreach ( $segments as $segment )
+                {
+                    $address = $segment[ 0 ];
+                    $buildings = implode( ', ', $segment[ 1 ] );
+                    $data[] = [
+                        '#' => $work->id,
+                        'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
+                        'Категория работ' => $work->category->name,
+                        'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
+                        'Адрес работ' => $address,
+                        'Дома' => $buildings,
+                        'Исполнитель работ' => implode( '; ', $managements ),
+                        'Ответственный' => implode( '; ', $executors ),
+                        'Основание' => $work->reason,
+                        'Состав работ' => $work->composition,
+                        'Время начала работ' => Carbon::parse( $work->time_begin )
+                            ->format( 'd.m.y H:i' ),
+                        'Время окончания работ' => Carbon::parse( $work->time_end )
+                            ->format( 'd.m.y H:i' ),
+                    ];
+                }
+            }
+            else
+            {
+                foreach ( $work->buildings as $building )
+                {
+                    $data[] = [
+                        '#' => $work->id,
+                        'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
+                        'Категория работ' => $work->category->name,
+                        'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
+                        'Адрес работ' => $building->name,
+                        'Дома' => $building->number,
+                        'Исполнитель работ' => implode( '; ', $managements ),
+                        'Ответственный' => implode( '; ', $executors ),
+                        'Основание' => $work->reason,
+                        'Состав работ' => $work->composition,
+                        'Время начала работ' => Carbon::parse( $work->time_begin )
+                            ->format( 'd.m.y H:i' ),
+                        'Время окончания работ' => Carbon::parse( $work->time_end )
+                            ->format( 'd.m.y H:i' ),
+                    ];
+                }
             }
 
             $this->addLog( 'Выгрузил данные по отключениям' );
