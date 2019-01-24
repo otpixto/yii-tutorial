@@ -107,7 +107,7 @@ class Asterisk
 
     }
 	
-    public function originate ( $number_from, $number_to, $context = 'default', $callerId = null, $priority = 1, $data = [] )
+    public function originate ( $number_from, $number_to, $context = 'default', $callerId = null, $priority = 1, $url = null )
     {
 
         if ( ! $this->auth ) return false;
@@ -127,9 +127,9 @@ class Asterisk
             $packet .= 'CallerID: ' . $callerId . self::EOL;
         }
 
-        if ( count( $data ) )
+        if ( $url )
         {
-            $packet .= 'Variable: ' . http_build_query( $data ) . self::EOL;
+            $packet .= 'Variable: url=' . $url . self::EOL;
         }
 
         $packet .= self::EOL;

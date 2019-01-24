@@ -549,7 +549,7 @@ class DeviceController extends Controller
 
         $asterisk = new Asterisk();
 		$rest_curl_url = config( 'rest.curl_url' ) . '/ticket-call?ticket_call_id=' . (int) $ticketCall->id;
-        if ( ! $asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, [ 'url' => $rest_curl_url ] ) )
+        if ( ! $asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, $rest_curl_url ) )
         {
             return $this->error( $asterisk->last_result );
         }
