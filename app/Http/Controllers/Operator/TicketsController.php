@@ -1393,6 +1393,7 @@ class TicketsController extends BaseController
         {
             $ticketManagement = $ticket
                 ->managements()
+                ->mine()
                 ->find( $ticket_management_id );
             if ( ! $ticketManagement )
             {
@@ -1401,45 +1402,29 @@ class TicketsController extends BaseController
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
             $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
-            if ( ! empty( $request->get( 'comment' ) ) )
-            {
-                $res = $ticketManagement->addComment( $request->get( 'comment' ) );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()
-                        ->withErrors( $res );
-                }
-            }
-            if ( ! empty( $request->get( 'postponed_to' ) ) )
-            {
-                $ticketManagement->ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
-                if ( ! empty( $request->get( 'postponed_comment' ) ) )
-                {
-                    $ticketManagement->ticket->postponed_comment = $request->get( 'postponed_comment' );
-                }
-                $ticketManagement->ticket->save();
-            }
         }
         else
         {
             $res = $ticket->changeStatus( $request->get( 'status_code' ) );
-            if ( ! empty( $request->get( 'comment' ) ) )
+        }
+
+        if ( ! empty( $request->get( 'postponed_to' ) ) )
+        {
+            $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+            if ( ! empty( $request->get( 'postponed_comment' ) ) )
             {
-                $res = $ticket->addComment( $request->get( 'comment' ) );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()
-                        ->withErrors( $res );
-                }
+                $ticket->postponed_comment = $request->get( 'postponed_comment' );
             }
-            if ( ! empty( $request->get( 'postponed_to' ) ) )
+            $ticket->save();
+        }
+
+        if ( ! empty( $request->get( 'comment' ) ) )
+        {
+            $res = $ticket->addComment( $request->get( 'comment' ) );
+            if ( $res instanceof MessageBag )
             {
-                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
-                if ( ! empty( $request->get( 'postponed_comment' ) ) )
-                {
-                    $ticket->postponed_comment = $request->get( 'postponed_comment' );
-                }
-                $ticket->save();
+                return redirect()->back()
+                    ->withErrors( $res );
             }
         }
 

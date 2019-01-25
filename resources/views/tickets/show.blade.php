@@ -543,19 +543,24 @@
                     inputType: 'textarea',
                     callback: function ( result )
                     {
-                        if ( ! result )
+                        if ( result === null )
                         {
                             alert( 'Действие отменено!' );
+                            return true;
                         }
-                        else
-                        {
-                            form
-                                .removeAttr( 'data-confirm' )
-                                .append(
-                                    $( '<input type="hidden" name="comment">' ).val( result )
-                                );
-                            form.submit();
-                        }
+                        @if ( \Auth::user()->can( 'tickets.statuses.rejected.need_comment' ) )
+                            if ( result == '' )
+                            {
+                                alert( 'Комментарий обязателен!' );
+                                return false;
+                            }
+                        @endif
+                        form
+                            .removeAttr( 'data-confirm' )
+                            .append(
+                                $( '<input type="hidden" name="comment">' ).val( result )
+                            );
+                        form.submit();
                     }
                 });
 
