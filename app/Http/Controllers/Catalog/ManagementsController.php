@@ -661,7 +661,7 @@ class ManagementsController extends BaseController
                 'id дома'                    => $building->id,
                 'Наименование адреса'        => $building->name,
                 'Тип (дом/бизнес-центр)'     => $building->buildingType->name ?? '',
-                'Наименование сегмента'      => $building->segment->name ?? '',
+                'Наименование сегмента'      => $building->getSegments()->implode( 'name', ', ' ) ?? '',
                 'GUID'                       => $building->guid,
             ];
             $i ++;
