@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Maps;
 
 use App\Classes\Title;
+use App\Models\Category;
 use App\Models\Log;
+use Illuminate\Http\Request;
 
 class MapsController extends BaseController
 {
@@ -15,11 +17,26 @@ class MapsController extends BaseController
         return view( 'maps.tickets' );
     }
 
-    public function works ()
+    public function works ( Request $request )
     {
         Title::add( 'География отключений' );
         $this->addLog( 'Просмотрел карту отключений' );
-        return view( 'maps.works' );
+        $availableCategories = Category
+            ::mine()
+            ->where( 'works', '=', 1 )
+            ->orderBy( Category::$_table . '.name' )
+            ->pluck( Category::$_table . '.name', Category::$_table . '.id' )
+            ->toArray();
+        return view( 'maps.works' )
+            ->with( 'category_id', $request->get( 'category_id' ) )
+            ->with( 'availableCategories', $availableCategories );
+    }
+
+    public function positions ()
+    {
+        Title::add( 'Где сотрудник' );
+        //$this->addLog( 'Просмотрел карту отключений' );
+        return view( 'maps.positions' );
     }
 
 }

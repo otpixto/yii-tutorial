@@ -10,6 +10,18 @@
 
 @section( 'content' )
 
+    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading', 'id' => 'filter-form' ] ) !!}
+    <div class="form-group">
+        {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-4' ] ) !!}
+        <div class="col-xs-4">
+            {!! Form::select( 'category_id', [ null => '--- Выберите из списка ---' ] + $availableCategories, $category_id, [ 'class' => 'form-control select2' ] ) !!}
+        </div>
+        <div class="col-xs-4">
+            {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success' ] ) !!}
+        </div>
+    </div>
+    {!! Form::close() !!}
+
     <div class="progress" id="loading">
         <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
             Загрузка...
@@ -37,12 +49,47 @@
 
     <script type="text/javascript">
 
+        var myMap;
+
+        function getData ( category_id )
+        {
+
+            $( '#map' ).css( 'opacity', 0 );
+            $( '#loading' ).removeClass( 'hidden' );
+
+            $.get( '/data/works-buildings',
+                {
+                    category_id: category_id || null
+                },
+                function ( response )
+                {
+                    if ( response.length )
+                    {
+                        $.each( response, function ( address_id, val )
+                        {
+                            clusterer.add( new ymaps.Placemark( val.coors, getPointData( val ), getPointOptions() ) );
+                        });
+                        myMap.geoObjects.add(clusterer);
+                        myMap.setBounds(clusterer.getBounds(), {
+                            checkZoomRange: true
+                        });
+                    }
+                    $( '#map' ).css( 'opacity', 1 );
+                    $( '#loading' ).addClass( 'hidden' );
+                }
+            );
+
+        };
+
         $( document )
-            .ready(function()
+
+            .ready( function()
             {
 
-                ymaps.ready(function () {
-                    var myMap = new ymaps.Map('map', {
+                ymaps.ready( function ()
+                {
+
+                    myMap = new ymaps.Map( 'map', {
                             center: [ 55.751574, 37.573856 ],
                             zoom: 9,
                             controls: ['zoomControl']
@@ -92,22 +139,7 @@
 
                     $( '.ymaps-2-1-56-map-copyrights-promo, .ymaps-2-1-56-copyright' ).remove();
 
-                    $.get( '/data/works-buildings', function ( response )
-                    {
-                        if ( response.length )
-                        {
-                            $.each( response, function ( address_id, val )
-                            {
-                                clusterer.add( new ymaps.Placemark( val.coors, getPointData( val ), getPointOptions() ) );
-                            });
-                            myMap.geoObjects.add(clusterer);
-                            myMap.setBounds(clusterer.getBounds(), {
-                                checkZoomRange: true
-                            });
-                        }
-                        $( '#map' ).css( 'opacity', 1 );
-                        $( '#loading' ).addClass( 'hidden' );
-                    });
+                    getData( "{{ $category_id }}" );
 
                 });
 
