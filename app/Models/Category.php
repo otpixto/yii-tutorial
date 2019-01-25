@@ -30,10 +30,24 @@ class Category extends BaseModel
         return $this->belongsTo( 'App\Models\Provider' );
     }
 
-    public function scopeMine ( $query )
+    public function scopeMine ( $query, ... $flags )
     {
-        return $query
-            ->mineProvider();
+        if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
+        {
+            $query
+                ->where( function ( $q )
+                {
+                    return $q
+                        ->whereNull( self::$_table . '.provider_id' )
+                        ->orWhereHas( 'provider', function ( $provider )
+                        {
+                            return $provider
+                                ->mine()
+                                ->current();
+                        });
+                });
+        }
+        return $query;
     }
 
 }
