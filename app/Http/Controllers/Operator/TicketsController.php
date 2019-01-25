@@ -1089,7 +1089,7 @@ class TicketsController extends BaseController
             ->find( $id );
         if ( ! $ticket )
         {
-            return view( 'parts.errors' )
+            return view( 'parts.error' )
                 ->with( 'error', 'Заявка не найдена' );
         }
 
