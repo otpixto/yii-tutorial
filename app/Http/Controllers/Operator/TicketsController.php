@@ -786,7 +786,7 @@ class TicketsController extends BaseController
     public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $ticket = Ticket::find( $ticket_id );
+        $ticket = Ticket::mine()->find( $ticket_id );
         $ticketManagement = null;
 
         if ( ! $ticket )
