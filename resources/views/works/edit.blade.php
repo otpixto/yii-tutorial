@@ -25,6 +25,15 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                {!! Form::label( null, 'Дата создания', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->created_at->format( 'd.m.Y H:i' ) }}
+                    </span>
+                </div>
+            </div>
+
             @if ( $providers->count() > 1 )
                 <div class="form-group">
                     {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}

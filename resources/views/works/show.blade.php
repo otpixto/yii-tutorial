@@ -26,6 +26,15 @@
             </div>
 
             <div class="form-group">
+                {!! Form::label( null, 'Дата создания', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                <div class="col-xs-9">
+                    <span class="form-control-static">
+                        {{ $work->created_at->format( 'd.m.Y H:i' ) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 {!! Form::label( null, 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     <span class="form-control-static">
