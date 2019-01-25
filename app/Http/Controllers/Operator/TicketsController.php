@@ -1084,42 +1084,30 @@ class TicketsController extends BaseController
     public function history ( Request $request, $id )
     {
 
-        $ticketManagement = TicketManagement
+        $ticket = Ticket
             ::mine()
             ->find( $id );
-        if ( ! $ticketManagement )
+        if ( ! $ticket )
         {
             return view( 'parts.errors' )
                 ->with( 'error', 'Заявка не найдена' );
         }
 
-        $ticketManagement->addLog( 'Просмотрел историю заявки №' . $ticketManagement->getTicketNumber() );
+        $logs = $ticket
+            ->logs()
+            ->with(
+                'author'
+            )
+            ->get();
 
-        $statuses = $ticketManagement
+        $statuses = $ticket
             ->statusesHistory()
             ->orderBy( 'id' )
             ->with( 'author' )
             ->get();
 
-        $logs = $ticketManagement
-            ->logs()
-            ->with(
-                'author'
-            )
-            ->get();
-			
-		$ticketLogs = $ticketManagement
-			->ticket
-            ->logs()
-            ->with(
-                'author'
-            )
-            ->get();
-			
-		$logs = $logs->merge( $ticketLogs )->sortBy( 'id' );
-
         return view( 'tickets.tabs.history' )
-            ->with( 'ticketManagement', $ticketManagement )
+            ->with( 'ticket', $ticket )
             ->with( 'statuses', $statuses )
             ->with( 'logs', $logs );
 

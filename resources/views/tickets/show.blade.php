@@ -256,15 +256,15 @@
 
                         break;
 
-                @if ( $ticketManagement )
-
                     case '#history':
                         $( '#history' ).loading();
-                        $.get( '{{ route( 'tickets.history', $ticketManagement->id ) }}', function ( response )
+                        $.get( '{{ route( 'tickets.history', $ticket->id ) }}', function ( response )
                         {
                             $( '#history' ).html( response );
                         });
                         break;
+
+                @if ( $ticketManagement )
 
                     case '#services':
                         $( '#services' ).loading();

@@ -165,7 +165,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'comment/{ticket_id}', 'Operator\TicketsController@comment' )->name( 'tickets.comment' );
             Route::get( 'clear-cache', 'Operator\TicketsController@clearCache' )->name( 'tickets.clear_cache' );
             Route::post( 'line/{id}', 'Operator\TicketsController@line' )->name( 'tickets.line' );
-            Route::get( 'history/{ticket_management_id}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
+            Route::get( 'history/{ticket_id}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
             Route::post( 'comments/{id?}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
 
