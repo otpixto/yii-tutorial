@@ -1,5 +1,4 @@
 <?php
-declare ( strict_types = 1 );
 
 namespace App\Classes;
 
@@ -16,7 +15,7 @@ class Asterisk
     private $socket = false;
     private $auth = false;
 
-    const LENGTH = 4096;
+    const LENGTH = 1024;
     const TIMEOUT = 5;
 	const EOL = "\r\n";
 
@@ -64,18 +63,18 @@ class Asterisk
     {
 		$this->last_result = '';
 		$result = '';
-		while ( ! feof( $this->socket ) )
+		while ( $line = fgets( $this->socket, self::LENGTH ) )
 		{
-			$line = fgets( $this->socket, self::LENGTH );
-			$status = socket_get_status( $this->socket );
-			if ( $line == self::EOL && ! $status[ 'unread_bytes' ] )
-			{
-				break;
-			}
-			else
-			{
-				$result .= $line;
-			}
+            $status = socket_get_status( $this->socket );
+            if ( $line == self::EOL && ! $status[ 'unread_bytes' ] )
+            {
+                break;
+            }
+            else
+            {
+                $result .= $line;
+                usleep( 100 );
+            }
 		}
 		$this->last_result = trim( $result );
         return $this->last_result;
