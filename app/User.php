@@ -288,14 +288,14 @@ class User extends BaseModel implements
             return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
         }
         $number = $this->openPhoneSession->number;
-        $asterisk = new Asterisk();
+        $this->openPhoneSession->close();
+        $this->number = null;
+        $this->save();
+		$asterisk = new Asterisk();
         if ( ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
-        $this->openPhoneSession->close();
-        $this->number = null;
-        $this->save();
         \Cookie::forget( 'phone' );
     }
 
