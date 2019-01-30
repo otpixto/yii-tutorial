@@ -90,6 +90,11 @@ class Management extends BaseModel
     {
         return $this->belongsTo( 'App\Models\Management' );
     }
+	
+	public function childs ()
+    {
+        return $this->hasMany( 'App\Models\Management', 'parent_id', 'id' );
+    }
 
     public function building ()
     {

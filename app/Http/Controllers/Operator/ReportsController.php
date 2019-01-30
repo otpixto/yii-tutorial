@@ -29,6 +29,32 @@ class ReportsController extends BaseController
     {
 
     }
+	
+	public function totals ( Request $request )
+    {
+		
+		$date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
+        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+		$management_id = $request->get( 'management_id' );
+		
+		$title = 'Сформировать Справку ЕДС ЖКХ';
+		
+		Title::add( $title );
+		
+		$availableManagements = Management
+			::mine()
+			->whereNull( 'parent_id' )
+			->whereHas( 'childs' )
+			->orderBy( 'name' )
+			->pluck( 'name', 'id' );
+		
+		return view( 'reports.totals' )
+            ->with( 'availableManagements', $availableManagements )
+            ->with( 'management_id', $management_id )
+            ->with( 'date_from', $date_from )
+            ->with( 'date_to', $date_to );
+		
+    }
 
     public function executors ( Request $request )
     {
@@ -49,8 +75,9 @@ class ReportsController extends BaseController
 
         $availableManagements = Management
             ::mine()
-            ->orderBy( 'name' )
-            ->get();
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
 
         $ticketManagements = TicketManagement
             ::mine()
@@ -117,12 +144,13 @@ class ReportsController extends BaseController
         }
 
         $res = [];
-        foreach ( $availableManagements as $availableManagement )
+        foreach ( $availableManagements as $r )
         {
-            $res[ $availableManagement->parent->name ?? '' ][ $availableManagement->id ] = $availableManagement->name;
+            $res[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
 
         ksort( $res );
+
         $availableManagements = $res;
 
         $this->addLog( 'Просмотрел отчет по исполнителям' );

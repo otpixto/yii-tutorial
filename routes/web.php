@@ -185,6 +185,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'tickets', 'Operator\ReportsController@tickets' )->name( 'reports.tickets' );
             Route::get( 'operators', 'Operator\ReportsController@operators' )->name( 'reports.operators' );
             Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
+            Route::get( 'totals', 'Operator\ReportsController@totals' )->name( 'reports.totals' );
         });
 
         Route::prefix( 'maps' )->group( function ()
