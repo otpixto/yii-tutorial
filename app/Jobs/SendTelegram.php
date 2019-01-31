@@ -8,6 +8,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class SendTelegram implements ShouldQueue
@@ -26,6 +28,9 @@ class SendTelegram implements ShouldQueue
     {
         $this->subscription = $subscription;
         $this->message = $message;
+        $this->logs = new Logger( 'TELEGRAM' );
+        $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
+        $this->logs->addInfo( $message, $subscription );
     }
 
     /**
@@ -52,15 +57,16 @@ class SendTelegram implements ShouldQueue
                     'last_name' => $chat->getLastName() ?? null,
                     'username' => $chat->getUsername()
                 ];
+                $this->logs->addInfo( 'Обновляем данные', $attributes );
                 $this->subscription->edit( $attributes );
             }
         }
         catch ( TelegramResponseException $e )
         {
             $errorData = $e->getResponseData();
-            if ( $errorData['ok'] === false )
+            if ( $errorData[ 'ok' ] === false )
             {
-                $this->subscription->addLog( 'Подписка прекращена по причине "' . $errorData['description'] . '"' );
+                $this->subscription->addLog( 'Подписка прекращена по причине "' . $errorData[ 'description' ] . '"' );
                 $this->subscription->delete();
             }
         }
