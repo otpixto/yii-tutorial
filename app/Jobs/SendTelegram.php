@@ -30,7 +30,7 @@ class SendTelegram implements ShouldQueue
         $this->message = $message;
         $this->logs = new Logger( 'TELEGRAM' );
         $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
-        $this->logs->addInfo( 'Исходящее сообщение', [ $message, $subscription ] );
+        $this->logs->addInfo( 'Исходящее сообщение', [ $message, $subscription->toArray() ] );
     }
 
     /**
