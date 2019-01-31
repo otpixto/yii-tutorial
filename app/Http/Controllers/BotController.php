@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Management;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Telegram\Bot\Api;
 
 class BotController extends Controller
@@ -13,12 +15,16 @@ class BotController extends Controller
     public function __construct( Api $telegram )
     {
         $this->telegram = $telegram;
+        $this->logs = new Logger( 'TELEGRAM' );
+        $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
     }
 
     public function telegram ( Request $request, $token )
     {
 
         if ( $token != \Config::get( 'telegram.bot_token' ) ) return;
+
+        $this->logs->addInfo( 'Входящее сообщение', $request->all() );
 
         try
         {
