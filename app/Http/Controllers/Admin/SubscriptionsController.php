@@ -78,11 +78,14 @@ class SubscriptionsController extends BaseController
                 ->route( 'subscriptions.index' )
                 ->withErrors( [ 'Подписка не найдена' ] );
         }
-        if ( $subscription->sendTelegram( 'Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена' ) )
+        $log = $subscription->addLog( 'Подписка прекращена' );
+        if ( $log instanceof MessageBag )
         {
-            $subscription->addLog( 'Подписка прекращена' );
-            $subscription->delete();
+            return redirect()->back()
+                ->withErrors( $log );
         }
+        $subscription->sendTelegram( 'Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена' );
+        $subscription->delete();
         return redirect()->route( 'subscriptions.index' )
             ->with( 'success', 'Подписка успешно завершена' );
     }
