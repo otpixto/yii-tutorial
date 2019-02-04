@@ -93,6 +93,11 @@
                                 @else
                                     {{ $subscription->management_name }}
                                 @endif
+                                @if ( $subscription->management->telegram_code )
+                                    <div class="small text-muted">
+                                        пин-код {{ $subscription->management->telegram_code }}
+                                    </div>
+                                @endif
                             </td>
                             <td colspan="2">
                                 {{ $subscription->getName() }}
