@@ -243,9 +243,14 @@ class ManagementsController extends BaseController
             ::mine( Management::IGNORE_MANAGEMENT )
             ->where( function ( $q ) use ( $request )
             {
-                return $q
-                    ->where( 'name', '=', $request->get( 'name' ) )
-                    ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+                $q
+                    ->where( 'name', '=', $request->get( 'name' ) );
+                if ( ! empty( $request->get( 'guid' ) ) )
+                {
+                    $q
+                        ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+                }
+                return $q;
             })
             ->first();
         if ( $old )
