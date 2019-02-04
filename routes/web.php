@@ -28,6 +28,11 @@ Route::group( [ 'middleware' => 'api' ], function ()
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
 
+        Route::prefix( 'users' )->group( function ()
+        {
+            Route::any( 'addresses', 'UserController@addresses' );
+        });
+
     });
 
     Route::prefix( 'asterisk' )->group( function ()
@@ -300,6 +305,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'providers', 'Admin\ProvidersController' );
             Route::resource( 'sessions', 'Admin\SessionsController' );
             Route::resource( 'calls', 'Admin\CallsController' );
+            Route::resource( 'subscriptions', 'Admin\SubscriptionsController' );
 
             Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
 

@@ -61,4 +61,14 @@ class ManagementSubscription extends BaseModel
         $this->dispatch( new SendTelegram( $this, $message ) );
     }
 
+    public function scopeMine ( $query )
+    {
+        return $query
+            ->whereHas( 'management', function ( $management )
+            {
+                return $management
+                    ->mine();
+            });
+    }
+
 }
