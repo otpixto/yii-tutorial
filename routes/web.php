@@ -28,9 +28,43 @@ Route::group( [ 'middleware' => 'api' ], function ()
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
 
-        Route::prefix( 'users' )->group( function ()
+        Route::prefix( 'external' )->group( function ()
         {
-            Route::any( 'addresses', 'UserController@addresses' );
+            Route::any( 'works', 'Rest\ExternalController@works' )->name( 'rest.external.works' );
+        });
+
+        Route::prefix( 'lk' )->group( function ()
+        {
+            Route::any( 'login', 'Rest\LKController@login' )->name( 'rest.lk.login' );
+            Route::any( 'logout', 'Rest\LKController@logout' )->name( 'rest.lk.logout' );
+            Route::any( 'addresses', 'Rest\LKController@addresses' )->name( 'rest.lk.addresses' );
+            Route::any( 'statuses', 'Rest\LKController@statuses' )->name( 'rest.lk.statuses' );
+            Route::any( 'types', 'Rest\LKController@types' )->name( 'rest.lk.types' );
+            Route::any( 'tickets', 'Rest\LKController@tickets' )->name( 'rest.lk.tickets' );
+            Route::any( 'works', 'Rest\LKController@works' )->name( 'rest.lk.works' );
+            Route::any( 'create', 'Rest\LKController@create' )->name( 'rest.lk.create' );
+            Route::any( 'sessions', 'Rest\LKController@sessions' )->name( 'rest.lk.sessions' );
+            Route::any( 'rate', 'Rest\LKController@rate' )->name( 'rest.lk.rate' );
+            Route::any( 'push', 'Rest\LKController@push' )->name( 'rest.lk.push' );
+        });
+
+        Route::prefix( 'devices' )->group( function ()
+        {
+            Route::any( 'login', 'Rest\DeviceController@login' )->name( 'rest.devices.login' );
+            Route::any( 'logout', 'Rest\DeviceController@logout' )->name( 'rest.devices.logout' );
+            Route::any( 'tickets', 'Rest\DeviceController@tickets' )->name( 'rest.devices.tickets' );
+            Route::any( 'updates', 'Rest\DeviceController@updates' )->name( 'rest.devices.updates' );
+            Route::any( 'contacts', 'Rest\DeviceController@contacts' )->name( 'rest.devices.contacts' );
+            Route::any( 'calls', 'Rest\DeviceController@calls' )->name( 'rest.devices.calls' );
+            Route::any( 'call', 'Rest\DeviceController@call' )->name( 'rest.devices.call' );
+            Route::any( 'position', 'Rest\DeviceController@position' )->name( 'rest.devices.position' );
+            Route::any( 'complete', 'Rest\DeviceController@complete' )->name( 'rest.devices.complete' );
+            Route::any( 'in-process', 'Rest\DeviceController@inProcess' )->name( 'rest.devices.in_process' );
+            Route::any( 'comment', 'Rest\DeviceController@comment' )->name( 'rest.devices.comment' );
+            Route::any( 'clear-cache', 'Rest\DeviceController@clearCache' )->name( 'rest.devices.clear_cache' );
+            Route::get( 'get/phone', 'Rest\DeviceController@getPhone' )->name( 'rest.devices.get_phone' );
+            Route::any( 'sessions', 'Rest\LKController@sessions' )->name( 'rest.lk.sessions' );
+            Route::any( 'sessions/close', 'Rest\LKController@sessionsClose' )->name( 'rest.lk.sessions.close' );
         });
 
     });
@@ -43,23 +77,6 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
     });
 
-    Route::prefix( 'devices' )->group( function ()
-    {
-        //Route::get( '{route}', 'DeviceController@index' );
-        Route::any( 'auth', 'DeviceController@auth' )->name( 'devices.auth' );
-        Route::any( 'tickets', 'DeviceController@tickets' )->name( 'devices.tickets' );
-        Route::any( 'updates', 'DeviceController@updates' )->name( 'devices.updates' );
-        Route::any( 'contacts', 'DeviceController@contacts' )->name( 'devices.contacts' );
-        Route::any( 'calls', 'DeviceController@calls' )->name( 'devices.calls' );
-        Route::any( 'call', 'DeviceController@call' )->name( 'devices.call' );
-        Route::any( 'position', 'DeviceController@position' )->name( 'devices.position' );
-        Route::any( 'complete', 'DeviceController@complete' )->name( 'devices.complete' );
-        Route::any( 'in-process', 'DeviceController@inProcess' )->name( 'devices.in_process' );
-        Route::any( 'comment', 'DeviceController@comment' )->name( 'devices.comment' );
-        Route::any( 'clear-cache', 'DeviceController@clearCache' )->name( 'devices.clear_cache' );
-        Route::get( 'get/phone', 'DeviceController@getPhone' )->name( 'devices.get_phone' );
-    });
-
 });
 
 Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
@@ -69,8 +86,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::post( 'login', 'Auth\LoginController@login' );
 
     // Registration Routes...
-    Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
-    Route::post( 'register', 'Auth\RegisterController@register' );
+    //Route::get( 'register', 'Auth\RegisterController@showRegistrationForm' )->name( 'register' );
+    //Route::post( 'register', 'Auth\RegisterController@register' );
 
     // Password Reset Routes...
     Route::get( 'forgot', 'Auth\ForgotPasswordController@showLinkRequestForm' )->name( 'forgot' );
@@ -130,6 +147,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::prefix( 'tickets' )->group( function ()
         {
+
+            Route::get( 'moderate', 'Operator\TicketsController@moderate' )->name( 'tickets.moderate' );
+            Route::get( 'moderate/{ticket_id}', 'Operator\TicketsController@moderateShow' )->name( 'tickets.moderate.show' );
+            Route::get( 'moderate/{ticket_id}/reject', 'Operator\TicketsController@moderateReject' )->name( 'tickets.moderate.reject' );
+            Route::post( 'moderate', 'Operator\TicketsController@moderate' )->name( 'tickets.moderate' );
 
             Route::get( 'calendar/{date}', 'Operator\TicketsController@calendar' )->name( 'tickets.calendar' );
             Route::post( 'calendar', 'Operator\TicketsController@calendarData' )->name( 'tickets.calendar_data' );
@@ -327,6 +349,12 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'providers/{provider_id}/phones/store', 'Admin\ProvidersController@phonesStore' )->name( 'providers.phones.store' );
             Route::get( 'providers/{provider_id}/phones/{phone_id}/edit', 'Admin\ProvidersController@phonesEdit' )->name( 'providers.phones.edit' );
             Route::post( 'providers/{provider_id}/phones/{phone_id}/update', 'Admin\ProvidersController@phonesUpdate' )->name( 'providers.phones.update' );
+            Route::delete( 'providers/{key_id}/tokens/del', 'Admin\ProvidersController@tokensDel' )->name( 'providers.tokens.del' );
+            Route::delete( 'providers/{provider_id}/keys/del', 'Admin\ProvidersController@keysDel' )->name( 'providers.keys.del' );
+            Route::get( 'providers/{provider_id}/keys/create', 'Admin\ProvidersController@keysCreate' )->name( 'providers.keys.create' );
+            Route::put( 'providers/{provider_id}/keys/store', 'Admin\ProvidersController@keysStore' )->name( 'providers.keys.store' );
+            Route::get( 'providers/{provider_id}/keys/{key_id}/edit', 'Admin\ProvidersController@keysEdit' )->name( 'providers.keys.edit' );
+            Route::post( 'providers/{provider_id}/keys/{key_id}/update', 'Admin\ProvidersController@keysUpdate' )->name( 'providers.keys.update' );
             Route::put( 'providers/{provider_id}/logo/upload', 'Admin\ProvidersController@uploadLogo' )->name( 'providers.logo.upload' );
             Route::delete( 'providers/{provider_id}/logo/delete', 'Admin\ProvidersController@deleteLogo' )->name( 'providers.logo.delete' );
 
