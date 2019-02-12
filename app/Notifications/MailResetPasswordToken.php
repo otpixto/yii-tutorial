@@ -29,9 +29,9 @@ class MailResetPasswordToken extends Notification
      * @param  mixed  $notifiable
      * @return array
      */
-    public function via($notifiable)
+    public function via ( $notifiable )
     {
-        return ['mail'];
+        return [ 'mail' ];
     }
 
     /**
@@ -40,14 +40,14 @@ class MailResetPasswordToken extends Notification
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail ( $notifiable )
     {
-        return (new MailMessage)
+        return ( new MailMessage )
             ->subject('Сброс пароля' )
             ->greeting('Здравствуйте, ' . $notifiable->getName() . '!' )
             ->line('Вы получили это электронное письмо потому что мы получили запрос на сброс пароля для вашей учетной записи.')
-            ->action('Сбросить пароль', url(config('app.url' ).route('reset', $this->token, false ) ) . '?email=' . $notifiable->email )
-            ->line('Если вы не запрашивали сброс пароля, никаких дополнительных действий не требуется.');
+            ->action('Сбросить пароль', route('reset', $this->token ) . '?email=' . $notifiable->email )
+            ->line('Если вы не запрашивали сброс пароля, никаких дополнительных действий не требуется.' );
     }
 
     /**
@@ -56,7 +56,7 @@ class MailResetPasswordToken extends Notification
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable)
+    public function toArray ( $notifiable )
     {
         return [
             //
