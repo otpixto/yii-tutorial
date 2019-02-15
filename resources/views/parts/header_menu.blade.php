@@ -41,6 +41,18 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'tickets.moderate' ) )
+                        <li>
+                            <a href="{{ route( 'tickets.moderate' ) }}">
+                                Модерация
+                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                    <span class="badge badge-success bold">
+                                    {{ \App\Classes\Counter::ticketsCountModerate() }}
+                                </span>
+                                @endif
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'tickets.call' ) )
                         <li>
                             <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client', 'show' => 'mine' ] ) }}">
