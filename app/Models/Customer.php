@@ -50,7 +50,12 @@ class Customer extends BaseModel
 
     public function actualBuilding ()
     {
-        return $this->belongsTo('App\Models\Building');
+        return $this->belongsTo('App\Models\Building' );
+    }
+
+    public function buildings ()
+    {
+        return $this->belongsToMany('App\Models\Building', 'customers_buildings' );
     }
 
     public function provider ()
