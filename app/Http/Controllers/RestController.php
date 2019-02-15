@@ -276,9 +276,9 @@ class RestController extends Controller
         if ( $this->is_auth ) return true;
         $this->logs->addInfo( 'Авторизация', $request->all() );
         $hash = $request->get( 'hash', null );
-        if ( !$hash ) return false;
+        if ( ! $hash ) return false;
         $data = $request->all();
-        unset( $data['hash'] );
+        unset( $data[ 'hash' ] );
         ksort( $data );
         $arr = [];
         foreach ( $data as $key => $val )
