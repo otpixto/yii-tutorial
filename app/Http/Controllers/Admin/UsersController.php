@@ -476,7 +476,7 @@ class UsersController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $res = $user->changePass( $request->all() );
+        $res = $user->changePass( $request->get( 'password' ) );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()->withInput()->withErrors( $res );

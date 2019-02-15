@@ -45,6 +45,10 @@ Route::group( [ 'middleware' => 'api' ], function ()
             Route::any( 'create', 'Rest\LKController@create' )->name( 'rest.lk.create' );
             Route::any( 'sessions', 'Rest\LKController@sessions' )->name( 'rest.lk.sessions' );
             Route::any( 'rate', 'Rest\LKController@rate' )->name( 'rest.lk.rate' );
+            Route::any( 'change-password', 'Rest\LKController@changePassword' )->name( 'rest.lk.change.password' );
+            Route::any( 'profile', 'Rest\LKController@profile' )->name( 'rest.lk.profile' );
+            Route::any( 'address-add', 'Rest\LKController@addressAdd' )->name( 'rest.lk.address.add' );
+            Route::any( 'address-del', 'Rest\LKController@addressDel' )->name( 'rest.lk.address.del' );
             Route::any( 'push', 'Rest\LKController@push' )->name( 'rest.lk.push' );
         });
 
@@ -63,8 +67,10 @@ Route::group( [ 'middleware' => 'api' ], function ()
             Route::any( 'comment', 'Rest\DeviceController@comment' )->name( 'rest.devices.comment' );
             Route::any( 'clear-cache', 'Rest\DeviceController@clearCache' )->name( 'rest.devices.clear_cache' );
             Route::get( 'get/phone', 'Rest\DeviceController@getPhone' )->name( 'rest.devices.get_phone' );
-            Route::any( 'sessions', 'Rest\LKController@sessions' )->name( 'rest.lk.sessions' );
-            Route::any( 'sessions/close', 'Rest\LKController@sessionsClose' )->name( 'rest.lk.sessions.close' );
+            Route::any( 'sessions', 'Rest\DeviceController@sessions' )->name( 'rest.devices.sessions' );
+            Route::any( 'sessions/close', 'Rest\DeviceController@sessionsClose' )->name( 'rest.devices.sessions.close' );
+            Route::any( 'change-password', 'Rest\DeviceController@changePassword' )->name( 'rest.devices.change.password' );
+            Route::any( 'push', 'Rest\DeviceController@push' )->name( 'rest.devices.push' );
         });
 
     });
