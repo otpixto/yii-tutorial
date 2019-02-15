@@ -52,20 +52,6 @@ return [
             'strict' => false,
             'engine' => null,
         ],
-		
-		'eds2' => [
-            'driver' => 'mysql',
-            'host' => '10.10.10.5',
-            'port' => '3306',
-            'database' => 'eds2',
-            'username' => 'eds',
-            'password' => 'dZzwgrxE6eBp9dA1',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
-            'engine' => null,
-        ],
 
         'asterisk' => [
             'driver' => 'mysql',
