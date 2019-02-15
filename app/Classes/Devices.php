@@ -2,24 +2,33 @@
 
 namespace App\Classes;
 
-use App\Models\Ticket;
 use App\Models\TicketManagement;
-use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Devices
 {
 
-    public static function ticketsInfo ( Collection $tickets )
+    public static function ticketsInfo ( LengthAwarePaginator $tickets ) : array
     {
-        $response = [];
+        $per_page = $tickets->perPage();
+        $page = $tickets->currentPage();
+        $total = $tickets->total();
+        $pages = ceil( $total / $per_page );
+        $response = [
+            'tickets' => [],
+            'per_page' => $per_page,
+            'page' => $page,
+            'pages' => $pages,
+            'total' => $total
+        ];
         foreach ( $tickets as $ticket )
         {
-            $response[] = self::ticketInfo( $ticket );
+            $response[ 'tickets' ][] = self::ticketInfo( $ticket );
         }
         return $response;
     }
 
-    public static function ticketInfo ( TicketManagement $ticketManagement )
+    public static function ticketInfo ( TicketManagement $ticketManagement ) : array
     {
         $ticket = $ticketManagement->ticket;
         $info = [
@@ -28,8 +37,8 @@ class Devices
             'status_code'   => $ticketManagement->status_code,
             'status_name'   => $ticketManagement->status_name,
             'address'       => $ticket->getAddress( true ),
-            'lon'           => (float) $ticket->building->lon,
-            'lat'           => (float) $ticket->building->lat,
+            'lon'           => ( (float) $ticket->building->lon ) ?: null,
+            'lat'           => ( (float) $ticket->building->lat ) ?: null,
             'fullname'      => $ticket->getName(),
             'category'      => $ticket->type->category->name ?? null,
             'type'          => $ticket->type->name,

@@ -1,30 +1,25 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Rest;
 
 use App\Classes\Devices;
 use App\Classes\Asterisk;
 use App\Models\File;
+use App\Models\ProviderToken;
 use App\Models\TicketManagement;
-use App\Traits\Logs;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\MessageBag;
 
-class DeviceController extends Controller
+class DeviceController extends BaseController
 {
 
-    use Logs;
-
-    const CACHE_LIFE_MINUTES = 60;
-    const UPDATES_LIFE_SECONDS = 10;
-
-    public function __construct ()
+    public function __construct ( Request $request )
     {
-        \Debugbar::disable();
+        $this->setLogs( storage_path( 'logs/rest_device.log' ) );
+        parent::__construct( $request );
     }
 
     public function index ( Request $request, $route )
@@ -32,75 +27,13 @@ class DeviceController extends Controller
         return $this->success( 'Hello, World!' );
     }
 
-    private function authToken ( Request $request, & $output = null, & $httpCode = 200 ) : bool
+    public function login ( Request $request ) : Response
     {
 
-        $timestamp = Carbon::now()->timestamp - self::UPDATES_LIFE_SECONDS;
-
-        $validation = \Validator::make( $request->all(), [
-            'token'         => 'required',
-        ]);
-
-        if ( $validation->fails() )
+        if ( ! $this->checkProviderKey( $request, $error, $httpCode ) )
         {
-            foreach ( $validation->errors() as $error )
-            {
-                $output = $error->getMessage();
-                $httpCode = 400;
-                return false;
-            }
+            return $this->error( $error, $httpCode );
         }
-
-        $token = $request->get( 'token' );
-
-        if ( ! \Cache::has( 'device.token.' . $token ) )
-        {
-            $output = trans('device.token' );
-            $httpCode = 403;
-            return false;
-        }
-
-        $data = \Cache::get( 'device.token.' . $token );
-
-        $user = User::find( $data[ 0 ] );
-
-        if ( ! $user )
-        {
-            $output = trans('device.user_not_found' );
-            $httpCode = 400;
-            return false;
-        }
-
-        if ( ! $user->isActive() )
-        {
-            $output = trans('device.user_not_active' );
-            $httpCode = 400;
-            return false;
-        }
-
-        if ( ! $user->can( 'rest.auth' ) )
-        {
-            $output = trans('device.denied' );
-            $httpCode = 403;
-            return false;
-        }
-
-        \Auth::login( $user );
-
-        $output = $data;
-        $data[ 1 ] = $timestamp;
-
-        \Cache::put( 'device.token.' . $token, $data, self::CACHE_LIFE_MINUTES );
-        \Cache::put( 'device.user.' . $user->id, $token, self::CACHE_LIFE_MINUTES );
-
-        return true;
-
-    }
-
-    public function auth ( Request $request ) : Response
-    {
-
-        $timestamp = Carbon::now()->timestamp - self::UPDATES_LIFE_SECONDS;
 
         $validation = \Validator::make( $request->all(), [
             'email'         => 'required|email',
@@ -112,39 +45,35 @@ class DeviceController extends Controller
             return $this->error( $validation->errors()->first() );
         }
 
-        if ( ! \Auth::guard()->attempt( $request->toArray() ) )
+        if ( ! \Auth::guard()->attempt( $request->only( 'email', 'password' ) ) )
         {
             return $this->error( trans('auth.failed' ), 403 );
         }
 
         $user = \Auth::user();
 
-        if ( ! $user->can( 'rest.auth' ) )
-        {
-            \Auth::logout();
-            return $this->error( trans('device.denied' ), 403 );
-        }
+        $token = $this->genToken( $request );
 
-        $token = md5( $user->id . $user->getName() . time() );
+        $providerToken = ProviderToken::create([
+            'provider_key_id'       => $this->providerKey->id,
+            'user_id'               => $user->id,
+            'token'                 => $token,
+            'http_user_agent'       => $request->server( 'HTTP_USER_AGENT', '' ),
+            'ip'                    => $request->ip(),
+        ]);
 
-        if ( \Cache::has( 'device.user.' . $user->id ) )
-        {
-            $old_token = \Cache::get( 'device.user.' . $user->id );
-            if ( \Cache::has( 'device.token.' . $old_token ) )
-            {
-                \Cache::forget( 'device.token.' . $old_token );
-            }
-        }
+        $providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
+        $providerToken->providerKey->save();
 
-        \Cache::put( 'device.token.' . $token, [ $user->id, $timestamp ], self::CACHE_LIFE_MINUTES );
-        \Cache::put( 'device.user.' . $user->id, $token, self::CACHE_LIFE_MINUTES );
+        $user->push_id = $request->get( 'push_id', null );
+        $user->save();
 
         $this->addLog( 'Авторизовался' );
 
         return $this->success([
             'id'            => $user->id,
             'fullname'      => $user->getName(),
-            'token'         => $token
+            'token'         => $providerToken->token
         ]);
 
     }
@@ -152,9 +81,9 @@ class DeviceController extends Controller
     public function tickets ( Request $request ) : Response
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
@@ -162,33 +91,64 @@ class DeviceController extends Controller
             return $this->error( trans('device.denied' ), 403 );
         }
 
-        if ( \Cache::has( 'device.tickets.' . \Auth::user()->id ) )
+        $validation = \Validator::make( $request->all(), [
+            'page'                => 'nullable|integer',
+            'per_page'            => 'nullable|integer',
+            'ticket_id'           => 'nullable|integer',
+            'date_from'           => 'nullable|date|date_format:Y-m-d',
+            'date_to'             => 'nullable|date|date_format:Y-m-d',
+            'building_id'         => 'nullable|integer',
+            'status_code'         => 'nullable|string',
+        ]);
+
+        if ( $validation->fails() )
         {
-            $tickets = \Cache::get( 'device.tickets.' . \Auth::user()->id );
+            return $this->error( $validation->errors()->first() );
         }
-        else
+
+        $tickets = TicketManagement
+            ::mine()
+            ->notFinaleStatuses()
+            ->where( 'status_code', '!=', 'draft' )
+            ->whereHas( 'ticket', function ( $ticket ) use ( $request )
+            {
+                if ( $request->get( 'ticket_id' ) )
+                {
+                    $ticket
+                        ->where( 'id', '=', $request->get( 'ticket_id' ) );
+                }
+
+                if ( $request->get( 'date_from' ) )
+                {
+                    $ticket
+                        ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() ] );
+                }
+
+                if ( $request->get( 'date_to' ) )
+                {
+                    $ticket
+                        ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() ] );
+                }
+
+                if ( $request->get( 'building_id' ) )
+                {
+                    $ticket
+                        ->where( 'building_id', '=', $request->get( 'building_id' ) );
+                }
+                return $ticket;
+            });
+
+        if ( $request->get( 'status_code' ) )
         {
-            $tickets = TicketManagement
-                ::mine()
-                ->notFinaleStatuses()
-                ->where( 'status_code', '!=', 'draft' )
-                ->orderBy( 'id', 'desc' )
-                /*->with(
-                    'ticket',
-                    'ticket.comments',
-                    'ticket.comments.author',
-                    'ticket.building',
-                    'ticket.author',
-                    'ticket.type',
-                    'ticket.type.category',
-                    'ticket.calls',
-                    'ticket.statusesHistory'
-                )*/
-                ->take( 50 )
-                ->get();
-            $tickets = Devices::ticketsInfo( $tickets );
-            \Cache::put( 'device.tickets.' . \Auth::user()->id, $tickets, self::CACHE_LIFE_MINUTES );
+            $tickets
+                ->where( 'status_code', '=', $request->get( 'status_code' ) );
         }
+
+        $tickets = $tickets
+            ->orderBy( 'id', 'desc' )
+            ->paginate( config( 'pagination.per_page' ) );
+
+        $tickets = Devices::ticketsInfo( $tickets );
 
         $this->addLog( 'Запросил список заявок' );
 
@@ -199,9 +159,9 @@ class DeviceController extends Controller
     public function updates ( Request $request ) : Response
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
@@ -209,23 +169,15 @@ class DeviceController extends Controller
             return $this->error( trans('device.denied' ), 403 );
         }
 
+        $last_update = \Cache::tags( 'devices' )->get( 'devices.user.' . \Auth::user()->id . '.last_update', Carbon::now()->timestamp );
+        \Cache::tags( 'devices' )->put( 'devices.user.' . \Auth::user()->id . '.last_update', Carbon::now()->timestamp );
+
         $response = [];
 
         $ticketsAdded = TicketManagement
             ::mine()
             ->notFinaleStatuses()
-            ->where( 'created_at', '>=', date( 'Y-m-d H:i:s', $data[ 1 ] ) )
-            ->with(
-                'ticket',
-                'ticket.comments',
-                'ticket.comments.author',
-                'ticket.building',
-                'ticket.author',
-                'ticket.type',
-                'ticket.type.category',
-                'ticket.calls',
-                'ticket.statusesHistory'
-            )
+            ->where( 'created_at', '>=', date( 'Y-m-d H:i:s', $last_update ) )
             ->get();
 
         $response[ 'added' ] = Devices::ticketsInfo( $ticketsAdded );
@@ -233,19 +185,8 @@ class DeviceController extends Controller
         $ticketsUpdated = TicketManagement
             ::mine()
             ->notFinaleStatuses()
-            ->where( 'updated_at', '>=', date( 'Y-m-d H:i:s', $data[ 1 ] ) )
+            ->where( 'updated_at', '>=', date( 'Y-m-d H:i:s', $last_update ) )
             ->whereRaw( 'updated_at != created_at' )
-            ->with(
-                'ticket',
-                'ticket.comments',
-                'ticket.comments.author',
-                'ticket.building',
-                'ticket.author',
-                'ticket.type',
-                'ticket.type.category',
-                'ticket.calls',
-                'ticket.statusesHistory'
-            )
             ->get();
 
         $response[ 'updated' ] = Devices::ticketsInfo( $ticketsUpdated );
@@ -269,9 +210,9 @@ class DeviceController extends Controller
     public function contacts ( Request $request )
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.contacts.show' ) )
@@ -279,9 +220,9 @@ class DeviceController extends Controller
             return $this->error( trans('device.denied' ), 403 );
         }
 
-        if ( \Cache::has( 'device.contacts.' . \Auth::user()->id ) )
+        if ( \Cache::tags( 'devices' )->has( 'devices.user.' . \Auth::user()->id . '.contacts' ) )
         {
-            $contacts = \Cache::get( 'device.contacts.' . \Auth::user()->id );
+            $contacts = \Cache::tags( 'devices' )->get( 'devices.user.' . \Auth::user()->id . '.contacts' );
         }
         else
         {
@@ -301,7 +242,7 @@ class DeviceController extends Controller
                     }
                 }
             }
-            \Cache::put( 'device.contacts.' . \Auth::user()->id, $contacts, self::CACHE_LIFE_MINUTES );
+            \Cache::tags( 'devices' )->put( 'devices.user.' . \Auth::user()->id . '.contacts', $contacts, 15 );
         }
 
         $this->addLog( 'Запросил список контактов' );
@@ -313,9 +254,9 @@ class DeviceController extends Controller
     public function position ( Request $request )
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.position' ) )
@@ -348,6 +289,11 @@ class DeviceController extends Controller
     public function complete ( Request $request )
     {
 
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
         $validation = \Validator::make( $request->all(), [
             'token'         => 'required',
             'id'            => 'required|integer',
@@ -358,11 +304,6 @@ class DeviceController extends Controller
         if ( $validation->fails() )
         {
             return $this->error( $validation->errors()->first() );
-        }
-
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.edit' ) )
@@ -430,6 +371,11 @@ class DeviceController extends Controller
     public function inProcess ( Request $request )
     {
 
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
         $validation = \Validator::make( $request->all(), [
             'token'         => 'required',
             'id'            => 'required|integer',
@@ -439,11 +385,6 @@ class DeviceController extends Controller
         if ( $validation->fails() )
         {
             return $this->error( $validation->errors()->first() );
-        }
-
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.edit' ) )
@@ -503,6 +444,11 @@ class DeviceController extends Controller
 	
 	public function call ( Request $request )
 	{
+
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
 	
 		$validation = \Validator::make( $request->all(), [
             'token'         => 'required',
@@ -514,11 +460,6 @@ class DeviceController extends Controller
         if ( $validation->fails() )
         {
             return $this->error( $validation->errors()->first() );
-        }
-
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.call' ) )
@@ -563,6 +504,11 @@ class DeviceController extends Controller
     public function calls ( Request $request )
     {
 
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
         $validation = \Validator::make( $request->all(), [
             'token'         => 'required',
             'id'            => 'required|integer',
@@ -571,11 +517,6 @@ class DeviceController extends Controller
         if ( $validation->fails() )
         {
             return $this->error( $validation->errors()->first() );
-        }
-
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
-        {
-            return $this->error( $data, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.show' ) )
@@ -612,9 +553,9 @@ class DeviceController extends Controller
     public function comment ( Request $request )
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
         if ( ! \Auth::user()->can( 'rest.tickets.comment' ) )
@@ -654,28 +595,17 @@ class DeviceController extends Controller
     public function clearCache ( Request $request )
     {
 
-        if ( ! $this->authToken( $request, $data, $httpCode ) )
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
-            return $this->error( $data, $httpCode );
+            return $this->error( $error, $httpCode );
         }
 
-        \Cache::forget( 'device.contacts.' . \Auth::user()->id );
-        \Cache::forget( 'device.tickets.' . \Auth::user()->id );
+        \Cache::tags( 'devices' )->forget( 'devices.user.' . \Auth::user()->id . '.contacts' );
 
         $this->addLog( 'Очистил кеш' );
 
         return $this->success( 'OK' );
 
-    }
-
-    private function error ( $error, $httpCode = 400 ) : Response
-    {
-        return response( compact( 'error' ), $httpCode );
-    }
-
-    private function success ( $response ) : Response
-    {
-        return response( $response, 200 );
     }
 
 }
