@@ -3,6 +3,7 @@
 namespace App\Classes;
 
 use App\Models\Provider;
+use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Work;
 
@@ -46,6 +47,23 @@ class Counter
             }
         }
         return self::$tickets_count;
+    }
+
+    public static function ticketsCountModerate ()
+    {
+        $key = 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets.moderate';
+        if ( ! \Cache::tags( 'tickets_counts' )->has( $key ) )
+        {
+            $count = Ticket
+                ::where( Ticket::$_table . '.status_code', '=', 'from_lk' )
+                ->count();
+            \Cache::tags( 'tickets_counts' )->put( $key, $count, self::$cache_life );
+        }
+        else
+        {
+            $count = \Cache::tags( 'tickets_counts' )->get( $key );
+        }
+        return $count;
     }
 
     public static function ticketsOverdueCount ()
