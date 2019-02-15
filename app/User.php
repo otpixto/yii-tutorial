@@ -48,6 +48,9 @@ class User extends BaseModel implements
         'email',
         'prefix',
         'password',
+        'lon',
+        'lat',
+        'push_id',
     ];
 
     public static $rules_create = [
@@ -205,12 +208,12 @@ class User extends BaseModel implements
 
     }
 
-    public function changePass ( array $attributes = [] )
+    public function changePass ( $password )
     {
 
         $this->addLog( 'Пароль изменен' );
 
-        $this->password = bcrypt( $attributes['password'] );
+        $this->password = bcrypt( $password );
         $this->save();
 
         return $this;
