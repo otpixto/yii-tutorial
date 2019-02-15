@@ -44,7 +44,7 @@
                 {!! Form::select( 'status', [ null => ' -- выберите из списка -- ' ] + App\Models\Asterisk\Cdr::$statuses, \Input::get( 'status' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
             <div class="col-md-3 col-xs-5">
-                {!! Form::select( 'context', [ null => 'Входящие и исходящие', 'incoming' => 'Входящие', 'outgoing' => 'Исходящие' ], \Input::get( 'context' ), [ 'class' => 'form-control select2' ] ) !!}
+                {!! Form::select( 'context', [ null => 'ВСЕ' ] + $providerContexts->toArray(), \Input::get( 'context' ), [ 'class' => 'form-control select2' ] ) !!}
             </div>
         </div>
 
@@ -54,6 +54,12 @@
                     <i class="fa fa-search"></i>
                     Поиск
                 </button>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ route( 'calls.index' ) }}" class="btn btn-danger btn-block">
+                    <i class="fa fa-close"></i>
+                    Сбросить
+                </a>
             </div>
         </div>
         {!! Form::close() !!}

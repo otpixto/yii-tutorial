@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Building;
-use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
+use App\Models\ProviderKey;
+use App\Models\ProviderToken;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -19,6 +20,10 @@ class ProvidersController extends BaseController
     {
         parent::__construct();
         Title::add( 'Поставщики' );
+        ProviderToken
+            ::join( 'providers_keys', 'providers_keys.id', '=', 'providers_tokens.provider_key_id' )
+            ->whereRaw( '( TIME_TO_SEC( TIMEDIFF( CURRENT_TIMESTAMP, providers_tokens.updated_at ) ) / 60 ) >= providers_keys.token_life' )
+            ->delete();
     }
 
     public function index ( Request $request )
@@ -163,6 +168,154 @@ class ProvidersController extends BaseController
         $phone->edit( $request->all() );
         return redirect()->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Номер успешно отредактирован' );
+
+    }
+
+    public function phonesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'phone_id'                 => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->phones()->find( $request->get( 'phone_id' ) )->delete();
+
+    }
+
+    public function keysCreate ( Request $request, $provider_id )
+    {
+        Title::add( 'Добавить ключ' );
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        return view('admin.providers.create_key' )
+            ->with( 'provider', $provider );
+    }
+
+    public function keysStore ( Request $request, $provider_id )
+    {
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $rules = [
+            'description'           => 'nullable',
+            'ip'                    => 'nullable',
+            'token_life'            => 'integer|min:1',
+        ];
+        $this->validate( $request, $rules );
+        $providerKey = $provider->addKey( $request->all() );
+        if ( $providerKey instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( $providerKey );
+        }
+        return redirect()->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
+            ->with( 'success', 'Ключ успешно создан' );
+
+    }
+
+    public function keysEdit ( Request $request, $provider_id, $key_id )
+    {
+        Title::add( 'Редактировать ключ' );
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $providerKey = $provider->providerKeys()->find( $key_id );
+        if ( ! $providerKey )
+        {
+            return redirect()->route( 'providers.edit', $provider->id )
+                ->withErrors( [ 'Ключ не найден' ] );
+        }
+        return view('admin.providers.edit_key' )
+            ->with( 'provider', $provider )
+            ->with( 'providerKey', $providerKey );
+    }
+
+    public function keysUpdate ( Request $request, $provider_id, $key_id )
+    {
+        $provider = Provider::find( $provider_id );
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+        $providerKey = $provider->providerKeys()->find( $key_id );
+        if ( ! $providerKey )
+        {
+            return redirect()->route( 'providers.edit', $provider->id )
+                ->withErrors( [ 'Ключ не найден' ] );
+        }
+        $rules = [
+            'description'           => 'nullable',
+            'ip'                    => 'nullable',
+            'token_life'            => 'integer|min:1',
+        ];
+        $this->validate( $request, $rules );
+        $providerKey->edit( $request->all() );
+        return redirect()->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
+            ->with( 'success', 'Ключ успешно отредактирован' );
+
+    }
+
+    public function keysDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'key_id'                 => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $provider = Provider::find( $id );
+
+        if ( ! $provider )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Поставщик не найден' ] );
+        }
+
+        $provider->providerKeys()->find( $request->get( 'key_id' ) )->delete();
+
+    }
+
+    public function tokensDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'token_id'                 => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $providerKey = ProviderKey::find( $id );
+
+        if ( ! $providerKey )
+        {
+            return redirect()->route( 'providers.index' )
+                ->withErrors( [ 'Ключ не найден' ] );
+        }
+
+        $providerKey->providerTokens()->find( $request->get( 'token_id' ) )->delete();
 
     }
 
@@ -583,61 +736,6 @@ class ProvidersController extends BaseController
 
         return redirect()->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Логотип успешно загружен' );
-
-    }
-
-    public function phonesAdd ( Request $request, $id )
-    {
-
-        $rules = [
-            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        ];
-
-        $this->validate( $request, $rules );
-
-        $provider = Provider::find( $id );
-
-        if ( ! $provider )
-        {
-            return redirect()->route( 'providers.index' )
-                ->withErrors( [ 'Поставщик не найден' ] );
-        }
-
-        $phone = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $request->get( 'phone' ) ) ), -10 );
-
-        $providerPhone = $provider->addPhone( $phone );
-
-        if ( $providerPhone instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $providerPhone );
-        }
-
-        $providerPhone->save();
-
-        return redirect()->route( 'providers.edit', $provider->id )
-            ->with( 'success', 'Телефон успешно добавлен' );
-
-    }
-
-    public function phonesDel ( Request $request, $id )
-    {
-
-        $rules = [
-            'phone_id'                 => 'required|integer',
-        ];
-
-        $this->validate( $request, $rules );
-
-        $provider = Provider::find( $id );
-
-        if ( ! $provider )
-        {
-            return redirect()->route( 'providers.index' )
-                ->withErrors( [ 'Поставщик не найден' ] );
-        }
-
-        $provider->phones()->find( $request->get( 'phone_id' ) )->delete();
 
     }
 

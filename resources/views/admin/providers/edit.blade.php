@@ -146,6 +146,92 @@
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
+                        <h3 class="panel-title">Ключи доступа</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.update', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Ключ
+                                    </th>
+                                    <th>
+                                        Описание
+                                    </th>
+                                    <th>
+                                        Разрешенные IP
+                                    </th>
+                                    <th class="text-center">
+                                        Последний запрос
+                                    </th>
+                                    <th class="text-center">
+                                        Активные токены
+                                    </th>
+                                    <th>
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ( $provider->providerKeys as $providerKey )
+                                <tr>
+                                    <td>
+                                        {{ $providerKey->api_key }}
+                                    </td>
+                                    <td>
+                                        {{ $providerKey->description }}
+                                    </td>
+                                    <td>
+                                        {{ $providerKey->ip ?? '-' }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if ( $providerKey->active_at )
+                                            {{ $providerKey->active_at->format( 'd.m.Y H:i' ) }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] ) }}#tokens" class="badge {{ $providerKey->providerTokens->count() ? 'badge-success' : '' }}">
+                                            {{ $providerKey->providerTokens->count() }}
+                                        </a>
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button" class="btn btn-xs btn-danger" data-delete="provider-key" data-id="{{ $providerKey->id }}">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                        <a href="{{ route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] ) }}" class="btn btn-info btn-xs">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                        <div class="margin-top-15">
+                            <a href="{{ route( 'providers.keys.create', $provider->id ) }}" class="btn btn-primary">
+                                <i class="fa fa-plus"></i>
+                                Добавить
+                            </a>
+                        </div>
+
+                        {!! Form::close() !!}
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
                         <h3 class="panel-title">АИС ГЖИ</h3>
                     </div>
                     <div class="panel-body">
@@ -278,6 +364,57 @@
                                 method: 'delete',
                                 data: {
                                     phone_id: phone_id
+                                },
+                                success: function ()
+                                {
+                                    obj.remove();
+                                },
+                                error: function ( e )
+                                {
+                                    obj.show();
+                                    alert( e.statusText );
+                                }
+                            });
+
+                        }
+                    }
+                });
+
+            })
+
+            .on( 'click', '[data-delete="provider-key"]', function ( e )
+            {
+
+                e.preventDefault();
+
+                var key_id = $( this ).attr( 'data-id' );
+                var obj = $( this ).closest( 'tr' );
+
+                bootbox.confirm({
+                    message: 'Удалить ключ?',
+                    size: 'small',
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Да',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Нет',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function ( result )
+                    {
+                        if ( result )
+                        {
+
+                            obj.hide();
+
+                            $.ajax({
+                                url: '{{ route( 'providers.keys.del', $provider->id ) }}',
+                                method: 'delete',
+                                data: {
+                                    key_id: key_id
                                 },
                                 success: function ()
                                 {

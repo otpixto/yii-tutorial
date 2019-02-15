@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Classes\GzhiConfig;
 use App\User;
 use Illuminate\Support\MessageBag;
+use Webpatser\Uuid\Uuid;
 
 class Provider extends BaseModel
 {
@@ -33,47 +34,57 @@ class Provider extends BaseModel
 
     public function phones ()
     {
-        return $this->hasMany( 'App\Models\ProviderPhone' );
+        return $this->hasMany( ProviderPhone::class );
+    }
+
+    public function contexts ()
+    {
+        return $this->hasMany( ProviderContext::class );
+    }
+
+    public function providerKeys ()
+    {
+        return $this->hasMany( ProviderKey::class );
     }
 
     public function buildings ()
     {
-        return $this->hasMany( 'App\Models\Building' );
+        return $this->hasMany( Building::class );
     }
 
     public function segments ()
     {
-        return $this->hasMany( 'App\Models\Segment' );
+        return $this->hasMany( Segment::class );
     }
 
     public function groups ()
     {
-        return $this->hasMany( 'App\Models\Group' );
+        return $this->hasMany( Group::class );
     }
 
     public function managements ()
     {
-        return $this->hasMany( 'App\Models\Management' );
+        return $this->hasMany( Management::class );
     }
 
     public function types ()
     {
-        return $this->hasMany( 'App\Models\Type' );
+        return $this->hasMany( Type::class );
     }
 
     public function customers ()
     {
-        return $this->hasMany( 'App\Models\Customer' );
+        return $this->hasMany( Customer::class );
     }
 
     public function users ()
     {
-        return $this->belongsToMany( 'App\User', 'users_providers' );
+        return $this->belongsToMany( User::class, 'users_providers' );
     }
 
     public function phoneSessions ()
     {
-        return $this->hasMany( 'App\Models\PhoneSession' )
+        return $this->hasMany( PhoneSession::class )
             ->notClosed();
     }
 
@@ -136,6 +147,21 @@ class Provider extends BaseModel
         $this->addLog( 'Добавлен телефон "' . $providerPhone->phone . '"' );
         $providerPhone->save();
         return $providerPhone;
+    }
+
+    public function addKey ( array $attributes = [] )
+    {
+        self::normalizeValues( $attributes );
+        $attributes[ 'provider_id' ] = $this->id;
+        $attributes[ 'api_key' ] = Uuid::generate();;
+        $providerKey = ProviderKey::create( $attributes );
+        if ( $providerKey instanceof MessageBag )
+        {
+            return $providerKey;
+        }
+        $this->addLog( 'Добавлен ключ "' . $providerKey->api_key . '"' );
+        $providerKey->save();
+        return $providerKey;
     }
 
     public static function isOperatorUrl ()

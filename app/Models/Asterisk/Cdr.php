@@ -77,20 +77,24 @@ class Cdr extends BaseModel
             ->orderBy( 'name' )
             ->get();
         $providerPhones = [];
-        $providerOutgoingContexts = [];
+        $providerContexts = [];
         foreach ( $providers as $provider )
         {
-            $providerOutgoingContexts[] = $provider->outgoing_context;
+            $providerContexts[] = $provider->outgoing_context;
             foreach ( $provider->phones as $providerPhone )
             {
                 $providerPhones[] = $providerPhone->phone;
             }
+            foreach ( $provider->contexts as $providerContext )
+            {
+                $providerContexts[] = $providerContext->context;
+            }
         }
         return $query
-            ->where( function ( $q ) use ( $providerPhones, $providerOutgoingContexts )
+            ->where( function ( $q ) use ( $providerPhones, $providerContexts )
             {
                 return $q
-                    ->whereIn( 'dcontext', $providerOutgoingContexts )
+                    ->whereIn( 'dcontext', $providerContexts )
                     ->orWhereIn( \DB::raw( 'RIGHT( dst, 10 )' ), $providerPhones );
             });
     }

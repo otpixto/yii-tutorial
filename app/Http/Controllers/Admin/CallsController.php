@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Asterisk\Cdr;
 use App\Models\Log;
 use App\Models\Provider;
+use App\Models\ProviderContext;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,6 +26,18 @@ class CallsController extends BaseController
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $operator_id = $request->get( 'operator_id', null );
+
+        $providerContexts = ProviderContext
+            ::whereHas( 'provider', function ( $provider )
+            {
+                return $provider
+                    ->mine()
+                    ->current();
+            })
+            ->groupBy(
+                'context'
+            )
+            ->pluck( 'name', 'context' );
 
         $calls = Cdr
             ::mine()
@@ -78,17 +91,15 @@ class CallsController extends BaseController
                 ->where( 'disposition', '=', $request->get( 'status' ) );
         }
 
-        switch ( $request->get( 'context' ) )
+        if ( ! empty( $request->get( 'context' ) ) )
         {
-            case 'incoming':
-            case 'outgoing':
-                $calls
-                    ->contexts( $request->get( 'context' ) );
-                break;
-            default:
-                $calls
-                    ->contexts( 'incoming', 'outgoing' );
-                break;
+            $calls
+                ->where( 'dcontext', '=', $request->get( 'context' ) );
+        }
+        else
+        {
+            $calls
+                ->whereIn( 'dcontext', $providerContexts->keys() );
         }
 
         if ( ! empty( $request->get( 'caller' ) ) )
@@ -140,6 +151,7 @@ class CallsController extends BaseController
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'availableOperators', $availableOperators )
+            ->with( 'providerContexts', $providerContexts )
             ->with( 'operator_id', $operator_id );
 
     }
