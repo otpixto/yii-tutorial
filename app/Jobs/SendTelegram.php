@@ -18,6 +18,8 @@ class SendTelegram implements ShouldQueue
 
     protected $subscription;
     protected $message;
+	
+	private $logs;
 
     /**
      * Create a new job instance.
@@ -26,11 +28,18 @@ class SendTelegram implements ShouldQueue
      */
     public function __construct ( ManagementSubscription $subscription, $message )
     {
-        $this->subscription = $subscription;
-        $this->message = $message;
-        $this->logs = new Logger( 'TELEGRAM' );
-        $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
-        $this->logs->addInfo( 'Исходящее сообщение', [ $message, $subscription->toArray() ] );
+		try
+		{
+			$this->subscription = $subscription;
+			$this->message = $message;
+			$this->logs = new Logger( 'TELEGRAM' );
+			$this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
+			$this->logs->addInfo( 'Исходящее сообщение', [ $message, $subscription->toArray() ] );
+		}
+		catch ( \Exception $e )
+		{
+			
+		}
     }
 
     /**
@@ -38,7 +47,7 @@ class SendTelegram implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle ()
     {
         try
         {
@@ -57,7 +66,6 @@ class SendTelegram implements ShouldQueue
                     'last_name' => $chat->getLastName() ?? null,
                     'username' => $chat->getUsername()
                 ];
-                $this->logs->addInfo( 'Обновляем данные', $attributes );
                 $this->subscription->edit( $attributes );
             }
         }
@@ -70,5 +78,9 @@ class SendTelegram implements ShouldQueue
                 $this->subscription->delete();
             }
         }
+		catch ( \Exception $e )
+		{
+			$this->logs->addCritical( 'Ошибка', $e );
+		}
     }
 }
