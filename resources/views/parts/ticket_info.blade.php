@@ -132,7 +132,7 @@
                     <dl>
                         <dt>Дополнительные метки:</dt>
                         <dd>
-                            @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
+                            @if ( $ticket->type && ( $ticket->type->is_pay ) )
                                 <span class="badge badge-warning bold">
                                     Платно
                                 </span>

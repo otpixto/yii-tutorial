@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Rest;
 use App\Classes\LK;
 use App\Models\Building;
 use App\Models\File;
-use App\Models\ProviderToken;
 use App\Models\Ticket;
 use App\Models\Type;
 use App\Models\Work;
@@ -17,6 +16,11 @@ use Illuminate\Support\Facades\Storage;
 
 class LKController extends BaseController
 {
+
+    protected $credentials = [
+        'phone',
+        'password'
+    ];
 
     public function __construct ( Request $request )
     {
@@ -42,35 +46,27 @@ class LKController extends BaseController
             return $this->error( $validation->errors()->first() );
         }
 
-        if ( ! \Auth::guard()->attempt( $request->only( 'phone', 'password' ) ) )
+        if ( ! $this->checkAuth( $request, $error, $httpCode ) )
         {
-            return $this->error( trans('auth.failed' ), 403 );
+            return $this->error( $error, $httpCode );
+        }
+
+        if ( ! $this->checkSmsAuth( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
         }
 
         $user = \Auth::user();
 
-        $token = $this->genToken( $request );
-
-        $providerToken = ProviderToken::create([
-            'provider_key_id'       => $this->providerKey->id,
-            'user_id'               => $user->id,
-            'token'                 => $token,
-            'http_user_agent'       => $request->server( 'HTTP_USER_AGENT', '' ),
-            'ip'                    => $request->ip(),
-        ]);
-
-        $providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
-        $providerToken->providerKey->save();
-
-        $user->push_id = $request->get( 'push_id', null );
-        $user->save();
-
         $this->addLog( 'Авторизовался' );
 
+        $token = $this->providerToken->token;
+
         return $this->success([
-            'id'            => $user->id,
-            'fullname'      => $user->getName(),
-            'token'         => $providerToken->token
+            'id'                => $user->id,
+            'fullname'          => $user->getName(),
+            'token'             => $this->sms_auth ? null : $token,
+            'sms_auth'          => (bool) $this->sms_auth,
         ]);
 
     }
@@ -162,9 +158,25 @@ class LKController extends BaseController
         if ( $customer )
         {
             $response[ 'customer_id' ] = $customer->id;
-            $response[ 'building_id' ] = $customer->actualBuilding->id;
-            $response[ 'building_name' ] = $customer->actualBuilding->name;
+			if ( $customer->actualBuilding )
+			{
+				$response[ 'building_id' ] = $customer->actualBuilding->id;
+				$response[ 'building_name' ] = $customer->actualBuilding->name;
+			}
+			else
+			{
+				$response[ 'building_id' ] = null;
+				$response[ 'building_name' ] = null;
+			}
             $response[ 'flat' ] = $customer->actual_flat;
+			$response[ 'buildings' ] = [];
+			foreach ( $customer->buildings as $building )
+			{
+				$response[ 'buildings' ][] = [
+					'id'		=> $building->id,
+					'text'		=> $building->name,
+				];
+			}
         }
 
         $this->addLog( 'Запросил данные профиля' );
@@ -398,7 +410,10 @@ class LKController extends BaseController
 					if ( \Auth::user()->customer )
 					{
 						$ids = \Auth::user()->customer->buildings->pluck( 'id' )->toArray();
-						$ids[] = \Auth::user()->customer->actualBuilding->id;
+						if ( \Auth::user()->customer->actualBuilding )
+						{
+							$ids[] = \Auth::user()->customer->actualBuilding->id;
+						}
 					}
                     return $buildings
 						->whereIn( Building::$_table . '.id', $ids )
@@ -414,7 +429,10 @@ class LKController extends BaseController
 					if ( \Auth::user()->customer )
 					{
 						$ids = \Auth::user()->customer->buildings->pluck( 'id' )->toArray();
-						$ids[] = \Auth::user()->customer->actualBuilding->id;
+						if ( \Auth::user()->customer->actualBuilding )
+						{
+							$ids[] = \Auth::user()->customer->actualBuilding->id;
+						}
 					}
                     return $buildings
 						->whereIn( Building::$_table . '.id', $ids );
@@ -514,6 +532,37 @@ class LKController extends BaseController
 
     }
 
+    public function changeEmail ( Request $request )
+    {
+
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
+        $user = \Auth::user();
+
+        $validation = \Validator::make( $request->all(), [
+            'email'              => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        $res = $user->edit([
+            'email' => $request->get( 'email' )
+        ]);
+        if ( $res instanceof MessageBag )
+        {
+            return $this->error( $res->first() );
+        }
+
+        return $this->success( 'OK' );
+
+    }
+
     public function rate ( Request $request )
     {
 
@@ -526,6 +575,7 @@ class LKController extends BaseController
             'ticket_id'             => 'required|integer',
             'rate'                  => 'required|integer|min:1|max:5',
             'rate_comment'          => 'nullable|max:1000',
+            'force'          		=> 'nullable|boolean',
             'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
         ]);
 
@@ -539,20 +589,35 @@ class LKController extends BaseController
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
         if ( ! $ticket )
         {
-            $this->error( 'Заявка не найдена', 404 );
+            return $this->error( 'Заявка не найдена', 404 );
+        }
+		
+		if ( (int) $request->get( 'force', 0 ) )
+		{
+			$ticketManagements = $ticket->managements;
+		}
+		else
+		{
+			$ticketManagements = $ticket->managements()
+				->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client' ] )
+				->get();
+		}
+			
+		if ( ! $ticketManagements->count() )
+        {
+            return $this->error( 'Невозможно поставить оценку заявке' );
         }
 
-        foreach ( $ticket->managements as $ticketManagement )
+        foreach ( $ticketManagements as $ticketManagement )
         {
             $ticketManagement->rate = $request->get( 'rate' );
             $ticketManagement->rate_comment = $request->get( 'rate_comment' );
             $ticketManagement->save();
-        }
-
-        $res = $ticket->changeStatus( 'closed_with_confirm', true );
-        if ( $res instanceof MessageBag )
-        {
-            return $this->error( $res->first() );
+			$res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
+			if ( $res instanceof MessageBag )
+			{
+				return $this->error( $res->first() );
+			}
         }
 
         $files = $request->allFiles();

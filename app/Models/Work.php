@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
 class Work extends BaseModel
@@ -60,7 +59,7 @@ class Work extends BaseModel
 
     public function category ()
     {
-        return $this->belongsTo( 'App\Models\Category' );
+        return $this->belongsTo( 'App\Models\Type' );
     }
 
     public function buildings ()
@@ -272,7 +271,7 @@ class Work extends BaseModel
         }
         else
         {
-            return Carbon::parse( $this->time_end )->timestamp > Carbon::parse( $this->time_end_fact )->timestamp;
+            return Carbon::parse( $this->time_end_fact )->timestamp > Carbon::parse( $this->time_end )->timestamp;
         }
     }
 

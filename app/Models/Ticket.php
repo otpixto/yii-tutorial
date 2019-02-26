@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use App\Classes\Push;
+use App\Jobs\SendPush;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 
 class Ticket extends BaseModel
 {
+
+    use DispatchesJobs;
 
     protected $table = 'tickets';
     public static $_table = 'tickets';
@@ -59,6 +64,7 @@ class Ticket extends BaseModel
         'waiting'	                        => 'Отложено',
         'cancel'				            => 'Отменена',
         'rejected'                          => 'Отклонена управляющим',
+        'rejected_operator'                 => 'Отклонена оператором',
         'no_contract'                       => 'Отказ (нет договора с УО)',
         'in_process'                        => 'В работе',
         'archive'                           => 'Архив',
@@ -115,6 +121,10 @@ class Ticket extends BaseModel
         'not_verified' => [
             'name'          => 'Проблема не подтверждена',
             'class'         => 'yellow-soft',
+        ],
+        'confirmation_operator' => [
+            'name'          => 'Передать в центр для подтверждения',
+            'class'         => 'green-soft',
         ],
     ];
 
@@ -184,6 +194,8 @@ class Ticket extends BaseModel
         'postponed_to',
         'scheduled_begin',
         'scheduled_end',
+        'time_from',
+        'time_to',
     ];
 
     protected $fillable = [
@@ -210,6 +222,8 @@ class Ticket extends BaseModel
         'scheduled_begin',
         'scheduled_end',
         'postponed_to',
+        'time_from',
+        'time_to',
     ];
 
     public function managements ()
@@ -467,6 +481,11 @@ class Ticket extends BaseModel
             }
 
         }
+        else
+        {
+            $ticket->fill( $attributes );
+            $ticket->save();
+        }
 
         return $ticket;
 
@@ -548,6 +567,11 @@ class Ticket extends BaseModel
                 $this->emergency = $this->type->emergency;
             }
             $this->save();
+        }
+
+        if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
+        {
+            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Заявка отредактирована', [ 'object' => 'ticket', 'id' => $this->id ] ) );
         }
 
 		return $this;
@@ -960,33 +984,41 @@ class Ticket extends BaseModel
 
         \DB::beginTransaction();
 
-        $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . self::$statuses[ $status_code ] . '"' );
-        if ( $log instanceof MessageBag )
+        if ( $this->status_code != $status_code )
         {
-            return redirect()->back()
-                ->withErrors( $log );
+
+            $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . self::$statuses[ $status_code ] . '"' );
+            if ( $log instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withErrors( $log );
+            }
+
+            $this->status_code = $status_code;
+            $this->status_name = self::$statuses[ $status_code ];
+            $this->save();
+
+            $statusHistory = StatusHistory::create([
+                'model_id'          => $this->id,
+                'model_name'        => get_class( $this ),
+                'status_code'       => $status_code,
+                'status_name'       => self::$statuses[ $status_code ],
+            ]);
+            if ( $statusHistory instanceof MessageBag )
+            {
+                return $statusHistory;
+            }
+
+            $statusHistory->save();
+
+            if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
+            {
+                $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Изменен статус заявки #' . $this->id, 'Статус изменен на "' . $this->status_name . '"', [ 'object' => 'ticket', 'id' => $this->id ] ) );
+            }
+
         }
-
-        $this->status_code = $status_code;
-        $this->status_name = self::$statuses[ $status_code ];
-        $this->save();
-
-        $statusHistory = StatusHistory::create([
-            'model_id'          => $this->id,
-            'model_name'        => get_class( $this ),
-            'status_code'       => $status_code,
-            'status_name'       => self::$statuses[ $status_code ],
-        ]);
-
-        if ( $statusHistory instanceof MessageBag )
-        {
-            return $statusHistory;
-        }
-
-        $statusHistory->save();
 
         $res = $this->processStatus();
-
         if ( $res instanceof MessageBag )
         {
             return $res;
@@ -1183,7 +1215,7 @@ class Ticket extends BaseModel
         }
         else
         {
-            return $this->provider->need_act;
+            return $this->provider->need_act ?? 0;
         }
     }
 

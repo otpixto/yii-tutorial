@@ -183,18 +183,29 @@
     </div>
 
     <div class="col-md-6 text-right">
-        <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите очистить заявку?">
-            <i class="fa fa-remove"></i>
-            Очистить
-        </a>
-        <button type="button" class="btn yellow" data-action="create_another">
-            <i class="fa fa-plus"></i>
-            Сохранить и создать еще
-        </button>
-        <button type="submit" class="btn green">
-            <i class="fa fa-check"></i>
-            Сохранить
-        </button>
+        @if ( isset( $moderate ) )
+            <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите отклонить заявку?">
+                <i class="fa fa-remove"></i>
+                Отклонить
+            </a>
+            <button type="submit" class="btn green">
+                <i class="fa fa-check"></i>
+                Принять
+            </button>
+        @else
+            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите очистить заявку?">
+                <i class="fa fa-remove"></i>
+                Очистить
+            </a>
+            <button type="button" class="btn yellow" data-action="create_another">
+                <i class="fa fa-plus"></i>
+                Сохранить и создать еще
+            </button>
+            <button type="submit" class="btn green">
+                <i class="fa fa-check"></i>
+                Сохранить
+            </button>
+        @endif
     </div>
 
 </div>

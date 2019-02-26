@@ -32,6 +32,12 @@
                 {!! Form::textarea( 'ip', null, [ 'class' => 'form-control', 'placeholder' => 'IP' ] ) !!}
             </div>
         </div>
+		<div class="form-group">
+            {!! Form::label( 'referer', 'Referer', [ 'class' => 'control-label col-md-4' ] ) !!}
+            <div class="col-md-8">
+                {!! Form::textarea( 'referer', null, [ 'class' => 'form-control', 'placeholder' => 'Referer' ] ) !!}
+            </div>
+        </div>
         <div class="form-group hidden-print">
             <div class="col-md-8 col-md-offset-4">
                 {!! Form::submit( 'Добавить', [ 'class' => 'btn green' ] ) !!}

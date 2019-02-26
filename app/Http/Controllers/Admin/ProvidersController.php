@@ -216,6 +216,7 @@ class ProvidersController extends BaseController
         $rules = [
             'description'           => 'nullable',
             'ip'                    => 'nullable',
+            'referer'               => 'nullable',
             'token_life'            => 'integer|min:1',
         ];
         $this->validate( $request, $rules );
@@ -644,6 +645,8 @@ class ProvidersController extends BaseController
             'guid'                  => 'nullable|unique:providers,guid,' . $provider->id . ',id|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'username'              => 'nullable|string|max:50',
             'password'              => 'nullable|string|max:50',
+            'need_act'              => 'boolean',
+            'sms_auth'              => 'boolean',
         ];
 
         if ( $request->has( 'name' ) || $request->has( 'domain' ) )
@@ -672,6 +675,8 @@ class ProvidersController extends BaseController
             'password'              => 'nullable|string|max:50',
             'name'                  => 'required|string|max:255',
             'domain'                => 'required|string|max:100',
+            'need_act'              => 'boolean',
+            'sms_auth'              => 'boolean',
         ];
 
         $this->validate( $request, $rules );

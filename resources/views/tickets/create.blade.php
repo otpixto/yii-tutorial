@@ -160,7 +160,7 @@
                 {
                     $( '#types-description' )
                         .removeClass( 'hidden' )
-                        .text( response.description )
+                        .html( response.description )
                         .pulsate({
                             repeat: 3,
                             speed: 500,

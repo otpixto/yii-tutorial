@@ -26,9 +26,11 @@
 		</span>
     </td>
     <td>
-        <div class="bold">
-            {{ $ticket->type->category->name }}
-        </div>
+        @if ( $ticket->type->parent )
+            <div class="bold">
+                {{ $ticket->type->parent->name }}
+            </div>
+        @endif
         <div class="small">
             {{ $ticket->type->name }}
         </div>

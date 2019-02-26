@@ -16,10 +16,6 @@
                     <i class="fa fa-plus"></i>
                     Добавить классификатор
                 </a>
-                <a href="{{ route( 'categories.create' ) }}" class="btn btn-info btn-lg">
-                    <i class="fa fa-plus"></i>
-                    Добавить категорию
-                </a>
             </div>
         </div>
     @endif
@@ -64,12 +60,12 @@
                     <div class="portlet-body todo-project-list-content" id="search-categories" style="height: auto;">
                         <div class="todo-project-list">
                             <ul class="nav nav-stacked">
-                                @foreach ( $categories as $category )
-                                    <li @if ( \Input::get( 'category_id' ) == $category->id ) class="active" @endif>
-                                        <a href="?category_id={{ $category->id }}">
-                                            {{ $category->name }}
+                                @foreach ( $parents as $parent )
+                                    <li @if ( \Input::get( 'parent_id' ) == $parent->id ) class="active" @endif>
+                                        <a href="?parent_id={{ $parent->id }}">
+                                            {{ $parent->name }}
                                             <span class="badge badge-info pull-right">
-                                                {{ $category->types()->count() }}
+                                                {{ $parent->childs()->count() }}
                                             </span>
                                         </a>
                                     </li>
@@ -131,7 +127,7 @@
                                 <thead>
                                 <tr>
                                     <th width="20%">
-                                        Категория
+                                        Родитель
                                     </th>
                                     <th>
                                         Наименование
@@ -144,14 +140,20 @@
                                     <th class="text-center">
                                         GUID
                                     </th>
-                                    <th class="text-center" width="150">
+                                    <th class="text-center">
                                         Необходим акт
                                     </th>
-                                    <th class="text-center" width="80">
+                                    <th class="text-center">
                                         Платно
                                     </th>
-                                    <th class="text-center" width="80">
+                                    <th class="text-center">
                                         Авария
+                                    </th>
+                                    <th class="text-center">
+                                        Отключения
+                                    </th>
+                                    <th class="text-center">
+                                        ЛК
                                     </th>
                                     <th class="text-right">
                                         &nbsp;
@@ -162,9 +164,7 @@
                                 @foreach ( $types as $type )
                                     <tr>
                                         <td>
-                                            <a href="{{ route( 'categories.edit', $type->category_id ) }}">
-                                                {{ $type->category_name }}
-                                            </a>
+                                            {{ $type->parent_name ?: '-' }}
                                         </td>
                                         <td>
                                             {{ $type->name }}
@@ -199,6 +199,20 @@
                                         </td>
                                         <td class="text-center">
                                             @if ( $type->emergency )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if ( $type->work )
+                                                @include( 'parts.yes' )
+                                            @else
+                                                @include( 'parts.no' )
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if ( $type->lk )
                                                 @include( 'parts.yes' )
                                             @else
                                                 @include( 'parts.no' )

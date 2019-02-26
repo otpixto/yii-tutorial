@@ -443,7 +443,12 @@ class UsersController extends BaseController
         ];
 
         $this->validate( $request, $rules );
-        $res = $user->edit( $request->all() );
+        $attributes = $request->all();
+        if ( ! isset( $attributes[ 'active' ] ) )
+        {
+            $attributes[ 'active' ] = 0;
+        }
+        $res = $user->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()->withInput()->withErrors( $res );

@@ -13,14 +13,12 @@ class Comment extends BaseModel
     protected $fillable = [
         'model_id',
 		'model_name',
-        'origin_model_id',
-        'origin_model_name',
+        'reply_id',
         'text'
     ];
 
     protected $nullable = [
-        'origin_model_id',
-        'origin_model_name',
+        'reply_id',
     ];
 
 }

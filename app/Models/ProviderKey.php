@@ -22,6 +22,7 @@ class ProviderKey extends BaseModel
         'api_key',
         'description',
         'ip',
+        'referer',
         'token_life',
     ];
 
@@ -33,6 +34,34 @@ class ProviderKey extends BaseModel
     public function providerTokens ()
     {
         return $this->hasMany( ProviderToken::class );
+    }
+	
+	public static function create ( array $attributes = [] )
+    {
+        if ( isset( $attributes[ 'ip' ] ) )
+        {
+            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'ip' ] ) ) . PHP_EOL;
+        }
+		if ( isset( $attributes[ 'referer' ] ) )
+        {
+            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'referer' ] ) ) . PHP_EOL;
+        }
+        $provider = parent::create( $attributes );
+        return $provider;
+    }
+
+    public function edit ( array $attributes = [] )
+    {
+        if ( isset( $attributes[ 'ip' ] ) )
+        {
+            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'ip' ] ) ) . PHP_EOL;
+        }
+		if ( isset( $attributes[ 'referer' ] ) )
+        {
+            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'referer' ] ) ) . PHP_EOL;
+        }
+        $provider = parent::edit( $attributes );
+        return $provider;
     }
 
 }

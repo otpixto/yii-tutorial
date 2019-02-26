@@ -87,11 +87,11 @@
                         до <b>{{ \Carbon\Carbon::parse( $ticket->time_to )->format( 'H:i' ) }}</b>
                     @endif
                 </td>
-                <td class="text-right hidden-print">
-                    <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn btn-lg btn-danger tooltips" title="Отклонить заявку #{{ $ticket->id }}" data-confirm="Вы уверены, что хотите отклонить заявку?">
+                <td class="text-right hidden-print text-nowrap">
+                    <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn btn-danger tooltips" title="Отклонить заявку #{{ $ticket->id }}" data-confirm="Вы уверены, что хотите отклонить заявку?">
                         <i class="fa fa-close"></i>
                     </a>
-                    <a href="{{ route( 'tickets.moderate.show', $ticket->id ) }}" class="btn btn-lg btn-primary tooltips" title="Открыть заявку #{{ $ticket->id }}">
+                    <a href="{{ route( 'tickets.moderate.show', $ticket->id ) }}" class="btn btn-primary tooltips" title="Открыть заявку #{{ $ticket->id }}">
                         <i class="fa fa-chevron-right"></i>
                     </a>
                 </td>

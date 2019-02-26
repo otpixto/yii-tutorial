@@ -7,7 +7,6 @@ use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendStream;
 use App\Models\Building;
-use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Management;
@@ -46,7 +45,6 @@ class TicketsController extends BaseController
                 ->with(
                     'ticket',
                     'ticket.type',
-                    'ticket.type.category',
                     'ticket.building',
                     'ticket.building.buildingType',
                     #'ticket.comments',
@@ -103,6 +101,95 @@ class TicketsController extends BaseController
 
     }
 
+    public function moderate ( Request $request )
+    {
+
+        if ( $request->ajax() )
+        {
+
+            $tickets = Ticket
+                ::where( 'status_code', '=', 'from_lk' )
+                ->paginate( config( 'pagination.per_page' ) )
+                ->appends( $request->all() );
+
+            $this->addLog( 'Просмотрел список заявок на модерацию (стр.' . $request->get( 'page', 1 ) . ')' );
+
+            return view( 'tickets.parts.moderate_list' )
+                ->with( 'tickets', $tickets );
+
+        }
+
+        Title::add( 'Модерация заявок' );
+
+        return view( 'tickets.moderate' )
+            ->with( 'request', $request );
+
+    }
+
+    public function moderateShow ( Request $request, $ticket_id )
+    {
+
+        $ticket = Ticket::find( $ticket_id );
+
+        if ( ! $ticket || $ticket->status_code != 'from_lk' )
+        {
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        //Title::add( 'Добавить заявку' );
+        Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+
+        $types = Type
+            ::mine()
+            //->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
+            ->orderBy( Type::$_table .'.name' )
+            ->pluck( 'name', 'id' );
+
+        $providers = Provider
+            ::mine()
+            ->current()
+            ->orderBy( Provider::$_table . '.name' )
+            ->pluck( Provider::$_table . '.name', 'id' );
+
+        $vendors = Vendor
+            ::orderBy( Vendor::$_table . '.name' )
+            ->pluck( Vendor::$_table . '.name', 'id' )
+            ->toArray();
+
+        return view( 'tickets.create' )
+            ->with( 'types', $types )
+            ->with( 'ticket', $ticket )
+            ->with( 'providers', $providers )
+            ->with( 'vendors', $vendors )
+            ->with( 'places', Ticket::$places )
+            ->with( 'moderate', 1 );
+
+    }
+
+    public function moderateReject ( Request $request, $id )
+    {
+        $ticket = Ticket::find( $id );
+        if ( ! $ticket || $ticket->status_code != 'from_lk' )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+        $res = $ticket->changeStatus( 'rejected_operator', true );
+        if ( $res instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( $res );
+        }
+        \Cache::tags( 'tickets_counts' )->flush();
+        return redirect()
+            ->route( 'tickets.moderate' )
+            ->with( 'success', 'Заявка отклонена' );
+    }
+
     public function export ( Request $request )
     {
 
@@ -134,7 +221,6 @@ class TicketsController extends BaseController
                 'Здание'                => $ticket->building->name,
                 'Квартира'              => $ticket->flat,
                 'Проблемное место'      => $ticket->getPlace(),
-                'Категория заявки'      => $ticket->type->category->name,
                 'Классификатор'         => $ticket->type->name,
                 'Текст обращения'       => $ticket->text,
                 'ФИО заявителя'         => $ticket->getName(),
@@ -231,11 +317,16 @@ class TicketsController extends BaseController
             ->toArray();
 
         $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
-        $res = Type::mine()->with( 'category' )->get()->sortBy( 'name' );
+        $res = Type
+            ::mine()
+            ->whereHas( 'parent' )
+            ->with( 'parent' )
+            ->get()
+            ->sortBy( 'name' );
         $availableTypes = [];
         foreach ( $res as $r )
         {
-            $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+            $availableTypes[ $r->parent->name ][ $r->id ] = $r->name;
         }
 
         if ( \Auth::user()->can( 'tickets.field_operator' ) )
@@ -271,13 +362,13 @@ class TicketsController extends BaseController
             }
         }
 
-        if ( ! count( $types ) )
+        /*if ( ! count( $types ) )
         {
             foreach ( $availableTypes as $category )
             {
                 $types = array_merge( $types, array_keys( $category ) );
             }
-        }
+        }*/
 
         if ( ! count( $statuses ) )
         {
@@ -415,6 +506,8 @@ class TicketsController extends BaseController
                 ->with( 'error', 'Произошла ошибка. Заявка не найдена' );
         }
 
+        $category_id = $ticket->type->parent_id ?: $ticket->type->id;
+
         $works = Work
             ::mine()
             ->current()
@@ -423,7 +516,7 @@ class TicketsController extends BaseController
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $ticket->building_id );
             })
-            ->where( 'category_id', '=', $ticket->type->category_id )
+            ->where( 'category_id', '=', $category_id )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
 
@@ -431,7 +524,7 @@ class TicketsController extends BaseController
 
         return view( 'tickets.tabs.works' )
             ->with( 'works', $works )
-            ->with( 'link', route( 'works.index', [ 'building_id' => $ticket->building_id, 'category_id' => $ticket->type->category_id ] ) );
+            ->with( 'link', route( 'works.index', [ 'building_id' => $ticket->building_id, 'category_id' => $category_id ] ) );
 
     }
 
@@ -528,23 +621,17 @@ class TicketsController extends BaseController
         //Title::add( 'Добавить заявку' );
         Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
 
-        $res = Type
+        $types = Type
             ::mine()
-            ->select(
-                Type::$_table . '.*',
-                Category::$_table . '.name AS category_name'
-            )
-            ->join( 'categories', 'categories.id', '=', 'types.category_id' )
-            //->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
-            ->orderBy( Category::$_table . '.name' )
-            ->orderBy( Type::$_table .'.name' )
-            ->get();
+            ->orderBy( Type::$_table .'.name' );
 
-        $types = [];
-        foreach ( $res as $r )
+        if ( $ticket->provider_id )
         {
-            $types[ $r->category->name ][ $r->id ] = $r->name;
+            $types
+                ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id );
         }
+
+        $types = $types->pluck( 'name', 'id' );
 
         $providers = Provider
             ::mine()
@@ -579,6 +666,7 @@ class TicketsController extends BaseController
             'vendor_id'                 => 'nullable|integer',
             'vendor_date'               => 'nullable|date',
             'type_id'                   => 'required|integer',
+            'ticket_id'                 => 'required|integer',
             'building_id'               => 'required|integer',
             'flat'                      => 'nullable',
             'actual_address_id'         => 'nullable|integer',
@@ -607,13 +695,12 @@ class TicketsController extends BaseController
 
 		\DB::beginTransaction();
 
-        $ticket = Ticket
-            ::draft()
-            ->first();
+        $ticket = Ticket::find( $request->get( 'ticket_id' ) );
 
         if ( $ticket )
         {
             $ticket->created_at = Carbon::now()->toDateTimeString();
+            $ticket->author_id = \Auth::user()->id;
             $ticket->edit( $request->all() );
         }
         else
@@ -880,7 +967,7 @@ class TicketsController extends BaseController
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $ticket->building_id );
             })
-            ->where( 'category_id', '=', $ticket->type->category_id ?? '' )
+            ->where( 'category_id', '=', $ticket->type->parent_id ?: $ticket->type->id )
             ->count();
 
         $neighborsTicketsCount = $ticket
@@ -1020,7 +1107,7 @@ class TicketsController extends BaseController
                     return $buildings
                         ->where( Building::$_table . '.id', '=', $ticket->building_id );
                 })
-                ->where( 'category_id', '=', $ticket->type->category_id )
+                ->where( 'category_id', '=', $ticket->type->parent_id ?: $ticket->type->id )
                 ->count();
 
             $neighborsTicketsCount = $ticket
@@ -1157,15 +1244,10 @@ class TicketsController extends BaseController
 
 			    if ( \Auth::user()->can( 'tickets.edit' ) )
                 {
-                    $res = Type
-                        ::orderBy( 'name' )
-                        ->get();
-
-                    $types = [];
-                    foreach ( $res as $r )
-                    {
-                        $types[ $r->category->name ][ $r->id ] = $r->name;
-                    }
+                    $types = Type
+                        ::mine()
+                        ->orderBy( 'name' )
+                        ->pluck( 'name', 'id' );
                     return view( 'tickets.edit.type' )
                         ->with( 'ticket', $ticket )
                         ->with( 'types', $types )

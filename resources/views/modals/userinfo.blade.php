@@ -1,10 +1,10 @@
 <div class="row">
     <div class="col-md-5">
-        <img src="/images/nophoto.png" class="img-responsive" alt="" />
+        <img src="{{ $user->getPhoto() }}" class="img-responsive" alt="" />
     </div>
     <div class="col-md-7">
         <h1 class="h3">
-            {{ $user->getShortName( true ) }}
+            {!! $user->getShortName() !!}
         </h1>
         <div>
             {!! $user->getPhone( true ) !!}

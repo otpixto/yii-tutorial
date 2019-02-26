@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Operator;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Asterisk\Cdr;
-use App\Models\Category;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
+use App\Models\Type;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -768,12 +768,9 @@ class ReportsController extends BaseController
             $managements = $availableManagements;
         }
 
-        $categories = Category
-			::whereHas( 'types', function ( $types )
-			{
-				return $types
-					->mine();
-			})
+        $categories = Type
+			::mine()
+            ->whereNull( 'parent_id' )
             ->orderBy( 'name' )
             ->get();
 
@@ -819,9 +816,10 @@ class ReportsController extends BaseController
             {
                 $ticket = $ticketManagement->ticket;
                 $type = $ticket->type;
-                if ( ! isset( $data[ 'data' ][ $type->category_id ][ $management->id ] ) )
+                $category_id = $type->parent_id ?: $type->id;
+                if ( ! isset( $data[ 'data' ][ $type->parent_id ?? $type->id ][ $management->id ] ) )
                 {
-                    $data[ 'data' ][ $type->category_id ][ $management->id ] = [
+                    $data[ 'data' ][ $category_id ][ $management->id ] = [
                         'total' => 0,
                         'closed' => 0,
                         'percent' => 0
@@ -829,18 +827,18 @@ class ReportsController extends BaseController
                 }
                 $data[ 'total' ] ++;
                 $data[ 'managements' ][ $management->id ][ 'total' ] ++;
-                $data[ 'categories' ][ $type->category_id ][ 'total' ] ++;
-                $data[ 'data' ][ $type->category_id ][ $management->id ][ 'total' ] ++;
+                $data[ 'categories' ][ $category_id ][ 'total' ] ++;
+                $data[ 'data' ][ $category_id ][ $management->id ][ 'total' ] ++;
                 switch ( $ticketManagement->status_code )
                 {
                     case 'closed_with_confirm':
                     case 'closed_without_confirm':
                     case 'not_verified':
                     case 'cancel':
-                        $data[ 'data' ][ $type->category_id ][ $management->id ][ 'closed' ] ++;
+                        $data[ 'data' ][ $category_id ][ $management->id ][ 'closed' ] ++;
                         $data[ 'closed' ] ++;
                         $data[ 'managements' ][ $management->id ][ 'closed' ] ++;
-                        $data[ 'categories' ][ $type->category_id ][ 'closed' ] ++;
+                        $data[ 'categories' ][ $category_id ][ 'closed' ] ++;
                         break;
                 }
             }

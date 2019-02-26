@@ -135,19 +135,19 @@
         </div>
         <div class="row">
             <div class="col-md-6">
+                <label>Назначено</label>
+                <div class="input-group">
+                    {!! Form::text( 'scheduled_from', \Input::get( 'scheduled_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                    <span class="input-group-addon">-</span>
+                    {!! Form::text( 'scheduled_to', \Input::get( 'scheduled_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+                </div>
+            </div>
+            <div class="col-md-6">
                 <label>Выполнено</label>
                 <div class="input-group">
                     {!! Form::text( 'completed_from', \Input::get( 'completed_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
                     <span class="input-group-addon">-</span>
                     {!! Form::text( 'completed_to', \Input::get( 'completed_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <label>Отложено</label>
-                <div class="input-group">
-                    {!! Form::text( 'delayed_from', \Input::get( 'delayed_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
-                    <span class="input-group-addon">-</span>
-                    {!! Form::text( 'delayed_to', \Input::get( 'delayed_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
                 </div>
             </div>
         </div>

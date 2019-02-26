@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\MessageBag;
-use Illuminate\Validation\Rule;
-
 class Type extends BaseModel
 {
 
@@ -15,6 +12,7 @@ class Type extends BaseModel
 
     protected $nullable = [
         'guid',
+        'color',
         'description',
         'parent_id',
         'mosreg_id',
@@ -22,8 +20,8 @@ class Type extends BaseModel
 
     protected $fillable = [
         'name',
+        'color',
         'description',
-        'category_id',
         'parent_id',
         'period_acceptance',
         'period_execution',
@@ -31,6 +29,8 @@ class Type extends BaseModel
         'is_pay',
         'emergency',
         'need_act',
+        'works',
+        'lk',
         'mosreg_id',
     ];
 
@@ -49,44 +49,19 @@ class Type extends BaseModel
         return $this->hasMany( 'App\Models\Ticket' );
     }
 
-    public function category ()
-    {
-        return $this->belongsTo( 'App\Models\Category' );
-    }
-
     public function parent ()
     {
         return $this->belongsTo( 'App\Models\Type' );
     }
 
-    public function edit ( array $attributes = [] )
+    public function category ()
     {
-        $res = $this->saveLogs( $attributes );
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-        $this->fill( $attributes );
-        if ( isset( $attributes[ 'checkboxes' ] ) )
-        {
-            if ( empty( $attributes['need_act'] ) && $this->need_act == 1 )
-            {
-                $this->need_act = 0;
-                $this->saveLog( 'need_act', 1, 0 );
-            }
-            if ( empty( $attributes['is_pay'] ) && $this->is_pay == 1 )
-            {
-                $this->is_pay = 0;
-                $this->saveLog( 'is_pay', 1, 0 );
-            }
-            if ( empty( $attributes['emergency'] ) && $this->emergency == 1 )
-            {
-                $this->emergency = 0;
-                $this->saveLog( 'emergency', 1, 0 );
-            }
-        }
-        $this->save();
-        return $this;
+        return $this->belongsTo( 'App\Models\Category' );
+    }
+
+    public function childs ()
+    {
+        return $this->hasMany( 'App\Models\Type', 'parent_id', 'id' );
     }
 
     public function scopeMine ( $query, ... $flags )

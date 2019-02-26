@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Jobs\SendStream;
 use App\Models\File;
 use App\Models\Ticket;
-use App\Models\TicketManagement;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Comment;
@@ -35,8 +34,7 @@ class CommentsController extends Controller
         return view( 'modals.comment' )
 			->with( 'model_id', $request->get( 'model_id' ) )
 			->with( 'model_name', $request->get( 'model_name' ) )
-            ->with( 'origin_model_id', $request->get( 'origin_model_id' ) )
-            ->with( 'origin_model_name', $request->get( 'origin_model_name' ) )
+            ->with( 'reply_id', $request->get( 'reply_id' ) )
             ->with( 'with_file', $request->get( 'with_file' ) );
     }
 	
@@ -46,6 +44,7 @@ class CommentsController extends Controller
         $rules = [
             'model_id'      => 'required|integer',
             'model_name'    => 'required',
+            'reply_id'      => 'nullable|integer',
             'text'          => 'required|max:1000',
         ];
         
@@ -59,10 +58,10 @@ class CommentsController extends Controller
             return redirect()->back()->withErrors( $log );
         }
 
-        if ( $comment->origin_model_name == Ticket::class )
+        if ( $comment->parent instanceof Ticket )
         {
 
-            $ticket = $comment->parentOriginal;
+            $ticket = $comment->parent;
 
             foreach ( $ticket->managements as $ticketManagement )
             {
@@ -90,36 +89,6 @@ class CommentsController extends Controller
             $ticket->save();
 
             $this->dispatch( new SendStream( 'comment', $ticket ) );
-
-        }
-        else if ( $comment->origin_model_name == TicketManagement::class )
-        {
-
-            $ticketManagement = $comment->parentOriginal;
-
-            if ( \Config::get( 'telegram.active' ) )
-            {
-
-                $ticket = $ticketManagement->ticket;
-
-                $message = '<em>Добавлен комментарий</em>' . PHP_EOL . PHP_EOL;
-
-                $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
-                $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Автор комментария: ' . $comment->author->getName( true ) . PHP_EOL;
-
-                $message .= PHP_EOL . $comment->text . PHP_EOL;
-
-                $message .= PHP_EOL . $ticketManagement->getUrl() . PHP_EOL;
-
-                $ticketManagement->sendTelegram( $message );
-
-                $ticket->updated_at = Carbon::now()->toDateTimeString();
-                $ticket->save();
-
-            }
-
-            $this->dispatch( new SendStream( 'comment', $ticketManagement ) );
 
         }
 
@@ -165,35 +134,11 @@ class CommentsController extends Controller
             $comment = Comment::find( $comment_id );
             if ( $comment )
             {
-                if ( $comment->origin_model_name == TicketManagement::class && $comment->parentOriginal )
-                {
-                    $this->dispatch( new SendStream( 'comment', $comment->parentOriginal ) );
-                }
                 $comment->addLog( 'Комментарий удален' );
                 $comment->delete();
             }
         }
 
-    }
-
-    public function fix ()
-    {
-        $comments = Comment
-            ::where( 'model_name', '=', TicketManagement::class )
-            ->get();
-        foreach ( $comments as $comment )
-        {
-            if ( $comment->parent && $comment->parent->ticket )
-            {
-                $comment->model_name = $comment->origin_model_name = Ticket::class;
-                $comment->model_id = $comment->origin_model_id = $comment->parent->ticket->id;
-                $comment->save();
-            }
-            else
-            {
-                $comment->delete();
-            }
-        }
     }
 
 }

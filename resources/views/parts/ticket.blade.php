@@ -78,9 +78,11 @@
     </td>
     <td>
         @if ( $ticketManagement->ticket->type )
-            <div class="bold">
-                {{ $ticketManagement->ticket->type->category->name }}
-            </div>
+            @if ( $ticketManagement->ticket->type->parent )
+                <div class="bold">
+                    {{ $ticketManagement->ticket->type->parent->name }}
+                </div>
+            @endif
             <div class="small">
                 {{ $ticketManagement->ticket->type->name }}
             </div>

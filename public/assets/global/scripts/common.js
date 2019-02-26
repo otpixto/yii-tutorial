@@ -806,8 +806,7 @@ $( document )
 		
 		var model_id = $( this ).attr( 'data-model-id' );
 		var model_name = $( this ).attr( 'data-model-name' );
-        var origin_model_id = $( this ).attr( 'data-origin-model-id' );
-        var origin_model_name = $( this ).attr( 'data-origin-model-name' );
+        var reply_id = $( this ).attr( 'data-reply-id' );
 		var with_file = $( this ).attr( 'data-file' ) || 0;
 
         var title = $( this ).attr( 'data-title' );
@@ -817,8 +816,7 @@ $( document )
 		$.get( '/comment', {
 			model_name: model_name,
 			model_id: model_id,
-            origin_model_id: origin_model_id,
-            origin_model_name: origin_model_name,
+            reply_id: reply_id,
             with_file: with_file
 		}, function ( response )
 		{

@@ -6,7 +6,6 @@ use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingType;
-use App\Models\Category;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
@@ -76,7 +75,7 @@ class WorksController extends BaseController
             {
                 $works
                     ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
-                $filters[] = 'Ресурс отключения: ' . Category::find( $request->get( 'category_id' ) )->name;
+                $filters[] = 'Ресурс отключения: ' . Type::find( $request->get( 'category_id' ) )->name;
             }
 
             if ( ! empty( $request->get( 'composition' ) ) )
@@ -257,7 +256,7 @@ class WorksController extends BaseController
 
             if ( ! empty( $request->get( 'report' ) ) && \Auth::user()->can( 'works.export' ) )
             {
-                $categories = Category
+                $categories = Type
                     ::mine()
                     ->where( 'works', '=', 1 )
                     ->orderBy( 'sort' )
@@ -339,7 +338,6 @@ class WorksController extends BaseController
 
             $works = $works
                 ->with(
-                    #'comments',
                     'buildings',
                     'buildings.buildingType',
                     'managements',
@@ -387,6 +385,37 @@ class WorksController extends BaseController
         return view( 'works.index' )
             ->with( 'request', $request )
             ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
+
+    }
+
+    public function comments ( Request $request, $id = null )
+    {
+
+        if ( $id )
+        {
+            $work = Work::find( $id );
+            return view( 'parts.comments' )
+                ->with( 'origin', $work )
+                ->with( 'comments', $work->comments );
+        }
+        else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
+        {
+            $works = Work
+                ::whereIn( 'id', $request->get( 'ids' ) )
+                ->get();
+            $response = [];
+            foreach ( $works as $work )
+            {
+                if ( $work->comments->count() )
+                {
+                    $response[ $work->id ] = view( 'parts.comments' )
+                        ->with( 'origin', $work )
+                        ->with( 'comments', $work->comments )
+                        ->render();
+                }
+            }
+            return $response;
+        }
 
     }
 
@@ -650,7 +679,7 @@ class WorksController extends BaseController
         {
             $works
                 ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
-            $filters[] = 'Ресурс отключения: ' . Category::find( $request->get( 'category_id' ) )->name;
+            $filters[] = 'Ресурс отключения: ' . Type::find( $request->get( 'category_id' ) )->name;
         }
 
         if ( ! empty( $request->get( 'composition' ) ) )
@@ -769,7 +798,7 @@ class WorksController extends BaseController
         }
 
 
-        $categories = Category
+        $categories = Type
             ::mine()
             ->where( 'works', '=', 1 )
             ->orderBy( 'sort' )
@@ -879,11 +908,11 @@ class WorksController extends BaseController
             $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
 
-        $categories = Category
+        $categories = Type
             ::mine()
-            ->where( Category::$_table . '.works', '=', 1 )
-            ->orderBy( Category::$_table . '.name' )
-            ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+            ->where( Type::$_table . '.works', '=', 1 )
+            ->orderBy( Type::$_table . '.name' )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id' );
 
         return view( 'works.parts.search' )
             ->with( 'availableManagements', $availableManagements )
@@ -918,11 +947,11 @@ class WorksController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 			
-		$availableCategories = Category
+		$availableCategories = Type
 			::mine()
             ->where( 'works', '=', 1 )
-			->orderBy( Category::$_table . '.name' )
-			->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+			->orderBy( Type::$_table . '.name' )
+			->pluck( Type::$_table . '.name', Type::$_table . '.id' );
 
         $res = Management
             ::mine()
@@ -1088,11 +1117,11 @@ class WorksController extends BaseController
             ->orderBy( Provider::$_table . '.name' )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
-        $availableCategories = Category
+        $availableCategories = Type
             ::mine()
             ->where( 'works', '=', 1 )
-            ->orderBy( Category::$_table . '.name' )
-            ->pluck( Category::$_table . '.name', Category::$_table . '.id' );
+            ->orderBy( Type::$_table . '.name' )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id' );
 
         $res = Management
             ::mine()

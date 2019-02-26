@@ -31,42 +31,45 @@
 <table class="table table-striped table-bordered table-hover">
     <thead>
     <tr class="info">
-        <th>
-            Номер сообщения
+        <th rowspan="2">
+            Номер сообщения / Основание
+        </th>
+        <th rowspan="2">
+            Адрес работ / Исполнитель
+        </th>
+        <th rowspan="2">
+            Категория / Состав работ
+        </th>
+        <th colspan="3" class="text-center">
+            &nbsp;Дата
         </th>
         <th>
-            Основание
+            &nbsp;
+        </th>
+    </tr>
+    <tr class="info">
+        <th class="text-center">
+            ОТ
+        </th>
+        <th class="text-center">
+            ДО
+        </th>
+        <th class="text-center">
+            Факт.
         </th>
         <th>
-            Адрес работ
-        </th>
-        <th>
-            Категория
-        </th>
-        <th>
-            Исполнитель работ
-        </th>
-        <th>
-            Состав работ
-        </th>
-        <th>
-            &nbsp;Дата начала
-        </th>
-        <th colspan="3">
-            &nbsp;Дата окончания (План.|Факт.)
+            &nbsp;
         </th>
     </tr>
     </thead>
     @if ( $works->count() )
         <tbody>
         @foreach ( $works as $work )
-            <tr class="{{ $work->getClass() }}">
+            <tr>
                 <td>
                     <a href="{{ route( 'works.edit', $work->id ) }}">
                         #{{ $work->id }}
                     </a>
-                </td>
-                <td>
                     <div class="small">
                         {{ $work->reason }}
                     </div>
@@ -84,57 +87,81 @@
                             @endif
                         </div>
                     @endforeach
-                </td>
-                <td>
-                    <div class="small">
-                        {{ $work->category->name }}
-                    </div>
-                </td>
-                <td>
+                    <hr />
                     @foreach ( $work->managements as $management )
                         <div class="small">
                             @if ( $management->parent )
                                 <span class="text-muted">
-                                    {{ $management->parent->name }}
-                                </span>
+                                {{ $management->parent->name }}
+                            </span>
                             @endif
                             {{ $management->name }}
                         </div>
                     @endforeach
                 </td>
                 <td>
+                    <div class="bold">
+                        {{ $work->category->name }}
+                    </div>
+                    <hr />
                     <div class="small">
                         {{ $work->composition }}
                     </div>
                 </td>
-                <td>
-                    {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
+                <td class="text-center">
+                    <div class="small">
+                        {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
+                    </div>
                 </td>
-                <td>
-                    {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+                <td class="text-center">
+                    @if ( $work->isExpired() )
+                        <div class="bold text-danger">
+                            {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+                            <p>
+                                <i class="fa fa-exclamation"></i>
+                                <i class="fa fa-exclamation"></i>
+                                <i class="fa fa-exclamation"></i>
+                            </p>
+                        </div>
+                    @else
+                        <div class="small">
+                            {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+                        </div>
+                    @endif
+
                 </td>
-                <td>
+                <td class="text-center">
                     @if ( $work->time_end_fact )
-                        {{ \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y H:i' ) }}
+                        <div class="small">
+                            {{ \Carbon\Carbon::parse( $work->time_end_fact )->format( 'd.m.Y H:i' ) }}
+                        </div>
                     @else
                         -
                     @endif
                 </td>
-                <td class="text-right hidden-print" width="30">
-                    <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-lg btn-primary">
+                <td class="text-right hidden-print text-nowrap">
+                    <a class="btn btn-info" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-file="1">
+                        <i class="fa fa-comment"></i>
+                    </a>
+                    <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-primary">
                         <i class="fa fa-chevron-right"></i>
                     </a>
                 </td>
             </tr>
-            {{--@if ( $work->comments->count() )
-                <tr>
-                    <td colspan="10">
-                        <div class="note note-info">
-                            @include( 'parts.comments', [ 'origin' => $work, 'comments' => $work->comments ] )
+            @if ( ! isset( $hideComments ) || ! $hideComments )
+                <tr class="comments">
+                    <td colspan="7">
+                        <div data-work-comments="{{ $work->id }}" class="hidden">
+                            <div class="text-center hidden-print">
+                                <a class="text-primary small bold" data-toggle="#works-comments-{{ $work->id }}">
+                                    Показать \ скрыть комментарии
+                                </a>
+                            </div>
+                            <div class="hidden comments" id="works-comments-{{ $work->id }}"></div>
                         </div>
                     </td>
                 </tr>
-            @endif--}}
+            @endif
         @endforeach
         </tbody>
     @endif

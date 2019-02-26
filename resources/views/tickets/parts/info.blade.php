@@ -342,7 +342,7 @@
                                     Дополнительные метки:
                                 </dt>
                                 <dd>
-                                    @if ( $ticket->type && ( $ticket->type->is_pay || $ticket->type->category->is_pay ) )
+                                    @if ( $ticket->type && $ticket->type->is_pay )
                                         <span class="badge badge-warning bold">
                                             Платно
                                         </span>
@@ -602,6 +602,19 @@
                 </div>
             </div>
 
+        @endif
+
+        @if ( $ticket->files->count() )
+            <div class="note note-default">
+                @foreach ( $ticket->files as $file )
+                    <div>
+                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                            <i class="fa fa-file"></i>
+                            {{ $file->name }}
+                        </a>
+                    </div>
+                @endforeach
+            </div>
         @endif
 
     </div>

@@ -119,6 +119,7 @@
                 success: function ( response )
                 {
                     $( '#works' ).html( response );
+                    LoadComments();
                 }
             });
         };
@@ -145,6 +146,34 @@
                 {
                     Modal.createSimple( 'Отложить заявку', response, 'postponed' );
                 });
+        };
+
+        function LoadComments ()
+        {
+
+            var ids = [];
+            $( '[data-work-comments]' ).each( function ()
+            {
+                var id = $( this ).attr( 'data-work-comments' );
+                if ( ids.indexOf( id ) == -1 )
+                {
+                    ids.push( id );
+                }
+            });
+
+            $.post( '{{ route( 'works.comments' ) }}', {
+                ids: ids
+            }, function ( response )
+            {
+                $.each( response, function ( id, comments )
+                {
+                    $( '[data-work-comments="' + id + '"]' )
+                        .removeClass( 'hidden' )
+                        .find( '.comments' )
+                        .html( comments );
+                });
+            });
+
         };
 
         $( document )

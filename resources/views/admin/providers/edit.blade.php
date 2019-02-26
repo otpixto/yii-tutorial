@@ -37,11 +37,20 @@
 
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group margin-top-15">
 
                             <div class="col-xs-12">
                                 {!! Form::label( 'need_act', 'Требовать акт выполненных работ', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $provider->need_act ) ) !!}
+                            </div>
+
+                        </div>
+
+                        <div class="form-group margin-top-15">
+
+                            <div class="col-xs-12">
+                                {!! Form::label( 'sms_auth', 'Двухфакторная авторизация', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::checkbox( 'sms_auth', 1, \Input::old( 'sms_auth', $provider->sms_auth ) ) !!}
                             </div>
 
                         </div>
@@ -164,6 +173,9 @@
                                     <th>
                                         Разрешенные IP
                                     </th>
+									<th>
+                                        Разрешенные Referer
+                                    </th>
                                     <th class="text-center">
                                         Последний запрос
                                     </th>
@@ -185,7 +197,10 @@
                                         {{ $providerKey->description }}
                                     </td>
                                     <td>
-                                        {{ $providerKey->ip ?? '-' }}
+                                        {!! $providerKey->ip ? nl2br( $providerKey->ip ) : '-' !!}
+                                    </td>
+									<td>
+                                        {!! $providerKey->referer ? nl2br( $providerKey->referer ) : '-' !!}
                                     </td>
                                     <td class="text-center">
                                         @if ( $providerKey->active_at )

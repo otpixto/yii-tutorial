@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Classes\Mosreg;
-use App\Classes\Title;
 use App\Jobs\SendStream;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -459,16 +458,6 @@ class TicketManagement extends BaseModel
                         }
                     }
 
-                    if ( ! empty( $request->get( 'category_id' ) ) )
-                    {
-                        $ticket
-                            ->whereHas( 'type', function ( $type ) use ( $request )
-                            {
-                                return $type
-                                    ->where( Type::$_table . '.category_id', '=', $request->get( 'category_id' ) );
-                            });
-                    }
-
                     if ( ! empty( $request->get( 'flat' ) ) )
                     {
                         $ticket
@@ -591,6 +580,18 @@ class TicketManagement extends BaseModel
                 $query
                     ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
                 break;
+        }
+
+        if ( ! empty( $request->get( 'scheduled_from' ) ) )
+        {
+            $query
+                ->whereRaw( TicketManagement::$_table . '.scheduled_begin >= ?', [ Carbon::parse( $request->get( 'scheduled_from' ) )->toDateTimeString() ] );
+        }
+
+        if ( ! empty( $request->get( 'scheduled_to' ) ) )
+        {
+            $query
+                ->whereRaw( TicketManagement::$_table . '.scheduled_end <= ?', [ Carbon::parse( $request->get( 'scheduled_to' ) )->toDateTimeString() ] );
         }
 
     }
@@ -834,10 +835,10 @@ class TicketManagement extends BaseModel
 
         \DB::beginTransaction();
 
-        $status_name = Ticket::$statuses[ $status_code ];
-
         if ( $this->status_code != $status_code )
         {
+
+            $status_name = Ticket::$statuses[ $status_code ];
             $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . $status_name . '"' );
             if ( $log instanceof MessageBag )
             {
@@ -854,11 +855,11 @@ class TicketManagement extends BaseModel
                 return $statusHistory;
             }
             $statusHistory->save();
-        }
 
-        $this->status_code = $status_code;
-        $this->status_name = $status_name;
-        $this->save();
+            $this->status_code = $status_code;
+            $this->status_name = $status_name;
+            $this->save();
+        }
 
         $res = $this->processStatus();
         if ( $res instanceof MessageBag )
@@ -947,11 +948,7 @@ class TicketManagement extends BaseModel
 
             case 'accepted':
 
-                $res = $this->changeTicketStatus([
-					'transferred',
-					'transferred_again',
-                    'waiting'
-				]);
+                $res = $this->changeTicketStatus();
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -963,9 +960,7 @@ class TicketManagement extends BaseModel
 				
             case 'assigned':
 
-                $res = $this->changeTicketStatus([
-					'accepted'
-				]);
+                $res = $this->changeTicketStatus();
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -992,11 +987,11 @@ class TicketManagement extends BaseModel
 				
             case 'completed_with_act':
             case 'completed_without_act':
+            case 'confirmation_operator':
+            case 'confirmation_client':
             case 'not_verified':
 
-                $res = $this->changeTicketStatus([
-					'assigned'
-				]);
+                $res = $this->changeTicketStatus();
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -1011,10 +1006,7 @@ class TicketManagement extends BaseModel
                 $this->executor_id = null;
                 $this->save();
 
-                $res = $this->changeTicketStatus([
-					'accepted',
-					'assigned'
-				]);
+                $res = $this->changeTicketStatus();
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -1029,11 +1021,7 @@ class TicketManagement extends BaseModel
             case 'closed_with_confirm':
             case 'closed_without_confirm':
 
-                $res = $this->changeTicketStatus([
-                    'completed_with_act',
-                    'completed_without_act',
-                    'not_verified'
-                ]);
+                $res = $this->changeTicketStatus();
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -1063,6 +1051,12 @@ class TicketManagement extends BaseModel
                 break;
 
             case 'cancel':
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
 
                 $message = '<em>Заявка отменена</em>' . PHP_EOL . PHP_EOL;
 

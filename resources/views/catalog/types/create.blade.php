@@ -16,9 +16,9 @@
 
         <div class="form-group">
 
-            <div class="col-xs-6">
-                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'category_id', $categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
+            <div class="col-md-6">
+                {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'parent_id', $parents, \Input::old( 'parent_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Родитель' ] ) !!}
             </div>
 
             <div class="col-xs-6">
@@ -32,12 +32,12 @@
 
             <div class="col-md-3">
                 {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance' ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', '0' ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
             </div>
 
             <div class="col-md-3">
                 {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::number( 'period_execution', \Input::old( 'period_execution' ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
+                {!! Form::number( 'period_execution', \Input::old( 'period_execution', '0' ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
             </div>
             <div class="col-md-6">
                 {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}

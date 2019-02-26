@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Mosreg;
 use App\Classes\Title;
 
 class HomeController extends Controller
@@ -16,6 +17,11 @@ class HomeController extends Controller
 
     public function index ()
     {
+
+        /*$mosreg = new Mosreg( '5010049460', 'lb52OxCNp' );
+        echo $mosreg->getTicket( 47162 );
+        die;*/
+        //dd( $mosreg->getTicket( 47162 ) );
 		
 		/*
 		$types = Type::all();

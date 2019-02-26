@@ -12,28 +12,19 @@
 
     @if ( \Auth::user()->can( 'catalog.types.edit' ) )
 
+        {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
         <div class="panel panel-default">
             <div class="panel-body">
 
-                {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
                 <div class="form-group">
 
-                    <div class="col-md-6">
-                        {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'category_id', $categories, \Input::old( 'category_id', $type->category_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
-                    </div>
-
-                    <div class="col-md-6">
+                    <div class="col-lg-6">
                         {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'parent_id', $parents, \Input::old( 'parent_id', $type->parent_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Родитель' ] ) !!}
                     </div>
 
-                </div>
-
-                <div class="form-group">
-
-                    <div class="col-md-12">
+                    <div class="col-lg-6">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                     </div>
@@ -54,6 +45,14 @@
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
                     <div class="col-xs-6 text-right">
+                        @if ( ! $type->parent )
+                            <a href="{{ route( 'types.index', [ 'parent_id' => $type->id ] ) }}" class="btn btn-default btn-circle">
+                                Состав
+                                <span class="badge">
+                                    {{ $type->childs()->count() }}
+                                </span>
+                            </a>
+                        @endif
                         <a href="{{ route( 'types.managements', $type->id ) }}" class="btn btn-default btn-circle">
                             УО
                             <span class="badge">
@@ -62,8 +61,6 @@
                         </a>
                     </div>
                 </div>
-
-                {!! Form::close() !!}
 
             </div>
 
@@ -75,21 +72,19 @@
             </div>
             <div class="panel-body">
 
-                {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-
                 <div class="form-group">
 
-                    <div class="col-md-3">
+                    <div class="col-lg-3">
                         {!! Form::label( 'period_acceptance', 'Период на принятие заявки в работу, час', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::number( 'period_acceptance', \Input::old( 'period_acceptance', $type->period_acceptance ), [ 'class' => 'form-control', 'placeholder' => 'Период на принятие заявки в работу, час', 'step' => 0.1, 'min' => 0 ] ) !!}
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-lg-3">
                         {!! Form::label( 'period_execution', 'Период на исполнение, час', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::number( 'period_execution', \Input::old( 'period_execution', $type->period_execution ), [ 'class' => 'form-control', 'placeholder' => 'Период на исполнение, час', 'step' => 0.1, 'min' => 0 ] ) !!}
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-lg-6">
                         {!! Form::label( 'season', 'Сезонность устранения', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'season', \Input::old( 'season', $type->season ), [ 'class' => 'form-control', 'placeholder' => 'Сезонность устранения' ] ) !!}
                     </div>
@@ -102,8 +97,6 @@
                     </div>
                 </div>
 
-                {!! Form::close() !!}
-
             </div>
 
         </div>
@@ -115,8 +108,6 @@
                         <h3 class="panel-title">АИС ГЖИ</h3>
                     </div>
                     <div class="panel-body">
-
-                        {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
                         <div class="form-group">
 
@@ -137,8 +128,6 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
-
                     </div>
 
                 </div>
@@ -150,11 +139,16 @@
                     </div>
                     <div class="panel-body">
 
-                        {!! Form::model( $type, [ 'method' => 'put', 'route' => [ 'types.update', $type->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-                        {!! Form::hidden( 'checkboxes', 1 ) !!}
-
                         <div class="form-group">
-                            <div class="col-xs-12">
+                            <div class="col-lg-4">
+                                <div class="input-group margin-bottom-15">
+                                    <span class="input-group-addon">
+                                        Цвет
+                                    </span>
+                                    {!! Form::color( 'color', \Input::old( 'color', $type->color ), [ 'class' => 'form-control', 'placeholder' => 'Цвет' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
                                 <div class="mt-checkbox-list">
                                     <label class="mt-checkbox mt-checkbox-outline">
                                         Требуется акт
@@ -171,6 +165,16 @@
                                         {!! Form::checkbox( 'is_pay', 1, \Input::old( 'is_pay', $type->is_pay ) ) !!}
                                         <span></span>
                                     </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        Отображать в Отключениях
+                                        {!! Form::checkbox( 'works', 1, \Input::old( 'works', $type->works ) ) !!}
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        Отображать в ЛК
+                                        {!! Form::checkbox( 'lk', 1, \Input::old( 'lk', $type->lk ) ) !!}
+                                        <span></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -181,13 +185,13 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
-
                     </div>
                 </div>
             </div>
 
         </div>
+
+        {!! Form::close() !!}
 
     @else
 

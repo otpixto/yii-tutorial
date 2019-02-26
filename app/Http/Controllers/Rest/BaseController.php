@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendPush;
+use App\Jobs\SendSms;
 use App\Models\ProviderKey;
 use App\Models\ProviderToken;
+use App\Models\SmsAuth;
 use App\Traits\LogsTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\MessageBag;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -21,16 +25,15 @@ class BaseController extends Controller
 
     const TOKEN_SALT = 'ik2a-wVe2<U2E6eS';
 
-    const PUSH_API_URL = 'https://android.googleapis.com/gcm/send';
-    const PUSH_API_KEY = 'AAAAmGZOAw8:APA91bEkYaBLgTk_ZfYc5DArBBF6Jh6C8NHObhmf3UfOknAtfvry1AQXQ2miUrLEk4Xfmv2wp6IgP7_usWsyZjzOXArH-qG_kNoiPcriHIQfPEGGw1fEkafqvImEkN_unGeWglGCHUpO';
-
     protected $providerKey;
     protected $providerToken;
+
+    protected $sms_auth = false;
 
     public function __construct ( Request $request )
     {
         \Debugbar::disable();
-        $this->addInfo( 'Запрос от ' . $request->ip(), [ $request->path(), $request->all() ] );
+        $this->addInfo( 'Запрос от ' . $request->ip(), [ $request->method(), $request->path(), $request->all(), $request->server( 'HTTP_REFERER' ) ] );
         ProviderToken
             ::join( 'providers_keys', 'providers_keys.id', '=', 'providers_tokens.provider_key_id' )
             ->whereRaw( '( TIME_TO_SEC( TIMEDIFF( CURRENT_TIMESTAMP, providers_tokens.updated_at ) ) / 60 ) >= providers_keys.token_life' )
@@ -40,6 +43,135 @@ class BaseController extends Controller
     protected function genToken ( Request $request )
     {
         return md5( $request->server( 'HTTP_USER_AGENT' ) . rand( 1000000, 9999999 ) . microtime() . self::TOKEN_SALT );
+    }
+
+    protected function genCode ( $digits = 4 )
+    {
+        $code = '';
+        for ( $i = 0; $i < $digits; $i ++ )
+        {
+            $code .= rand( 0, 9 );
+        }
+        return (string) $code;
+    }
+
+    protected function checkAuth ( Request $request, & $error = null, & $httpCode = null ) : bool
+    {
+
+        if ( ! $this->checkProviderKey( $request, $error, $httpCode ) )
+        {
+            return false;
+        }
+
+        if ( ! \Auth::guard()->attempt( $request->only( $this->credentials ) ) )
+        {
+            $error = trans('auth.failed' );
+            $httpCode = 403;
+            return false;
+        }
+
+        $user = \Auth::user();
+
+        $token = $this->genToken( $request );
+
+        $providerToken = ProviderToken::create([
+            'provider_key_id'       => $this->providerKey->id,
+            'user_id'               => $user->id,
+            'token'                 => $token,
+            'http_user_agent'       => $request->server( 'HTTP_USER_AGENT', '' ),
+            'ip'                    => $request->ip(),
+        ]);
+        if ( $providerToken instanceof MessageBag )
+        {
+            return false;
+        }
+
+        $this->providerToken = $providerToken;
+
+        $providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
+        $providerToken->providerKey->save();
+
+        $user->push_id = $request->get( 'push_id', null );
+        $user->save();
+
+        return true;
+
+    }
+
+    protected function checkSmsAuth ( Request $request, & $error = null, & $httpCode = null ) : bool
+    {
+
+        if ( ! $this->checkProviderKey( $request, $error, $httpCode ) )
+        {
+            return false;
+        }
+
+        $this->sms_auth = $this->providerKey->provider->sms_auth;
+        $token = $this->providerToken->token;
+
+        $phone = $request->get( 'phone' );
+
+        if ( $this->sms_auth )
+        {
+            if ( $request->get( 'sms_code' ) )
+            {
+                $code = $request->get( 'sms_code' );
+                $smsAuth = SmsAuth
+                    ::where( 'phone', '=', $phone )
+                    ->where( 'code', '=', $code )
+                    ->first();
+                if ( $smsAuth )
+                {
+                    $smsAuth->delete();
+                    $this->sms_auth = false;
+                    return true;
+                }
+                else
+                {
+                    $error = 'Неверный код';
+                    return false;
+                }
+            }
+            else
+            {
+                if ( \Cache::tags( 'rest' )->has( 'sms_auth.' . $phone ) )
+                {
+                    $error = 'Повторная отправка возможна через ' . Carbon::now()->diffInSeconds( Carbon::createFromTimestamp( \Cache::tags( 'rest' )->get( 'sms_auth.' . $phone ) ) ) . ' сек.';
+                    $httpCode = 429;
+                    return false;
+                }
+                else
+                {
+                    $code = $this->genCode( 4 );
+                    SmsAuth
+                        ::where( 'phone', '=', $phone )
+                        ->delete();
+                    $smsAuth = SmsAuth::create(
+                        [
+                            'phone'         => $phone,
+                            'token'         => $token,
+                            'code'          => $code,
+                            'expired_at'    => Carbon::now()->addSeconds( config( 'sms.alive' ) )->toDateTimeString(),
+                        ]
+                    );
+                    if ( $smsAuth instanceof MessageBag )
+                    {
+                        $error = 'Пошел в пизду';
+                        return false;
+                    }
+                    $smsAuth->save();
+                    $message = 'Код для авторизации: ' . $code;
+                    $this->dispatch( new SendSms( $phone, $message ) );
+                    \Cache::tags( 'rest' )->put( 'sms_auth.' . $phone, Carbon::now()->addMinute()->timestamp, 1 );
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            return true;
+        }
+
     }
 
     protected function checkProviderKey ( Request $request, & $error = null, & $httpCode = null ) : bool
@@ -67,7 +199,22 @@ class BaseController extends Controller
             {
                 return $q
                     ->whereNull( 'ip' )
-                    ->orWhere( 'ip', 'like', '%' . $request->ip() . '%' );
+                    ->orWhere( 'ip', 'like', '%' . $request->ip() . PHP_EOL . '%' );
+            })
+			->where( function ( $q ) use ( $request )
+            {
+				$q
+                    ->whereNull( 'referer' );
+				if ( $request->server( 'HTTP_REFERER' ) )
+				{
+					$url = parse_url( $request->server( 'HTTP_REFERER' ) );
+					if ( ! empty( $url[ 'host' ] ) )
+					{
+						$q
+							->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . PHP_EOL . '%' );
+					}
+				}
+                return $q;
             })
             ->whereHas( 'provider' )
             ->first();
@@ -78,6 +225,9 @@ class BaseController extends Controller
             $httpCode = 403;
             return false;
         }
+		
+		$providerKey->active_at = Carbon::now()->toDateTimeString();
+        $providerKey->save();
 
         $this->providerKey = $providerKey;
 
@@ -176,6 +326,15 @@ class BaseController extends Controller
         $this->providerToken->delete();
         return $this->success( 'Bye-bye!' );
     }
+	
+	public function check ( Request $request )
+    {
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+        return $this->success( 'OK' );
+    }
 
     public function push ( Request $request )
     {
@@ -193,6 +352,7 @@ class BaseController extends Controller
         $validation = \Validator::make( $request->all(), [
             'title'               => 'required|max:255',
             'body'                => 'required|max:255',
+            'data'                => 'nullable|array',
         ]);
 
         if ( $validation->fails() )
@@ -200,30 +360,7 @@ class BaseController extends Controller
             return $this->error( $validation->errors()->first() );
         }
 
-        $notification = [
-            'title'     => $request->get( 'title' ),
-            'body'      => $request->get( 'body' ),
-        ];
-
-        $request = [
-            'to'            => \Auth::user()->push_id,
-            'notification'  => $notification,
-        ];
-
-        $headers = [
-            'Authorization: key=' . self::PUSH_API_KEY,
-            'Content-Type: application/json'
-        ];
-
-        $ch = curl_init();
-        curl_setopt( $ch,CURLOPT_URL, self::PUSH_API_URL );
-        curl_setopt( $ch,CURLOPT_POST, true );
-        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, true );
-        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
-        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $request ) );
-        $response = curl_exec( $ch );
-        curl_close( $ch );
+        $this->dispatch( new SendPush( config( 'push.keys.lk' ), \Auth::user()->push_id, $request->get( 'title' ), $request->get( 'body' ), $request->get( 'data' ) ) );
 
         $this->addLog( 'Отправил PUSH-уведомление' );
 
@@ -315,9 +452,9 @@ class BaseController extends Controller
         return $this->log->addCritical( $text, $data );
     }
 
-    protected function error ( $error, $httpCode = 400 ) : Response
+    protected function error ( $error, $httpCode = null ) : Response
     {
-        return response( compact( 'error' ), $httpCode );
+        return response( compact( 'error' ), $httpCode ?: 400 );
     }
 
     protected function success ( $response ) : Response

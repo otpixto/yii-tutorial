@@ -31,6 +31,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
         Route::prefix( 'external' )->group( function ()
         {
             Route::any( 'works', 'Rest\ExternalController@works' )->name( 'rest.external.works' );
+            Route::any( 'statistics', 'Rest\ExternalController@statistics' )->name( 'rest.external.statistics' );
         });
 
         Route::prefix( 'lk' )->group( function ()
@@ -46,9 +47,11 @@ Route::group( [ 'middleware' => 'api' ], function ()
             Route::any( 'sessions', 'Rest\LKController@sessions' )->name( 'rest.lk.sessions' );
             Route::any( 'rate', 'Rest\LKController@rate' )->name( 'rest.lk.rate' );
             Route::any( 'change-password', 'Rest\LKController@changePassword' )->name( 'rest.lk.change.password' );
+            Route::any( 'change-email', 'Rest\LKController@changeEmail' )->name( 'rest.lk.change.email' );
             Route::any( 'profile', 'Rest\LKController@profile' )->name( 'rest.lk.profile' );
             Route::any( 'address-add', 'Rest\LKController@addressAdd' )->name( 'rest.lk.address.add' );
             Route::any( 'address-del', 'Rest\LKController@addressDel' )->name( 'rest.lk.address.del' );
+            Route::any( 'check', 'Rest\LKController@check' )->name( 'rest.lk.check' );
             Route::any( 'push', 'Rest\LKController@push' )->name( 'rest.lk.push' );
         });
 
@@ -70,6 +73,7 @@ Route::group( [ 'middleware' => 'api' ], function ()
             Route::any( 'sessions', 'Rest\DeviceController@sessions' )->name( 'rest.devices.sessions' );
             Route::any( 'sessions/close', 'Rest\DeviceController@sessionsClose' )->name( 'rest.devices.sessions.close' );
             Route::any( 'change-password', 'Rest\DeviceController@changePassword' )->name( 'rest.devices.change.password' );
+			Route::any( 'check', 'Rest\DeviceController@check' )->name( 'rest.devices.check' );
             Route::any( 'push', 'Rest\DeviceController@push' )->name( 'rest.devices.push' );
         });
 
@@ -149,6 +153,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'buildings/search', 'Operator\WorksController@buildingsSearch' )->name( 'works.buildings.search' );
             Route::get( 'export', 'Operator\WorksController@export' )->name( 'works.export' );
             Route::get( 'report', 'Operator\WorksController@report' )->name( 'works.report' );
+            Route::post( 'comments/{id?}', 'Operator\WorksController@comments' )->name( 'works.comments' );
         });
 
         Route::prefix( 'tickets' )->group( function ()

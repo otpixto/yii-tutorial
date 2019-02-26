@@ -1,52 +1,50 @@
+<ul class="media-list">
 @foreach ( $comments as $comment )
-	<div class="media" id="comment-{{ $comment->id }}">
-		<i class="fa fa-caret-right pull-left"></i>
+	<li class="media" id="comment-{{ $comment->id }}">
+		<a href="javascript:;" data-user="{{ $comment->author->id }}" class="pull-left">
+			<img src="{{ $comment->author->getPhoto() }}" alt="" class="img-circle" height="40">
+		</a>
 		<div class="media-body">
-			<h5 class="media-heading">
-				<a href="javascript:;" data-user="{{ $comment->author->id }}">
-					{{ $comment->author->getShortName( true ) }}
-				</a>
-				<span class="small">
-					{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
-				</span>
-				<span class="media-buttons">
-					@if ( isset( $origin ) && $origin->canComment() )
-						<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $comment ) }}" data-model-id="{{ $comment->id }}" data-origin-model-name="{{ get_class( $origin ) }}" data-origin-model-id="{{ $origin->id }}" data-file="1">
-							<i class="fa fa-commenting pull-left"></i>
-							<span class="visible-lg pull-right">
-								ответить
-							</span>
-						</button>
-					@endif
-					@if ( \Auth::user()->can( 'tickets.comments_delete' ) )
-						<button type="button" class="btn btn-xs btn-danger hidden-print" data-action="comment_delete" data-id="{{ $comment->id }}">
-							<i class="fa fa-close pull-left"></i>
-							<span class="visible-lg pull-right">
-								удалить
-							</span>
-						</button>
-					@endif
-				</span>
-			</h5>
-			<p>
+			<a href="javascript:;" data-user="{{ $comment->author->id }}" class="small font-blue-soft">
+				{{ $comment->author->getShortName( true ) }}
+			</a>
+			<small class="small font-grey-cascade">
+				{{ $comment->created_at->format( 'd.m.Y H:i' ) }}
+			</small>
+			<span class="media-buttons">
+				@if ( isset( $origin ) && $origin->canComment() )
+					<button type="button" class="btn btn-xs btn-info hidden-print" data-action="comment" data-model-name="{{ get_class( $origin ) }}" data-model-id="{{ $origin->id }}" data-reply-id="{{ $comment->id }}" data-file="1">
+						<i class="fa fa-commenting pull-left"></i>
+						<span class="visible-lg pull-right">
+							ответить
+						</span>
+					</button>
+				@endif
+				@if ( \Auth::user()->can( 'tickets.comments_delete' ) )
+					<button type="button" class="btn btn-xs btn-danger hidden-print" data-action="comment_delete" data-id="{{ $comment->id }}">
+						<i class="fa fa-close pull-left"></i>
+						<span class="visible-lg pull-right">
+							удалить
+						</span>
+					</button>
+				@endif
+			</span>
+			<div>
 				{{ $comment->text }}
-			</p>
+			</div>
 			@if ( $comment->files->count() )
-				<div class="note">
-					<h5>Прикрепленные файлы:</h5>
+				<ul class="list-inline">
 					@foreach ( $comment->files as $file )
-						<div>
-							<a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+						<li>
+							<a class="small" href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
 								<i class="fa fa-file"></i>
 								{{ $file->name }}
 							</a>
-						</div>
+						</li>
 					@endforeach
-				</div>
-			@endif
-			@if ( $comment->childs->count() )
-				@include( 'parts.comments', [ 'origin' => $origin ?? null, 'comments' => $comment->childs ] )
+				</ul>
 			@endif
 		</div>
-	</div>
+	</li>
 @endforeach
+</ul>

@@ -30,6 +30,7 @@ class Provider extends BaseModel
         'name',
         'domain',
         'need_act',
+        'sms_auth',
     ];
 
     public function phones ()
@@ -116,6 +117,10 @@ class Provider extends BaseModel
         {
             $attributes[ 'need_act' ] = 0;
         }
+        if ( ! isset( $attributes[ 'sms_auth' ] ) )
+        {
+            $attributes[ 'sms_auth' ] = 0;
+        }
         $provider = parent::create( $attributes );
         return $provider;
     }
@@ -125,6 +130,10 @@ class Provider extends BaseModel
         if ( ! isset( $attributes[ 'need_act' ] ) )
         {
             $attributes[ 'need_act' ] = 0;
+        }
+        if ( ! isset( $attributes[ 'sms_auth' ] ) )
+        {
+            $attributes[ 'sms_auth' ] = 0;
         }
         $provider = parent::edit( $attributes );
         return $provider;
@@ -159,7 +168,7 @@ class Provider extends BaseModel
         {
             return $providerKey;
         }
-        $this->addLog( 'Добавлен ключ "' . $providerKey->api_key . '"' );
+        $this->addLog( 'Добавлен ключ "' . $providerKey->api_key . '" (' . $providerKey->description . ')' );
         $providerKey->save();
         return $providerKey;
     }

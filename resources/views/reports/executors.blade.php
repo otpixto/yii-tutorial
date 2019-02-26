@@ -104,18 +104,15 @@
                     Адрес заявки
                 </th>
                 <th>
-                    Категория и тип
+                    Классификатор
                 </th>
                 <th>
                     Выполненные работы
                 </th>
                 <th>
-                    Статус заявки
+                    Статус заявки \ Выполнено
                 </th>
-                <th>
-                    Дата
-                </th>
-                <th>
+                <th class="text-center">
                     Оценка
                 </th>
             </tr>
@@ -136,9 +133,11 @@
                     </td>
                     <td>
                         @if ( $ticketManagement->ticket->type )
-                            <div>
-                                {{ $ticketManagement->ticket->type->category->name }}
-                            </div>
+                            @if ( $ticketManagement->ticket->type->parent )
+                                <div class="bold">
+                                    {{ $ticketManagement->ticket->type->parent->name }}
+                                </div>
+                            @endif
                             <div>
                                 {{ $ticketManagement->ticket->type->name }}
                             </div>
@@ -146,20 +145,24 @@
                     </td>
                     <td>
                         <ol class="list-unstyled">
-                            @foreach ( $ticketManagement->services as $service )
+                            @forelse( $ticketManagement->services as $service )
                                 <li>
                                     {{ $service->name }}
                                 </li>
-                            @endforeach
+                            @empty
+                                -
+                            @endforelse
                         </ol>
                     </td>
                     <td>
-                        {{ $ticketManagement->status_name }}
+                        <div>
+                            {{ $ticketManagement->status_name }}
+                        </div>
+                        <div>
+                            {{ $ticketManagement->ticket->completed_at }}
+                        </div>
                     </td>
-                    <td>
-                        {{ $ticketManagement->ticket->completed_at }}
-                    </td>
-                    <td>
+                    <td class="text-center">
                         {{ $ticketManagement->rate }}
                     </td>
                 </tr>

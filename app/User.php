@@ -187,11 +187,6 @@ class User extends BaseModel implements
     public function edit ( array $attributes = [] )
     {
 
-        if ( ! isset( $attributes[ 'active' ] ) )
-        {
-            $attributes[ 'active' ] = 0;
-        }
-
         if ( ! empty( $attributes[ 'phone' ] ) )
         {
             $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
@@ -388,6 +383,11 @@ class User extends BaseModel implements
             return $userPosition;
         }
         $userPosition->save();
+    }
+
+    public function getPhoto ()
+    {
+        return '/storage/photo/' . ( $this->photo ?: ( $this->gender ?: 'nophoto' ) . '.png' );
     }
 
 }

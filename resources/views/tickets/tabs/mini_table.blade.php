@@ -40,9 +40,11 @@
                     </span>
                 </td>
                 <td>
-                    <div>
-                        {{ $ticket->type->category->name }}
-                    </div>
+                    @if ( $ticket->type->parent )
+                        <div>
+                            {{ $ticket->type->parent->name }}
+                        </div>
+                    @endif
                     <div>
                         {{ $ticket->type->name }}
                     </div>
