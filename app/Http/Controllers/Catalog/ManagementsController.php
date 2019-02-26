@@ -979,14 +979,19 @@ class ManagementsController extends BaseController
 
         $res = Type
             ::mine()
+            ->where( function ( $q ) use ( $management )
+            {
+                return $q
+                    ->whereNull( 'provider_id' )
+                    ->orWhere( 'provider_id', '=', $management->provider_id );
+            })
             ->whereNotIn( 'id', $management->types()->pluck( Type::$_table . '.id' ) )
-            ->with( 'category' )
             ->get()
             ->sortBy( 'name' );
         $availableTypes = [];
         foreach ( $res as $r )
         {
-            $availableTypes[ $r->category->name ][ $r->id ] = $r->name;
+            $availableTypes[ $r->parent->name ?? 'Без родителя' ][ $r->id ] = $r->name;
         }
 
         return view( 'catalog.managements.types' )
