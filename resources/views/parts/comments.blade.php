@@ -29,11 +29,11 @@
 					</button>
 				@endif
 			</span>
-			<div>
+			<div class="media-text">
 				{{ $comment->text }}
 			</div>
 			@if ( $comment->files->count() )
-				<ul class="list-inline">
+				<ul class="list-inline media-files">
 					@foreach ( $comment->files as $file )
 						<li>
 							<a class="small" href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
