@@ -40,7 +40,7 @@ class LK
             'type_id'       => (int) $ticket->type_id,
             'type_name'     => $ticket->type->name,
             'building_id'   => (int) $ticket->building_id,
-            'building_name' => $ticket->building->name,
+            'building_name' => $ticket->building->name ?? null,
             'flat'          => $ticket->flat,
             'status_code'   => $ticket->status_code,
             'status_name'   => $ticket->status_name,
