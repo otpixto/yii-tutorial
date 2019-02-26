@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Building;
-use App\Models\Category;
-use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Type;
@@ -23,28 +21,6 @@ class TypesController extends BaseController
 
     public function index ( Request $request )
     {
-
-        /*$types = Type::mine()->get();
-        foreach ( $types as $type )
-        {
-            if ( $type->category && ! $type->parent )
-            {
-                $newType = Type
-                    ::mine()
-                    ->where( 'name', '=', $type->category->name )
-                    ->first();
-                if ( ! $newType )
-                {
-                    $newType = Type::create([
-                        'provider_id'       => $type->provider_id,
-                        'name'              => $type->category->name
-                    ]);
-                    $newType->save();
-                }
-                $type->parent_id = $newType->id;
-                $type->save();
-            }
-        }*/
 
         $search = trim( $request->get( 'search', '' ) );
         $parent_id = trim( $request->get( 'parent_id', '' ) );
@@ -515,6 +491,31 @@ class TypesController extends BaseController
         return redirect()->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
+    }
+
+    public function fix ( Request $request )
+    {
+        $types = Type::mine()->get();
+        foreach ( $types as $type )
+        {
+            if ( $type->category && ! $type->parent )
+            {
+                $newType = Type
+                    ::mine()
+                    ->where( 'name', '=', $type->category->name )
+                    ->first();
+                if ( ! $newType )
+                {
+                    $newType = Type::create([
+                        'provider_id'       => $type->provider_id,
+                        'name'              => $type->category->name
+                    ]);
+                    $newType->save();
+                }
+                $type->parent_id = $newType->id;
+                $type->save();
+            }
+        }
     }
 
 }

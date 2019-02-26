@@ -297,6 +297,7 @@ class LKController extends BaseController
             'date_from'           => 'nullable|date|date_format:Y-m-d',
             'date_to'             => 'nullable|date|date_format:Y-m-d|after_or_equal:date_from',
             'building_id'         => 'nullable|integer',
+            'type_id'             => 'nullable|integer',
             'status_code'         => 'nullable|string',
         ]);
 
@@ -339,6 +340,12 @@ class LKController extends BaseController
         {
             $tickets
                 ->where( 'building_id', '=', $request->get( 'building_id' ) );
+        }
+
+        if ( $request->get( 'type_id' ) )
+        {
+            $tickets
+                ->where( 'type_id', '=', $request->get( 'type_id' ) );
         }
 
         if ( $request->get( 'status_code' ) )
