@@ -336,7 +336,7 @@ class TypesController extends BaseController
             ::mine()
             ->find( $request->get( 'type_id' ) );
 
-        $type->parent_name = $type->parent->name ?? null;
+        $type->category_name = $type->parent->name ?? $type->name;
         if ( $type->description )
         {
             $type->description = nl2br( $type->description );
