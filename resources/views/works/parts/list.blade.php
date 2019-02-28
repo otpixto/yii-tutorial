@@ -140,7 +140,7 @@
                     @endif
                 </td>
                 <td class="text-right hidden-print text-nowrap">
-                    <a class="btn btn-info" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-file="1">
+                    <a class="btn btn-info tooltips" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-file="1" title="Добавить комментарий">
                         <i class="fa fa-comment"></i>
                     </a>
                     <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-primary">

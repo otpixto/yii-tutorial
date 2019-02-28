@@ -173,7 +173,7 @@
         </div>
     </td>
     <td class="text-right hidden-print text-nowrap">
-        <a class="btn btn-info" data-action="comment" data-model-name="{{ get_class( $ticketManagement->ticket ) }}" data-model-id="{{ $ticketManagement->ticket->id }}" data-file="1">
+        <a class="btn btn-info tooltips" data-action="comment" data-model-name="{{ get_class( $ticketManagement->ticket ) }}" data-model-id="{{ $ticketManagement->ticket->id }}" data-file="1" title="Добавить комментарий">
             <i class="fa fa-comment"></i>
         </a>
         <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-{{ in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ? 'info' : 'primary' }} tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
