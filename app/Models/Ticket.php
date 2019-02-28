@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Classes\Push;
 use App\Jobs\SendPush;
 use App\User;
 use Carbon\Carbon;
@@ -571,7 +570,7 @@ class Ticket extends BaseModel
 
         if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
         {
-            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Заявка отредактирована', [ 'object' => 'ticket', 'id' => $this->id ] ) );
+            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Заявка отредактирована', 'ticket', $this->id ) );
         }
 
 		return $this;
@@ -1013,7 +1012,7 @@ class Ticket extends BaseModel
 
             if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
             {
-                $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Изменен статус заявки #' . $this->id, 'Статус изменен на "' . $this->status_name . '"', [ 'object' => 'ticket', 'id' => $this->id ] ) );
+                $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Статус изменен на "' . $this->status_name . '"', 'ticket', $this->id ) );
             }
 
         }

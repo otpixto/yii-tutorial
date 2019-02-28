@@ -7,9 +7,6 @@ class Push
 
     private $curl;
 
-    public $title = null;
-    public $body = null;
-
     public $data = [];
 
     public function __construct ( $apiKey )
@@ -26,44 +23,33 @@ class Push
         curl_setopt( $this->curl,CURLOPT_HTTPHEADER, $headers );
     }
 
-    public function setTitle ( $title )
+    public function setData ( $keyOrArray, $value = null )
     {
-        $this->title = $title;
-        return $this;
-    }
-
-    public function setBody ( $body )
-    {
-        $this->body = $body;
-        return $this;
-    }
-
-    public function setData ( $key, $value )
-    {
-        $this->data[ $key ] = $value;
+        if ( is_array( $keyOrArray ) )
+        {
+            foreach ( $keyOrArray as $key => $value )
+            {
+                $this->data[ $key ] = $value;
+            }
+        }
+        else
+        {
+            $this->data[ $keyOrArray ] = $value;
+        }
         return $this;
     }
 
     public function __set ( $key, $value )
     {
-        if ( ! isset( $this->$key ) )
-        {
-            $this->setData( $key, $value );
-        }
-        return $this;
+        return $this->setData( $key, $value );
     }
 
     public function sendTo ( $token )
     {
         if ( ! $this->curl ) return false;
-        $notification = [
-            'title'                 => $this->title,
-            'body'                  => $this->body,
-        ];
         $request = [
             'to'                    => $token,
-            'notification'          => $notification,
-            //'data'                  => $this->data
+            'data'                  => $this->data
         ];
         curl_setopt( $this->curl,CURLOPT_POSTFIELDS, json_encode( $request ) );
         $response = curl_exec( $this->curl );

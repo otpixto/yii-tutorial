@@ -317,6 +317,7 @@ class LKController extends BaseController
                             ->where( 'phone', '=', \Auth::user()->phone );
                     });
             })
+            ->where( 'status_code', '!=', 'draft' )
             ->whereHas( 'building' );
 
         if ( $request->get( 'ticket_id' ) )
@@ -582,7 +583,7 @@ class LKController extends BaseController
         $validation = \Validator::make( $request->all(), [
             'ticket_id'             => 'required|integer',
             'rate'                  => 'required|integer|min:1|max:5',
-            'rate_comment'          => 'nullable|max:1000',
+            'rate_comment'          => 'required_if:rate,<,4|max:1000',
             'force'          		=> 'nullable|boolean',
             'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
         ]);

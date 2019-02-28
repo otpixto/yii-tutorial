@@ -15,30 +15,27 @@ class SendPush implements ShouldQueue
 
     protected $apiKey;
     protected $tokens;
-    protected $title;
-    protected $body;
-    protected $data;
+
+    protected $message;
+    protected $object;
+    protected $id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct ( $apiKey, $tokens = [], $title, $body, $data = [] )
+    public function __construct ( $apiKey, $tokens = [], $message, $object = null, $id = null )
     {
         if ( ! is_array( $tokens ) )
         {
             $tokens = [ $tokens ];
         }
-        if ( ! is_array( $data ) )
-        {
-            $data = [ $data ];
-        }
         $this->apiKey = $apiKey;
         $this->tokens = $tokens;
-        $this->title = $title;
-        $this->body = $body;
-        $this->data = $data;
+        $this->message = $message;
+        $this->object = $object;
+        $this->id = $id;
     }
 
     /**
@@ -50,13 +47,9 @@ class SendPush implements ShouldQueue
     {
         $client = new Push( $this->apiKey );
         $client
-            ->setTitle( $this->title )
-            ->setBody( $this->body );
-        foreach ( $this->data as $key => $value )
-        {
-            $client
-                ->setData( $key, $value );
-        }
+            ->setData( 'message', $this->message )
+            ->setData( 'object', $this->object )
+            ->setData( 'id', $this->id );
         foreach ( $this->tokens as $token )
         {
             if ( ! empty( $token ) )

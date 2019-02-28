@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Rest;
 
+use App\Classes\Push;
 use App\Http\Controllers\Controller;
-use App\Jobs\SendPush;
 use App\Jobs\SendSms;
 use App\Models\ProviderKey;
 use App\Models\ProviderToken;
@@ -350,9 +350,9 @@ class BaseController extends Controller
         }
 
         $validation = \Validator::make( $request->all(), [
-            'title'               => 'required|max:255',
-            'body'                => 'required|max:255',
-            'data'                => 'nullable|array',
+            'message'             => 'required|max:255',
+            'object'              => 'required|max:255',
+            'id'                  => 'required|integer',
         ]);
 
         if ( $validation->fails() )
@@ -360,7 +360,12 @@ class BaseController extends Controller
             return $this->error( $validation->errors()->first() );
         }
 
-        $this->dispatch( new SendPush( config( 'push.keys.lk' ), \Auth::user()->push_id, $request->get( 'title' ), $request->get( 'body' ), $request->get( 'data' ) ) );
+        $client = new Push( config( 'push.keys.lk' ) );
+
+        $client
+            ->setData( $request->all() );
+
+        $response = $client->sendTo( \Auth::user()->push_id );
 
         $this->addLog( 'Отправил PUSH-уведомление' );
 
