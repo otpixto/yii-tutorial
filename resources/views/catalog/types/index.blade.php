@@ -205,7 +205,7 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            @if ( $type->work )
+                                            @if ( $type->works )
                                                 @include( 'parts.yes' )
                                             @else
                                                 @include( 'parts.no' )
