@@ -209,7 +209,7 @@
 @if ( \Auth::user()->can( 'tickets.field_operator' ) && count( $availableOperators ) > 1 )
     <div class="row margin-top-10">
         <h4 class="col-md-2">
-            Оператор(ы)
+            Заявку оформил(а)
         </h4>
         <div class="col-md-10">
             <select class="form-control select2" multiple="multiple" id="operators" name="operators[]">

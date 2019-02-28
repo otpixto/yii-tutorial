@@ -680,7 +680,7 @@
                 <div class="col-xs-6">
                     <div class="note">
                         <dl>
-                            <dt>Оператор ЕДС:</dt>
+                            <dt>Заявку оформил(а):</dt>
                             <dd>{{ $ticket->author->getName() }}</dd>
                         </dl>
                     </div>
