@@ -14,7 +14,14 @@
     </div>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
-    <div class="row">
+	<div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+			{!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+        </div>
+    </div>
+	
+    <div class="row margin-top-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
             <div class="input-group">
@@ -71,28 +78,30 @@
         </thead>
         <tbody>
         @foreach ( $categories as $category )
-            <tr>
-                <td>
-                    <span data-field="category">
-                        {{ $category->name }}
-                    </span>
-                </td>
-                <td class="text-center info bold">
-                    {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
-                </td>
-                <td class="text-center">
-                    <span data-field="percent">
-                        {{ $data[ 'categories' ][ $category->id ][ 'percent_total' ] }}
-                    </span>
-                    %
-                </td>
-                <td class="text-center info bold">
-                    {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
-                </td>
-                <td class="text-center">
-                    {{ $data[ 'categories' ][ $category->id ][ 'percent' ] }}%
-                </td>
-            </tr>
+			@if ( isset( $data[ 'categories' ][ $category->id ] ) )
+				<tr>
+					<td>
+						<span data-field="category">
+							{{ $category->name }}
+						</span>
+					</td>
+					<td class="text-center info bold">
+						{{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
+					</td>
+					<td class="text-center">
+						<span data-field="percent">
+							{{ $data[ 'categories' ][ $category->id ][ 'percent_total' ] }}
+						</span>
+						%
+					</td>
+					<td class="text-center info bold">
+						{{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
+					</td>
+					<td class="text-center">
+						{{ $data[ 'categories' ][ $category->id ][ 'percent' ] }}%
+					</td>
+				</tr>
+			@endif
         @endforeach
         </tbody>
         <tfoot>

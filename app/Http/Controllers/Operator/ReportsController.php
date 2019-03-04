@@ -11,6 +11,7 @@ use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
+use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -751,10 +752,25 @@ class ReportsController extends BaseController
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) )->setTime( 0, 0, 0 );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) )->setTime( 23, 59, 59 );
+		
+		$providers = Provider
+			::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+			
+		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
+			
+        $categories = Type
+			::mine()
+            ->whereNull( 'parent_id' )
+            ->orderBy( 'name' )
+			->where( 'provider_id', '=', $provider_id )
+            ->get();
 
         $availableManagements = Management
             ::mine()
             ->with( 'parent' )
+			->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
 
@@ -768,12 +784,6 @@ class ReportsController extends BaseController
             $managements = $availableManagements;
         }
 
-        $categories = Type
-			::mine()
-            ->whereNull( 'parent_id' )
-            ->orderBy( 'name' )
-            ->get();
-
         $data = [
             'total' => 0,
             'closed' => 0,
@@ -782,15 +792,6 @@ class ReportsController extends BaseController
             'managements' => [],
             'data' => [],
         ];
-
-        foreach ( $categories as $category )
-        {
-            $data[ 'categories' ][ $category->id ] = [
-                'total' => 0,
-                'closed' => 0,
-                'percent' => 0
-            ];
-        }
 
         foreach ( $managements as $management )
         {
@@ -816,8 +817,16 @@ class ReportsController extends BaseController
             {
                 $ticket = $ticketManagement->ticket;
                 $type = $ticket->type;
-                $category_id = $type->parent_id ?: $type->id;
-                if ( ! isset( $data[ 'data' ][ $type->parent_id ?? $type->id ][ $management->id ] ) )
+                $category_id = $type->parent ? $type->parent->id : $type->id;
+				if ( ! isset( $data[ 'categories' ][ $category_id ] ) )
+				{
+					$data[ 'categories' ][ $category_id ] = [
+						'total' => 0,
+						'closed' => 0,
+						'percent' => 0
+					];
+				}
+                if ( ! isset( $data[ 'data' ][ $category_id ][ $management->id ] ) )
                 {
                     $data[ 'data' ][ $category_id ][ $management->id ] = [
                         'total' => 0,
@@ -887,9 +896,11 @@ class ReportsController extends BaseController
             ->with( 'data', $data )
             ->with( 'categories', $categories )
             ->with( 'managements', $managements )
+            ->with( 'providers', $providers )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'categories_count', $categories_count )
             ->with( 'managements_count', $managements_count )
+            ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
