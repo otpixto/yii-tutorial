@@ -755,6 +755,7 @@ class ReportsController extends BaseController
 		
 		$providers = Provider
 			::mine()
+			->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 			

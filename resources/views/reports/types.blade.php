@@ -14,12 +14,15 @@
     </div>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
-	<div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-			{!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
-        </div>
-    </div>
+	
+	@if ( $providers->count() > 1 )
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				{!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+				{!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+			</div>
+		</div>
+	@endif
 	
     <div class="row margin-top-15">
         <div class="col-md-6 col-md-offset-3">
