@@ -6,6 +6,7 @@ use App\Models\BuildingRoom;
 use App\Models\Ticket;
 use App\Models\UserPosition;
 use App\Models\Work;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -19,19 +20,20 @@ class DataController extends BaseController
 
     public function positions ()
     {
-        $positions = UserPosition
-            ::where( 'created_at', '>=', '2019-01-22 00:00:00' )
-            ->orderBy( 'id' )
+        $users = User
+            ::whereNotNull( 'lon' )
+            ->whereNotNull( 'lat' )
+            ->whereNotNull( 'position_at' )
             ->get();
         $data = [];
-        foreach ( $positions as $position )
+        foreach ( $users as $user )
         {
             $data[] = [
-                'user_id' => $position->user->id,
-                'user_name' => $position->user->getShortName(),
-                'lon' => (float) $position->lon,
-                'lat' => (float) $position->lat,
-                'date' => $position->created_at->format( 'd.m.Y H:i' )
+                'user_id' => $user->id,
+                'user_name' => $user->getShortName(),
+                'lon' => (float) $user->lon,
+                'lat' => (float) $user->lat,
+                'date' => $user->position_at->format( 'd.m.Y H:i' )
             ];
         }
         return $data;

@@ -8,6 +8,7 @@ use App\Models\BaseModel;
 use App\Models\Ticket;
 use App\Models\UserPosition;
 use App\Notifications\MailResetPasswordToken;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\MessageBag;
@@ -31,6 +32,13 @@ class User extends BaseModel implements
     public static $_table = 'users';
 
     public static $name = 'Пользователь';
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'position_at',
+    ];
 
     protected $nullable = [
         'prefix',
@@ -372,6 +380,7 @@ class User extends BaseModel implements
     {
         $this->lon = $lon;
         $this->lat = $lat;
+        $this->position_at = Carbon::now()->toDateTimeString();
         $this->save();
         $userPosition = UserPosition::create([
             'user_id'       => $this->id,

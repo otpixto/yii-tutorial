@@ -51,7 +51,7 @@
                 );
                 if ( response && response.length )
                 {
-                    var prevData = {};
+                    //var prevData = {};
                     $.each( response, function ( i, position )
                     {
                         var myPlacemark = new ymaps.Placemark( [ position.lat, position.lon ], {
@@ -62,8 +62,8 @@
                             // растянется под iconContent.
                             preset: 'islands#greenStretchyIcon'
                         });
-                        myMap.geoObjects.add(myPlacemark);
-                        if ( prevData[ position.user_id ] )
+                        myMap.geoObjects.add( myPlacemark );
+                        /*if ( prevData[ position.user_id ] )
                         {
                             var myPolyline = new ymaps.Polyline([
                                 prevData[ position.user_id ],
@@ -71,9 +71,12 @@
                             ]);
                             myMap.geoObjects.add(myPolyline);
                         }
-                        prevData[ position.user_id ] = [ position.lat, position.lon ];
+                        prevData[ position.user_id ] = [ position.lat, position.lon ];*/
                     });
-                    myMap.setCenter( Object.values( prevData ).pop() );
+                    myMap.setBounds( myMap.geoObjects.getBounds(), {
+                        checkZoomRange: true
+                    });
+                    //myMap.setCenter( Object.values( prevData ).pop() );
                 }
                 $( '#map' ).css( 'opacity', 1 );
                 $( '#loading' ).hide();

@@ -14,7 +14,7 @@ trait ThrottlesProviderKey
 
     protected function hasTooManyProviderKeyAttempts ( Request $request, ProviderKey $providerKey ) : bool
     {
-        if ( ! $providerKey->maxAttempts || ! $providerKey->decayMinutes ) return true;
+        if ( ! $providerKey->maxAttempts || ! $providerKey->decayMinutes ) return false;
         $result = $this->limiter()->tooManyAttempts( $this->throttleKey( $providerKey ), $providerKey->maxAttempts, $providerKey->decayMinutes );
         $this->setHeaders( $providerKey );
         if ( $result )
