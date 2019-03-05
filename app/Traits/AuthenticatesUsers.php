@@ -41,6 +41,7 @@ trait AuthenticatesUsers
         }
 
         if ($this->attemptLogin($request)) {
+            \Cache::tags( 'users' )->forget( 'user.availableStatuses.' . \Auth::user()->id );
             return $this->sendLoginResponse($request);
         }
 

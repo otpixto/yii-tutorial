@@ -18,7 +18,7 @@
 
             @if ( $providers->count() > 1 )
                 <div class="form-group">
-                    {!! Form::label( 'Поставщик', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
+                    {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
                     <div class="col-xs-9">
                         {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $draft->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'data-placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
                     </div>
@@ -309,6 +309,7 @@
         {
             var managements = $( '#managements' ).val();
             $( '#executors' ).empty();
+            $( '#buildings' ).val( '' ).trigger( 'change' );
             if ( managements )
             {
                 $( '#executor' ).removeClass( 'hidden' );
@@ -332,6 +333,49 @@
             {
                 $( '#executor' ).addClass( 'hidden' );
             }
+        };
+
+        function GetTypes ( provider_id )
+        {
+            $( '#category_id' )
+                .empty()
+                .append(
+                    $( '<option>' ).val( '0' ).text( ' -- выберите из списка -- ' )
+                )
+                .trigger( 'change' );
+            $.post( '{{ route( 'types.json' ) }}',
+                {
+                    provider_id: provider_id || null
+                }, function ( response )
+                {
+                    if ( response.length )
+                    {
+                        $( '#category_id' ).select2( 'destroy' );
+                        $( '#category_id' ).select2({
+                            'data': response
+                        });
+                    }
+                });
+        };
+
+        function GetManagements ( provider_id )
+        {
+            $( '#managements' )
+                .empty()
+                .trigger( 'change' );
+            $.post( '{{ route( 'managements.json' ) }}',
+                {
+                    provider_id: provider_id || null
+                }, function ( response )
+                {
+                    if ( response.length )
+                    {
+                        $( '#managements' ).select2( 'destroy' );
+                        $( '#managements' ).select2({
+                            'data': response
+                        });
+                    }
+                });
         };
 
         $( document )
@@ -384,6 +428,13 @@
 
             })
 
+            .on( 'change', '#provider_id', function ( e )
+            {
+                GetTypes( $( this ).val() );
+                GetManagements( $( this ).val() );
+                $( '#buildings' ).val( '' ).trigger( 'change' );
+            })
+
             .on( 'keydown', function ( e )
             {
                 if ( e.ctrlKey && e.which == 32 )
@@ -397,12 +448,7 @@
                 $( '#executor_name, #executor_phone' ).val( '' );
             })
 
-            .on( 'change', '#managements', getExecutors )
-
-            .on( 'change', '#provider_id, #managements', function ( e )
-            {
-                $( '#buildings' ).val( '' ).trigger( 'change' );
-            });
+            .on( 'change', '#managements', getExecutors );
 
     </script>
 @endsection

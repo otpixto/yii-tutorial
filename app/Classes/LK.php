@@ -112,7 +112,14 @@ class LK
         }
         foreach ( $work->buildings as $building )
         {
-            $info[ 'buildings' ][] = $building->name;
+            $info[ 'buildings' ][] = [
+                'building_id' => $building->id,
+                'building_name' => $building->name,
+                'coors' => [
+                    (float) $building->lat,
+                    (float) $building->lon
+                ],
+            ];
         }
         return $info;
     }

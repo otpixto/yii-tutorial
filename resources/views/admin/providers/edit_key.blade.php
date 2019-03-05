@@ -27,6 +27,25 @@
             </div>
         </div>
         <div class="form-group">
+            {!! Form::label( 'maxAttempts', 'Ограничение', [ 'class' => 'control-label col-md-4' ] ) !!}
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        Запросов в мин.
+                    </span>
+                    {!! Form::number( 'maxAttempts', $providerKey->maxAttempts, [ 'class' => 'form-control', 'step' => 1, 'min' => 1, 'placeholder' => 'Запросов в мин.' ] ) !!}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        Блокировка мин.
+                    </span>
+                    {!! Form::number( 'decayMinutes', $providerKey->decayMinutes, [ 'class' => 'form-control', 'step' => 1, 'min' => 1, 'placeholder' => 'Блокировка мин.' ] ) !!}
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
             {!! Form::label( 'description', 'Описание', [ 'class' => 'control-label col-md-4' ] ) !!}
             <div class="col-md-8">
                 {!! Form::textarea( 'description', $providerKey->description, [ 'class' => 'form-control', 'placeholder' => 'Описание' ] ) !!}

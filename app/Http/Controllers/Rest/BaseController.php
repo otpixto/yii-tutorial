@@ -9,6 +9,7 @@ use App\Models\ProviderKey;
 use App\Models\ProviderToken;
 use App\Models\SmsAuth;
 use App\Traits\LogsTrait;
+use App\Traits\ThrottlesProviderKey;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +20,7 @@ use Monolog\Logger;
 class BaseController extends Controller
 {
 
-    use LogsTrait;
+    use LogsTrait, ThrottlesProviderKey;
 
     protected $log;
 
@@ -177,59 +178,66 @@ class BaseController extends Controller
     protected function checkProviderKey ( Request $request, & $error = null, & $httpCode = null ) : bool
     {
 
-        if ( ! empty( $this->providerKey ) )
+        if ( empty( $this->providerKey ) )
         {
-            return true;
-        }
 
-        $validation = \Validator::make( $request->all(), [
-            'api_key'         => 'required',
-        ]);
+            $validation = \Validator::make( $request->all(), [
+                'api_key'         => 'required',
+            ]);
 
-        if ( $validation->fails() )
-        {
-            $error = $validation->errors()->first();
-            $httpCode = 400;
-            return false;
-        }
-
-        $providerKey = ProviderKey
-            ::where( 'api_key', '=', $request->get( 'api_key' ) )
-            ->where( function ( $q ) use ( $request )
+            if ( $validation->fails() )
             {
-                return $q
-                    ->whereNull( 'ip' )
-                    ->orWhere( 'ip', 'like', '%' . $request->ip() . PHP_EOL . '%' );
-            })
-			->where( function ( $q ) use ( $request )
+                $error = $validation->errors()->first();
+                $httpCode = 400;
+                return false;
+            }
+
+            $providerKey = ProviderKey
+                ::where( 'api_key', '=', $request->get( 'api_key' ) )
+                ->where( function ( $q ) use ( $request )
+                {
+                    return $q
+                        ->whereNull( 'ip' )
+                        ->orWhere( 'ip', 'like', '%' . $request->ip() . PHP_EOL . '%' );
+                })
+                ->where( function ( $q ) use ( $request )
+                {
+                    $q
+                        ->whereNull( 'referer' );
+                    if ( $request->server( 'HTTP_REFERER' ) )
+                    {
+                        $url = parse_url( $request->server( 'HTTP_REFERER' ) );
+                        if ( ! empty( $url[ 'host' ] ) )
+                        {
+                            $q
+                                ->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . PHP_EOL . '%' );
+                        }
+                    }
+                    return $q;
+                })
+                ->whereHas( 'provider' )
+                ->first();
+
+            if ( ! $providerKey )
             {
-				$q
-                    ->whereNull( 'referer' );
-				if ( $request->server( 'HTTP_REFERER' ) )
-				{
-					$url = parse_url( $request->server( 'HTTP_REFERER' ) );
-					if ( ! empty( $url[ 'host' ] ) )
-					{
-						$q
-							->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . PHP_EOL . '%' );
-					}
-				}
-                return $q;
-            })
-            ->whereHas( 'provider' )
-            ->first();
+                $error = 'Некорректный ключ';
+                $httpCode = 403;
+                return false;
+            }
 
-        if ( ! $providerKey )
-        {
-            $error = 'Некорректный ключ';
-            $httpCode = 403;
-            return false;
+            $providerKey->active_at = Carbon::now()->toDateTimeString();
+            $providerKey->save();
+
+            if ( $this->hasTooManyProviderKeyAttempts( $request, $providerKey ) )
+            {
+                $error = 'Превышено количество запросов в минуту';
+                $httpCode = 429;
+                return false;
+            }
+
+            $this->providerKey = $providerKey;
+
         }
-		
-		$providerKey->active_at = Carbon::now()->toDateTimeString();
-        $providerKey->save();
-
-        $this->providerKey = $providerKey;
 
         return true;
 

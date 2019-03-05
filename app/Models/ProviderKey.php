@@ -24,6 +24,8 @@ class ProviderKey extends BaseModel
         'ip',
         'referer',
         'token_life',
+        'maxAttempts',
+        'decayMinutes',
     ];
 
     public function provider ()

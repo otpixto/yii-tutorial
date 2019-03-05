@@ -13,7 +13,7 @@ Route::prefix( 'error' )->group( function ()
 
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 
-Route::group( [ 'middleware' => 'api' ], function ()
+Route::group( [ 'middleware' => 'rest' ], function ()
 {
 
     Route::prefix( 'rest' )->group( function ()
@@ -276,6 +276,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'types/{type_id}/managements/del', 'Catalog\TypesController@managementsDel' )->name( 'types.managements.del' );
             Route::delete( 'types/{type_id}/managements/empty', 'Catalog\TypesController@managementsEmpty' )->name( 'types.managements.empty' );
 
+            Route::post( 'managements/json', 'Catalog\ManagementsController@json' )->name( 'managements.json' );
             Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
             Route::post( 'managements/{management_id}/parents/search', 'Catalog\ManagementsController@parentsSearch' )->name( 'managements.parents.search' );
             Route::post( 'managements/{management_id}/telegram/unsubscribe', 'Catalog\ManagementsController@telegramUnsubscribe' )->name( 'managements.telegram.unsubscribe' );

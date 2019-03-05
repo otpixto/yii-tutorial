@@ -976,7 +976,9 @@ class Ticket extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        if ( ! $force && ! in_array( $status_code, self::$workflow[ $this->status_code ] ?? [] ) )
+        $availableStatuses = $this->getAvailableStatuses( 'edit' );
+
+        if ( ! $force && ! in_array( $status_code, $availableStatuses ) )
         {
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }

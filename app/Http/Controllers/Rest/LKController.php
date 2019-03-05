@@ -192,7 +192,9 @@ class LKController extends BaseController
             return $this->error( $error, $httpCode );
         }
         $this->addLog( 'Запросил список статусов' );
-        return $this->success( Ticket::$statuses );
+        $statuses = Ticket::$statuses;
+        unset( $statuses[ 'draft' ] );
+        return $this->success( $statuses );
     }
 
     public function addressAdd ( Request $request )
@@ -317,8 +319,7 @@ class LKController extends BaseController
                             ->where( 'phone', '=', \Auth::user()->phone );
                     });
             })
-            ->where( 'status_code', '!=', 'draft' )
-            ->whereHas( 'building' );
+            ->where( 'status_code', '!=', 'draft' );
 
         if ( $request->get( 'ticket_id' ) )
         {
@@ -346,8 +347,14 @@ class LKController extends BaseController
 
         if ( $request->get( 'type_id' ) )
         {
+            $type_id = $request->get( 'type_id' );
             $tickets
-                ->where( 'type_id', '=', $request->get( 'type_id' ) );
+                ->whereHas( 'type', function ( $type ) use ( $type_id )
+                {
+                    return $type
+                        ->where( 'id', '=', $type_id )
+                        ->orWhere( 'parent_id', '=', $type_id );
+                });
         }
 
         if ( $request->get( 'status_code' ) )
@@ -425,6 +432,8 @@ class LKController extends BaseController
 						}
 					}
                     return $buildings
+                        ->where( 'lon', '!=', - 1 )
+                        ->where( 'lat', '!=', - 1 )
 						->whereIn( Building::$_table . '.id', $ids )
 						->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
                 });
@@ -444,6 +453,8 @@ class LKController extends BaseController
 						}
 					}
                     return $buildings
+                        ->where( 'lon', '!=', - 1 )
+                        ->where( 'lat', '!=', - 1 )
 						->whereIn( Building::$_table . '.id', $ids );
                 });
 		}
@@ -583,7 +594,7 @@ class LKController extends BaseController
         $validation = \Validator::make( $request->all(), [
             'ticket_id'             => 'required|integer',
             'rate'                  => 'required|integer|min:1|max:5',
-            'rate_comment'          => 'required_if:rate,<,4|max:1000',
+            'rate_comment'          => 'required_if:rate,1|required_if:rate,2|required_if:rate,3|max:1000',
             'force'          		=> 'nullable|boolean',
             'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
         ]);

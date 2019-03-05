@@ -927,7 +927,7 @@ class WorksController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create ()
+    public function create ( Request $request )
     {
 
         Title::add( 'Добавить сообщение' );
@@ -937,7 +937,7 @@ class WorksController extends BaseController
         if ( ! empty( \Input::old( 'building_id', [] ) ) )
         {
             $buildings = Building
-                ::whereIn( 'id', \Input::old( 'building_id' ) )
+                ::whereIn( 'id', $request->old( 'building_id' ) )
                 ->get();
         }
 
@@ -946,15 +946,24 @@ class WorksController extends BaseController
             ->current()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
-			
-		$availableCategories = Type
+
+        $provider_id = $request->get( 'provider_id', $providers->keys()->first() );
+
+        $res = Type
 			::mine()
-            ->where( 'works', '=', 1 )
-			->orderBy( Type::$_table . '.name' )
-			->pluck( Type::$_table . '.name', Type::$_table . '.id' );
+            //->where( 'works', '=', 1 )
+            ->where( 'provider_id', '=', $provider_id )
+            ->get()
+			->sortBy( 'name' );
+        $availableCategories = [];
+        foreach ( $res as $r )
+        {
+            $availableCategories[ $r->id ] = $r->name;
+        }
 
         $res = Management
             ::mine()
+            ->where( 'provider_id', '=', $provider_id )
             ->with( 'parent' )
             ->get()
             ->sortBy( 'name' );

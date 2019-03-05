@@ -466,6 +466,31 @@ class ManagementsController extends BaseController
 
     }
 
+    public function json ( Request $request )
+    {
+
+        $provider_id = trim( $request->get( 'provider_id', '' ) );
+
+        $managements = Management
+            ::mine()
+            ->select(
+                'id',
+                'name as text'
+            )
+            ->orderBy( Management::$_table .'.name' );
+
+        if ( ! empty( $provider_id ) )
+        {
+            $managements
+                ->where( Management::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        $managements = $managements->get();
+
+        return $managements;
+
+    }
+
     public function parentsSearch ( Request $request, $id )
     {
 

@@ -49,6 +49,10 @@ class Kernel extends HttpKernel
 			'cors',
         ],
 
+        'rest' => [
+            'cors',
+        ],
+
     ];
 
     /**
