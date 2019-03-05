@@ -319,6 +319,7 @@ class LKController extends BaseController
                             ->where( 'phone', '=', \Auth::user()->phone );
                     });
             })
+            ->whereHas( 'building' )
             ->where( 'status_code', '!=', 'draft' );
 
         if ( $request->get( 'ticket_id' ) )
