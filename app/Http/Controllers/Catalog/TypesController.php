@@ -281,8 +281,8 @@ class TypesController extends BaseController
         }
 
         $rules = [
-            'guid'                  => 'nullable|unique:types,guid,' . $type->id . '|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required_with:category_id|unique:types,name,' . $type->id . '|string|max:255',
+            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name'                  => 'required_with:category_id|string|max:255',
             'parent_id'             => 'nullable|integer',
             'period_acceptance'     => 'numeric',
             'period_execution'      => 'numeric',
@@ -296,6 +296,28 @@ class TypesController extends BaseController
         ];
 
         $this->validate( $request, $rules );
+
+        $old = Type
+            ::mine()
+            ->where( 'id', '!=', $type->id )
+            ->where( function ( $q ) use ( $request )
+            {
+                $q
+                    ->where( 'name', '=', $request->get( 'name' ) );
+                if ( ! empty( $request->get( 'guid' ) ) )
+                {
+                    $q
+                        ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+                }
+                return $q;
+            })
+            ->first();
+        if ( $old )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Классификатор уже существует' ] );
+        }
 
         $attributes = $request->all();
         $attributes[ 'need_act' ] = $request->get( 'need_act', 0 );

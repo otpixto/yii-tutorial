@@ -348,6 +348,7 @@ class ManagementsController extends BaseController
 
         $old = Management
             ::mine( Management::IGNORE_MANAGEMENT )
+            ->where( 'id', '!=', $management->id )
             ->where( function ( $q ) use ( $request )
             {
                 $q
