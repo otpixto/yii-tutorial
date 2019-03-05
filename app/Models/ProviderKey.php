@@ -42,11 +42,11 @@ class ProviderKey extends BaseModel
     {
         if ( isset( $attributes[ 'ip' ] ) )
         {
-            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'ip' ] ) ) . PHP_EOL;
+            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', "\n\n" ], "\n", $attributes[ 'ip' ] ) ) . "\n";
         }
 		if ( isset( $attributes[ 'referer' ] ) )
         {
-            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'referer' ] ) ) . PHP_EOL;
+            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', "\n\n" ], "\n", $attributes[ 'referer' ] ) ) . "\n";
         }
         $provider = parent::create( $attributes );
         return $provider;
@@ -56,11 +56,11 @@ class ProviderKey extends BaseModel
     {
         if ( isset( $attributes[ 'ip' ] ) )
         {
-            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'ip' ] ) ) . PHP_EOL;
+            $attributes[ 'ip' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', "\n\n" ], "\n", $attributes[ 'ip' ] ) ) . "\n";
         }
 		if ( isset( $attributes[ 'referer' ] ) )
         {
-            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', PHP_EOL . PHP_EOL ], PHP_EOL, $attributes[ 'referer' ] ) ) . PHP_EOL;
+            $attributes[ 'referer' ] = trim( str_replace( [ 'http://', 'https://', ',', ';', ' ', "\n\n" ], "\n", $attributes[ 'referer' ] ) ) . "\n";
         }
         $provider = parent::edit( $attributes );
         return $provider;
