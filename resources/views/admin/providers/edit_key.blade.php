@@ -33,7 +33,7 @@
                     <span class="input-group-addon">
                         Запросов в мин.
                     </span>
-                    {!! Form::number( 'maxAttempts', $providerKey->maxAttempts, [ 'class' => 'form-control', 'step' => 1, 'min' => 1, 'placeholder' => 'Запросов в мин.' ] ) !!}
+                    {!! Form::number( 'maxAttempts', $providerKey->maxAttempts, [ 'class' => 'form-control', 'step' => 1, 'min' => 0, 'placeholder' => 'Запросов в мин.' ] ) !!}
                 </div>
             </div>
             <div class="col-md-4">
@@ -41,7 +41,7 @@
                     <span class="input-group-addon">
                         Блокировка мин.
                     </span>
-                    {!! Form::number( 'decayMinutes', $providerKey->decayMinutes, [ 'class' => 'form-control', 'step' => 1, 'min' => 1, 'placeholder' => 'Блокировка мин.' ] ) !!}
+                    {!! Form::number( 'decayMinutes', $providerKey->decayMinutes, [ 'class' => 'form-control', 'step' => 1, 'min' => 0, 'placeholder' => 'Блокировка мин.' ] ) !!}
                 </div>
             </div>
         </div>

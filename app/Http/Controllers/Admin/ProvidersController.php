@@ -218,6 +218,8 @@ class ProvidersController extends BaseController
             'ip'                    => 'nullable',
             'referer'               => 'nullable',
             'token_life'            => 'integer|min:1',
+            'maxAttempts'           => 'integer|min:0',
+            'decayMinutes'          => 'integer|min:0',
         ];
         $this->validate( $request, $rules );
         $providerKey = $provider->addKey( $request->all() );
@@ -270,6 +272,8 @@ class ProvidersController extends BaseController
             'description'           => 'nullable',
             'ip'                    => 'nullable',
             'token_life'            => 'integer|min:1',
+            'maxAttempts'           => 'integer|min:0',
+            'decayMinutes'          => 'integer|min:0',
         ];
         $this->validate( $request, $rules );
         $providerKey->edit( $request->all() );
