@@ -198,7 +198,7 @@ class BaseController extends Controller
                 {
                     return $q
                         ->whereNull( 'ip' )
-                        ->orWhere( 'ip', 'like', '%' . $request->ip() . '\n' . '%' );
+                        ->orWhere( 'ip', 'like', '%' . $request->ip() . \DB::raw( '\n' ) . '%' );
                 })
                 ->where( function ( $q ) use ( $request )
                 {
@@ -210,7 +210,7 @@ class BaseController extends Controller
                         if ( ! empty( $url[ 'host' ] ) )
                         {
                             $q
-                                ->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . '\n' . '%' );
+                                ->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . \DB::raw( '\n' ) . '%' );
                         }
                     }
                     return $q;
