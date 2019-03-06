@@ -951,7 +951,7 @@ class WorksController extends BaseController
 
         $res = Type
 			::mine()
-            //->where( 'works', '=', 1 )
+            ->where( 'works', '=', 1 )
             ->where( 'provider_id', '=', $provider_id )
             ->get()
 			->sortBy( 'name' );
