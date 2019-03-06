@@ -136,6 +136,12 @@ class TypesController extends BaseController
                 ->where( Type::$_table . '.provider_id', '=', $provider_id );
         }
 
+        if ( $request->get( 'works' ) )
+        {
+            $types
+                ->where( Type::$_table . '.works', '=', 1 );
+        }
+
         $types = $types->get();
 
         return $types;

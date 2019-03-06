@@ -345,7 +345,8 @@
                 .trigger( 'change' );
             $.post( '{{ route( 'types.json' ) }}',
                 {
-                    provider_id: provider_id || null
+                    provider_id: provider_id || null,
+                    works: 1
                 }, function ( response )
                 {
                     if ( response.length )
