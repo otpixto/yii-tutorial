@@ -16,12 +16,7 @@ class BuildingType extends BaseModel
 
     public function buildings ()
     {
-        return $this->hasMany('App\Models\Building');
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->hasMany(Building::class );
     }
 	
 	public function scopeMine ( $query )
