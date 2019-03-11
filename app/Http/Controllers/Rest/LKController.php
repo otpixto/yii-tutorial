@@ -116,7 +116,7 @@ class LKController extends BaseController
         }
 
         $types = Type
-            ::mineProvider()
+            ::where( 'provider_id', '=', \Auth::user()->provider_id )
             ->where( 'lk', '=', 1 )
             ->select(
                 'id',
