@@ -107,9 +107,14 @@ class DeviceController extends BaseController
         }
 
         $tickets = TicketManagement
-            ::mine()
-            ->notFinaleStatuses()
-            ->where( 'status_code', '!=', 'draft' )
+            //::mine()
+            //->notFinaleStatuses()
+            //->where( 'status_code', '!=', 'draft' )
+            ::whereHas( 'executor', function ( $executor )
+            {
+                return $executor
+                    ->where( 'user_id', '=', \Auth::user()->id );
+            })
             ->whereHas( 'ticket', function ( $ticket ) use ( $request )
             {
                 if ( $request->get( 'ticket_id' ) )
@@ -265,8 +270,10 @@ class DeviceController extends BaseController
         }
 
         $validation = \Validator::make( $request->all(), [
-            'lon'           => 'required|numeric',
-            'lat'           => 'required|numeric',
+            'coors.*'               => 'required|array',
+            'coors.*.timestamp'     => 'required|integer',
+            'coors.*.lon'           => 'required|numeric',
+            'coors.*.lat'           => 'required|numeric',
         ]);
 
         if ( $validation->fails() )
@@ -274,10 +281,13 @@ class DeviceController extends BaseController
             return $this->error( $validation->errors()->first() );
         }
 
-        $res = $user = \Auth::user()->setPosition( $request->get( 'lon' ), $request->get( 'lat' ) );
-        if ( $res instanceof MessageBag )
+        foreach ( $request->get( 'coors' ) as $coors )
         {
-            return $this->error( $res->first() );
+            $res = $user = \Auth::user()->setPosition( $coors->lon, $coors->lat, Carbon::createFromTimestamp( $request->get( 'timestamp' ) ) );
+            if ( $res instanceof MessageBag )
+            {
+                return $this->error( $res->first() );
+            }
         }
 
         $this->addLog( 'Сообщил о своем местоположении' );

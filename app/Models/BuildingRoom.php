@@ -21,7 +21,7 @@ class BuildingRoom extends BaseModel
 
     public function building ()
     {
-        return $this->belongsTo('App\Models\Building');
+        return $this->belongsTo(Building::class );
     }
 	
 	public function scopeMine ( $query )

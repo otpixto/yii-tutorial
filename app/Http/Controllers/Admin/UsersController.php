@@ -160,7 +160,7 @@ class UsersController extends BaseController
 
         $user->syncPermissions( $request->get( 'perms', [] ) );
 
-        $this->clearCache();
+        \Cache::forget( 'iphome.permission.cache' );
 
     }
 
@@ -177,7 +177,7 @@ class UsersController extends BaseController
 
         $user->syncRoles( $request->get( 'roles', [] ) );
 
-        $this->clearCache();
+        \Cache::forget( 'iphome.permission.cache' );
 
         $perms_tree = Permission::getTree();
 

@@ -6,6 +6,7 @@ use App\Traits\CommentsTrait;
 use App\Traits\LogsTrait;
 use App\Traits\NormalizeValues;
 use App\Traits\TagsTrait;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,7 +39,7 @@ class BaseModel extends Model
 
     public function files ()
     {
-        return $this->hasMany( 'App\Models\File', 'model_id' )
+        return $this->hasMany( File::class, 'model_id' )
             ->where( 'model_name', '=', static::class );
     }
 
@@ -62,12 +63,17 @@ class BaseModel extends Model
 
     public function provider ()
     {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->belongsTo( Provider::class );
     }
 
     public function author ()
     {
-        return $this->belongsTo( 'App\User' );
+        return $this->belongsTo( User::class );
+    }
+
+    public function user ()
+    {
+        return $this->belongsTo( User::class );
     }
 
     public static function create ( array $attributes = [] )

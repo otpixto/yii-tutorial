@@ -10,15 +10,18 @@ class UserPosition extends BaseModel
 
     public static $name = 'Геопозиция пользователя';
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'position_at',
+    ];
+
     protected $fillable = [
         'user_id',
         'lon',
         'lat',
+        'position_at',
     ];
-
-    public function user ()
-    {
-        return $this->belongsTo( 'App\User' );
-    }
 
 }

@@ -18,7 +18,7 @@ class SegmentPath extends BaseModel
 
     public function segment ()
     {
-        return $this->belongsTo( 'App\Models\Segment' );
+        return $this->belongsTo( Segment::class );
     }
 
 }

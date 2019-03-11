@@ -40,16 +40,6 @@ class UserPhoneAuth extends BaseModel
         self::$asterisk = new Asterisk();
     }
 
-    public function user ()
-    {
-        return $this->belongsTo( 'App\User' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo ( 'App\Models\Provider' );
-    }
-
     public static function create ( array $attributes = [] )
     {
 

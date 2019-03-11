@@ -24,7 +24,7 @@ class ManagementAct extends BaseModel
 
     public function management ()
     {
-        return $this->belongsTo( 'App\Models\Management' );
+        return $this->belongsTo( Management::class );
     }
 
     public function getPreparedContent ( TicketManagement $ticketManagement )

@@ -28,11 +28,6 @@ class ProviderKey extends BaseModel
         'decayMinutes',
     ];
 
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
-    }
-
     public function providerTokens ()
     {
         return $this->hasMany( ProviderToken::class );

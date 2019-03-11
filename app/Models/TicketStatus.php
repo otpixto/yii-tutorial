@@ -18,7 +18,7 @@ class TicketStatus extends BaseModel
 
     public function ticket ()
     {
-        return $this->belongsTo( 'App\Models\Ticket' );
+        return $this->belongsTo( Ticket::class );
     }
 
     public static function create ( array $attributes = [] )

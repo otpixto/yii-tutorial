@@ -20,7 +20,7 @@ class TicketManagementService extends BaseModel
 
     public function ticketManagement ()
     {
-        return $this->belongsTo( 'App\Models\TicketManagement' );
+        return $this->belongsTo( TicketManagement::class );
     }
 
 }

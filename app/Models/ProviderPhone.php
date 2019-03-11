@@ -17,9 +17,4 @@ class ProviderPhone extends BaseModel
         'description',
     ];
 
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
-    }
-
 }

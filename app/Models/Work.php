@@ -64,32 +64,17 @@ class Work extends BaseModel
 
     public function buildings ()
     {
-        return $this->belongsToMany( 'App\Models\Building', 'works_buildings' );
-    }
-
-    public function management ()
-    {
-        return $this->belongsTo( 'App\Models\Management' );
-    }
-
-    public function executor ()
-    {
-        return $this->belongsTo( 'App\Models\Executor' );
+        return $this->belongsToMany( Building::class, 'works_buildings' );
     }
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'works_managements' );
+        return $this->belongsToMany( Management::class, 'works_managements' );
     }
 
     public function executors ()
     {
-        return $this->belongsToMany( 'App\Models\Executor', 'works_executors' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->belongsToMany( Executor::class, 'works_executors' );
     }
 
     public static function create ( array $attributes = [] )

@@ -376,16 +376,17 @@ class User extends BaseModel implements
         $this->dispatch( new SendEmail( $this, $message, $url ) );
     }
 
-    public function setPosition ( $lon, $lat )
+    public function setPosition ( $lon, $lat, Carbon $dt = null )
     {
         $this->lon = $lon;
         $this->lat = $lat;
-        $this->position_at = Carbon::now()->toDateTimeString();
+        $this->position_at = $dt ? $dt->toDateTimeString() : Carbon::now()->toDateTimeString();
         $this->save();
         $userPosition = UserPosition::create([
             'user_id'       => $this->id,
             'lon'           => $this->lon,
             'lat'           => $this->lat,
+            'position_at'   => $this->position_at,
         ]);
         if ( $userPosition instanceof MessageBag )
         {

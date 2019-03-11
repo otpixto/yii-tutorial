@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Classes\Asterisk;
 use App\Models\Asterisk\Cdr;
+use App\User;
 use Carbon\Carbon;
 
 class PhoneSession extends BaseModel
@@ -32,12 +33,7 @@ class PhoneSession extends BaseModel
 
     public function user ()
     {
-        return $this->belongsTo ( 'App\User' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo ( 'App\Models\Provider' );
+        return $this->belongsTo ( User::class );
     }
 
     public function calls ( $limit = null )

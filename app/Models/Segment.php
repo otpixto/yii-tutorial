@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\User;
-use Illuminate\Support\Collection;
-
 class Segment extends BaseModel
 {
 
@@ -26,32 +23,27 @@ class Segment extends BaseModel
 
     public function segmentType ()
     {
-        return $this->belongsTo('App\Models\SegmentType');
+        return $this->belongsTo(SegmentType::class );
     }
 
     public function parent ()
     {
-        return $this->belongsTo('App\Models\Segment', 'parent_id');
+        return $this->belongsTo(Segment::class );
     }
 
     public function childs ()
     {
-        return $this->hasMany('App\Models\Segment', 'parent_id');
+        return $this->hasMany(Segment::class, 'parent_id' );
     }
 
     public function buildings ()
     {
-        return $this->hasMany('App\Models\Building' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->hasMany(Building::class );
     }
 
     public function path ()
     {
-        return $this->hasOne( 'App\Models\SegmentPath' );
+        return $this->hasOne( SegmentPath::class );
     }
 
     public function getChildsIds ()

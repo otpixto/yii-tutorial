@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Asterisk\Cdr;
+use App\User;
 
 class Customer extends BaseModel
 {
@@ -40,27 +41,22 @@ class Customer extends BaseModel
 
     public function user ()
     {
-        return $this->belongsTo( 'App\User', 'phone', 'phone' );
+        return $this->belongsTo( User::class, 'phone', 'phone' );
     }
 
     public function tickets ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
+        return $this->hasMany( Ticket::class, 'phone', 'phone' );
     }
 
     public function actualBuilding ()
     {
-        return $this->belongsTo('App\Models\Building' );
+        return $this->belongsTo(Building::class );
     }
 
     public function buildings ()
     {
-        return $this->belongsToMany('App\Models\Building', 'customers_buildings' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->belongsToMany(Building::class, 'customers_buildings' );
     }
 
     public function calls ( $limit = null )

@@ -16,12 +16,7 @@ class SegmentType extends BaseModel
 
     public function segments ()
     {
-        return $this->hasMany('App\Models\Segment');
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->hasMany(Segment::class );
     }
 
     public function scopeMine ( $query )

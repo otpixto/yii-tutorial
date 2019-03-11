@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Operator;
 
 use App\Models\BuildingRoom;
 use App\Models\Ticket;
-use App\Models\UserPosition;
 use App\Models\Work;
 use App\User;
 use Carbon\Carbon;

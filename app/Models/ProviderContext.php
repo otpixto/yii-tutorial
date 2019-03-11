@@ -15,9 +15,4 @@ class ProviderContext extends BaseModel
         'context',
     ];
 
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
-    }
-
 }

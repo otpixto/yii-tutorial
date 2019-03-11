@@ -57,32 +57,27 @@ class Building extends BaseModel
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'managements_buildings' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->belongsToMany( Management::class, 'managements_buildings' );
     }
 
     public function segment ()
     {
-        return $this->belongsTo( 'App\Models\Segment' );
+        return $this->belongsTo( Segment::class );
     }
 
     public function buildingType ()
     {
-        return $this->belongsTo( 'App\Models\BuildingType' );
+        return $this->belongsTo( BuildingType::class );
     }
 
     public function customers ()
     {
-        return $this->hasMany( 'App\Models\Customer', 'id', 'actual_address_id' );
+        return $this->hasMany( Customer::class, 'id', 'actual_building_id' );
     }
 
     public function rooms ()
     {
-        return $this->hasMany( 'App\Models\BuildingRoom' );
+        return $this->hasMany( BuildingRoom::class );
     }
 
     public function getAddress ( $withType = false )

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Jobs\SendPush;
+use App\Models\Asterisk\Cdr;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -227,85 +228,80 @@ class Ticket extends BaseModel
 
     public function managements ()
     {
-        return $this->hasMany( 'App\Models\TicketManagement' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->hasMany( TicketManagement::class );
     }
 
     public function building ()
     {
-        return $this->belongsTo('App\Models\Building');
+        return $this->belongsTo(Building::class );
     }
 
     public function actualBuilding ()
     {
-        return $this->belongsTo('App\Models\Building');
+        return $this->belongsTo(Building::class );
     }
 
     public function type ()
     {
-        return $this->belongsTo( 'App\Models\Type' );
+        return $this->belongsTo( Type::class );
     }
 
     public function vendor ()
     {
-        return $this->belongsTo( 'App\Models\Vendor' );
+        return $this->belongsTo( Vendor::class );
     }
 
     public function parent ()
     {
-        return $this->belongsTo( 'App\Models\Ticket', 'parent_id' );
+        return $this->belongsTo( Ticket::class );
     }
 
     public function customer ()
     {
-        return $this->belongsTo( 'App\Models\Customer', 'phone', 'phone' );
+        return $this->belongsTo( Customer::class, 'phone', 'phone' );
     }
 
     public function customerTickets ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'phone', 'phone' );
+        return $this->hasMany( Ticket::class, 'phone', 'phone' );
     }
 
     public function neighborsTickets ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'building_id', 'building_id' );
+        return $this->hasMany( Ticket::class, 'building_id', 'building_id' );
     }
 
     public function childs ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'parent_id' )
+        return $this->hasMany( Ticket::class, 'parent_id' )
             ->orderBy( Ticket::$_table . '.id', 'desc' );
     }
 
     public function group ()
     {
-        return $this->hasMany( 'App\Models\Ticket', 'group_uuid', 'group_uuid' );
+        return $this->hasMany( Ticket::class, 'group_uuid', 'group_uuid' );
     }
 
     public function statuses ()
     {
-        return $this->hasMany( 'App\Models\Status', 'model_id' )
+        return $this->hasMany( Status::class, 'model_id' )
             ->where( Status::$_table . '.model_name', '=', get_class( $this ) );
     }
 
     public function statusesHistory ()
     {
-        return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
+        return $this->hasMany( StatusHistory::class, 'model_id' )
             ->where( StatusHistory::$_table . '.model_name', '=', get_class( $this ) );
     }
 
     public function calls ()
     {
-        return $this->hasMany( 'App\Models\TicketCall' );
+        return $this->hasMany( TicketCall::class );
     }
 
     public function cdr ()
     {
-        return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'call_id', 'uniqueid' );
+        return $this->belongsTo( Cdr::class, 'call_id', 'uniqueid' );
     }
 
     public function scopeNotFinaleStatuses ( $query )

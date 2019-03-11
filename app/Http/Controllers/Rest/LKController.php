@@ -487,6 +487,7 @@ class LKController extends BaseController
             'text'                  => 'required|max:1000',
             'time_from'             => 'nullable|required_with:time_to|date_format:H:i',
             'time_to'               => 'nullable|required_with:time_from|date_format:H:i|after:time_from',
+            'files'                 => 'nullable|array',
             'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
         ]);
 

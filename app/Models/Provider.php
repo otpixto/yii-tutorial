@@ -58,9 +58,14 @@ class Provider extends BaseModel
         return $this->hasMany( Segment::class );
     }
 
-    public function groups ()
+    public function buildingsGroups ()
     {
-        return $this->hasMany( Group::class );
+        return $this->hasMany( BuildingGroup::class );
+    }
+
+    public function typesGroups ()
+    {
+        return $this->hasMany( TypeGroup::class );
     }
 
     public function managements ()

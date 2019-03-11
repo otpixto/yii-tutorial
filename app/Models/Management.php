@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\User;
 use Illuminate\Support\MessageBag;
 
 class Management extends BaseModel
@@ -78,62 +79,52 @@ class Management extends BaseModel
 
     public function executors ()
     {
-        return $this->hasMany( 'App\Models\Executor' );
+        return $this->hasMany( Executor::class );
     }
 
     public function buildings ()
     {
-        return $this->belongsToMany( 'App\Models\Building', 'managements_buildings' );
+        return $this->belongsToMany( Building::class, 'managements_buildings' );
     }
 
     public function parent ()
     {
-        return $this->belongsTo( 'App\Models\Management' );
+        return $this->belongsTo( Management::class );
     }
 	
 	public function childs ()
     {
-        return $this->hasMany( 'App\Models\Management', 'parent_id', 'id' );
+        return $this->hasMany( Management::class, 'parent_id', 'id' );
     }
 
     public function building ()
     {
-        return $this->belongsTo('App\Models\Building');
+        return $this->belongsTo(Building::class );
     }
 
     public function types ()
     {
-        return $this->belongsToMany( 'App\Models\Type', 'managements_types' );
+        return $this->belongsToMany( Type::class, 'managements_types' );
     }
 
     public function tickets ()
     {
-        return $this->hasMany( 'App\Models\TicketManagement' );
+        return $this->hasMany( TicketManagement::class );
     }
 
     public function acts ()
     {
-        return $this->hasMany( 'App\Models\ManagementAct' );
+        return $this->hasMany( ManagementAct::class );
     }
 
     public function subscriptions ()
     {
-        return $this->hasMany( 'App\Models\ManagementSubscription' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->hasMany( ManagementSubscription::class );
     }
 
     public function users ()
     {
-        return $this->belongsToMany( 'App\User', 'users_managements' );
-    }
-	
-	public function author ()
-    {
-        return $this->belongsTo( 'App\User' );
+        return $this->belongsToMany( User::class, 'users_managements' );
     }
 
     public function scopeCategory ( $query, $category_id )

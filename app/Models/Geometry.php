@@ -124,12 +124,7 @@ class Geometry extends BaseModel
 
     public function management ()
     {
-        return $this->belongsTo( 'App\Models\Management' );
-    }
-
-    public function provider ()
-    {
-        return $this->belongsTo( 'App\Models\Provider' );
+        return $this->belongsTo( Management::class );
     }
 
     public function scopeMine ( $query )

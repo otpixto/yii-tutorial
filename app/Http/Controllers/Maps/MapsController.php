@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Maps;
 
 use App\Classes\Title;
-use App\Models\Category;
-use App\Models\Log;
+use App\Models\Type;
 use Illuminate\Http\Request;
 
 class MapsController extends BaseController
@@ -21,11 +20,11 @@ class MapsController extends BaseController
     {
         Title::add( 'География отключений' );
         $this->addLog( 'Просмотрел карту отключений' );
-        $availableCategories = Category
+        $availableCategories = Type
             ::mine()
             ->where( 'works', '=', 1 )
-            ->orderBy( Category::$_table . '.name' )
-            ->pluck( Category::$_table . '.name', Category::$_table . '.id' )
+            ->orderBy( Type::$_table . '.name' )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id' )
             ->toArray();
         return view( 'maps.works' )
             ->with( 'category_id', $request->get( 'category_id' ) )

@@ -121,33 +121,33 @@ class TicketManagement extends BaseModel
 
     public function services ()
     {
-        return $this->hasMany( 'App\Models\TicketManagementService' );
+        return $this->hasMany( TicketManagementService::class );
     }
 
     public function executor ()
     {
-        return $this->belongsTo( 'App\Models\Executor' )
+        return $this->belongsTo( Executor::class )
             ->withTrashed();
     }
 
     public function management ()
     {
-        return $this->belongsTo( 'App\Models\Management' );
+        return $this->belongsTo( Management::class );
     }
 
     public function ticket ()
     {
-        return $this->belongsTo( 'App\Models\Ticket' );
+        return $this->belongsTo( Ticket::class );
     }
 
     public function act ()
     {
-        return $this->belongsTo( 'App\Models\ManagementAct' );
+        return $this->belongsTo( ManagementAct::class );
     }
 
     public function statusesHistory ()
     {
-        return $this->hasMany( 'App\Models\StatusHistory', 'model_id' )
+        return $this->hasMany( StatusHistory::class, 'model_id' )
             ->where( StatusHistory::$_table . '.model_name', '=', get_class( $this ) );
     }
 

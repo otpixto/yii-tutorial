@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Asterisk\Cdr;
+
 class TicketCall extends BaseModel
 {
 
@@ -32,17 +34,12 @@ class TicketCall extends BaseModel
 
     public function ticket ()
     {
-        return $this->belongsTo( 'App\Models\Ticket' );
-    }
-
-    public function author ()
-    {
-        return $this->belongsTo( 'App\User' );
+        return $this->belongsTo( Ticket::class );
     }
 
     public function cdr ()
     {
-        return $this->belongsTo( 'App\Models\Asterisk\Cdr', 'call_id', 'uniqueid' );
+        return $this->belongsTo( Cdr::class, 'call_id', 'uniqueid' );
     }
 
     public function scopeActual ( $query )
