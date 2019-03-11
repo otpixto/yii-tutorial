@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Management;
-use App\Models\Type;
 use Illuminate\Console\Command;
 
 class Mosreg extends Command
@@ -273,16 +272,18 @@ class Mosreg extends Command
         $managements = Management
             ::whereNotNull( 'mosreg_username' )
             ->whereNotNull( 'mosreg_password' )
+            ->whereNotNull( 'mosreg_id' )
             ->get();
         foreach ( $managements as $management )
         {
+
             $buildings = $management
                 ->buildings()
                 ->whereNull( 'mosreg_id' )
                 ->get();
             if ( ! $buildings->count() ) continue;
             //$bar = $this->output->createProgressBar( $buildings->count() );
-            $mosreg = new \App\Classes\Mosreg( $management->mosreg_username, $management->mosreg_password );
+            $mosreg = new \App\Classes\Mosreg( $management->mosreg_id, $management->mosreg_username, $management->mosreg_password );
             foreach ( $buildings as $building )
             {
                 //$bar->advance();

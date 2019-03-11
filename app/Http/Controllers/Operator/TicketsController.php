@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Operator;
 
-use App\Classes\Mosreg;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendStream;
@@ -767,17 +766,16 @@ class TicketsController extends BaseController
 
                 if ( $ticket->type->mosreg_id && $ticket->building->mosreg_id )
                 {
-                    if ( $ticketManagement->management->hasMosreg( $management ) )
+                    if ( $ticketManagement->management->hasMosreg( $mosreg ) )
                     {
-                        $mosreg = new Mosreg( $management->mosreg_username, $management->mosreg_password );
                         $res = $mosreg->createTicket([
                             'operator-claim-form-username'          => $ticket->getName(),
                             'operator-claim-form-email'             => null,
                             'operator-claim-form-phone'             => '7' . $ticket->phone,
-                            'companyId'                             => $management->mosreg_id,
+                            'companyId'                             => $mosreg->id,
                             'addressId'                             => $ticket->building->mosreg_id,
-                            'operator-claim-form-flat'              => $ticket->flat,
                             'categoryId'                            => $ticket->type->mosreg_id,
+                            'operator-claim-form-flat'              => $ticket->flat,
                             'operator-claim-form-text'              => $ticket->text,
                             'files'                                 => null,
                         ]);
@@ -788,6 +786,8 @@ class TicketsController extends BaseController
                                 ->withErrors( [ 'Не удалось создать заявку в МОСРЕГ' ] );
                         }
                         $ticketManagement->mosreg_id = $res->id;
+                        $ticketManagement->mosreg_number = $res->compositeId;
+                        $ticketManagement->mosreg_status = $res->status;
                         $ticketManagement->save();
                     }
                 }

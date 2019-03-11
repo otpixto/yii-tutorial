@@ -9,6 +9,10 @@ class Mosreg
 
     private $curl = false;
 
+    public $id;
+    private $username;
+    private $password;
+
     private $statuses = [
         'IN_WORK' => 'В работе',
         'ANSWERED' => 'Ожидает подтверждения',
@@ -22,10 +26,14 @@ class Mosreg
         'UNSATISFIED_SENDED_TO_DD' => 'Несогласие жителя. Отправлено в Добродел.',
     ];
 
-    public function __construct ( $username, $password )
+    public function __construct ( $id, $username, $password )
     {
 
-        $cookie_file = storage_path( 'mosreg.txt' );
+        $this->id = $id;
+        $this->username = $username;
+        $this->password = $password;
+
+        $cookie_file = storage_path( 'mosreg-' . $id );
 
         $this->curl = curl_init();
 
@@ -54,7 +62,7 @@ class Mosreg
 
     public function normalizeAddress ( $address )
     {
-        return trim( preg_replace( '/\s{2,}/U', ' ', preg_replace( '/г\.|ул\.|д\.|\,/iU', '', str_replace( ' к. ', 'к', $address ) ) ) );
+        return trim( preg_replace( '/\s{2,}/U', ' ', preg_replace( '/г\.|ул\.|д\.|\,|Московская обл./iU', '', str_replace( ' к. ', 'к', $address ) ) ) );
     }
 
     public function searchAddress ( $address, $normalize = false )
@@ -122,7 +130,7 @@ class Mosreg
 
     public function createTicket ( array $data = [] )
     {
-        /*$data = [
+        $data = [
             'operator-claim-form-username'          => 'Иванов Иван Иванович',
             'operator-claim-form-email'             => 'test@test.ru',
             'operator-claim-form-phone'             => '74951234567',
@@ -132,7 +140,7 @@ class Mosreg
             'categoryId'                            => 1,
             'operator-claim-form-text'              => 'test',
             'files'                                 => null,
-        ];*/
+        ];
         curl_setopt( $this->curl, CURLOPT_URL,self::URL . '/api/operator/claim' );
         curl_setopt( $this->curl, CURLOPT_POST, true );
         curl_setopt( $this->curl, CURLOPT_POSTFIELDS, $data );

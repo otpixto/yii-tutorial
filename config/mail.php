@@ -86,9 +86,9 @@ return [
     |
     */
 
-    'username' => env('eds@ip-home.net'),
+    'username' => env('MAIL_USERNAME', 'eds@ip-home.net'),
 
-    'password' => env('kai7kaV4'),
+    'password' => env('MAIL_PASSWORD', 'kai7kaV4'),
 
     /*
     |--------------------------------------------------------------------------

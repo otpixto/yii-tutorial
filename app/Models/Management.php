@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\Mosreg;
 use App\User;
 use Illuminate\Support\MessageBag;
 
@@ -271,17 +272,26 @@ class Management extends BaseModel
         return self::$categories[ $this->category_id ];
     }
 
-    public function hasMosreg ( Management & $management = null )
+    public function hasMosreg ( Mosreg & $mosreg = null ) : bool
     {
         if ( $this->mosreg_id && $this->mosreg_username && $this->mosreg_password )
         {
-            $management = $this;
+            $mosreg = new Mosreg( $this->mosreg_id, $this->mosreg_username, $this->mosreg_password );
             return true;
         }
-        if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
+        else if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
         {
-            $management = $this->parent;
+            $mosreg = new Mosreg( $this->parent->mosreg_id, $this->parent->mosreg_username, $this->parent->mosreg_password );
             return true;
+        }
+        return false;
+    }
+
+    public function getMosreg ()
+    {
+        if ( $this->hasMosreg( $mosreg ) )
+        {
+            return $mosreg;
         }
         return false;
     }
