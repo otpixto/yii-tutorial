@@ -1220,7 +1220,7 @@ class TicketsController extends BaseController
 
                 if ( \Auth::user()->can( 'tickets.rate' ) )
                 {
-                    $ticketManagement = $ticket->managements()->find( $id );
+                    $ticketManagement = $ticket->managements()->mine()->find( $id );
                     if ( $ticketManagement )
                     {
                         return view( 'tickets.parts.rate_form' )
