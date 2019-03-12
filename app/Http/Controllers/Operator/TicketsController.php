@@ -318,6 +318,7 @@ class TicketsController extends BaseController
         $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
         $res = Type
             ::mine()
+            ->where( 'provider_id', '=', Provider::getCurrent()->id ?? null )
             ->whereHas( 'parent' )
             ->with( 'parent' )
             ->get()
