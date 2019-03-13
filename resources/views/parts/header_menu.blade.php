@@ -225,7 +225,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->canOne( 'catalog.managements.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.buildings.show', 'catalog.segments.show', 'catalog.groups.show' ) )
+        @if ( \Auth::user()->canOne( 'catalog.managements.show', 'catalog.types.show', 'catalog.categories.show', 'catalog.buildings.show', 'catalog.segments.show', 'catalog.groups.types.show' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'catalog*' ) ) selected @endif">
                 <a href="javascript:;" class="text-uppercase">
                     <i class="fa fa-edit"></i>
@@ -255,9 +255,9 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->can( 'catalog.groups.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.groups.types.show' ) )
                         <li aria-haspopup="true" >
-                            <a href="{{ route( 'groups.index' ) }}" class="nav-link">
+                            <a href="{{ route( 'types_groups.index' ) }}" class="nav-link">
                                 Группы
                             </a>
                         </li>
