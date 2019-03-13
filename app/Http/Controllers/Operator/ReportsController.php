@@ -79,6 +79,7 @@ class ReportsController extends BaseController
         $executor_id = $request->get( 'executor_id' );
         $rate_from = $request->get( 'rate_from', 1 );
         $rate_to = $request->get( 'rate_to', 5 );
+        $status_code = $request->get( 'status_code' );
 
         if ( $date_from->timestamp > $date_to->timestamp )
         {
@@ -102,9 +103,20 @@ class ReportsController extends BaseController
 
         $ticketManagements = TicketManagement
             ::mine()
-            ->whereBetween( 'rate', [ $rate_from, $rate_to ] )
+            ->where( function ( $q ) use ( $rate_from, $rate_to )
+            {
+                return $q
+                    ->whereNull( 'rate' )
+                    ->orWhereBetween( 'rate', [ $rate_from, $rate_to ] );
+            })
             ->whereBetween( 'created_at', [ $date_from, $date_to ] )
 			->whereIn( 'management_id', $availableManagements->pluck( 'id' ) );
+
+        if ( $status_code )
+        {
+            $ticketManagements
+                ->where( 'status_code', '=', $status_code );
+        }
 
         if ( $management_id )
         {
@@ -175,11 +187,15 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
+        $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
+        unset( $availableStatuses[ 'draft' ] );
+
         $this->addLog( 'Просмотрел отчет по исполнителям' );
 
         return view( 'reports.executors' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'availableManagements', $availableManagements )
+            ->with( 'availableStatuses', $availableStatuses )
             ->with( 'management', $management ?? null )
             ->with( 'executors', $executors )
             ->with( 'executor', $executor ?? null )
@@ -188,7 +204,8 @@ class ReportsController extends BaseController
 			->with( 'providers', $providers )
             ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
-            ->with( 'date_to', $date_to );
+            ->with( 'date_to', $date_to )
+            ->with( 'status_code', $status_code );
 
     }
 
