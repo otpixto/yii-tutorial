@@ -212,6 +212,7 @@ class Ticket extends BaseModel
         'emergency',
         'urgently',
         'dobrodel',
+        'from_lk',
         'phone',
         'phone2',
         'firstname',

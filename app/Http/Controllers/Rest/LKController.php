@@ -516,6 +516,7 @@ class LKController extends BaseController
             'firstname'         => \Auth::user()->firstname,
             'middlename'        => \Auth::user()->middlename,
             'lastname'          => \Auth::user()->lastname,
+            'from_lk'           => 1,
         ]);
 
         $res = $ticket->changeStatus( 'from_lk', true );
