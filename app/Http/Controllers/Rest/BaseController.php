@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SendSms;
 use App\Models\ProviderKey;
 use App\Models\ProviderToken;
-use App\Models\SmsAuth;
+use App\Models\SmsConfirm;
 use App\Traits\LogsTrait;
 use App\Traits\ThrottlesProviderKey;
 use Carbon\Carbon;
@@ -29,7 +29,7 @@ class BaseController extends Controller
     protected $providerKey;
     protected $providerToken;
 
-    protected $sms_auth = false;
+    protected $sms_confirm = false;
 
     public function __construct ( Request $request )
     {
@@ -107,70 +107,80 @@ class BaseController extends Controller
             return false;
         }
 
-        $this->sms_auth = $this->providerKey->provider->sms_auth;
-        $token = $this->providerToken->token;
+        $this->sms_confirm = $this->providerKey->provider->sms_auth;
 
-        $phone = $request->get( 'phone' );
-
-        if ( $this->sms_auth )
+        if ( $this->sms_confirm )
         {
-            if ( $request->get( 'sms_code' ) )
-            {
-                $code = $request->get( 'sms_code' );
-                $smsAuth = SmsAuth
-                    ::where( 'phone', '=', $phone )
-                    ->where( 'code', '=', $code )
-                    ->first();
-                if ( $smsAuth )
-                {
-                    $smsAuth->delete();
-                    $this->sms_auth = false;
-                    return true;
-                }
-                else
-                {
-                    $error = 'Неверный код';
-                    return false;
-                }
-            }
-            else
-            {
-                if ( \Cache::tags( 'rest' )->has( 'sms_auth.' . $phone ) )
-                {
-                    $error = 'Повторная отправка возможна через ' . Carbon::now()->diffInSeconds( Carbon::createFromTimestamp( \Cache::tags( 'rest' )->get( 'sms_auth.' . $phone ) ) ) . ' сек.';
-                    $httpCode = 429;
-                    return false;
-                }
-                else
-                {
-                    $code = $this->genCode( 4 );
-                    SmsAuth
-                        ::where( 'phone', '=', $phone )
-                        ->delete();
-                    $smsAuth = SmsAuth::create(
-                        [
-                            'phone'         => $phone,
-                            'token'         => $token,
-                            'code'          => $code,
-                            'expired_at'    => Carbon::now()->addSeconds( config( 'sms.alive' ) )->toDateTimeString(),
-                        ]
-                    );
-                    if ( $smsAuth instanceof MessageBag )
-                    {
-                        $error = 'Пошел в пизду';
-                        return false;
-                    }
-                    $smsAuth->save();
-                    $message = 'Код для авторизации: ' . $code;
-                    $this->dispatch( new SendSms( $phone, $message ) );
-                    \Cache::tags( 'rest' )->put( 'sms_auth.' . $phone, Carbon::now()->addMinute()->timestamp, 1 );
-                    return true;
-                }
-            }
+            return $this->checkSmsConfirm( $request, $error, $httpCode );
         }
         else
         {
             return true;
+        }
+
+    }
+
+    protected function checkSmsConfirm ( Request $request, & $error = null, & $httpCode = null ) : bool
+    {
+
+        if ( ! $this->checkProviderKey( $request, $error, $httpCode ) )
+        {
+            return false;
+        }
+
+        $phone = $request->get( 'phone' );
+
+        if ( $request->get( 'sms_code' ) )
+        {
+            $code = $request->get( 'sms_code' );
+            $smsConfirm = SmsConfirm
+                ::where( 'phone', '=', $phone )
+                ->where( 'code', '=', $code )
+                ->first();
+            if ( $smsConfirm )
+            {
+                $smsConfirm->delete();
+                $this->sms_confirm = false;
+                return true;
+            }
+            else
+            {
+                $error = 'Неверный код';
+                return false;
+            }
+        }
+        else
+        {
+            if ( \Cache::tags( 'rest' )->has( 'sms_confirm.' . $phone ) )
+            {
+                $error = 'Повторная отправка возможна через ' . Carbon::now()->diffInSeconds( Carbon::createFromTimestamp( \Cache::tags( 'rest' )->get( 'sms_confirm.' . $phone ) ) ) . ' сек.';
+                $httpCode = 429;
+                return false;
+            }
+            else
+            {
+                $code = $this->genCode( 4 );
+                SmsConfirm
+                    ::where( 'phone', '=', $phone )
+                    ->delete();
+                $smsConfirm = SmsConfirm::create(
+                    [
+                        'phone'         => $phone,
+                        'code'          => $code,
+                        'expired_at'    => Carbon::now()->addSeconds( config( 'sms.alive' ) )->toDateTimeString(),
+                    ]
+                );
+                if ( $smsConfirm instanceof MessageBag )
+                {
+                    $error = 'Пошел в пизду';
+                    return false;
+                }
+                $smsConfirm->save();
+                $message = 'Код для подтверждения: ' . $code;
+                $this->dispatch( new SendSms( $phone, $message ) );
+                \Cache::tags( 'rest' )->put( 'sms_confirm.' . $phone, Carbon::now()->addMinute()->timestamp, 1 );
+                return true;
+            }
         }
 
     }

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Classes\LK;
+use App\Jobs\SendSms;
 use App\Models\Building;
 use App\Models\File;
+use App\Models\SmsConfirm;
 use App\Models\Ticket;
 use App\Models\Type;
 use App\Models\Work;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -65,13 +68,13 @@ class LKController extends BaseController
         return $this->success([
             'id'                => $user->id,
             'fullname'          => $user->getName(),
-            'token'             => $this->sms_auth ? null : $token,
-            'sms_auth'          => (bool) $this->sms_auth,
+            'token'             => $this->sms_confirm ? null : $token,
+            'sms_confirm'       => (bool) $this->sms_confirm,
         ]);
 
     }
 
-    public function addresses ( Request $request )
+    public function addresses ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -94,6 +97,7 @@ class LKController extends BaseController
 
         $buildings = Building
             ::mineProvider()
+            ->where( 'provider_id', '=', \Auth::user()->provider_id )
             ->where( 'name', 'like', $term )
             ->orderBy( 'name' )
             ->take( 30 )
@@ -107,7 +111,7 @@ class LKController extends BaseController
 
     }
 
-    public function types ( Request $request )
+    public function types ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -131,7 +135,7 @@ class LKController extends BaseController
 
     }
 
-    public function profile ( Request $request )
+    public function profile ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -185,7 +189,7 @@ class LKController extends BaseController
 
     }
 
-    public function statuses ( Request $request )
+    public function statuses ( Request $request ) : Response
     {
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
@@ -197,7 +201,7 @@ class LKController extends BaseController
         return $this->success( $statuses );
     }
 
-    public function addressAdd ( Request $request )
+    public function addressAdd ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -241,7 +245,7 @@ class LKController extends BaseController
 
     }
 
-    public function addressDel ( Request $request )
+    public function addressDel ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -285,7 +289,7 @@ class LKController extends BaseController
 
     }
 
-    public function tickets ( Request $request )
+    public function tickets ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -376,7 +380,7 @@ class LKController extends BaseController
 
     }
 
-    public function works ( Request $request )
+    public function works ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -472,7 +476,7 @@ class LKController extends BaseController
 
     }
 
-    public function create ( Request $request )
+    public function create ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -485,10 +489,11 @@ class LKController extends BaseController
             'building_id'           => 'required|integer',
             'flat'                  => 'required',
             'text'                  => 'required|max:1000',
+            'phone'                 => 'nullable|digits:10',
             'time_from'             => 'nullable|required_with:time_to|date_format:H:i',
             'time_to'               => 'nullable|required_with:time_from|date_format:H:i|after:time_from',
             'files'                 => 'nullable|array',
-            'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
+            'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
         ]);
 
         if ( $validation->fails() )
@@ -507,6 +512,7 @@ class LKController extends BaseController
             'time_to'           => $request->get( 'time_to' ),
             'provider_id'       => \Auth::user()->provider_id,
             'phone'             => \Auth::user()->phone,
+            'phone2'            => $request->get( 'phone' ),
             'firstname'         => \Auth::user()->firstname,
             'middlename'        => \Auth::user()->middlename,
             'lastname'          => \Auth::user()->lastname,
@@ -518,9 +524,7 @@ class LKController extends BaseController
             return $this->error( $res->first() );
         }
 
-        $files = $request->allFiles();
-
-        foreach ( $files as $_file )
+        foreach ( $request->file( 'files' ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
             if ( ! $path )
@@ -554,7 +558,7 @@ class LKController extends BaseController
 
     }
 
-    public function changeEmail ( Request $request )
+    public function changeEmail ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -585,7 +589,7 @@ class LKController extends BaseController
 
     }
 
-    public function rate ( Request $request )
+    public function rate ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -598,7 +602,8 @@ class LKController extends BaseController
             'rate'                  => 'required|integer|min:1|max:5',
             'rate_comment'          => 'required_if:rate,1|required_if:rate,2|required_if:rate,3|max:1000',
             'force'          		=> 'nullable|boolean',
-            'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|size:1000',
+            'files'                 => 'nullable|array',
+            'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
         ]);
 
         if ( $validation->fails() )
@@ -642,9 +647,7 @@ class LKController extends BaseController
 			}
         }
 
-        $files = $request->allFiles();
-
-        foreach ( $files as $_file )
+        foreach ( $request->file( 'files' ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
             if ( ! $path )
@@ -671,6 +674,51 @@ class LKController extends BaseController
         \DB::commit();
 
         \Cache::tags( 'tickets_counts' )->flush();
+
+        return $this->success( 'OK' );
+
+    }
+
+    public function recovery ( Request $request ) : Response
+    {
+
+        if ( ! $this->checkProviderKey( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
+        $validation = \Validator::make( $request->all(), [
+            'phone'         => 'required|digits:10',
+        ]);
+
+        if ( $validation->fails() )
+        {
+            return $this->error( $validation->errors()->first() );
+        }
+
+        $phone = $request->get( 'phone' );
+
+        $user = User
+            ::where( 'phone', '=', $phone )
+            ->first();
+
+        if ( ! $user )
+        {
+            return $this->error( 'Пользователь не найден' );
+        }
+
+        if ( ! $this->checkSmsConfirm( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
+        if ( $request->get( 'sms_code' ) )
+        {
+            $password = str_random( 5 );
+            $message = 'Ваш новый пароль: ' . $password;
+            $this->dispatch( new SendSms( $phone, $message ) );
+            $user->changePass( $password );
+        }
 
         return $this->success( 'OK' );
 
