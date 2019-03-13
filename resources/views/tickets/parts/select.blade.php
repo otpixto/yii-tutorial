@@ -41,6 +41,16 @@
             </a>
         </li>
     @endif
+    @if ( $ticket->from_lk && $ticket->files->count() )
+        <li>
+            <a href="#files">
+                Файлы
+                <span class="badge bg-green-jungle bold">
+                    {{ $ticket->files->count() }}
+                </span>
+            </a>
+        </li>
+    @endif
 </ul>
 
 <div class="tab-content">
@@ -114,6 +124,19 @@
     @elseif ( $ticket->phone )
         <div id="customer_tickets" class="tab-pane fade in active margin-top-15">
             @include( 'tickets.tabs.mini_table', [ 'tickets' => $customerTickets ] )
+        </div>
+    @endif
+
+    @if ( $ticket->from_lk && $ticket->files->count() )
+        <div id="files" class="tab-pane fade margin-top-15">
+            @foreach ( $ticket->files as $file )
+                <div>
+                    <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                        <i class="fa fa-file"></i>
+                        {{ $file->name }}
+                    </a>
+                </div>
+            @endforeach
         </div>
     @endif
 
