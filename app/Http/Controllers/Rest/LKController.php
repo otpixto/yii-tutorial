@@ -524,7 +524,7 @@ class LKController extends BaseController
             return $this->error( $res->first() );
         }
 
-        foreach ( $request->file( 'files' ) as $_file )
+        foreach ( $request->file( 'files', [] ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
             if ( ! $path )
@@ -647,7 +647,7 @@ class LKController extends BaseController
 			}
         }
 
-        foreach ( $request->file( 'files' ) as $_file )
+        foreach ( $request->file( 'files', [] ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
             if ( ! $path )
