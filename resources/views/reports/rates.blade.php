@@ -14,6 +14,16 @@
     </p>
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
+
+    @if ( $providers->count() > 1 )
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+            </div>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
@@ -193,7 +203,8 @@
     <script type="text/javascript">
 
         $( document )
-            .ready(function()
+
+            .ready( function ()
             {
 
                 $( '.datepicker' ).datepicker({
@@ -265,6 +276,11 @@
                     selectAllValue: ''
                 });
 
+            })
+
+            .on( 'change', '#provider_id', function ()
+            {
+                $( this ).closest( 'form' ).submit();
             });
 
     </script>
