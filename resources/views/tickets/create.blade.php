@@ -223,6 +223,11 @@
             .ready( function ()
             {
 
+                $( '.autosave' ).each( function ()
+                {
+                    $( this ).attr( 'data-prev-value', $( this ).val() );
+                });
+
                 $( '.customer-autocomplete' ).autocomplete({
                     source: function ( request, response )
                     {
@@ -340,9 +345,33 @@
                     timers[ that.attr( 'name' ) ] = null;
                     var field = that.attr( 'name' );
                     var value = that.is( '[type="checkbox"]' ) ? ( that.is( ':checked' ) ? 1 : 0 ) : that.val();
+                    if ( that.attr( 'data-prev-value' ) == value )
+                    {
+                        return;
+                    }
+                    that.attr( 'data-prev-value', value );
                     $.post( '{{ route( 'tickets.save', $ticket->id ) }}', {
                         field: field,
                         value: value
+                    }, function ( response )
+                    {
+                        if ( ! response || ! response.can_create_user )
+                        {
+                            $( '#create_user_block' ).addClass( 'hidden' );
+                            $( '#create_user' ).prop( 'checked', false );
+                        }
+                        else if ( $( '#create_user_block' ).hasClass( 'hidden' ) )
+                        {
+                            $( '#create_user_block' )
+                                .removeClass( 'hidden' )
+                                .pulsate({
+                                    repeat: 3,
+                                    speed: 500,
+                                    color: '#F1C40F',
+                                    glow: true,
+                                    reach: 15
+                                });
+                        }
                     });
                 }, 500 );
             })

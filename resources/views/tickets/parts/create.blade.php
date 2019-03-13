@@ -62,13 +62,15 @@
                 <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
                     {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $ticket->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency', 'autocomplete' => 'off' ] ) !!}
                     <span></span>
+                    <i class="icon-fire"></i>
                     Авария
                 </label>
             </div>
-            <div class="col-xs-3">
+            <div class="col-xs-6">
                 <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
                     {!! Form::checkbox( 'urgently', 1, \Input::old( 'urgently', $ticket->urgently ?? null ), [ 'class' => 'autosave', 'autocomplete' => 'off' ] ) !!}
                     <span></span>
+                    <i class="icon-speedometer"></i>
                     Срочно
                 </label>
             </div>
@@ -106,6 +108,18 @@
             {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
             <div class="col-xs-3">
                 {!! Form::text( 'actual_flat', \Input::old( 'actual_flat', $ticket->actual_flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Квартира', 'id' => 'actual_flat', 'autocomplete' => 'off' ] ) !!}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {!! Form::label( null, '&nbsp;', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-6 @if ( ! $ticket->canCreateUser() ) hidden @endif" id="create_user_block">
+                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                    {!! Form::checkbox( 'create_user', 1, \Input::old( 'create_user' ), [ 'id' => 'create_user', 'autocomplete' => 'off' ] ) !!}
+                    <span></span>
+                    <i class="fa fa-user"></i>
+                    Дать доступ в ЛК
+                </label>
             </div>
         </div>
 

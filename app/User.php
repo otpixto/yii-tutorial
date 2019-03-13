@@ -48,6 +48,7 @@ class User extends BaseModel implements
     ];
 
     protected $fillable = [
+        'provider_id',
         'active',
         'firstname',
         'middlename',

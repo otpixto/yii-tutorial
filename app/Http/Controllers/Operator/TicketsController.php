@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Operator;
 
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
+use App\Jobs\SendSms;
 use App\Jobs\SendStream;
 use App\Models\Building;
 use App\Models\Customer;
@@ -684,6 +685,7 @@ class TicketsController extends BaseController
             'text'                      => 'required',
             'managements'               => 'required|array',
             'create_another'            => 'nullable|boolean',
+            'create_user'               => 'nullable|boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -818,6 +820,34 @@ class TicketsController extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->withErrors( $res );
+        }
+
+        if ( $request->get( 'create_user' ) && $ticket->canCreateUser( true ) )
+        {
+
+            $password = str_random( 5 );
+            $message = 'lk.eds-region.ru. Логин: ' . $ticket->phone . '. Пароль: ' . $password;
+
+            $res = User
+                ::create([
+                    'provider_id'                   => $ticket->provider_id,
+                    'active'                        => 1,
+                    'firstname'                     => $ticket->firstname,
+                    'middlename'                    => $ticket->middlename,
+                    'lastname'                      => $ticket->lastname,
+                    'phone'                         => $ticket->phone,
+                    'password'                      => $password,
+                ]);
+
+            if ( $res instanceof MessageBag )
+            {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors( $res );
+            }
+
+            $this->dispatch( new SendSms( $ticket->phone, $message ) );
+
         }
 
         if ( $request->get( 'create_another' ) )
@@ -2187,8 +2217,10 @@ class TicketsController extends BaseController
 
     public function postSave ( Request $request, $id )
     {
+
         $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
+
         switch ( $request->get( 'field' ) )
         {
             case 'tags':
@@ -2219,6 +2251,10 @@ class TicketsController extends BaseController
                 }
                 break;
         }
+
+        return [
+            'can_create_user' => (int) $ticket->canCreateUser( true ) ? 1 : 0
+        ];
 
     }
 

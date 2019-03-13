@@ -23,6 +23,7 @@ class Ticket extends BaseModel
     private $can_edit = null;
     private $can_group = null;
     private $can_call = null;
+    private $can_create_user = null;
 
     private $availableStatuses = null;
 
@@ -908,6 +909,22 @@ class Ticket extends BaseModel
         {
             return $this->status_name;
         }
+    }
+
+    public function canCreateUser ( $force = false )
+    {
+        if ( $force || is_null( $this->can_create_user ) )
+        {
+            if ( \Auth::user()->can( 'tickets.create_user' ) && $this->phone && $this->firstname && $this->lastname && ( ! $this->customer || ! $this->customer->user ) )
+            {
+                $this->can_create_user = true;
+            }
+            else
+            {
+                $this->can_create_user = false;
+            }
+        }
+        return $this->can_create_user;
     }
 
     public function canEdit ()
