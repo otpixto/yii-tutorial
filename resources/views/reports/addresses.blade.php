@@ -10,6 +10,14 @@
 @section( 'content' )
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
+    @if ( $providers->count() > 1 )
+        <div class="form-group">
+            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-md-3' ] ) !!}
+            <div class="col-md-6">
+                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+            </div>
+        </div>
+    @endif
     <div class="form-group">
         {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-3">
@@ -189,7 +197,7 @@
 
         $( document )
 
-            .ready(function()
+            .ready( function ()
             {
 
 				$( '.datetimepicker' ).datetimepicker({

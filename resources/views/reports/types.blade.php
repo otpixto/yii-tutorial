@@ -261,7 +261,8 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $( document )
-            .ready(function()
+
+            .ready( function ()
             {
 
                $( '.datepicker' ).datepicker({
@@ -339,6 +340,12 @@
                     selectAllValue: ''
                 });
 
+            })
+
+            .on( 'change', '#provider_id', function ()
+            {
+                $( this ).closest( 'form' ).submit();
             });
+
     </script>
 @endsection

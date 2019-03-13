@@ -10,9 +10,17 @@
 @section( 'content' )
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
+    @if ( $providers->count() > 1 )
+        <div class="form-group">
+            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-md-3' ] ) !!}
+            <div class="col-md-6">
+                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+            </div>
+        </div>
+    @endif
     <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-3">
+        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-md-3' ] ) !!}
+        <div class="col-md-3">
             <div class="input-group date datetimepicker form_datetime bs-datetime">
                 {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
                 <span class="input-group-addon">
@@ -27,7 +35,7 @@
                 </span>
             </div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-md-3">
             <div class="input-group date datetimepicker form_datetime bs-datetime">
                 {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
                 <span class="input-group-addon">
@@ -44,27 +52,33 @@
         </div>
     </div>
     <div class="form-group">
-        {!! Form::label( 'management_id', 'УО', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
+        {!! Form::label( 'status_code', 'Статус', [ 'class' => 'control-label col-md-3' ] ) !!}
+        <div class="col-md-6">
+            {!! Form::select( 'status_code', $availableStatuses, $status_code, [ 'class' => 'form-control select2', 'placeholder' => '---' ] ) !!}
+        </div>
+    </div>
+    <div class="form-group">
+        {!! Form::label( 'management_id', 'УО', [ 'class' => 'control-label col-md-3' ] ) !!}
+        <div class="col-md-6">
             {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $availableManagements, \Input::get( 'management_id' ), [ 'class' => 'select2 form-control' ] ) !!}
         </div>
     </div>
     <div id="executor_block" class="form-group @if ( ! $management ) hidden @endif">
-        {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
+        {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label col-md-3' ] ) !!}
+        <div class="col-md-6">
             {!! Form::select( 'executor_id', $executors->count() ? [ null => ' -- выберите из списка -- ' ] + $executors->pluck( 'name', 'id' )->toArray() : [ null => 'Ничего не найдено' ], \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
         </div>
     </div>
     <div id="rate" class="form-group">
-        {!! Form::label( 'rate', 'Оценка', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
+        {!! Form::label( 'rate', 'Оценка', [ 'class' => 'control-label col-md-3' ] ) !!}
+        <div class="col-md-6">
             <div id="rate_slider" class="noUi-danger"></div>
             {!! Form::hidden( 'rate_from', \Input::get( 'rate_from', 1 ), [ 'id' => 'rate_from' ] ) !!}
             {!! Form::hidden( 'rate_to', \Input::get( 'rate_to', 5 ), [ 'id' => 'rate_to' ] ) !!}
         </div>
     </div>
     <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-9">
+        <div class="col-md-offset-3 col-md-9">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
             @if ( $ticketManagements->count() && \Auth::user()->can( 'reports.export' ) )
                 <a href="?export=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default">
@@ -225,6 +239,9 @@
         .note {
             margin: 5px 0;
         }
+        .noUi-handle .noUi-tooltip {
+            opacity: 0.5;
+        }
     </style>
 @endsection
 
@@ -315,26 +332,41 @@
 
                 var management_id = $( this ).val();
 
-                $( '#executor_block' ).removeClass( 'hidden' );
-                $( '#executor_id' ).html(
-                    $( '<option>' ).val( '0' ).text( 'Загрузка...' )
-                );
-
-                $.get( '{{ route( 'managements.executors.search' ) }}', {
-                    management_id: management_id
-                }, function ( response )
+                if ( management_id )
                 {
-                    $( '#executor_id' ).html(
-                        $( '<option>' ).val( '0' ).text( response.length ? ' -- выберите из списка -- ' : 'Ничего не найдено' )
-                    );
-                    $.each( response, function ( i, val )
-                    {
-                        $( '#executor_id' ).append(
-                            $( '<option>' ).val( val.id ).text( val.name )
-                        );
-                    });
-                });
 
+                    $( '#executor_block' ).removeClass( 'hidden' );
+                    $( '#executor_id' ).html(
+                        $( '<option>' ).val( '0' ).text( 'Загрузка...' )
+                    );
+
+                    $.get( '{{ route( 'managements.executors.search' ) }}', {
+                        management_id: management_id
+                    }, function ( response )
+                    {
+                        $( '#executor_id' ).html(
+                            $( '<option>' ).val( '0' ).text( response.length ? ' -- выберите из списка -- ' : 'Ничего не найдено' )
+                        );
+                        $.each( response, function ( i, val )
+                        {
+                            $( '#executor_id' ).append(
+                                $( '<option>' ).val( val.id ).text( val.name )
+                            );
+                        });
+                    });
+
+                }
+                else
+                {
+                    $( '#executor_block' ).addClass( 'hidden' );
+                    $( '#executor_id' ).empty().val( '' );
+                }
+
+            })
+
+            .on( 'change', '#provider_id', function ()
+            {
+                $( this ).closest( 'form' ).submit();
             });
 
     </script>
