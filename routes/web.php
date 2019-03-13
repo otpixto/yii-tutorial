@@ -38,6 +38,7 @@ Route::group( [ 'middleware' => 'rest' ], function ()
         {
             Route::any( 'login', 'Rest\LKController@login' )->name( 'rest.lk.login' );
             Route::any( 'logout', 'Rest\LKController@logout' )->name( 'rest.lk.logout' );
+            Route::any( 'recovery', 'Rest\LKController@recovery' )->name( 'rest.lk.recovery' );
             Route::any( 'addresses', 'Rest\LKController@addresses' )->name( 'rest.lk.addresses' );
             Route::any( 'statuses', 'Rest\LKController@statuses' )->name( 'rest.lk.statuses' );
             Route::any( 'types', 'Rest\LKController@types' )->name( 'rest.lk.types' );
@@ -324,9 +325,11 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'types', 'Catalog\TypesController' );
             Route::resource( 'segments', 'Catalog\SegmentsController' );
             Route::resource( 'buildings', 'Catalog\BuildingsController' );
-            Route::resource( 'groups', 'Catalog\GroupsController' );
             Route::resource( 'rooms', 'Catalog\RoomsController' );
             Route::resource( 'categories', 'Catalog\CategoriesController' );
+
+            Route::resource( 'types_groups', 'Catalog\TypesGroupsController' );
+            Route::resource( 'buildings_groups', 'Catalog\BuildingsGroupsController' );
 
         });
 
