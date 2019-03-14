@@ -916,7 +916,7 @@ class Ticket extends BaseModel
     {
         if ( $force || is_null( $this->can_create_user ) )
         {
-            if ( \Auth::user()->can( 'tickets.create_user' ) && $this->phone && $this->firstname && $this->lastname && ( ! $this->customer || ! $this->customer->user ) )
+            if ( \Auth::user()->can( 'tickets.create_user' ) && ! $this->from_lk && $this->phone && $this->firstname && $this->lastname && ( ! $this->customer || ! $this->customer->user ) )
             {
                 $this->can_create_user = true;
             }
