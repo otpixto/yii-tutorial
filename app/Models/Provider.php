@@ -98,12 +98,8 @@ class Provider extends BaseModel
     {
         if ( ! $user ) $user = \Auth::user();
         if ( ! $user ) return false;
-        if ( ! self::subDomainIs( 'operator', 'system' ) )
-        {
-            $query
-                ->whereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
-        }
-        return $query;
+        return $query
+            ->whereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
     }
 
     public function scopeCurrent ( $query )
@@ -210,7 +206,7 @@ class Provider extends BaseModel
 
     public static function getCurrent ()
     {
-        self::$current = ! self::isOperatorUrl() ? self::current()->first() : null;
+        self::$current = self::mine()->current()->first();
         return self::$current;
     }
 

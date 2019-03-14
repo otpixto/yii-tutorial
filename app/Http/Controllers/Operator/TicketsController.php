@@ -2292,7 +2292,7 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Невозможно отменить добавленную заявку' ] );
         }
         $ticket->fill([
-            'provider_id'               => Provider::$current->id ?? null,
+            'provider_id'               => Provider::getCurrent()->id ?? null,
             'type_id'                   => null,
             'building_id'               => null,
             'place_id'                  => null,
