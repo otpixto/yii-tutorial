@@ -103,7 +103,7 @@
         <div class="form-group">
             {!! Form::label( 'actual_building_id', 'Адрес проживания', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-5">
-                {!! Form::select( 'actual_building_id', $ticket->actual_building ? $ticket->actual_building()->pluck( 'name', 'id' ) : [], \Input::old( 'actual_building_id', $ticket->actual_building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_building_id', 'autocomplete' => 'off' ] ) !!}
+                {!! Form::select( 'actual_building_id', $ticket->actualBuilding()->pluck( 'name', 'id' ), \Input::old( 'actual_building_id', $ticket->actual_building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'id' => 'actual_building_id', 'autocomplete' => 'off' ] ) !!}
             </div>
             {!! Form::label( 'actual_flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
             <div class="col-xs-3">

@@ -154,7 +154,7 @@
                 }
                 else
                 {
-                    $( '#emergency' ).removeAttr( 'checked' ).removeAttr( 'disabled' ).trigger( 'change' );
+                    $( '#emergency' ).removeAttr( 'disabled' );
                 }
                 if ( response.description )
                 {
@@ -225,7 +225,20 @@
 
                 $( '.autosave' ).each( function ()
                 {
-                    $( this ).attr( 'data-prev-value', $( this ).val() );
+                    var that = $( this );
+                    if ( that.is( '[type="checkbox"]' ) )
+                    {
+                        var value = that.is( ':checked' ) ? 1 : 0;
+                    }
+                    else if ( that.hasClass( 'mask_phone' ) )
+                    {
+                        var value = that.val().replace( /[^0-9]/gim, '' ).substr( -10 );
+                    }
+                    else
+                    {
+                        var value = $.trim( that.val() );
+                    }
+                    $( this ).attr( 'data-prev-value', value );
                 });
 
                 $( '.customer-autocomplete' ).autocomplete({
@@ -319,6 +332,7 @@
             .on( 'change', '#provider_id', function ( e )
             {
                 $( '#building_id, #flat, #actual_building_id, #actual_flat' ).val( '' ).trigger( 'change' );
+                GetTypes( $( this ).val() );
             })
 
             .on( 'change', '#vendor_id', function ( e )
@@ -344,7 +358,18 @@
                 {
                     timers[ that.attr( 'name' ) ] = null;
                     var field = that.attr( 'name' );
-                    var value = that.is( '[type="checkbox"]' ) ? ( that.is( ':checked' ) ? 1 : 0 ) : that.val();
+                    if ( that.is( '[type="checkbox"]' ) )
+                    {
+                        var value = that.is( ':checked' ) ? 1 : 0;
+                    }
+                    else if ( that.hasClass( 'mask_phone' ) )
+                    {
+                        var value = that.val().replace( /[^0-9]/gim, '' ).substr( -10 );
+                    }
+                    else
+                    {
+                        var value = $.trim( that.val() );
+                    }
                     if ( that.attr( 'data-prev-value' ) == value )
                     {
                         return;
@@ -382,11 +407,6 @@
                 {
                     ToggleMicrophone();
                 }
-            })
-
-            .on( 'change', '#provider_id', function ( e )
-            {
-                GetTypes( $( this ).val() );
             })
 
             .on( 'change', '#type_id', function ( e )
