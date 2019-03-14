@@ -94,20 +94,9 @@ class BaseModel extends Model
         {
             $new->author_id = \Auth::user()->id;
         }
-        if ( Schema::hasColumn( $new->getTable(), 'provider_id' ) && ! $new->provider_id )
+        if ( Schema::hasColumn( $new->getTable(), 'provider_id' ) && ! $new->provider_id && Provider::getCurrent() )
         {
-            if ( Provider::getCurrent() )
-            {
-                $new->provider_id = Provider::$current->id;
-            }
-            else
-            {
-                $providers = Provider::mine()->get();
-                if ( $providers->count() == 1 )
-                {
-                    $new->provider_id = $providers->first()->id;
-                }
-            }
+            $new->provider_id = Provider::getCurrent()->id;
         }
         return $new;
     }
