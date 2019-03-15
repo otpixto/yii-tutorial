@@ -910,7 +910,8 @@ class ManagementsController extends BaseController
         {
             $s = '%' . str_replace( ' ', '%', $search ) . '%';
             $managementExecutors
-                ->where( Executor::$_table . '.name', 'like', $s );
+                ->where( Executor::$_table . '.name', 'like', $s )
+                ->orWhere( Executor::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), -10 ) );
         }
 
         $managementExecutors = $managementExecutors
