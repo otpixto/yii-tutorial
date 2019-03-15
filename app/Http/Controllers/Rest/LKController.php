@@ -99,6 +99,7 @@ class LKController extends BaseController
             ::mineProvider()
             ->where( 'provider_id', '=', \Auth::user()->provider_id )
             ->where( 'name', 'like', $term )
+            ->where( 'name', 'like', '%Жуковский%' )
             ->orderBy( 'name' )
             ->take( 30 )
             ->get();

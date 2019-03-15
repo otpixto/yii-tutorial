@@ -99,7 +99,12 @@ class Provider extends BaseModel
         if ( ! $user ) $user = \Auth::user();
         if ( ! $user ) return false;
         return $query
-            ->whereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
+            ->where( function ( $q ) use ( $user )
+            {
+                return $q
+                    ->where( self::getTable() . '.id', '=', $user->provider_id )
+                    ->orWhereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
+            });
     }
 
     public function scopeCurrent ( $query )
