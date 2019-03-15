@@ -177,7 +177,11 @@
                                         </span>
                                             </td>
                                             <td>
-                                                <div class="bold">{{ $ticket->type->category->name }}</div>
+                                                @if ( $ticket->type->parent )
+                                                    <div class="bold">
+                                                        {{ $ticket->type->parent->name }}
+                                                    </div>
+                                                @endif
                                                 {{ $ticket->type->name }}
                                             </td>
                                             <td>
