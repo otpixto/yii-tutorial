@@ -30,9 +30,8 @@ socket
 
     .on( 'picked_up', function ( data )
     {
-        console.log( 'picked_up', data );
         var phone = data.phone;
-        $.cookie( 'phone', phone, { path: '/' } );
+        $.cookie( 'phone', phone );
         if ( window.location.pathname == '/tickets/create' && $( '#phone' ).length )
         {
             $( '#phone' ).val( phone ).trigger( 'keyup' );
@@ -43,8 +42,7 @@ socket
 
     .on( 'picked_down', function ( data )
     {
-        console.log( 'picked_down', data );
-        $.removeCookie( 'phone', { path: '/' } );
+        $.removeCookie( 'phone' );
         $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-success' );
         $( '#call-phone' ).text( '' );
     })
@@ -86,7 +84,6 @@ socket
     .on( 'stream', function ( data )
     {
         if ( ! data || ! data.action ) return;
-        console.log( data );
         switch ( data.action )
         {
             case 'create':

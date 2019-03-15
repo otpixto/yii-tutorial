@@ -93,6 +93,9 @@
                                     <th>
                                         Телефон
                                     </th>
+                                    <th>
+                                        Пользователь
+                                    </th>
                                     <th class="text-center">
                                         Заявки
                                     </th>
@@ -122,6 +125,17 @@
                                         </td>
                                         <td>
                                             {{ $executor->getPhone() }}
+                                        </td>
+                                        <td>
+                                            @if ( $executor->user )
+                                                <a href="{{ route( 'users.edit', $executor->user_id ) }}">
+                                                    {{ $executor->user->getShortName() }}
+                                                </a>
+                                            @else
+                                                <span class="badge badge-danger">
+                                                    нет
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             <a href="{{ route( 'tickets.index', [ 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->tickets->count() ? 'info' : 'default' }} bold">

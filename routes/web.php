@@ -319,6 +319,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'groups/{group_id}/buildings/del', 'Catalog\GroupsController@buildingsDel' )->name( 'groups.buildings.del' );
             Route::delete( 'groups/{group_id}/buildings/empty', 'Catalog\GroupsController@buildingsEmpty' )->name( 'groups.buildings.empty' );
 
+            Route::post( 'executors/{executor_id}/user', 'Catalog\ExecutorsController@user' )->name( 'executors.user' );
+
             Route::resource( 'managements', 'Catalog\ManagementsController' );
             Route::resource( 'executors', 'Catalog\ExecutorsController' );
             Route::resource( 'customers', 'Catalog\CustomersController' );

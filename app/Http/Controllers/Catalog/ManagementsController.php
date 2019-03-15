@@ -892,8 +892,7 @@ class ManagementsController extends BaseController
 
         Title::add( 'Исполнители' );
 
-        $management = Management::find( $id );
-        $search = trim( $request->get( 'search', '' ) );
+        $management = Management::mine()->find( $id );
 
         if ( ! $management )
         {
@@ -901,7 +900,10 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $managementExecutors = $management->executors()
+        $search = trim( $request->get( 'search', '' ) );
+
+        $managementExecutors = $management
+            ->executors()
             ->orderBy( Executor::$_table . '.name' );
 
         if ( ! empty( $search ) )

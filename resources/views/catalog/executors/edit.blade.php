@@ -48,6 +48,38 @@
 
         </div>
 
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Привязать пользователя
+                </h3>
+            </div>
+            <div class="panel-body">
+
+                {!! Form::open( [ 'method' => 'post', 'url' => route( 'executors.user', $executor->id ), 'class' => 'form-horizontal submit-loading' ] ) !!}
+                {!! Form::hidden( 'provider_id', $executor->management->provider_id ) !!}
+
+                <div class="form-group">
+
+                    <div class="col-md-12">
+                        {!! Form::label( 'user_id', 'Пользователь', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'user_id', $executor->user ? [ $executor->user->id => $executor->user->getName( true ) ] : [], \Input::old( 'user_id', $executor->user_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Пользователь', 'data-ajax--url' => route( 'users.search' ), 'data-placeholder' => 'Пользователь' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group hidden-print">
+                    <div class="col-xs-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+
+        </div>
+
     @else
 
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
