@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -26,6 +27,8 @@ class ExecutorsController extends BaseController
     public function index ( Request $request )
     {
 
+        $search = trim( $request->get( 'search', '' ) );
+
         $executors = Executor
             ::mine()
             ->with(
@@ -33,7 +36,17 @@ class ExecutorsController extends BaseController
                 'management.parent',
                 'tickets',
                 'works'
-            )
+            );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $executors
+                ->where( Executor::$_table . '.name', 'like', $s )
+                ->orWhere( Executor::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), -10 ) );
+        }
+
+        $executors = $executors
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
@@ -199,6 +212,46 @@ class ExecutorsController extends BaseController
     public function destroy ( $id )
     {
         //
+    }
+
+    public function user ( Request $request, $id )
+    {
+
+        $rules = [
+            'user_id'         => 'nullable|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $executor = Executor::mine()->find( $id );
+        if ( $executor instanceof MessageBag )
+        {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors( [ 'Исполнитель не найден' ] );
+        }
+
+        if ( $request->get( 'user_id' ) )
+        {
+            $user = User::mine()->find( $request->get( 'user_id' ) );
+            if ( ! $user )
+            {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors( [ 'Пользователь не найден' ] );
+            }
+            $executor->user_id = $user->id;
+            $executor->save();
+        }
+        else
+        {
+            $executor->user_id = null;
+            $executor->save();
+        }
+
+        return redirect()->back()
+            ->with( 'success', 'Исполнителю успешно назначен пользователь' );
+
     }
 
 }

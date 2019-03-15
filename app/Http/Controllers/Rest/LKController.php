@@ -705,7 +705,7 @@ class LKController extends BaseController
 
         if ( ! $user )
         {
-            return $this->error( 'Пользователь не найден' );
+            return $this->error( 'Пользователь не найден', 404 );
         }
 
         if ( ! $this->checkSmsConfirm( $request, $error, $httpCode ) )

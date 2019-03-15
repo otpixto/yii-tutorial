@@ -81,17 +81,73 @@
 
                 @if ( ! $managementExecutors->count() )
                     @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                @else
+
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>
+                                Наименование
+                            </th>
+                            <th>
+                                Телефон
+                            </th>
+                            <th>
+                                Пользователь
+                            </th>
+                            <th class="text-center">
+                                Заявки
+                            </th>
+                            <th class="text-center">
+                                Отключения
+                            </th>
+                            <th class="text-right">
+                                &nbsp;
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ( $managementExecutors as $executor )
+                            <tr>
+                                <td>
+                                    {{ $executor->name }}
+                                </td>
+                                <td>
+                                    {{ $executor->getPhone() }}
+                                </td>
+                                <td>
+                                    @if ( $executor->user )
+                                        <a href="{{ route( 'users.edit', $executor->user_id ) }}">
+                                            {{ $executor->user->getShortName() }}
+                                        </a>
+                                    @else
+                                        <span class="badge badge-danger">
+                                                    нет
+                                                </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route( 'tickets.index', [ 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->tickets->count() ? 'info' : 'default' }} bold">
+                                        {{ $executor->tickets->count() }}
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route( 'works.index', [ 'show' => 'all', 'executor_id' => $executor->id ] ) }}" class="badge badge-{{ $executor->works->count() ? 'info' : 'default' }} bold">
+                                        {{ $executor->works->count() }}
+                                    </a>
+                                </td>
+                                <td class="text-right">
+                                    @if ( \Auth::user()->can( 'catalog.executors.edit' ) )
+                                        <a href="{{ route( 'executors.edit', $executor->id ) }}" class="btn btn-info">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
                 @endif
-                @foreach ( $managementExecutors as $r )
-                    <div class="margin-bottom-5">
-                        <button type="button" class="btn btn-xs btn-danger" data-delete="management-executor" data-executor="{{ $r->id }}">
-                            <i class="fa fa-remove"></i>
-                        </button>
-                        <a href="{{ route( 'executors.edit', $r->id ) }}">
-                            {{ $r->name }}
-                        </a>
-                    </div>
-                @endforeach
 
                 {{ $managementExecutors->render() }}
 
