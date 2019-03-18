@@ -42,6 +42,15 @@
             </div>
         @endif--}}
 
+        <div class="create-account">
+            <p>
+                Продолжая работу с системой, Вы соглашаетесь с
+                <a href="/files/privacy.pdf">
+                    политикой конфиденциальности
+                </a>
+            </p>
+        </div>
+
     {!! Form::close() !!}
     <!-- END LOGIN FORM -->
 
