@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Classes\LK;
+use App\Classes\SegmentChilds;
 use App\Jobs\SendSms;
 use App\Models\Building;
 use App\Models\File;
-use App\Models\SmsConfirm;
+use App\Models\Segment;
 use App\Models\Ticket;
 use App\Models\Type;
 use App\Models\Work;
@@ -95,11 +96,24 @@ class LKController extends BaseController
 
         $term = '%' . str_replace( ' ', '%', $term ) . '%';
 
+        $segmentIds = [];
+        if ( \Auth::user()->customer && \Auth::user()->customer->actualBuilding )
+        {
+            $actualBuilding = \Auth::user()->customer->actualBuilding;
+            $segments = $actualBuilding->getSegments( true );
+            if ( $segments->count() )
+            {
+                $segment = $segments->first();
+                $segmentChilds = new SegmentChilds( $segment );
+                $segmentIds = $segmentChilds->ids;
+            }
+        }
+
         $buildings = Building
             ::mineProvider()
             ->where( 'provider_id', '=', \Auth::user()->provider_id )
+            ->whereIn( 'segment_id', $segmentIds )
             ->where( 'name', 'like', $term )
-            ->where( 'name', 'like', '%Жуковский%' )
             ->orderBy( 'name' )
             ->take( 30 )
             ->get();

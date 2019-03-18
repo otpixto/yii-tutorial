@@ -109,7 +109,7 @@ class Building extends BaseModel
         return $name;
     }
 
-    public function getSegments ()
+    public function getSegments ( $break = false )
     {
         $current = $this->segment;
         $segments = collect();
@@ -119,6 +119,10 @@ class Building extends BaseModel
         {
             $current = $current->parent;
             $segments->push( $current );
+            if ( $break && $current->segmentType->break )
+            {
+                break;
+            }
         }
         return $segments->reverse();
     }
