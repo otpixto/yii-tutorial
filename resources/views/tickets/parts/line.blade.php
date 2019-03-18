@@ -130,7 +130,7 @@
                 </span>
             @endif
             @if ( $ticketManagement->ticket->from_lk )
-                <span class="badge badge-danger bold">
+                <span class="badge badge-warning bold">
                     <i class="icon-user-follow"></i>
                     Из ЛК
                 </span>
