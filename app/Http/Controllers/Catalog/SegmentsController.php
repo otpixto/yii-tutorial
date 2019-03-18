@@ -206,7 +206,7 @@ class SegmentsController extends BaseController
     {
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
-        $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent()->id ?? null );
         $type_id = $request->get( 'type_id' );
 
         $res = Segment
@@ -235,7 +235,7 @@ class SegmentsController extends BaseController
             $segments[] = [
                 'id' => $r->id,
                 'value' => $r->name,
-                'text' => $r->getName()
+                'text' => $r->getName( true )
             ];
         }
 

@@ -70,12 +70,12 @@ class Segment extends BaseModel
 
     public function getName ( $withParent = false )
     {
-        $name = $this->segmentType->name;
+        $name = '';
         if ( $withParent && $this->parent )
         {
-            $name .= ' ' . $this->parent->name;
+            $name .= $this->parent->name . ', ';
         }
-        $name .= ' ' . $this->name;
+        $name .= $this->name;
         return $name;
     }
 
