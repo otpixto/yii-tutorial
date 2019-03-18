@@ -108,7 +108,7 @@ class TicketsController extends BaseController
         {
 
             $tickets = Ticket
-                ::where( 'status_code', '=', 'from_lk' )
+                ::where( 'status_code', '=', 'moderate' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
@@ -131,7 +131,7 @@ class TicketsController extends BaseController
 
         $ticket = Ticket::find( $ticket_id );
 
-        if ( ! $ticket || $ticket->status_code != 'from_lk' )
+        if ( ! $ticket || $ticket->status_code != 'moderate' )
         {
             return redirect()
                 ->route( 'tickets.index' )
