@@ -368,6 +368,11 @@
                                             Добродел
                                         </span>
                                     @endif
+                                    @if ( $ticket->from_lk )
+                                        <span class="badge badge-warning bold">
+                                            Из ЛК
+                                        </span>
+                                    @endif
                                     @if ( $ticket->group_uuid )
                                         <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
                                             Сгруппировано
