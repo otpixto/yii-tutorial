@@ -274,7 +274,7 @@ class User extends BaseModel implements
         {
             foreach ( $statuses as $status_code )
             {
-                $res[ $status_code ] = Ticket::$statuses[ $status_code ];
+                $res[ $status_code ] = Ticket::$statuses[ $status_code ] ?? null;
             }
         }
         else
