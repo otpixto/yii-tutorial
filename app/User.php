@@ -352,7 +352,7 @@ class User extends BaseModel implements
                     ->orWhere( User::$_table . '.middlename', 'like', $s )
                     ->orWhere( User::$_table . '.lastname', 'like', $s )
                     ->orWhere( User::$_table . '.email', 'like', $s )
-                    ->orWhere( User::$_table . '.phone', 'like', $s );
+                    ->orWhere( User::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), -10 ) );
             });
     }
 
