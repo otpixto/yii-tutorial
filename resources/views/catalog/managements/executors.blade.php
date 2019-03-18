@@ -122,8 +122,8 @@
                                         </a>
                                     @else
                                         <span class="badge badge-danger">
-                                                    нет
-                                                </span>
+                                            нет
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -138,6 +138,9 @@
                                 </td>
                                 <td class="text-right">
                                     @if ( \Auth::user()->can( 'catalog.executors.edit' ) )
+                                        <button type="button" class="btn btn-danger" data-delete="management-executor" data-executor="{{ $executor->id }}">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
                                         <a href="{{ route( 'executors.edit', $executor->id ) }}" class="btn btn-info">
                                             <i class="fa fa-edit"></i>
                                         </a>
