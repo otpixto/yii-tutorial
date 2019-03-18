@@ -292,7 +292,7 @@ class DeviceController extends BaseController
 
         $this->addLog( 'Сообщил о своем местоположении' );
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -374,7 +374,7 @@ class DeviceController extends BaseController
 
         \DB::commit();
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -421,7 +421,7 @@ class DeviceController extends BaseController
 
         \DB::commit();
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -507,7 +507,7 @@ class DeviceController extends BaseController
 
         \DB::commit();
 		
-		return $this->success( 'OK' );
+		return $this->success( [ 'message' => 'OK' ] );
 	
 	}
 
@@ -598,7 +598,7 @@ class DeviceController extends BaseController
             return $this->error( $res->first() );
         }
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -614,7 +614,7 @@ class DeviceController extends BaseController
 
         $this->addLog( 'Очистил кеш' );
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 

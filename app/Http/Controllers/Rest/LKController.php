@@ -256,7 +256,7 @@ class LKController extends BaseController
 
         $this->addLog( 'Добавил адрес ' . $building->name );
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -300,7 +300,7 @@ class LKController extends BaseController
 
         $this->addLog( 'Убрал адрес ' . $building->name );
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -601,7 +601,7 @@ class LKController extends BaseController
             return $this->error( $res->first() );
         }
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -691,7 +691,7 @@ class LKController extends BaseController
 
         \Cache::tags( 'tickets_counts' )->flush();
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
@@ -736,7 +736,7 @@ class LKController extends BaseController
             $user->changePass( $password );
         }
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 
