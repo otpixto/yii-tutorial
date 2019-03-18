@@ -194,7 +194,7 @@
                 e.preventDefault();
 
                 var executor_id = $( this ).attr( 'data-executor' );
-                var obj = $( this ).closest( 'div' );
+                var obj = $( this ).closest( 'tr' );
 
                 bootbox.confirm({
                     message: 'Удалить исполнителя?',
