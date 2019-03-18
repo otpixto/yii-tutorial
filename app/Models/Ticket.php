@@ -650,7 +650,7 @@ class Ticket extends BaseModel
         {
             foreach ( $this->availableStatuses as $status_code )
             {
-                $res[ $status_code ] = Ticket::$statuses[ $status_code ];
+                $res[ $status_code ] = Ticket::$statuses[ $status_code ] ?? null;
             }
         }
         else
