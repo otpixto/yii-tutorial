@@ -520,7 +520,7 @@ class LKController extends BaseController
             'from_lk'           => 1,
         ]);
 
-        $res = $ticket->changeStatus( 'from_lk', true );
+        $res = $ticket->changeStatus( 'moderate', true );
         if ( $res instanceof MessageBag )
         {
             return $this->error( $res->first() );

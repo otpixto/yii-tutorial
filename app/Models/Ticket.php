@@ -51,7 +51,7 @@ class Ticket extends BaseModel
     public static $statuses = [
         'draft'					            => 'Черновик',
         'created'                           => 'Нераспределенная',
-        'from_lk'                           => 'Из ЛК клиента',
+        'moderate'                          => 'На модерации',
         'from_dobrodel'                     => 'Из добродела',
         'transferred'                       => 'Ожидает принятия Ответственным',
         'transferred_again'                 => 'Требует доработки',
@@ -132,7 +132,7 @@ class Ticket extends BaseModel
     public static $not_notify = [
         'draft',
         'created',
-        'from_lk',
+        'moderate',
         'from_dobrodel',
         'cancel',
         'completed_with_act',
@@ -162,7 +162,7 @@ class Ticket extends BaseModel
             'transferred',
             'cancel',
         ],
-        'from_lk' => [
+        'moderate' => [
             'created',
             'cancel',
         ],
