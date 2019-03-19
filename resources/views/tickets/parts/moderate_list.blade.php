@@ -18,13 +18,13 @@
         <th>
             Номер заявки
         </th>
-        <th>
+        <th width="35%">
             Классификатор
             @if ( \Auth::user()->can( 'tickets.field_text' ) )
                 \ Текст обращения
             @endif
         </th>
-        <th>
+        <th width="35%">
             Адрес проблемы \ Заявитель
         </th>
         <th>
