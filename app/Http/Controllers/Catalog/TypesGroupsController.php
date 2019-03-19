@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
-use App\Models\BuildingRoom;
 use App\Models\BuildingType;
 use App\Models\Group;
-use App\Models\Log;
-use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
+use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -78,8 +76,13 @@ class GroupsController extends BaseController
             ::mine()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
+        $models = [
+            Building::class => 'Здания',
+            Type::class => 'Классификатор',
+        ];
         return view( 'catalog.groups.create' )
-            ->with( 'providers', $providers );
+            ->with( 'providers', $providers )
+            ->with( 'models', $models );
     }
 
     /**
@@ -93,7 +96,8 @@ class GroupsController extends BaseController
 
         $rules = [
             'provider_id'           => 'required|integer',
-            'name'                  => 'required|unique:buildings,name|max:255',
+            'model_name'            => 'required|max:255',
+            'name'                  => 'required|max:255',
         ];
 
         $this->validate( $request, $rules );

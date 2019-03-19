@@ -119,8 +119,8 @@
                                             {{ $group->name }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'groups.buildings', $group->id ) }}" class="badge badge-{{ $group->buildings()->count() ? 'info' : 'default' }} bold">
-                                                {{ $group->buildings()->count() }}
+                                            <a href="{{ route( 'groups.buildings', $group->id ) }}" class="badge badge-{{ $group->buildings->count() ? 'info' : 'default' }} bold">
+                                                {{ $group->buildings->count() }}
                                             </a>
                                         </td>
                                         <td class="text-right">

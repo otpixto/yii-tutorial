@@ -92,7 +92,7 @@ class TicketsController extends BaseController
 
         /*$counts = TicketManagement
             ::mine()
-            ->whereIn( TicketManagement::$_table . '.status_code', [ 'created', 'rejected', 'from_lk', 'conflict', 'confirmation_operator', 'confirmation_client' ] )
+            ->whereIn( TicketManagement::$_table . '.status_code', [ 'created', 'rejected', 'moderate', 'conflict', 'confirmation_operator', 'confirmation_client' ] )
             ->get();*/
 
         return view( 'tickets.index' )
@@ -171,7 +171,7 @@ class TicketsController extends BaseController
     public function moderateReject ( Request $request, $id )
     {
         $ticket = Ticket::find( $id );
-        if ( ! $ticket || $ticket->status_code != 'from_lk' )
+        if ( ! $ticket || $ticket->status_code != 'moderate' )
         {
             return redirect()
                 ->back()

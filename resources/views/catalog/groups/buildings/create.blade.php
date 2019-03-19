@@ -21,7 +21,12 @@
                 {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
             </div>
 
-            <div class="col-md-8">
+            <div class="col-md-4">
+                {!! Form::label( 'model_name', 'Категория', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'model_name', $models, \Input::old( 'model_name' ), [ 'class' => 'form-control', 'placeholder' => 'Категория', 'required' ] ) !!}
+            </div>
+
+            <div class="col-md-4">
                 {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::text( 'name', \Input::old( 'name' ), [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
             </div>
