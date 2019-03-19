@@ -63,8 +63,8 @@ class LK
             if ( $ticketManagement->executor )
             {
                 $management[ 'executor_name' ] = $ticketManagement->executor->name;
-                $management[ 'scheduled_begin' ] = $ticketManagement->scheduled_begin->timestamp;
-                $management[ 'scheduled_end' ] = $ticketManagement->scheduled_end->timestamp;
+                $management[ 'scheduled_begin' ] = $ticketManagement->scheduled_begin->timestamp ?? null;
+                $management[ 'scheduled_end' ] = $ticketManagement->scheduled_end->timestamp ?? null;
             }
             $info[ 'managements' ][] = $management;
         }
