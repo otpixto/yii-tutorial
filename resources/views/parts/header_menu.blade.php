@@ -19,6 +19,11 @@
                                 {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client' ) }}
                             </span>
                         @endif
+						@if ( \Auth::user()->can( 'tickets.moderate' ) )
+							<span class="badge badge-success bold">
+								{{ \App\Classes\Counter::ticketsCountModerate() }}
+							</span>
+						@endif
                     @endif
                 </a>
                 <ul class="dropdown-menu">
@@ -47,8 +52,8 @@
                                 Модерация
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-success bold">
-                                    {{ \App\Classes\Counter::ticketsCountModerate() }}
-                                </span>
+										{{ \App\Classes\Counter::ticketsCountModerate() }}
+									</span>
                                 @endif
                             </a>
                         </li>
