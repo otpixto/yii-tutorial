@@ -729,15 +729,15 @@ class TicketsController extends BaseController
         }
 
         $status_code = 'no_contract';
-        $managements = $request->get( 'managements', [] );
+        $managements = array_unique( $request->get( 'managements', [] ) );
         $managements_count = 0;
 
-        foreach ( $managements as $manament_id )
+        foreach ( $managements as $management_id )
         {
 
             $ticketManagement = TicketManagement::create([
                 'ticket_id'         => $ticket->id,
-                'management_id'     => $manament_id,
+                'management_id'     => $management_id,
             ]);
 
             if ( $ticketManagement instanceof MessageBag )
