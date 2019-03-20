@@ -6,7 +6,7 @@ use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingType;
-use App\Models\Group;
+use App\Models\TypeGroup;
 use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
@@ -14,7 +14,7 @@ use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
-class GroupsController extends BaseController
+class TypesGroupsController extends BaseController
 {
 
     public function __construct ()
@@ -29,21 +29,21 @@ class GroupsController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $provider_id = $request->get( 'provider_id' );
 
-        $groups = Group
+        $groups = TypeGroup
             ::mine()
-            ->orderBy( Group::$_table . '.name' );
+            ->orderBy( TypeGroup::$_table . '.name' );
 
         if ( ! empty( $search ) )
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $groups
-                ->where( Group::$_table . '.name', 'like', $s );
+                ->where( TypeGroup::$_table . '.name', 'like', $s );
         }
 
         if ( ! empty( $provider_id ) )
         {
             $groups
-                ->where( Group::$_table . '.provider_id', '=', $provider_id );
+                ->where( TypeGroup::$_table . '.provider_id', '=', $provider_id );
         }
 
         $groups = $groups
@@ -58,7 +58,7 @@ class GroupsController extends BaseController
 
         $this->addLog( 'Просмотрел список групп (стр.' . $request->get( 'page', 1 ) . ')' );
 
-        return view( 'catalog.groups.index' )
+        return view( 'catalog.groups.types.index' )
             ->with( 'groups', $groups )
             ->with( 'providers', $providers );
 
@@ -80,7 +80,7 @@ class GroupsController extends BaseController
             Building::class => 'Здания',
             Type::class => 'Классификатор',
         ];
-        return view( 'catalog.groups.create' )
+        return view( 'catalog.groups.types.create' )
             ->with( 'providers', $providers )
             ->with( 'models', $models );
     }
@@ -155,7 +155,7 @@ class GroupsController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        return view( 'catalog.groups.edit' )
+        return view( 'catalog.groups.types.edit' )
             ->with( 'group', $group )
             ->with( 'providers', $providers );
 
@@ -244,7 +244,7 @@ class GroupsController extends BaseController
 
         $buildingTypes = BuildingType::mine()->orderBy( 'name' )->pluck( 'name', 'id' );
 
-        return view( 'catalog.groups.buildings' )
+        return view( 'catalog.groups.types.buildings' )
             ->with( 'group', $group )
             ->with( 'search', $search )
             ->with( 'segmentsTypes', $segmentsTypes )
@@ -414,7 +414,7 @@ class GroupsController extends BaseController
             ->orderBy( 'name' )
             ->with( 'buildings' )
             ->get();
-        return view( 'catalog.groups.select_buildings' )
+        return view( 'catalog.groups.types.select_buildings' )
             ->with( 'groups', $groups )
             ->with( 'selector', $request->get( 'selector' ) );
     }

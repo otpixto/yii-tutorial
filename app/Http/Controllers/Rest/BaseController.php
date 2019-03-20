@@ -351,7 +351,7 @@ class BaseController extends Controller
         {
             return $this->error( $error, $httpCode );
         }
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
     }
 
     public function push ( Request $request )
@@ -425,7 +425,7 @@ class BaseController extends Controller
             ->where( 'user_id', '=', $this->providerToken->user_id )
             ->where( 'id', '!=', $this->providerToken->id )
             ->delete();
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
     }
 
     public function changePassword ( Request $request )
@@ -447,7 +447,7 @@ class BaseController extends Controller
 
         \Auth::user()->changePass( $request->get( 'password' ) );
 
-        return $this->success( 'OK' );
+        return $this->success( [ 'message' => 'OK' ] );
 
     }
 

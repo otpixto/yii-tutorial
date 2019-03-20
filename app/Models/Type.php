@@ -23,6 +23,7 @@ class Type extends BaseModel
         'color',
         'description',
         'parent_id',
+        'group_id',
         'period_acceptance',
         'period_execution',
         'season',
@@ -36,32 +37,32 @@ class Type extends BaseModel
 
     public function managements ()
     {
-        return $this->belongsToMany( 'App\Models\Management', 'managements_types' );
+        return $this->belongsToMany( Management::class, 'managements_types' );
     }
 
     public function providers ()
     {
-        return $this->belongsToMany( 'App\Models\Provider', 'providers_types' );
+        return $this->belongsToMany( Provider::class, 'providers_types' );
     }
 
     public function tickets ()
     {
-        return $this->hasMany( 'App\Models\Ticket' );
+        return $this->hasMany( Ticket::class );
     }
 
     public function parent ()
     {
-        return $this->belongsTo( 'App\Models\Type' );
+        return $this->belongsTo( Type::class );
     }
 
-    public function category ()
+    public function group ()
     {
-        return $this->belongsTo( 'App\Models\Category' );
+        return $this->belongsTo( TypeGroup::class );
     }
 
     public function childs ()
     {
-        return $this->hasMany( 'App\Models\Type', 'parent_id', 'id' );
+        return $this->hasMany( Type::class, 'parent_id', 'id' );
     }
 
     public function scopeMine ( $query, ... $flags )

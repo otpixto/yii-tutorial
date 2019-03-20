@@ -40,7 +40,7 @@ class Devices
             'lon'           => ( (float) $ticket->building->lon ) ?: null,
             'lat'           => ( (float) $ticket->building->lat ) ?: null,
             'fullname'      => $ticket->getName(),
-            'category'      => $ticket->type->category->name ?? null,
+            'category'      => $ticket->type->parent->name ?? null,
             'type'          => $ticket->type->name,
             'need_act'      => $ticketManagement->needAct(),
             'text'          => $ticket->text,

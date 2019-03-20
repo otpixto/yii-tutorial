@@ -12,7 +12,7 @@
     @if ( \Auth::user()->can( 'catalog.groups.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'groups.create' ) }}" class="btn btn-success btn-lg">
+                <a href="{{ route( 'types_groups.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить группу
                 </a>
@@ -29,7 +29,7 @@
                         <div class="caption" data-toggle="collapse" data-target="#search">
                             <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
                         </div>
-                        <a href="{{ route( 'groups.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                        <a href="{{ route( 'types_groups.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
                     </div>
                     <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
                         <div class="todo-project-list">
@@ -66,7 +66,7 @@
                                             <a href="?provider_id={{ $provider->id }}">
                                                 {{ $provider->name }}
                                                 <span class="badge badge-info pull-right">
-                                                    {{ $provider->groups()->count() }}
+                                                    {{ $provider->typesGroups()->count() }}
                                                 </span>
                                             </a>
                                         </li>
