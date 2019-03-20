@@ -296,7 +296,10 @@ class CustomersController extends BaseController
         }
 
         $calls = $customer->calls( 30 );
-        $tickets = $customer->tickets()->paginate( 30 );
+        $tickets = $customer
+            ->tickets()
+            ->whereHas( 'type' )
+            ->paginate( 30 );
 
         $providers = Provider
             ::mine()
