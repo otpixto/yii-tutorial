@@ -92,8 +92,6 @@ class DeviceController extends BaseController
         }
 
         $validation = \Validator::make( $request->all(), [
-            'page'                => 'nullable|integer',
-            'per_page'            => 'nullable|integer',
             'ticket_id'           => 'nullable|integer',
             'date_from'           => 'nullable|date|date_format:Y-m-d',
             'date_to'             => 'nullable|date|date_format:Y-m-d',

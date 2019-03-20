@@ -172,7 +172,7 @@ class BaseController extends Controller
                 );
                 if ( $smsConfirm instanceof MessageBag )
                 {
-                    $error = 'Пошел в пизду';
+                    $error = 'Внутренняя ошибка системы';
                     return false;
                 }
                 $smsConfirm->save();
