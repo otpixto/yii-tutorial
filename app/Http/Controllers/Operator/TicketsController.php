@@ -735,6 +735,9 @@ class TicketsController extends BaseController
         foreach ( $managements as $management_id )
         {
 
+            $ticketManagement = $ticket->managements()->find( $management_id );
+            if ( $ticketManagement ) continue;
+
             $ticketManagement = TicketManagement::create([
                 'ticket_id'         => $ticket->id,
                 'management_id'     => $management_id,
