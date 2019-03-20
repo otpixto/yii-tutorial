@@ -321,6 +321,7 @@
                     LoadComments();
                 }
             });
+
         };
 
         function setExecutor ( ticket_management_id )
@@ -406,6 +407,12 @@
             });
 
         };
+
+        window.addEventListener( 'popstate', function ( e )
+        {
+            loadTickets();
+            //$( '.tickets-filter' ).prop( 'checked', false ).parent().removeClass( 'active' );
+        });
 
         $( document )
 
