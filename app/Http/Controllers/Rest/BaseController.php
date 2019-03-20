@@ -64,36 +64,49 @@ class BaseController extends Controller
             return false;
         }
 
-        if ( ! \Auth::guard()->attempt( $request->only( $this->credentials ) ) )
+        try
         {
-            $error = trans('auth.failed' );
-            $httpCode = 403;
+
+            if ( ! \Auth::guard()->attempt( $request->only( $this->credentials ) ) )
+            {
+                $error = trans('auth.failed' );
+                $httpCode = 403;
+                return false;
+            }
+
+            $user = \Auth::user();
+
+            $token = $this->genToken( $request );
+
+            $providerToken = ProviderToken::create([
+                'provider_key_id'       => $this->providerKey->id,
+                'user_id'               => $user->id,
+                'token'                 => $token,
+                'http_user_agent'       => $request->server( 'HTTP_USER_AGENT', '' ),
+                'ip'                    => $request->ip(),
+            ]);
+            if ( $providerToken instanceof MessageBag )
+            {
+                $error = 'Внутренняя ошибка системы';
+                $httpCode = 500;
+                return false;
+            }
+
+            $this->providerToken = $providerToken;
+
+            $providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
+            $providerToken->providerKey->save();
+
+            $user->push_id = $request->get( 'push_id', null );
+            $user->save();
+
+        }
+        catch ( \Exception $e )
+        {
+            $error = 'Внутренняя ошибка системы';
+            $httpCode = 500;
             return false;
         }
-
-        $user = \Auth::user();
-
-        $token = $this->genToken( $request );
-
-        $providerToken = ProviderToken::create([
-            'provider_key_id'       => $this->providerKey->id,
-            'user_id'               => $user->id,
-            'token'                 => $token,
-            'http_user_agent'       => $request->server( 'HTTP_USER_AGENT', '' ),
-            'ip'                    => $request->ip(),
-        ]);
-        if ( $providerToken instanceof MessageBag )
-        {
-            return false;
-        }
-
-        $this->providerToken = $providerToken;
-
-        $providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
-        $providerToken->providerKey->save();
-
-        $user->push_id = $request->get( 'push_id', null );
-        $user->save();
 
         return true;
 
@@ -128,59 +141,71 @@ class BaseController extends Controller
             return false;
         }
 
-        $phone = $request->get( 'phone' );
+        try
+        {
 
-        if ( $request->get( 'sms_code' ) )
-        {
-            $code = $request->get( 'sms_code' );
-            $smsConfirm = SmsConfirm
-                ::where( 'phone', '=', $phone )
-                ->where( 'code', '=', $code )
-                ->first();
-            if ( $smsConfirm )
+            $phone = $request->get( 'phone' );
+
+            if ( $request->get( 'sms_code' ) )
             {
-                $smsConfirm->delete();
-                $this->sms_confirm = false;
-                return true;
-            }
-            else
-            {
-                $error = 'Неверный код';
-                return false;
-            }
-        }
-        else
-        {
-            if ( \Cache::tags( 'rest' )->has( 'sms_confirm.' . $phone ) )
-            {
-                $error = 'Повторная отправка возможна через ' . Carbon::now()->diffInSeconds( Carbon::createFromTimestamp( \Cache::tags( 'rest' )->get( 'sms_confirm.' . $phone ) ) ) . ' сек.';
-                $httpCode = 429;
-                return false;
-            }
-            else
-            {
-                $code = $this->genCode( 4 );
-                SmsConfirm
+                $code = $request->get( 'sms_code' );
+                $smsConfirm = SmsConfirm
                     ::where( 'phone', '=', $phone )
-                    ->delete();
-                $smsConfirm = SmsConfirm::create(
-                    [
-                        'phone'         => $phone,
-                        'code'          => $code,
-                        'expired_at'    => Carbon::now()->addSeconds( config( 'sms.alive' ) )->toDateTimeString(),
-                    ]
-                );
-                if ( $smsConfirm instanceof MessageBag )
+                    ->where( 'code', '=', $code )
+                    ->first();
+                if ( $smsConfirm )
                 {
-                    $error = 'Внутренняя ошибка системы';
+                    $smsConfirm->delete();
+                    $this->sms_confirm = false;
+                    return true;
+                }
+                else
+                {
+                    $error = 'Неверный код';
                     return false;
                 }
-                $smsConfirm->save();
-                $message = 'Код для подтверждения: ' . $code;
-                $this->dispatch( new SendSms( $phone, $message ) );
-                \Cache::tags( 'rest' )->put( 'sms_confirm.' . $phone, Carbon::now()->addMinute()->timestamp, 1 );
-                return true;
             }
+            else
+            {
+                if ( \Cache::tags( 'rest' )->has( 'sms_confirm.' . $phone ) )
+                {
+                    $error = 'Повторная отправка возможна через ' . Carbon::now()->diffInSeconds( Carbon::createFromTimestamp( \Cache::tags( 'rest' )->get( 'sms_confirm.' . $phone ) ) ) . ' сек.';
+                    $httpCode = 429;
+                    return false;
+                }
+                else
+                {
+                    $code = $this->genCode( 4 );
+                    SmsConfirm
+                        ::where( 'phone', '=', $phone )
+                        ->delete();
+                    $smsConfirm = SmsConfirm::create(
+                        [
+                            'phone'         => $phone,
+                            'code'          => $code,
+                            'expired_at'    => Carbon::now()->addSeconds( config( 'sms.alive' ) )->toDateTimeString(),
+                        ]
+                    );
+                    if ( $smsConfirm instanceof MessageBag )
+                    {
+                        $error = 'Внутренняя ошибка системы';
+                        $httpCode = 500;
+                        return false;
+                    }
+                    $smsConfirm->save();
+                    $message = 'Код для подтверждения: ' . $code;
+                    $this->dispatch( new SendSms( $phone, $message ) );
+                    \Cache::tags( 'rest' )->put( 'sms_confirm.' . $phone, Carbon::now()->addMinute()->timestamp, 1 );
+                    return true;
+                }
+            }
+
+        }
+        catch ( \Exception $e )
+        {
+            $error = 'Внутренняя ошибка системы';
+            $httpCode = 500;
+            return false;
         }
 
     }
@@ -191,61 +216,72 @@ class BaseController extends Controller
         if ( empty( $this->providerKey ) )
         {
 
-            $validation = \Validator::make( $request->all(), [
-                'api_key'         => 'required',
-            ]);
-
-            if ( $validation->fails() )
+            try
             {
-                $error = $validation->errors()->first();
-                $httpCode = 400;
-                return false;
-            }
 
-            $providerKey = ProviderKey
-                ::where( 'api_key', '=', $request->get( 'api_key' ) )
-                ->where( function ( $q ) use ( $request )
+                $validation = \Validator::make( $request->all(), [
+                    'api_key'         => 'required',
+                ]);
+
+                if ( $validation->fails() )
                 {
-                    return $q
-                        ->whereNull( 'ip' )
-                        ->orWhere( 'ip', 'like', '%' . $request->ip() . "\n" . '%' );
-                })
-                ->where( function ( $q ) use ( $request )
-                {
-                    $q
-                        ->whereNull( 'referer' );
-                    if ( $request->server( 'HTTP_REFERER' ) )
+                    $error = $validation->errors()->first();
+                    $httpCode = 400;
+                    return false;
+                }
+
+                $providerKey = ProviderKey
+                    ::where( 'api_key', '=', $request->get( 'api_key' ) )
+                    ->where( function ( $q ) use ( $request )
                     {
-                        $url = parse_url( $request->server( 'HTTP_REFERER' ) );
-                        if ( ! empty( $url[ 'host' ] ) )
+                        return $q
+                            ->whereNull( 'ip' )
+                            ->orWhere( 'ip', 'like', '%' . $request->ip() . "\n" . '%' );
+                    })
+                    ->where( function ( $q ) use ( $request )
+                    {
+                        $q
+                            ->whereNull( 'referer' );
+                        if ( $request->server( 'HTTP_REFERER' ) )
                         {
-                            $q
-                                ->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . "\n" . '%' );
+                            $url = parse_url( $request->server( 'HTTP_REFERER' ) );
+                            if ( ! empty( $url[ 'host' ] ) )
+                            {
+                                $q
+                                    ->orWhere( 'referer', 'like', '%' . $url[ 'host' ] . "\n" . '%' );
+                            }
                         }
-                    }
-                    return $q;
-                })
-                ->whereHas( 'provider' )
-                ->first();
+                        return $q;
+                    })
+                    ->whereHas( 'provider' )
+                    ->first();
 
-            if ( ! $providerKey )
+                if ( ! $providerKey )
+                {
+                    $error = 'Некорректный ключ';
+                    $httpCode = 403;
+                    return false;
+                }
+
+                $providerKey->active_at = Carbon::now()->toDateTimeString();
+                $providerKey->save();
+
+                if ( $this->hasTooManyProviderKeyAttempts( $request, $providerKey ) )
+                {
+                    $error = 'Превышено количество запросов в минуту';
+                    $httpCode = 429;
+                    return false;
+                }
+
+                $this->providerKey = $providerKey;
+
+            }
+            catch ( \Exception $e )
             {
-                $error = 'Некорректный ключ';
-                $httpCode = 403;
+                $error = 'Внутренняя ошибка системы';
+                $httpCode = 500;
                 return false;
             }
-
-            $providerKey->active_at = Carbon::now()->toDateTimeString();
-            $providerKey->save();
-
-            if ( $this->hasTooManyProviderKeyAttempts( $request, $providerKey ) )
-            {
-                $error = 'Превышено количество запросов в минуту';
-                $httpCode = 429;
-                return false;
-            }
-
-            $this->providerKey = $providerKey;
 
         }
 
@@ -261,60 +297,80 @@ class BaseController extends Controller
             return true;
         }
 
-        $validation = \Validator::make( $request->all(), [
-            'token'         => 'required',
-        ]);
-
-        if ( $validation->fails() )
+        try
         {
-            $error = $validation->errors()->first();
-            $httpCode = 400;
-            return false;
-        }
 
-        $providerToken = ProviderToken
-            ::where( 'provider_key_id', '=', $this->providerKey->id )
-            ->where( 'token', '=', $request->get( 'token' ) )
-            ->where( 'http_user_agent', '=', $request->server( 'HTTP_USER_AGENT', '' ) )
-            ->whereHas( 'providerKey', function ( $providerKey )
+            $validation = \Validator::make( $request->all(), [
+                'token'         => 'required',
+            ]);
+
+            if ( $validation->fails() )
             {
-                return $providerKey
-                    ->whereHas( 'provider' );
-            })
-            ->first();
+                $error = $validation->errors()->first();
+                $httpCode = 400;
+                return false;
+            }
 
-        if ( ! $providerToken )
+            $providerToken = ProviderToken
+                ::where( 'provider_key_id', '=', $this->providerKey->id )
+                ->where( 'token', '=', $request->get( 'token' ) )
+                ->where( 'http_user_agent', '=', $request->server( 'HTTP_USER_AGENT', '' ) )
+                ->whereHas( 'providerKey', function ( $providerKey )
+                {
+                    return $providerKey
+                        ->whereHas( 'provider' );
+                })
+                ->first();
+
+            if ( ! $providerToken )
+            {
+                $error = 'Некорректный токен';
+                $httpCode = 403;
+                return false;
+            }
+
+            $this->providerToken = $providerToken;
+            $this->providerToken->updated_at = Carbon::now()->toDateTimeString();
+            $this->providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
+            $this->providerToken->ip = $request->ip();
+            $this->providerToken->save();
+            $this->providerToken->providerKey->save();
+
+            \Auth::login( $this->providerToken->user );
+
+            return true;
+
+        }
+        catch ( \Exception $e )
         {
-            $error = 'Некорректный токен';
-            $httpCode = 403;
+            $error = 'Внутренняя ошибка системы';
+            $httpCode = 500;
             return false;
         }
-
-        $this->providerToken = $providerToken;
-        $this->providerToken->updated_at = Carbon::now()->toDateTimeString();
-        $this->providerToken->providerKey->active_at = Carbon::now()->toDateTimeString();
-        $this->providerToken->ip = $request->ip();
-        $this->providerToken->save();
-        $this->providerToken->providerKey->save();
-
-        \Auth::login( $this->providerToken->user );
-
-        return true;
 
     }
 
     protected function checkUser ( & $error = null, & $httpCode = null ) : bool
     {
-        $user = \Auth::user();
-        if ( ! $user || ! $user->active )
+        try
         {
-            $error = 'Пользователь не активен';
-            $httpCode = 403;
-            return false;
+            $user = \Auth::user();
+            if ( ! $user || ! $user->active )
+            {
+                $error = 'Пользователь не активен';
+                $httpCode = 403;
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
-        else
+        catch ( \Exception $e )
         {
-            return true;
+            $error = 'Внутренняя ошибка системы';
+            $httpCode = 500;
+            return false;
         }
     }
 
@@ -335,17 +391,25 @@ class BaseController extends Controller
         return true;
     }
 
-    public function logout ( Request $request )
+    public function logout ( Request $request ) : Response
     {
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
             return $this->error( $error, $httpCode );
         }
-        $this->providerToken->delete();
-        return $this->success( 'Bye-bye!' );
+        try
+        {
+            $this->providerToken->delete();
+            return $this->success( [ 'message' => 'Bye-bye!' ] );
+        }
+        catch ( \Exception $e )
+        {
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
+        }
+
     }
 	
-	public function check ( Request $request )
+	public function check ( Request $request ) : Response
     {
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
@@ -354,7 +418,7 @@ class BaseController extends Controller
         return $this->success( [ 'message' => 'OK' ] );
     }
 
-    public function push ( Request $request )
+    public function push ( Request $request ) : Response
     {
 
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
@@ -362,93 +426,117 @@ class BaseController extends Controller
             return $this->error( $error, $httpCode );
         }
 
-        if ( ! \Auth::user()->push_id )
+        try
         {
-            return $this->error( 'Отсутствует PUSH-токен' );
+
+            if ( ! \Auth::user()->push_id )
+            {
+                return $this->error( 'Отсутствует PUSH-токен' );
+            }
+
+            $validation = \Validator::make( $request->all(), [
+                'message'             => 'required|max:255',
+                'object'              => 'required|max:255',
+                'id'                  => 'required|integer',
+            ]);
+
+            if ( $validation->fails() )
+            {
+                return $this->error( $validation->errors()->first() );
+            }
+
+            $client = new Push( config( 'push.keys.lk' ) );
+
+            $client
+                ->setData( $request->all() );
+
+            $response = $client->sendTo( \Auth::user()->push_id );
+
+            $this->addLog( 'Отправил PUSH-уведомление' );
+
+            return $this->success( $response );
+
         }
-
-        $validation = \Validator::make( $request->all(), [
-            'message'             => 'required|max:255',
-            'object'              => 'required|max:255',
-            'id'                  => 'required|integer',
-        ]);
-
-        if ( $validation->fails() )
+        catch ( \Exception $e )
         {
-            return $this->error( $validation->errors()->first() );
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
         }
-
-        $client = new Push( config( 'push.keys.lk' ) );
-
-        $client
-            ->setData( $request->all() );
-
-        $response = $client->sendTo( \Auth::user()->push_id );
-
-        $this->addLog( 'Отправил PUSH-уведомление' );
-
-        return $this->success( $response );
 
     }
 
-    public function sessions ( Request $request )
+    public function sessions ( Request $request ) : Response
     {
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
             return $this->error( $error, $httpCode );
         }
-        $providerTokens = ProviderToken
-            ::where( 'provider_key_id', '=', $this->providerToken->provider_key_id )
-            ->where( 'user_id', '=', $this->providerToken->user_id )
-            ->where( 'id', '!=', $this->providerToken->id )
-            ->get();
-        $response = [];
-        foreach ( $providerTokens as $providerToken )
+        try
         {
-            $response[] = [
-                'id'                    => (int) $providerToken->id,
-                'http_user_agent'       => $providerToken->http_user_agent,
-                'created_at'            => $providerToken->created_at->timestamp,
-            ];
+            $providerTokens = ProviderToken
+                ::where( 'provider_key_id', '=', $this->providerToken->provider_key_id )
+                ->where( 'user_id', '=', $this->providerToken->user_id )
+                ->where( 'id', '!=', $this->providerToken->id )
+                ->get();
+            $response = [];
+            foreach ( $providerTokens as $providerToken )
+            {
+                $response[] = [
+                    'id'                    => (int) $providerToken->id,
+                    'http_user_agent'       => $providerToken->http_user_agent,
+                    'created_at'            => $providerToken->created_at->timestamp,
+                ];
+            }
+            return $this->success( $response );
         }
-        return $this->success( $response );
+        catch ( \Exception $e )
+        {
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
+        }
     }
 
-    public function sessionsClose ( Request $request )
+    public function sessionsClose ( Request $request ) : Response
     {
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
             return $this->error( $error, $httpCode );
         }
-        ProviderToken
-            ::where( 'provider_key_id', '=', $this->providerToken->provider_key_id )
-            ->where( 'user_id', '=', $this->providerToken->user_id )
-            ->where( 'id', '!=', $this->providerToken->id )
-            ->delete();
-        return $this->success( [ 'message' => 'OK' ] );
+        try
+        {
+            ProviderToken
+                ::where( 'provider_key_id', '=', $this->providerToken->provider_key_id )
+                ->where( 'user_id', '=', $this->providerToken->user_id )
+                ->where( 'id', '!=', $this->providerToken->id )
+                ->delete();
+            return $this->success( [ 'message' => 'OK' ] );
+        }
+        catch ( \Exception $e )
+        {
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
+        }
     }
 
-    public function changePassword ( Request $request )
+    public function changePassword ( Request $request ) : Response
     {
-
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
             return $this->error( $error, $httpCode );
         }
-
-        $validation = \Validator::make( $request->all(), [
-            'password'              => 'required|min:5|max:50',
-        ]);
-
-        if ( $validation->fails() )
+        try
         {
-            return $this->error( $validation->errors()->first() );
+            $validation = \Validator::make( $request->all(), [
+                'password'              => 'required|min:5|max:50',
+            ]);
+            if ( $validation->fails() )
+            {
+                return $this->error( $validation->errors()->first() );
+            }
+            \Auth::user()->changePass( $request->get( 'password' ) );
+            return $this->success( [ 'message' => 'OK' ] );
         }
-
-        \Auth::user()->changePass( $request->get( 'password' ) );
-
-        return $this->success( [ 'message' => 'OK' ] );
-
+        catch ( \Exception $e )
+        {
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
+        }
     }
 
     protected function setLogs ( $path )

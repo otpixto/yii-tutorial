@@ -61,7 +61,6 @@ Route::group( [ 'middleware' => 'rest' ], function ()
             Route::any( 'login', 'Rest\DeviceController@login' )->name( 'rest.devices.login' );
             Route::any( 'logout', 'Rest\DeviceController@logout' )->name( 'rest.devices.logout' );
             Route::any( 'tickets', 'Rest\DeviceController@tickets' )->name( 'rest.devices.tickets' );
-            Route::any( 'updates', 'Rest\DeviceController@updates' )->name( 'rest.devices.updates' );
             Route::any( 'contacts', 'Rest\DeviceController@contacts' )->name( 'rest.devices.contacts' );
             Route::any( 'calls', 'Rest\DeviceController@calls' )->name( 'rest.devices.calls' );
             Route::any( 'call', 'Rest\DeviceController@call' )->name( 'rest.devices.call' );

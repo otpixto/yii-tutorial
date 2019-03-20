@@ -202,6 +202,16 @@ class TicketManagement extends BaseModel
 		return $query;
     }
 
+    public function scopeForme ( $query )
+    {
+        return $query
+            ->whereHas( 'executor', function ( $executor )
+            {
+                return $executor
+                    ->where( 'user_id', '=', \Auth::user()->id );
+            });
+    }
+
     public function scopeOverdue ( $query )
     {
         return $query
