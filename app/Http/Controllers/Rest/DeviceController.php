@@ -107,9 +107,6 @@ class DeviceController extends BaseController
         }
 
         $tickets = TicketManagement
-            //::mine()
-            //->notFinaleStatuses()
-            //->where( 'status_code', '!=', 'draft' )
             ::whereHas( 'executor', function ( $executor )
             {
                 return $executor
@@ -153,7 +150,7 @@ class DeviceController extends BaseController
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
 
-        $tickets = Devices::ticketsInfo( $tickets );
+        $tickets = Devices::ticketsInfo( $tickets, $request->get( 'ticket_id' ) ? true : false );
 
         $this->addLog( 'Запросил список заявок' );
 

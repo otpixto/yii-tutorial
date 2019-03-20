@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class Devices
 {
 
-    public static function ticketsInfo ( LengthAwarePaginator $tickets ) : array
+    public static function ticketsInfo ( LengthAwarePaginator $tickets, $withDetails = false ) : array
     {
         $per_page = $tickets->perPage();
         $page = $tickets->currentPage();
@@ -23,12 +23,12 @@ class Devices
         ];
         foreach ( $tickets as $ticket )
         {
-            $response[ 'tickets' ][] = self::ticketInfo( $ticket );
+            $response[ 'tickets' ][] = self::ticketInfo( $ticket, $withDetails );
         }
         return $response;
     }
 
-    public static function ticketInfo ( TicketManagement $ticketManagement ) : array
+    public static function ticketInfo ( TicketManagement $ticketManagement, $withDetails = false ) : array
     {
         $ticket = $ticketManagement->ticket;
         $info = [
@@ -52,35 +52,38 @@ class Devices
             ],
             'scheduled_begin'   => $ticketManagement->scheduled_begin->timestamp ?? null,
             'scheduled_end'     => $ticketManagement->scheduled_end->timestamp ?? null,
-            'comments'          => [],
-            'calls'             => [],
-            'history'           => [],
         ];
-        foreach ( $ticket->comments as $comment )
+        if ( $withDetails )
         {
-            $info[ 'comments' ][] = [
-                'author'    => $comment->author->getName(),
-                'datetime'  => $comment->created_at->timestamp,
-                'text'      => $comment->text
-            ];
-        }
-        foreach ( $ticket->calls as $call )
-        {
-            $info[ 'calls' ][] = [
-                'author'        => $call->author->getName(),
-                'datetime'      => $call->created_at->timestamp,
-                'number_from'   => $call->agent_number,
-                'number_to'     => $call->call_phone,
-            ];
-        }
-        foreach ( $ticket->statusesHistory as $statusHistory )
-        {
-            $info[ 'history' ][] = [
-                'author'        => $statusHistory->author->getName(),
-                'datetime'      => $statusHistory->created_at->timestamp,
-                'status_code'   => $statusHistory->status_code,
-                'status_name'   => $statusHistory->status_name,
-            ];
+            $info[ 'comments' ] = [];
+            $info[ 'calls' ] = [];
+            $info[ 'history' ] = [];
+            foreach ( $ticket->comments as $comment )
+            {
+                $info[ 'comments' ][] = [
+                    'author'    => $comment->author->getName(),
+                    'datetime'  => $comment->created_at->timestamp,
+                    'text'      => $comment->text
+                ];
+            }
+            foreach ( $ticket->calls as $call )
+            {
+                $info[ 'calls' ][] = [
+                    'author'        => $call->author->getName(),
+                    'datetime'      => $call->created_at->timestamp,
+                    'number_from'   => $call->agent_number,
+                    'number_to'     => $call->call_phone,
+                ];
+            }
+            foreach ( $ticket->statusesHistory as $statusHistory )
+            {
+                $info[ 'history' ][] = [
+                    'author'        => $statusHistory->author->getName(),
+                    'datetime'      => $statusHistory->created_at->timestamp,
+                    'status_code'   => $statusHistory->status_code,
+                    'status_name'   => $statusHistory->status_name,
+                ];
+            }
         }
         return $info;
     }
