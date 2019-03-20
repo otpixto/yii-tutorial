@@ -115,7 +115,7 @@
                     <li class="active">
                         <a data-toggle="tab" href="#tickets">
                             Заявки
-                            <span class="badge" id="tickets-count">{{ $customer->tickets->count() }}</span>
+                            <span class="badge" id="tickets-count">{{ $tickets->count() }}</span>
                         </a>
                     </li>
                 @endif
@@ -133,7 +133,7 @@
                 <div id="tickets" class="tab-pane fade in active">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            @if ( ! $customer->tickets->count() )
+                            @if ( ! $tickets->count() )
                                 @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                             @else
                                 <table class="table table-hover table-striped">
@@ -160,7 +160,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach( $customer->tickets as $ticket )
+                                    @foreach( $tickets as $ticket )
                                         <tr>
                                             <td>
                                                 <a href="{{ route( 'tickets.show', $ticket->id ) }}" target="_blank">
