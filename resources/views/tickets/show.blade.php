@@ -258,7 +258,7 @@
 
                     case '#history':
                         $( '#history' ).loading();
-                        $.get( '{{ route( 'tickets.history', $ticket->id ) }}', function ( response )
+                        $.get( '{{ route( 'tickets.history', $ticketManagement ? $ticketManagement->getTicketNumber() : $ticket->id ) }}', function ( response )
                         {
                             $( '#history' ).html( response );
                         });

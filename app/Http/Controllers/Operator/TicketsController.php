@@ -1199,24 +1199,49 @@ class TicketsController extends BaseController
 
     }
 
-    public function history ( Request $request, $id )
+    public function history ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
         $ticket = Ticket
             ::mine()
-            ->find( $id );
+            ->find( $ticket_id );
         if ( ! $ticket )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Заявка не найдена' );
         }
 
-        $logs = $ticket
+        if ( $ticket_management_id )
+        {
+            $ticketManagement = $ticket->managements()->mine()->find( $ticket_management_id );
+            if ( ! $ticketManagement )
+            {
+                return view( 'parts.error' )
+                    ->with( 'error', 'Заявка не найдена' );
+            }
+            $ticketManagementLogs = $ticketManagement
+                ->logs()
+                ->with(
+                    'author'
+                )
+                ->get();
+        }
+
+        $ticketLogs = $ticket
             ->logs()
             ->with(
                 'author'
             )
             ->get();
+
+        if ( $ticket_management_id )
+        {
+            $logs = $ticketLogs->merge( $ticketManagementLogs )->sortBy( 'created_at' );
+        }
+        else
+        {
+            $logs = $ticketLogs;
+        }
 
         $statuses = $ticket
             ->statusesHistory()

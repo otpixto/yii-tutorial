@@ -1033,13 +1033,7 @@ class Ticket extends BaseModel
 
         }
 
-        $res = $this->processStatus();
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
-        }
-
-        $group = $this
+        /*$group = $this
             ->group()
             ->where( 'id', '!=', $this->id )
             ->where( 'status_code', '!=', $this->status_code )
@@ -1056,9 +1050,15 @@ class Ticket extends BaseModel
                         ->withErrors( $res );
                 }
             }
-        }
+        }*/
 
         \DB::commit();
+
+        $res = $this->processStatus();
+        if ( $res instanceof MessageBag )
+        {
+            return $res;
+        }
 
     }
 
