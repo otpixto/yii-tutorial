@@ -4,7 +4,7 @@
 {!! Form::hidden( 'reply_id', $reply_id ?? null ) !!}
 <div class="form-group">
 	<div class="col-xs-12">
-		{!! Form::textarea( 'text', null, [ 'class' => 'form-control', 'required' ] ) !!}
+		{!! Form::textarea( 'text', null, [ 'class' => 'form-control', 'required', 'autofocus' ] ) !!}
 	</div>
 </div>
 @if ( isset( $with_file ) && $with_file && \Auth::user()->can( 'tickets.files' ) )

@@ -634,6 +634,7 @@ $( document )
                 }
             }
         });
+        $( this ).find( '[autofocus]:first' ).focus();
     })
 
     .on ( 'submit', 'form.ajax', function ( e )
