@@ -854,6 +854,11 @@ class TicketManagement extends BaseModel
             {
                 return $log;
             }
+
+            $this->status_code = $status_code;
+            $this->status_name = $status_name;
+            $this->save();
+
             $statusHistory = StatusHistory::create([
                 'model_id'          => $this->id,
                 'model_name'        => get_class( $this ),
@@ -865,19 +870,15 @@ class TicketManagement extends BaseModel
                 return $statusHistory;
             }
             $statusHistory->save();
-
-            $this->status_code = $status_code;
-            $this->status_name = $status_name;
-            $this->save();
         }
+
+        \DB::commit();
 
         $res = $this->processStatus();
         if ( $res instanceof MessageBag )
         {
             return $res;
         }
-
-        \DB::commit();
 
     }
 
