@@ -997,8 +997,6 @@ class Ticket extends BaseModel
             return new MessageBag([ 'Невозможно сменить статус!' ]);
         }
 
-        \DB::beginTransaction();
-
         if ( $this->status_code != $status_code )
         {
 
@@ -1051,8 +1049,6 @@ class Ticket extends BaseModel
                 }
             }
         }*/
-
-        \DB::commit();
 
         $res = $this->processStatus();
         if ( $res instanceof MessageBag )

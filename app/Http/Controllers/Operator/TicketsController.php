@@ -662,185 +662,164 @@ class TicketsController extends BaseController
     public function store ( Request $request )
     {
 
-        $rules = [
-            'provider_id'               => 'nullable|integer',
-            'vendor_id'                 => 'nullable|integer',
-            'vendor_date'               => 'nullable|date',
-            'type_id'                   => 'required|integer',
-            'ticket_id'                 => 'required|integer',
-            'building_id'               => 'required|integer',
-            'flat'                      => 'nullable',
-            'actual_address_id'         => 'nullable|integer',
-            'actual_flat'               => 'nullable',
-            'place_id'                  => 'required|integer',
-            'emergency'                 => 'boolean',
-            'urgently'                  => 'boolean',
-            'dobrodel'                  => 'boolean',
-            'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'firstname'                 => 'required',
-            'middlename'                => 'nullable',
-            'lastname'                  => 'nullable',
-            'customer_id'               => 'nullable|integer',
-            'text'                      => 'required',
-            'managements'               => 'required|array',
-            'create_another'            => 'nullable|boolean',
-            'create_user'               => 'nullable|boolean',
-        ];
-
-        $this->validate( $request, $rules );
-
-        if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
-        {
-            return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
-        }
-
-		\DB::beginTransaction();
-
-        $ticket = Ticket::find( $request->get( 'ticket_id' ) );
-
-        if ( $ticket )
-        {
-            $ticket->created_at = Carbon::now()->toDateTimeString();
-            $ticket->author_id = \Auth::user()->id;
-            $ticket->edit( $request->all() );
-        }
-        else
-        {
-            $ticket = Ticket::create( $request->all() );
-        }
-
-        if ( $ticket instanceof MessageBag )
-        {
-            return redirect()->back()->withErrors( $ticket );
-        }
-
-        $customer = $ticket->customer()->mine()->first();
-
-        if ( $customer )
-        {
-            $customer->edit( $request->all() );
-            $ticket->customer_id = $customer->id;
-        }
-        else
-        {
-            $customer = Customer::create( $request->all() );
-            $customer->save();
-        }
-
-        $status_code = 'no_contract';
-        $managements = array_unique( $request->get( 'managements', [] ) );
-        $managements_count = 0;
-
-        foreach ( $managements as $management_id )
+        try
         {
 
-            $ticketManagement = $ticket->managements()->find( $management_id );
-            if ( $ticketManagement ) continue;
+            $rules = [
+                'provider_id'               => 'nullable|integer',
+                'vendor_id'                 => 'nullable|integer',
+                'vendor_date'               => 'nullable|date',
+                'type_id'                   => 'required|integer',
+                'ticket_id'                 => 'required|integer',
+                'building_id'               => 'required|integer',
+                'flat'                      => 'nullable',
+                'actual_address_id'         => 'nullable|integer',
+                'actual_flat'               => 'nullable',
+                'place_id'                  => 'required|integer',
+                'emergency'                 => 'boolean',
+                'urgently'                  => 'boolean',
+                'dobrodel'                  => 'boolean',
+                'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+                'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+                'firstname'                 => 'required',
+                'middlename'                => 'nullable',
+                'lastname'                  => 'nullable',
+                'customer_id'               => 'nullable|integer',
+                'text'                      => 'required',
+                'managements'               => 'required|array',
+                'create_another'            => 'nullable|boolean',
+                'create_user'               => 'nullable|boolean',
+            ];
 
-            $ticketManagement = TicketManagement::create([
-                'ticket_id'         => $ticket->id,
-                'management_id'     => $management_id,
-            ]);
+            $this->validate( $request, $rules );
 
-            if ( $ticketManagement instanceof MessageBag )
+            if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
             {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors( $ticketManagement );
+                return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
             }
 
-            $ticketManagement->save();
+            \DB::beginTransaction();
 
-            if ( $ticketManagement->management->has_contract )
+            $ticket = Ticket::find( $request->get( 'ticket_id' ) );
+
+            if ( $ticket )
             {
-                if ( $request->get( 'create_another' ) )
-                {
-                    $status_code = 'transferred';
-                }
-                else
-                {
-                    $status_code = 'created';
-                }
-                $res = $ticketManagement->changeStatus( $status_code, true );
-                if ( $res instanceof MessageBag )
-                {
-                    return redirect()->back()
-                        ->withInput()
-                        ->withErrors( $res );
-                }
-
-                if ( $ticket->type->mosreg_id && $ticket->building->mosreg_id )
-                {
-                    if ( $ticketManagement->management->hasMosreg( $mosreg ) )
-                    {
-                        $res = $mosreg->createTicket([
-                            'operator-claim-form-username'          => $ticket->getName(),
-                            'operator-claim-form-email'             => null,
-                            'operator-claim-form-phone'             => '7' . $ticket->phone,
-                            'companyId'                             => $mosreg->id,
-                            'addressId'                             => $ticket->building->mosreg_id,
-                            'categoryId'                            => $ticket->type->mosreg_id,
-                            'operator-claim-form-flat'              => $ticket->flat,
-                            'operator-claim-form-text'              => $ticket->text,
-                            'files'                                 => null,
-                        ]);
-                        if ( ! $res )
-                        {
-                            return redirect()
-                                ->back()
-                                ->withErrors( [ 'Не удалось создать заявку в МОСРЕГ' ] );
-                        }
-                        $ticketManagement->mosreg_id = $res->id;
-                        $ticketManagement->mosreg_number = $res->compositeId;
-                        $ticketManagement->mosreg_status = $res->status;
-                        $ticketManagement->save();
-                    }
-                }
-
+                $ticket->created_at = Carbon::now()->toDateTimeString();
+                $ticket->author_id = \Auth::user()->id;
+                $ticket->edit( $request->all() );
             }
             else
             {
-                $res = $ticketManagement->changeStatus( 'no_contract', true );
-                if ( $res instanceof MessageBag )
+                $ticket = Ticket::create( $request->all() );
+            }
+
+            if ( $ticket instanceof MessageBag )
+            {
+                return redirect()->back()->withErrors( $ticket );
+            }
+
+            $customer = $ticket->customer()->mine()->first();
+
+            if ( $customer )
+            {
+                $customer->edit( $request->all() );
+                $ticket->customer_id = $customer->id;
+            }
+            else
+            {
+                $customer = Customer::create( $request->all() );
+                $customer->save();
+            }
+
+            $status_code = 'no_contract';
+            $managements = array_unique( $request->get( 'managements', [] ) );
+            $managements_count = 0;
+
+            foreach ( $managements as $management_id )
+            {
+
+                $ticketManagement = $ticket->managements()->find( $management_id );
+                if ( $ticketManagement ) continue;
+
+                $ticketManagement = TicketManagement::create([
+                    'ticket_id'         => $ticket->id,
+                    'management_id'     => $management_id,
+                ]);
+
+                if ( $ticketManagement instanceof MessageBag )
                 {
                     return redirect()->back()
                         ->withInput()
-                        ->withErrors( $res );
+                        ->withErrors( $ticketManagement );
                 }
+
+                $ticketManagement->save();
+
+                if ( $ticketManagement->management->has_contract )
+                {
+                    if ( $request->get( 'create_another' ) )
+                    {
+                        $status_code = 'transferred';
+                    }
+                    else
+                    {
+                        $status_code = 'created';
+                    }
+                    $res = $ticketManagement->changeStatus( $status_code, true );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return redirect()->back()
+                            ->withInput()
+                            ->withErrors( $res );
+                    }
+
+                    if ( $ticket->type->mosreg_id && $ticket->building->mosreg_id )
+                    {
+                        if ( $ticketManagement->management->hasMosreg( $mosreg ) )
+                        {
+                            $res = $mosreg->createTicket([
+                                'operator-claim-form-username'          => $ticket->getName(),
+                                'operator-claim-form-email'             => null,
+                                'operator-claim-form-phone'             => '7' . $ticket->phone,
+                                'companyId'                             => $mosreg->id,
+                                'addressId'                             => $ticket->building->mosreg_id,
+                                'categoryId'                            => $ticket->type->mosreg_id,
+                                'operator-claim-form-flat'              => $ticket->flat,
+                                'operator-claim-form-text'              => $ticket->text,
+                                'files'                                 => null,
+                            ]);
+                            if ( ! $res )
+                            {
+                                return redirect()
+                                    ->back()
+                                    ->withErrors( [ 'Не удалось создать заявку в МОСРЕГ' ] );
+                            }
+                            $ticketManagement->mosreg_id = $res->id;
+                            $ticketManagement->mosreg_number = $res->compositeId;
+                            $ticketManagement->mosreg_status = $res->status;
+                            $ticketManagement->save();
+                        }
+                    }
+
+                }
+                else
+                {
+                    $res = $ticketManagement->changeStatus( 'no_contract', true );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return redirect()->back()
+                            ->withInput()
+                            ->withErrors( $res );
+                    }
+                }
+
+                $this->dispatch( new SendStream( 'create', $ticketManagement ) );
+
+                $managements_count ++;
+
             }
 
-            $this->dispatch( new SendStream( 'create', $ticketManagement ) );
-
-            $managements_count ++;
-
-        }
-
-		$res = $ticket->changeStatus( $status_code, true );
-
-        if ( $res instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors( $res );
-        }
-
-        if ( $request->get( 'create_user' ) && $ticket->canCreateUser( true ) )
-        {
-
-            $password = str_random( 5 );
-            $message = 'lk.eds-region.ru. Логин: ' . $ticket->phone . '. Пароль: ' . $password;
-
-            $res = User
-                ::create([
-                    'provider_id'                   => $ticket->provider_id,
-                    'active'                        => 1,
-                    'firstname'                     => $ticket->firstname,
-                    'middlename'                    => $ticket->middlename,
-                    'lastname'                      => $ticket->lastname,
-                    'phone'                         => $ticket->phone,
-                    'password'                      => $password,
-                ]);
+            $res = $ticket->changeStatus( $status_code, true );
 
             if ( $res instanceof MessageBag )
             {
@@ -849,51 +828,81 @@ class TicketsController extends BaseController
                     ->withErrors( $res );
             }
 
-            $this->dispatch( new SendSms( $ticket->phone, $message ) );
-
-        }
-
-        if ( $request->get( 'create_another' ) )
-        {
-
-            $redirect = route( 'tickets.create' );
-
-            $anotherTicket = Ticket::create();
-
-            if ( $anotherTicket instanceof MessageBag )
+            if ( $request->get( 'create_user' ) && $ticket->canCreateUser( true ) )
             {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors( $anotherTicket );
+
+                $password = str_random( 5 );
+                $message = 'lk.eds-region.ru. Логин: ' . $ticket->phone . '. Пароль: ' . $password;
+
+                $res = User
+                    ::create([
+                        'provider_id'                   => $ticket->provider_id,
+                        'active'                        => 1,
+                        'firstname'                     => $ticket->firstname,
+                        'middlename'                    => $ticket->middlename,
+                        'lastname'                      => $ticket->lastname,
+                        'phone'                         => $ticket->phone,
+                        'password'                      => $password,
+                    ]);
+
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors( $res );
+                }
+
+                $this->dispatch( new SendSms( $ticket->phone, $message ) );
+
             }
 
-            $anotherTicket->fill([
-                'firstname'                     => $ticket->firstname,
-                'middlename'                    => $ticket->middlename,
-                'lastname'                      => $ticket->lastname,
-                'phone'                         => $ticket->phone,
-                'phone2'                        => $ticket->phone2,
-                'actual_building_id'            => $ticket->actual_building_id,
-                'actual_flat'                   => $ticket->actual_flat,
-            ]);
+            if ( $request->get( 'create_another' ) )
+            {
 
-            $anotherTicket->call_phone = $ticket->call_phone;
-            $anotherTicket->call_id = $ticket->call_id;
-            $anotherTicket->save();
+                $redirect = route( 'tickets.create' );
+
+                $anotherTicket = Ticket::create();
+
+                if ( $anotherTicket instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors( $anotherTicket );
+                }
+
+                $anotherTicket->fill([
+                    'firstname'                     => $ticket->firstname,
+                    'middlename'                    => $ticket->middlename,
+                    'lastname'                      => $ticket->lastname,
+                    'phone'                         => $ticket->phone,
+                    'phone2'                        => $ticket->phone2,
+                    'actual_building_id'            => $ticket->actual_building_id,
+                    'actual_flat'                   => $ticket->actual_flat,
+                ]);
+
+                $anotherTicket->call_phone = $ticket->call_phone;
+                $anotherTicket->call_id = $ticket->call_id;
+                $anotherTicket->save();
+
+            }
+            else
+            {
+                $redirect = route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id );
+            }
+
+            \DB::commit();
+
+            \Cache::tags( 'tickets_counts' )->flush();
+
+            return redirect()
+                ->to( $redirect )
+                ->with( 'success', 'Заявка успешно добавлена' );
 
         }
-        else
+        catch ( \Exception $e )
         {
-            $redirect = route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id );
+            return redirect()->back()->withErrors( [ 'Внутренняя ошибка системы!' ] );
         }
-
-		\DB::commit();
-
-        \Cache::tags( 'tickets_counts' )->flush();
-
-        return redirect()
-            ->to( $redirect )
-            ->with( 'success', 'Заявка успешно добавлена' );
 
     }
 
@@ -1513,73 +1522,82 @@ class TicketsController extends BaseController
     public function changeStatus ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $ticket = Ticket
-            ::whereHas( 'managements', function ( $managements )
-            {
-                return $managements
-                    ->mine();
-            })
-            ->find( $ticket_id );
-
-        if ( ! $ticket )
+        try
         {
-            return redirect()
-                ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
-        }
 
-        \DB::beginTransaction();
+            $ticket = Ticket
+                ::whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->mine();
+                })
+                ->find( $ticket_id );
 
-        if ( $ticket_management_id )
-        {
-            $ticketManagement = $ticket
-                ->managements()
-                ->mine()
-                ->find( $ticket_management_id );
-            if ( ! $ticketManagement )
+            if ( ! $ticket )
             {
                 return redirect()
                     ->route( 'tickets.index' )
                     ->withErrors( [ 'Заявка не найдена' ] );
             }
-            $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
-        }
-        else
-        {
-            $res = $ticket->changeStatus( $request->get( 'status_code' ) );
-        }
 
-        if ( ! empty( $request->get( 'postponed_to' ) ) )
-        {
-            $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
-            if ( ! empty( $request->get( 'postponed_comment' ) ) )
+            \DB::beginTransaction();
+
+            if ( $ticket_management_id )
             {
-                $ticket->postponed_comment = $request->get( 'postponed_comment' );
+                $ticketManagement = $ticket
+                    ->managements()
+                    ->mine()
+                    ->find( $ticket_management_id );
+                if ( ! $ticketManagement )
+                {
+                    return redirect()
+                        ->route( 'tickets.index' )
+                        ->withErrors( [ 'Заявка не найдена' ] );
+                }
+                $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
             }
-            $ticket->save();
-        }
+            else
+            {
+                $res = $ticket->changeStatus( $request->get( 'status_code' ) );
+            }
 
-        if ( ! empty( $request->get( 'comment' ) ) )
-        {
-            $res = $ticket->addComment( $request->get( 'comment' ) );
+            if ( ! empty( $request->get( 'postponed_to' ) ) )
+            {
+                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+                if ( ! empty( $request->get( 'postponed_comment' ) ) )
+                {
+                    $ticket->postponed_comment = $request->get( 'postponed_comment' );
+                }
+                $ticket->save();
+            }
+
+            if ( ! empty( $request->get( 'comment' ) ) )
+            {
+                $res = $ticket->addComment( $request->get( 'comment' ) );
+                if ( $res instanceof MessageBag )
+                {
+                    return redirect()->back()
+                        ->withErrors( $res );
+                }
+            }
+
             if ( $res instanceof MessageBag )
             {
                 return redirect()->back()
                     ->withErrors( $res );
             }
-        }
 
-        if ( $res instanceof MessageBag )
+            \DB::commit();
+
+            \Cache::tags( 'tickets_counts' )->flush();
+
+            return redirect()->back()->with( 'success', 'Статус изменен' );
+
+        }
+        catch ( \Exception $e )
         {
-            return redirect()->back()
-                ->withErrors( $res );
+            return redirect()->back()->withErrors( [ 'Внутренняя ошибка системы!' ] );
         }
-
-        \DB::commit();
-
-        \Cache::tags( 'tickets_counts' )->flush();
-
-        return redirect()->back()->with( 'success', 'Статус изменен' );
 
     }
 
