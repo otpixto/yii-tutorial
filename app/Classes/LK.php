@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 class LK
 {
 
-    public static function ticketsInfo ( LengthAwarePaginator $tickets ) : array
+    public static function ticketsInfo ( LengthAwarePaginator $tickets, $withDetails = false ) : array
     {
         $per_page = $tickets->perPage();
         $page = $tickets->currentPage();
@@ -27,12 +27,12 @@ class LK
         ];
         foreach ( $tickets as $ticket )
         {
-            $response[ 'tickets' ][] = self::ticketInfo( $ticket );
+            $response[ 'tickets' ][] = self::ticketInfo( $ticket, $withDetails );
         }
         return $response;
     }
 
-    public static function ticketInfo ( Ticket $ticket ) : array
+    public static function ticketInfo ( Ticket $ticket, $withDetails = false ) : array
     {
         $info = [
             'id'            => (int) $ticket->id,
@@ -50,23 +50,36 @@ class LK
             'text'          => $ticket->text,
             'time_from'     => Carbon::parse( $ticket->time_from )->format( 'H:i' ),
             'time_to'       => Carbon::parse( $ticket->time_to )->format( 'H:i' ),
-            'managements'   => []
         ];
-        foreach ( $ticket->managements as $ticketManagement )
+        if ( $withDetails )
         {
-            $management = [
-                'management_name'   => $ticketManagement->management->name,
-                'executor_name'     => null,
-                'scheduled_begin'   => null,
-                'scheduled_end'     => null,
-            ];
-            if ( $ticketManagement->executor )
+            $info[ 'managements' ] = [];
+            $info[ 'history' ] = [];
+            foreach ( $ticket->managements as $ticketManagement )
             {
-                $management[ 'executor_name' ] = $ticketManagement->executor->name;
-                $management[ 'scheduled_begin' ] = $ticketManagement->scheduled_begin->timestamp ?? null;
-                $management[ 'scheduled_end' ] = $ticketManagement->scheduled_end->timestamp ?? null;
+                $management = [
+                    'management_name'   => $ticketManagement->management->name,
+                    'executor_name'     => null,
+                    'scheduled_begin'   => null,
+                    'scheduled_end'     => null,
+                ];
+                if ( $ticketManagement->executor )
+                {
+                    $management[ 'executor_name' ] = $ticketManagement->executor->name;
+                    $management[ 'scheduled_begin' ] = $ticketManagement->scheduled_begin->timestamp ?? null;
+                    $management[ 'scheduled_end' ] = $ticketManagement->scheduled_end->timestamp ?? null;
+                }
+                $info[ 'managements' ][] = $management;
             }
-            $info[ 'managements' ][] = $management;
+            foreach ( $ticket->statusesHistory as $statusHistory )
+            {
+                $info[ 'history' ][] = [
+                    'author'        => $statusHistory->author->getName(),
+                    'datetime'      => $statusHistory->created_at->timestamp,
+                    'status_code'   => $statusHistory->status_code,
+                    'status_name'   => $statusHistory->status_name,
+                ];
+            }
         }
         return $info;
     }

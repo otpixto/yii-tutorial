@@ -453,7 +453,7 @@ class LKController extends BaseController
 
             $this->addLog( 'Запросил список заявок' );
 
-            $response = LK::ticketsInfo( $tickets );
+            $response = LK::ticketsInfo( $tickets, $request->get( 'ticket_id' ) ? true : false );
 
             return $this->success( $response );
 
