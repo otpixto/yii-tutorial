@@ -70,7 +70,7 @@ class AsteriskController extends BaseController
         if ( ! $number_to ) return;
 
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
-        if ( ! $ticket || ! $ticket->canCall() || ( $ticket->phone != $number_to && $ticket->phone2 != $number_to ) ) return;
+        if ( ! $ticket || ! $ticket->canCall() ) return;
 
         $ticketCall = $ticket->createCall( $number_from, $number_to );
         if ( $ticketCall instanceof MessageBag )
