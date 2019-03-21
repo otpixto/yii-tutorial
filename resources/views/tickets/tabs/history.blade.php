@@ -62,7 +62,11 @@
                         {{ $log->created_at->format( 'd.m.Y H:i' ) }}
                     </td>
                     <td>
-                        {!! $log->author->getShortName() !!}
+                        @if ( $log->author )
+                            {!! $log->author->getShortName() !!}
+                        @else
+                            -
+                        @endif
                     </td>
                     <td>
                         @if ( $log->parent && isset( $log->parent::$name ) )

@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 class LK
 {
 
-    public static function ticketsInfo ( LengthAwarePaginator $tickets, $withDetails = false ) : array
+    public static function ticketsInfo ( LengthAwarePaginator $tickets, $user_token = null, $withDetails = false ) : array
     {
         $per_page = $tickets->perPage();
         $page = $tickets->currentPage();
@@ -27,12 +27,12 @@ class LK
         ];
         foreach ( $tickets as $ticket )
         {
-            $response[ 'tickets' ][] = self::ticketInfo( $ticket, $withDetails );
+            $response[ 'tickets' ][] = self::ticketInfo( $ticket, $user_token, $withDetails );
         }
         return $response;
     }
 
-    public static function ticketInfo ( Ticket $ticket, $withDetails = false ) : array
+    public static function ticketInfo ( Ticket $ticket, $user_token = null, $withDetails = false ) : array
     {
         $info = [
             'id'            => (int) $ticket->id,
@@ -55,6 +55,7 @@ class LK
         {
             $info[ 'managements' ] = [];
             $info[ 'history' ] = [];
+            $info[ 'files' ] = [];
             foreach ( $ticket->managements as $ticketManagement )
             {
                 $management = [
@@ -79,6 +80,10 @@ class LK
                     'status_code'   => $statusHistory->status_code,
                     'status_name'   => $statusHistory->status_name,
                 ];
+            }
+            foreach ( $ticket->files as $file )
+            {
+                $info[ 'files' ][] = route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken(), 'user_token' => $user_token ] );
             }
         }
         return $info;
