@@ -19,6 +19,10 @@
         {!! Form::email( 'email', $email, [ 'class' => 'form-control placeholder-no-fix', 'placeholder' => 'E-mail', 'autocomplete' => 'off', 'readonly' ] ) !!}
     </div>
 
+    <div class="margin-top-10 margin-bottom-10">
+        Введите свой новый пароль или сгенерируйте случайный
+    </div>
+
     <div class="form-group">
         {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label visible-ie8 visible-ie9' ] ) !!}
         <div class="input-group">
@@ -38,7 +42,7 @@
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-success uppercase pull-right">Сбросить</button>
+        <button type="submit" class="btn btn-success uppercase pull-right">Применить</button>
     </div>
     {!! Form::close() !!}
     <!-- END RESET PASSWORD FORM -->
