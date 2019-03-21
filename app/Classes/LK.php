@@ -48,8 +48,8 @@ class LK
             'lat'           => ( (float) $ticket->building->lat ) ?: null,
             'need_act'      => (bool) $ticket->needAct(),
             'text'          => $ticket->text,
-            'time_from'     => Carbon::parse( $ticket->time_from )->format( 'H:i' ),
-            'time_to'       => Carbon::parse( $ticket->time_to )->format( 'H:i' ),
+            'time_from'     => $ticket->time_from ? Carbon::parse( $ticket->time_from )->format( 'H:i' ) : null,
+            'time_to'       => $ticket->time_to ? Carbon::parse( $ticket->time_to )->format( 'H:i' ) : null,
         ];
         if ( $withDetails )
         {
