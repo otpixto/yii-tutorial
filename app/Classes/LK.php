@@ -83,7 +83,10 @@ class LK
             }
             foreach ( $ticket->files as $file )
             {
-                $info[ 'files' ][] = route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken(), 'user_token' => $user_token ] );
+                $info[ 'files' ][] = [
+                    'name' => $file->name,
+                    'url' => route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken(), 'user_token' => $user_token ] )
+                ];
             }
         }
         return $info;
