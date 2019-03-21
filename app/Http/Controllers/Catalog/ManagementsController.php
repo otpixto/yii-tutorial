@@ -746,7 +746,7 @@ class ManagementsController extends BaseController
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
 		
-		$provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
+		$provider_id = $request->get( 'provider_id', Provider::getCurrent()->id ?? null );
 
         $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
