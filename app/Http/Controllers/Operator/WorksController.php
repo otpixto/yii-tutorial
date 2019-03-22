@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Operator;
 
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
+use App\Jobs\SendPush;
 use App\Models\Building;
 use App\Models\BuildingType;
+use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
@@ -14,6 +16,7 @@ use App\Models\Segment;
 use App\Models\TicketManagement;
 use App\Models\Type;
 use App\Models\Work;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -1062,6 +1065,30 @@ class WorksController extends BaseController
 
         \Cache::tags( 'works_counts' )
             ->flush();
+
+        $users = User
+            ::whereNotNull( 'push_id' )
+            ->where( 'active', '=', 1 )
+            ->whereHas( 'customer', function ( $customer ) use ( $request )
+            {
+                return $customer
+                    ->where( function ( $q ) use ( $request )
+                    {
+                        return $q
+                            ->whereIn( Customer::$_table . '.actual_building_id', $request->get( 'buildings', [] ) )
+                            ->orWhereHas( 'buildings', function ( $buildings ) use ( $request )
+                            {
+                                return $buildings
+                                    ->whereIn( Building::$_table . '.id', $request->get( 'buildings', [] ) );
+                            });
+                    });
+            })
+            ->get();
+
+        foreach ( $users as $user )
+        {
+            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $user->push_id, 'Новое отключение', 'Новое отключение', 'work', $work->id ) );
+        }
 
         return redirect()
             ->route( 'works.edit', $work->id )
