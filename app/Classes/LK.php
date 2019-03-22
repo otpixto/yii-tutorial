@@ -56,7 +56,8 @@ class LK
             $info[ 'managements' ] = [];
             $info[ 'history' ] = [];
             $info[ 'files' ] = [];
-            foreach ( $ticket->managements as $ticketManagement )
+            $ticketManagements = $ticket->managements->sortBy( 'scheduled_begin' );
+            foreach ( $ticketManagements as $ticketManagement )
             {
                 $management = [
                     'management_name'   => $ticketManagement->management->name,
