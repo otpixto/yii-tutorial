@@ -1526,11 +1526,7 @@ class TicketsController extends BaseController
         {
 
             $ticket = Ticket
-                ::whereHas( 'managements', function ( $managements )
-                {
-                    return $managements
-                        ->mine();
-                })
+                ::mine()
                 ->find( $ticket_id );
 
             if ( ! $ticket )
