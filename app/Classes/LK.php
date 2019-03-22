@@ -48,6 +48,7 @@ class LK
             'lat'           => ( (float) $ticket->building->lat ) ?: null,
             'need_act'      => (bool) $ticket->needAct(),
             'text'          => $ticket->text,
+            'completed_at'  => $ticket->completed_at ? Carbon::parse( $ticket->completed_at )->timestamp : null,
             'time_from'     => $ticket->time_from ? Carbon::parse( $ticket->time_from )->format( 'H:i' ) : null,
             'time_to'       => $ticket->time_to ? Carbon::parse( $ticket->time_to )->format( 'H:i' ) : null,
         ];
