@@ -16,7 +16,8 @@ class SendPush implements ShouldQueue
     protected $apiKey;
     protected $tokens;
 
-    protected $message;
+    protected $title;
+    protected $body;
     protected $object;
     protected $id;
 
@@ -25,7 +26,7 @@ class SendPush implements ShouldQueue
      *
      * @return void
      */
-    public function __construct ( $apiKey, $tokens = [], $message, $object = null, $id = null )
+    public function __construct ( $apiKey, $tokens = [], $title, $body, $object = null, $id = null )
     {
         if ( ! is_array( $tokens ) )
         {
@@ -33,7 +34,8 @@ class SendPush implements ShouldQueue
         }
         $this->apiKey = $apiKey;
         $this->tokens = $tokens;
-        $this->message = $message;
+        $this->title = $title;
+        $this->body = $body;
         $this->object = $object;
         $this->id = $id;
     }
@@ -47,7 +49,8 @@ class SendPush implements ShouldQueue
     {
         $client = new Push( $this->apiKey );
         $client
-            ->setData( 'message', $this->message )
+            ->setTitle( $this->title )
+            ->setBody( $this->body )
             ->setData( 'object', $this->object )
             ->setData( 'id', $this->id );
         foreach ( $this->tokens as $token )
