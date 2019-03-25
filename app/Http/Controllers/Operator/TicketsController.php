@@ -1491,7 +1491,11 @@ class TicketsController extends BaseController
                     ->withErrors( $res );
             }
         }
-        $this->dispatch( new SendStream( 'update', $ticket ) );
+
+        if ( $ticket->isDirty() )
+        {
+            $this->dispatch( new SendStream( 'update', $ticket ) );
+        }
 
         $success = 'Заявка успешно отредактирована';
 
@@ -2022,7 +2026,10 @@ class TicketsController extends BaseController
         }
         \DB::commit();
 
-        $this->dispatch( new SendStream( 'update', $ticket ) );
+        if ( $ticket->isDirty() )
+        {
+            $this->dispatch( new SendStream( 'update', $ticket ) );
+        }
 
         $success = 'Исполнитель успешно назначен';
 
@@ -2194,7 +2201,10 @@ class TicketsController extends BaseController
 
         \DB::commit();
 
-        $this->dispatch( new SendStream( 'update', $ticket ) );
+        if ( $ticket->isDirty() )
+        {
+            $this->dispatch( new SendStream( 'update', $ticket ) );
+        }
 
         return redirect()->back()->with( 'success', 'УО успешно назначено' );
 
