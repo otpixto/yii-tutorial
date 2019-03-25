@@ -18,8 +18,6 @@ class SendTelegram implements ShouldQueue
 
     protected $subscription;
     protected $message;
-	
-	private $logs;
 
     /**
      * Create a new job instance.
@@ -32,9 +30,6 @@ class SendTelegram implements ShouldQueue
 		{
 			$this->subscription = $subscription;
 			$this->message = $message;
-			$this->logs = new Logger( 'TELEGRAM' );
-			$this->logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
-			$this->logs->addInfo( 'Исходящее сообщение', [ $message, $subscription->toArray() ] );
 		}
 		catch ( \Exception $e )
 		{
@@ -51,6 +46,9 @@ class SendTelegram implements ShouldQueue
     {
         try
         {
+            $logs = new Logger( 'TELEGRAM' );
+            $logs->pushHandler( new StreamHandler( storage_path( 'logs/telegram.log' ) ) );
+            $logs->addInfo( 'Исходящее сообщение', [ $this->subscription->telegram_id, $this->message ] );
             $response = \Telegram::sendMessage([
                 'chat_id'                   => $this->subscription->telegram_id,
                 'text'                      => trim( $this->message ),
@@ -80,7 +78,7 @@ class SendTelegram implements ShouldQueue
         }
 		catch ( \Exception $e )
 		{
-			$this->logs->addCritical( 'Ошибка', $e );
+
 		}
     }
 }
