@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Jobs\SendPush;
+use App\Jobs\SendStream;
 use App\Models\Asterisk\Cdr;
 use App\User;
 use Carbon\Carbon;
@@ -549,9 +550,14 @@ class Ticket extends BaseModel
 			}
 		}
 
+        if ( $this->isDirty() )
+        {
+            $this->dispatch( new SendStream( 'update', $this ) );
+        }
+
         $this->save();
 
-		if ( $change_type && $this->type )
+        if ( $change_type && $this->type )
         {
             if ( $this->transferred_at )
             {
