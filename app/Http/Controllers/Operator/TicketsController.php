@@ -700,22 +700,34 @@ class TicketsController extends BaseController
 
             \DB::beginTransaction();
 
-            $ticket = Ticket::find( $request->get( 'ticket_id' ) );
+            $ticket = Ticket
+                ::where( function ( $q )
+                {
+                    return $q
+                        ->where( function ( $q2 )
+                        {
+                            return $q2
+                                ->where( 'status_code', '=', 'draft' )
+                                ->where( 'author_id', '=', \Auth::user()->id );
+                        })
+                        ->orWhere( 'status_code', '=', 'moderate' );
+                })
+                ->find( $request->get( 'ticket_id' ) );
 
-            if ( $ticket )
+            if ( ! $ticket )
             {
-                $ticket->created_at = Carbon::now()->toDateTimeString();
-                $ticket->author_id = \Auth::user()->id;
-                $ticket->edit( $request->all() );
-            }
-            else
-            {
-                $ticket = Ticket::create( $request->all() );
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Невозможно создать заявку' ] );
             }
 
-            if ( $ticket instanceof MessageBag )
+            $ticket->created_at = Carbon::now()->toDateTimeString();
+            $ticket->author_id = \Auth::user()->id;
+            $res = $ticket->edit( $request->all() );
+
+            if ( $res instanceof MessageBag )
             {
-                return redirect()->back()->withErrors( $ticket );
+                return redirect()->back()->withErrors( $res );
             }
 
             $customer = $ticket->customer()->mine()->first();
