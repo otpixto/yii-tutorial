@@ -550,7 +550,7 @@ class Ticket extends BaseModel
 			}
 		}
 
-        if ( $this->isDirty() )
+        if ( $this->status_code != 'draft' && $this->status_code != 'moderate' && $this->isDirty() )
         {
             $this->dispatch( new SendStream( 'update', $this ) );
         }
