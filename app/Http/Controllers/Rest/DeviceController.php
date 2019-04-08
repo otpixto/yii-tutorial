@@ -283,7 +283,7 @@ class DeviceController extends BaseController
             }
 
             $ticketManagement = TicketManagement
-                ::mine()
+                ::forme()
                 ->find( $request->get( 'id' ) );
 
             if ( ! $ticketManagement )
@@ -373,7 +373,7 @@ class DeviceController extends BaseController
             }
 
             $ticketManagement = TicketManagement
-                ::mine()
+                ::forme()
                 ->find( $request->get( 'id' ) );
 
             if ( ! $ticketManagement )
@@ -466,7 +466,7 @@ class DeviceController extends BaseController
             }
 
             $ticketManagement = TicketManagement
-                ::mine()
+                ::forme()
                 ->find( $request->get( 'id' ) );
 
             if ( ! $ticketManagement )
@@ -532,7 +532,7 @@ class DeviceController extends BaseController
             }
 
             $ticketManagement = TicketManagement
-                ::mine()
+                ::forme()
                 ->find( $request->get( 'id' ) );
 
             if ( ! $ticketManagement )
