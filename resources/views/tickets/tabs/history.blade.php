@@ -24,7 +24,9 @@
                         {{ $status->created_at->format( 'd.m.Y H:i' ) }}
                     </td>
                     <td>
-                        {!! $status->author->getName( true ) !!}
+                        @if ( $status->author )
+                            {!! $status->author->getShortName() !!}
+                        @endif
                     </td>
                     <td>
                         {{ $status->status_name }}

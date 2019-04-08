@@ -112,7 +112,7 @@ class FilesController extends Controller
         }
 
         \DB::beginTransaction();
-        foreach ( $request->file( 'files' ) as $_file )
+        foreach ( $request->file( 'files', [] ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
             $file = File::create([
