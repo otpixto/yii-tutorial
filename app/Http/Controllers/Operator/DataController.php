@@ -27,12 +27,22 @@ class DataController extends BaseController
         $data = [];
         foreach ( $users as $user )
         {
+            $history = [];
+            foreach ( $user->positions as $position )
+            {
+                $history[] = [
+                    'lon' => (float) $position->lon,
+                    'lat' => (float) $position->lat,
+                    'date' => $user->created_at->format( 'd.m.Y H:i' ),
+                ];
+            }
             $data[] = [
                 'user_id' => $user->id,
                 'user_name' => $user->getShortName(),
                 'lon' => (float) $user->lon,
                 'lat' => (float) $user->lat,
-                'date' => $user->position_at->format( 'd.m.Y H:i' )
+                'date' => $user->position_at->format( 'd.m.Y H:i' ),
+                'history' => $history
             ];
         }
         return $data;

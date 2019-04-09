@@ -140,6 +140,11 @@ class User extends BaseModel implements
         return $this->hasMany( 'App\Models\Work', 'author_id' );
     }
 
+    public function positions ()
+    {
+        return $this->hasMany( 'App\Models\UserPosition' );
+    }
+
     /**
      * Авторизация на телефоне
      */
