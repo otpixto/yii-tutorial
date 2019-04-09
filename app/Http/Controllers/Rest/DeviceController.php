@@ -222,7 +222,7 @@ class DeviceController extends BaseController
             }
 
             $validation = \Validator::make( $request->all(), [
-                'coors.*'               => 'required|array',
+                'coors'                 => 'required|array',
                 'coors.*.timestamp'     => 'required|integer',
                 'coors.*.lon'           => 'required|numeric',
                 'coors.*.lat'           => 'required|numeric',
