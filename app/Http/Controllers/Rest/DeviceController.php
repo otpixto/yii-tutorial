@@ -253,7 +253,6 @@ class DeviceController extends BaseController
         }
         catch ( \Exception $e )
         {
-            return $this->error( $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() );
             return $this->error( 'Внутренняя ошибка системы!', 500 );
         }
 
