@@ -74,6 +74,16 @@
                                     balloonContent: position.user_name
                                 });
                                 myMap.geoObjects.add( myPolyline );
+                                if ( position.lat != history.lat && position.lon != history.lon )
+                                {
+                                    var myPlacemark = new ymaps.Placemark( [ history.lat, history.lon ], {
+                                        iconContent: position.user_name,
+                                        balloonContent: '<strong>' + position.user_name + '</strong><br>был здесь ' + history.date
+                                    }, {
+                                        preset: 'islands#lightBlueDotIcon'
+                                    });
+                                    myMap.geoObjects.add( myPlacemark );
+                                }
                             }
                             prevData[ position.user_id ] = [ history.lat, history.lon ];
                         });
