@@ -33,7 +33,7 @@ class DataController extends BaseController
                 $history[] = [
                     'lon' => (float) $position->lon,
                     'lat' => (float) $position->lat,
-                    'date' => $user->created_at->format( 'd.m.Y H:i' ),
+                    'date' => $position->position_at ? $position->position_at->format( 'd.m.Y H:i' ) : $position->created_at->format( 'd.m.Y H:i' ),
                 ];
             }
             $data[] = [
