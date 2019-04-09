@@ -235,7 +235,11 @@ class DeviceController extends BaseController
 
             foreach ( $request->get( 'coors', [] ) as $coors )
             {
-                $res = $user = \Auth::user()->setPosition( $coors->lon, $coors->lat, Carbon::createFromTimestamp( $coors->timestamp ) );
+                $res = \Auth::user()->setPosition(
+                    $coors->lon,
+                    $coors->lat,
+                    Carbon::createFromTimestamp( $coors->timestamp )
+                );
                 if ( $res instanceof MessageBag )
                 {
                     return $this->error( $res->first() );
@@ -249,6 +253,7 @@ class DeviceController extends BaseController
         }
         catch ( \Exception $e )
         {
+            return $this->error( $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine() );
             return $this->error( 'Внутренняя ошибка системы!', 500 );
         }
 
