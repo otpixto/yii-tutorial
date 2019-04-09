@@ -233,7 +233,7 @@ class DeviceController extends BaseController
                 return $this->error( $validation->errors()->first() );
             }
 
-            foreach ( $request->get( 'coors' ) as $coors )
+            foreach ( $request->get( 'coors', [] ) as $coors )
             {
                 $res = $user = \Auth::user()->setPosition( $coors->lon, $coors->lat, Carbon::createFromTimestamp( $request->get( 'timestamp' ) ) );
                 if ( $res instanceof MessageBag )
