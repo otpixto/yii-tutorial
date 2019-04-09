@@ -69,8 +69,10 @@
                             {
                                 var myPolyline = new ymaps.Polyline([
                                     prevData[ position.user_id ],
-                                    [ history.lat, history.lon ],
-                                ]);
+                                    [ history.lat, history.lon ]
+                                ], {
+                                    balloonContent: position.user_name
+                                });
                                 myMap.geoObjects.add( myPolyline );
                             }
                             prevData[ position.user_id ] = [ history.lat, history.lon ];
