@@ -51,7 +51,7 @@
                 );
                 if ( response && response.length )
                 {
-                    //var prevData = {};
+                    var prevData = {};
                     $.each( response, function ( i, position )
                     {
                         var myPlacemark = new ymaps.Placemark( [ position.lat, position.lon ], {
@@ -63,15 +63,18 @@
                             preset: 'islands#greenStretchyIcon'
                         });
                         myMap.geoObjects.add( myPlacemark );
-                        /*if ( prevData[ position.user_id ] )
+                        $.each( position.history, function ( i2, history )
                         {
-                            var myPolyline = new ymaps.Polyline([
-                                prevData[ position.user_id ],
-                                [ position.lat, position.lon ],
-                            ]);
-                            myMap.geoObjects.add(myPolyline);
-                        }
-                        prevData[ position.user_id ] = [ position.lat, position.lon ];*/
+                            if ( prevData[ position.user_id ] )
+                            {
+                                var myPolyline = new ymaps.Polyline([
+                                    prevData[ position.user_id ],
+                                    [ history.lat, history.lon ],
+                                ]);
+                                myMap.geoObjects.add( myPolyline );
+                            }
+                            prevData[ position.user_id ] = [ history.lat, history.lon ];
+                        });
                     });
                     myMap.setBounds( myMap.geoObjects.getBounds(), {
                         checkZoomRange: true
