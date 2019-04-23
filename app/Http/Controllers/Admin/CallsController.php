@@ -88,7 +88,18 @@ class CallsController extends BaseController
         if ( ! empty( $request->get( 'status' ) ) )
         {
             $calls
-                ->where( 'disposition', '=', $request->get( 'status' ) );
+                ->where( 'disposition', '=', $request->get( 'status' ) )
+                ->groupBy(
+                    'uniqueid'
+                );
+        }
+        else
+        {
+            $calls
+                ->groupBy(
+                    'uniqueid',
+                    'disposition'
+                );
         }
 
         if ( ! empty( $request->get( 'context' ) ) )
@@ -117,10 +128,6 @@ class CallsController extends BaseController
         }
 
         $calls = $calls
-            ->groupBy(
-                'uniqueid',
-                'disposition'
-            )
             ->with(
                 'ticket',
                 'ticketCall'
