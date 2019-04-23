@@ -111,12 +111,21 @@
 
                         <div class="form-group">
 
-                            <div class="col-xs-12">
+                            <div class="col-md-7 margin-bottom-15">
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         GUID
                                     </span>
                                     {!! Form::text( 'guid', \Input::old( 'guid', $type->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                                </div>
+                            </div>
+
+                            <div class="col-md-5 margin-bottom-15">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Mosreg ID
+                                    </span>
+                                    {!! Form::text( 'mosreg_id', \Input::old( 'mosreg_id', $type->mosreg_id ), [ 'class' => 'form-control', 'placeholder' => 'Mosreg ID' ] ) !!}
                                 </div>
                             </div>
 
