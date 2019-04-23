@@ -269,7 +269,7 @@ class Management extends BaseModel
 
     public function getCategory ()
     {
-        return self::$categories[ $this->category_id ];
+        return self::$categories[ $this->category_id ] ?? null;
     }
 
     public function hasMosreg ( Mosreg & $mosreg = null ) : bool
