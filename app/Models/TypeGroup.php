@@ -23,7 +23,7 @@ class TypeGroup extends BaseModel
 
     public function types ()
     {
-        return $this->belongsToMany( Type::class, 'group_type', 'group_id', 'type_id' );
+        return $this->hasMany( Type::class, 'group_id' );
     }
 
 }
