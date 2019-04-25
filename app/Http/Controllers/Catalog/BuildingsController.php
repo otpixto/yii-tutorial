@@ -338,10 +338,10 @@ class BuildingsController extends BaseController
         }
 		
 		$rules = [
-            'provider_id'           => 'required|integer',
-            'building_type_id'      => 'required|integer',
+            'provider_id'           => 'nullable|integer',
+            'building_type_id'      => 'nullable|integer',
             'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|max:255',
+            'name'                  => 'nullable|max:255',
             'date_of_construction'  => 'nullable|date',
             'porches_count'         => 'nullable|integer',
             'floor_count'           => 'nullable|integer',
@@ -354,7 +354,7 @@ class BuildingsController extends BaseController
 
         $attributes = $request->all();
 
-        if ( $building->name != $attributes[ 'name' ] )
+        if ( ! empty( $attributes[ 'name' ] ) && $building->name != $attributes[ 'name' ] )
         {
             $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $attributes[ 'name' ] ) ) );
             if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )

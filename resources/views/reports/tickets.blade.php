@@ -16,7 +16,7 @@
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
 
     @if ( $providers->count() > 1 )
-        <div class="row">
+        <div class="row margin-bottom-15">
             <div class="col-md-6 col-md-offset-3">
                 {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
@@ -24,25 +24,30 @@
         </div>
     @endif
 
-    <div class="row">
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
             <div class="input-group">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                <span class="input-group-addon">
+                    от
+                </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+                <span class="input-group-addon">
+                    до
+                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
-            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+            {!! Form::label( 'managements_ids', 'УО', [ 'class' => 'control-label' ] ) !!}
+            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements_ids" name="managements_ids[]">
                 @foreach ( $availableManagements as $management => $arr )
                     <optgroup label="{{ $management }}">
                         @foreach ( $arr as $management_id => $management_name )
-                            <option value="{{ $management_id }}" @if ( $managements->find( $management_id ) ) selected="selected" @endif>
+                            <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements_ids ) ) selected="selected" @endif>
                                 {{ $management_name }}
                             </option>
                         @endforeach
@@ -52,140 +57,144 @@
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    <div id="chartdiv" style="min-height: {{ 50 + ( $managements->count() * 35 ) }}px;" class="hidden-print"></div>
+    @if ( $data )
 
-    <table class="table table-striped sortable" id="data">
-        <thead>
-            <tr>
-                <th rowspan="3">
-                    Нименование УО
-                </th>
-                <th class="text-center info bold" rowspan="2">
-                    Поступило заявок
-                </th>
-                <th class="text-center" colspan="5">
-                    Закрыто заявок
-                </th>
-            </tr>
-            <tr>
-                <th class="text-center">
-                    Отменено Заявителем
-                </th>
-                <th class="text-center">
-                    Проблема не подтверждена
-                </th>
-                <th class="text-center">
-                    С подтверждением
-                </th>
-                <th class="text-center">
-                    Без подтверждения
-                </th>
-                <th class="text-center info bold">
-                    Всего
-                </th>
-                <th colspan="2" class="text-center">
-                    Процент выполнения
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach ( $managements as $management )
-            @if ( isset( $data[ $management->id ] ) )
+        <div id="chartdiv" style="min-height: {{ 50 + ( $managements->count() * 35 ) }}px;" class="hidden-print"></div>
+
+        <table class="table table-striped sortable" id="data">
+            <thead>
                 <tr>
-                    <td data-field="name">
-                        {{ $management->name }}
-                    </td>
-                    <td class="text-center info bold">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="total">
-                            {{ $data[ $management->id ][ 'total' ] }}
+                    <th rowspan="3">
+                        Нименование УО
+                    </th>
+                    <th class="text-center info bold" rowspan="2">
+                        Поступило заявок
+                    </th>
+                    <th class="text-center" colspan="5">
+                        Закрыто заявок
+                    </th>
+                </tr>
+                <tr>
+                    <th class="text-center">
+                        Отменено Заявителем
+                    </th>
+                    <th class="text-center">
+                        Проблема не подтверждена
+                    </th>
+                    <th class="text-center">
+                        С подтверждением
+                    </th>
+                    <th class="text-center">
+                        Без подтверждения
+                    </th>
+                    <th class="text-center info bold">
+                        Всего
+                    </th>
+                    <th colspan="2" class="text-center">
+                        Процент выполнения
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach ( $managements as $management )
+                @if ( isset( $data[ $management->id ] ) )
+                    <tr>
+                        <td data-field="name">
+                            {{ $management->name }}
+                        </td>
+                        <td class="text-center info bold">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="total">
+                                {{ $data[ $management->id ][ 'total' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="canceled">
+                                {{ $data[ $management->id ][ 'canceled' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="not_verified">
+                                {{ $data[ $management->id ][ 'not_verified' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_with_confirm">
+                                {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                            </a>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_without_confirm">
+                                {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
+                            </a>
+                        </td>
+                        <td data-field="closed" class="text-center info bold">
+                            {{ $data[ $management->id ][ 'closed' ] }}
+                        </td>
+                        <td class="text-right" data-field="percent" style="width: 40px;">
+                            {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
+                        </td>
+                        <td class="hidden-print" style="width: 15%;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
+            @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    <th class="text-center warning">
+                        {{ $data['total'] }}
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data['canceled'] }}
                         </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="canceled">
-                            {{ $data[ $management->id ][ 'canceled' ] }}
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data['not_verified'] }}
                         </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="not_verified">
-                            {{ $data[ $management->id ][ 'not_verified' ] }}
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data['closed_with_confirm'] }}
                         </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_with_confirm">
-                            {{ $data[ $management->id ][ 'closed_with_confirm' ] }}
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data['closed_without_confirm'] }}
                         </a>
-                    </td>
-                    <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="closed_without_confirm">
-                            {{ $data[ $management->id ][ 'closed_without_confirm' ] }}
-                        </a>
-                    </td>
-                    <td data-field="closed" class="text-center info bold">
-                        {{ $data[ $management->id ][ 'closed' ] }}
-                    </td>
-                    <td class="text-right" data-field="percent" style="width: 40px;">
-                        {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%
-                    </td>
-                    <td class="hidden-print" style="width: 15%;">
+                    </th>
+                    <th class="text-center warning">
+                        {{ $data['closed'] }}
+                    </th>
+                    <th class="text-right">
+                        {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%
+                    </th>
+                    <th class="hidden-print">
                         <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0 }}%">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%">
                             </div>
                         </div>
-                    </td>
+                    </th>
                 </tr>
-            @endif
-        @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th class="text-right">
-                    Всего:
-                </th>
-                <th class="text-center warning">
-                    {{ $data['total'] }}
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'cancel', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data['canceled'] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'not_verified', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data['not_verified'] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_with_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data['closed_with_confirm'] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'statuses' => 'closed_without_confirm', 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data['closed_without_confirm'] }}
-                    </a>
-                </th>
-                <th class="text-center warning">
-                    {{ $data['closed'] }}
-                </th>
-                <th class="text-right">
-                    {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%
-                </th>
-                <th class="hidden-print">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $data['total'] ? ceil( $data['closed'] * 100 / $data['total'] ) : 0 }}%">
-                        </div>
-                    </div>
-                </th>
-            </tr>
-        </tfoot>
-    </table>
+            </tfoot>
+        </table>
+
+    @endif
 
 @endsection
 

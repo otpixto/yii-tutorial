@@ -21,4 +21,9 @@ class TypeGroup extends BaseModel
             ->mineProvider();
     }
 
+    public function types ()
+    {
+        return $this->belongsToMany( Type::class, 'group_type', 'group_id', 'type_id' );
+    }
+
 }

@@ -16,7 +16,7 @@
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
 
     @if ( $providers->count() > 1 )
-        <div class="row">
+        <div class="row margin-bottom-15">
             <div class="col-md-6 col-md-offset-3">
                 {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
@@ -24,25 +24,30 @@
         </div>
     @endif
 
-    <div class="row">
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
             <div class="input-group">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                <span class="input-group-addon">
+                    от
+                </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+                <span class="input-group-addon">
+                    до
+                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
-            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+            {!! Form::label( 'managements_ids', 'УО', [ 'class' => 'control-label' ] ) !!}
+            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements_ids" name="managements_ids[]">
                 @foreach ( $availableManagements as $management => $arr )
                     <optgroup label="{{ $management }}">
                         @foreach ( $arr as $management_id => $management_name )
-                            <option value="{{ $management_id }}" @if ( $managements->find( $management_id ) ) selected="selected" @endif>
+                            <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements_ids ) ) selected="selected" @endif>
                                 {{ $management_name }}
                             </option>
                         @endforeach
@@ -52,123 +57,127 @@
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    <div id="chartdiv" style="min-height: {{ 50 + ( $managements->count() * 35 ) }}px;" class="hidden-print"></div>
+    @if ( $managements )
 
-    <table class="table table-striped sortable" id="data">
-        <thead>
-            <tr>
-                <th rowspan="3">
-                    Нименование ЭО
-                </th>
-                <th class="text-center info bold">
-                    Всего оценок
-                </th>
-                <th class="text-center">
-                    1 балл
-                </th>
-                <th class="text-center">
-                    2 балла
-                </th>
-                <th class="text-center">
-                    3 балла
-                </th>
-                <th class="text-center">
-                    4 балла
-                </th>
-                <th class="text-center">
-                    5 баллов
-                </th>
-                <th class="text-center info bold">
-                    Средний балл
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach ( $managements as $management )
-            <tr>
-                <td data-field="name">
-                    {{ $management->name }}
-                </td>
-                <td class="text-center info bold">
-                    {{ $data[ $management->id ][ 'total' ] }}
-                </td>
-                <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="1">
-                        {{ $data[ $management->id ][ 'rate-1' ] }}
-                    </a>
-                </td>
-                <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="2">
-                        {{ $data[ $management->id ][ 'rate-2' ] }}
-                    </a>
-                </td>
-                <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="3">
-                        {{ $data[ $management->id ][ 'rate-3' ] }}
-                    </a>
-                </td>
-                <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="4">
-                        {{ $data[ $management->id ][ 'rate-4' ] }}
-                    </a>
-                </td>
-                <td class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="5">
-                        {{ $data[ $management->id ][ 'rate-5' ] }}
-                    </a>
-                </td>
-                <td data-field="average" class="text-right info bold">
-                    {{ $data[ $management->id ][ 'average' ] }}
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th class="text-right">
-                    Всего:
-                </th>
-                <th class="text-center warning">
-                    {{ $data[ 'total' ] }}
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data[ 'rate-1' ] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data[ 'rate-2' ] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data[ 'rate-3' ] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data[ 'rate-4' ] }}
-                    </a>
-                </th>
-                <th class="text-center">
-                    <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                        {{ $data[ 'rate-5' ] }}
-                    </a>
-                </th>
-                <th class="text-right warning">
-                    {{ $data[ 'average' ] }}
-                </th>
-            </tr>
-        </tfoot>
-    </table>
+        <div id="chartdiv" style="min-height: {{ 50 + ( $managements->count() * 35 ) }}px;" class="hidden-print"></div>
+
+        <table class="table table-striped sortable" id="data">
+            <thead>
+                <tr>
+                    <th rowspan="3">
+                        Нименование ЭО
+                    </th>
+                    <th class="text-center info bold">
+                        Всего оценок
+                    </th>
+                    <th class="text-center">
+                        1 балл
+                    </th>
+                    <th class="text-center">
+                        2 балла
+                    </th>
+                    <th class="text-center">
+                        3 балла
+                    </th>
+                    <th class="text-center">
+                        4 балла
+                    </th>
+                    <th class="text-center">
+                        5 баллов
+                    </th>
+                    <th class="text-center info bold">
+                        Средний балл
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach ( $managements as $management )
+                <tr>
+                    <td data-field="name">
+                        {{ $management->name }}
+                    </td>
+                    <td class="text-center info bold">
+                        {{ $data[ $management->id ][ 'total' ] }}
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="1">
+                            {{ $data[ $management->id ][ 'rate-1' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="2">
+                            {{ $data[ $management->id ][ 'rate-2' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="3">
+                            {{ $data[ $management->id ][ 'rate-3' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="4">
+                            {{ $data[ $management->id ][ 'rate-4' ] }}
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="5">
+                            {{ $data[ $management->id ][ 'rate-5' ] }}
+                        </a>
+                    </td>
+                    <td data-field="average" class="text-right info bold">
+                        {{ $data[ $management->id ][ 'average' ] }}
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    <th class="text-center warning">
+                        {{ $data[ 'total' ] }}
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data[ 'rate-1' ] }}
+                        </a>
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data[ 'rate-2' ] }}
+                        </a>
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data[ 'rate-3' ] }}
+                        </a>
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data[ 'rate-4' ] }}
+                        </a>
+                    </th>
+                    <th class="text-center">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                            {{ $data[ 'rate-5' ] }}
+                        </a>
+                    </th>
+                    <th class="text-right warning">
+                        {{ $data[ 'average' ] }}
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+
+    @endif
 
 @endsection
 

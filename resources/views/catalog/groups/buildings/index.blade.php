@@ -12,7 +12,7 @@
     @if ( \Auth::user()->can( 'catalog.groups.create' ) )
         <div class="row margin-bottom-15">
             <div class="col-xs-12">
-                <a href="{{ route( 'types_groups.create' ) }}" class="btn btn-success btn-lg">
+                <a href="{{ route( 'buildings_groups.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить группу
                 </a>
@@ -105,7 +105,7 @@
                                         Наименование
                                     </th>
                                     <th class="text-center">
-                                        Классификатор
+                                        Адресов
                                     </th>
                                     <th class="text-right">
                                         &nbsp;
@@ -119,13 +119,13 @@
                                             {{ $group->name }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route( 'types.index', [ 'group_id' => $group->id ] ) }}" class="badge badge-{{ $group->types->count() ? 'info' : 'default' }} bold">
-                                                {{ $group->types->count() }}
+                                            <a href="{{ route( 'buildings_groups.buildings', $group->id ) }}" class="badge badge-{{ $group->buildings->count() ? 'info' : 'default' }} bold">
+                                                {{ $group->buildings->count() }}
                                             </a>
                                         </td>
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.groups.edit' ) )
-                                                <a href="{{ route( 'types_groups.edit', $group->id ) }}" class="btn btn-info">
+                                                <a href="{{ route( 'buildings_groups.edit', $group->id ) }}" class="btn btn-info">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                             @endif

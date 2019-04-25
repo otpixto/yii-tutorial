@@ -7,6 +7,7 @@ use App\Models\Building;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Type;
+use App\Models\TypeGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -27,6 +28,7 @@ class TypesController extends BaseController
         $building_id = trim( $request->get( 'building_id', '' ) );
         $management_id = trim( $request->get( 'management_id', '' ) );
         $provider_id = trim( $request->get( 'provider_id', '' ) );
+        $group_id = trim( $request->get( 'group_id', '' ) );
 
         $types = Type
             ::mine()
@@ -86,6 +88,12 @@ class TypesController extends BaseController
         {
             $types
                 ->where( Type::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        if ( ! empty( $group_id ) )
+        {
+            $types
+                ->where( Type::$_table . '.group_id', '=', $group_id );
         }
 
         $types = $types
@@ -263,9 +271,15 @@ class TypesController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
+        $groups = TypeGroup
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
-            ->with( 'parents', $parents );
+            ->with( 'parents', $parents )
+            ->with( 'groups', $groups );
     }
 
     /**
@@ -290,6 +304,7 @@ class TypesController extends BaseController
             'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'required_with:category_id|string|max:255',
             'parent_id'             => 'nullable|integer',
+            'group_id'              => 'nullable|integer',
             'period_acceptance'     => 'numeric',
             'period_execution'      => 'numeric',
             'price'                 => 'nullable|numeric',

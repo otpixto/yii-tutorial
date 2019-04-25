@@ -73,6 +73,10 @@ class Ticket extends BaseModel
         'confirmation_operator'             => 'Ожидает подтверждения центром',
         'confirmation_client'             	=> 'Ожидает подтверждения клиентом',
         'conflict'             	            => 'Конфликтная',
+        'GZI_REMEDY'                        => 'Контроль ГЖИ: Устранение',
+        'GZI_REMEDY_ANSWER'                 => 'Контроль ГЖИ: Получен ответ УК',
+        'GZI_EXPIRED'                       => 'Контроль ГЖИ: Просрочено',
+        'GZI_EXTRA_AUDIT'                   => 'Контроль ГЖИ: Внеплановая проверка',
     ];
 
     public static $statuses_buttons = [
@@ -182,6 +186,20 @@ class Ticket extends BaseModel
         ],
     ];
 
+    public static $mosreg_statuses = [
+        'NEW_CLAIM'                     => 'transferred',
+        'IN_WORK'                       => 'in_process',
+        'ANSWERED'                      => 'confirmation_client',
+        'EXPIRED'                       => 'waiting',
+        'UNSATISFIED'                   => 'transferred_again',
+        'SOLVED'                        => 'closed_without_confirm',
+        'UNSATISFIED_SENDED_TO_DD'      => 'conflict',
+        'GZI_REMEDY'                    => 'GZI_REMEDY',
+        'GZI_REMEDY_ANSWER'             => 'GZI_REMEDY_ANSWER',
+        'GZI_EXPIRED'                   => 'GZI_EXPIRED',
+        'GZI_EXTRA_AUDIT'               => 'GZI_EXTRA_AUDIT',
+    ];
+
     protected $nullable = [
         'provider_id',
         'vendor_id',
@@ -201,6 +219,7 @@ class Ticket extends BaseModel
     ];
 
     protected $fillable = [
+        'author_id',
         'provider_id',
         'vendor_id',
         'vendor_date',
@@ -214,6 +233,7 @@ class Ticket extends BaseModel
         'urgently',
         'dobrodel',
         'from_lk',
+        'from_mosreg',
         'phone',
         'phone2',
         'firstname',
@@ -996,11 +1016,13 @@ class Ticket extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        $availableStatuses = $this->getAvailableStatuses( 'edit' );
-
-        if ( ! $force && ! in_array( $status_code, $availableStatuses ) )
+        if ( ! $force )
         {
-            return new MessageBag([ 'Невозможно сменить статус!' ]);
+            $availableStatuses = $this->getAvailableStatuses( 'edit' );
+            if ( ! in_array( $status_code, $availableStatuses ) )
+            {
+                return new MessageBag([ 'Невозможно сменить статус!' ]);
+            }
         }
 
         if ( $this->status_code != $status_code )

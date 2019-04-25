@@ -18,17 +18,21 @@
             <div class="panel-body">
 
                 <div class="form-group">
-
-                    <div class="col-lg-6">
+                    <div class="col-lg-8">
                         {!! Form::label( 'parent_id', 'Родитель', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'parent_id', $parents, \Input::old( 'parent_id', $type->parent_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Родитель' ] ) !!}
+                        {!! Form::select( 'parent_id', $parents, \Input::old( 'parent_id', $type->parent_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Родитель', 'data-placeholder' => 'Родитель' ] ) !!}
                     </div>
+                    <div class="col-lg-4">
+                        {!! Form::label( 'group_id', 'Группа', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'group_id', $groups, \Input::old( 'group_id', $type->group_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Группа', 'data-placeholder' => 'Группа' ] ) !!}
+                    </div>
+                </div>
 
-                    <div class="col-lg-6">
+                <div class="form-group">
+                    <div class="col-lg-12">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
+                        {!! Form::text( 'name', \Input::old( 'name', $type->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                     </div>
-
                 </div>
 
                 <div class="form-group">

@@ -16,33 +16,38 @@
     {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
 	
 	@if ( $providers->count() > 1 )
-		<div class="row">
+		<div class="row margin-bottom-15">
 			<div class="col-md-6 col-md-offset-3">
 				{!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
 				{!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
 			</div>
 		</div>
 	@endif
-	
-    <div class="row margin-top-15">
+
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
             <div class="input-group">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
-                <span class="input-group-addon">-</span>
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y' ), [ 'class' => 'form-control datepicker' ] ) !!}
+                <span class="input-group-addon">
+                    от
+                </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+                <span class="input-group-addon">
+                    до
+                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
-            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+            {!! Form::label( 'managements_ids', 'УО', [ 'class' => 'control-label' ] ) !!}
+            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements_ids" name="managements_ids[]">
                 @foreach ( $availableManagements as $management => $arr )
                     <optgroup label="{{ $management }}">
                         @foreach ( $arr as $management_id => $management_name )
-                            <option value="{{ $management_id }}" @if ( $managements->find( $management_id ) ) selected="selected" @endif>
+                            <option value="{{ $management_id }}" @if ( in_array( $management_id, $managements_ids ) ) selected="selected" @endif>
                                 {{ $management_name }}
                             </option>
                         @endforeach
@@ -52,136 +57,61 @@
         </div>
     </div>
 
-    <div class="row margin-top-15">
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>
     {!! Form::close() !!}
 
-    <table class="table table-striped sortable" id="table-categories">
-        <thead>
-            <tr>
-                <th>
-                    Категория проблем
-                </th>
-                <th class="text-center info bold">
-                    Поступило заявок, кол-во
-                </th>
-                <th class="text-center">
-                    Процент от общего количества
-                </th>
-                <th class="text-center info bold">
-                    Закрыто заявок, кол-во
-                </th>
-                <th class="text-center">
-                    Процент закрытых заявок
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach ( $categories as $category )
-			@if ( isset( $data[ 'categories' ][ $category->id ] ) )
-				<tr>
-					<td>
-						<span data-field="category">
-							{{ $category->name }}
-						</span>
-					</td>
-					<td class="text-center info bold">
-						{{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
-					</td>
-					<td class="text-center">
-						<span data-field="percent">
-							{{ $data[ 'categories' ][ $category->id ][ 'percent_total' ] }}
-						</span>
-						%
-					</td>
-					<td class="text-center info bold">
-						{{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
-					</td>
-					<td class="text-center">
-						{{ $data[ 'categories' ][ $category->id ][ 'percent' ] }}%
-					</td>
-				</tr>
-			@endif
-        @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <th class="text-right">
-                    Всего:
-                </th>
-                <th class="text-center warning bold">
-                    {{ $data[ 'total' ] }}
-                </th>
-                <th class="text-center">
-                    100%
-                </th>
-                <th class="text-center warning bold">
-                    {{ $data[ 'closed' ] }}
-                </th>
-                <th class="text-center">
-                    {{ $data[ 'percent' ] }}%
-                </th>
-            </tr>
-        </tfoot>
-    </table>
+    @if ( $data )
 
-    @if ( $categories_count )
-        <div id="pie-categories" style="min-height: {{ 100 + $categories_count * 35 }}px;" class="hidden-print"></div>
-    @endif
-
-    <div class="pagebreak"></div>
-
-    <div class="table-responsive">
-        <table class="table table-striped sortable" id="table-managements">
+        <table class="table table-striped sortable" id="table-categories">
             <thead>
-            <tr>
-                <th>
-                    Тип проблемы \ Нименование УО
-                </th>
-                @foreach ( $managements as $management )
-                    <th class="text-center">
-                        {{ $management->name }}
+                <tr>
+                    <th>
+                        Категория проблем
                     </th>
-                @endforeach
-                <th class="text-center info bold">
-                    Всего
-                </th>
-            </tr>
+                    <th class="text-center info bold">
+                        Поступило заявок, кол-во
+                    </th>
+                    <th class="text-center">
+                        Процент от общего количества
+                    </th>
+                    <th class="text-center info bold">
+                        Закрыто заявок, кол-во
+                    </th>
+                    <th class="text-center">
+                        Процент закрытых заявок
+                    </th>
+                </tr>
             </thead>
             <tbody>
             @foreach ( $categories as $category )
-                <tr>
-                    <td>
-                        {{ $category->name }}
-                    </td>
-                    @foreach ( $managements as $management )
-                        <td class="text-center">
-                            @if ( isset( $data[ 'data' ][ $category->id ], $data[ 'data' ][ $category->id ][ $management->id ] ) )
-                                {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'closed' ] }}
-                                /
-                                <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
-                                    {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'total' ] }}
-                                </a>
-                            @else
-                                0 / 0
-                            @endif
+                @if ( isset( $data[ 'categories' ][ $category->id ] ) )
+                    <tr>
+                        <td>
+                            <span data-field="category">
+                                {{ $category->name }}
+                            </span>
                         </td>
-                    @endforeach
-                    <td class="text-center info bold">
-                        @if ( isset( $data[ 'categories' ][ $category->id ] ) )
+                        <td class="text-center info bold">
+                            {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
+                        </td>
+                        <td class="text-center">
+                            <span data-field="percent">
+                                {{ $data[ 'categories' ][ $category->id ][ 'percent_total' ] }}
+                            </span>
+                            %
+                        </td>
+                        <td class="text-center info bold">
                             {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
-                            /
-                            <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ),'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
-                                {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
-                            </a>
-                        @else
-                            0 / 0
-                        @endif
-                    </td>
-                </tr>
+                        </td>
+                        <td class="text-center">
+                            {{ $data[ 'categories' ][ $category->id ][ 'percent' ] }}%
+                        </td>
+                    </tr>
+                @endif
             @endforeach
             </tbody>
             <tfoot>
@@ -189,40 +119,119 @@
                     <th class="text-right">
                         Всего:
                     </th>
-                    @foreach ( $managements as $management )
-                        <th class="text-center">
-                            {{ $data[ 'managements' ][ $management->id ][ 'closed' ] }}
-                            /
-                            {{ $data[ 'managements' ][ $management->id ][ 'total' ] }}
-                        </th>
-                    @endforeach
                     <th class="text-center warning bold">
-                        {{ $data[ 'closed' ] }}
-                        /
                         {{ $data[ 'total' ] }}
                     </th>
-                </tr>
-                <tr>
-                    <th class="text-right">
-                        В % соотношении:
-                    </th>
-                    @foreach ( $managements as $management )
-                        <th class="text-center">
-                            <span data-category="{{ $management->name }}" data-percent="{{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}">
-                                {{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}%
-                            </span>
-                        </th>
-                    @endforeach
-                    <th class="text-center warning bold">
+                    <th class="text-center">
                         100%
+                    </th>
+                    <th class="text-center warning bold">
+                        {{ $data[ 'closed' ] }}
+                    </th>
+                    <th class="text-center">
+                        {{ $data[ 'percent' ] }}%
                     </th>
                 </tr>
             </tfoot>
         </table>
-    </div>
 
-    @if ( $managements_count )
-        <div id="pie-managements" style="min-height: {{ 100 + $managements_count * 35 }}px;" class="hidden-print"></div>
+        @if ( $categories_count )
+            <div id="pie-categories" style="min-height: {{ 100 + $categories_count * 35 }}px;" class="hidden-print"></div>
+        @endif
+
+        <div class="pagebreak"></div>
+
+        <div class="table-responsive">
+            <table class="table table-striped sortable" id="table-managements">
+                <thead>
+                <tr>
+                    <th>
+                        Тип проблемы \ Нименование УО
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
+                            {{ $management->name }}
+                        </th>
+                    @endforeach
+                    <th class="text-center info bold">
+                        Всего
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ( $categories as $category )
+                    <tr>
+                        <td>
+                            {{ $category->name }}
+                        </td>
+                        @foreach ( $managements as $management )
+                            <td class="text-center">
+                                @if ( isset( $data[ 'data' ][ $category->id ], $data[ 'data' ][ $category->id ][ $management->id ] ) )
+                                    {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'closed' ] }}
+                                    /
+                                    <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" class="bold">
+                                        {{ $data[ 'data' ][ $category->id ][ $management->id ][ 'total' ] }}
+                                    </a>
+                                @else
+                                    0 / 0
+                                @endif
+                            </td>
+                        @endforeach
+                        <td class="text-center info bold">
+                            @if ( isset( $data[ 'categories' ][ $category->id ] ) )
+                                {{ $data[ 'categories' ][ $category->id ][ 'closed' ] }}
+                                /
+                                <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ),'category_id' => $category->id, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                                    {{ $data[ 'categories' ][ $category->id ][ 'total' ] }}
+                                </a>
+                            @else
+                                0 / 0
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="text-right">
+                            Всего:
+                        </th>
+                        @foreach ( $managements as $management )
+                            <th class="text-center">
+                                {{ $data[ 'managements' ][ $management->id ][ 'closed' ] }}
+                                /
+                                {{ $data[ 'managements' ][ $management->id ][ 'total' ] }}
+                            </th>
+                        @endforeach
+                        <th class="text-center warning bold">
+                            {{ $data[ 'closed' ] }}
+                            /
+                            {{ $data[ 'total' ] }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="text-right">
+                            В % соотношении:
+                        </th>
+                        @foreach ( $managements as $management )
+                            <th class="text-center">
+                                <span data-category="{{ $management->name }}" data-percent="{{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}">
+                                    {{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}%
+                                </span>
+                            </th>
+                        @endforeach
+                        <th class="text-center warning bold">
+                            100%
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if ( $managements_count )
+            <div id="pie-managements" style="min-height: {{ 100 + $managements_count * 35 }}px;" class="hidden-print"></div>
+        @endif
+
     @endif
 
 @endsection

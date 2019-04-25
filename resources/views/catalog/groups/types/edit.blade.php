@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Группы', route( 'groups.index' ) ],
+        [ 'Группы', route( 'types_groups.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -12,7 +12,7 @@
 
     @if ( \Auth::user()->can( 'catalog.groups.edit' ) )
 
-        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'groups.update', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'types_groups.update', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
         <div class="form-group">
 
@@ -33,10 +33,10 @@
                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
             </div>
             <div class="col-xs-6 text-right">
-                <a href="{{ route( 'groups.buildings', $group->id ) }}" class="btn btn-default btn-circle">
-                    Адреса
+                <a href="{{ route( 'types.index', [ 'group_id' => $group->id ] ) }}" class="btn btn-default btn-circle">
+                    Классификатор
                     <span class="badge">
-                        {{ $group->buildings()->count() }}
+                        {{ $group->types()->count() }}
                     </span>
                 </a>
             </div>

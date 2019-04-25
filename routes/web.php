@@ -16,6 +16,8 @@ Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 Route::group( [ 'middleware' => 'rest' ], function ()
 {
 
+    Route::post( '/webhook/{token}/ticket', 'WebhookController@ticket' );
+
     Route::prefix( 'rest' )->group( function ()
     {
 
@@ -225,6 +227,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'operators', 'Operator\ReportsController@operators' )->name( 'reports.operators' );
             Route::get( 'types', 'Operator\ReportsController@types' )->name( 'reports.types' );
             Route::get( 'totals', 'Operator\ReportsController@totals' )->name( 'reports.totals' );
+            Route::get( 'types-groups', 'Operator\ReportsController@types_groups' )->name( 'reports.types_groups' );
         });
 
         Route::prefix( 'maps' )->group( function ()
@@ -311,14 +314,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
             Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
 
-            Route::get( 'groups/select/buildings', 'Catalog\GroupsController@selectBuildings' )->name( 'groups.select.buildings' );
-            Route::get( 'groups/{group_id}/buildings', 'Catalog\GroupsController@buildings' )->name( 'groups.buildings' );
-            Route::post( 'groups/{group_id}/buildings/search', 'Catalog\GroupsController@buildingsSearch' )->name( 'groups.buildings.search' );
-            Route::put( 'groups/{group_id}/buildings/add', 'Catalog\GroupsController@buildingsAdd' )->name( 'groups.buildings.add' );
-            Route::put( 'groups/{group_id}/segments/add', 'Catalog\GroupsController@segmentsAdd' )->name( 'groups.segments.add' );
-            Route::delete( 'groups/{group_id}/buildings/del', 'Catalog\GroupsController@buildingsDel' )->name( 'groups.buildings.del' );
-            Route::delete( 'groups/{group_id}/buildings/empty', 'Catalog\GroupsController@buildingsEmpty' )->name( 'groups.buildings.empty' );
-
             Route::post( 'executors/{executor_id}/user', 'Catalog\ExecutorsController@user' )->name( 'executors.user' );
 
             Route::resource( 'managements', 'Catalog\ManagementsController' );
@@ -330,7 +325,20 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'rooms', 'Catalog\RoomsController' );
             Route::resource( 'categories', 'Catalog\CategoriesController' );
 
+            Route::get( 'types_groups/{group_id}/types', 'Catalog\TypesGroupsController@types' )->name( 'types_groups.types' );
+            Route::post( 'types_groups/{group_id}/types/search', 'Catalog\TypesGroupsController@typesSearch' )->name( 'types_groups.types.search' );
+            Route::put( 'types_groups/{group_id}/types/add', 'Catalog\TypesGroupsController@typesAdd' )->name( 'types_groups.types.add' );
+            Route::delete( 'types_groups/{group_id}/types/del', 'Catalog\TypesGroupsController@typesDel' )->name( 'types_groups.types.del' );
+            Route::delete( 'types_groups/{group_id}/types/empty', 'Catalog\TypesGroupsController@typesEmpty' )->name( 'types_groups.types.empty' );
             Route::resource( 'types_groups', 'Catalog\TypesGroupsController' );
+
+            Route::get( 'buildings_groups/select', 'Catalog\BuildingsGroupsController@select' )->name( 'buildings_groups.select' );
+            Route::get( 'buildings_groups/{group_id}/buildings', 'Catalog\BuildingsGroupsController@buildings' )->name( 'buildings_groups.buildings' );
+            Route::post( 'buildings_groups/{group_id}/buildings/search', 'Catalog\BuildingsGroupsController@buildingsSearch' )->name( 'buildings_groups.buildings.search' );
+            Route::put( 'buildings_groups/{group_id}/buildings/add', 'Catalog\BuildingsGroupsController@buildingsAdd' )->name( 'buildings_groups.buildings.add' );
+            Route::put( 'buildings_groups/{group_id}/segments/add', 'Catalog\BuildingsGroupsController@segmentsAdd' )->name( 'buildings_groups.segments.add' );
+            Route::delete( 'buildings_groups/{group_id}/buildings/del', 'Catalog\BuildingsGroupsController@buildingsDel' )->name( 'buildings_groups.buildings.del' );
+            Route::delete( 'buildings_groups/{group_id}/buildings/empty', 'Catalog\BuildingsGroupsController@buildingsEmpty' )->name( 'buildings_groups.buildings.empty' );
             Route::resource( 'buildings_groups', 'Catalog\BuildingsGroupsController' );
 
         });

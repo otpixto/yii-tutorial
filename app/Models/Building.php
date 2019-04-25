@@ -145,21 +145,24 @@ class Building extends BaseModel
 
     public function edit ( array $attributes = [] )
     {
-        $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
+        if ( ! empty( $attributes[ 'name' ] ) )
+        {
+            $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
+            $building = self
+                ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
+                ->where( 'hash', '=', $attributes[ 'hash' ] )
+                ->where( 'id', '!=', $this->id )
+                ->first();
+            if ( $building )
+            {
+                return new MessageBag( [ 'Такой адрес уже существует' ] );
+            }
+        }
         if ( ! empty( $attributes[ 'date_of_construction' ] ) )
         {
             $attributes[ 'date_of_construction' ] = Carbon::parse( $attributes[ 'date_of_construction' ] )->format( 'Y-m-d' );
         }
         $attributes[ 'is_first_floor_living' ] = ! empty( $attributes[ 'is_first_floor_living' ] ) ? 1 : 0;
-        $building = self
-            ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
-            ->where( 'hash', '=', $attributes[ 'hash' ] )
-            ->where( 'id', '!=', $this->id )
-            ->first();
-        if ( $building )
-        {
-            return new MessageBag( [ 'Такой адрес уже существует' ] );
-        }
         return parent::edit( $attributes );
     }
 

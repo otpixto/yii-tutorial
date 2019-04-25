@@ -2,191 +2,71 @@
 
 namespace App\Classes;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+
 class Mosreg
 {
 
-    const URL = 'https://eds.mosreg.ru';
+    const URL = 'http://mosreg.eds-juk.ru';
 
-    private $curl = false;
+    private $client = false;
 
     public $id;
     private $username;
     private $password;
 
-    private $statuses = [
-        'IN_WORK' => 'В работе',
-        'ANSWERED' => 'Ожидает подтверждения',
-        'EXPIRED' => 'Срок превышен',
-        'GZI_REMEDY' => 'Контроль ГЖИ: Устранение',
-        'GZI_REMEDY_ANSWER' => 'Контроль ГЖИ: Получен ответ УК',
-        'GZI_EXPIRED' => 'Контроль ГЖИ: Просрочено',
-        'GZI_EXTRA_AUDIT' => 'Контроль ГЖИ: Внеплановая проверка',
-        'UNSATISFIED' => 'Требуется доработка',
-        'SOLVED' => 'Закрыто',
-        'UNSATISFIED_SENDED_TO_DD' => 'Несогласие жителя. Отправлено в Добродел.',
-    ];
-
     public function __construct ( $id, $username, $password )
     {
-
+        $this->client = new Client([
+            'base_uri' => self::URL,
+            RequestOptions::TIMEOUT => 5
+        ]);
         $this->id = $id;
         $this->username = $username;
         $this->password = $password;
-
-        $cookie_file = storage_path( 'mosreg-' . $id );
-
-        $this->curl = curl_init();
-
-        curl_setopt( $this->curl, CURLOPT_URL, self::URL . '/login' );
-        $data = [
-            'login-form-email' => $username,
-            'login-form-password' => $password,
-        ];
-        curl_setopt( $this->curl, CURLOPT_POST, true );
-        curl_setopt( $this->curl, CURLOPT_POSTFIELDS, $data );
-        curl_setopt( $this->curl, CURLOPT_SSL_VERIFYPEER, false );
-        curl_setopt( $this->curl, CURLOPT_RETURNTRANSFER, true );
-        //curl_setopt( $this->curl, CURLOPT_FOLLOWLOCATION, false );
-        curl_setopt( $this->curl, CURLOPT_COOKIEJAR, $cookie_file );
-        curl_setopt( $this->curl, CURLOPT_COOKIEFILE, $cookie_file );
-
-        curl_exec( $this->curl );
-        $err = curl_error( $this->curl );
-
-        if ( $err )
-        {
-            die( 'ERROR: ' . $err );
-        }
-
     }
 
-    public function normalizeAddress ( $address )
+    public function searchAddress ( $q )
     {
-        return trim( preg_replace( '/\s{2,}/U', ' ', preg_replace( '/г\.|ул\.|д\.|\,|Московская обл./iU', '', str_replace( ' к. ', 'к', $address ) ) ) );
+        return $this->sendRequest( 'GET', '/api/address/search?company_id=' . $this->id . '&q=' . urlencode( $q ) );
     }
 
-    public function searchAddress ( $address, $normalize = false )
+    public function getStatuses ()
     {
-        if ( $normalize )
-        {
-            $address = $this->normalizeAddress( $address );
-        }
-        curl_setopt( $this->curl, CURLOPT_URL, self::URL . '/api/company/search?address=' . urlencode( $address ) );
-        curl_setopt( $this->curl, CURLOPT_POST, false );
-        $response = curl_exec( $this->curl );
-        $err = curl_error( $this->curl );
-        if ( $err )
-        {
-            die( 'ERROR: ' . $err );
-        }
-        $data = json_decode( $response );
-        return $data->value->list;
+        return $this->sendRequest( 'GET', '/api/statuses' );
     }
 
-    public function getTickets ( $page = 1 )
+    public function getTickets ( int $page = 1 )
     {
-        curl_setopt( $this->curl, CURLOPT_URL, self::URL . '/claims' );
-        curl_setopt( $this->curl, CURLOPT_POST, false );
-        $response = curl_exec( $this->curl );
-        $err = curl_error( $this->curl );
-        if ( $err )
-        {
-            die( 'ERROR: ' . $err );
-        }
-        $re = '/<tr class=\".*\" data-claim=\"(.*)\" .*>\s*<td class=".*"><\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span>(.*)<\/span>\s*<\/td>\s*<td class=".*">\s*<span.*><\/span>\s*<\/td>\s*<td class=".*"><\/td>\s*<\/tr>/m';
-        $data = [];
-        preg_match_all( $re, $response, $matches, PREG_SET_ORDER );
-        foreach ( $matches as $i => $row )
-        {
-            $id = $row[ 1 ];
-            $data [ $id ] = [
-                'number' => $row[ 2 ],
-                'created_at' => $row[ 3 ],
-                'management' => $row[ 4 ],
-                'customer_name' => $row[ 5 ],
-                'customer_type' => $row[ 6 ],
-                'building_name' => $row[ 7 ],
-                'type_name' => $row[ 8 ],
-                'updated_at' => $row[ 9 ],
-                'status_name' => $row[ 10 ],
-            ];
-            $data[ $id ][ 'status_code' ] = array_search( $data[ $id ][ 'status_name' ], $this->statuses );
-        }
-        return $data;
+        return $this->sendRequest( 'GET', '/api/tickets?company_id=' . $this->id . '&page=' . $page );
     }
 
-    public function getTicket ( $id )
+    public function getTicket ( int $id )
     {
-        curl_setopt( $this->curl, CURLOPT_URL, self::URL . '/claim/' . $id );
-        curl_setopt( $this->curl, CURLOPT_POST, false );
-        $response = curl_exec( $this->curl );
-        $err = curl_error( $this->curl );
-        if ( $err )
-        {
-            die( 'ERROR: ' . $err );
-        }
-        return $response;
+        return $this->sendRequest( 'GET', '/api/tickets/' . $id . '/?company_id=' . $this->id );
     }
 
     public function createTicket ( array $data = [] )
     {
-        $data = [
-            'operator-claim-form-username'          => 'Иванов Иван Иванович',
-            'operator-claim-form-email'             => 'test@test.ru',
-            'operator-claim-form-phone'             => '74951234567',
-            'companyId'                             => 18823,
-            'addressId'                             => 507003,
-            'operator-claim-form-flat'              => 666,
-            'categoryId'                            => 1,
-            'operator-claim-form-text'              => 'test',
-            'files'                                 => null,
-        ];
-        curl_setopt( $this->curl, CURLOPT_URL,self::URL . '/api/operator/claim' );
-        curl_setopt( $this->curl, CURLOPT_POST, true );
-        curl_setopt( $this->curl, CURLOPT_POSTFIELDS, $data );
-        $response = curl_exec( $this->curl );
-        $err = curl_error( $this->curl );
-        if ( $err )
-        {
-            die( 'ERROR: ' . $err );
-        }
-        $data = json_decode( $response );
-        return $data ? $data->value : false;
+        return $this->sendRequest( 'POST', '/api/tickets/create/?company_id=' . $this->id, $data );
     }
 
-    public function addComment ( $mosreg_id, $comment )
+    public function changeStatus ( $id, $status_code )
     {
-        curl_setopt( $this->curl, CURLOPT_URL,self::URL . '/api/claim/comment/' . $mosreg_id );
-        curl_setopt( $this->curl, CURLOPT_POST, true );
-        //curl_setopt( $this->curl, CURLOPT_POSTFIELDS, $data );
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/status?company_id=' . $this->id, compact( 'status_code' ) );
     }
 
-    public function changeStatus ( $mosreg_id, $status )
+    private function sendRequest ( $method, $path, array $data = [] )
     {
-        if ( ! isset( $this->statuses[ $status ] ) )
-        {
-            die( 'ERROR: Incorrect Status' );
-        }
-        switch ( $status )
-        {
-            case 'IN_WORK':
-                curl_setopt( $this->curl, CURLOPT_URL,self::URL . '/api/claim/towork/' . $mosreg_id );
-                curl_setopt( $this->curl, CURLOPT_POST, true );
-                $response = curl_exec( $this->curl );
-                $err = curl_error( $this->curl );
-                if ( $err )
-                {
-                    die( 'ERROR: ' . $err );
-                }
-                $data = json_decode( $response );
-                return $data && $data->result == 'OK' ? true : false;
-                break;
-        }
-    }
-
-    public function __destruct ()
-    {
-        curl_close ( $this->curl );
+        $response = $this->client->request( $method, $path, [
+            RequestOptions::AUTH => [
+                $this->username,
+                $this->password
+            ],
+            RequestOptions::FORM_PARAMS => $data
+        ]);
+        return json_decode( $response->getBody() );
     }
 
 }

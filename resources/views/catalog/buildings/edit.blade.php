@@ -22,7 +22,7 @@
                     @if ( $providers->count() > 1 )
                         <div class="col-md-3">
                             {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик' ] ) !!}
+                            {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик', 'required' ] ) !!}
                         </div>
                     @else
                         <div class="col-md-3">
@@ -36,19 +36,19 @@
 
                     <div class="col-md-7">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'name', \Input::old( 'name', $building->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес' ] ) !!}
+                        {!! Form::text( 'name', \Input::old( 'name', $building->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес', 'required' ] ) !!}
                     </div>
 
                     <div class="col-md-2">
                         {!! Form::label( 'number', 'Номер', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'number', \Input::old( 'number', $building->number ), [ 'class' => 'form-control', 'placeholder' => 'Номер' ] ) !!}
+                        {!! Form::text( 'number', \Input::old( 'number', $building->number ), [ 'class' => 'form-control', 'placeholder' => 'Номер', 'required' ] ) !!}
                     </div>
 
                 </div>
 
                 <div class="form-group">
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         {!! Form::label( 'segment_id', 'Сегмент', [ 'class' => 'control-label' ] ) !!}
                         @if ( $building->segment )
                             <div id="segment_id" data-name="segment_id" data-value="{{ $building->segment->id }}" data-title="{{ $building->segment->getName() }}"></div>
@@ -57,19 +57,14 @@
                         @endif
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         {!! Form::label( 'date_of_construction', 'Дата постройки', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'date_of_construction', \Input::old( 'date_of_construction', \Carbon\Carbon::parse( $building->date_of_construction )->format( 'd.m.Y' ) ), [ 'class' => 'form-control datepicker', 'placeholder' => 'Дата постройки', 'data-date-format' => 'dd.mm.yyyy' ] ) !!}
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         {!! Form::label( 'eirts_number', 'Код ЕИРЦ', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'eirts_number', \Input::old( 'eirts_number', $building->eirts_number ), [ 'class' => 'form-control', 'placeholder' => 'Код ЕИРЦ' ] ) !!}
-                    </div>
-
-                    <div class="col-md-4">
-                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'guid', \Input::old( 'guid', $building->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
                     </div>
 
                 </div>
@@ -78,7 +73,7 @@
 
                     <div class="col-md-3">
                         {!! Form::label( 'building_type_id', 'Тип здания', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'building_type_id', $buildingTypes,\Input::old( 'building_type_id', $building->building_type_id ), [ 'class' => 'form-control', 'placeholder' => 'Тип здания' ] ) !!}
+                        {!! Form::select( 'building_type_id', $buildingTypes,\Input::old( 'building_type_id', $building->building_type_id ), [ 'class' => 'form-control', 'placeholder' => 'Тип здания', 'required' ] ) !!}
                     </div>
 
                     <div class="col-md-3">
@@ -142,6 +137,47 @@
                         </a>
                     </div>
 
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">АИС ГЖИ</h3>
+            </div>
+            <div class="panel-body">
+
+                {!! Form::model( $building, [ 'method' => 'put', 'route' => [ 'buildings.update', $building->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                <div class="form-group">
+
+                    <div class="col-md-7 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                GUID
+                            </span>
+                            {!! Form::text( 'guid', \Input::old( 'guid', $building->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                Mosreg ID
+                            </span>
+                            {!! Form::text( 'mosreg_id', \Input::old( 'mosreg_id', $building->mosreg_id ), [ 'class' => 'form-control', 'placeholder' => 'Mosreg ID' ] ) !!}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group hidden-print">
+                    <div class="col-xs-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
                 </div>
 
                 {!! Form::close() !!}

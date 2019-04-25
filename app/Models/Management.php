@@ -54,6 +54,7 @@ class Management extends BaseModel
         'contract_end',
         'mosreg_username',
         'mosreg_password',
+        'mosreg_id',
     ];
 
     protected $fillable = [
@@ -75,6 +76,7 @@ class Management extends BaseModel
         'contract_end',
         'mosreg_username',
         'mosreg_password',
+        'mosreg_id',
         'need_act',
     ];
 

@@ -790,21 +790,20 @@ class TicketsController extends BaseController
                         if ( $ticketManagement->management->hasMosreg( $mosreg ) )
                         {
                             $res = $mosreg->createTicket([
-                                'operator-claim-form-username'          => $ticket->getName(),
-                                'operator-claim-form-email'             => null,
-                                'operator-claim-form-phone'             => '7' . $ticket->phone,
-                                'companyId'                             => $mosreg->id,
-                                'addressId'                             => $ticket->building->mosreg_id,
-                                'categoryId'                            => $ticket->type->mosreg_id,
-                                'operator-claim-form-flat'              => $ticket->flat,
-                                'operator-claim-form-text'              => $ticket->text,
-                                'files'                                 => null,
+                                'company_id'            => $mosreg->id,
+                                'customer_name'         => $ticket->getName(),
+                                'customer_email'        => null,
+                                'customer_phone'        => '7' . $ticket->phone,
+                                'address_id'            => $ticket->building->mosreg_id,
+                                'flat'                  => $ticket->flat,
+                                'type_id'               => $ticket->type->mosreg_id,
+                                'text'                  => $ticket->text,
                             ]);
-                            if ( ! $res )
+                            if ( isset( $res->error ) )
                             {
                                 return redirect()
                                     ->back()
-                                    ->withErrors( [ 'Не удалось создать заявку в МОСРЕГ' ] );
+                                    ->withErrors( [ $res->error ] );
                             }
                             $ticketManagement->mosreg_id = $res->id;
                             $ticketManagement->mosreg_number = $res->compositeId;
@@ -975,6 +974,12 @@ class TicketsController extends BaseController
         }
         else
         {
+            $ticketManagements = $ticket->managements()->mine()->get();
+            if ( $ticketManagements->count() == 1 )
+            {
+                return redirect()
+                    ->route( 'tickets.show', $ticketManagements->first()->getTicketNumber() );
+            }
             $ticket->addLog( 'Просмотрел заявку №' . $ticket->id );
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
             $servicesCount = 0;

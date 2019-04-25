@@ -15,14 +15,9 @@ class BuildingGroup extends BaseModel
         'name',
     ];
 
-    public function provider ()
-    {
-        return $this->belongsTo( Provider::class );
-    }
-
     public function buildings ()
     {
-        return $this->belongsToMany( Building::class, 'group_building' );
+        return $this->belongsToMany( Building::class, 'building_group', 'group_id', 'building_id' );
     }
 
     public function scopeMine ( $query )

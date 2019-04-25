@@ -9,59 +9,45 @@
 
 @section( 'content' )
 
-    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print' ] ) !!}
+    {!! Form::open( [ 'method' => 'get', 'class' => 'hidden-print submit-loading' ] ) !!}
+
     @if ( $providers->count() > 1 )
-        <div class="form-group">
-            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-md-3' ] ) !!}
-            <div class="col-md-6">
+        <div class="row margin-bottom-15">
+            <div class="col-md-6 col-md-offset-3">
+                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
             </div>
         </div>
     @endif
-    <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-3">
-            <div class="input-group date datetimepicker form_datetime bs-datetime">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
+            <div class="input-group">
                 <span class="input-group-addon">
-                    <button class="btn default date-reset" type="button">
-                        <i class="fa fa-times"></i>
-                    </button>
+                    от
                 </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
                 <span class="input-group-addon">
-                    <button class="btn default date-set" type="button">
-                        <i class="fa fa-calendar"></i>
-                    </button>
+                    до
                 </span>
-            </div>
-        </div>
-        <div class="col-xs-3">
-            <div class="input-group date datetimepicker form_datetime bs-datetime">
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control' ] ) !!}
-                <span class="input-group-addon">
-                    <button class="btn default date-reset" type="button">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </span>
-                <span class="input-group-addon">
-                    <button class="btn default date-set" type="button">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
         </div>
     </div>
-    <div class="form-group">
-        {!! Form::label( 'building_id', 'Здание', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
-            {!! Form::select( 'building_id', $building, $building_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'building_id', 'Здание', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'building_id', $building ?: [], $building_id, [ 'class' => 'select2-ajax form-control', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес', 'required', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
-    <div class="form-group">
+
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-9">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            @if ( $ticketManagements->count() && \Auth::user()->can( 'reports.export' ) )
-                <a href="?export=1&{{ http_build_query( \Request::except( 'export' ) ) }}" class="btn btn-default">
+            @if ( $ticketManagements && \Auth::user()->can( 'reports.export' ) )
+                <a href="{{ Request::fullUrl() }}&export=1" class="btn btn-default">
                     <i class="fa fa-download"></i>
                     Выгрузить в Excel
                 </a>
@@ -123,9 +109,11 @@
                         </td>
                         <td>
                             @if ( $ticketManagement->ticket->type )
-                                <div>
-                                    {{ $ticketManagement->ticket->type->category->name }}
-                                </div>
+                                @if ( $ticketManagement->ticket->type->parent )
+                                    <div>
+                                        {{ $ticketManagement->ticket->type->parent->name }}
+                                    </div>
+                                @endif
                                 <div>
                                     {{ $ticketManagement->ticket->type->name }}
                                 </div>

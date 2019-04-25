@@ -4,7 +4,7 @@
             <div class="status-name">
                 <span class="text-muted small">Статус:</span>
                 <span id="status">
-                    {{ $ticketManagement->status_name ?? $ticket->status_name }}
+                    {{ $ticketManagement->status_name ?? $ticket->status_name ?? '-' }}
                 </span>
                 @if ( $ticket->status_code == 'waiting' && $ticket->postponed_to )
                     до {{ $ticket->postponed_to->format( 'd.m.Y' ) }}
@@ -374,6 +374,12 @@
                                             Из ЛК
                                         </span>
                                     @endif
+                                    @if ( $ticket->from_mosreg )
+                                        <span class="badge badge-danger bold">
+                                            <i class="icon-support"></i>
+                                            Из Мосрега
+                                        </span>
+                                    @endif
                                     @if ( $ticket->group_uuid )
                                         <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
                                             Сгруппировано
@@ -569,7 +575,7 @@
                                 </div>
                                 <div class="col-xs-3 text-right">
                                     <span class="badge badge-{{ $_ticketManagement->getClass() }} bold">
-                                        {{ $_ticketManagement->status_name }}
+                                        {{ $_ticketManagement->status_name ?: '-' }}
                                     </span>
                                 </div>
                             </div>

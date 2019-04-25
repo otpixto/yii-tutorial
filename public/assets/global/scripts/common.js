@@ -545,7 +545,7 @@ $( document )
         Modal.create( 'group-select', function ()
         {
             Modal.setTitle( 'Выберите группу' );
-            $.get( '/catalog/groups/select/buildings',
+            $.get( '/catalog/buildings_groups/select',
                 {
                     selector: selector
                 },

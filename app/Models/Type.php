@@ -15,6 +15,7 @@ class Type extends BaseModel
         'color',
         'description',
         'parent_id',
+        'group_id',
         'mosreg_id',
     ];
 
@@ -58,6 +59,11 @@ class Type extends BaseModel
     public function group ()
     {
         return $this->belongsTo( TypeGroup::class );
+    }
+
+    public function groups ()
+    {
+        return $this->belongsToMany( TypeGroup::class, 'group_type', 'type_id', 'group_id' );
     }
 
     public function childs ()

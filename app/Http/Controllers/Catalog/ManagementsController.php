@@ -337,7 +337,7 @@ class ManagementsController extends BaseController
 
         $rules = [
             'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|string|max:255',
+            'name'                  => 'nullable|string|max:255',
             'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'email'                 => 'nullable|email',
@@ -346,26 +346,49 @@ class ManagementsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $old = Management
-            ::mine( Management::IGNORE_MANAGEMENT )
-            ->where( 'id', '!=', $management->id )
-            ->where( function ( $q ) use ( $request )
-            {
-                $q
-                    ->where( 'name', '=', $request->get( 'name' ) );
-                if ( ! empty( $request->get( 'guid' ) ) )
-                {
-                    $q
-                        ->orWhere( 'guid', '=', $request->get( 'guid' ) );
-                }
-                return $q;
-            })
-            ->first();
-        if ( $old )
+        if ( $request->get( 'name' ) )
         {
-            return redirect()
-                ->back()
-                ->withErrors( [ 'УО уже существует' ] );
+            $old = Management
+                ::mine( Management::IGNORE_MANAGEMENT )
+                ->where( 'id', '!=', $management->id )
+                ->where( 'name', '=', $request->get( 'name' ) )
+                ->first();
+            if ( $old )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'УО уже существует' ] );
+            }
+        }
+
+        if ( $request->get( 'guid' ) )
+        {
+            $old = Management
+                ::mine( Management::IGNORE_MANAGEMENT )
+                ->where( 'id', '!=', $management->id )
+                ->where( 'guid', '=', $request->get( 'guid' ) )
+                ->first();
+            if ( $old )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'УО уже существует' ] );
+            }
+        }
+
+        if ( $request->get( 'mosreg_id' ) )
+        {
+            $old = Management
+                ::mine( Management::IGNORE_MANAGEMENT )
+                ->where( 'id', '!=', $management->id )
+                ->where( 'mosreg_id', '=', $request->get( 'mosreg_id' ) )
+                ->first();
+            if ( $old )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'УО уже существует' ] );
+            }
         }
 
         $res = $management->edit( $request->all() );

@@ -171,6 +171,13 @@
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->can( 'reports.types_groups' ) )
+                        <li>
+                            <a href="{{ route( 'reports.types_groups' ) }}">
+                                Отчет по видам работ
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'reports.executors' ) )
                         <li>
                             <a href="{{ route( 'reports.executors' ) }}">
@@ -260,13 +267,20 @@
                             </a>
                         </li>
                     @endif
-                    @if ( \Auth::user()->can( 'catalog.groups.types.show' ) )
+                    @if ( \Auth::user()->can( 'catalog.groups.show' ) )
                         <li aria-haspopup="true" >
                             <a href="{{ route( 'types_groups.index' ) }}" class="nav-link">
-                                Группы
+                                Группы классификатора
                             </a>
                         </li>
                     @endif
+                        @if ( \Auth::user()->can( 'catalog.groups.show' ) )
+                            <li aria-haspopup="true" >
+                                <a href="{{ route( 'buildings_groups.index' ) }}" class="nav-link">
+                                    Группы адресов
+                                </a>
+                            </li>
+                        @endif
                     @if ( \Auth::user()->can( 'catalog.types.show' ) )
                         <li aria-haspopup="true" >
                             <a href="{{ route( 'types.index' ) }}" class="nav-link">

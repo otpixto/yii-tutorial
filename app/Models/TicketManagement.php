@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\Mosreg;
+use App\Classes\SegmentChilds;
 use App\Jobs\SendStream;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -117,6 +118,9 @@ class TicketManagement extends BaseModel
         'scheduled_end',
         'status_code',
         'status_name',
+        'mosreg_id',
+        'mosreg_number',
+        'mosreg_status',
     ];
 
     public function services ()
@@ -724,6 +728,8 @@ class TicketManagement extends BaseModel
             case 'cancel':
             case 'no_contract':
             case 'rejected':
+            case 'GZI_EXPIRED':
+            case 'GZI_EXTRA_AUDIT':
                 return 'danger';
                 break;
             default:
@@ -836,11 +842,13 @@ class TicketManagement extends BaseModel
             return new MessageBag([ 'Некорректный статус' ]);
         }
 
-        $availableStatuses = array_merge( $this->ticket->getAvailableStatuses( 'edit' ), $this->getAvailableStatuses( 'edit' ) );
-
-        if ( ! $force && ! in_array( $status_code, $availableStatuses ) )
+        if ( ! $force )
         {
-            return new MessageBag([ 'Невозможно сменить статус!' ]);
+            $availableStatuses = array_merge( $this->ticket->getAvailableStatuses( 'edit' ), $this->getAvailableStatuses( 'edit' ) );
+            if ( ! in_array( $status_code, $availableStatuses ) )
+            {
+                return new MessageBag( [ 'Невозможно сменить статус!' ] );
+            }
         }
 
         if ( $this->status_code != $status_code )
@@ -876,6 +884,27 @@ class TicketManagement extends BaseModel
             return $res;
         }
 
+    }
+
+    public function changeMosregStatus ( $status_code ) : bool
+    {
+        if ( $this->mosreg_status == $status_code || ! isset( Ticket::$mosreg_statuses[ $status_code ] ) )
+        {
+            return false;
+        }
+        $res = $this->edit([
+            'mosreg_status' => $status_code
+        ]);
+        if ( $res instanceof MessageBag )
+        {
+            return false;
+        }
+        $res = $this->changeStatus( Ticket::$mosreg_statuses[ $status_code ], true );
+        if ( $res instanceof MessageBag )
+        {
+            return false;
+        }
+        return true;
     }
 
     public function processStatus ()
@@ -942,9 +971,8 @@ class TicketManagement extends BaseModel
 
                 if ( $this->mosreg_id )
                 {
-                    if ( $this->management->hasMosreg( $management ) )
+                    if ( $this->management->hasMosreg( $mosreg ) )
                     {
-                        $mosreg = new Mosreg( $management->mosreg_username, $management->mosreg_password );
                         $mosreg->changeStatus( $this->mosreg_id, 'IN_WORK' );
                     }
                 }

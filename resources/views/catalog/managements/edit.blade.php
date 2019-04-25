@@ -125,6 +125,47 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
+                <h3 class="panel-title">АИС ГЖИ</h3>
+            </div>
+            <div class="panel-body">
+
+                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                <div class="form-group">
+
+                    <div class="col-md-7 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                GUID
+                            </span>
+                            {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                Mosreg ID
+                            </span>
+                            {!! Form::text( 'mosreg_id', \Input::old( 'mosreg_id', $management->mosreg_id ), [ 'class' => 'form-control', 'placeholder' => 'Mosreg ID' ] ) !!}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group hidden-print">
+                    <div class="col-xs-12">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <h3 class="panel-title">
                     Настройки
                 </h3>
@@ -153,11 +194,7 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="col-md-6">
-                        {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
-                    </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         {!! Form::label( 'need_act', 'Требуется акт', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'need_act', [ 0 => 'Нет', 1 => 'Да' ], \Input::old( 'need_act', $management->need_act ), [ 'class' => 'form-control' ] ) !!}
                     </div>

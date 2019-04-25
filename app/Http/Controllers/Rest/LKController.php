@@ -7,7 +7,6 @@ use App\Classes\SegmentChilds;
 use App\Jobs\SendSms;
 use App\Models\Building;
 use App\Models\File;
-use App\Models\Segment;
 use App\Models\Ticket;
 use App\Models\Type;
 use App\Models\Work;

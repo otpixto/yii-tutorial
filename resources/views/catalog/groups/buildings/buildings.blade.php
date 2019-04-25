@@ -3,7 +3,7 @@
 @section( 'breadcrumbs' )
     {!! \App\Classes\Breadcrumbs::render([
         [ 'Главная', '/' ],
-        [ 'Группы', route( 'groups.index' ) ],
+        [ 'Группы', route( 'buildings_groups.index' ) ],
         [ \App\Classes\Title::get() ]
     ]) !!}
 @endsection
@@ -13,7 +13,7 @@
     @if ( \Auth::user()->can( 'catalog.groups.edit' ) )
 
         <div class="well">
-            <a href="{{ route( 'groups.edit', $group->id ) }}">
+            <a href="{{ route( 'buildings_groups.edit', $group->id ) }}">
                 {{ $group->name }}
             </a>
         </div>
@@ -29,7 +29,7 @@
                         </h3>
                     </div>
                     <div class="panel-body">
-                        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'groups.segments.add', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'buildings_groups.segments.add', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
                             <div class="col-md-12">
                                 <div id="segment_id" data-name="segments[]"></div>
@@ -59,10 +59,10 @@
                         </h3>
                     </div>
                     <div class="panel-body">
-                        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'groups.buildings.add', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        {!! Form::model( $group, [ 'method' => 'put', 'route' => [ 'buildings_groups.buildings.add', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                         <div class="form-group">
                             <div class="col-md-12">
-                                {!! Form::select( 'buildings[]', [], null, [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'groups.buildings.search', $group->id ), 'multiple' ] ) !!}
+                                {!! Form::select( 'buildings[]', [], null, [ 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'buildings_groups.buildings.search', $group->id ), 'multiple' ] ) !!}
                             </div>
                         </div>
                         <div class="form-group">
@@ -85,7 +85,7 @@
                 </h3>
             </div>
             <div class="panel-body">
-                {!! Form::open( [ 'method' => 'get', 'route' => [ 'groups.buildings', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                {!! Form::open( [ 'method' => 'get', 'route' => [ 'buildings_groups.buildings', $group->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
                 <div class="form-group">
                     <div class="col-md-12">
                         {!! Form::text( 'search', $search, [ 'class' => 'form-control' ] ) !!}
@@ -121,7 +121,7 @@
 
                 {{ $groupBuildings->render() }}
 
-                {!! Form::model( $group, [ 'method' => 'delete', 'route' => [ 'groups.buildings.empty', $group->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                {!! Form::model( $group, [ 'method' => 'delete', 'route' => [ 'buildings_groups.buildings.empty', $group->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
                 <div class="form-group margin-top-15">
                     <div class="col-md-12">
                         {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
@@ -181,7 +181,7 @@
                             obj.hide();
 
                             $.ajax({
-                                url: '{{ route( 'groups.buildings.del', $group->id ) }}',
+                                url: '{{ route( 'buildings_groups.buildings.del', $group->id ) }}',
                                 method: 'delete',
                                 data: {
                                     building_id: building_id

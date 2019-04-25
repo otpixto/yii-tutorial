@@ -13,24 +13,33 @@
         за период с {{ $date_from->format( 'd.m.Y' ) }} по {{ $date_to->format( 'd.m.Y' ) }}
     </p>
 
-    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal hidden-print submit-loading' ] ) !!}
-    <div class="form-group">
-        {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-3">
-            {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker' ] ) !!}
-        </div>
-        <div class="col-xs-3">
-            {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker' ] ) !!}
+    {!! Form::open( [ 'method' => 'get', 'class' => 'hidden-print submit-loading' ] ) !!}
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
+            <div class="input-group">
+                <span class="input-group-addon">
+                    от
+                </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+                <span class="input-group-addon">
+                    до
+                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-xs-3' ] ) !!}
-        <div class="col-xs-6">
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label' ] ) !!}
             {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-xs-3 col-xs-offset-3">
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
     </div>

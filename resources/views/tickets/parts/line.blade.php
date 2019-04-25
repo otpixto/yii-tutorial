@@ -14,7 +14,7 @@
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticketManagement->getClass() }}">
                 <div class="ribbon-sub ribbon-clip ribbon-round"></div>
                 <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="color-inherit">
-                    {{ $ticketManagement->status_name }}
+                    {{ $ticketManagement->status_name ?: '-' }}
                 </a>
             </div>
         </div>
@@ -133,6 +133,12 @@
                 <span class="badge badge-warning bold">
                     <i class="icon-user-follow"></i>
                     Из ЛК
+                </span>
+            @endif
+            @if ( $ticketManagement->ticket->from_mosreg )
+                <span class="badge badge-danger bold">
+                    <i class="icon-support"></i>
+                    Из Мосрега
                 </span>
             @endif
         </div>
