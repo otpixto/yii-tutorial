@@ -353,7 +353,7 @@ class ReportsController extends BaseController
 
         Title::add( 'Статистика оценок' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $managements_ids = $request->get( 'managements_ids', [] );
 
@@ -612,7 +612,7 @@ class ReportsController extends BaseController
 
         Title::add( 'Статистика заявок' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $managements_ids = $request->get( 'managements_ids', [] );
 
@@ -764,7 +764,7 @@ class ReportsController extends BaseController
 
         Title::add( 'Статистика по операторам' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $operator_id = $request->get( 'operator_id', null );
 
@@ -961,7 +961,7 @@ class ReportsController extends BaseController
 
         Title::add( 'Статистика по категориям' );
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth() ) )->setTime( 0, 0, 0 );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $managements_ids = $request->get( 'managements_ids', [] );
 		
