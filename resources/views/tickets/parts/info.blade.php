@@ -351,7 +351,7 @@
                                     @if ( $ticket->emergency )
                                         <span class="badge badge-danger bold">
                                             <i class="icon-fire"></i>
-                                            Авария
+                                            Аварийная
                                         </span>
                                         &nbsp;
                                     @endif

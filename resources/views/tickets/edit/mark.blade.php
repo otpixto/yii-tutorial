@@ -6,7 +6,7 @@
 		<label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
 			{!! Form::checkbox( 'emergency', 1, $ticket->emergency ) !!}
 			<span></span>
-			Авария
+			Аварийная
 		</label>
 	</div>
 	<div class="col-xs-4">

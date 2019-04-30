@@ -223,6 +223,10 @@
             .ready( function ()
             {
 
+                @if ( Request::get( 'cam_src' ) )
+                    initIntercom( '{{ Request::get( 'cam_src' ) }}' );
+                @endif
+
                 $( '.autosave' ).each( function ()
                 {
                     var that = $( this );

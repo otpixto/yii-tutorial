@@ -127,6 +127,16 @@
     </a>
 </div>
 
+<div id="intercom" class="hidden">
+    <div id="intercom-title">
+        ЗВОНОК НА 112
+        <a href="javascript:;" class="pull-right text-danger" id="intercom-close">
+            <i class="fa fa-times"></i>
+        </a>
+    </div>
+    <a href="{{ route( 'tickets.create' ) }}" id="intercom-image"></a>
+</div>
+
 @include( 'parts.js' )
 
 </body>

@@ -266,7 +266,6 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>

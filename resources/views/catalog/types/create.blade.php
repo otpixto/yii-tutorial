@@ -59,7 +59,7 @@
             </div>
 
             <div class="col-xs-4">
-                {!! Form::label( 'emergency', 'Авария', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::label( 'emergency', 'Аварийная', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency' ), [ 'class' => 'form-control make-switch switch-large', 'placeholder' => 'Необходим акт', 'data-label-icon' => 'fa fa-fullscreen', 'data-on-text' => '<i class=\'fa fa-check\'></i>', 'data-off-text' => '<i class=\'fa fa-times\'></i>' ] ) !!}
             </div>
 

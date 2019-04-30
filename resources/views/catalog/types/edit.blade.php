@@ -169,7 +169,7 @@
                                         <span></span>
                                     </label>
                                     <label class="mt-checkbox mt-checkbox-outline">
-                                        Авария
+                                        Аварийная
                                         {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $type->emergency ) ) !!}
                                         <span></span>
                                     </label>

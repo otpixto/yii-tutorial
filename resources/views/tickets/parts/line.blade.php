@@ -44,6 +44,11 @@
                 </span>
             </div>
         @endif
+        @if ( \Auth::user()->can( 'tickets.field_operator' ) )
+            <div class="text-info small bold">
+                {{ $ticketManagement->ticket->author->getName() }}
+            </div>
+        @endif
     </td>
     {{--<td>
         <div class="small">
@@ -120,7 +125,7 @@
             @if ( $ticketManagement->ticket->emergency )
                 <span class="badge badge-danger bold">
                     <i class="icon-fire"></i>
-                    Авария
+                    Аварийная
                 </span>
             @endif
             @if ( $ticketManagement->ticket->dobrodel )

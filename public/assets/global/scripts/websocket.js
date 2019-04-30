@@ -86,6 +86,9 @@ socket
         if ( ! data || ! data.action ) return;
         switch ( data.action )
         {
+            case 'intercom':
+                initIntercom( data.cam_src || null );
+                break;
             case 'create':
                 var line = $( '#ticket-management-' + data.ticket_management_id );
                 if ( line.length ) return;

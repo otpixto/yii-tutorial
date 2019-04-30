@@ -173,3 +173,34 @@ body {
 #queues {
     color: #ffffff;
 }
+
+#intercom {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    padding: 3px;
+    background: #999;
+    border: 2px solid #CC0000;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    z-index: 999999999999;
+    width: 330px;
+    height: 279px;
+}
+
+#intercom-title {
+    font-size: 1.5em;
+    text-align: center;
+    color: #CC0000;
+    font-weight: bold;
+}
+
+#intercom-image {
+    width: 320px;
+    height: 240px;
+    background-image: url( '/images/novideo.png' );
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: block;
+}

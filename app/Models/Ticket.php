@@ -475,7 +475,7 @@ class Ticket extends BaseModel
         return in_array( $this->status_code, self::$final_statuses );
     }
 
-    public static function create ( array $attributes = [] )
+    public static function create ( array $attributes = [], $emergency = 0 )
     {
 
         $ticket = self::draft()->first();
@@ -503,6 +503,11 @@ class Ticket extends BaseModel
         {
             $ticket->fill( $attributes );
             $ticket->save();
+        }
+
+        if ( $emergency )
+        {
+            //
         }
 
         return $ticket;

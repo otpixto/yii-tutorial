@@ -81,6 +81,13 @@ class WorksController extends BaseController
                 $filters[] = 'Ресурс отключения: ' . Type::find( $request->get( 'category_id' ) )->name;
             }
 
+            if ( ! empty( $request->get( 'type_id' ) ) )
+            {
+                $works
+                    ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
+                $filters[] = 'Тип отключения: ' . Work::$types[ $request->get( 'type_id' ) ];
+            }
+
             if ( ! empty( $request->get( 'composition' ) ) )
             {
                 $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
@@ -1297,7 +1304,7 @@ class WorksController extends BaseController
 
         foreach ( $data as $key => $val )
         {
-            if ( empty( $val ) )
+            if ( $val == '' )
             {
                 unset( $data[ $key ] );
             }

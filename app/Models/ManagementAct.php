@@ -37,7 +37,7 @@ class ManagementAct extends BaseModel
         }
         $content = $this->content;
         $content = str_replace( '[[object]]', $management, $content );
-        $content = str_replace( '[[emergency]]', $ticket->emergency ? 'Авария' : '', $content );
+        $content = str_replace( '[[emergency]]', $ticket->emergency ? 'Аварийная' : '', $content );
         $content = str_replace( '[[urgent]]', $ticket->urgently ? 'Срочно' : '', $content );
         $content = str_replace( '[[urgent_details]]', '', $content );
         $content = str_replace( '[[number]]', $ticket->id, $content );

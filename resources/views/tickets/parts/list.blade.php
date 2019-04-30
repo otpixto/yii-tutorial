@@ -18,6 +18,9 @@
     <tr class="info">
         <th width="250">
             Статус \ Номер заявки \ Оценка
+            @if ( \Auth::user()->can( 'tickets.field_operator' ) )
+                \ Автор
+            @endif
         </th>
         {{--<th width="220">
             Даты \ Сроки

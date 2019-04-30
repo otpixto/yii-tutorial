@@ -639,14 +639,13 @@ class ReportsController extends BaseController
 		if ( count( $managements_ids ) )
         {
 
-            $data = [
-                'total' => 0,
-                'closed' => 0,
-                'not_verified' => 0,
-                'canceled' => 0,
-                'closed_with_confirm' => 0,
-                'closed_without_confirm' => 0
+            $totals = [
+                'total'             => 0,
+                'completed'         => 0,
+                'completed_percent' => 0,
             ];
+
+            $data = [];
 
             $managements = $availableManagements
                 ->whereIn( 'id', $managements_ids );
@@ -655,13 +654,9 @@ class ReportsController extends BaseController
             {
 
                 $data[ $management->id ] = [
-                    'name' => $management->name,
-                    'total' => 0,
-                    'closed' => 0,
-                    'not_verified' => 0,
-                    'canceled' => 0,
-                    'closed_with_confirm' => 0,
-                    'closed_without_confirm' => 0
+                    'name'              => $management->name,
+                    'total'             => 0,
+                    'completed'         => 0,
                 ];
 
                 $ticketManagements = $management
@@ -673,35 +668,22 @@ class ReportsController extends BaseController
                 foreach ( $ticketManagements as $ticketManagement )
                 {
 
-                    $data[ 'total' ] ++;
+                    $totals[ 'total' ] ++;
                     $data[ $ticketManagement->management_id ][ 'total' ] ++;
                     switch ( $ticketManagement->status_code )
                     {
                         case 'closed_with_confirm':
-                            $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                            $data[ $ticketManagement->management_id ][ 'closed_with_confirm' ] ++;
-                            $data[ 'closed' ] ++;
-                            $data[ 'closed_with_confirm' ] ++;
-                            break;
                         case 'closed_without_confirm':
-                            $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                            $data[ $ticketManagement->management_id ][ 'closed_without_confirm' ] ++;
-                            $data[ 'closed' ] ++;
-                            $data[ 'closed_without_confirm' ] ++;
-                            break;
                         case 'not_verified':
-                            $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                            $data[ $ticketManagement->management_id ][ 'not_verified' ] ++;
-                            $data[ 'closed' ] ++;
-                            $data[ 'not_verified' ] ++;
-                            break;
                         case 'cancel':
-                            $data[ $ticketManagement->management_id ][ 'closed' ] ++;
-                            $data[ $ticketManagement->management_id ][ 'canceled' ] ++;
-                            $data[ 'closed' ] ++;
-                            $data[ 'canceled' ] ++;
+                        case 'completed_with_act':
+                        case 'completed_without_act':
+                        case 'confirmation_operator':
+                        case 'confirmation_client':
+                        case 'no_contract':
+                            $totals[ 'completed' ] ++;
+                            $data[ $ticketManagement->management_id ][ 'completed' ] ++;
                             break;
-
                     }
 
                 }
@@ -716,12 +698,8 @@ class ReportsController extends BaseController
                     $print_data[] = [
                         'Нименование ЭО'                => $management->name,
                         'Поступило заявок'              => $data[ $management->id ][ 'total' ],
-                        'Всего закрыто заявок'          => $data[ $management->id ][ 'closed' ],
-                        'Отменено Заявителем'           => $data[ $management->id ][ 'canceled' ],
-                        'Проблема не подтверждена'      => $data[ $management->id ][ 'not_verified' ],
-                        'Закрыто c подтверждением'      => $data[ $management->id ][ 'closed_with_confirm' ],
-                        'Закрыто без подтверждения'     => $data[ $management->id ][ 'closed_without_confirm' ],
-                        '% закрытых заявок'             => $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'closed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0,
+                        'Выполнено заявок'              => $data[ $management->id ][ 'completed' ],
+                        '% выполненных заявок'          => $data[ $management->id ][ 'total' ] ? ceil( $data[ $management->id ][ 'completed' ] * 100 / $data[ $management->id ][ 'total' ] ) : 0,
                     ];
                 }
                 \Excel::create( Title::get(), function ( $excel ) use ( $print_data )
@@ -749,6 +727,7 @@ class ReportsController extends BaseController
 
         return view( 'reports.tickets' )
             ->with( 'data', $data ?? null )
+            ->with( 'totals', $totals ?? null )
             ->with( 'managements', $managements ?? null )
             ->with( 'availableManagements', $availableManagements )
 			->with( 'providers', $providers )

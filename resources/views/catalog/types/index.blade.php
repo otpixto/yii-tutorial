@@ -147,7 +147,7 @@
                                         Платно
                                     </th>
                                     <th class="text-center">
-                                        Авария
+                                        Аварийная
                                     </th>
                                     <th class="text-center">
                                         Отключения

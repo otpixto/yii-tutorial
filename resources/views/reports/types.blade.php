@@ -60,6 +60,12 @@
     <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+            @if ( count( $data ) && \Auth::user()->can( 'reports.export' ) )
+                <a href="{{ Request::fullUrl() }}&export=1" class="btn btn-default">
+                    <i class="fa fa-download"></i>
+                    Выгрузить в Excel
+                </a>
+            @endif
         </div>
     </div>
     {!! Form::close() !!}

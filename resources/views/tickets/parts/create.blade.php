@@ -63,7 +63,7 @@
                     {!! Form::checkbox( 'emergency', 1, \Input::old( 'emergency', $ticket->emergency ?? null ), [ 'class' => 'autosave', 'id' => 'emergency', 'autocomplete' => 'off' ] ) !!}
                     <span></span>
                     <i class="icon-fire"></i>
-                    Авария
+                    Аварийная
                 </label>
             </div>
             <div class="col-xs-6">

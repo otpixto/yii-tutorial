@@ -32,7 +32,7 @@
     <thead>
     <tr class="info">
         <th rowspan="2">
-            Номер сообщения / Основание
+            Номер сообщения / Основание / Тип отключения
         </th>
         <th rowspan="2">
             Адрес работ / Исполнитель
@@ -73,6 +73,8 @@
                     <div class="small">
                         {{ $work->reason }}
                     </div>
+                    <hr />
+                    {{ \App\Models\Work::$types[ $work->type_id ] ?? '-' }}
                 </td>
                 <td>
                     @foreach ( $work->getAddressesGroupBySegment() as $segment )

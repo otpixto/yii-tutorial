@@ -87,6 +87,14 @@
 </div>
 <div class="row margin-top-10">
     <h4 class="col-md-2">
+        Тип отключения
+    </h4>
+    <div class="col-md-10">
+        {!! Form::select( 'type_id', [ null => ' -- все -- ' ] + \App\Models\Work::$types, '', [ 'class' => 'form-control', 'placeholder' => 'Тип отключения' ] ) !!}
+    </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
         Основание
     </h4>
     <div class="col-md-10">

@@ -338,7 +338,26 @@ class TicketsController extends BaseController
             }
             else
             {
-                $res = User::role( 'operator' )->get();
+                $res = User
+                    ::where( function ( $q )
+                    {
+                        return $q
+                            ->whereHas( 'roles', function ( $roles )
+                            {
+                                return $roles
+                                    ->whereHas( 'permissions', function ( $permissions )
+                                    {
+                                        return $permissions
+                                            ->where( 'code', '=', 'tickets.create' );
+                                    } );
+                            })
+                            ->orWhereHas( 'permissions', function( $permissions )
+                            {
+                                return $permissions
+                                    ->where( 'code', '=', 'tickets.create' );
+                            });
+                    })
+                    ->get();
                 $availableOperators = [];
                 foreach ( $res as $r )
                 {
@@ -610,7 +629,8 @@ class TicketsController extends BaseController
     public function create ( Request $request )
     {
 
-        $ticket = Ticket::create();
+        $emergency = $request->get( 'emergency', 0 );
+        $ticket = Ticket::create( [], $emergency );
 
         if ( $ticket instanceof MessageBag )
         {
@@ -650,6 +670,7 @@ class TicketsController extends BaseController
             ->with( 'ticket', $ticket )
             ->with( 'providers', $providers )
             ->with( 'vendors', $vendors )
+            ->with( 'emergency', $emergency )
             ->with( 'places', Ticket::$places );
     }
 
@@ -1329,10 +1350,21 @@ class TicketsController extends BaseController
 
 			    if ( \Auth::user()->can( 'tickets.edit' ) )
                 {
-                    $types = Type
+                    $res = Type
                         ::mine()
+                        ->where( function ( $q ) use ( $ticket )
+                        {
+                            return $q
+                                ->whereNotNull( 'parent_id' )
+                                ->orWhere( 'id', '=', $ticket->type_id );
+                        })
                         ->orderBy( 'name' )
-                        ->pluck( 'name', 'id' );
+                        ->get();
+                    $types = [];
+                    foreach ( $res as $r )
+                    {
+                        $types[ $r->parent->name ?? 'Текущий' ][ $r->id ] = $r->name;
+                    }
                     return view( 'tickets.edit.type' )
                         ->with( 'ticket', $ticket )
                         ->with( 'types', $types )

@@ -449,6 +449,36 @@ function getQueues ( queue, modal )
     }
 };
 
+function initIntercom ( cam_src )
+{
+    $( '#intercom' ).removeClass( 'hidden' );
+    if ( cam_src )
+    {
+        $( '#intercom-image' )
+            .css({
+                'background-image': 'url("' + cam_src + '")',
+                'background-size': 'contain'
+            })
+            .attr( 'data-src', cam_src );
+    }
+    else
+    {
+        $( '#intercom-image' )
+            .css({
+                'background-image': 'url("/images/novideo.png")',
+                'background-size': 'auto'
+            })
+            .removeAttr( 'data-src' );
+
+    }
+};
+
+function deinitIntercom ()
+{
+    $( '#intercom' )
+        .addClass( 'hidden' );
+};
+
 $( document )
 
     .ajaxError( function ( err, err2 )
@@ -470,6 +500,15 @@ $( document )
 
 	.ready ( function ()
 	{
+
+        $( '#intercom' )
+            .draggable()
+            .pulsate({
+                speed: 600,
+                color: '#CC0000',
+                glow: true,
+                reach: 10
+            });
 
         $( '.test' ).loading();
 
@@ -710,6 +749,23 @@ $( document )
         $( '#tickets-new-message' ).addClass( 'hidden' );
 
 	})
+
+    .on ( 'click', '#intercom-close', function ( e )
+    {
+        e.preventDefault();
+        deinitIntercom();
+    })
+
+    .on ( 'click', '#intercom-image', function ( e )
+    {
+        e.preventDefault();
+        var url = '/tickets/create';
+        if ( $( this ).data( 'src' ) )
+        {
+            url += '?cam_src=' + $( this ).data( 'src' );
+        }
+        window.location.href = url;
+    })
 
     .on ( 'click', '[data-pickup]', function ( e )
     {

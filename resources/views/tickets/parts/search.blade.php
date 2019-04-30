@@ -212,7 +212,7 @@
             Заявку оформил(а)
         </h4>
         <div class="col-md-10">
-            <select class="form-control select2" multiple="multiple" id="operators" name="operators[]">
+            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="operators" name="operators[]">
                 @foreach ( $availableOperators as $operator_id => $operator_name )
                     <option value="{{ $operator_id }}" @if ( in_array( $operator_id, $operators ) ) selected="selected" @endif>
                         {{ $operator_name }}
@@ -255,7 +255,7 @@
             <label>
                 {!! Form::checkbox( 'emergency', 1, \Input::get( 'emergency' ), [ 'class' => 'icheck' ] ) !!}
                 <i class="icon-fire"></i>
-                Авария
+                Аварийная
             </label>
             <label>
                 {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}
