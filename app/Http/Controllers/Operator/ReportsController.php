@@ -1053,6 +1053,12 @@ class ReportsController extends BaseController
                         case 'closed_without_confirm':
                         case 'not_verified':
                         case 'cancel':
+                        case 'completed_with_act':
+                        case 'completed_without_act':
+                        case 'confirmation_operator':
+                        case 'confirmation_client':
+                        case 'no_contract':
+                        case 'rejected_operator':
                             $data[ 'data' ][ $category_id ][ $management->id ][ 'closed' ] ++;
                             $data[ 'closed' ] ++;
                             $data[ 'managements' ][ $management->id ][ 'closed' ] ++;
