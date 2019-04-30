@@ -81,7 +81,7 @@ class WorksController extends BaseController
                 $filters[] = 'Ресурс отключения: ' . Type::find( $request->get( 'category_id' ) )->name;
             }
 
-            if ( ! empty( $request->get( 'type_id' ) ) )
+            if ( $request->get( 'type_id' ) != '' )
             {
                 $works
                     ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
