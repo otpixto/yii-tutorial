@@ -17,7 +17,7 @@
         <div class="form-group">
             {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label col-md-4' ] ) !!}
             <div class="col-md-8">
-                {!! Form::text( 'phone', null, [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                {!! Form::text( 'phone', null, [ 'class' => 'form-control', 'placeholder' => 'Телефон', 'maxlength' => 10 ] ) !!}
             </div>
         </div>
         <div class="form-group">
@@ -43,20 +43,4 @@
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
     @endif
 
-@endsection
-
-@section( 'js' )
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-
-        $( document )
-
-            .ready( function ()
-            {
-                $( '.mask_phone' ).inputmask( 'mask', {
-                    'mask': '+7 (999) 999-99-99'
-                });
-            });
-
-    </script>
 @endsection

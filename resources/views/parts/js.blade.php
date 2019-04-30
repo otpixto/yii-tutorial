@@ -17,11 +17,12 @@
 <script src="/assets/global/scripts/app.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/jquery.pulsate.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/jquery-cookie-1.4.1/jquery.cookie.js"></script>
 <script src="/assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/common.js?27" type="text/javascript"></script>
-<script src="//system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
+<script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/websocket.js?24" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->

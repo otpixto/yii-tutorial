@@ -108,7 +108,7 @@ class ProvidersController extends BaseController
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
         $rules = [
-            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone'                 => 'required|max:10',
             'name'                  => 'required|max:100',
             'description'           => 'nullable',
         ];
