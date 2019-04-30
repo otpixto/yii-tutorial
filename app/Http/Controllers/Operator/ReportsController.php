@@ -108,7 +108,7 @@ class ReportsController extends BaseController
                     $in_process = $ticketManagements
                         ->filter( function ( $item )
                         {
-                            return in_array( $item->status_code, [ 'transferred', 'accepted', 'assigned', 'in_process' ] );
+                            return in_array( $item->status_code, [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'in_process' ] );
                         })
                         ->count();
                     $waiting = $ticketManagements
