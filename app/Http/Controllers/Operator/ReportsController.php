@@ -242,9 +242,6 @@ class ReportsController extends BaseController
             ->sortBy( 'name' );
 
         $ticketManagements = null;
-        $management = null;
-        $executors = null;
-        $executor = null;
 
         if ( count( $managements ) )
         {
