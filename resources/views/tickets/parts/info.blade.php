@@ -775,6 +775,8 @@
             </div>
         @endif
 
+        <hr />
+
         @if ( ! is_null( $ticket->duration_work ) )
             <div class="row">
                 <div class="col-xs-12">
@@ -807,41 +809,42 @@
             </div>
         @endif
 
-        <div class="row">
-            <div class="col-xs-6">
-                @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) && $ticket->cdr && $ticket->cdr->hasMp3() )
-                    <div class="note">
-                        <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
-                            <i class="fa fa-chevron-circle-down text-success"></i>
-                            Входящий вызов
-                        </a>
-                    </div>
-                @endif
-            </div>
-            <div class="col-xs-6">
-                @if ( $ticketCalls->count() )
-                    @foreach ( $ticketCalls as $ticketCall )
-                        @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
-                            <div class="note">
-                                <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
-                                    <i class="fa fa-chevron-circle-up text-danger"></i>
-                                    Исходящий вызов
-                                    <span class="text-muted small">
+        @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) )
+            <div class="row">
+                <div class="col-xs-12">
+                    @if ( $ticket->cdr && $ticket->cdr->hasMp3() )
+                        <div class="note">
+                            <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
+                                <i class="fa fa-chevron-circle-down text-success"></i>
+                                Входящий вызов
+                            </a>
+                        </div>
+                    @endif
+                    @if ( $ticketCalls->count() )
+                        @foreach ( $ticketCalls as $ticketCall )
+                            @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
+                                <div class="note">
+                                    <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
+                                        <i class="fa fa-chevron-circle-up text-danger"></i>
+                                        Исходящий вызов
+                                        <span class="text-muted small">
                                         {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
                                     </span>
-                                </a>
-                            </div>
-                        @endif
-                    @endforeach
-                @endif
+                                    </a>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
+                </div>
             </div>
-        </div>
+        @endif
 
     </div>
 
 </div>
 
 @if ( \Auth::user()->can( 'tickets.comments' ) )
+    <hr />
     <div class="row margin-top-15">
         <div class="col-xs-12">
             <div class="note">
