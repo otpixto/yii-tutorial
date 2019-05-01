@@ -261,7 +261,7 @@ class ReportsController extends BaseController
             if ( count( $executors ) )
             {
                 $ticketManagements
-                    ->whereIn( 'executor_id', '=', $executors );
+                    ->whereIn( 'executor_id', $executors );
             }
         }
 
