@@ -45,15 +45,15 @@
 
     <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'management_id', 'УО', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'management_id', [ null => ' -- выберите из списка -- ' ] + $availableManagements, \Input::get( 'management_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+            {!! Form::label( 'managements', 'УО', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'managements[]', $availableManagements, Request::get( 'managements' ), [ 'class' => 'form-control select2', 'required', 'multiple', 'id' => 'managements' ] ) !!}
         </div>
     </div>
 
-    <div id="executor_block" class="row margin-bottom-15 @if ( ! $management ) hidden @endif">
+    <div id="executor_block" class="row margin-bottom-15 @if ( ! count( Request::get( 'managements', [] ) ) ) hidden @endif">
         <div class="col-md-6 col-md-offset-3">
-            {!! Form::label( 'executor_id', 'Исполнитель', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'executor_id', $executors ? [ null => ' -- выберите из списка -- ' ] + $executors->pluck( 'name', 'id' )->toArray() : [ null => 'Ничего не найдено' ], \Input::get( 'executor_id' ), [ 'class' => 'select2 form-control' ] ) !!}
+            {!! Form::label( 'executors', 'Исполнитель', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'executors[]', [], Request::get( 'executors' ), [ 'class' => 'form-control select2', 'multiple', 'id' => 'executors' ] ) !!}
         </div>
     </div>
 
@@ -81,13 +81,6 @@
 
     <div class="visible-print title">
         Статистический отчет по заявкам за период с {{ $date_from->format( 'd.m.Y H:i' ) }} по {{ $date_to->format( 'd.m.Y H:i' ) }}
-        @if ( $management )
-            Исполнитель
-            {{ $management->name }}
-            @if ( $executor )
-                {{ $executor->name }}
-            @endif
-        @endif
     </div>
 
     @if ( $ticketManagements )
@@ -247,6 +240,35 @@
 
     <script type="text/javascript">
 
+        function getExecutors ( selected )
+        {
+            var managements = $( '#managements' ).val();
+            $( '#executors' ).empty();
+            if ( managements )
+            {
+                $( '#executor_block' ).removeClass( 'hidden' );
+                $.get( '{{ route( 'managements.executors.search' ) }}', {
+                    managements: managements
+                }, function ( response )
+                {
+                    $.each( response, function ( i, executor )
+                    {
+                        $( '#executors' ).append(
+                            $( '<option>' ).val( executor.id ).text( executor.name )
+                        );
+                    });
+                    if ( selected )
+                    {
+                        $( '#executors' ).val( selected ).trigger( 'change' );
+                    }
+                });
+            }
+            else
+            {
+                $( '#executor_block' ).addClass( 'hidden' );
+            }
+        };
+
         $( document )
 
             .ready(function()
@@ -318,44 +340,11 @@
                     format: 'dd.mm.yyyy',
                 });
 
-            })
-
-            .on( 'change', '#management_id', function ()
-            {
-
-                var management_id = $( this ).val();
-
-                if ( management_id )
-                {
-
-                    $( '#executor_block' ).removeClass( 'hidden' );
-                    $( '#executor_id' ).html(
-                        $( '<option>' ).val( '0' ).text( 'Загрузка...' )
-                    );
-
-                    $.get( '{{ route( 'managements.executors.search' ) }}', {
-                        management_id: management_id
-                    }, function ( response )
-                    {
-                        $( '#executor_id' ).html(
-                            $( '<option>' ).val( '0' ).text( response.length ? ' -- выберите из списка -- ' : 'Ничего не найдено' )
-                        );
-                        $.each( response, function ( i, val )
-                        {
-                            $( '#executor_id' ).append(
-                                $( '<option>' ).val( val.id ).text( val.name )
-                            );
-                        });
-                    });
-
-                }
-                else
-                {
-                    $( '#executor_block' ).addClass( 'hidden' );
-                    $( '#executor_id' ).empty().val( '' );
-                }
+                getExecutors( '{{ implode( ',', Request::get( 'executors', [] ) ) }}'.split( ',' ) );
 
             })
+
+            .on( 'change', '#managements', getExecutors )
 
             .on( 'change', '#provider_id', function ()
             {

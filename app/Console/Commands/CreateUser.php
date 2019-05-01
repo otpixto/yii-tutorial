@@ -10,7 +10,7 @@ class CreateUser extends Command
 
     protected $signature = 'create:user';
 
-    protected $description = 'Создать админа или сбросить пароль';
+    protected $description = 'Создать пользователя';
 
     public function __construct ()
     {

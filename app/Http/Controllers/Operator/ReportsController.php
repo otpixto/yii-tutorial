@@ -215,8 +215,8 @@ class ReportsController extends BaseController
 
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-        $management_id = $request->get( 'management_id' );
-        $executor_id = $request->get( 'executor_id' );
+        $managements = $request->get( 'managements', [] );
+        $executors = $request->get( 'executors', [] );
         $rate_from = $request->get( 'rate_from', 1 );
         $rate_to = $request->get( 'rate_to', 5 );
         $status_code = $request->get( 'status_code' );
@@ -246,7 +246,7 @@ class ReportsController extends BaseController
         $executors = null;
         $executor = null;
 
-        if ( $management_id )
+        if ( count( $managements ) )
         {
             $ticketManagements = TicketManagement
                 ::mine()
@@ -257,17 +257,11 @@ class ReportsController extends BaseController
                         ->orWhereBetween( 'rate', [ $rate_from, $rate_to ] );
                 })
                 ->whereBetween( 'created_at', [ $date_from, $date_to ] )
-                ->whereIn( 'management_id', $availableManagements->pluck( 'id' ) )
-                ->where( 'management_id', '=', $management_id );
-            $management = $availableManagements->find( $management_id );
-            $executors = Executor
-                ::where( 'management_id', '=', $management_id )
-                ->get();
-            if ( $executor_id )
+                ->whereIn( 'management_id', $managements );
+            if ( count( $executors ) )
             {
                 $ticketManagements
-                    ->where( 'executor_id', '=', $executor_id );
-                $executor = $executors->find( $executor_id );
+                    ->whereIn( 'executor_id', '=', $executors );
             }
         }
 
@@ -284,14 +278,14 @@ class ReportsController extends BaseController
             foreach ( $ticketManagements as $ticketManagement )
             {
                 $data[] = [
-                    'Номер заявки' => $ticketManagement->ticket->id,
-                    'Дата создания' => $ticketManagement->created_at->format( 'd.m.Y H:i' ),
-                    'Адрес заявки' => $ticketManagement->ticket->getAddress(),
-                    'Классификатор' => $ticketManagement->ticket->type->name,
-                    'Выполненные работы' => $ticketManagement->services->implode( 'name', '; ' ),
-                    'Статус заявки' => $ticketManagement->status_name,
-                    'Дата выполнения' => $ticketManagement->ticket->completed_at ? $ticketManagement->ticket->completed_at->format( 'd.m.Y H:i' ) : '',
-                    'Оценка' => $ticketManagement->rate,
+                    'Описание проблемы'             => $ticketManagement->ticket->text,
+                    'Классификатор'                 => $ticketManagement->ticket->type->name,
+                    'Создана'                       => $ticketManagement->created_at->format( 'd.m.Y H:i' ),
+                    'Оценка качества выполнения'    => $ticketManagement->rate ?: '-',
+                    'Комментарий к оценке'          => $ticketManagement->rate_comment ?: '-',
+                    'Закрыта'                       => $ticketManagement->ticket->completed_at ? $ticketManagement->ticket->completed_at->format( 'd.m.Y H:i' ) : '-',
+                    'Служба эксплуатации'           => $ticketManagement->management->name,
+                    'Исполнитель'                   => $ticketManagement->executor ? $ticketManagement->executor->name : '-',
                 ];
             }
 
@@ -335,11 +329,6 @@ class ReportsController extends BaseController
             ->with( 'ticketManagements', $ticketManagements ?? null )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'availableStatuses', $availableStatuses )
-            ->with( 'management', $management ?? null )
-            ->with( 'executors', $executors ?? null )
-            ->with( 'executor', $executor ?? null )
-            ->with( 'management_id', $management_id )
-            ->with( 'executor_id', $executor_id )
 			->with( 'providers', $providers )
             ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
