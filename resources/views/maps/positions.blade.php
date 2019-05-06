@@ -45,6 +45,13 @@
     </div>
 
     <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'history', 'Отображать историю', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::checkbox( 'history', 1, \Request::get( 'history' ) ) !!}
+        </div>
+    </div>
+
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
         </div>
@@ -100,6 +107,7 @@
                 user_id: $( '#user_id' ).val(),
                 date_from: $( '#date_from' ).val(),
                 date_to: $( '#date_to' ).val(),
+                history: $( '#history' ).is( ':checked' ) ? 1 : 0
             },
             function ( response )
             {

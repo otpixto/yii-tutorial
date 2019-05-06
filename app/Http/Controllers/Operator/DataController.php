@@ -28,34 +28,53 @@ class DataController extends BaseController
             $users
                 ->where( 'id', '=', $request->get( 'user_id' ) );
         }
-        $users
-            ->whereHas( 'positions', function ( $positions ) use ( $request )
+        if ( $request->get( 'history' ) )
+        {
+            $users
+                ->whereHas( 'positions', function ( $positions ) use ( $request )
+                {
+                    if ( $request->get( 'date_from' ) )
+                    {
+                        $positions
+                            ->where( 'created_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+                    }
+                    if ( $request->get( 'date_to' ) )
+                    {
+                        $positions
+                            ->where( 'created_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+                    }
+                    return $positions;
+                });
+        }
+        else
+        {
+            if ( $request->get( 'date_from' ) )
             {
-                if ( $request->get( 'date_from' ) )
-                {
-                    $positions
-                        ->where( 'created_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
-                }
-                if ( $request->get( 'date_to' ) )
-                {
-                    $positions
-                        ->where( 'created_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
-                }
-                return $positions;
-            });
+                $users
+                    ->where( 'position_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+            }
+            if ( $request->get( 'date_to' ) )
+            {
+                $users
+                    ->where( 'position_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+            }
+        }
         $users = $users
             ->get();
         $data = [];
         foreach ( $users as $user )
         {
             $history = [];
-            foreach ( $user->positions as $position )
+            if ( $request->get( 'history' ) )
             {
-                $history[] = [
-                    'lon' => (float) $position->lon,
-                    'lat' => (float) $position->lat,
-                    'date' => $position->position_at ? $position->position_at->format( 'd.m.Y H:i' ) : $position->created_at->format( 'd.m.Y H:i' ),
-                ];
+                foreach ( $user->positions as $position )
+                {
+                    $history[] = [
+                        'lon' => (float) $position->lon,
+                        'lat' => (float) $position->lat,
+                        'date' => $position->position_at ? $position->position_at->format( 'd.m.Y H:i' ) : $position->created_at->format( 'd.m.Y H:i' ),
+                    ];
+                }
             }
             $data[] = [
                 'user_id' => $user->id,
