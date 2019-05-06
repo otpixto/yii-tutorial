@@ -73,7 +73,22 @@ class DataController extends BaseController
             $history = [];
             if ( $request->get( 'history' ) )
             {
-                foreach ( $user->positions as $position )
+                $positions = $user->positions()
+                    ->whereNotNull( 'lon' )
+                    ->whereNotNull( 'lat' )
+                    ->whereNotNull( 'position_at' );
+                if ( $request->get( 'date_from' ) )
+                {
+                    $positions
+                        ->where( 'position_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+                }
+                if ( $request->get( 'date_to' ) )
+                {
+                    $positions
+                        ->where( 'position_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+                }
+                $positions = $positions->get();
+                foreach ( $positions as $position )
                 {
                     $history[] = [
                         'lon' => (float) $position->lon,
