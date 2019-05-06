@@ -10,7 +10,49 @@
 
 @section( 'content' )
 
-    <div class="progress" id="loading">
+    {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading', 'id' => 'filter-form' ] ) !!}
+
+    @if ( $providers->count() > 1 )
+        <div class="row margin-bottom-15">
+            <div class="col-md-6 col-md-offset-3">
+                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
+            </div>
+        </div>
+    @endif
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
+            <div class="input-group">
+                <span class="input-group-addon">
+                    от
+                </span>
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+                <span class="input-group-addon">
+                    до
+                </span>
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'user_id', 'Сотрудник', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'user_id', $availableUsers, \Request::get( 'user_id' ), [ 'class' => 'select2 form-control', 'data-placeholder' => 'Сотрудник', 'autocomplete' => 'off' ] ) !!}
+        </div>
+    </div>
+
+    <div class="row margin-bottom-15">
+        <div class="col-xs-offset-3 col-xs-3">
+            {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+        </div>
+    </div>
+
+    {!! Form::close() !!}
+
+    <div class="progress hidden" id="loading">
         <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
             Загрузка...
         </div>
@@ -37,18 +79,30 @@
 
     <script type="text/javascript">
 
-        ymaps.ready(mapInit);
+        var myMap;
 
-        function mapInit ()
-        {
-            $.get( '{{ route( 'data.positions' ) }}', function ( response )
+        ymaps.ready( mapInit );
+
+        $( document )
+
+            .on( 'submit', '#filter-form', function ( e )
             {
-                var myMap = new ymaps.Map( 'map',
-                    {
-                        center: [ 55.76, 37.64 ],
-                        zoom: 12
-                    }
-                );
+                e.preventDefault();
+                getData();
+            });
+
+        function getData ( callback )
+        {
+            $( '#loading' ).removeClass( 'hidden' );
+            $( '#map' ).css( 'opacity', 0 );
+            myMap.geoObjects.removeAll();
+            $.get( '{{ route( 'data.positions' ) }}', {
+                user_id: $( '#user_id' ).val(),
+                date_from: $( '#date_from' ).val(),
+                date_to: $( '#date_to' ).val(),
+            },
+            function ( response )
+            {
                 if ( response && response.length )
                 {
                     var prevData = {};
@@ -93,8 +147,25 @@
                     });
                     //myMap.setCenter( Object.values( prevData ).pop() );
                 }
+                $( '#loading' ).addClass( 'hidden' );
                 $( '#map' ).css( 'opacity', 1 );
-                $( '#loading' ).hide();
+                if ( callback )
+                {
+                    callback.call( callback );
+                }
+            });
+        };
+
+        function mapInit ()
+        {
+            myMap = new ymaps.Map( 'map',
+                {
+                    center: [ 55.76, 37.64 ],
+                    zoom: 12
+                }
+            );
+            getData( function ()
+            {
             });
         };
 

@@ -17,12 +17,33 @@ class DataController extends BaseController
         parent::__construct();
     }
 
-    public function positions ()
+    public function positions ( Request $request )
     {
         $users = User
             ::whereNotNull( 'lon' )
             ->whereNotNull( 'lat' )
-            ->whereNotNull( 'position_at' )
+            ->whereNotNull( 'position_at' );
+        if ( $request->get( 'user_id' ) )
+        {
+            $users
+                ->where( 'id', '=', $request->get( 'user_id' ) );
+        }
+        $users
+            ->whereHas( 'positions', function ( $positions ) use ( $request )
+            {
+                if ( $request->get( 'date_from' ) )
+                {
+                    $positions
+                        ->where( 'created_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+                }
+                if ( $request->get( 'date_to' ) )
+                {
+                    $positions
+                        ->where( 'created_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+                }
+                return $positions;
+            });
+        $users = $users
             ->get();
         $data = [];
         foreach ( $users as $user )
