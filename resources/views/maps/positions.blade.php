@@ -40,7 +40,7 @@
     <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'user_id', 'Сотрудник', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'user_id', $availableUsers, \Request::get( 'user_id' ), [ 'class' => 'select2 form-control', 'data-placeholder' => 'Сотрудник', 'autocomplete' => 'off' ] ) !!}
+            {!! Form::select( 'user_id', $availableUsers, \Request::get( 'user_id' ), [ 'class' => 'select2 form-control', 'placeholder' => 'Сотрудник', 'data-placeholder' => 'Сотрудник', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
 
