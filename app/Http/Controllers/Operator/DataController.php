@@ -20,9 +20,7 @@ class DataController extends BaseController
     public function positions ( Request $request )
     {
         $users = User
-            ::whereNotNull( 'lon' )
-            ->whereNotNull( 'lat' )
-            ->whereNotNull( 'position_at' );
+            ::mine();
         if ( $request->get( 'user_id' ) )
         {
             $users
@@ -33,21 +31,29 @@ class DataController extends BaseController
             $users
                 ->whereHas( 'positions', function ( $positions ) use ( $request )
                 {
+                    $positions
+                        ->whereNotNull( 'lon' )
+                        ->whereNotNull( 'lat' )
+                        ->whereNotNull( 'position_at' );
                     if ( $request->get( 'date_from' ) )
                     {
                         $positions
-                            ->where( 'created_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+                            ->where( 'position_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
                     }
                     if ( $request->get( 'date_to' ) )
                     {
                         $positions
-                            ->where( 'created_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+                            ->where( 'position_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
                     }
                     return $positions;
                 });
         }
         else
         {
+            $users
+                ->whereNotNull( 'lon' )
+                ->whereNotNull( 'lat' )
+                ->whereNotNull( 'position_at' );
             if ( $request->get( 'date_from' ) )
             {
                 $users
@@ -72,7 +78,7 @@ class DataController extends BaseController
                     $history[] = [
                         'lon' => (float) $position->lon,
                         'lat' => (float) $position->lat,
-                        'date' => $position->position_at ? $position->position_at->format( 'd.m.Y H:i' ) : $position->created_at->format( 'd.m.Y H:i' ),
+                        'date' => $position->position_at->format( 'd.m.Y H:i' ),
                     ];
                 }
             }
