@@ -20,7 +20,20 @@ class DataController extends BaseController
     public function positions ( Request $request )
     {
         $users = User
-            ::mine();
+            ::mine()
+            ->whereNotNull( 'lon' )
+            ->whereNotNull( 'lat' )
+            ->whereNotNull( 'position_at' );
+        if ( $request->get( 'date_from' ) )
+        {
+            $users
+                ->where( 'position_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
+        }
+        if ( $request->get( 'date_to' ) )
+        {
+            $users
+                ->where( 'position_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
+        }
         if ( $request->get( 'user_id' ) )
         {
             $users
@@ -47,23 +60,6 @@ class DataController extends BaseController
                     }
                     return $positions;
                 });
-        }
-        else
-        {
-            $users
-                ->whereNotNull( 'lon' )
-                ->whereNotNull( 'lat' )
-                ->whereNotNull( 'position_at' );
-            if ( $request->get( 'date_from' ) )
-            {
-                $users
-                    ->where( 'position_at', '>=', Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() );
-            }
-            if ( $request->get( 'date_to' ) )
-            {
-                $users
-                    ->where( 'position_at', '<=', Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() );
-            }
         }
         $users = $users
             ->get();
