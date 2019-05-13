@@ -8,12 +8,14 @@ class Report extends BaseModel
 {
 
     protected $fillable = [
+        'user_id',
         'date_from',
         'date_to',
         'data'
     ];
 
     protected $nullable = [
+        'user_id',
         'date_from',
         'date_to',
         'data'
@@ -29,6 +31,10 @@ class Report extends BaseModel
 
     public static function create ( array $attributes = [] ) : Report
     {
+        if ( \Auth::user() )
+        {
+            $attributes[ 'user_id' ] = \Auth::user()->id;
+        }
         $attributes[ 'date_from' ] = Carbon::parse( $attributes[ 'date_from' ] )->toDateTimeString();
         $attributes[ 'date_to' ] = Carbon::parse( $attributes[ 'date_to' ] )->toDateTimeString();
         $new = parent::create( $attributes );
