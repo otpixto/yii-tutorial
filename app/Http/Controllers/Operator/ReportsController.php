@@ -196,7 +196,8 @@ class ReportsController extends BaseController
         {
 
             $report = Report
-                ::where( 'date_from', '=', $date_from->toDateTimeString() )
+                ::where( 'user_id', '=', \Auth::user()->id )
+                ->where( 'date_from', '=', $date_from->toDateTimeString() )
                 ->where( 'date_to', '=', $date_to->toDateTimeString() )
                 ->first();
             if ( ! $report )
