@@ -154,13 +154,13 @@
                     <div class="row">
                         <div class="col-xs-12">
                             <label for="push-title control-label">Тема</label>
-                            <input type="text" name="title" id="push-title" value="Тема сообщения" class="form-control" />
+                            <input type="text" name="title" id="push-title" value="" class="form-control" required="required" />
                         </div>
                     </div>
                     <div class="row margin-top-15">
                         <div class="col-xs-12">
                             <label for="push-message control-label">Сообщение</label>
-                            <textarea name="message" class="form-control" rows="10">Сообщение</textarea>
+                            <textarea name="message" class="form-control" rows="10" required="required"></textarea>
                         </div>
                     </div>
                     <div class="row margin-top-15">
