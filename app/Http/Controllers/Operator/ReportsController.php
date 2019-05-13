@@ -217,7 +217,8 @@ class ReportsController extends BaseController
         }
 
         $reports = Report
-            ::orderBy( 'date_from' )
+            ::where( 'user_id', '=', \Auth::user()->id )
+            ->orderBy( 'date_from' )
             ->orderBy( 'date_to' )
             ->get();
 		
