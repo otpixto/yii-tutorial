@@ -376,7 +376,7 @@
             @else
                 <div class="text-center">
                     <h3>Данные загружаются... Обновите страницу через 5 минут.</h3>
-                    <div class="loading"></div>
+                    <div class="report-loading"></div>
                 </div>
             @endif
 
@@ -442,7 +442,7 @@
         $( document )
             .ready( function ()
             {
-                $( '.loading' ).loading();
+                $( '.report-loading' ).loading();
             })
             .on( 'change', '#report', function ()
             {
