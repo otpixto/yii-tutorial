@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
+use App\Jobs\ReportJob;
 use App\Models\Building;
 use App\Models\Asterisk\Cdr;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
+use App\Models\Report;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\Type;
@@ -17,6 +19,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ReportsController extends BaseController
 {
@@ -176,8 +179,7 @@ class ReportsController extends BaseController
 		
 		$date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-		$management_id = $request->get( 'management_id' );
-		
+
 		$providers = Provider
 			::mine()
 			->current()
@@ -186,26 +188,48 @@ class ReportsController extends BaseController
 			
 		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 		
-		$title = 'Сформировать Справку ЕДС ЖКХ';
+		$title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ г.о. ЖУКОВСКИЙ ПО ВОПРОСАМ ЖКХ';
 		
 		Title::add( $title );
-		
-		$availableManagements = Management
-			::mine()
-			->whereNull( 'parent_id' )
-			->whereHas( 'childs' )
-			->where( 'provider_id', '=', $provider_id )
-			->orderBy( 'name' )
-			->pluck( 'name', 'id' );
+
+		if ( $request->get( 'report', 0 ) == 1 )
+        {
+
+            $report = Report
+                ::where( 'date_from', '=', $date_from->toDateTimeString() )
+                ->where( 'date_to', '=', $date_to->toDateTimeString() )
+                ->first();
+            if ( ! $report )
+            {
+
+                $report = Report::create([
+                    'date_from' => $date_from,
+                    'date_to' => $date_to
+                ]);
+                $report->save();
+
+                $this->dispatch( new ReportJob( $report, \Auth::user() ) );
+
+            }
+
+            $data = $report->getData();
+
+        }
+
+        $reports = Report
+            ::orderBy( 'date_from' )
+            ->orderBy( 'date_to' )
+            ->get();
 		
 		return view( 'reports.totals' )
-            ->with( 'availableManagements', $availableManagements )
-            ->with( 'management_id', $management_id )
             ->with( 'provider_id', $provider_id )
             ->with( 'providers', $providers )
             ->with( 'date_from', $date_from )
-            ->with( 'date_to', $date_to );
-		
+            ->with( 'date_to', $date_to )
+            ->with( 'reports', $reports )
+            ->with( 'report', $report ?? null )
+            ->with( 'data', $data ?? null );
+
     }
 
     public function executors ( Request $request )

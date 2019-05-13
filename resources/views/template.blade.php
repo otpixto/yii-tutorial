@@ -84,6 +84,9 @@
                             @endif
                         </span>
                     @endif
+                    <button class="btn btn-info" data-action="push">
+                        Отправить сообщение
+                    </button>
                 </h1>
 
                 @yield( 'breadcrumbs' )
@@ -137,7 +140,56 @@
     <a href="{{ route( 'tickets.create' ) }}" id="intercom-image"></a>
 </div>
 
+<div class="modal fade in" role="basic" aria-hidden="true" data-id="modal" id="modal-push">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">
+                    Отправить сообщение
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route( 'rest.intercom.push' ) }}" method="post" id="form-push" class="submit-loading ajax">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="push-title control-label">Тема</label>
+                            <input type="text" name="title" id="push-title" value="Тема сообщения" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-xs-12">
+                            <label for="push-message control-label">Сообщение</label>
+                            <textarea name="message" class="form-control" rows="10">Сообщение</textarea>
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-xs-12">
+                            <button type="submit" class="btn btn-success">
+                                Отправить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include( 'parts.js' )
+<script type="text/javascript">
+    $( document )
+        .on( 'click', '[data-action="push"]', function ( e )
+        {
+            e.preventDefault();
+            $( '#modal-push' ).modal( 'show' );
+        });
+</script>
 
 </body>
 </html>

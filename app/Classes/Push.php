@@ -63,8 +63,11 @@ class Push
         if ( ! $this->curl ) return false;
         $request = [
             'to'                    => $token,
-            'data'                  => $this->data
         ];
+        if ( ! empty( $this->data ) )
+        {
+            $request[ 'data' ] = $this->data;
+        }
         if ( $this->title && $this->body )
         {
             $notification = [

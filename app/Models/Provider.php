@@ -109,7 +109,7 @@ class Provider extends BaseModel
 
     public function scopeCurrent ( $query )
     {
-        if ( ! self::subDomainIs( 'operator', 'system' ) )
+        if ( self::getSubDomain() && ! self::subDomainIs( 'operator', 'system' ) )
         {
             $query
                 ->where( 'domain', '=', \Request::getHost() );

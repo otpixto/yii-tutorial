@@ -79,6 +79,12 @@ Route::group( [ 'middleware' => 'rest' ], function ()
             Route::any( 'push', 'Rest\DeviceController@push' )->name( 'rest.devices.push' );
         });
 
+        Route::prefix( 'intercom' )->group( function ()
+        {
+            Route::any( 'login', 'Rest\IntercomController@login' )->name( 'rest.intercom.login' );
+            Route::any( 'push', 'Rest\IntercomController@push' )->name( 'rest.intercom.push' );
+        });
+
     });
 
     Route::prefix( 'asterisk' )->group( function ()
