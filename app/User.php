@@ -145,9 +145,9 @@ class User extends BaseModel implements
         return $this->hasMany( 'App\Models\UserPosition' );
     }
 
-    public function executor ()
+    public function executors ()
     {
-        return $this->hasOne( 'App\Models\Executor' );
+        return $this->hasMany( 'App\Models\Executor' );
     }
 
     /**

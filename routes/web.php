@@ -406,6 +406,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'users/{user_id}/providers', 'Admin\UsersController@providers' )->name( 'users.providers' );
             Route::put( 'users/{user_id}/providers/add', 'Admin\UsersController@providersAdd' )->name( 'users.providers.add' );
             Route::delete( 'users/{user_id}/providers/del', 'Admin\UsersController@providersDel' )->name( 'users.providers.del' );
+            Route::get( 'users/{user_id}/executors', 'Admin\UsersController@executors' )->name( 'users.executors' );
+            Route::delete( 'users/{user_id}/executors/del', 'Admin\UsersController@executorsDel' )->name( 'users.executors.del' );
             Route::get( 'users/{user_id}/perms', 'Admin\UsersController@perms' )->name( 'users.perms' );
             Route::put( 'users/{user_id}/perms/update', 'Admin\UsersController@permsUpdate' )->name( 'users.perms.update' );
             Route::put( 'users/{user_id}/roles/update', 'Admin\UsersController@rolesUpdate' )->name( 'users.roles.update' );

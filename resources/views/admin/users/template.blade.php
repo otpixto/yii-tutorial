@@ -29,6 +29,13 @@
                         <i class="fa fa-gear"></i>
                         Права доступа
                     </a>
+                    <a href="{{ route( 'users.executors', $user->id ) }}" class="list-group-item @if ( \Request::route()->getName() == 'users.executors' ) active @endif">
+                        <i class="fa fa-link"></i>
+                        Исполнители
+                        <span class="badge">
+                            {{ $user->executors()->count() }}
+                        </span>
+                    </a>
                     <a href="{{ route( 'users.providers', $user->id ) }}" class="list-group-item @if ( \Request::route()->getName() == 'users.providers' ) active @endif">
                         <i class="fa fa-link"></i>
                         Поставщики

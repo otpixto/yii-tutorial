@@ -253,6 +253,54 @@ class UsersController extends BaseController
 
     }
 
+    public function executors ( $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $userExecutors = $user->executors()
+            ->paginate( 30 );
+
+        return view('admin.users.executors' )
+            ->with( 'user', $user )
+            ->with( 'userExecutors', $userExecutors );
+
+    }
+
+    public function executorsDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'executor_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $executor = $user->executors()->find( $request->get( 'executor_id' ) );
+        if ( $executor )
+        {
+            $executor->user_id = null;
+            $executor->save();
+        }
+
+    }
+
     public function managements ( Request $request, $id )
     {
 
