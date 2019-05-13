@@ -45,9 +45,9 @@ class MapsController extends BaseController
             ->whereNotNull( 'lon' )
             ->whereNotNull( 'lat' )
             ->whereNotNull( 'position_at' )
-            ->whereHas( 'executor', function ( $executor )
+            ->whereHas( 'executors', function ( $executors )
             {
-                return $executor
+                return $executors
                     ->mine();
             })
             ->get();
