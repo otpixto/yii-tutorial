@@ -63,6 +63,7 @@ class DeviceController extends BaseController
             $this->addLog( 'Авторизовался' );
             return $this->success([
                 'id'            => $user->id,
+                'prefix'        => $user->prefix,
                 'fullname'      => $user->getName(),
                 'token'         => $providerToken->token
             ]);

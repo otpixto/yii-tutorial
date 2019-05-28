@@ -47,6 +47,7 @@ class Devices
             'phone'         => $ticket->phone,
             'phone2'        => $ticket->phone2,
             'operator'      => [
+                'prefix'        => $ticket->author->prefix,
                 'fullname'      => $ticket->author->getName(),
                 'number'        => $ticket->author->number
             ],
@@ -61,7 +62,11 @@ class Devices
             foreach ( $ticket->comments as $comment )
             {
                 $info[ 'comments' ][] = [
-                    'author'    => $comment->author->getName(),
+                    'operator'      => [
+                        'prefix'        => $comment->author->prefix,
+                        'fullname'      => $comment->author->getName(),
+                        'number'        => $comment->author->number
+                    ],
                     'datetime'  => $comment->created_at->timestamp,
                     'text'      => $comment->text
                 ];
@@ -69,7 +74,11 @@ class Devices
             foreach ( $ticket->calls as $call )
             {
                 $info[ 'calls' ][] = [
-                    'author'        => $call->author->getName(),
+                    'operator'      => [
+                        'prefix'        => $call->author->prefix,
+                        'fullname'      => $call->author->getName(),
+                        'number'        => $call->author->number
+                    ],
                     'datetime'      => $call->created_at->timestamp,
                     'number_from'   => $call->agent_number,
                     'number_to'     => $call->call_phone,
@@ -78,7 +87,11 @@ class Devices
             foreach ( $ticket->statusesHistory as $statusHistory )
             {
                 $info[ 'history' ][] = [
-                    'author'        => $statusHistory->author->getName(),
+                    'operator'      => [
+                        'prefix'        => $statusHistory->author->prefix,
+                        'fullname'      => $statusHistory->author->getName(),
+                        'number'        => $statusHistory->author->number
+                    ],
                     'datetime'      => $statusHistory->created_at->timestamp,
                     'status_code'   => $statusHistory->status_code,
                     'status_name'   => $statusHistory->status_name,
