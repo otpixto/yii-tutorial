@@ -69,8 +69,8 @@
         <div class="form-group">
 
             <div class="col-xs-4">
-                {!! Form::label( 'category_id', 'Категория ЭО', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Management::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория ЭО' ] ) !!}
+                {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label' ] ) !!}
+                {!! Form::select( 'category_id', [ null => ' -- выберите из списка -- ' ] + \App\Models\Management::$categories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Категория' ] ) !!}
             </div>
 
             <div class="col-xs-4">

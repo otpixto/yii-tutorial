@@ -27,6 +27,9 @@ class Management extends BaseModel
         2 => 'ЖСК, ТСН (ТСЖ)',
         3 => 'РСО',
         4 => 'Прочие',
+        5 => 'ОМСУ',
+        6 => 'БУ',
+        7 => 'БПП',
     ];
 
     public static $services = [
