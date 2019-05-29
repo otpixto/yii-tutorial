@@ -118,7 +118,7 @@
 </div>
 <!-- END CONTAINER -->
 
-<div class="hidden-md hidden-xs small" id="user-info">
+<div class="hidden-md hidden-xs small hidden-print" id="user-info">
     @include( 'parts.queues' )
     @include( 'parts.phone' )
     <i class="fa fa-user"></i>
@@ -130,7 +130,7 @@
     </a>
 </div>
 
-<div id="intercom" class="hidden">
+<div id="intercom" class="hidden hidden-print">
     <div id="intercom-title">
         ЗВОНОК НА 112
         <a href="javascript:;" class="pull-right text-danger" id="intercom-close">
@@ -140,7 +140,7 @@
     <a href="{{ route( 'tickets.create' ) }}" id="intercom-image"></a>
 </div>
 
-<div class="modal fade in" role="basic" aria-hidden="true" data-id="modal" id="modal-push">
+<div class="modal fade in hidden-print" role="basic" aria-hidden="true" data-id="modal" id="modal-push">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

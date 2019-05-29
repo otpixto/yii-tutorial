@@ -852,7 +852,7 @@ class Ticket extends BaseModel
 
     public function overdueDeadlineExecution ()
     {
-        if ( $this->overdueDeadlinePostponed() && $this->deadline_execution && ( $this->completed_at ?? Carbon::now() )->timestamp > $this->deadline_execution->timestamp )
+        if ( $this->overdueDeadlinePostponed() || ( $this->deadline_execution && ( $this->completed_at ?? Carbon::now() )->timestamp > $this->deadline_execution->timestamp ) )
         {
             return true;
         }
