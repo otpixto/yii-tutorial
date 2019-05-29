@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Asterisk\Cdr;
 use App\Models\Report;
 use App\Models\TicketManagement;
+use App\Models\Work;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -66,34 +67,36 @@ class ReportJob implements ShouldQueue
                 ->whereNotIn( 'status_code', [ 'draft', 'moderate', 'created', 'no_contract', 'rejected_operator' ] )
                 ->get();
 
+            $works = Work
+                ::whereHas( 'managements', function ( $managements )
+                {
+                    return $managements
+                        ->where( 'category_id', '!=', 1 );
+                })
+                ->whereBetween( \DB::raw( 'DATE( time_begin )' ), [ $date_from, $date_to ] )
+                ->get();
+
             $data = [
                 'calls' => 0,
                 'tickets' => 0,
+                'works' => [],
                 'current'=> [
                     'statuses' => [
-                        'total'             => [
-                            'uk'    => [ 0, 100, 0 ],
-                            'rso'   => [ 0, 100, 0 ],
+                        'uk'=> [
+                            'total'             => [ 0, 100, 0 ],
+                            'completed'         => [ 0, 0, 0 ],
+                            'in_process'        => [ 0, 0, 0 ],
+                            'cancel'            => [ 0, 0, 0 ],
+                            'waiting'           => [ 0, 0, 0 ],
+                            'expired'           => [ 0, 0, 0 ],
                         ],
-                        'completed'         => [
-                            'uk'    => [ 0, 0, 0 ],
-                            'rso'   => [ 0, 0, 0 ],
-                        ],
-                        'in_process'        => [
-                            'uk'    => [ 0, 0, 0 ],
-                            'rso'   => [ 0, 0, 0 ],
-                        ],
-                        'cancel'            => [
-                            'uk'    => [ 0, 0, 0 ],
-                            'rso'   => [ 0, 0, 0 ],
-                        ],
-                        'waiting'           => [
-                            'uk'    => [ 0, 0, 0 ],
-                            'rso'   => [ 0, 0, 0 ],
-                        ],
-                        'expired'           => [
-                            'uk'    => [ 0, 0, 0 ],
-                            'rso'   => [ 0, 0, 0 ],
+                        'rso'=> [
+                            'total'             => [ 0, 100, 0 ],
+                            'completed'         => [ 0, 0, 0 ],
+                            'in_process'        => [ 0, 0, 0 ],
+                            'cancel'            => [ 0, 0, 0 ],
+                            'waiting'           => [ 0, 0, 0 ],
+                            'expired'           => [ 0, 0, 0 ],
                         ],
                     ],
                     'types' => [],
@@ -102,36 +105,45 @@ class ReportJob implements ShouldQueue
                 ],
                 'prev'=> [
                     'statuses' => [
-                        'total'             => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
+                        'uk'=> [
+                            'total'             => [ 0, 100, 0 ],
+                            'completed'         => [ 0, 0, 0 ],
+                            'in_process'        => [ 0, 0, 0 ],
+                            'cancel'            => [ 0, 0, 0 ],
+                            'waiting'           => [ 0, 0, 0 ],
+                            'expired'           => [ 0, 0, 0 ],
                         ],
-                        'completed'         => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
-                        ],
-                        'in_process'        => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
-                        ],
-                        'cancel'            => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
-                        ],
-                        'waiting'           => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
-                        ],
-                        'expired'           => [
-                            'uk'    => [ 0 ],
-                            'rso'   => [ 0 ],
+                        'rso'=> [
+                            'total'             => [ 0, 100, 0 ],
+                            'completed'         => [ 0, 0, 0 ],
+                            'in_process'        => [ 0, 0, 0 ],
+                            'cancel'            => [ 0, 0, 0 ],
+                            'waiting'           => [ 0, 0, 0 ],
+                            'expired'           => [ 0, 0, 0 ],
                         ],
                     ],
                     'types' => [],
-                    'parents' => [],
-                    'managements' => [],
                 ],
             ];
+
+            foreach ( $works as $work )
+            {
+                foreach ( $work->managements as $management )
+                {
+                    if ( ! isset( $data[ 'works' ][ $management->name ] ) )
+                    {
+                        $data[ 'works' ][ $management->name ] = [ 0, 0 ];
+                    }
+                    if ( $work->type_id == 2 )
+                    {
+                        $data[ 'works' ][ $management->name ][ 0 ] ++;
+                    }
+                    else
+                    {
+                        $data[ 'works' ][ $management->name ][ 1 ] ++;
+                    }
+                }
+            }
 
             foreach ( $ticketManagements as $ticketManagement )
             {
@@ -164,21 +176,110 @@ class ReportJob implements ShouldQueue
                 if ( ! isset( $data[ $key ][ 'parents' ][ $parentManagement ] ) )
                 {
                     $data[ $key ][ 'parents' ][ $parentManagement ] = [
-                        'total' => 0,
-                        'completed' => 0,
-                        'expired' => 0,
-                        'in_process' => 0,
-                        'not_completed' => 0,
+                        'total'         => 0,
+                        'avg_rate'      => [],
+                        'rating'        => 0,
+                        'statuses'      => [
+                            'completed'     => [ 0, 0 ],
+                            'expired'       => [ 0, 0 ],
+                            'in_process'    => [ 0, 0 ],
+                            'not_completed' => [ 0, 0 ],
+                        ],
 
                     ];
                 }
-                $data[ $key ][ 'parents' ][ $parentManagement ][ 'total' ] ++;
 
-                $data[ $key ][ 'statuses' ][ 'total' ][ $key2 ][ 0 ] ++;
+                if ( $key == 'current' )
+                {
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ++;
+                    switch ( $ticketManagement->status_code )
+                    {
+                        case 'closed_with_confirm':
+                        case 'closed_without_confirm':
+                        case 'confirmation_operator':
+                        case 'confirmation_client':
+                        case 'not_verified':
+                        case 'completed_with_act':
+                        case 'completed_without_act':
+                            if ( $ticketManagement->ticket->overdueDeadlineExecution() )
+                            {
+                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 0 ] ++;
+                            }
+                            else
+                            {
+                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'completed' ][ 0 ] ++;
+                            }
+
+                            break;
+                        case 'transferred':
+                        case 'transferred_again':
+                        case 'accepted':
+                        case 'assigned':
+                        case 'in_process':
+                        case 'conflict':
+                            $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 0 ] ++;
+                            if ( $ticketManagement->status_code == 'transferred_again' )
+                            {
+                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 0 ] ++;
+                            }
+                            break;
+                    }
+
+                    if ( $ticketManagement->rate )
+                    {
+                        $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ][] = $ticketManagement->rate;
+                    }
+
+                    // БУ
+                    if ( $ticketManagement->management->category_id == 6 )
+                    {
+
+                        if ( ! isset( $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ] ) )
+                        {
+                            $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ] = [
+                                'total'             => 0,
+                                'completed'         => 0,
+                                'completed_percent' => 0,
+                                'expired'           => 0,
+                                'expired_percent'   => 0,
+                                'avg_rate'          => [],
+                            ];
+                        }
+
+                        if ( $ticketManagement->rate )
+                        {
+                            $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ][ 'avg_rate' ][] = $ticketManagement->rate;
+                        }
+
+                        $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ][ 'total' ] ++;
+
+                        if ( $ticketManagement->ticket->overdueDeadlineExecution() )
+                        {
+                            $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ][ 'expired' ] ++;
+                        }
+
+                        switch ( $ticketManagement->status_code )
+                        {
+                            case 'closed_with_confirm':
+                            case 'closed_without_confirm':
+                            case 'confirmation_operator':
+                            case 'confirmation_client':
+                            case 'not_verified':
+                            case 'completed_with_act':
+                            case 'completed_without_act':
+                                $data[ 'current' ][ 'managements' ][ $ticketManagement->management->name ][ 'completed' ] ++;
+                                break;
+                        }
+
+                    }
+
+                }
+
+                $data[ $key ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ++;
 
                 if ( $ticketManagement->ticket->overdueDeadlineAcceptance() )
                 {
-                    $data[ $key ][ 'statuses' ][ 'expired' ][ $key2 ][ 0 ] ++;
+                    $data[ $key ][ 'statuses' ][ $key2 ][ 'expired' ][ 0 ] ++;
                 }
                 else
                 {
@@ -191,21 +292,21 @@ class ReportJob implements ShouldQueue
                         case 'not_verified':
                         case 'completed_with_act':
                         case 'completed_without_act':
-                            $data[ $key ][ 'statuses' ][ 'completed' ][ $key2 ][ 0 ] ++;
+                            $data[ $key ][ 'statuses' ][ $key2 ][ 'completed' ][ 0 ] ++;
                             break;
                         case 'transferred':
                         case 'transferred_again':
                         case 'accepted':
                         case 'assigned':
                         case 'in_process':
-                            $data[ $key ][ 'statuses' ][ 'in_process' ][ $key2 ][ 0 ] ++;
+                            $data[ $key ][ 'statuses' ][ $key2 ][ 'in_process' ][ 0 ] ++;
                             break;
                         case 'rejected':
                         case 'cancel':
-                            $data[ $key ][ 'statuses' ][ 'cancel' ][ $key2 ][ 0 ] ++;
+                            $data[ $key ][ 'statuses' ][ $key2 ][ 'cancel' ][ 0 ] ++;
                             break;
                         case 'waiting':
-                            $data[ $key ][ 'statuses' ][ 'waiting' ][ $key2 ][ 0 ] ++;
+                            $data[ $key ][ 'statuses' ][ $key2 ][ 'waiting' ][ 0 ] ++;
                             break;
                     }
                 }
@@ -217,22 +318,62 @@ class ReportJob implements ShouldQueue
                 ->whereBetween( 'calldate', [ $date_from, $date_to ] )
                 ->count();
 
-            foreach ( $data[ 'current' ][ 'statuses' ] as $status => & $row )
+            foreach ( $data[ 'current' ][ 'statuses' ] as $key2 => & $row )
             {
-                if ( $status != 'total' )
+                foreach ( $row as $status => & $item )
                 {
-                    $row[ 'uk' ][ 1 ] = $data[ 'current' ][ 'statuses' ][ 'total' ][ 'uk' ][ 0 ] ? round( $row[ 'uk' ][ 0 ] / $data[ 'current' ][ 'statuses' ][ 'total' ][ 'uk' ][ 0 ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
-                    $row[ 'rso' ][ 1 ] = $data[ 'current' ][ 'statuses' ][ 'total' ][ 'rso' ][ 0 ] ? round( $row[ 'rso' ][ 0 ] / $data[ 'current' ][ 'statuses' ][ 'total' ][ 'rso' ][ 0 ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                    if ( $status != 'total' )
+                    {
+                        $item[ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $item[ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                    }
+                    $item[ 2 ] = $item[ 0 ] ? round( 100 - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $item[ 0 ] * 100 ) : 0;
                 }
-                $row[ 'uk' ][ 2 ] = $row[ 'uk' ][ 0 ] ? round( 100 - $data[ 'prev' ][ 'statuses' ][ $status ][ 'uk' ][ 0 ] / $row[ 'uk' ][ 0 ] * 100 ) : 0;
-                $row[ 'rso' ][ 2 ] = $row[ 'rso' ][ 0 ] ? round( 100 - $data[ 'prev' ][ 'statuses' ][ $status ][ 'rso' ][ 0 ] / $row[ 'rso' ][ 0 ] * 100 ) : 0;
+                uasort( $row, function ( $a, $b )
+                {
+                    return (int) $a[ 0 ] > (int) $b[ 0 ] ? -1 : 1;
+                });
             }
+
+            foreach ( $data[ 'current' ][ 'parents' ] as $parentManagement => & $row )
+            {
+                foreach ( $row[ 'statuses' ] as $status => & $item )
+                {
+                    $item[ 1 ] = $row[ 'total' ] ? round( $item[ 0 ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                }
+                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 1, PHP_ROUND_HALF_DOWN );
+                $row[ 'rating' ] = $row[ 'avg_rate' ] * 10;
+                $row[ 'rating' ] -= ( $row[ 'statuses' ][ 'not_completed' ][ 1 ] * 2 );
+                $row[ 'rating' ] -= $row[ 'statuses' ][ 'expired' ][ 1 ];
+                $row[ 'rating' ] -= $row[ 'statuses' ][ 'in_process' ][ 1 ];
+            }
+
+            uasort( $data[ 'current' ][ 'parents' ], function ( $a, $b )
+            {
+                return (int) $a[ 'rating' ] > (int) $b[ 'rating' ] ? -1 : 1;
+            });
+
+            foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
+            {
+                $item[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                $item[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 1, PHP_ROUND_HALF_DOWN );
+            }
+
+            uasort( $data[ 'current' ][ 'managements' ], function ( $a, $b )
+            {
+                return (int) $a[ 'completed_percent' ] > (int) $b[ 'completed_percent' ] ? -1 : 1;
+            });
 
             foreach ( $data[ 'current' ][ 'types' ] as $type => & $row )
             {
                 $row[ 1 ] = $data[ 'tickets' ] ? round( $row[ 0 ] / $data[ 'tickets' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
                 $row[ 2 ] = isset( $data[ 'prev' ][ 'types' ][ $type ] ) && $row[ 0 ] ? round( 100 - $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $row[ 0 ] * 100 ) : 0;
             }
+
+            uasort( $data[ 'current' ][ 'types' ], function ( $a, $b )
+            {
+                return (int) $a[ 0 ] > (int) $b[ 0 ] ? -1 : 1;
+            });
 
             $this->report->setData( $data );
             $this->report->save();

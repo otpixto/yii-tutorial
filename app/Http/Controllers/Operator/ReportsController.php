@@ -212,8 +212,17 @@ class ReportsController extends BaseController
                 $this->dispatch( new ReportJob( $report, \Auth::user() ) );
 
             }
-
-            $data = $report->getData();
+            else if ( $request->get( 'recalc', 0 ) == 1 )
+            {
+                $report->data = null;
+                $report->save();
+                $this->dispatch( new ReportJob( $report, \Auth::user() ) );
+                return redirect()->back();
+            }
+            else
+            {
+                $data = $report->getData();
+            }
 
         }
 
@@ -222,6 +231,15 @@ class ReportsController extends BaseController
             ->orderBy( 'date_from' )
             ->orderBy( 'date_to' )
             ->get();
+
+		$statuses = [
+            'total'             => 'Зарегистрировано',
+            'completed'         => 'Выполнено',
+            'in_process'        => 'В работе',
+            'cancel'            => 'Отклонено/Отменено',
+            'waiting'           => 'Отложены',
+            'expired'           => 'Просрочено',
+        ];
 		
 		return view( 'reports.totals' )
             ->with( 'provider_id', $provider_id )
@@ -230,7 +248,8 @@ class ReportsController extends BaseController
             ->with( 'date_to', $date_to )
             ->with( 'reports', $reports )
             ->with( 'report', $report ?? null )
-            ->with( 'data', $data ?? null );
+            ->with( 'data', $data ?? null )
+            ->with( 'statuses', $statuses );
 
     }
 
