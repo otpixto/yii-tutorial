@@ -53,13 +53,13 @@
             @if ( $data )
 
                 <div class="h3 text-center text-primary bold">
-                    СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ г.о. ЖУКОВСКИЙ ПО ВОПРОСАМ ЖКХ
+                    СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ
                 </div>
 
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -69,8 +69,17 @@
                     </div>
                 </div>
 
-                <div class="text-justify">
-                    ПРИНЯТО ВЫЗОВОВ  за период	{{ $data[ 'calls' ] }}  ЗАРЕГИСТРИРОВАНО  обращений жителей	за период   {{ $data[ 'tickets' ] }}
+                <div class="row">
+                    <div class="col-xs-5">
+                        <div class="text-left">
+                            ПРИНЯТО ВЫЗОВОВ за период <b>{{ $data[ 'calls' ] }}</b>
+                        </div>
+                    </div>
+                    <div class="col-xs-7">
+                        <div class="text-right">
+                            ЗАРЕГИСТРИРОВАНО обращений жителей за период <b>{{ $data[ 'tickets' ] }}</b>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="h4 text-center text-primary bold margin-top-30">
@@ -160,7 +169,7 @@
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -223,7 +232,7 @@
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -245,7 +254,7 @@
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -378,7 +387,7 @@
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -452,7 +461,7 @@
                 <div class="row visible-print">
                     <div class="col-xs-6">
                         <div class="h4 text-primary bold">
-                            ЕДС ЖКХ Жуковский
+                            ЕДС-регион
                         </div>
                     </div>
                     <div class="col-xs-6 text-right">
@@ -594,13 +603,23 @@
                 });
 
                 var data = [];
+                var categories = [];
+                var series = [
+                    {
+                        name: 'Рейтинг',
+                        data: [],
+                    }
+                ];
 
                 $( '#table-managements tbody tr' ).each( function ()
                 {
-                    data.push([
-                        $.trim( $( this ).find( '[data-field="management"]' ).text() ),
-                        Number( $.trim( $( this ).find( '[data-field="rating"]' ).text() ) )
-                    ]);
+                    var category = $.trim( $( this ).find( '[data-field="management"]' ).text() );
+                    var rating = Number( $.trim( $( this ).find( '[data-field="rating"]' ).text() ) );
+                    if ( rating >= 0 )
+                    {
+                        categories.push( category );
+                        series[ 0 ].data.push( rating );
+                    }
                 });
 
                 Highcharts.chart( 'managements-chart', {
@@ -615,33 +634,34 @@
                     },
                     xAxis: {
                         categories: categories,
-                        crosshair: true
+                        title: {
+                            text: null
+                        }
                     },
                     yAxis: {
                         min: 0,
                         title: {
-                            text: null
+                            text: 'Рейтинг',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        }
+                    },
+                    tooltip: {
+                        valueSuffix: ''
+                    },
+                    plotOptions: {
+                        bar: {
+                            dataLabels: {
+                                enabled: true
+                            }
                         }
                     },
                     legend: {
                         enabled: false
                     },
-                    tooltip: {
-                        pointFormat: 'Рейтинговый балл: <b>{point.y}</b>'
-                    },
-                    plotOptions: {
-                        column: {
-                            pointPadding: 0.2,
-                            borderWidth: 0
-                        }
-                    },
-                    series: [{
-                        name: 'Population',
-                        data: data,
-                        dataLabels: {
-                            enabled: true,
-                        }
-                    }]
+                    series: series
                 });
 
                 var data = [];

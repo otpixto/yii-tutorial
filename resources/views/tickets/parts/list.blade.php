@@ -7,8 +7,12 @@
             Найдено: <b>{{ $ticketManagements->total() }}</b>
         </span>
         @if ( \Auth::user()->can( 'tickets.export' ) )
-            |
-            <a href="{{ route( 'tickets.export', Request::getQueryString() ) }}">Выгрузить</a>
+            <span class="hidden-print">
+                |
+                <a href="{{ route( 'tickets.export', Request::getQueryString() ) }}">
+                    Выгрузить
+                </a>
+            </span>
         @endif
     </div>
 </div>

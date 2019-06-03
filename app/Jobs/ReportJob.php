@@ -71,6 +71,7 @@ class ReportJob implements ShouldQueue
                 ::whereHas( 'managements', function ( $managements )
                 {
                     return $managements
+                        ->mine()
                         ->where( 'category_id', '!=', 1 );
                 })
                 ->whereBetween( \DB::raw( 'DATE( time_begin )' ), [ $date_from, $date_to ] )
