@@ -232,7 +232,11 @@ class TicketsController extends BaseController
             }
             if ( \Auth::user()->can( 'tickets.field_management' ) )
             {
-                $data[ $i ][ 'ЭО' ] = $ticketManagement->management->name;
+                $data[ $i ][ 'Служба эксплуатации' ] = $ticketManagement->management->name;
+                if ( $ticketManagement->executor )
+                {
+                    $data[ $i ][ 'Исполнитель' ] = $ticketManagement->executor->name;
+                }
             }
             $i ++;
         }
