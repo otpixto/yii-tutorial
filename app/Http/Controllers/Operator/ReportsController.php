@@ -188,7 +188,7 @@ class ReportsController extends BaseController
 			
 		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 		
-		$title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ г.о. ЖУКОВСКИЙ ПО ВОПРОСАМ ЖКХ';
+		$title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ';
 		
 		Title::add( $title );
 
