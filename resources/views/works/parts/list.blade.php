@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row hidden-print">
     <div class="col-xs-6">
         @can( 'works.export' )
             <a href="{{ route( 'works.export', Request::getQueryString() ) }}" class="btn btn-default btn-lg">

@@ -84,7 +84,7 @@
                             @endif
                         </span>
                     @endif
-                    <button class="btn btn-info" data-action="push">
+                    <button class="btn btn-info hidden-print" data-action="push">
                         Отправить сообщение
                     </button>
                 </h1>

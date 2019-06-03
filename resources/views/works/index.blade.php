@@ -12,7 +12,7 @@
     @if ( \Auth::user()->canOne( 'works.show', 'works.all' ) )
 
         @if ( $scheduledTicketManagements->count() )
-            <div class="portlet box red" id="scheduled-tickets">
+            <div class="portlet box red hidden-print" id="scheduled-tickets">
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="fa fa-info"></i>
