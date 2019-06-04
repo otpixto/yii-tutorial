@@ -20,7 +20,12 @@ class DataController extends BaseController
     public function positions ( Request $request )
     {
         $users = User
-            ::mine();
+            ::mine()
+            ->whereHas( 'managements', function ( $managements )
+            {
+                return $managements
+                    ->mine();
+            });
         if ( $request->get( 'user_id' ) )
         {
             $users
