@@ -320,6 +320,8 @@ class ReportsController extends BaseController
             foreach ( $ticketManagements as $ticketManagement )
             {
                 $data[] = [
+                    'Номер заявки'                  => $ticketManagement->getTicketNumber(),
+                    'Адрес заявки'                  => $ticketManagement->ticket->getAddress(),
                     'Описание проблемы'             => $ticketManagement->ticket->text,
                     'Классификатор'                 => $ticketManagement->ticket->type->name,
                     'Создана'                       => $ticketManagement->created_at->format( 'd.m.Y H:i' ),
