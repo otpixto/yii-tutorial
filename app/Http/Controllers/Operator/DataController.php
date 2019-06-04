@@ -21,9 +21,9 @@ class DataController extends BaseController
     {
         $users = User
             ::mine()
-            ->whereHas( 'managements', function ( $managements )
+            ->whereHas( 'executors', function ( $executors )
             {
-                return $managements
+                return $executors
                     ->mine();
             });
         if ( $request->get( 'user_id' ) )
