@@ -173,62 +173,69 @@ class ReportJob implements ShouldQueue
                     $data[ $key ][ 'types' ][ $type ][ 0 ] = 0;
                 }
                 $data[ $key ][ 'types' ][ $type ][ 0 ] ++;
-                $parentManagement = $ticketManagement->management->parent->name ?? $ticketManagement->management->name;
-                if ( ! isset( $data[ $key ][ 'parents' ][ $parentManagement ] ) )
-                {
-                    $data[ $key ][ 'parents' ][ $parentManagement ] = [
-                        'total'         => 0,
-                        'avg_rate'      => [],
-                        'rating'        => 0,
-                        'statuses'      => [
-                            'completed'     => [ 0, 0 ],
-                            'expired'       => [ 0, 0 ],
-                            'in_process'    => [ 0, 0 ],
-                            'not_completed' => [ 0, 0 ],
-                        ],
-
-                    ];
-                }
 
                 if ( $key == 'current' )
                 {
-                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ++;
-                    switch ( $ticketManagement->status_code )
-                    {
-                        case 'closed_with_confirm':
-                        case 'closed_without_confirm':
-                        case 'confirmation_operator':
-                        case 'confirmation_client':
-                        case 'not_verified':
-                        case 'completed_with_act':
-                        case 'completed_without_act':
-                            if ( $ticketManagement->ticket->overdueDeadlineExecution() )
-                            {
-                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 0 ] ++;
-                            }
-                            else
-                            {
-                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'completed' ][ 0 ] ++;
-                            }
 
-                            break;
-                        case 'transferred':
-                        case 'transferred_again':
-                        case 'accepted':
-                        case 'assigned':
-                        case 'in_process':
-                        case 'conflict':
-                            $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 0 ] ++;
-                            if ( $ticketManagement->status_code == 'transferred_again' )
-                            {
-                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 0 ] ++;
-                            }
-                            break;
-                    }
-
-                    if ( $ticketManagement->rate )
+                    if ( $key2 == 'uk' )
                     {
-                        $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ][] = $ticketManagement->rate;
+
+                        $parentManagement = $ticketManagement->management->parent->name ?? $ticketManagement->management->name;
+                        if ( ! isset( $data[ 'current' ][ 'parents' ][ $parentManagement ] ) )
+                        {
+                            $data[ 'current' ][ 'parents' ][ $parentManagement ] = [
+                                'total'         => 0,
+                                'avg_rate'      => [],
+                                'rating'        => 0,
+                                'statuses'      => [
+                                    'completed'     => [ 0, 0 ],
+                                    'expired'       => [ 0, 0 ],
+                                    'in_process'    => [ 0, 0 ],
+                                    'not_completed' => [ 0, 0 ],
+                                ],
+
+                            ];
+                        }
+
+                        $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ++;
+                        switch ( $ticketManagement->status_code )
+                        {
+                            case 'closed_with_confirm':
+                            case 'closed_without_confirm':
+                            case 'confirmation_operator':
+                            case 'confirmation_client':
+                            case 'not_verified':
+                            case 'completed_with_act':
+                            case 'completed_without_act':
+                                if ( $ticketManagement->ticket->overdueDeadlineExecution() )
+                                {
+                                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 0 ] ++;
+                                }
+                                else
+                                {
+                                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'completed' ][ 0 ] ++;
+                                }
+
+                                break;
+                            case 'transferred':
+                            case 'transferred_again':
+                            case 'accepted':
+                            case 'assigned':
+                            case 'in_process':
+                            case 'conflict':
+                                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 0 ] ++;
+                                if ( $ticketManagement->status_code == 'transferred_again' )
+                                {
+                                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 0 ] ++;
+                                }
+                                break;
+                        }
+
+                        if ( $ticketManagement->rate )
+                        {
+                            $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ][] = $ticketManagement->rate;
+                        }
+
                     }
 
                     // БУ
