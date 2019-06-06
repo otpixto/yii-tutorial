@@ -2215,7 +2215,7 @@ class TicketsController extends BaseController
             ->where( Management::$_table . '.id', '=', $ticketManagement->management->id )
             ->orWhere( function ( $q ) use ( $ticketManagement, $ticket )
             {
-                return $q
+                $q
                     ->whereHas( 'types', function ( $types ) use ( $ticket )
                     {
                         return $types
@@ -2225,19 +2225,19 @@ class TicketsController extends BaseController
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $ticket->building_id );
-                    })
-                    ->where( function ( $q2 ) use ( $ticketManagement )
-                    {
-                        $q2
-                            ->whereNull( Management::$_table . '.parent_id' )
-                            ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id );
-                        if ( $ticketManagement->management->parent_id )
-                        {
-                            $q2
-                                ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
-                        }
-                        return $q2;
                     });
+                if ( $ticketManagement->management->parent_id )
+                {
+                    $q
+                        ->where( function ( $q2 ) use ( $ticketManagement )
+                        {
+                            return $q2
+                                ->whereNull( Management::$_table . '.parent_id' )
+                                ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id )
+                                ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
+                        });
+                }
+                return $q;
             })
             ->get();
 
