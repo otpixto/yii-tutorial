@@ -70,22 +70,7 @@ class Counter
 
     public static function ticketsOverdueCount ()
     {
-        if ( is_null( self::$tickets_overdue_count ) )
-        {
-            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count' ) )
-            {
-                self::$tickets_overdue_count = TicketManagement
-                    ::mine()
-                    ->overdue()
-                    ->count();
-                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count', self::$tickets_overdue_count, self::$cache_life );
-            }
-            else
-            {
-                self::$tickets_overdue_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_count' );
-            }
-        }
-        return self::$tickets_overdue_count;
+        return self::ticketsOverdueAcceptanceCount() + self::ticketsOverdueExecutionCount();
     }
 
     public static function ticketsOverdueAcceptanceCount ()
