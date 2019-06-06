@@ -511,6 +511,9 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        td, th {
+            vertical-align: middle !important;
+        }
         @media print {
             html, body {
                 width: 100% ! important;
@@ -541,9 +544,6 @@
             }
             td span {
                 color: inherit !important;
-            }
-            td, th {
-                vertical-align: middle !important;
             }
         }
     </style>
