@@ -14,6 +14,8 @@ class Counter
 
     private static $tickets_count = null;
     private static $tickets_overdue_count = null;
+    private static $tickets_overdue_execution_count = null;
+    private static $tickets_overdue_acceptance_count = null;
     private static $tickets_not_processed_count = null;
     private static $tickets_in_process_count = null;
     private static $tickets_completed_count = null;
@@ -84,6 +86,46 @@ class Counter
             }
         }
         return self::$tickets_overdue_count;
+    }
+
+    public static function ticketsOverdueAcceptanceCount ()
+    {
+        if ( is_null( self::$tickets_overdue_acceptance_count ) )
+        {
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_acceptance_count' ) )
+            {
+                self::$tickets_overdue_acceptance_count = TicketManagement
+                    ::mine()
+                    ->overdueAcceptance()
+                    ->count();
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_acceptance_count', self::$tickets_overdue_acceptance_count, self::$cache_life );
+            }
+            else
+            {
+                self::$tickets_overdue_acceptance_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_acceptance_count' );
+            }
+        }
+        return self::$tickets_overdue_acceptance_count;
+    }
+
+    public static function ticketsOverdueExecutionCount ()
+    {
+        if ( is_null( self::$tickets_overdue_execution_count ) )
+        {
+            if ( ! \Cache::tags( 'tickets_counts' )->has( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_execution_count' ) )
+            {
+                self::$tickets_overdue_execution_count = TicketManagement
+                    ::mine()
+                    ->overdueExecution()
+                    ->count();
+                \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_execution_count', self::$tickets_overdue_execution_count, self::$cache_life );
+            }
+            else
+            {
+                self::$tickets_overdue_execution_count = \Cache::tags( 'tickets_counts' )->get( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_overdue_execution_count' );
+            }
+        }
+        return self::$tickets_overdue_execution_count;
     }
 
     public static function ticketsNotProcessedCount ()

@@ -227,6 +227,28 @@ class TicketManagement extends BaseModel
             });
     }
 
+    public function scopeOverdueAcceptance ( $query )
+    {
+        return $query
+            ->whereIn( 'status_code', [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'in_process', 'completed_with_act', 'completed_without_act' ] )
+            ->whereHas( 'ticket', function ( $ticket )
+            {
+                return $ticket
+                    ->overdueAcceptance();
+            });
+    }
+
+    public function scopeOverdueExecution ( $query )
+    {
+        return $query
+            ->whereIn( 'status_code', [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'in_process', 'completed_with_act', 'completed_without_act' ] )
+            ->whereHas( 'ticket', function ( $ticket )
+            {
+                return $ticket
+                    ->overdueExecution();
+            });
+    }
+
     public function scopeNotFinaleStatuses ( $query )
     {
         return $query
