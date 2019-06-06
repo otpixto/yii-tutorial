@@ -12,7 +12,7 @@
                             {{ \App\Classes\Counter::ticketsCount() }}
                         </span>
                         <span class="badge badge-danger bold">
-                            {{ \App\Classes\Counter::ticketsOverdueCount() }}
+                            {{ \App\Classes\Counter::ticketsOverdueExecutionCount() }}
                         </span>
                         @if ( \Auth::user()->can( 'tickets.call' ) )
                             <span class="badge badge-warning bold">
