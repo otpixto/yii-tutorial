@@ -542,6 +542,9 @@
             td span {
                 color: inherit !important;
             }
+            td, th {
+                vertical-align: middle !important;
+            }
         }
     </style>
 @endsection
