@@ -88,20 +88,20 @@
 
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
-                    <tr>
-                        <th class="text-right text-primary">
-                            СТАТУСЫ ЗАЯВОК
-                        </th>
-                        <th class="text-primary">
-                            Кол-во
-                        </th>
-                        <th class="text-primary">
-                            %
-                        </th>
-                        <th class="text-primary">
-                            +(-) к пред. периоду %
-                        </th>
-                    </tr>
+                        <tr>
+                            <th class="text-right text-primary">
+                                СТАТУСЫ ЗАЯВОК
+                            </th>
+                            <th class="text-center text-primary">
+                                Кол-во
+                            </th>
+                            <th class="text-center text-primary">
+                                %
+                            </th>
+                            <th class="text-center text-primary">
+                                +(-) к пред. периоду %
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                     @foreach ( $data[ 'current' ][ 'statuses' ][ 'uk' ] as $status => $row )
@@ -109,14 +109,16 @@
                             <td class="text-right">
                                 {{ $statuses[ $status ] }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {{ $row[ 0 ] }}
                             </td>
-                            <td class="text-nowrap">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
                             </td>
-                            <td @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
-                                {{ ( $row[ 2 ] > 0 ? '+' : '' ) . $row[ 2 ] }}%
+                            <td class="text-center">
+                                <span @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
+                                    {{ ( $row[ 2 ] > 0 ? '+' : '' ) . $row[ 2 ] }}%
+                                </span>
                             </td>
                         </tr>
                     @endforeach
@@ -129,20 +131,20 @@
 
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
-                    <tr>
-                        <th class="text-right text-primary">
-                            СТАТУСЫ ЗАЯВОК
-                        </th>
-                        <th class="text-primary">
-                            Кол-во
-                        </th>
-                        <th class="text-primary">
-                            %
-                        </th>
-                        <th class="text-primary">
-                            +(-) к пред. периоду %
-                        </th>
-                    </tr>
+                        <tr>
+                            <th class="text-right text-primary">
+                                СТАТУСЫ ЗАЯВОК
+                            </th>
+                            <th class="text-center text-primary">
+                                Кол-во
+                            </th>
+                            <th class="text-center text-primary">
+                                %
+                            </th>
+                            <th class="text-center text-primary">
+                                +(-) к пред. периоду %
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                     @foreach ( $data[ 'current' ][ 'statuses' ][ 'rso' ] as $status => $row )
@@ -150,14 +152,16 @@
                             <td class="text-right">
                                 {{ $statuses[ $status ] }}
                             </td>
-                            <td>
+                            <td class="text-center">
                                 {{ $row[ 0 ] }}
                             </td>
-                            <td class="text-nowrap">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
                             </td>
-                            <td @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
-                                {{ ( $row[ 2 ] > 0 ? '+' : '' ) . $row[ 2 ] }}%
+                            <td class="text-center">
+                                <span @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
+                                    {{ ( $row[ 2 ] > 0 ? '+' : '' ) . $row[ 2 ] }}%
+                                </span>
                             </td>
                         </tr>
                     @endforeach
@@ -209,16 +213,18 @@
                                     {{ $type }}
                                 </span>
                             </td>
-                            <td @if ( $i < 5 ) class="text-danger bold" @endif>
-                                {{ $row[ 0 ] }}
+                            <td class="text-center">
+                                <span @if ( $i < 5 ) class="text-danger bold" @endif>
+                                    {{ $row[ 0 ] }}
+                                </span>
                             </td>
-                            <td @if ( $i < 5 ) class="text-danger bold text-nowrap" @endif>
+                            <td class="text-center text-nowrap @if ( $i < 5 ) text-danger bold @endif">
                                 <span data-field="percent">
                                     {{ $row[ 1 ] }}
                                 </span>
                                 %
                             </td>
-                            <td @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
+                            <td class="text-center text-nowrap bold @if ( $row[ 2 ] > 10 ) text-danger @else text-success @endif">
                                 {{ ( $row[ 2 ] > 0 ? '+' : '' ) . $row[ 2 ] }}%
                             </td>
                         </tr>
