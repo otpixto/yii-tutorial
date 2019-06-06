@@ -86,7 +86,7 @@
                     Сводка по обращениям в адрес Управляющих Организаций
                 </div>
 
-                <table class="table table-bordered">
+                <table class="table table-bordered table-striped table-hover">
                     <thead>
                     <tr>
                         <th class="text-right text-primary">
@@ -127,7 +127,7 @@
                     Сводка по обращениям в адрес РСО, служб благоустройства и других участников информационного обмена
                 </div>
 
-                <table class="table table-bordered">
+                <table class="table table-bordered table-striped table-hover">
                     <thead>
                     <tr>
                         <th class="text-right text-primary">
@@ -183,7 +183,7 @@
                     РАСПРЕДЕЛЕНИЕ ОБРАЩЕНИЙ ПО ТИПАМ ПРОБЛЕМ
                 </div>
 
-                <table class="table table-bordered" id="table-categories">
+                <table class="table table-bordered table-striped table-hover" id="table-categories">
                     <thead>
                     <tr>
                         <th>
@@ -268,7 +268,7 @@
                     Сводка обращений по управляющим организациям
                 </div>
 
-                <table class="table table-bordered" id="table-managements">
+                <table class="table table-bordered table-striped table-hover" id="table-managements">
                     <thead>
                         <tr>
                             <th class="text-center" rowspan="2">
@@ -329,7 +329,7 @@
                     </thead>
                     <tbody>
                     @foreach ( $data[ 'current' ][ 'parents' ] as $parentManagement => $row )
-                        <tr @if ( $row[ 'rating' ] >= 40 ) class="bg-success bold" @elseif ( $row[ 'rating' ] >= 30 ) class="bg-warning bold" @else class="bg-danger bold" @endif>
+                        <tr>
                             <td>
                                 <span data-field="management">
                                     {{ $parentManagement }}
@@ -370,7 +370,7 @@
                                 {{ $row[ 'avg_rate' ] }}
                             </td>
                             <td class="text-center">
-                                <span data-field="rating">
+                                <span data-field="rating" @if ( $row[ 'rating' ] >= 40 ) class="text-success bold" @elseif ( $row[ 'rating' ] >= 30 ) class="text-warning bold" @else class="text-danger bold" @endif>
                                     {{ $row[ 'rating' ] }}
                                 </span>
                             </td>
@@ -526,6 +526,21 @@
             }
             .container {
                 width: 100% !important;
+            }
+            .text-primary {
+                color: #337ab7 !important;
+            }
+            .text-danger {
+                color: #ed6b75 !important;
+            }
+            .text-success {
+                color: #36c6d3 !important;
+            }
+            .text-warning {
+                color: #c29d0b !important;
+            }
+            td span {
+                color: inherit !important;
             }
         }
     </style>

@@ -332,7 +332,7 @@ class ReportJob implements ShouldQueue
                 {
                     if ( $status != 'total' )
                     {
-                        $item[ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $item[ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                        $item[ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $item[ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
                     }
                     $item[ 2 ] = $item[ 0 ] ? round( 100 - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $item[ 0 ] * 100 ) : 0;
                 }
@@ -348,11 +348,12 @@ class ReportJob implements ShouldQueue
                 {
                     $item[ 1 ] = $row[ 'total' ] ? round( $item[ 0 ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
                 }
-                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 1, PHP_ROUND_HALF_DOWN );
+                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 2, PHP_ROUND_HALF_DOWN );
                 $row[ 'rating' ] = $row[ 'avg_rate' ] * 10;
                 $row[ 'rating' ] -= ( $row[ 'statuses' ][ 'not_completed' ][ 1 ] * 2 );
                 $row[ 'rating' ] -= $row[ 'statuses' ][ 'expired' ][ 1 ];
                 $row[ 'rating' ] -= $row[ 'statuses' ][ 'in_process' ][ 1 ];
+                $row[ 'rating' ] = round( $row[ 'rating' ], 2 );
             }
 
             uasort( $data[ 'current' ][ 'parents' ], function ( $a, $b )
@@ -362,9 +363,9 @@ class ReportJob implements ShouldQueue
 
             foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
             {
-                $item[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
-                $item[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
-                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 1, PHP_ROUND_HALF_DOWN );
+                $item[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100 ) : 0;
+                $item[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100 ) : 0;
+                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 2, PHP_ROUND_HALF_DOWN );
             }
 
             uasort( $data[ 'current' ][ 'managements' ], function ( $a, $b )
@@ -374,7 +375,7 @@ class ReportJob implements ShouldQueue
 
             foreach ( $data[ 'current' ][ 'types' ] as $type => & $row )
             {
-                $row[ 1 ] = $data[ 'tickets' ] ? round( $row[ 0 ] / $data[ 'tickets' ] * 100, 1, PHP_ROUND_HALF_DOWN ) : 0;
+                $row[ 1 ] = $data[ 'tickets' ] ? round( $row[ 0 ] / $data[ 'tickets' ] * 100 ) : 0;
                 $row[ 2 ] = isset( $data[ 'prev' ][ 'types' ][ $type ] ) && $row[ 0 ] ? round( 100 - $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $row[ 0 ] * 100 ) : 0;
             }
 
