@@ -2210,21 +2210,38 @@ class TicketsController extends BaseController
 
         \DB::beginTransaction();
 
-        $management = Management
+        $managements = Management
             ::mine( Management::IGNORE_MANAGEMENT )
-            ->where( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id )
-            ->whereHas( 'types', function ( $types ) use ( $ticket )
+            ->where( Management::$_table . '.id', '=', $ticketManagement->management->id )
+            ->orWhere( function ( $q ) use ( $ticketManagement, $ticket )
             {
-                return $types
-                    ->where( Type::$_table . '.id', '=', $ticket->type_id );
+                return $q
+                    ->whereHas( 'types', function ( $types ) use ( $ticket )
+                    {
+                        return $types
+                            ->where( Type::$_table . '.id', '=', $ticket->type_id );
+                    })
+                    ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
+                    {
+                        return $buildings
+                            ->where( Building::$_table . '.id', '=', $ticket->building_id );
+                    })
+                    ->where( function ( $q2 ) use ( $ticketManagement )
+                    {
+                        $q2
+                            ->whereNull( Management::$_table . '.parent_id' )
+                            ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id );
+                        if ( $ticketManagement->management->parent_id )
+                        {
+                            $q2
+                                ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
+                        }
+                        return $q2;
+                    });
             })
-            ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
-            {
-                return $buildings
-                    ->where( Building::$_table . '.id', '=', $ticket->building_id );
-            })
-            ->where( Management::$_table . '.id', '=', $request->get( 'management_id' ) )
-            ->first();
+            ->get();
+
+        $management = $managements->firstWhere( 'id', $request->get( 'management_id' ) );
 
         if ( ! $management )
         {
