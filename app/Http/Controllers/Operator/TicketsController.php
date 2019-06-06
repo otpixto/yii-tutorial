@@ -2241,7 +2241,7 @@ class TicketsController extends BaseController
             })
             ->get();
 
-        $management = $managements->firstWhere( 'id', $request->get( 'management_id' ) );
+        $management = $managements->where( 'id', $request->get( 'management_id' ) )->first();
 
         if ( ! $management )
         {
