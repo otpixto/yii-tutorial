@@ -2151,9 +2151,16 @@ class TicketsController extends BaseController
             ::mine( Management::IGNORE_MANAGEMENT )
             ->where( function ( $q ) use ( $ticketManagement )
             {
-                return $q
+                $q
                     ->whereNull( Management::$_table . '.parent_id' )
-                    ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id ?? $ticketManagement->management->id );
+                    ->orWhere( Management::$_table . '.id', '=', $ticketManagement->management->id )
+                    ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id );
+                if ( $ticketManagement->management->parent_id )
+                {
+                    $q
+                        ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
+                }
+                return $q;
             })
             ->select(
                 Management::$_table . '.*'
