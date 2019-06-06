@@ -112,7 +112,7 @@
                             <td>
                                 {{ $row[ 0 ] }}
                             </td>
-                            <td>
+                            <td class="text-nowrap">
                                 {{ $row[ 1 ] }}%
                             </td>
                             <td @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
@@ -153,7 +153,7 @@
                             <td>
                                 {{ $row[ 0 ] }}
                             </td>
-                            <td>
+                            <td class="text-nowrap">
                                 {{ $row[ 1 ] }}%
                             </td>
                             <td @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
@@ -212,7 +212,7 @@
                             <td @if ( $i < 5 ) class="text-danger bold" @endif>
                                 {{ $row[ 0 ] }}
                             </td>
-                            <td @if ( $i < 5 ) class="text-danger bold" @endif>
+                            <td @if ( $i < 5 ) class="text-danger bold text-nowrap" @endif>
                                 <span data-field="percent">
                                     {{ $row[ 1 ] }}
                                 </span>
@@ -341,28 +341,28 @@
                             <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'completed' ][ 0 ] }}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'statuses' ][ 'completed' ][ 1 ] }}
                                 %
                             </td>
                             <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'expired' ][ 0 ] }}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'statuses' ][ 'expired' ][ 1 ] }}
                                 %
                             </td>
                             <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'not_completed' ][ 0 ] }}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'statuses' ][ 'not_completed' ][ 1 ] }}
                                 %
                             </td>
                             <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'in_process' ][ 0 ] }}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'statuses' ][ 'in_process' ][ 1 ] }}
                                 %
                             </td>
@@ -439,11 +439,11 @@
                             <td class="text-center">
                                 {{ $row[ 'completed' ] }}
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'completed_percent' ] }}
                                 %
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 {{ $row[ 'expired_percent' ] }}
                                 %
                             </td>
