@@ -2153,7 +2153,7 @@ class TicketsController extends BaseController
             {
                 return $q
                     ->whereNull( Management::$_table . '.parent_id' )
-                    ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
+                    ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id ?? $ticketManagement->management->id );
             })
             ->select(
                 Management::$_table . '.*'
