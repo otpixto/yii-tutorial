@@ -36,11 +36,21 @@
                     @endif
                     @if ( \Auth::user()->can( 'tickets.show' ) )
                         <li>
-                            <a href="{{ route( 'tickets.index' ) }}?show=overdue">
-                                Просроченные
+                            <a href="{{ route( 'tickets.index' ) }}?overdue_acceptance=1&statuses=transferred,transferred_again,accepted,assigned,in_process,completed_with_act,completed_without_act">
+                                Просроченные на принятие
                                 @if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-danger bold">
-                                        {{ \App\Classes\Counter::ticketsOverdueCount() }}
+                                    {{ \App\Classes\Counter::ticketsOverdueAcceptanceCount() }}
+                                </span>
+                                @endif
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route( 'tickets.index' ) }}?overdue_execution=1&statuses=transferred,transferred_again,accepted,assigned,in_process,completed_with_act,completed_without_act">
+                                Просроченные на исполнение
+                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                    <span class="badge badge-danger bold">
+                                        {{ \App\Classes\Counter::ticketsOverdueExecutionCount() }}
                                     </span>
                                 @endif
                             </a>

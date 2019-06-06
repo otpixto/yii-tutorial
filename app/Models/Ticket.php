@@ -343,9 +343,30 @@ class Ticket extends BaseModel
     public function scopeOverdue ( $query )
     {
         return $query
-            ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' )
-            ->orWhereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' )
-            ->orWhereRaw( 'COALESCE( postponed_to, CURRENT_TIMESTAMP ) < CURRENT_TIMESTAMP' );
+            ->where( function ( $q )
+            {
+                return $q
+                    ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' )
+                    ->orWhereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' )
+                    ->orWhereRaw( 'COALESCE( postponed_to, CURRENT_TIMESTAMP ) < CURRENT_TIMESTAMP' );
+            });
+    }
+
+    public function scopeOverdueAcceptance ( $query )
+    {
+        return $query
+            ->whereRaw( 'COALESCE( accepted_at, CURRENT_TIMESTAMP ) > deadline_acceptance' );
+    }
+
+    public function scopeOverdueExecution ( $query )
+    {
+        return $query
+            ->where( function ( $q )
+            {
+                return $q
+                    ->whereRaw( 'COALESCE( completed_at, CURRENT_TIMESTAMP ) > deadline_execution' )
+                    ->orWhereRaw( 'COALESCE( postponed_to, CURRENT_TIMESTAMP ) < CURRENT_TIMESTAMP' );
+            });
     }
 
     public function scopeInProcess ( $query )
