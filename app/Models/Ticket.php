@@ -1157,6 +1157,8 @@ class Ticket extends BaseModel
                 $transferred_at = Carbon::now();
 
                 $this->transferred_at = $transferred_at->toDateTimeString();
+                $this->completed_at = null;
+                $this->duration_work = null;
 
                 if ( $this->type )
                 {
