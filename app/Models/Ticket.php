@@ -1150,6 +1150,8 @@ class Ticket extends BaseModel
                 $transferred_at = Carbon::now();
 
                 $this->transferred_at = $transferred_at->toDateTimeString();
+                $this->completed_at = null;
+                $this->duration_work = null;
 
                 if ( $this->type )
                 {
@@ -1175,8 +1177,15 @@ class Ticket extends BaseModel
                 $transferred_at = $this->transferred_at;
                 $completed_at = Carbon::now();
 
-                $this->completed_at = $completed_at->toDateTimeString();
-                $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+                if ( ! $this->completed_at )
+                {
+                    $this->completed_at = $completed_at->toDateTimeString();
+                }
+
+                if ( ! $this->duration_work && $transferred_at )
+                {
+                    $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+                }
 
                 $this->save();
 
@@ -1197,6 +1206,21 @@ class Ticket extends BaseModel
                 {
                     return $res;
                 }
+
+                $transferred_at = $this->transferred_at;
+                $completed_at = Carbon::now();
+
+                if ( ! $this->completed_at )
+                {
+                    $this->completed_at = $completed_at->toDateTimeString();
+                }
+
+                if ( ! $this->duration_work && $transferred_at )
+                {
+                    $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+                }
+
+                $this->save();
 
                 break;
 
