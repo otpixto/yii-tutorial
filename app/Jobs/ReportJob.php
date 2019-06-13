@@ -79,9 +79,9 @@ class ReportJob implements ShouldQueue
 
             $data = [
                 'calls' => 0,
-                'tickets' => 0,
                 'works' => [],
                 'current'=> [
+                    'tickets' => 0,
                     'statuses' => [
                         'uk'=> [
                             'total'             => [ 0, 100, 0 ],
@@ -105,6 +105,7 @@ class ReportJob implements ShouldQueue
                     'managements' => [],
                 ],
                 'prev'=> [
+                    'tickets' => 0,
                     'statuses' => [
                         'uk'=> [
                             'total'             => [ 0, 100, 0 ],
@@ -151,13 +152,13 @@ class ReportJob implements ShouldQueue
 
                 if ( $ticketManagement->created_at->timestamp >= $date_from->timestamp )
                 {
-                    $data[ 'tickets' ] ++;
                     $key = 'current';
                 }
                 else
                 {
                     $key = 'prev';
                 }
+
                 if ( $ticketManagement->management->category_id == 1 || $ticketManagement->management->category_id == 2 )
                 {
                     $key2 = 'uk';
@@ -167,10 +168,12 @@ class ReportJob implements ShouldQueue
                     $key2 = 'rso';
                 }
 
+                $data[ $key ][ 'tickets' ] ++;
+
                 $type = $ticketManagement->ticket->type->parent->name ?? $ticketManagement->ticket->type->name;
                 if ( ! isset( $data[ $key ][ 'types' ][ $type ] ) )
                 {
-                    $data[ $key ][ 'types' ][ $type ][ 0 ] = 0;
+                    $data[ $key ][ 'types' ][ $type ] = [ 0, 0, 0 ];
                 }
                 $data[ $key ][ 'types' ][ $type ][ 0 ] ++;
 
@@ -374,10 +377,11 @@ class ReportJob implements ShouldQueue
                 return (int) $a[ 'completed_percent' ] > (int) $b[ 'completed_percent' ] ? -1 : 1;
             });
 
-            foreach ( $data[ 'current' ][ 'types' ] as $type => & $row )
+            foreach ( $data[ 'current' ][ 'types' ] as $type => $row )
             {
-                $row[ 1 ] = $data[ 'tickets' ] ? round( $row[ 0 ] / $data[ 'tickets' ] * 100 ) : 0;
-                $row[ 2 ] = isset( $data[ 'prev' ][ 'types' ][ $type ] ) && $row[ 0 ] ? round( 100 - $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $row[ 0 ] * 100 ) : 0;
+                $data[ 'current' ][ 'types' ][ $type ][ 1 ] = $data[ 'current' ][ 'tickets' ] ? round( $data[ 'current' ][ 'types' ][ $type ][ 0 ] / $data[ 'current' ][ 'tickets' ] * 100 ) : 0;
+                $data[ 'prev' ][ 'types' ][ $type ][ 1 ] = $data[ 'prev' ][ 'tickets' ] ? round( $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $data[ 'prev' ][ 'tickets' ] * 100 ) : 0;
+                $data[ 'current' ][ 'types' ][ $type ][ 2 ] = round( $data[ 'prev' ][ 'types' ][ $type ][ 1 ] - $data[ 'current' ][ 'types' ][ $type ][ 1 ] );
             }
 
             uasort( $data[ 'current' ][ 'types' ], function ( $a, $b )
