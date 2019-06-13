@@ -380,7 +380,14 @@ class ReportJob implements ShouldQueue
             foreach ( $data[ 'current' ][ 'types' ] as $type => $row )
             {
                 $data[ 'current' ][ 'types' ][ $type ][ 1 ] = $data[ 'current' ][ 'tickets' ] ? round( $data[ 'current' ][ 'types' ][ $type ][ 0 ] / $data[ 'current' ][ 'tickets' ] * 100 ) : 0;
-                $data[ 'prev' ][ 'types' ][ $type ][ 1 ] = $data[ 'prev' ][ 'tickets' ] ? round( $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $data[ 'prev' ][ 'tickets' ] * 100 ) : 0;
+                if ( isset( $data[ 'prev' ][ 'types' ][ $type ] ) && $data[ 'prev' ][ 'tickets' ] )
+                {
+                    $data[ 'prev' ][ 'types' ][ $type ][ 1 ] = round( $data[ 'prev' ][ 'types' ][ $type ][ 0 ] / $data[ 'prev' ][ 'tickets' ] * 100 );
+                }
+                else
+                {
+                    $data[ 'prev' ][ 'types' ][ $type ] = [ 0, 0, 0 ];
+                }
                 $data[ 'current' ][ 'types' ][ $type ][ 2 ] = round( $data[ 'prev' ][ 'types' ][ $type ][ 1 ] - $data[ 'current' ][ 'types' ][ $type ][ 1 ] );
             }
 
