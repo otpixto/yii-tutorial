@@ -342,7 +342,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                {{ $row[ 'total' ] }}
+                                {{ $row[ 'total' ] ?? 0 }}
                             </td>
                             <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'completed' ][ 0 ] }}
@@ -460,7 +460,7 @@
                                 {{ $management }}
                             </td>
                             <td class="text-center">
-                                {{ $row[ 'total' ] }}
+                                {{ $row[ 'total' ] ?? 0 }}
                             </td>
                             <td class="text-center">
                                 {{ $row[ 'completed' ] }}
