@@ -77,7 +77,7 @@
                     </div>
                     <div class="col-xs-7">
                         <div class="text-right">
-                            ЗАРЕГИСТРИРОВАНО обращений жителей за период <b>{{ $data[ 'tickets' ] }}</b>
+                            ЗАРЕГИСТРИРОВАНО обращений жителей за период <b>{{ $data[ 'current' ][ 'tickets' ] ?? $data[ 'tickets' ] ?? 0 }}</b>
                         </div>
                     </div>
                 </div>
@@ -402,7 +402,7 @@
                 </div>
 
                 <div class="h4 text-center text-primary bold margin-top-30">
-                    Сводка обращений по управляющим организациям
+                    Рейтинг Управляющих компаний
                 </div>
 
                 <div id="managements-chart" class="chart"></div>
