@@ -342,48 +342,48 @@ class ReportJob implements ShouldQueue
                 }
                 uasort( $data[ 'current' ][ 'statuses' ][ $key2 ], function ( $a, $b )
                 {
-                    return (int) $a[ 0 ] > (int) $b[ 0 ] ? -1 : 1;
+                    return $a[ 0 ] > $b[ 0 ] ? -1 : 1;
                 });
             }
 
-            foreach ( $data[ 'current' ][ 'parents' ] as $parentManagement => & $row )
+            foreach ( $data[ 'current' ][ 'parents' ] as $parentManagement => $row )
             {
-                foreach ( $row[ 'statuses' ] as $status => & $item )
+                foreach ( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ] as $status => $item )
                 {
-                    $item[ 1 ] = $row[ 'total' ] ? round( $item[ 0 ] / $row[ 'total' ] * 100 ) : 0;
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 1 ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ? round( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 0 ] / $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] * 100 ) : 0;
                 }
-                $row[ 'avg_rate' ] = round(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 2 );
-                $row[ 'rating' ] = $row[ 'avg_rate' ] * 10;
-                $row[ 'rating' ] -= ( $row[ 'statuses' ][ 'not_completed' ][ 1 ] * 2 );
-                $row[ 'rating' ] -= $row[ 'statuses' ][ 'expired' ][ 1 ];
-                $row[ 'rating' ] -= $row[ 'statuses' ][ 'in_process' ][ 1 ];
-                $row[ 'rating' ] = number_format( $row[ 'rating' ], 2 );
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = round(array_sum( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) / ( count( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) ?: 1 ), 2 );
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] * 10;
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= ( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 1 ] * 2 );
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 1 ];
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 1 ];
+                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = number_format( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ], 2 );
             }
 
             uasort( $data[ 'current' ][ 'parents' ], function ( $a, $b )
             {
-                return (int) $a[ 'rating' ] > (int) $b[ 'rating' ] ? -1 : 1;
+                return $a[ 'rating' ] > $b[ 'rating' ] ? -1 : 1;
             });
 
-            foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
+            foreach ( $data[ 'current' ][ 'managements' ] as $management => $row )
             {
-                $row[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100 ) : 0;
-                $row[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100 ) : 0;
+                $data[ 'current' ][ 'managements' ][ $management ][ 'completed_percent' ] = $data[ 'current' ][ 'managements' ][ $management ][ 'total' ] ? round( $data[ 'current' ][ 'managements' ][ $management ][ 'completed' ] / $data[ 'current' ][ 'managements' ][ $management ][ 'total' ] * 100 ) : 0;
+                $data[ 'current' ][ 'managements' ][ $management ][ 'expired_percent' ] = $data[ 'current' ][ 'managements' ][ $management ][ 'total' ] ? round( $data[ 'current' ][ 'managements' ][ $management ][ 'expired' ] / $data[ 'current' ][ 'managements' ][ $management ][ 'total' ] * 100 ) : 0;
                 $avg_cnt = count( $row[ 'avg_rate' ] );
                 if ( $avg_cnt )
                 {
                     $avg_sum = array_sum( $row[ 'avg_rate' ] );
-                    $row[ 'avg_rate' ] = number_format( $avg_sum / $avg_cnt, 2 );
+                    $data[ 'current' ][ 'managements' ][ $management ][ 'avg_rate' ] = number_format( $avg_sum / $avg_cnt, 2 );
                 }
                 else
                 {
-                    $row[ 'avg_rate' ] = number_format( 0, 2 );
+                    $data[ 'current' ][ 'managements' ][ $management ][ 'avg_rate' ] = number_format( 0, 2 );
                 }
             }
 
             uasort( $data[ 'current' ][ 'managements' ], function ( $a, $b )
             {
-                return (int) $a[ 'completed_percent' ] > (int) $b[ 'completed_percent' ] ? -1 : 1;
+                return $a[ 'completed_percent' ] > $b[ 'completed_percent' ] ? -1 : 1;
             });
 
             foreach ( $data[ 'current' ][ 'types' ] as $type => $row )
@@ -402,7 +402,7 @@ class ReportJob implements ShouldQueue
 
             uasort( $data[ 'current' ][ 'types' ], function ( $a, $b )
             {
-                return (int) $a[ 0 ] > (int) $b[ 0 ] ? -1 : 1;
+                return $a[ 0 ] > $b[ 0 ] ? -1 : 1;
             });
 
             $this->report->setData( $data );
