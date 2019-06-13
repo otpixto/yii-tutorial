@@ -367,8 +367,8 @@ class ReportJob implements ShouldQueue
 
             foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
             {
-                $item[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100 ) : 0;
-                $item[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100 ) : 0;
+                $row[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100 ) : 0;
+                $row[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100 ) : 0;
                 $row[ 'avg_rate' ] = number_format(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 2 );
             }
 
