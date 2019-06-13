@@ -365,12 +365,12 @@ class ReportJob implements ShouldQueue
                 return (int) $a[ 'rating' ] > (int) $b[ 'rating' ] ? -1 : 1;
             });
 
-            foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
+            /*foreach ( $data[ 'current' ][ 'managements' ] as $management => & $row )
             {
                 $row[ 'completed_percent' ] = $row[ 'total' ] ? round( $row[ 'completed' ] / $row[ 'total' ] * 100 ) : 0;
                 $row[ 'expired_percent' ] = $row[ 'total' ] ? round( $row[ 'expired' ] / $row[ 'total' ] * 100 ) : 0;
                 $row[ 'avg_rate' ] = number_format(array_sum( $row[ 'avg_rate' ] ) / ( count( $row[ 'avg_rate' ] ) ?: 1 ), 2 );
-            }
+            }*/
 
             uasort( $data[ 'current' ][ 'managements' ], function ( $a, $b )
             {
