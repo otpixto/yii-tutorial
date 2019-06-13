@@ -350,7 +350,7 @@ class ReportJob implements ShouldQueue
             {
                 foreach ( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ] as $status => $item )
                 {
-                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 1 ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ? round( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 0 ] / $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] * 100 ) : 0;
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 1 ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ? number_format( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 0 ] / $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] * 100, 2 ) : 0;
                 }
                 $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = round(array_sum( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) / ( count( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) ?: 1 ), 2 );
                 $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] * 10;
