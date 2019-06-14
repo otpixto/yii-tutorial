@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Asterisk\Cdr;
 use App\Models\Report;
 use App\Models\TicketManagement;
+use App\Models\StatusHistory;
 use App\Models\Work;
 use App\User;
 use Illuminate\Bus\Queueable;
@@ -65,6 +66,12 @@ class ReportJob implements ShouldQueue
                 ::mine()
                 ->whereBetween( 'created_at', [ $date_prev_from, $date_to ] )
                 ->whereNotIn( 'status_code', [ 'draft', 'moderate', 'created', 'no_contract', 'rejected_operator' ] )
+                ->get();
+				
+			$ticketManagementStatuses = StatusHistory
+                ::where( 'model_name', '=', TicketManagement::class )
+                ->whereBetween( 'created_at', [ $date_from, $date_to ] )
+                ->where( 'status_code', '=', 'transferred_again' )
                 ->get();
 
             $works = Work
@@ -227,10 +234,6 @@ class ReportJob implements ShouldQueue
                             case 'in_process':
                             case 'conflict':
                                 $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 0 ] ++;
-                                if ( $ticketManagement->status_code == 'transferred_again' )
-                                {
-                                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 0 ] ++;
-                                }
                                 break;
                         }
 
@@ -323,6 +326,15 @@ class ReportJob implements ShouldQueue
                 }
 
             }
+			
+			foreach ( $ticketManagementStatuses as $ticketManagementStatus )
+			{
+				$ticketManagement = $ticketManagementStatus->parent;
+				if ( ! $ticketManagement ) continue;
+				$parentManagement = $ticketManagement->management->parent->name ?? $ticketManagement->management->name;
+				if ( ! isset( $data[ 'current' ][ 'parents' ][ $parentManagement ] ) ) continue;
+				$data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 0 ] ++;
+			}
 
             $data[ 'calls' ] = Cdr
                 ::whereIn( \DB::raw( 'RIGHT( dst, 10 )' ), [ '8005503115', '4995503115' ] )
