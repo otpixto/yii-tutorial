@@ -9,6 +9,8 @@
 
 @section( 'content' )
 
+	@if ( \Auth::user()->can( 'reports.totals' ) )
+
     <div class="container">
 
         {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
@@ -111,6 +113,9 @@
                             </td>
                             <td class="text-center">
                                 {{ $row[ 0 ] }}
+				<div class="text-muted small hidden">
+                                        {{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 0 ] }}
+                                </div>
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
@@ -157,9 +162,15 @@
                             </td>
                             <td class="text-center">
                                 {{ $row[ 0 ] }}
+				<div class="text-muted small hidden">
+                                        {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 0 ] }}
+                                </div>
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
+				<div class="text-muted small hidden">
+                                        {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 1 ] }}%
+                                </div>
                             </td>
                             <td class="text-center">
                                 <span @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
@@ -529,6 +540,10 @@
         @endif
 
     </div>
+
+	@else
+		@include( 'error', [ 'error' => 'Доступ запрещен' ] )
+	@endif
 
 @endsection
 

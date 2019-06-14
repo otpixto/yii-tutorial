@@ -157,7 +157,7 @@ class ReportJob implements ShouldQueue
             foreach ( $ticketManagements as $ticketManagement )
             {
 
-                if ( $ticketManagement->created_at->timestamp > $date_from->timestamp )
+                if ( $ticketManagement->created_at->timestamp >= $date_from->timestamp )
                 {
                     $key = 'current';
                 }
@@ -348,7 +348,7 @@ class ReportJob implements ShouldQueue
                     if ( $status != 'total' )
                     {
                         $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
-                        $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
+                        $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
                     }
                     $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] );
                 }

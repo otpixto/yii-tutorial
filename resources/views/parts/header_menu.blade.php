@@ -144,7 +144,7 @@
             </li>
         @endif
 
-        @if ( \Auth::user()->canOne( 'reports.managements', 'reports.types', 'reports.rates', 'reports.map' ) )
+        @if ( \Auth::user()->canOne( 'reports.managements', 'reports.types', 'reports.rates', 'reports.map', 'reports.totals' ) )
             <li class="dropdown more-dropdown @if ( Request::is( 'reports*' ) ) selected @endif">
                 <a {{--href="{{ route( 'reports.index' ) }}"--}} class="text-uppercase">
                     <i class="fa fa-bar-chart"></i>
@@ -199,6 +199,13 @@
                         <li>
                             <a href="{{ route( 'reports.addresses' ) }}">
                                 Отчет по адресу
+                            </a>
+                        </li>
+                    @endif
+		    @if ( \Auth::user()->can( 'reports.totals' ) )
+                        <li>
+                            <a href="{{ route( 'reports.totals' ) }}">
+                                Сводный отчет
                             </a>
                         </li>
                     @endif
