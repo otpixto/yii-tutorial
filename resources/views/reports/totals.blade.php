@@ -542,7 +542,7 @@
     </div>
 
 	@else
-		@include( 'error', [ 'error' => 'Доступ запрещен' ] )
+		@include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
 	@endif
 
 @endsection
