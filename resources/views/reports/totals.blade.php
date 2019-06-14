@@ -114,6 +114,9 @@
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
+				<div class="text-muted small hidden">
+					{{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 1 ] }}%
+				</div>
                             </td>
                             <td class="text-center">
                                 <span @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>

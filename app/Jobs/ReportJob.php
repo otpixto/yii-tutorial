@@ -59,8 +59,8 @@ class ReportJob implements ShouldQueue
 
             $logs->addInfo( 'Период', [ $date_from, $date_to ] );
 
-            $diff_days = $date_from->diffInDays( $date_to );
-            $date_prev_from = ( clone $date_from )->subDays( $diff_days )->subSecond();
+            $diff_hours = $date_from->diffInHours( $date_to );
+            $date_prev_from = ( clone $date_from )->subHours( $diff_hours );
 
             $ticketManagements = TicketManagement
                 ::mine()
@@ -157,7 +157,7 @@ class ReportJob implements ShouldQueue
             foreach ( $ticketManagements as $ticketManagement )
             {
 
-                if ( $ticketManagement->created_at->timestamp >= $date_from->timestamp )
+                if ( $ticketManagement->created_at->timestamp > $date_from->timestamp )
                 {
                     $key = 'current';
                 }
@@ -350,7 +350,7 @@ class ReportJob implements ShouldQueue
                         $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
                         $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
                     }
-                    $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] - $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] );
+                    $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] );
                 }
                 uasort( $data[ 'current' ][ 'statuses' ][ $key2 ], function ( $a, $b )
                 {
@@ -409,7 +409,7 @@ class ReportJob implements ShouldQueue
                 {
                     $data[ 'prev' ][ 'types' ][ $type ] = [ 0, 0, 0 ];
                 }
-                $data[ 'current' ][ 'types' ][ $type ][ 2 ] = round( $data[ 'prev' ][ 'types' ][ $type ][ 1 ] - $data[ 'current' ][ 'types' ][ $type ][ 1 ] );
+                $data[ 'current' ][ 'types' ][ $type ][ 2 ] = round( $data[ 'current' ][ 'types' ][ $type ][ 1 ] - $data[ 'prev' ][ 'types' ][ $type ][ 1 ] );
             }
 
             uasort( $data[ 'current' ][ 'types' ], function ( $a, $b )
