@@ -228,7 +228,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <span @if ( $i < 5 ) class="text-danger bold" @endif>
+                                <span @if ( $i < 5 ) class="text-danger bold" @endif data-field="count">
                                     {{ $row[ 0 ] }}
                                 </span>
                             </td>
@@ -266,7 +266,7 @@
                     РАСПРЕДЕЛЕНИЕ ОБРАЩЕНИЙ ПО ТИПАМ ПРОБЛЕМ
                 </div>
 
-                <div id="types-pie" class="chart"></div>
+                <div id="types-chart" class="chart"></div>
 
 
                 <div class="page-break"></div>
@@ -555,6 +555,9 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        #types-chart {
+            height: 600px;
+        }
         td, th {
             vertical-align: middle !important;
         }
@@ -727,65 +730,64 @@
                 });
 
                 var data = [];
+                var categories = [];
+                var series = [
+                    {
+                        name: 'Рейтинг',
+                        data: [],
+                    }
+                ];
 
                 $( '#table-categories tbody tr' ).each( function ()
                 {
-                    data.push({
-                        name: $.trim( $( this ).find( '[data-field="category"]' ).text() ),
-                        y: Number( $.trim( $( this ).find( '[data-field="percent"]' ).text() ) ),
-                    });
+                    var category = $.trim( $( this ).find( '[data-field="category"]' ).text() );
+                    var count = Number( $.trim( $( this ).find( '[data-field="count"]' ).text() ) );
+                    categories.push( category );
+                    series[ 0 ].data.push( count );
                 });
 
-                // Radialize the colors
-                Highcharts.setOptions({
-                    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
-                        return {
-                            radialGradient: {
-                                cx: 0.5,
-                                cy: 0.3,
-                                r: 0.7
-                            },
-                            stops: [
-                                [0, color],
-                                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-                            ]
-                        };
-                    })
-                });
-
-                // Build the chart
-                Highcharts.chart( 'types-pie', {
+                Highcharts.chart( 'types-chart', {
                     chart: {
-                        plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false,
-                        type: 'pie'
+                        type: 'bar'
                     },
                     title: {
                         text: null
                     },
+                    subtitle: {
+                        text: null
+                    },
+                    xAxis: {
+                        categories: categories,
+                        title: {
+                            text: null
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Количество',
+                            align: 'high'
+                        },
+                        labels: {
+                            overflow: 'justify'
+                        }
+                    },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        valueSuffix: ''
                     },
                     plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
+                        bar: {
                             dataLabels: {
-                                enabled: true,
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                                style: {
-                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                                },
-                                connectorColor: 'silver'
+                                enabled: true
                             }
                         }
                     },
-                    series: [{
-                        name: 'Share',
-                        data: data
-                    }]
+                    legend: {
+                        enabled: false
+                    },
+                    series: series
                 });
+
                 @endif
 
             })
