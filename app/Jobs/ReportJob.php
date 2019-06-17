@@ -349,8 +349,12 @@ class ReportJob implements ShouldQueue
                     {
                         $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
                         $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] = $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ? round( $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'prev' ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] * 100 ) : 0;
+                        $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] );
                     }
-                    $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 1 ] );
+                    else
+                    {
+                        $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( 100 - $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ], 2 );
+                    }
                 }
                 uasort( $data[ 'current' ][ 'statuses' ][ $key2 ], function ( $a, $b )
                 {
