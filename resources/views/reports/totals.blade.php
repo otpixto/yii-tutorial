@@ -733,7 +733,7 @@
                 var categories = [];
                 var series = [
                     {
-                        name: 'Рейтинг',
+                        name: 'Количество',
                         data: [],
                     }
                 ];
