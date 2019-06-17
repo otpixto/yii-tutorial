@@ -113,15 +113,15 @@
                             </td>
                             <td class="text-center">
                                 {{ $row[ 0 ] }}
-				<div class="text-muted small hidden">
-                                        {{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 0 ] }}
+				                <div class="text-muted small hidden">
+                                    {{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 0 ] }}
                                 </div>
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
-				<div class="text-muted small hidden">
-					{{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 1 ] }}%
-				</div>
+                                <div class="text-muted small hidden">
+                                    {{ $data[ 'prev' ][ 'statuses' ][ 'uk' ][ $status ][ 1 ] }}%
+                                </div>
                             </td>
                             <td class="text-center">
                                 <span @if ( $row[ 2 ] > 10 ) class="text-danger bold" @else class="text-success bold" @endif>
@@ -162,14 +162,14 @@
                             </td>
                             <td class="text-center">
                                 {{ $row[ 0 ] }}
-				<div class="text-muted small hidden">
-                                        {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 0 ] }}
+                                <div class="text-muted small hidden">
+                                    {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 0 ] }}
                                 </div>
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 1 ] }}%
-				<div class="text-muted small hidden">
-                                        {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 1 ] }}%
+				                <div class="text-muted small hidden">
+                                    {{ $data[ 'prev' ][ 'statuses' ][ 'rso' ][ $status ][ 1 ] }}%
                                 </div>
                             </td>
                             <td class="text-center">
@@ -734,6 +734,10 @@
                 var series = [
                     {
                         name: 'Количество',
+                        dataLabels: [{
+                            align: 'justify',
+                            format: '{point.y} ({percentage}%)'
+                        }],
                         data: [],
                     }
                 ];
@@ -742,8 +746,13 @@
                 {
                     var category = $.trim( $( this ).find( '[data-field="category"]' ).text() );
                     var count = Number( $.trim( $( this ).find( '[data-field="count"]' ).text() ) );
+                    var percent = Number( $.trim( $( this ).find( '[data-field="percent"]' ).text() ) );
                     categories.push( category );
-                    series[ 0 ].data.push( count );
+                    series[ 0 ].data.push({
+                        name: category,
+                        y: count,
+                        percentage: percent
+                    });
                 });
 
                 Highcharts.chart( 'types-chart', {
@@ -773,12 +782,20 @@
                         }
                     },
                     tooltip: {
-                        valueSuffix: ''
+                        formatter: function ()
+                        {
+                            return this.x + ': <b>' + this.y + '</b>, (' + this.percentage + '%)';
+                        }
                     },
                     plotOptions: {
                         bar: {
                             dataLabels: {
-                                enabled: true
+                                enabled: true,
+                            },
+                            formatter: function ()
+                            {
+                                console.log(this);
+                                //return this.x + ': <b>' + this.y + '</b>, (' + this.percentage + '%)';
                             }
                         }
                     },
