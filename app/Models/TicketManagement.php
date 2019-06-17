@@ -630,6 +630,27 @@ class TicketManagement extends BaseModel
                 ->whereRaw( TicketManagement::$_table . '.scheduled_end <= ?', [ Carbon::parse( $request->get( 'scheduled_to' ) )->toDateTimeString() ] );
         }
 
+        if ( ! empty( $request->get( 'history_status_code' ) ) )
+        {
+            $query
+                ->whereHas( 'statusesHistory', function ( $statusesHistory ) use ( $request )
+                {
+                    $statusesHistory
+                        ->where( 'status_code', '=', $request->get( 'history_status_code' ) );
+                    if ( ! empty( $request->get( 'history_from' ) ) )
+                    {
+                        $statusesHistory
+                            ->whereRaw( StatusHistory::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'history_from' ) )->toDateTimeString() ] );
+                    }
+                    if ( ! empty( $request->get( 'history_to' ) ) )
+                    {
+                        $statusesHistory
+                            ->whereRaw( StatusHistory::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'history_to' ) )->toDateTimeString() ] );
+                    }
+                    return $statusesHistory;
+                });
+        }
+
     }
 
     public function saveServices ( array $services = [] )

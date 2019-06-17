@@ -222,6 +222,30 @@
         </div>
     </div>
 @endif
+<hr />
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        История статусов
+    </h4>
+    <div class="col-md-10">
+        {!! Form::select( 'history_status_code', [ null => '-' ] + $availableStatuses, \Input::get( 'history_status_code' ), [ 'class' => 'form-control select2' ] ) !!}
+    </div>
+</div>
+<div class="row margin-top-10">
+    <div class="col-md-10 col-md-offset-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                Период
+            </span>
+            {!! Form::text( 'history_from', \Input::get( 'history_from' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+            <span class="input-group-addon">
+                -
+            </span>
+            {!! Form::text( 'history_to', \Input::get( 'history_to' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => '' ] ) !!}
+        </div>
+    </div>
+</div>
+<hr />
 <div class="row">
     <h4 class="col-md-2">
         Поиск по тегам
