@@ -370,7 +370,11 @@ class ReportJob implements ShouldQueue
                     $avg_sum = array_sum( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] );
                     $avg_rate = $avg_sum / $avg_cnt;
                     $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = number_format( $avg_rate, 2 );
-                    $rating = $avg_rate * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 1 ] ) * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 1 ] ) * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 1 ] ) / 100;
+                    $rating = $avg_rate
+                        * ( ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 1 ] ) / 100 )
+                        * ( ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 1 ] ) / 100 )
+                        * ( ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 1 ] ) / 100 )
+                        / 100;
                     $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = number_format( $rating, 2 );
                 }
                 else
