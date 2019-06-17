@@ -364,12 +364,20 @@ class ReportJob implements ShouldQueue
                 {
                     $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 1 ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] ? number_format( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ $status ][ 0 ] / $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'total' ] * 100, 2 ) : 0;
                 }
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = number_format(array_sum( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) / ( count( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] ) ?: 1 ), 2 );
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] * 10;
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= ( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 1 ] * 2 );
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 1 ];
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] -= $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 1 ];
-                $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = number_format( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ], 2 );
+                $avg_cnt = count( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] );
+                if ( $avg_cnt )
+                {
+                    $avg_sum = array_sum( $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] );
+                    $avg_rate = $avg_sum / $avg_cnt;
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = number_format( $avg_rate, 2 );
+                    $rating = $avg_rate * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'not_completed' ][ 1 ] ) * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'expired' ][ 1 ] ) * ( 100 - $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'in_process' ][ 1 ] ) / 100;
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = number_format( $rating, 2 );
+                }
+                else
+                {
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'avg_rate' ] = number_format( 0, 2 );
+                    $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'rating' ] = number_format( 0, 2 );
+                }
             }
 
             uasort( $data[ 'current' ][ 'parents' ], function ( $a, $b )
