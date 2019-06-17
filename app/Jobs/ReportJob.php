@@ -353,7 +353,7 @@ class ReportJob implements ShouldQueue
                     }
                     else
                     {
-                        $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( 100 - ( $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] * 100 ), 2 );
+                        $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 2 ] = round( 100 - ( $data[ 'current' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] / $data[ 'prev' ][ 'statuses' ][ $key2 ][ $status ][ 0 ] * 100 ), 2 );
                     }
                 }
                 uasort( $data[ 'current' ][ 'statuses' ][ $key2 ], function ( $a, $b )
