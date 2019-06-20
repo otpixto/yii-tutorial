@@ -56,9 +56,6 @@ class WorksController extends BaseController
 
             switch ( $request->get( 'show', $show ) )
             {
-                case 'period':
-                    Title::set( 'Отключения за период' );
-                    break;
                 case 'overdue':
                     $works
                         ->current()
@@ -246,6 +243,16 @@ class WorksController extends BaseController
 		{
 			$scheduledTicketManagements = new Collection();
 		}
+
+        switch ( $request->get( 'show', $show ) )
+        {
+            case 'period':
+                Title::set( 'Отключения за период' );
+                break;
+            case 'overdue':
+                Title::set( 'Просроченные отключения' );
+                break;
+        }
 
         return view( 'works.index' )
             ->with( 'request', $request )
