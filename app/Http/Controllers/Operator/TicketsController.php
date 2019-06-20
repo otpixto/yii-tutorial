@@ -608,6 +608,7 @@ class TicketsController extends BaseController
                         ->mine();
                 })
                 ->whereIn( 'id', $request->get( 'ids' ) )
+                ->with( 'comments' )
                 ->get();
             $response = [];
             foreach ( $tickets as $ticket )

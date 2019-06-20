@@ -974,7 +974,7 @@ class Grub extends Command
 						}
 						else
 						{
-							continue;
+							continue 2;
 						}
 						break;
 				}
