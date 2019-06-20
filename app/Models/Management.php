@@ -141,16 +141,18 @@ class Management extends BaseModel
 
     public function scopeMine ( $query, ... $flags )
     {
-        if ( ! \Auth::user() ) return false;
-		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
-		{
-			$query
-				->mineProvider();
-		}
-        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+        if ( \Auth::user() )
         {
-            $query
-                ->whereIn( self::$_table . '.id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+            if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
+            {
+                $query
+                    ->mineProvider();
+            }
+            if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+            {
+                $query
+                    ->whereIn( self::$_table . '.id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+            }
         }
         return $query;
     }
