@@ -133,10 +133,10 @@
                             @endif
                         </a>
                     </li>
-                    @if ( \Auth::user()->can( 'works.all' ) )
+                    @if ( \Auth::user()->can( 'works.period' ) )
                         <li>
-                            <a href="{{ route( 'works.index' ) }}?show=all">
-                                Отключения за все время
+                            <a href="{{ route( 'works.index' ) }}?show=period">
+                                Отключения за период
                             </a>
                         </li>
                     @endif

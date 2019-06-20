@@ -31,39 +31,42 @@ class WorksController extends BaseController
         Title::add( 'Отключения' );
     }
 
-    public function index ( Request $request )
+    public function index ( Request $request, $show = null )
     {
 
-        if ( $request->ajax() || ! empty( $request->get( 'export' ) ) || ! empty( $request->get( 'report' ) ) )
+        if ( $request->ajax() )
         {
 
             $managements = [];
-            $filters = [];
+            $executors = [];
 
             if ( ! empty( $request->get( 'managements' ) ) )
             {
                 $managements = explode( ',', $request->get( 'managements' ) );
             }
 
+            if ( ! empty( $request->get( 'executors' ) ) )
+            {
+                $executors = explode( ',', $request->get( 'executors' ) );
+            }
+
             $works = Work
                 ::mine()
                 ->orderBy( Work::$_table . '.id', 'desc' );
 
-            switch ( $request->get( 'show' ) )
+            switch ( $request->get( 'show', $show ) )
             {
-                case 'all':
-                    $filters[] = 'Отключения за все время';
+                case 'period':
+                    Title::set( 'Отключения за период' );
                     break;
                 case 'overdue':
                     $works
                         ->current()
                         ->overdue();
-                    $filters[] = 'Просроченные отключения';
                     break;
                 default:
                     $works
                         ->current();
-                    $filters[] = 'Активные отключения';
                     break;
             }
 
@@ -71,21 +74,18 @@ class WorksController extends BaseController
             {
                 $works
                     ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
-                $filters[] = 'Номер сообщения: ' . $request->get( 'id' );
             }
 
             if ( ! empty( $request->get( 'category_id' ) ) )
             {
                 $works
                     ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
-                $filters[] = 'Ресурс отключения: ' . Type::find( $request->get( 'category_id' ) )->name;
             }
 
             if ( $request->get( 'type_id' ) != '' )
             {
                 $works
                     ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
-                $filters[] = 'Тип отключения: ' . Work::$types[ $request->get( 'type_id' ) ];
             }
 
             if ( ! empty( $request->get( 'composition' ) ) )
@@ -93,7 +93,6 @@ class WorksController extends BaseController
                 $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
                 $works
                     ->where( Work::$_table . '.composition', 'like', $q );
-                $filters[] = 'Состав работ: ' . $request->get( 'composition' );
             }
 
             if ( ! empty( $request->get( 'reason' ) ) )
@@ -101,7 +100,6 @@ class WorksController extends BaseController
                 $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
                 $works
                     ->where( Work::$_table . '.reason', 'like', $q );
-                $filters[] = 'Основание: ' . $request->get( 'reason' );
             }
 
             if ( ! empty( $request->get( 'begin_from' ) ) )
@@ -110,7 +108,6 @@ class WorksController extends BaseController
                     ->toDateTimeString();
                 $works
                     ->where( Work::$_table . '.time_begin', '>=', $begin_from );
-                $filters[] = 'Время начала от: ' . $begin_from;
             }
 
             if ( ! empty( $request->get( 'begin_to' ) ) )
@@ -119,7 +116,6 @@ class WorksController extends BaseController
                     ->toDateTimeString();
                 $works
                     ->where( Work::$_table . '.time_begin', '<=', $begin_to );
-                $filters[] = 'Время начала до: ' . $begin_to;
             }
 
             if ( ! empty( $request->get( 'end_from' ) ) )
@@ -133,7 +129,6 @@ class WorksController extends BaseController
                             ->where( Work::$_table . '.time_end', '>=', $end_from )
                             ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
                     });
-                $filters[] = 'Время окончания от: ' . $end_from;
             }
 
             if ( ! empty( $request->get( 'end_to' ) ) )
@@ -147,21 +142,26 @@ class WorksController extends BaseController
                             ->where( Work::$_table . '.time_end', '<=', $end_to )
                             ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
                     });
-                $filters[] = 'Время окончания до: ' . $end_to;
             }
 
             if ( count( $managements ) )
             {
                 $works
-                    ->whereIn( Work::$_table . '.management_id', $managements );
-                $filters[] = 'УО: ' . Management::whereIn( 'id', $managements )->get()->implode( 'name', ', ' );
+                    ->whereHas( 'managements', function ( $_managements ) use ( $managements )
+                    {
+                        return $_managements
+                            ->whereIn( Management::$_table . '.id', $managements );
+                    });
             }
 
-            if ( ! empty( $request->get( 'executor_id' ) ) )
+            if ( count( $executors ) )
             {
                 $works
-                    ->where( Work::$_table . '.executor_id', '=', $request->get( 'executor_id' ) );
-                $filters[] = 'Исполнитель: ' . Executor::find( $request->get( 'executor_id' ) )->name;
+                    ->whereHas( 'executors', function ( $_executors ) use ( $executors )
+                    {
+                        return $_executors
+                            ->whereIn( Executor::$_table . '.id', $executors );
+                    });
             }
 
             if ( ! empty( $request->get( 'segments' ) ) )
@@ -198,152 +198,7 @@ class WorksController extends BaseController
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
-                    } );
-                $building = Building::find( $request->get( 'building_id' ) );
-                $filters[] = 'Здание: ' . $building->name;
-            }
-
-            if ( ! empty( $request->get( 'export' ) ) && \Auth::user()->can( 'works.export' ) )
-            {
-                $works = $works->get();
-                $data = [];
-                foreach ( $works as $work )
-                {
-                    foreach ( $work->getAddressesGroupBySegment() as $segment )
-                    {
-                        $address = $segment[ 0 ];
-                        $buildings = implode( ', ', $segment[ 1 ] );
-                        $managements = [];
-                        $executors = [];
-                        foreach ( $work->managements as $management )
-                        {
-                            $management_name = $management->name;
-                            if ( $management->parent )
-                            {
-                                $management_name = $management->parent->name . ' ' . $management_name;
-                            }
-                            $managements[] = $management_name;
-                        }
-                        foreach ( $work->executors as $executor )
-                        {
-                            $executor_name = $executor->name;
-                            if ( $executor->phone )
-                            {
-                                $executor_name .= ' ' . $executor->phone;
-                            }
-                            $executors[] = $executor_name;
-                        }
-                        $data[] = [
-                            '#' => $work->id,
-                            'Дата и время' => $work->created_at->format( 'd.m.y H:i' ),
-                            'Категория работ' => $work->category->name,
-                            'Тип отключения' => Work::$types[ $work->type_id ] ?? '-',
-                            'Адрес работ' => $address,
-                            'Дома' => $buildings,
-                            'Исполнитель работ' => implode( '; ', $managements ),
-                            'Ответственный' => implode( '; ', $executors ),
-                            'Основание' => $work->reason,
-                            'Состав работ' => $work->composition,
-                            'Время начала работ' => Carbon::parse( $work->time_begin )
-                                ->format( 'd.m.y H:i' ),
-                            'Время окончания работ' => Carbon::parse( $work->time_end )
-                                ->format( 'd.m.y H:i' ),
-                        ];
-                    }
-                }
-
-                $this->addLog( 'Выгрузил данные по отключениям' );
-				
-                \Excel::create( 'Отключения', function ( $excel ) use ( $data )
-                {
-                    $excel->sheet( 'Отключения', function ( $sheet ) use ( $data )
-                    {
-                        $sheet->fromArray( $data );
-                    } );
-                } )
-                    ->export( 'xls' );
-            }
-
-            if ( ! empty( $request->get( 'report' ) ) && \Auth::user()->can( 'works.export' ) )
-            {
-                $categories = Type
-                    ::mine()
-                    ->where( 'works', '=', 1 )
-                    ->orderBy( 'sort' )
-                    ->get();
-                $works = $works
-                    ->whereIn( Work::$_table . '.category_id', $categories->pluck( 'id' ) )
-                    ->get();
-                $data = [];
-                $totals = [
-                    'buildings' => 0,
-                    'flats'     => 0
-                ];
-                foreach ( $categories as $category )
-                {
-                    $data[ $category->id ] = [
-                        'list' => [],
-                        'totals' => [
-                            'buildings' => 0,
-                            'flats'     => 0
-                        ]
-                    ];
-                }
-                foreach ( $works as $work )
-                {
-                    $count_flats = 0;
-                    $count_buildings = 0;
-                    foreach ( $work->buildings as $building )
-                    {
-                        $count_flats += $building->room_living_count;
-                        $count_buildings ++;
-                    }
-                    $data[ $work->category_id ][ 'totals' ][ 'buildings' ] += $count_buildings;
-                    $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
-                    $totals[ 'flats' ] += $count_flats;
-                    $totals[ 'buildings' ] += $count_buildings;
-                    $data[ $work->category_id ][ 'list' ][ $work->id ] = [
-                        'addresses' => [],
-                        'count_flats' => $count_flats,
-                        'count_buildings' => $count_buildings,
-                        'time_begin' => Carbon::parse( $work->time_begin ),
-                        'time_end' => Carbon::parse( $work->time_end ),
-                        'composition' => $work->composition,
-                        'management' => $work->management->name ?? null,
-                        'executor_name' => $work->executor->name ?? null,
-                        'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
-                        'type' => $work->type_id ? Work::$types[ $work->type_id ] : null,
-                    ];
-                    if ( isset( Work::$deadline_units[ $work->deadline_unit ] ) )
-                    {
-                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline' ] = $work->deadline;
-                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'deadline_unit' ] = mb_substr( Work::$deadline_units[ $work->deadline_unit ], 0, 1 );
-                    }
-                    foreach ( $work->getAddressesGroupBySegment() as $segment )
-                    {
-                        $data[ $work->category_id ][ 'list' ][ $work->id ][ 'addresses' ][] = $segment[ 0 ] . ' д. ' . implode( ', ', $segment[ 1 ] );
-                    }
-                }
-				
-				$log = Log::create([
-					'text' => 'Скачал отчет по отключениям'
-				]);
-				$log->save();
-				
-                \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $categories, $data, $totals, $filters )
-                {
-                    $excel->sheet( 'Отчет по отключениям', function ( $sheet ) use ( $categories, $data, $totals, $filters )
-                    {
-                        $sheet
-                            ->loadView( 'works.report' )
-                            ->with( 'categories', $categories )
-                            ->with( 'data', $data )
-                            ->with( 'totals', $totals )
-                            ->with( 'filters', $filters );
                     });
-
-                })->export( 'xls' );
-				
             }
 
             $works = $works
@@ -513,7 +368,7 @@ class WorksController extends BaseController
                 });
         }
 
-        if ( count( $request->get( 'managements' ) ) )
+        if ( count( $request->get( 'managements', [] ) ) )
         {
             $works
                 ->whereIn( Work::$_table . '.management_id', $request->get( 'managements' ) );
@@ -533,12 +388,6 @@ class WorksController extends BaseController
                 $segmentsIds = [];
                 foreach ( $segments as $segment )
                 {
-                    $segmentName = $segment->type->name;
-                    if ( $segment->parent )
-                    {
-                        $segmentName .= ' ' . $segment->parent->name;
-                    }
-                    $segmentName .= ' ' . $segment->name;
                     $segmentChilds = new SegmentChilds( $segment );
                     $segmentsIds += $segmentChilds->ids;
                 }
@@ -581,7 +430,7 @@ class WorksController extends BaseController
                 $executor_name = $executor->name;
                 if ( $executor->phone )
                 {
-                    $executor_name .= ' ' . $executor->phone;
+                    $executor_name .= ' (' . $executor->phone . ')';
                 }
                 $executors[] = $executor_name;
             }
@@ -650,7 +499,7 @@ class WorksController extends BaseController
 
     }
 
-    public function report ( Request $request )
+    public function report ( Request $request, $show = null )
     {
 
         $managements = $request->get( 'managements' );
@@ -664,6 +513,9 @@ class WorksController extends BaseController
         {
             case 'all':
                 $filters[] = 'Отключения за все время';
+                break;
+            case 'period':
+                $filters[] = 'Отключения за период';
                 break;
             case 'overdue':
                 $works
@@ -753,8 +605,7 @@ class WorksController extends BaseController
                 });
             $filters[] = 'Время окончания до: ' . $end_to;
         }
-
-        if ( count( $managements ) )
+        if ( $managements && count( $managements ) )
         {
             $works
                 ->whereIn( Work::$_table . '.management_id', $managements );
@@ -844,6 +695,17 @@ class WorksController extends BaseController
             $data[ $work->category_id ][ 'totals' ][ 'flats' ] += $count_flats;
             $totals[ 'flats' ] += $count_flats;
             $totals[ 'buildings' ] += $count_buildings;
+            $executors = '';
+            foreach ( $work->executors as $executor )
+            {
+                $executor_name = $executor->name;
+                if ( $executor->getPhone() )
+                {
+                    $executor_name .= ' (' . $executor->getPhone() . ')';
+                }
+                $executor_name .= ' ';
+                $executors .= $executor_name;
+            }
             $data[ $work->category_id ][ 'list' ][ $work->id ] = [
                 'addresses' => [],
                 'count_flats' => $count_flats,
@@ -851,9 +713,8 @@ class WorksController extends BaseController
                 'time_begin' => Carbon::parse( $work->time_begin ),
                 'time_end' => Carbon::parse( $work->time_end ),
                 'composition' => $work->composition,
-                'management' => $work->management->name ?? null,
-                'executor_name' => $work->executor->name ?? null,
-                'executor_phone' => $work->executor ? $work->executor->getPhone() : null,
+                'managements' => $work->managements->implode( 'name', '; ' ),
+                'executors' => $executors,
                 'type' => $work->type_id ? Work::$types[ $work->type_id ] : null,
             ];
             if ( isset( Work::$deadline_units[ $work->deadline_unit ] ) )

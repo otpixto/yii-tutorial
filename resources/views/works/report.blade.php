@@ -126,19 +126,10 @@
                         {{ $work[ 'composition' ] }}
                     </td>
                     <td>
-                        {{ $work[ 'management' ] }}
+                        {{ $work[ 'managements' ] }}
                     </td>
                     <td>
-                        @if ( $work[ 'executor_name' ] )
-                            {{ $work[ 'executor_name' ] }}
-                            @if ( $work[ 'executor_phone' ] )
-                                <div>
-                                    Тел. {{ $work[ 'executor_phone' ] }}
-                                </div>
-                            @endif
-                        @else
-                            -
-                        @endif
+                        {{ $work[ 'executors' ] }}
                     </td>
                     <td>
                         &nbsp;

@@ -43,7 +43,42 @@
             </div>
         @endcan
 
-        @if ( \Auth::user()->can( 'works.search' ) )
+        @if ( $request->get( 'show' ) == 'period' )
+
+            {!! Form::open( [ 'method' => 'post', 'url' => route( 'works.filter' ), 'class' => 'submit-loading hidden-print margin-bottom-15', 'id' => 'search-form' ] ) !!}
+            {!! Form::hidden( 'show', 'period' ) !!}
+
+            <div class="row margin-bottom-15">
+                <div class="col-md-6 col-md-offset-3">
+                    {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            от
+                        </span>
+                        <input class="form-control" name="begin_from" type="datetime-local" id="begin_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" required="required" />
+                        <span class="input-group-addon">
+                        до
+                        </span>
+                        <input class="form-control" name="begin_to" type="datetime-local" id="begin_to" required="required" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row margin-bottom-15">
+                <div class="col-xs-offset-3 col-xs-3">
+                    {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
+                    {{--@if ( $data && count( $data ) && \Auth::user()->can( 'reports.export' ) )
+                        <a href="{{ Request::fullUrl() }}&export=1" class="btn btn-default">
+                            <i class="fa fa-download"></i>
+                            Выгрузить в Excel
+                        </a>
+                    @endif--}}
+                </div>
+            </div>
+
+            {!! Form::close() !!}
+
+        @elseif ( \Auth::user()->can( 'works.search' ) )
 
             <div class="row margin-top-15 hidden-print">
                 <div class="col-xs-12">
