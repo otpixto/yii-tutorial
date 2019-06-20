@@ -44,10 +44,11 @@ class TicketsController extends BaseController
                 ->search( $request )
                 ->with(
                     'ticket',
+                    'ticket.author',
                     'ticket.type',
+                    'ticket.type.parent',
                     'ticket.building',
                     'ticket.building.buildingType',
-                    #'ticket.comments',
                     'management',
                     'management.parent',
                     'executor'
