@@ -123,11 +123,17 @@ class LKController extends BaseController
             $buildings = Building
                 ::mineProvider()
                 ->where( 'provider_id', '=', \Auth::user()->provider_id )
-                ->whereIn( 'segment_id', $segmentIds )
                 ->where( 'name', 'like', $term )
                 ->orderBy( 'name' )
-                ->take( 30 )
-                ->get();
+                ->take( 30 );
+
+            if ( count( $segmentIds ) )
+            {
+                $buildings
+                    ->whereIn( 'segment_id', $segmentIds );
+            }
+
+            $buildings = $buildings->get();
 
             $this->addLog( 'Запросил список адресов' );
 

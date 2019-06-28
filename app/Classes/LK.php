@@ -65,12 +65,22 @@ class LK
                     'executor_name'     => null,
                     'scheduled_begin'   => null,
                     'scheduled_end'     => null,
+                    'services'          => [],
                 ];
                 if ( $ticketManagement->executor )
                 {
                     $management[ 'executor_name' ] = $ticketManagement->executor->name;
                     $management[ 'scheduled_begin' ] = $ticketManagement->scheduled_begin->timestamp ?? null;
                     $management[ 'scheduled_end' ] = $ticketManagement->scheduled_end->timestamp ?? null;
+                }
+                foreach ( $ticketManagement->services as $service )
+                {
+                    $management[ 'services' ][] = [
+                        'name'          => $service->name,
+                        'quantity'      => (float) $service->quantity,
+                        'unit'          => $service->unit,
+                        'amount'        => (float) $service->amount,
+                    ];
                 }
                 $info[ 'managements' ][] = $management;
             }
