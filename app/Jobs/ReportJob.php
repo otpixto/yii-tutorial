@@ -225,7 +225,6 @@ class ReportJob implements ShouldQueue
                                 {
                                     $data[ 'current' ][ 'parents' ][ $parentManagement ][ 'statuses' ][ 'completed' ][ 0 ] ++;
                                 }
-
                                 break;
                             case 'transferred':
                             case 'transferred_again':
@@ -291,38 +290,38 @@ class ReportJob implements ShouldQueue
 
                 $data[ $key ][ 'statuses' ][ $key2 ][ 'total' ][ 0 ] ++;
 
-                if ( $ticketManagement->ticket->overdueDeadlineAcceptance() )
+                switch ( $ticketManagement->status_code )
                 {
-                    $data[ $key ][ 'statuses' ][ $key2 ][ 'expired' ][ 0 ] ++;
-                }
-                else
-                {
-                    switch ( $ticketManagement->status_code )
-                    {
-                        case 'closed_with_confirm':
-                        case 'closed_without_confirm':
-                        case 'confirmation_operator':
-                        case 'confirmation_client':
-                        case 'not_verified':
-                        case 'completed_with_act':
-                        case 'completed_without_act':
+                    case 'closed_with_confirm':
+                    case 'closed_without_confirm':
+                    case 'confirmation_operator':
+                    case 'confirmation_client':
+                    case 'not_verified':
+                    case 'completed_with_act':
+                    case 'completed_without_act':
+                        if ( $ticketManagement->ticket->overdueDeadlineExecution() )
+                        {
+                            $data[ $key ][ 'statuses' ][ $key2 ][ 'expired' ][ 0 ] ++;
+                        }
+                        else
+                        {
                             $data[ $key ][ 'statuses' ][ $key2 ][ 'completed' ][ 0 ] ++;
-                            break;
-                        case 'transferred':
-                        case 'transferred_again':
-                        case 'accepted':
-                        case 'assigned':
-                        case 'in_process':
-                            $data[ $key ][ 'statuses' ][ $key2 ][ 'in_process' ][ 0 ] ++;
-                            break;
-                        case 'rejected':
-                        case 'cancel':
-                            $data[ $key ][ 'statuses' ][ $key2 ][ 'cancel' ][ 0 ] ++;
-                            break;
-                        case 'waiting':
-                            $data[ $key ][ 'statuses' ][ $key2 ][ 'waiting' ][ 0 ] ++;
-                            break;
-                    }
+                        }
+                        break;
+                    case 'transferred':
+                    case 'transferred_again':
+                    case 'accepted':
+                    case 'assigned':
+                    case 'in_process':
+                        $data[ $key ][ 'statuses' ][ $key2 ][ 'in_process' ][ 0 ] ++;
+                        break;
+                    case 'rejected':
+                    case 'cancel':
+                        $data[ $key ][ 'statuses' ][ $key2 ][ 'cancel' ][ 0 ] ++;
+                        break;
+                    case 'waiting':
+                        $data[ $key ][ 'statuses' ][ $key2 ][ 'waiting' ][ 0 ] ++;
+                        break;
                 }
 
             }
