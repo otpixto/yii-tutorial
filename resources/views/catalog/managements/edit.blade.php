@@ -96,19 +96,22 @@
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
                     <div class="col-md-6 text-right">
-                        <a href="{{ route( 'managements.buildings', $management->id ) }}" class="btn btn-default btn-circle">
+                        <a href="{{ route( 'managements.buildings', $management->id ) }}"
+                           class="btn btn-default btn-circle">
                             Адреса
                             <span class="badge">
                                 {{ $management->buildings()->count() }}
                             </span>
                         </a>
-                        <a href="{{ route( 'managements.types', $management->id ) }}" class="btn btn-default btn-circle">
+                        <a href="{{ route( 'managements.types', $management->id ) }}"
+                           class="btn btn-default btn-circle">
                             Классификатор
                             <span class="badge">
                                 {{ $management->types()->count() }}
                             </span>
                         </a>
-                        <a href="{{ route( 'managements.executors', $management->id ) }}" class="btn btn-default btn-circle">
+                        <a href="{{ route( 'managements.executors', $management->id ) }}"
+                           class="btn btn-default btn-circle">
                             Исполнители
                             <span class="badge">
                                 {{ $management->executors()->count() }}
@@ -152,6 +155,36 @@
                     </div>
 
                 </div>
+
+
+                <div class="form-group">
+                    @if($management->webhook_token == null)
+                        <div class="col-md-6 margin-bottom-15">
+                        <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
+                           class="btn btn-default btn-circle">Подключить webhook token</a>
+                        </div>
+                    @else
+                        <div class="col-md-7 margin-bottom-15">
+                            <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Подключенный webhook
+                                    </span>
+                                {!! Form::text( 'webhook_token', $management->webhook_token , [ 'class' => 'form-control', 'placeholder' => 'Webhook token', 'disabled' => 'disabled' ] ) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
+                               class="btn btn-default btn-circle">Перегенерировать webhook</a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ route( 'managements.webhook_token.reset', $management->id ) }}"
+                               class="btn btn-default btn-circle">Сбросить webhook</a>
+                        </div>
+                    @endif
+
+
+                </div>
+
 
                 <div class="form-group hidden-print">
                     <div class="col-xs-12">
@@ -225,13 +258,15 @@
                     <div class="list-group">
                         @if ( $management->parent )
                             @foreach ( $management->parent->acts as $act )
-                                <a href="{{ route( 'managements.act', [ $management->parent_id, $act->id ] ) }}" class="list-group-item">
+                                <a href="{{ route( 'managements.act', [ $management->parent_id, $act->id ] ) }}"
+                                   class="list-group-item">
                                     {{ $act->name }}
                                 </a>
                             @endforeach
                         @endif
                         @foreach ( $management->acts as $act )
-                            <a href="{{ route( 'managements.act', [ $management->id, $act->id ] ) }}" class="list-group-item">
+                            <a href="{{ route( 'managements.act', [ $management->id, $act->id ] ) }}"
+                               class="list-group-item">
                                 {{ $act->name }}
                             </a>
                         @endforeach
@@ -256,11 +291,13 @@
                     <div class="form-group">
                         @if ( ! $management->telegram_code )
                             <div class="col-md-12">
-                                <button type="button" class="btn btn-success" data-action="telegram-on">Подключить</button>
+                                <button type="button" class="btn btn-success" data-action="telegram-on">Подключить
+                                </button>
                             </div>
                         @else
                             <div class="col-md-6">
-                                <button type="button" class="btn btn-danger" data-action="telegram-off">Отключить</button>
+                                <button type="button" class="btn btn-danger" data-action="telegram-off">Отключить
+                                </button>
                             </div>
                             <div class="input-group">
                                 <span class="input-group-addon">
@@ -287,7 +324,8 @@
                                                     <strong>&#64;{{ $subscription->username }}</strong>
                                                 @endif
                                                 <small>[{{ $subscription->telegram_id }}]</small>
-                                                <a href="javascript:;" class="badge badge-danger" data-action="telegram-unsubscribe" data-id="{{ $subscription->id }}">
+                                                <a href="javascript:;" class="badge badge-danger"
+                                                   data-action="telegram-unsubscribe" data-id="{{ $subscription->id }}">
                                                     <i class="fa fa-remove"></i>
                                                     отписать
                                                 </a>
@@ -320,22 +358,22 @@
                     @if ( $management->users->count() )
                         <table class="table table-hover table-striped">
                             <thead>
-                                <tr>
+                            <tr>
+                                <th>
+                                    ФИО
+                                </th>
+                                <th>
+                                    E-mail
+                                </th>
+                                <th>
+                                    Роль
+                                </th>
+                                @if ( \Auth::user()->can( 'admin.users.edit' ) )
                                     <th>
-                                        ФИО
+                                        &nbsp;
                                     </th>
-                                    <th>
-                                        E-mail
-                                    </th>
-                                    <th>
-                                        Роль
-                                    </th>
-                                    @if ( \Auth::user()->can( 'admin.users.edit' ) )
-                                        <th>
-                                            &nbsp;
-                                        </th>
-                                    @endif
-                                </tr>
+                                @endif
+                            </tr>
                             </thead>
                             <tbody>
                             @foreach ( $management->users as $user )
@@ -378,29 +416,30 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet"
+          type="text/css"/>
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"
+            type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"
+            type="text/javascript"></script>
     <script type="text/javascript">
 
-        $( document )
+        $(document)
 
-            .ready(function()
-            {
+            .ready(function () {
 
-                $( '.mask_phone' ).inputmask( 'mask', {
+                $('.mask_phone').inputmask('mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
 
-                $( '.datepicker' ).datepicker();
+                $('.datepicker').datepicker();
 
             })
 
-            .on( 'click', '[data-action="telegram-on"]', function ( e )
-            {
+            .on('click', '[data-action="telegram-on"]', function (e) {
 
                 e.preventDefault();
 
@@ -417,12 +456,9 @@
                             className: 'btn-danger'
                         }
                     },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
-                            $.post( '{{ route( 'managements.telegram.on', $management->id ) }}', function ( response )
-                            {
+                    callback: function (result) {
+                        if (result) {
+                            $.post('{{ route( 'managements.telegram.on', $management->id ) }}', function (response) {
                                 window.location.reload();
                             });
                         }
@@ -431,7 +467,7 @@
 
             })
 
-            .on( 'click', '[data-action="telegram-off"]', function ( e ) {
+            .on('click', '[data-action="telegram-off"]', function (e) {
 
                 e.preventDefault();
 
@@ -461,11 +497,11 @@
 
             })
 
-            .on( 'click', '[data-action="telegram-unsubscribe"]', function ( e ) {
+            .on('click', '[data-action="telegram-unsubscribe"]', function (e) {
 
                 e.preventDefault();
 
-                var id = $(this).attr( 'data-id' );
+                var id = $(this).attr('data-id');
 
                 bootbox.confirm({
                     message: 'Вы уверены, что хотите отменить подписку?',
@@ -480,14 +516,12 @@
                             className: 'btn-danger'
                         }
                     },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
+                    callback: function (result) {
+                        if (result) {
 
-                            $( '[data-subscribe="' + id + '"]' ).remove();
+                            $('[data-subscribe="' + id + '"]').remove();
 
-                            $.post( '{{ route( 'managements.telegram.unsubscribe', $management->id ) }}', {
+                            $.post('{{ route( 'managements.telegram.unsubscribe', $management->id ) }}', {
                                 id: id
                             });
 
