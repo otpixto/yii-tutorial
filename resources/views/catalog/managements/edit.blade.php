@@ -161,24 +161,24 @@
                     @if($management->webhook_token == null)
                         <div class="col-md-6 margin-bottom-15">
                         <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
-                           class="btn btn-default btn-circle">Подключить webhook token</a>
+                           class="btn btn-default btn-circle btn-warning">Подключить webhook token</a>
                         </div>
                     @else
                         <div class="col-md-7 margin-bottom-15">
                             <div class="input-group">
                                     <span class="input-group-addon">
-                                        Подключенный webhook
+                                        Подключенный token
                                     </span>
                                 {!! Form::text( 'webhook_token', $management->webhook_token , [ 'class' => 'form-control', 'placeholder' => 'Webhook token', 'disabled' => 'disabled' ] ) !!}
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
-                               class="btn btn-default btn-circle">Перегенерировать webhook</a>
+                               class="btn btn-default btn-circle">Перегенерировать token</a>
                         </div>
                         <div class="col-md-2">
                             <a href="{{ route( 'managements.webhook_token.reset', $management->id ) }}"
-                               class="btn btn-default btn-circle">Сбросить webhook</a>
+                               class="btn btn-default btn-circle btn-danger">Отключить token</a>
                         </div>
                     @endif
 
