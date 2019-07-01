@@ -321,6 +321,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
 
             Route::post( 'executors/{executor_id}/user', 'Catalog\ExecutorsController@user' )->name( 'executors.user' );
+            Route::get( 'managements/{management_id}/webhook_token/generate', 'Catalog\ManagementsController@generateWebhookToken' )->name( 'managements.webhook_token.generate' );
+            Route::get( 'managements/{management_id}/webhook_token/reset', 'Catalog\ManagementsController@resetWebhookToken' )->name( 'managements.webhook_token.reset' );
 
             Route::resource( 'managements', 'Catalog\ManagementsController' );
             Route::resource( 'executors', 'Catalog\ExecutorsController' );

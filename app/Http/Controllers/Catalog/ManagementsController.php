@@ -1155,4 +1155,40 @@ class ManagementsController extends BaseController
 
     }
 
+    public function generateWebhookToken($management_id)
+    {
+        $management = Management::find( $management_id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $webhookToken = md5(rand(0, 9999) . rand(0, 9999));
+        $management->webhook_token = $webhookToken;
+        $management->save();
+
+        return redirect()->back()
+            ->with( 'success', 'Webhook token успешно сгенерирован' );
+    }
+
+
+    public function resetWebhookToken($management_id)
+    {
+        $management = Management::find( $management_id );
+
+        if ( ! $management )
+        {
+            return redirect()->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $management->webhook_token = null;
+        $management->save();
+
+        return redirect()->back()
+            ->with( 'success', 'Webhook token успешно сброшен' );
+    }
+
 }
