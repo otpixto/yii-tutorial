@@ -2,61 +2,75 @@
 
 namespace App\Console\Commands;
 
+use App\Classes\MosregClient;
 use App\Models\Management;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class Mosreg extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'sync:mosreg';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Mosreg';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
     public function __construct ()
     {
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle ()
     {
-
-        $managements = Management
-            ::whereNotNull( 'mosreg_username' )
-            ->whereNotNull( 'mosreg_password' )
-            ->whereNotNull( 'mosreg_id' )
-            ->get();
-        foreach ( $managements as $management )
+        try
         {
-            $mosreg = null;
-            if ( $management->hasMosreg( $mosreg ) )
+            $managements = Management
+                ::whereNotNull( 'mosreg_id' )
+                ->whereNotNull( 'mosreg_username' )
+                ->whereNotNull( 'mosreg_password' )
+                ->get();
+            foreach ( $managements as $management )
             {
-                $buildings = $management
-                    ->buildings()
-                    ->whereNull( 'mosreg_id' )
-                    ->get();
-                if ( ! $buildings->count() ) continue;
-                foreach ( $buildings as $building )
+                try
                 {
-                    //$bar->advance();
+                    $mosreg = null;
+                    if ( $management->hasMosreg( $mosreg ) )
+                    {
+                        $buildings = $management
+                            ->buildings()
+                            ->whereNull( 'mosreg_id' )
+                            ->get();
+                        $this->parseBuildings( $mosreg, $buildings );
+                        foreach ( $management->childs as $child )
+                        {
+                            $buildings = $child
+                                ->buildings()
+                                ->whereNull( 'mosreg_id' )
+                                ->get();
+                            $this->parseBuildings( $mosreg, $buildings );
+                        }
+                    }
+                }
+                catch ( \Exception $e )
+                {
+                    $this->error( $e->getMessage() );
+                }
+            }
+        }
+        catch ( \Exception $e )
+        {
+            $this->error( $e->getMessage() );
+        }
+    }
+
+    private function parseBuildings ( MosregClient $mosreg, Collection $buildings )
+    {
+        try
+        {
+            if ( ! $buildings->count() ) return;
+            foreach ( $buildings as $building )
+            {
+                try
+                {
                     $this->line( $building->name );
                     $res = $mosreg->searchAddress( $building->name, true );
                     $cnt = count( $res );
@@ -90,8 +104,16 @@ class Mosreg extends Command
                         }
                     }
                 }
+                catch ( \Exception $e )
+                {
+                    $this->error( $e->getMessage() );
+                }
             }
         }
-        //$bar->finish();
+        catch ( \Exception $e )
+        {
+            $this->error( $e->getMessage() );
+        }
     }
+
 }
