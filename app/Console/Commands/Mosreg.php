@@ -46,47 +46,48 @@ class Mosreg extends Command
             ->get();
         foreach ( $managements as $management )
         {
-
-            $buildings = $management
-                ->buildings()
-                ->whereNull( 'mosreg_id' )
-                ->get();
-            if ( ! $buildings->count() ) continue;
-            //$bar = $this->output->createProgressBar( $buildings->count() );
-            $mosreg = new \App\Classes\MosregClient( $management->mosreg_id, $management->mosreg_username, $management->mosreg_password );
-            foreach ( $buildings as $building )
+            $mosreg = null;
+            if ( $management->hasMosreg( $mosreg ) )
             {
-                //$bar->advance();
-                $this->line( $building->name );
-                $res = $mosreg->searchAddress( $building->name, true );
-                $cnt = count( $res );
-                if ( ! $cnt )
+                $buildings = $management
+                    ->buildings()
+                    ->whereNull( 'mosreg_id' )
+                    ->get();
+                if ( ! $buildings->count() ) continue;
+                foreach ( $buildings as $building )
                 {
-                    $this->warn( 'Ничего не найдено' );
-                }
-                else if ( count( $res ) == 1 )
-                {
-                    $this->info( 'Адрес найден' );
-                    $building->mosreg_id = $res[ 0 ]->addressId;
-                    $building->save();
-                }
-                else
-                {
-                    $values = [];
-                    foreach ( $res as $r )
+                    //$bar->advance();
+                    $this->line( $building->name );
+                    $res = $mosreg->searchAddress( $building->name, true );
+                    $cnt = count( $res );
+                    if ( ! $cnt )
                     {
-                        $values[] = $r->label;
+                        $this->warn( 'Ничего не найдено' );
                     }
-                    print_r( $values );
-                    $answer = $this->anticipate('Выберите адрес', $values, 0 );
-                    if ( isset( $res[ $answer ] ) )
+                    else if ( count( $res ) == 1 )
                     {
-                        $building->mosreg_id = $res[ $answer ]->addressId;
+                        $this->info( 'Адрес найден' );
+                        $building->mosreg_id = $res[ 0 ]->addressId;
                         $building->save();
                     }
                     else
                     {
-                        $this->error( 'Некорректный выбор' );
+                        $values = [];
+                        foreach ( $res as $r )
+                        {
+                            $values[] = $r->label;
+                        }
+                        print_r( $values );
+                        $answer = $this->anticipate('Выберите адрес', $values, 0 );
+                        if ( isset( $res[ $answer ] ) )
+                        {
+                            $building->mosreg_id = $res[ $answer ]->addressId;
+                            $building->save();
+                        }
+                        else
+                        {
+                            $this->error( 'Некорректный выбор' );
+                        }
                     }
                 }
             }
