@@ -134,9 +134,10 @@
 
                 {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
+
                 <div class="form-group">
 
-                    <div class="col-md-7 margin-bottom-15">
+                    <div class="col-md-12 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 GUID
@@ -145,7 +146,12 @@
                         </div>
                     </div>
 
-                    <div class="col-md-5 margin-bottom-15">
+                </div>
+
+
+                <div class="form-group">
+
+                    <div class="col-md-4 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 Mosreg ID
@@ -154,36 +160,56 @@
                         </div>
                     </div>
 
+                    <div class="col-md-4 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                Логин
+                            </span>
+                            {!! Form::text( 'mosreg_username', \Input::old( 'mosreg_username', $management->mosreg_username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 margin-bottom-15">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                Пароль
+                            </span>
+                            {!! Form::text( 'mosreg_password', \Input::old( 'mosreg_password', $management->mosreg_password ), [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
+                        </div>
+                    </div>
+
                 </div>
 
+                @if($management->webhook_active)
+                    <div class="form-group">
 
-                <div class="form-group">
-                    @if($management->webhook_token == null)
-                        <div class="col-md-6 margin-bottom-15">
-                        <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
-                           class="btn btn-default btn-circle btn-warning">Подключить webhook token</a>
-                        </div>
-                    @else
-                        <div class="col-md-7 margin-bottom-15">
-                            <div class="input-group">
-                                    <span class="input-group-addon">
-                                        Подключенный token
-                                    </span>
-                                {!! Form::text( 'webhook_token', $management->webhook_token , [ 'class' => 'form-control', 'placeholder' => 'Webhook token', 'disabled' => 'disabled' ] ) !!}
+                        @if($management->webhook_token == null)
+                            <div class="col-md-4 margin-bottom-15">
+                                <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
+                                   class="btn btn-default btn-circle btn-warning">Подключить
+                                    WEBHOOK</a>
                             </div>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
-                               class="btn btn-default btn-circle">Перегенерировать token</a>
-                        </div>
-                        <div class="col-md-2">
-                            <a href="{{ route( 'managements.webhook_token.reset', $management->id ) }}"
-                               class="btn btn-default btn-circle btn-danger">Отключить token</a>
-                        </div>
-                    @endif
+                        @else
+                            <div class="col-md-4 margin-bottom-15">
+                                <div class="input-group">
+                                            <span class="input-group-addon">
+                                                Подключенный TOKEN
+                                            </span>
+                                    {!! Form::text( 'webhook_token', $management->webhook_token , [ 'class' => 'form-control', 'placeholder' => 'Webhook token', 'disabled' => 'disabled' ] ) !!}
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
+                                   class="btn btn-default btn-circle">Перегенерировать token</a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ route( 'managements.webhook_token.reset', $management->id ) }}"
+                                   class="btn btn-default btn-circle btn-danger">Отключить WEBHOOK</a>
+                            </div>
+                        @endif
 
-
-                </div>
+                    </div>
+                @endif
 
 
                 <div class="form-group hidden-print">
@@ -300,9 +326,9 @@
                                 </button>
                             </div>
                             <div class="input-group">
-                                <span class="input-group-addon">
-                                    Пин-код
-                                </span>
+                                        <span class="input-group-addon">
+                                            Пин-код
+                                        </span>
                                 {!! Form::text( null, $management->telegram_code, [ 'class' => 'form-control', 'readonly' ] ) !!}
                             </div>
                         @endif
@@ -528,6 +554,49 @@
                         }
                     }
                 });
+
+            })
+            .on('click', '[data-action="webhook-generate"]', function (e) {
+
+                e.preventDefault();
+
+                var proceed = true;
+
+                var mosregID = $('input[name="mosreg_id"]').prop('value').trim();
+                if (mosregID == '') {
+                    $('input[name="mosreg_id"]').parent('div').addClass('has-error');
+                    proceed = false;
+                }
+
+                var mosregUsername = $('input[name="mosreg_username"]').prop('value').trim();
+                if (mosregUsername == '') {
+                    $('input[name="mosreg_username"]').parent('div').addClass('has-error');
+                    proceed = false;
+                }
+
+                var mosregPassword = $('input[name="mosreg_password"]').prop('value').trim();
+                if (mosregPassword == '') {
+                    $('input[name="mosreg_password"]').parent('div').addClass('has-error');
+                    proceed = false;
+                }
+
+                if (proceed == false) {
+                    return false;
+                }
+
+                var url = $(this).attr('href');
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    cache: false,
+                    data: {'mosreg_id': mosregID, 'mosreg_username': mosregUsername, 'mosreg_password': mosregPassword},
+                    success: function (response) {
+                        console.log(response);
+                    }
+                });
+                return false;
+
+                console.log(mosregID);
 
             });
 

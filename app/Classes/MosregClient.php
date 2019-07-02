@@ -84,7 +84,7 @@ class MosregClient
 
     public function unsetWebhook ()
     {
-        return $this->sendRequest( 'POST', '/api/webhook/set/?company_id=' . $this->id );
+        return $this->sendRequest( 'POST', '/api/webhook/unset/?company_id=' . $this->id );
     }
 
     private function sendRequest ( $method, $path, array $data = [] )
