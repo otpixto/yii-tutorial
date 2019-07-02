@@ -797,32 +797,31 @@ class TicketsController extends BaseController
                             ->withErrors( $res );
                     }
 
-                    if ( $ticket->type->mosreg_id && $ticket->building->mosreg_id )
+                    # Создание заявки в мосреге
+                    /*$mosreg = null;
+                    if ( $ticketManagement->management->hasMosreg( $mosreg ) && $ticket->type->mosreg_id && $ticket->building->mosreg_id )
                     {
-                        if ( $ticketManagement->management->hasMosreg( $mosreg ) )
+                        $res = $mosreg->createTicket([
+                            'company_id'            => $mosreg->id,
+                            'customer_name'         => $ticket->getName(),
+                            'customer_email'        => null,
+                            'customer_phone'        => '7' . $ticket->phone,
+                            'address_id'            => $ticket->building->mosreg_id,
+                            'flat'                  => $ticket->flat,
+                            'type_id'               => $ticket->type->mosreg_id,
+                            'text'                  => $ticket->text,
+                        ]);
+                        if ( isset( $res->error ) )
                         {
-                            $res = $mosreg->createTicket([
-                                'company_id'            => $mosreg->id,
-                                'customer_name'         => $ticket->getName(),
-                                'customer_email'        => null,
-                                'customer_phone'        => '7' . $ticket->phone,
-                                'address_id'            => $ticket->building->mosreg_id,
-                                'flat'                  => $ticket->flat,
-                                'type_id'               => $ticket->type->mosreg_id,
-                                'text'                  => $ticket->text,
-                            ]);
-                            if ( isset( $res->error ) )
-                            {
-                                return redirect()
-                                    ->back()
-                                    ->withErrors( [ $res->error ] );
-                            }
-                            $ticketManagement->mosreg_id = $res->id;
-                            $ticketManagement->mosreg_number = $res->compositeId;
-                            $ticketManagement->mosreg_status = $res->status;
-                            $ticketManagement->save();
+                            return redirect()
+                                ->back()
+                                ->withErrors( [ $res->error ] );
                         }
-                    }
+                        $ticketManagement->mosreg_id = $res->id;
+                        $ticketManagement->mosreg_number = $res->compositeId;
+                        $ticketManagement->mosreg_status = $res->status;
+                        $ticketManagement->save();
+                    }*/
 
                 }
                 else
