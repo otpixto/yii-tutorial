@@ -540,7 +540,25 @@
 
                 bootbox.prompt({
                     title: 'Укажите причину отклонения заявки',
-                    inputType: 'textarea',
+                    inputType: 'select',
+                    inputOptions: [
+                        {
+                            text: 'Выберите из списка',
+                            value: '',
+                        },
+                        {
+                            text: 'Отклонено. Ответ по проблеме предоставлялся ранее',
+                            value: 4929,
+                        },
+                        {
+                            text: 'Отклонено. Объект не находится в обслуживании УК',
+                            value: 5370,
+                        },
+                        {
+                            text: 'Отклонено. Вопрос не в компетенции УК',
+                            value: 5517,
+                        }
+                    ],
                     callback: function ( result )
                     {
                         if ( result === null )
@@ -548,17 +566,15 @@
                             alert( 'Действие отменено!' );
                             return true;
                         }
-                        @if ( \Auth::user()->can( 'tickets.statuses.rejected.need_comment' ) )
-                            if ( result == '' )
-                            {
-                                alert( 'Комментарий обязателен!' );
-                                return false;
-                            }
-                        @endif
+                        if ( result == '' )
+                        {
+                            alert( 'Причина обязательна!' );
+                            return false;
+                        }
                         form
                             .removeAttr( 'data-confirm' )
                             .append(
-                                $( '<input type="hidden" name="comment">' ).val( result )
+                                $( '<input type="hidden" name="reject_reason_id">' ).val( result )
                             );
                         form.submit();
                     }

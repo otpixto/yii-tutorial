@@ -343,30 +343,15 @@ class TicketsController extends BaseController
             }
             else
             {
-                $res = User
-                    ::where( function ( $q )
-                    {
-                        return $q
-                            ->whereHas( 'roles', function ( $roles )
-                            {
-                                return $roles
-                                    ->whereHas( 'permissions', function ( $permissions )
-                                    {
-                                        return $permissions
-                                            ->where( 'code', '=', 'tickets.create' );
-                                    } );
-                            })
-                            ->orWhereHas( 'permissions', function( $permissions )
-                            {
-                                return $permissions
-                                    ->where( 'code', '=', 'tickets.create' );
-                            });
-                    })
+                $res = Ticket
+                    ::select( 'author_id' )
+                    ->whereHas( 'author' )
+                    ->distinct( 'author_id' )
                     ->get();
                 $availableOperators = [];
                 foreach ( $res as $r )
                 {
-                    $availableOperators[ $r->id ] = $r->getName();
+                    $availableOperators[ $r->author_id ] = $r->author->getName();
                 }
                 asort( $availableOperators );
                 \Cache::tags( [ 'users', 'ticket' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
@@ -1592,6 +1577,16 @@ class TicketsController extends BaseController
 
             \DB::beginTransaction();
 
+            if ( ! empty( $request->get( 'postponed_to' ) ) )
+            {
+                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+                if ( ! empty( $request->get( 'postponed_comment' ) ) )
+                {
+                    $ticket->postponed_comment = $request->get( 'postponed_comment' );
+                }
+                $ticket->save();
+            }
+
             if ( $ticket_management_id )
             {
                 $ticketManagement = $ticket
@@ -1611,16 +1606,6 @@ class TicketsController extends BaseController
                 $res = $ticket->changeStatus( $request->get( 'status_code' ) );
             }
 
-            if ( ! empty( $request->get( 'postponed_to' ) ) )
-            {
-                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
-                if ( ! empty( $request->get( 'postponed_comment' ) ) )
-                {
-                    $ticket->postponed_comment = $request->get( 'postponed_comment' );
-                }
-                $ticket->save();
-            }
-
             if ( ! empty( $request->get( 'comment' ) ) )
             {
                 $res = $ticket->addComment( $request->get( 'comment' ) );
@@ -1635,6 +1620,25 @@ class TicketsController extends BaseController
             {
                 return redirect()->back()
                     ->withErrors( $res );
+            }
+
+            foreach ( $ticket->managements as $ticketManagement )
+            {
+                $mosreg = null;
+                if ( $ticketManagement->mosreg_id && $ticketManagement->management && $ticketManagement->management->hasMosreg( $mosreg ) )
+                {
+                    if ( ! empty( $request->get( 'reject_reason_id' ) ) )
+                    {
+                        $mosreg->answer( $ticketManagement->mosreg_id, $request->get( 'reject_reason_id' ) );
+                        $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                    }
+                    if ( ! empty( $request->get( 'postponed_to' ) ) )
+                    {
+                        $comment = 'Отложено до ' . $ticket->postponed_to->format( 'd.m.Y' ) . PHP_EOL . $ticket->postponed_comment;
+                        $mosreg->answer( $ticketManagement->mosreg_id, 5076, $comment );
+                        $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                    }
+                }
             }
 
             \DB::commit();

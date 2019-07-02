@@ -16,7 +16,7 @@ Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
 Route::group( [ 'middleware' => 'rest' ], function ()
 {
 
-    Route::post( '/webhook/{token}/ticket', 'WebhookController@ticket' );
+    Route::post( '/webhook/{token}/ticket', 'WebhookController@ticket' )->name( 'webhook.ticket' );
 
     Route::prefix( 'rest' )->group( function ()
     {
@@ -33,7 +33,7 @@ Route::group( [ 'middleware' => 'rest' ], function ()
         Route::prefix( 'external' )->group( function ()
         {
             Route::any( 'works', 'Rest\ExternalController@works' )->name( 'rest.external.works' );
-            Route::any( 'statistics', 'Rest\ExternalController@statistics' )->name( 'rest.external.statistics' );
+            Route::any( 'statistics', 'Rest\ExternalController@statistics' )->name( 'rest.external.sta tistics' );
         });
 
         Route::prefix( 'lk' )->group( function ()

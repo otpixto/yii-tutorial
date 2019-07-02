@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Classes\Mosreg;
 use App\Classes\SegmentChilds;
 use App\Jobs\SendStream;
 use Carbon\Carbon;
@@ -929,7 +928,7 @@ class TicketManagement extends BaseModel
 
     }
 
-    public function changeMosregStatus ( $status_code ) : bool
+    public function changeMosregStatus ( $status_code, $changeTicketStatus = true ) : bool
     {
         if ( $this->mosreg_status == $status_code || ! isset( Ticket::$mosreg_statuses[ $status_code ] ) )
         {
@@ -942,10 +941,13 @@ class TicketManagement extends BaseModel
         {
             return false;
         }
-        $res = $this->changeStatus( Ticket::$mosreg_statuses[ $status_code ], true );
-        if ( $res instanceof MessageBag )
+        if ( $changeTicketStatus )
         {
-            return false;
+            $res = $this->changeStatus( Ticket::$mosreg_statuses[ $status_code ], true );
+            if ( $res instanceof MessageBag )
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -1012,12 +1014,11 @@ class TicketManagement extends BaseModel
 
             case 'in_process':
 
-                if ( $this->mosreg_id )
+                $mosreg = null;
+                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    if ( $this->management->hasMosreg( $mosreg ) )
-                    {
-                        $mosreg->changeStatus( $this->mosreg_id, 'IN_WORK' );
-                    }
+                    $mosreg->toWork( $this->mosreg_id );
+                    $this->changeMosregStatus( 'IN_WORK', false );
                 }
 
                 \Cache::tags( 'tickets.scheduled.now' )->flush();
@@ -1065,8 +1066,60 @@ class TicketManagement extends BaseModel
 				
             case 'completed_with_act':
             case 'completed_without_act':
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                $this->sendTelegramChangeStatus();
+
+                $mosreg = null;
+                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                {
+                    $comment = '';
+                    foreach ( $this->services as $service )
+                    {
+                        $comment .= $service->name . PHP_EOL;
+                    }
+                    $mosreg->answer( $this->mosreg_id, 4635, $comment );
+                    $this->changeMosregStatus( 'ANSWERED', false );
+                }
+
+                break;
+
             case 'confirmation_operator':
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                $this->sendTelegramChangeStatus();
+
+                break;
+
             case 'confirmation_client':
+
+                $res = $this->changeTicketStatus();
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+
+                $this->sendTelegramChangeStatus();
+
+                $mosreg = null;
+                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                {
+                    $mosreg->answer( $this->mosreg_id, 4635 );
+                    $this->changeMosregStatus( 'ANSWERED', false );
+                }
+
+                break;
+
             case 'not_verified':
 
                 $res = $this->changeTicketStatus();
@@ -1076,6 +1129,13 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
+
+                $mosreg = null;
+                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                {
+                    $mosreg->answer( $this->mosreg_id, 4782 );
+                    $this->changeMosregStatus( 'ANSWERED', false );
+                }
 
                 break;
 

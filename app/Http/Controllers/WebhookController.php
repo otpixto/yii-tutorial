@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Mosreg;
 use App\Models\Building;
 use App\Models\Management;
 use App\Models\Ticket;
@@ -11,6 +10,7 @@ use App\Models\Type;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class WebhookController extends Controller
 {
@@ -23,15 +23,15 @@ class WebhookController extends Controller
     public function ticket ( Request $request, $token )
     {
 
+        \DB::beginTransaction();
+
         try
         {
 
-            $user = User::find( 149613 );
+            $user = User::find( config( 'gzhi.user_id' ) );
             if ( ! $user )
             {
-                return [
-                    'error' => 'User not found'
-                ];
+                return $this->error( 'User not found' );
             }
 
             \Auth::login( $user );
@@ -41,16 +41,14 @@ class WebhookController extends Controller
                 ->first();
             if ( ! $management )
             {
-                return [
-                    'error' => 'Management not found'
-                ];
+                return $this->error( 'Management not found' );
             }
 
             if ( $request->json( 'webhook' ) == 'init' )
             {
-                return [
+                return $this->success([
                     'message' => 'OK'
-                ];
+                ]);
             }
 
             $mosreg_status = $request->json( 'status_code' );
@@ -58,9 +56,7 @@ class WebhookController extends Controller
 
             if ( ! isset( Ticket::$mosreg_statuses[ $mosreg_status ] ) )
             {
-                return [
-                    'error' => 'Status not found'
-                ];
+                return $this->error( 'Status not found' );
             }
 
             $ticketManagement = $management->tickets()
@@ -73,18 +69,14 @@ class WebhookController extends Controller
                     ->first();
                 if ( ! $type )
                 {
-                    return [
-                        'error' => 'Type not found'
-                    ];
+                    return $this->error( 'Type not found' );
                 }
                 $building = Building
                     ::where( 'mosreg_id', '=', $request->json( 'address_id' ) )
                     ->first();
                 if ( ! $building )
                 {
-                    return [
-                        'error' => 'Address not found'
-                    ];
+                    return $this->error( 'Address not found' );
                 }
                 $ticket = new Ticket([
                     'author_id'                 => \Auth::user()->id,
@@ -111,49 +103,53 @@ class WebhookController extends Controller
                 $ticketManagement->save();
             }
 
+            $mosreg = null;
+            if ( $management->hasMosreg( $mosreg ) )
+            {
+                switch ( $mosreg_status )
+                {
+                    case 'NEW_CLAIM':
+                    case 'UNSATISFIED':
+                        $mosreg_status = 'IN_WORK';
+                        break;
+                }
+            }
+
             if ( $ticketManagement->changeMosregStatus( $mosreg_status ) )
             {
-                return [
+                return $this->success([
                     'message' => 'OK'
-                ];
+                ]);
             }
             else
             {
-                return [
-                    'error' => 'Failed to change status'
-                ];
-            }
-
-            // Меняем статус на "В работе" сразу после поступления
-            if ( $mosreg_status == 'NEW_CLAIM' && $management->hasMosreg( $mosreg ) )
-            {
-                $mosreg_status = 'IN_WORK';
-                $res = $mosreg->changeStatus( $mosreg_id, $mosreg_status );
-                if ( isset( $res->message ) && $res->message == 'OK' )
-                {
-                    if ( $ticketManagement->changeMosregStatus( $mosreg_status ) )
-                    {
-                        return [
-                            'message' => 'OK'
-                        ];
-                    }
-                    else
-                    {
-                        return [
-                            'error' => 'Failed to change status'
-                        ];
-                    }
-                }
+                return $this->error( 'Failed to change status' );
             }
 
         }
         catch ( \Exception $e )
         {
-            return [
-                'error' => $e->getMessage()
-            ];
+            return $this->error( $e->getMessage() );
         }
 
+    }
+
+    protected function error ( $error, $httpCode = null ) : Response
+    {
+        if ( \DB::transactionLevel() )
+        {
+            \DB::rollback();
+        }
+        return response( compact( 'error' ), $httpCode ?: 200 );
+    }
+
+    protected function success ( $response ) : Response
+    {
+        if ( \DB::transactionLevel() )
+        {
+            \DB::commit();
+        }
+        return response( $response, 200 );
     }
 
 }
