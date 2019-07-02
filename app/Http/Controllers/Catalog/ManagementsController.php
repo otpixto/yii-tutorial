@@ -59,7 +59,7 @@ class ManagementsController extends BaseController
                         $q
                             ->where( Management::$_table . '.phone', '=', $p )
                             ->orWhere( Management::$_table . '.phone2', '=', $p );
-                    });
+                    } );
             }
 
             if ( ! empty( $category_id ) )
@@ -80,7 +80,7 @@ class ManagementsController extends BaseController
                         {
                             return $building
                                 ->whereIn( Building::$_table . '.segment_id', $segmentChildsIds );
-                        });
+                        } );
                 }
             }
 
@@ -103,7 +103,7 @@ class ManagementsController extends BaseController
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $building_id );
-                    });
+                    } );
             }
 
             if ( ! empty( $type_id ) )
@@ -113,7 +113,7 @@ class ManagementsController extends BaseController
                     {
                         return $types
                             ->where( Type::$_table . '.id', '=', $type_id );
-                    });
+                    } );
             }
 
             if ( $request->get( 'export' ) == 1 )
@@ -123,15 +123,15 @@ class ManagementsController extends BaseController
                 foreach ( $managements as $management )
                 {
                     $data[] = [
-                        'Категория'             => $management->getCategory(),
-                        'Услуги'                => $management->services,
-                        'Наименование'          => $management->name,
-                        'Телефон(ы)'            => $management->getPhones(),
-                        'Адрес'                 => $management->building->name ?? '',
-                        'График работы'         => $management->schedule,
-                        'ФИО руководителя'      => $management->director,
-                        'E-mail'                => $management->email,
-                        'Сайт'                  => $management->site,
+                        'Категория' => $management->getCategory(),
+                        'Услуги' => $management->services,
+                        'Наименование' => $management->name,
+                        'Телефон(ы)' => $management->getPhones(),
+                        'Адрес' => $management->building->name ?? '',
+                        'График работы' => $management->schedule,
+                        'ФИО руководителя' => $management->director,
+                        'E-mail' => $management->email,
+                        'Сайт' => $management->site,
                     ];
                 }
                 \Excel::create( 'УО', function ( $excel ) use ( $data )
@@ -139,8 +139,9 @@ class ManagementsController extends BaseController
                     $excel->sheet( 'УО', function ( $sheet ) use ( $data )
                     {
                         $sheet->fromArray( $data );
-                    });
-                })->export( 'xls' );
+                    } );
+                } )
+                    ->export( 'xls' );
             }
 
             $managements = $managements
@@ -172,7 +173,8 @@ class ManagementsController extends BaseController
     public function searchForm ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'catalog.managements.search' ) )
+        if ( ! \Auth::user()
+            ->can( 'catalog.managements.search' ) )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Доступ запрещен' );
@@ -221,20 +223,20 @@ class ManagementsController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'provider_id'           => 'nullable|integer',
-            'name'                  => 'required|string|max:255',
-            'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'email'                 => 'nullable|email',
-            'site'                  => 'nullable|url',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'provider_id' => 'nullable|integer',
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'email' => 'nullable|email',
+            'site' => 'nullable|url',
         ];
 
         $this->validate( $request, $rules );
@@ -251,7 +253,7 @@ class ManagementsController extends BaseController
                         ->orWhere( 'guid', '=', $request->get( 'guid' ) );
                 }
                 return $q;
-            })
+            } )
             ->first();
         if ( $old )
         {
@@ -263,14 +265,16 @@ class ManagementsController extends BaseController
         $management = Management::create( $request->all() );
         if ( $management instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $management );
         }
         $management->save();
 
         self::clearCache();
 
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно добавлена' );
 
     }
@@ -278,7 +282,7 @@ class ManagementsController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show ( $id )
@@ -289,7 +293,7 @@ class ManagementsController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( $id )
@@ -301,7 +305,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -320,8 +325,8 @@ class ManagementsController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
@@ -331,17 +336,18 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
         $rules = [
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'nullable|string|max:255',
-            'phone'                 => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'email'                 => 'nullable|email',
-            'site'                  => 'nullable|url',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name' => 'nullable|string|max:255',
+            'phone' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'email' => 'nullable|email',
+            'site' => 'nullable|url',
         ];
 
         $this->validate( $request, $rules );
@@ -392,15 +398,26 @@ class ManagementsController extends BaseController
         }
 
         $res = $management->edit( $request->all() );
+        if ( ! empty( $res->mosreg_id ) && ! empty( $res->mosreg_username ) && ! empty( $res->mosreg_password ) )
+        {
+            $res->webhook_active = 1;
+        } else
+        {
+            $res->webhook_active = 0;
+        }
+        $res->save();
+
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );
 
     }
@@ -412,15 +429,16 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
         $rules = [
-            'has_contract'                  => 'required|boolean',
-            'contract_number'               => 'nullable|string',
-            'contract_begin'                => 'nullable|required_with:contract_end|date',
-            'contract_end'                  => 'nullable|required_with:contract_begin|date',
+            'has_contract' => 'required|boolean',
+            'contract_number' => 'nullable|string',
+            'contract_begin' => 'nullable|required_with:contract_end|date',
+            'contract_end' => 'nullable|required_with:contract_begin|date',
         ];
 
         $this->validate( $request, $rules );
@@ -429,24 +447,28 @@ class ManagementsController extends BaseController
 
         if ( ! empty( $attributes[ 'contract_begin' ] ) )
         {
-            $attributes[ 'contract_begin' ] = Carbon::parse( $attributes[ 'contract_begin' ] )->toDateTimeString();
+            $attributes[ 'contract_begin' ] = Carbon::parse( $attributes[ 'contract_begin' ] )
+                ->toDateTimeString();
         }
 
         if ( ! empty( $attributes[ 'contract_end' ] ) )
         {
-            $attributes[ 'contract_end' ] = Carbon::parse( $attributes[ 'contract_end' ] )->toDateTimeString();
+            $attributes[ 'contract_end' ] = Carbon::parse( $attributes[ 'contract_end' ] )
+                ->toDateTimeString();
         }
 
         $res = $management->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );
 
     }
@@ -454,7 +476,7 @@ class ManagementsController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy ( $id )
@@ -470,17 +492,17 @@ class ManagementsController extends BaseController
         $provider_id = $request->get( 'provider_id', Provider::getCurrent() ? Provider::$current->id : null );
 
         $managements = Management
-			::mine()
+            ::mine()
             ->whereHas( 'types', function ( $types ) use ( $type_id )
             {
                 return $types
                     ->where( Type::$_table . '.id', '=', $type_id );
-            })
+            } )
             ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
             {
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $building_id );
-            });
+            } );
 
         if ( ! empty( $provider_id ) )
         {
@@ -499,8 +521,7 @@ class ManagementsController extends BaseController
         if ( ! empty( $request->get( 'selected' ) ) )
         {
             $selected = explode( ',', $request->get( 'selected' ) );
-        }
-        else
+        } else
         {
             $selected = null;
         }
@@ -522,7 +543,7 @@ class ManagementsController extends BaseController
                 'id',
                 'name as text'
             )
-            ->orderBy( Management::$_table .'.name' );
+            ->orderBy( Management::$_table . '.name' );
 
         if ( ! empty( $provider_id ) )
         {
@@ -543,7 +564,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -570,16 +592,16 @@ class ManagementsController extends BaseController
         if ( $request->has( 'managements' ) )
         {
             $ids = $request->get( 'managements' );
-        }
-        else if ( $request->has( 'management_id' ) )
+        } else if ( $request->has( 'management_id' ) )
         {
             $ids = [ $request->get( 'management_id' ) ];
-        }
-        else
+        } else
         {
             $ids = [];
         }
-        $managements = Management::mine()->whereIn( Management::$_table . '.id', $ids )->get();
+        $managements = Management::mine()
+            ->whereIn( Management::$_table . '.id', $ids )
+            ->get();
         if ( ! $managements->count() )
         {
             return false;
@@ -597,12 +619,14 @@ class ManagementsController extends BaseController
         $management = Management::find( $id );
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
         $management->telegram_code = $this->genCode();
         $management->save();
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );
     }
 
@@ -611,7 +635,8 @@ class ManagementsController extends BaseController
         $management = Management::find( $id );
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
         foreach ( $management->subscriptions as $subscription )
@@ -624,7 +649,8 @@ class ManagementsController extends BaseController
         }
         $management->telegram_code = null;
         $management->save();
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );
     }
 
@@ -633,13 +659,16 @@ class ManagementsController extends BaseController
         $management = Management::find( $id );
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
-        $subscription = $management->subscriptions()->find( $request->get( 'id' ) );
+        $subscription = $management->subscriptions()
+            ->find( $request->get( 'id' ) );
         if ( ! $subscription )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'Подписка не найдена' ] );
         }
         if ( $subscription->sendTelegram( 'Ваша подписка на <b>' . $subscription->management->name . '</b> прекращена' ) )
@@ -647,7 +676,8 @@ class ManagementsController extends BaseController
             $subscription->addLog( 'Подписка прекращена' );
             $subscription->delete();
         }
-        return redirect()->route( 'managements.edit', $management->id )
+        return redirect()
+            ->route( 'managements.edit', $management->id )
             ->with( 'success', 'УО успешно отредактирована' );
     }
 
@@ -671,7 +701,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -689,9 +720,12 @@ class ManagementsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $segmentsTypes = SegmentType::orderBy( 'sort' )->pluck( 'name', 'id' );
-		
-		$buildingTypes = BuildingType::mine()->orderBy( 'name' )->pluck( 'name', 'id' );
+        $segmentsTypes = SegmentType::orderBy( 'sort' )
+            ->pluck( 'name', 'id' );
+
+        $buildingTypes = BuildingType::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
 
         return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )
@@ -712,7 +746,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -733,11 +768,12 @@ class ManagementsController extends BaseController
         foreach ( $managementBuildings as $building )
         {
             $data[ $i ] = [
-                'id дома'                    => $building->id,
-                'Наименование адреса'        => $building->name,
-                'Тип (дом/бизнес-центр)'     => $building->buildingType->name ?? '',
-                'Наименование сегмента'      => $building->getSegments()->implode( 'name', ', ' ) ?? '',
-                'GUID'                       => $building->guid,
+                'id дома' => $building->id,
+                'Наименование адреса' => $building->name,
+                'Тип (дом/бизнес-центр)' => $building->buildingType->name ?? '',
+                'Наименование сегмента' => $building->getSegments()
+                        ->implode( 'name', ', ' ) ?? '',
+                'GUID' => $building->guid,
             ];
             $i ++;
         }
@@ -749,8 +785,9 @@ class ManagementsController extends BaseController
             $excel->sheet( 'ЗДАНИЯ', function ( $sheet ) use ( $data )
             {
                 $sheet->fromArray( $data );
-            });
-        })->export( 'xls' );
+            } );
+        } )
+            ->export( 'xls' );
 
         die;
 
@@ -763,18 +800,20 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
         $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
-		
-		$provider_id = $request->get( 'provider_id', Provider::getCurrent()->id ?? null );
+
+        $provider_id = $request->get( 'provider_id', Provider::getCurrent()->id ?? null );
 
         $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
             ->where( Building::$_table . '.name', 'like', $s )
-			->whereNotIn( Building::$_table . '.id', $management->buildings()->pluck( Building::$_table . '.id' ) )
+            ->whereNotIn( Building::$_table . '.id', $management->buildings()
+                ->pluck( Building::$_table . '.id' ) )
             ->orderBy( Building::$_table . '.name' );
 
         if ( ! empty( $provider_id ) )
@@ -784,17 +823,17 @@ class ManagementsController extends BaseController
         }
 
         $res = $res
-			->with( 'buildingType' )
+            ->with( 'buildingType' )
             ->get();
-			
-		$buildings = [];
-		foreach ( $res as $r )
-		{
-			$buildings[] = [
-				'id' => $r->id,
-				'text' => $r->name . ' (' . $r->buildingType->name . ')'
-			];
-		}
+
+        $buildings = [];
+        foreach ( $res as $r )
+        {
+            $buildings[] = [
+                'id' => $r->id,
+                'text' => $r->name . ' (' . $r->buildingType->name . ')'
+            ];
+        }
 
         return $buildings;
 
@@ -807,13 +846,16 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->buildings()->attach( $request->get( 'buildings', [] ) );
+        $management->buildings()
+            ->attach( $request->get( 'buildings', [] ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Адреса успешно назначены' );
 
     }
@@ -822,8 +864,8 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'segments'                  => 'required|array',
-            'type_id'             	    => 'nullable|integer',
+            'segments' => 'required|array',
+            'type_id' => 'nullable|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -832,13 +874,15 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
         if ( ! empty( $request->get( 'segments' ) ) )
         {
-            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                ->get();
             if ( $segments->count() )
             {
                 $segmentsIds = [];
@@ -860,13 +904,15 @@ class ManagementsController extends BaseController
                 {
                     if ( ! $management->buildings->contains( $building->id ) )
                     {
-                        $management->buildings()->attach( $building->id );
+                        $management->buildings()
+                            ->attach( $building->id );
                     }
                 }
             }
         }
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Здания сегментов успешно привязаны' );
 
     }
@@ -875,7 +921,7 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'building_id'             => 'required|integer',
+            'building_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -884,11 +930,13 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->buildings()->detach( $request->get( 'building_id' ) );
+        $management->buildings()
+            ->detach( $request->get( 'building_id' ) );
 
     }
 
@@ -899,13 +947,16 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->buildings()->detach();
+        $management->buildings()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
@@ -915,11 +966,13 @@ class ManagementsController extends BaseController
 
         Title::add( 'Исполнители' );
 
-        $management = Management::mine()->find( $id );
+        $management = Management::mine()
+            ->find( $id );
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -934,7 +987,7 @@ class ManagementsController extends BaseController
             $s = '%' . str_replace( ' ', '%', $search ) . '%';
             $managementExecutors
                 ->where( Executor::$_table . '.name', 'like', $s )
-                ->orWhere( Executor::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), -10 ) );
+                ->orWhere( Executor::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) );
         }
 
         $managementExecutors = $managementExecutors
@@ -954,7 +1007,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -962,13 +1016,15 @@ class ManagementsController extends BaseController
 
         if ( $executor instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $executor );
         }
 
         $executor->save();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Исполнитель успешно добавлен' );
 
     }
@@ -977,7 +1033,7 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'executor_id'             => 'required|integer',
+            'executor_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -986,14 +1042,17 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $executor = $management->executors()->find( $request->get( 'executor_id' ) );
+        $executor = $management->executors()
+            ->find( $request->get( 'executor_id' ) );
         if ( ! $executor )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'Исполнитель не найден' ] );
         }
 
@@ -1008,7 +1067,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -1017,7 +1077,8 @@ class ManagementsController extends BaseController
             $executor->delete();
         }
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Исполнители успешно удалены' );
 
     }
@@ -1032,7 +1093,8 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
@@ -1057,8 +1119,9 @@ class ManagementsController extends BaseController
                 return $q
                     ->whereNull( 'provider_id' )
                     ->orWhere( 'provider_id', '=', $management->provider_id );
-            })
-            ->whereNotIn( 'id', $management->types()->pluck( Type::$_table . '.id' ) )
+            } )
+            ->whereNotIn( 'id', $management->types()
+                ->pluck( Type::$_table . '.id' ) )
             ->get()
             ->sortBy( 'name' );
         $availableTypes = [];
@@ -1081,13 +1144,16 @@ class ManagementsController extends BaseController
         $management = Management::find( $id );
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->types()->attach( $request->get( 'types', [] ) );
+        $management->types()
+            ->attach( $request->get( 'types', [] ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Типы успешно назначены' );
 
     }
@@ -1096,7 +1162,7 @@ class ManagementsController extends BaseController
     {
 
         $rules = [
-            'type_id'             => 'required|integer',
+            'type_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -1105,11 +1171,13 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->types()->detach( $request->get( 'type_id' ) );
+        $management->types()
+            ->detach( $request->get( 'type_id' ) );
 
     }
 
@@ -1120,13 +1188,16 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $management->types()->detach();
+        $management->types()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
@@ -1138,15 +1209,18 @@ class ManagementsController extends BaseController
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.index' )
+            return redirect()
+                ->route( 'managements.index' )
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $act = $management->acts()->find( $act_id );
+        $act = $management->acts()
+            ->find( $act_id );
 
         if ( ! $management )
         {
-            return redirect()->route( 'managements.edit', $management->id )
+            return redirect()
+                ->route( 'managements.edit', $management->id )
                 ->withErrors( [ 'Акт не найден' ] );
         }
 
@@ -1155,40 +1229,17 @@ class ManagementsController extends BaseController
 
     }
 
-    public function generateWebhookToken($management_id)
+    public function generateWebhookToken ( $management_id )
     {
-        $management = Management::find( $management_id );
+        $token = rand( 11111111, 99999999 );
 
-        if ( ! $management )
-        {
-            return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-
-        $webhookToken = md5(rand(0, 9999) . rand(0, 9999));
-        $management->webhook_token = $webhookToken;
-        $management->save();
-
-        return redirect()->back()
-            ->with( 'success', 'Webhook token успешно сгенерирован' );
+        return ( new Management() )->handleWebhookToken( $management_id, $token );
     }
 
 
-    public function resetWebhookToken($management_id)
+    public function resetWebhookToken ( $management_id )
     {
-        $management = Management::find( $management_id );
-
-        if ( ! $management )
-        {
-            return redirect()->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
-        }
-
-        $management->webhook_token = null;
-        $management->save();
-
-        return redirect()->back()
-            ->with( 'success', 'Webhook token успешно сброшен' );
+        return ( new Management() )->handleWebhookToken( $management_id );
     }
 
 }

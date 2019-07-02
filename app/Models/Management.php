@@ -97,15 +97,15 @@ class Management extends BaseModel
     {
         return $this->belongsTo( Management::class );
     }
-	
-	public function childs ()
+
+    public function childs ()
     {
         return $this->hasMany( Management::class, 'parent_id', 'id' );
     }
 
     public function building ()
     {
-        return $this->belongsTo(Building::class );
+        return $this->belongsTo( Building::class );
     }
 
     public function types ()
@@ -148,10 +148,13 @@ class Management extends BaseModel
                 $query
                     ->mineProvider();
             }
-            if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+            if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()
+                    ->can( 'supervisor.all_managements' ) )
             {
                 $query
-                    ->whereIn( self::$_table . '.id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+                    ->whereIn( self::$_table . '.id', \Auth::user()
+                        ->managements()
+                        ->pluck( Management::$_table . '.id' ) );
             }
         }
         return $query;
@@ -162,13 +165,13 @@ class Management extends BaseModel
         if ( ! empty( $phone ) )
         {
             $phone = str_replace( '+7', '', $phone );
-            $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
+            $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), - 10 );
         }
-        return Executor::create([
-            'management_id'     => $this->id,
-            'name'              => $name,
-            'phone'             => $phone,
-        ]);
+        return Executor::create( [
+            'management_id' => $this->id,
+            'name' => $name,
+            'phone' => $phone,
+        ] );
     }
 
     public static function telegramSubscribe ( $telegram_code, array $attributes = [] )
@@ -185,9 +188,8 @@ class Management extends BaseModel
                 ->first();
             if ( $managementSubscription )
             {
-                return new MessageBag([ 'Подписка уже ранее была оформлена' ]);
-            }
-            else
+                return new MessageBag( [ 'Подписка уже ранее была оформлена' ] );
+            } else
             {
                 $attributes[ 'management_id' ] = $management->id;
                 $res = ManagementSubscription::create( $attributes );
@@ -198,10 +200,9 @@ class Management extends BaseModel
                 $res->save();
                 return true;
             }
-        }
-        else
+        } else
         {
-            return new MessageBag([ 'Неверный пин-код' ]);
+            return new MessageBag( [ 'Неверный пин-код' ] );
         }
     }
 
@@ -221,15 +222,13 @@ class Management extends BaseModel
             {
                 $managementSubscription->delete();
                 return true;
-            }
-            else
+            } else
             {
-                return new MessageBag([ 'Подписка не найдена' ]);
+                return new MessageBag( [ 'Подписка не найдена' ] );
             }
-        }
-        else
+        } else
         {
-            return new MessageBag([ 'Неверный пин-код' ]);
+            return new MessageBag( [ 'Неверный пин-код' ] );
         }
     }
 
@@ -238,25 +237,23 @@ class Management extends BaseModel
         $phones = '';
         if ( ! empty( $this->phone ) )
         {
-            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ) . '-' . mb_substr( $this->phone, 8, 2 );
             if ( $html )
             {
                 $phones .= '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a>';
-            }
-            else
+            } else
             {
                 $phones .= $phone;
             }
         }
         if ( ! empty( $this->phone2 ) )
         {
-            $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ). '-' . mb_substr( $this->phone2, 8, 2 );
+            $phone2 = '+7 (' . mb_substr( $this->phone2, 0, 3 ) . ') ' . mb_substr( $this->phone2, 3, 3 ) . '-' . mb_substr( $this->phone2, 6, 2 ) . '-' . mb_substr( $this->phone2, 8, 2 );
             $phones .= '; ';
             if ( $html )
             {
                 $phones .= ' <a href="tel:7' . $this->phone2 . '" class="inherit">' . $phone2 . '</a>';
-            }
-            else
+            } else
             {
                 $phones .= $phone2;
             }
@@ -285,8 +282,7 @@ class Management extends BaseModel
         {
             $mosreg = new MosregClient( $this->mosreg_id, $this->mosreg_username, $this->mosreg_password );
             return true;
-        }
-        else if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
+        } else if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
         {
             $mosreg = new MosregClient( $this->parent->mosreg_id, $this->parent->mosreg_username, $this->parent->mosreg_password );
             return true;
@@ -301,6 +297,64 @@ class Management extends BaseModel
             return $mosreg;
         }
         return false;
+    }
+
+    public function handleWebhookToken ( $management_id, $token = null )
+    {
+        $management = self::find( $management_id );
+        if ( $management )
+        {
+            if ( $token )
+            {
+                $success = 'Webhook token успешно установлен';
+                $error = 'Не удалось установить webhook';
+            } else
+            {
+                $success = 'Webhook token успешно сброшен';
+                $error = 'Не удалось сбросить webhook';
+            }
+            $mosregClient = null;
+            if ( $management->hasMosreg( $mosregClient ) )
+            {
+                $management->webhook_token = $token;
+                $management->save();
+                $url = route( 'webhook.ticket', $management->webhook_token );
+                //$url = str_replace( 'http://eds.loc', 'https://system.eds-juk.ru', $url );
+
+                if ( $token )
+                {
+                    $result = $mosregClient->setWebhook( $url );
+                } else
+                {
+                    $result = $mosregClient->unsetWebhook();
+                }
+
+                if ( isset( $result->message ) && $result->message == "OK" )
+                {
+                    return redirect()
+                        ->back()
+                        ->withSuccess( $success );
+                } else
+                {
+                    $management->webhook_token = null;
+                    $management->save();
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ $management->error ?? $error ] );
+                }
+            } else
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Не удалось установить webhook' ] );
+            }
+        } else
+        {
+            return redirect()
+                ->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
     }
 
 }
