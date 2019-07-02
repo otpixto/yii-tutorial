@@ -331,12 +331,14 @@ class Management extends BaseModel
 
                 if ( isset( $result->message ) && $result->message == "OK" )
                 {
+                    $management->webhook_active = ($token) ? 1 : 0;
+                    $management->save();
                     return redirect()
                         ->back()
                         ->withSuccess( $success );
                 } else
                 {
-                    $management->webhook_token = null;
+                    $management->webhook_active = 0;
                     $management->save();
                     return redirect()
                         ->back()
