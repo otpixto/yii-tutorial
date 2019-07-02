@@ -77,6 +77,16 @@ class MosregClient
         return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer?company_id=' . $this->id, compact( 'answer_id', 'comment' ) );
     }
 
+    public function setWebhook ( $url )
+    {
+        return $this->sendRequest( 'POST', '/api/webhook/set/?company_id=' . $this->id, compact( 'url' ) );
+    }
+
+    public function unsetWebhook ()
+    {
+        return $this->sendRequest( 'POST', '/api/webhook/set/?company_id=' . $this->id );
+    }
+
     private function sendRequest ( $method, $path, array $data = [] )
     {
         $response = $this->client->request( $method, $path, [
