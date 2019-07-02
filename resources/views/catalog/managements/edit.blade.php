@@ -555,49 +555,6 @@
                     }
                 });
 
-            })
-            .on('click', '[data-action="webhook-generate"]', function (e) {
-
-                e.preventDefault();
-
-                var proceed = true;
-
-                var mosregID = $('input[name="mosreg_id"]').prop('value').trim();
-                if (mosregID == '') {
-                    $('input[name="mosreg_id"]').parent('div').addClass('has-error');
-                    proceed = false;
-                }
-
-                var mosregUsername = $('input[name="mosreg_username"]').prop('value').trim();
-                if (mosregUsername == '') {
-                    $('input[name="mosreg_username"]').parent('div').addClass('has-error');
-                    proceed = false;
-                }
-
-                var mosregPassword = $('input[name="mosreg_password"]').prop('value').trim();
-                if (mosregPassword == '') {
-                    $('input[name="mosreg_password"]').parent('div').addClass('has-error');
-                    proceed = false;
-                }
-
-                if (proceed == false) {
-                    return false;
-                }
-
-                var url = $(this).attr('href');
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    cache: false,
-                    data: {'mosreg_id': mosregID, 'mosreg_username': mosregUsername, 'mosreg_password': mosregPassword},
-                    success: function (response) {
-                        console.log(response);
-                    }
-                });
-                return false;
-
-                console.log(mosregID);
-
             });
 
     </script>
