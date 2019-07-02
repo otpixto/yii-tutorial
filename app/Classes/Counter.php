@@ -39,7 +39,12 @@ class Counter
             {
                 self::$tickets_count = TicketManagement
                     ::mine()
-                    ->notFinaleStatuses()
+                    ->whereNotIn( 'status_code', [
+                        'closed_with_confirm',
+                        'closed_without_confirm',
+                        'cancel',
+                        'rejected',
+                    ])
                     ->count();
                 \Cache::tags( 'tickets_counts' )->put( 'domain.' . Provider::getSubDomain() . '.user.' . \Auth::user()->id . '.tickets_count', self::$tickets_count, self::$cache_life );
             }
