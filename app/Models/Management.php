@@ -322,7 +322,7 @@ class Management extends BaseModel
                 if ( $token )
                 {
                     $url = route( 'webhook.ticket', $management->webhook_token );
-                    $url = str_replace( 'http://eds.loc', 'https://system.eds-juk.ru', $url );
+                    //$url = str_replace( 'http://eds.loc', 'https://system.eds-juk.ru', $url );
                     $result = $mosregClient->setWebhook( $url );
                 } else
                 {
