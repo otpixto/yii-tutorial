@@ -1231,11 +1231,19 @@ class ManagementsController extends BaseController
 
     public function generateWebhookToken ( $management_id )
     {
-        $token = rand( 11111111, 99999999 );
+        $token = uniqid( '', true );
+        $model = Management::where( [ 'webhook_token' => $token ] )
+            ->first();
+
+        if ( $model )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Не удалось установить webhook' ] );
+        }
 
         return ( new Management() )->handleWebhookToken( $management_id, $token );
     }
-
 
     public function resetWebhookToken ( $management_id )
     {
