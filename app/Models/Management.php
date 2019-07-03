@@ -318,11 +318,11 @@ class Management extends BaseModel
             {
                 $management->webhook_token = $token;
                 $management->save();
-                $url = route( 'webhook.ticket', $management->webhook_token );
-                //$url = str_replace( 'http://eds.loc', 'https://system.eds-juk.ru', $url );
 
                 if ( $token )
                 {
+                    $url = route( 'webhook.ticket', $management->webhook_token );
+                    $url = str_replace( 'http://eds.loc', 'https://system.eds-juk.ru', $url );
                     $result = $mosregClient->setWebhook( $url );
                 } else
                 {
