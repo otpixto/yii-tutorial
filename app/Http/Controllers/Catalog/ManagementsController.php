@@ -398,14 +398,6 @@ class ManagementsController extends BaseController
         }
 
         $res = $management->edit( $request->all() );
-        if ( ! empty( $res->mosreg_id ) && ! empty( $res->mosreg_username ) && ! empty( $res->mosreg_password ) )
-        {
-            $res->webhook_active = 1;
-        } else
-        {
-            $res->webhook_active = 0;
-        }
-        $res->save();
 
         if ( $res instanceof MessageBag )
         {
