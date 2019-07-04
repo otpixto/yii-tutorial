@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendStream;
 use App\Models\Building;
 use App\Models\Management;
 use App\Models\Ticket;
@@ -101,6 +102,11 @@ class WebhookController extends Controller
                     'mosreg_id'         => $request->json( 'mosreg_id' ),
                 ]);
                 $ticketManagement->save();
+                $this->dispatch( new SendStream( 'create', $ticketManagement ) );
+            }
+            else
+            {
+                $this->dispatch( new SendStream( 'update', $ticketManagement ) );
             }
 
             $mosreg = null;
