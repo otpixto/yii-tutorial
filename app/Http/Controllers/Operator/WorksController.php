@@ -172,7 +172,7 @@ class WorksController extends BaseController
                     $segmentsIds = [];
                     foreach ( $segments as $segment )
                     {
-                        $segmentName = $segment->type->name;
+                        $segmentName = $segment->type->name ?? '';
                         if ( $segment->parent )
                         {
                             $segmentName .= ' ' . $segment->parent->name;
