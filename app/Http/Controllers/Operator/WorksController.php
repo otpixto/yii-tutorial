@@ -61,6 +61,9 @@ class WorksController extends BaseController
                         ->current()
                         ->overdue();
                     break;
+                case 'period':
+
+                    break;
                 default:
                     $works
                         ->current();
