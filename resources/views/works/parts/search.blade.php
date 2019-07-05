@@ -2,6 +2,14 @@
 {!! Form::hidden( 'search', 1 ) !!}
 <div class="row margin-top-10">
     <h4 class="col-md-2">
+        Показать
+    </h4>
+    <div class="col-md-10">
+        {!! Form::select( 'show', ['' => 'Активные', 'period' => 'Все'], '', [ 'class' => 'form-control', 'data-placeholder' => 'Показать' ] ) !!}
+    </div>
+</div>
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
         Номер сообщения
     </h4>
     <div class="col-md-4">
