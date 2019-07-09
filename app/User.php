@@ -5,6 +5,8 @@ namespace App;
 use App\Classes\Asterisk;
 use App\Jobs\SendEmail;
 use App\Models\BaseModel;
+use App\Models\Building;
+use App\Models\Customer;
 use App\Models\Ticket;
 use App\Models\UserPosition;
 use App\Notifications\MailResetPasswordToken;
@@ -60,6 +62,7 @@ class User extends BaseModel implements
         'lon',
         'lat',
         'push_id',
+        'email_subscribed'
     ];
 
     public static $rules_create = [
@@ -176,7 +179,7 @@ class User extends BaseModel implements
 
         if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), - 10 );
             $user = User
                 ::where( 'phone', $attributes[ 'phone' ] )
                 ->first();
@@ -191,7 +194,8 @@ class User extends BaseModel implements
 
         if ( ! empty( $attributes[ 'providers' ] ) )
         {
-            $user->providers()->attach( $attributes[ 'providers' ] );
+            $user->providers()
+                ->attach( $attributes[ 'providers' ] );
         }
 
         if ( ! empty( $attributes[ 'roles' ] ) )
@@ -208,7 +212,7 @@ class User extends BaseModel implements
 
         if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), -10 );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), - 10 );
         }
 
         $res = parent::edit( $attributes );
@@ -258,11 +262,12 @@ class User extends BaseModel implements
 
     public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {
-        if ( \Cache::tags( 'users' )->has( 'user.availableStatuses.' . $this->id ) )
+        if ( \Cache::tags( 'users' )
+            ->has( 'user.availableStatuses.' . $this->id ) )
         {
-            $this->availableStatuses = \Cache::tags( 'users' )->get( 'user.availableStatuses.' . $this->id );
-        }
-        else if ( is_null( $this->availableStatuses ) )
+            $this->availableStatuses = \Cache::tags( 'users' )
+                ->get( 'user.availableStatuses.' . $this->id );
+        } else if ( is_null( $this->availableStatuses ) )
         {
             $res = $this->getAllPermissions();
             $this->availableStatuses = [];
@@ -276,7 +281,8 @@ class User extends BaseModel implements
                     $this->availableStatuses[ $_perm ][] = $status_code;
                 }
             }
-            \Cache::tags( 'users' )->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
+            \Cache::tags( 'users' )
+                ->put( 'user.availableStatuses.' . $this->id, $this->availableStatuses, 60 );
         }
         $statuses = $this->availableStatuses[ $perm_for ] ?? [];
         $res = [];
@@ -286,8 +292,7 @@ class User extends BaseModel implements
             {
                 $res[ $status_code ] = Ticket::$statuses[ $status_code ] ?? null;
             }
-        }
-        else
+        } else
         {
             $res = $statuses;
         }
@@ -308,7 +313,7 @@ class User extends BaseModel implements
         $this->openPhoneSession->close();
         $this->number = null;
         $this->save();
-		$asterisk = new Asterisk();
+        $asterisk = new Asterisk();
         if ( ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
@@ -319,14 +324,13 @@ class User extends BaseModel implements
     public function getPhone ( $html = false )
     {
         $phones = '';
-        if ( !empty( $this->phone ) )
+        if ( ! empty( $this->phone ) )
         {
-            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ). '-' . mb_substr( $this->phone, 8, 2 );
+            $phone = '+7 (' . mb_substr( $this->phone, 0, 3 ) . ') ' . mb_substr( $this->phone, 3, 3 ) . '-' . mb_substr( $this->phone, 6, 2 ) . '-' . mb_substr( $this->phone, 8, 2 );
             if ( $html )
             {
                 $phones = '<a href="tel:7' . $this->phone . '" class="inherit">' . $phone . '</a';
-            }
-            else
+            } else
             {
                 $phones = $phone;
             }
@@ -362,8 +366,8 @@ class User extends BaseModel implements
                     ->orWhere( User::$_table . '.middlename', 'like', $s )
                     ->orWhere( User::$_table . '.lastname', 'like', $s )
                     ->orWhere( User::$_table . '.email', 'like', $s )
-                    ->orWhere( User::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), -10 ) );
-            });
+                    ->orWhere( User::$_table . '.phone', 'like', mb_substr( preg_replace( '/\D/', '', $search ), - 10 ) );
+            } );
     }
 
     public function scopeMine ( $query )
@@ -378,8 +382,8 @@ class User extends BaseModel implements
                         return $providers
                             ->mine()
                             ->current();
-                    });
-            });
+                    } );
+            } );
     }
 
     public function sendEmail ( $message, $url = null )
@@ -391,14 +395,15 @@ class User extends BaseModel implements
     {
         $this->lon = $lon;
         $this->lat = $lat;
-        $this->position_at = $dt ? $dt->toDateTimeString() : Carbon::now()->toDateTimeString();
+        $this->position_at = $dt ? $dt->toDateTimeString() : Carbon::now()
+            ->toDateTimeString();
         $this->save();
-        $userPosition = UserPosition::create([
-            'user_id'       => $this->id,
-            'lon'           => $this->lon,
-            'lat'           => $this->lat,
-            'position_at'   => $this->position_at,
-        ]);
+        $userPosition = UserPosition::create( [
+            'user_id' => $this->id,
+            'lon' => $this->lon,
+            'lat' => $this->lat,
+            'position_at' => $this->position_at,
+        ] );
         if ( $userPosition instanceof MessageBag )
         {
             return $userPosition;
@@ -409,6 +414,38 @@ class User extends BaseModel implements
     public function getPhoto ()
     {
         return '/storage/photo/' . ( $this->photo ?: ( $this->gender ?: 'nophoto' ) . '.png' );
+    }
+
+    public function getUsersForSendingMessage ( $request, $viaEmail = false )
+    {
+        $users = self::where( 'active', '=', 1 );
+
+        if ( $viaEmail )
+        {
+            $users = $users->whereNotNull( 'email' )
+                ->where( 'email_subscribed', '=', 1 );
+        } else
+        {
+            $users = $users->whereNotNull( 'push_id' );
+        }
+
+        $users = $users->whereHas( 'customer', function ( $customer ) use ( $request )
+        {
+            return $customer
+                ->where( function ( $q ) use ( $request )
+                {
+                    return $q
+                        ->whereIn( Customer::$_table . '.actual_building_id', $request->get( 'buildings', [] ) )
+                        ->orWhereHas( 'buildings', function ( $buildings ) use ( $request )
+                        {
+                            return $buildings
+                                ->whereIn( Building::$_table . '.id', $request->get( 'buildings', [] ) );
+                        } );
+                } );
+        } )
+            ->get();
+
+        return $users;
     }
 
 }

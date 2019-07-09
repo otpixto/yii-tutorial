@@ -123,6 +123,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     {
 
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
+        Route::get( '/profile/unsubscribe/{user_id}', 'ProfileController@unsubscribe' )->name( 'profile.unsubscribe' );
 
         Route::get( '/', 'HomeController@index' )->name( 'home' );
         Route::get( '/about', 'HomeController@about' )->name( 'about' );

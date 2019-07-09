@@ -18,17 +18,26 @@ class SendEmail implements ShouldQueue
     protected $user;
     protected $message;
     protected $url;
+    protected $mailable;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct ( User $user, $message, $url = null )
+    public function __construct ( User $user, $message, $url = null, $mailable = null )
     {
         $this->user = $user;
         $this->message = $message;
         $this->url = $url;
+        if ( !$mailable )
+        {
+            $this->mailable = new TicketMail( $this->message, $this->url);
+        }
+        else
+        {
+            $this->mailable = $mailable;
+        }
     }
 
     /**
@@ -38,10 +47,9 @@ class SendEmail implements ShouldQueue
      */
     public function handle ( Mailer $mailer )
     {
-
         $mailer
             ->to( $this->user )
-            ->send( new TicketMail( $this->message, $this->url ) );
+            ->send( $this->mailable );
 
     }
 }
