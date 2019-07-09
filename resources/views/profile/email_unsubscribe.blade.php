@@ -9,7 +9,7 @@
 
 @section( 'content' )
 
-    <div class="form-horizontal">
+    <div>
         Вы успешно отписались от рассылки.
     </div>
 
