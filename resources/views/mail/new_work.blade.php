@@ -1,4 +1,4 @@
-<h3>Уважаемый(ая) {{ $user->lastname }} {{ $user->middlename }} {{ $user->firstname }}.</h3>
+<h3>Уважаемый(ая) {{ $user->firstname }} {{ $user->middlename }}.</h3>
 
 <p>Уведомляем Вас о том, что в связи с проведением работ на сетях по адресу {{ $user->customer->actualBuilding->name ?? '' }}
 
