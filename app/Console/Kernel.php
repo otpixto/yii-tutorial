@@ -35,7 +35,6 @@ class Kernel extends ConsoleKernel
         CreateUser::class,
         Mosreg::class,
         CreateSegments::class,
-        TestTelnet::class,
         ImportTypes::class,
     ];
 
