@@ -93,7 +93,7 @@
                                             <a href="?segment_type_id={{ $segmentType->id }}">
                                                 {{ $segmentType->name }}
                                                 <span class="badge badge-info pull-right">
-                                                    {{ $segmentType->segments()->count() }}
+                                                    {{ $segmentType->segments()->mine()->count() }}
                                                 </span>
                                             </a>
                                         </li>
