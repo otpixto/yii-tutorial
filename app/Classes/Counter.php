@@ -62,7 +62,8 @@ class Counter
         if ( ! \Cache::tags( 'tickets_counts' )->has( $key ) )
         {
             $count = Ticket
-                ::where( Ticket::$_table . '.status_code', '=', 'moderate' )
+                ::mineProvider()
+                ->where( Ticket::$_table . '.status_code', '=', 'moderate' )
                 ->count();
             \Cache::tags( 'tickets_counts' )->put( $key, $count, self::$cache_life );
         }

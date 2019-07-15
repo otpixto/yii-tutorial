@@ -98,26 +98,22 @@ class Provider extends BaseModel
     {
         if ( ! $user ) $user = \Auth::user();
         if ( $user )
-	{
-        	$query
-            ->where( function ( $q ) use ( $user )
-            {
-                return $q
-                    ->where( self::getTable() . '.id', '=', $user->provider_id )
-                    ->orWhereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
-            });
-	}
-	return $query;
+        {
+            $query
+                ->where( function ( $q ) use ( $user )
+                {
+                    return $q
+                        ->where( self::getTable() . '.id', '=', $user->provider_id )
+                        ->orWhereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );
+                });
+        }
+        return $query;
     }
 
     public function scopeCurrent ( $query )
     {
-        if ( self::getSubDomain() && ! self::subDomainIs( 'operator', 'system' ) )
-        {
-            $query
-                ->where( 'domain', '=', \Request::getHost() );
-        }
-        return $query;
+        return $query
+            ->where( 'domain', '=', \Request::getHost() );
     }
 
     public static function create ( array $attributes = [] )
@@ -180,11 +176,6 @@ class Provider extends BaseModel
         $this->addLog( 'Добавлен ключ "' . $providerKey->api_key . '" (' . $providerKey->description . ')' );
         $providerKey->save();
         return $providerKey;
-    }
-
-    public static function isOperatorUrl ()
-    {
-        return self::subDomainIs( 'operator' );
     }
 
     public static function isSystemUrl ()

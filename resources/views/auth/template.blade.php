@@ -5,11 +5,7 @@
     <a href="">
         <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
         <p>
-            @if ( \App\Models\Provider::isOperatorUrl() )
-                <span class="font-red-intense">
-                    Оператор
-                </span>
-            @elseif ( \App\Models\Provider::getCurrent() )
+            @if ( \App\Models\Provider::getCurrent() )
                 <span class="font-white">
                     {{ \App\Models\Provider::$current->name }}
                 </span>

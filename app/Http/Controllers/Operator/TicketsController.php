@@ -109,7 +109,8 @@ class TicketsController extends BaseController
         {
 
             $tickets = Ticket
-                ::where( 'status_code', '=', 'moderate' )
+                ::mineProvider()
+                ->where( 'status_code', '=', 'moderate' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 

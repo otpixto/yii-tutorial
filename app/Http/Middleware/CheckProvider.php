@@ -18,14 +18,7 @@ class CheckProvider
     {
         if ( $request->getUri() != route( 'logout' ) )
         {
-            if ( Provider::isOperatorUrl() )
-            {
-                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->hasRole( 'operator' ) )
-                {
-                    return redirect()->route( 'error.403' );
-                }
-            }
-            else if ( ! Provider::isSystemUrl() )
+            if ( ! Provider::isSystemUrl() )
             {
                 $provider = Provider::getCurrent();
                 if ( ! $provider )

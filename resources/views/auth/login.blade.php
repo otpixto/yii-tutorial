@@ -34,14 +34,6 @@
             </p>
         </div>
 
-        {{--@if ( ! \App\Models\Provider::isOperatorUrl() )
-            <div class="create-account">
-                <p>
-                    <a href="/register" id="register-btn" class="uppercase">Зарегистрироваться</a>
-                </p>
-            </div>
-        @endif--}}
-
         <div class="create-account">
             <p>
                 Продолжая работу с системой, Вы соглашаетесь с
