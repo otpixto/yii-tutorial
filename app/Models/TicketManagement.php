@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Classes\SegmentChilds;
 use App\Jobs\SendStream;
+use App\Jobs\SendTelegramMessage;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -1263,10 +1264,29 @@ class TicketManagement extends BaseModel
 
         if ( ! \Config::get( 'telegram.active' ) || empty( $message ) || ! $this->management->has_contract || ( ! $force && in_array( $this->status_code, Ticket::$not_notify ) ) ) return;
 
+        $chatIds = [];
+
         foreach ( $this->management->subscriptions as $subscription )
         {
-            $subscription->sendTelegram( $message );
+            if ( ! in_array( $subscription->telegram_id, $chatIds ) )
+            {
+                $chatIds[] = $subscription->telegram_id;
+            }
         }
+
+        foreach ( $this->management->childs as $child )
+        {
+            if ( ! $child->has_contract ) continue;
+            foreach ( $child->subscriptions as $subscription )
+            {
+                if ( ! in_array( $subscription->telegram_id, $chatIds ) )
+                {
+                    $chatIds[] = $subscription->telegram_id;
+                }
+            }
+        }
+
+        $this->dispatch( new SendTelegramMessage( $chatIds, $message ) );
 
     }
 
