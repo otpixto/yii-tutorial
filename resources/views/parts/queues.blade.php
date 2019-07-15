@@ -1,4 +1,4 @@
-@if ( \Auth::user()->can( 'queues' ) )
+@if ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->queue && \Auth::user()->can( 'queues' ) )
     <!-- BEGIN QUEUES -->
     <span id="queues" class="margin-right-10">
         <a href="javascript:;" class="btn btn-xs btn-info hidden" id="queues-info">
