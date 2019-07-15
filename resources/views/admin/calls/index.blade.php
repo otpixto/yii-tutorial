@@ -21,20 +21,20 @@
         <div class="form-group">
             {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кто звонит' ] ) !!}
+                {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control', 'placeholder' => 'Кто звонит', 'minlength' => 2, 'maxlength' => 10 ] ) !!}
             </div>
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Кому звонят' ] ) !!}
+                {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control', 'placeholder' => 'Кому звонят', 'minlength' => 2, 'maxlength' => 10 ] ) !!}
             </div>
         </div>
 
         <div class="form-group">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'date_from', $date_from->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'От' ] ) !!}
+                <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'date_to', $date_to->format( 'd.m.Y H:i' ), [ 'class' => 'form-control datetimepicker', 'placeholder' => 'До' ] ) !!}
+                <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
             </div>
         </div>
 
@@ -180,51 +180,5 @@
     @else
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
     @endif
-
-@endsection
-
-@section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
-@endsection
-
-@section( 'js' )
-
-    <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
-    <script type="text/javascript">
-
-        $( document )
-
-            .ready( function ()
-            {
-
-                $( '.datepicker' ).datepicker({
-                    format: 'dd.mm.yyyy',
-                });
-
-                $( '.datetimepicker' ).datetimepicker({
-                    isRTL: App.isRTL(),
-                    format: "dd.mm.yyyy hh:ii",
-                    autoclose: true,
-                    fontAwesome: true,
-                    todayBtn: true
-                });
-
-                $( '.mask_phone' ).inputmask( 'mask', {
-                    'mask': '+7 (999) 999-99-99'
-                });
-
-            });
-
-    </script>
 
 @endsection
