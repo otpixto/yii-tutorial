@@ -190,7 +190,7 @@ class Ticket extends BaseModel
 
     public static $mosreg_statuses = [
         'NEW_CLAIM'                     => 'transferred',
-        'IN_WORK'                       => 'in_process',
+        'IN_WORK'                       => 'transferred',
         'ANSWERED'                      => 'confirmation_client',
         'EXPIRED'                       => 'waiting',
         'UNSATISFIED'                   => 'transferred_again',
