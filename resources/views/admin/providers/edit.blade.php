@@ -293,6 +293,11 @@
                         <h3 class="panel-title">Логотип</h3>
                     </div>
                     <div class="panel-body" style="background-color: #2f373e;">
+                        @if ( $provider->logo )
+                            {!! Form::model( $provider, [ 'method' => 'delete', 'route' => [ 'providers.logo.delete', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        @else
+                            {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.logo.upload', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
+                        @endif
                         <div class="row">
                             <div class="col-md-3">
                                 @if ( $provider->logo )
@@ -301,24 +306,20 @@
                                     <img src="{{ \App\Models\Provider::getDefaultLogo() }}" class="img-responsive" />
                                 @endif
                             </div>
-                            {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.logo.upload', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
-                            <div class="col-md-5">
-                                {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
-                            </div>
-                            <div class="col-md-4">
-                                {!! Form::submit( 'Загрузить', [ 'class' => 'btn btn-primary' ] ) !!}
-                            </div>
-                        </div>
-                        @if ( $provider->logo )
-                            <div class="row margin-top-30">
+                            @if ( $provider->logo )
                                 <div class="col-md-3 text-center">
-                                    {!! Form::close() !!}
-                                    {!! Form::model( $provider, [ 'method' => 'delete', 'route' => [ 'providers.logo.delete', $provider->id ], 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
                                     {!! Form::submit( 'Удалить', [ 'class' => 'btn btn-danger' ] ) !!}
-                                    {!! Form::close() !!}
                                 </div>
-                            </div>
-                        @endif
+                            @else
+                                <div class="col-md-5">
+                                    {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
+                                </div>
+                                <div class="col-md-4">
+                                    {!! Form::submit( 'Загрузить', [ 'class' => 'btn btn-primary' ] ) !!}
+                                </div>
+                            @endif
+                        </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
 
