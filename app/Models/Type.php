@@ -20,6 +20,7 @@ class Type extends BaseModel
     ];
 
     protected $fillable = [
+        'provider_id',
         'name',
         'color',
         'description',
