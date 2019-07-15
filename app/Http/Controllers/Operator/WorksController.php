@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Operator;
 
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
+use App\Jobs\SendEmail;
 use App\Jobs\SendPush;
+use App\Mail\NewWorkMail;
 use App\Models\Building;
 use App\Models\BuildingType;
-use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
@@ -128,7 +129,7 @@ class WorksController extends BaseController
                         return $q
                             ->where( Work::$_table . '.time_end', '>=', $end_from )
                             ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
-                    });
+                    } );
             }
 
             if ( ! empty( $request->get( 'end_to' ) ) )
@@ -141,7 +142,7 @@ class WorksController extends BaseController
                         return $q
                             ->where( Work::$_table . '.time_end', '<=', $end_to )
                             ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
-                    });
+                    } );
             }
 
             if ( count( $managements ) )
@@ -151,7 +152,7 @@ class WorksController extends BaseController
                     {
                         return $_managements
                             ->whereIn( Management::$_table . '.id', $managements );
-                    });
+                    } );
             }
 
             if ( count( $executors ) )
@@ -161,12 +162,13 @@ class WorksController extends BaseController
                     {
                         return $_executors
                             ->whereIn( Executor::$_table . '.id', $executors );
-                    });
+                    } );
             }
 
             if ( ! empty( $request->get( 'segments' ) ) )
             {
-                $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                    ->get();
                 if ( $segments->count() )
                 {
                     $segmentsIds = [];
@@ -187,7 +189,7 @@ class WorksController extends BaseController
                         {
                             return $buildings
                                 ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
-                        });
+                        } );
                 }
             }
 
@@ -198,7 +200,7 @@ class WorksController extends BaseController
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
-                    });
+                    } );
             }
 
             $works = $works
@@ -219,33 +221,36 @@ class WorksController extends BaseController
 
         }
 
-        if ( \Auth::user()->can( 'tickets.scheduled' ) )
-		{
-			if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
-			{
-				$scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
-			}
-			else
-			{
-				$now = Carbon::now()->toDateTimeString();
-				$scheduledTicketManagements = TicketManagement
-					::mine()
-					->where( 'status_code', '=', 'assigned' )
-					->where( 'scheduled_begin', '<=', $now )
-					->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
-					{
-						return $ticket
-							->whereNotNull( 'postponed_to' )
-							->where( 'postponed_to', '>', $now );
-					})
-					->get();
-				\Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
-			}
-		}
-		else
-		{
-			$scheduledTicketManagements = new Collection();
-		}
+        if ( \Auth::user()
+            ->can( 'tickets.scheduled' ) )
+        {
+            if ( \Cache::tags( 'tickets.scheduled.now' )
+                ->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+            {
+                $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )
+                    ->get( 'tickets.scheduled.now.' . \Auth::user()->id );
+            } else
+            {
+                $now = Carbon::now()
+                    ->toDateTimeString();
+                $scheduledTicketManagements = TicketManagement
+                    ::mine()
+                    ->where( 'status_code', '=', 'assigned' )
+                    ->where( 'scheduled_begin', '<=', $now )
+                    ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+                    {
+                        return $ticket
+                            ->whereNotNull( 'postponed_to' )
+                            ->where( 'postponed_to', '>', $now );
+                    } )
+                    ->get();
+                \Cache::tags( 'tickets.scheduled.now' )
+                    ->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+            }
+        } else
+        {
+            $scheduledTicketManagements = new Collection();
+        }
 
         switch ( $request->get( 'show', $show ) )
         {
@@ -272,8 +277,7 @@ class WorksController extends BaseController
             return view( 'parts.comments' )
                 ->with( 'origin', $work )
                 ->with( 'comments', $work->comments );
-        }
-        else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
+        } else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
         {
             $works = Work
                 ::whereIn( 'id', $request->get( 'ids' ) )
@@ -362,7 +366,7 @@ class WorksController extends BaseController
                     return $q
                         ->where( Work::$_table . '.time_end', '>=', $end_from )
                         ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
-                });
+                } );
         }
 
         if ( ! empty( $request->get( 'end_to' ) ) )
@@ -375,7 +379,7 @@ class WorksController extends BaseController
                     return $q
                         ->where( Work::$_table . '.time_end', '<=', $end_to )
                         ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
-                });
+                } );
         }
 
         if ( count( $request->get( 'managements', [] ) ) )
@@ -392,7 +396,8 @@ class WorksController extends BaseController
 
         if ( ! empty( $request->get( 'segments' ) ) )
         {
-            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                ->get();
             if ( $segments->count() )
             {
                 $segmentsIds = [];
@@ -406,7 +411,7 @@ class WorksController extends BaseController
                     {
                         return $buildings
                             ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
-                    });
+                    } );
             }
         }
 
@@ -468,8 +473,7 @@ class WorksController extends BaseController
                             ->format( 'd.m.y H:i' ),
                     ];
                 }
-            }
-            else
+            } else
             {
                 foreach ( $work->buildings as $building )
                 {
@@ -598,7 +602,7 @@ class WorksController extends BaseController
                     return $q
                         ->where( Work::$_table . '.time_end', '>=', $end_from )
                         ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
-                });
+                } );
             $filters[] = 'Время окончания от: ' . $end_from;
         }
 
@@ -612,14 +616,16 @@ class WorksController extends BaseController
                     return $q
                         ->where( Work::$_table . '.time_end', '<=', $end_to )
                         ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
-                });
+                } );
             $filters[] = 'Время окончания до: ' . $end_to;
         }
         if ( $managements && count( $managements ) )
         {
             $works
                 ->whereIn( Work::$_table . '.management_id', $managements );
-            $filters[] = 'УО: ' . Management::whereIn( 'id', $managements )->get()->implode( 'name', ', ' );
+            $filters[] = 'УО: ' . Management::whereIn( 'id', $managements )
+                    ->get()
+                    ->implode( 'name', ', ' );
         }
 
         if ( ! empty( $request->get( 'executor_id' ) ) )
@@ -631,7 +637,8 @@ class WorksController extends BaseController
 
         if ( ! empty( $request->get( 'segments' ) ) )
         {
-            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+            $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                ->get();
             if ( $segments->count() )
             {
                 $segmentsIds = [];
@@ -652,7 +659,7 @@ class WorksController extends BaseController
                     {
                         return $buildings
                             ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
-                    });
+                    } );
             }
         }
 
@@ -680,7 +687,7 @@ class WorksController extends BaseController
         $data = [];
         $totals = [
             'buildings' => 0,
-            'flats'     => 0
+            'flats' => 0
         ];
         foreach ( $categories as $category )
         {
@@ -688,7 +695,7 @@ class WorksController extends BaseController
                 'list' => [],
                 'totals' => [
                     'buildings' => 0,
-                    'flats'     => 0
+                    'flats' => 0
                 ]
             ];
         }
@@ -738,9 +745,9 @@ class WorksController extends BaseController
             }
         }
 
-        $log = Log::create([
+        $log = Log::create( [
             'text' => 'Скачал отчет по отключениям'
-        ]);
+        ] );
         $log->save();
 
         \Excel::create( 'Отчет по отключениям', function ( $excel ) use ( $categories, $data, $totals, $filters )
@@ -753,9 +760,10 @@ class WorksController extends BaseController
                     ->with( 'data', $data )
                     ->with( 'totals', $totals )
                     ->with( 'filters', $filters );
-            });
+            } );
 
-        })->export( 'xls' );
+        } )
+            ->export( 'xls' );
 
         die;
 
@@ -764,7 +772,8 @@ class WorksController extends BaseController
     public function searchForm ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'works.search' ) )
+        if ( ! \Auth::user()
+            ->can( 'works.search' ) )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Доступ запрещен' );
@@ -828,14 +837,15 @@ class WorksController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        $provider_id = $request->get( 'provider_id', $providers->keys()->first() );
+        $provider_id = $request->get( 'provider_id', $providers->keys()
+            ->first() );
 
         $res = Type
-			::mine()
+            ::mine()
             ->where( 'works', '=', 1 )
             ->where( 'provider_id', '=', $provider_id )
             ->get()
-			->sortBy( 'name' );
+            ->sortBy( 'name' );
         $availableCategories = [];
         foreach ( $res as $r )
         {
@@ -865,27 +875,27 @@ class WorksController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'provider_id'       => 'nullable|integer',
-            'category_id'       => 'required|integer',
-            'buildings'         => 'required|array',
-            'managements'       => 'required|array',
-            'executors'         => 'required|array',
-            'executor_name'     => 'nullable|max:255',
-            'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'comment'           => 'max:255',
-            'reason'            => 'max:255',
-            'composition'       => 'max:2000',
-            'date_begin'        => 'required|date_format:d.m.Y',
-            'time_begin'        => 'required|date_format:G:i',
-            'date_end'          => 'required|date_format:d.m.Y',
-            'time_end'          => 'required|date_format:G:i',
+            'provider_id' => 'nullable|integer',
+            'category_id' => 'required|integer',
+            'buildings' => 'required|array',
+            'managements' => 'required|array',
+            'executors' => 'required|array',
+            'executor_name' => 'nullable|max:255',
+            'executor_phone' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'comment' => 'max:255',
+            'reason' => 'max:255',
+            'composition' => 'max:2000',
+            'date_begin' => 'required|date_format:d.m.Y',
+            'time_begin' => 'required|date_format:G:i',
+            'date_end' => 'required|date_format:d.m.Y',
+            'time_end' => 'required|date_format:G:i',
         ];
 
         $this->validate( $request, $rules );
@@ -903,11 +913,11 @@ class WorksController extends BaseController
 
         if ( ! empty( $request->get( 'executor_name' ) ) )
         {
-            $executor = Executor::create([
-                'management_id'     => $work->management_id,
-                'name'              => $request->get( 'executor_name' ),
-                'phone'             => $request->get( 'executor_phone' ),
-            ]);
+            $executor = Executor::create( [
+                'management_id' => $work->management_id,
+                'name' => $request->get( 'executor_name' ),
+                'phone' => $request->get( 'executor_phone' ),
+            ] );
             if ( $executor instanceof MessageBag )
             {
                 return redirect()
@@ -944,28 +954,30 @@ class WorksController extends BaseController
         \Cache::tags( 'works_counts' )
             ->flush();
 
-        $users = User
-            ::whereNotNull( 'push_id' )
-            ->where( 'active', '=', 1 )
-            ->whereHas( 'customer', function ( $customer ) use ( $request )
-            {
-                return $customer
-                    ->where( function ( $q ) use ( $request )
-                    {
-                        return $q
-                            ->whereIn( Customer::$_table . '.actual_building_id', $request->get( 'buildings', [] ) )
-                            ->orWhereHas( 'buildings', function ( $buildings ) use ( $request )
-                            {
-                                return $buildings
-                                    ->whereIn( Building::$_table . '.id', $request->get( 'buildings', [] ) );
-                            });
-                    });
-            })
-            ->get();
+        $usersForPush = ( new User() )->getUsersForSendingMessage( $request );
 
-        foreach ( $users as $user )
+        foreach ( $usersForPush as $user )
         {
             $this->dispatch( new SendPush( config( 'push.keys.lk' ), $user->push_id, 'Новое отключение', 'Новое отключение', 'work', $work->id ) );
+        }
+
+        $usersForEmail = ( new User() )->getUsersForSendingMessage( $request, true );
+
+        if ( count( $usersForEmail ) )
+        {
+
+            $subject = 'Новое отключение';
+            $managements = Management::whereId( $request->get( 'managements', [] ) )
+                ->get();
+
+            foreach ( $usersForEmail as $user )
+            {
+                $message = view( 'mail.new_work', compact( 'user', 'work', 'managements' ) )->render();
+
+                $mailer = new NewWorkMail( $message, null, $subject );
+
+                $this->dispatch( new SendEmail( $user, $message, null, $mailer ) );
+            }
         }
 
         return redirect()
@@ -977,7 +989,7 @@ class WorksController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show ( $id )
@@ -987,7 +999,9 @@ class WorksController extends BaseController
 
         if ( ! $work )
         {
-            return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
+            return redirect()
+                ->route( 'works.index' )
+                ->withErrors( [ 'Запись не найдена' ] );
         }
 
         Title::add( 'Отключение #' . $work->id );
@@ -1000,13 +1014,14 @@ class WorksController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( $id )
     {
 
-        if ( ! \Auth::user()->can( 'works.edit' ) )
+        if ( ! \Auth::user()
+            ->can( 'works.edit' ) )
         {
             return redirect()->route( 'works.show', $id );
         }
@@ -1015,7 +1030,9 @@ class WorksController extends BaseController
 
         if ( ! $work )
         {
-            return redirect()->route( 'works.index' )->withErrors( [ 'Запись не найдена' ] );
+            return redirect()
+                ->route( 'works.index' )
+                ->withErrors( [ 'Запись не найдена' ] );
         }
 
         if ( $work->time_end_fact )
@@ -1059,28 +1076,28 @@ class WorksController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
     {
 
         $rules = [
-            'provider_id'       => 'nullable|integer',
-            'category_id'       => 'required|integer',
-            'buildings'         => 'required|array',
-            'managements'       => 'required|array',
-            'executors'         => 'required|array',
-            'executor_name'     => 'nullable|max:255',
-            'executor_phone'    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'comment'           => 'max:255',
-            'reason'            => 'max:255',
-            'composition'       => 'max:2000',
-            'date_begin'        => 'required|date_format:d.m.Y',
-            'time_begin'        => 'required|date_format:G:i',
-            'date_end'          => 'required|date_format:d.m.Y',
-            'time_end'          => 'required|date_format:G:i',
+            'provider_id' => 'nullable|integer',
+            'category_id' => 'required|integer',
+            'buildings' => 'required|array',
+            'managements' => 'required|array',
+            'executors' => 'required|array',
+            'executor_name' => 'nullable|max:255',
+            'executor_phone' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'comment' => 'max:255',
+            'reason' => 'max:255',
+            'composition' => 'max:2000',
+            'date_begin' => 'required|date_format:d.m.Y',
+            'time_begin' => 'required|date_format:G:i',
+            'date_end' => 'required|date_format:d.m.Y',
+            'time_end' => 'required|date_format:G:i',
         ];
 
         $this->validate( $request, $rules );
@@ -1106,11 +1123,11 @@ class WorksController extends BaseController
 
         if ( ! empty( $request->get( 'executor_name' ) ) )
         {
-            $executor = Executor::create([
-                'management_id'     => $work->management_id,
-                'name'              => $request->get( 'executor_name' ),
-                'phone'             => $request->get( 'executor_phone' ),
-            ]);
+            $executor = Executor::create( [
+                'management_id' => $work->management_id,
+                'name' => $request->get( 'executor_name' ),
+                'phone' => $request->get( 'executor_phone' ),
+            ] );
             if ( $executor instanceof MessageBag )
             {
                 return redirect()
@@ -1124,7 +1141,8 @@ class WorksController extends BaseController
 
         if ( $request->get( 'closed' ) == 1 )
         {
-            $work->time_end_fact = Carbon::now()->toDateTimeString();
+            $work->time_end_fact = Carbon::now()
+                ->toDateTimeString();
             $work->save();
         }
 
@@ -1151,7 +1169,7 @@ class WorksController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy ( $id )
@@ -1161,7 +1179,6 @@ class WorksController extends BaseController
 
     public function comment ( Request $request, $id )
     {
-
 
 
     }
@@ -1195,15 +1212,16 @@ class WorksController extends BaseController
     public function search ( Request $request )
     {
 
-        $now = Carbon::now()->toDateString();
+        $now = Carbon::now()
+            ->toDateString();
 
         $works = Work
             ::whereHas( 'buildings', function ( $buildings ) use ( $request )
             {
                 return $buildings
                     ->mine()
-                    ->where( Building::$_table. '.id', '=', $request->get( 'building_id' ) );
-            })
+                    ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
+            } )
             ->whereRaw( 'DATE( time_begin ) <= ? AND DATE( time_end ) >= ?', [ $now, $now ] )
             ->orderBy( Work::$_table . '.id', 'desc' )
             ->take( 10 )
@@ -1235,7 +1253,7 @@ class WorksController extends BaseController
             {
                 return $managements
                     ->whereIn( Management::$_table . '.id', $managements_ids );
-            })
+            } )
             ->having( 'text', 'like', $s )
             ->orderBy( 'text' );
 
