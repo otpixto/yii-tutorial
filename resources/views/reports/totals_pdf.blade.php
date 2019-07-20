@@ -1,52 +1,34 @@
-@extends( 'template' )
-
-@section( 'breadcrumbs' )
-    {!! \App\Classes\Breadcrumbs::render([
-        [ 'Главная', '/' ],
-        [ \App\Classes\Title::get() ]
-    ]) !!}
-@endsection
-
-@section( 'content' )
+<html>
+<head>
+    <style>
+        .chart {
+            min-width: 310px;
+            height: 400px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        @media print {
+            html, body {
+                width: 100% ! important;
+                height: 100% ! important;
+                margin: 0 ! important;
+                padding: 0 ! important;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+            .breadcrumbs {
+                display: none;
+            }
+            .container {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
 
     <div class="container">
-
-        {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-bottom-15' ] ) !!}
-        {!! Form::hidden( 'report', 1 ) !!}
-        <div class="row margin-bottom-15">
-            <div class="col-md-6 col-md-offset-3">
-                {!! Form::label( null, 'Отчет', [ 'class' => 'control-label', 'id' => 'report' ] ) !!}
-                <select class="form-control" id="report">
-                    <option value="">-</option>
-                    @foreach ( $reports as $item )
-                        <option value="{{ $item->date_from->format( 'Y-m-d\TH:i' ) . '|' . $item->date_to->format( 'Y-m-d\TH:i' ) }}">
-                            Период {{ $item->date_from->format( 'd.m.y H:i' ) . ' - ' . $item->date_to->format( 'd.m.y H:i' ) }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-        <div class="row margin-bottom-15">
-            <div class="col-md-6 col-md-offset-3">
-                {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
-                <div class="input-group">
-                <span class="input-group-addon">
-                    от
-                </span>
-                    <input class="form-control" name="date_from" type="datetime-local" value="{{ $date_from->format( 'Y-m-d\TH:i' ) }}" id="date_from" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
-                    <span class="input-group-addon">
-                    до
-                </span>
-                    <input class="form-control" name="date_to" type="datetime-local" value="{{ $date_to->format( 'Y-m-d\TH:i' ) }}" id="date_to" max="{{ \Carbon\Carbon::now()->format( 'Y-m-d\TH:i' ) }}" />
-                </div>
-            </div>
-        </div>
-        <div class="row margin-bottom-15">
-            <div class="col-xs-offset-3 col-xs-3">
-                {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
-            </div>
-        </div>
-        {!! Form::close() !!}
 
         @if ( $report )
 
@@ -477,14 +459,6 @@
 
                 <div id="works-chart" class="chart"></div>
 
-                {!! Form::open( [ 'method' => 'get', 'class' => 'submit-loading hidden-print margin-top-15 text-center' ] ) !!}
-                {!! Form::hidden( 'report', 1 ) !!}
-                {!! Form::hidden( 'recalc', 1 ) !!}
-                {!! Form::hidden( 'date_from', $date_from->format( 'Y-m-d\TH:i' ) ) !!}
-                {!! Form::hidden( 'date_to', $date_to->format( 'Y-m-d\TH:i' ) ) !!}
-                {!! Form::submit( 'Пересчитать', [ 'class' => 'btn btn-warning btn-lg' ] ) !!}
-                {!! Form::close() !!}
-
             @else
                 <div class="text-center">
                     <h3>Данные загружаются... Обновите страницу через 5 минут.</h3>
@@ -501,37 +475,6 @@
 
     </div>
 
-@endsection
-
-@section( 'css' )
-    <style>
-        .chart {
-            min-width: 310px;
-            height: 400px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        @media print {
-            html, body {
-                width: 100% ! important;
-                height: 100% ! important;
-                margin: 0 ! important;
-                padding: 0 ! important;
-            }
-            .page-break {
-                page-break-after: always;
-            }
-            .breadcrumbs {
-                display: none;
-            }
-            .container {
-                width: 100% !important;
-            }
-        }
-    </style>
-@endsection
-
-@section( 'js' )
     <script src="https://code.highcharts.com/highcharts.js"></script>
 
     <script type="text/javascript">
@@ -542,7 +485,7 @@
             {
                 $( '.report-loading' ).loading();
 
-                @if ( $data )
+                        @if ( $data )
 
                 var works = <?php echo json_encode( $data[ 'works' ] ); ?>;
                 var categories = [];
@@ -735,4 +678,6 @@
             });
 
     </script>
-@endsection
+
+</body>
+</html>

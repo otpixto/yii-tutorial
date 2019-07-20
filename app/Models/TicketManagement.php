@@ -1274,6 +1274,7 @@ class TicketManagement extends BaseModel
             }
         }
 
+		/*
         foreach ( $this->management->childs as $child )
         {
             if ( ! $child->has_contract ) continue;
@@ -1285,6 +1286,7 @@ class TicketManagement extends BaseModel
                 }
             }
         }
+		*/
 
         $this->dispatch( new SendTelegramMessage( $chatIds, $message ) );
 
