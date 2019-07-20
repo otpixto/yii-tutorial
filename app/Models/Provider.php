@@ -113,7 +113,7 @@ class Provider extends BaseModel
     public function scopeCurrent ( $query )
     {
         return $query
-            ->where( 'domain', '=', \Request::getHost() ?: self::$current ? self::$current->domain : null );
+            ->where( 'domain', '=', \Request::getHost() ?: ( self::$current ? self::$current->domain : null ) );
     }
 
     public static function create ( array $attributes = [] )
