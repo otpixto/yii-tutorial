@@ -7,6 +7,7 @@ use App\Models\Report;
 use App\Models\TicketManagement;
 use App\Models\StatusHistory;
 use App\Models\Work;
+use App\Models\Provider;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -49,9 +50,14 @@ class ReportJob implements ShouldQueue
         {
 
             \Auth::login( $this->user );
+			$provider = $this->user->provider;
+			if ( ! $provider ) return;
+			
+			Provider::setCurrent( $provider );
 
             $logs->addInfo( 'Пользователь', [ \Auth::user() ] );
             $logs->addInfo( 'Отчет', [ $this->report ] );
+            $logs->addInfo( 'Поставщик', [ $provider ] );
 
 
             $date_from = $this->report->date_from;

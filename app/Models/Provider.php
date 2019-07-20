@@ -205,9 +205,15 @@ class Provider extends BaseModel
 
     public static function getCurrent ()
     {
-        self::$current = self::mine()->current()->first();
-        return self::$current;
+        $provider = self::mine()->current()->first();
+        self::setCurrent( $provider );
+		return $provider;
     }
+	
+	public static function setCurrent ( Provider $provider )
+	{
+		self::$current = $provider;
+	}
 
     public function getGzhiConfig ()
     {
