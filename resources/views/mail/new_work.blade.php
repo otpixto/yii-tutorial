@@ -1,11 +1,18 @@
 <h3>Уважаемый(ая) {{ $user->firstname }} {{ $user->middlename }}.</h3>
 
-<p>Уведомляем Вас о том, что в связи с проведением работ на сетях по адресу {{ $user->customer->actualBuilding->name ?? '' }}
+<p>Уведомляем Вас о том, что в связи с проведением работ на сетях по адресу:
+<ul>
+    @foreach($workBuildings as $building)
+        <li>
+            {{ $building }}
+        </li>
+    @endforeach
+</ul>
 
-    в период с {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
-    по {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
+в период с {{ \Carbon\Carbon::parse( $work->time_begin )->format( 'd.m.Y H:i' ) }}
+по {{ \Carbon\Carbon::parse( $work->time_end )->format( 'd.m.Y H:i' ) }}
 
-    будет отсутствовать ресурс {{ $work->category->parent->name ?? '' }} {{ $work->category->name ?? '' }}.</p>
+будет отсутствовать ресурс {{ $work->category->parent->name ?? '' }} {{ $work->category->name ?? '' }}.</p>
 
 <p>Исполнитель работ:</p>
 
@@ -25,4 +32,5 @@
 
 <p>Вы получили это письмо, так как дали свое согласие на получение рассылки от АИС «ЕДС-регион».</p>
 
-<p>Если вы хотите отказаться от подписки на наш список рассылок, то перейдите по <a href="{{ route('profile.unsubscribe', ['user_id' => $user->id]) }}">ссылке</a>.</p>
+<p>Если вы хотите отказаться от подписки на наш список рассылок, то перейдите по <a
+            href="{{ route('profile.unsubscribe', ['user_id' => $user->id]) }}">ссылке</a>.</p>
