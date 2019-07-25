@@ -970,9 +970,26 @@ class WorksController extends BaseController
             $managements = Management::whereId( $request->get( 'managements', [] ) )
                 ->get();
 
+            $completedWork = Work::find( $work->id );
+
             foreach ( $usersForEmail as $user )
             {
-                $message = view( 'mail.new_work', compact( 'user', 'work', 'managements' ) )->render();
+                $buildingsIds = [];
+
+                if ( $user->customer->actual_building_id )
+                {
+                    $buildingsIds[] = $user->customer->actual_building_id;
+                }
+
+                foreach ( $user->customer->buildings as $building )
+                {
+                    $buildingsIds[] = $building->id;
+                }
+
+                $workBuildings = $completedWork->buildings->whereIn( 'id', $buildingsIds )
+                    ->pluck( 'name' );
+
+                $message = view( 'mail.new_work', compact( 'user', 'work', 'managements', 'workBuildings' ) )->render();
 
                 $mailer = new NewWorkMail( $message, null, $subject );
 

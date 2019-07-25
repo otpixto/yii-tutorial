@@ -210,7 +210,7 @@ class Provider extends BaseModel
 		return $provider;
     }
 	
-	public static function setCurrent ( Provider $provider )
+	public static function setCurrent ( Provider $provider = null )
 	{
 		self::$current = $provider;
 	}
