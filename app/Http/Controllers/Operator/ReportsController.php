@@ -209,7 +209,7 @@ class ReportsController extends BaseController
                 ]);
                 $report->save();
 
-                $this->dispatch( new ReportJob( $report, \Auth::user() ) );
+                $this->dispatch( new ReportJob( $report, \Auth::user(), Provider::getCurrent() ) );
 
             }
             else if ( $request->get( 'recalc', 0 ) == 1 )

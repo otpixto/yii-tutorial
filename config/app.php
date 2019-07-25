@@ -191,7 +191,7 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
 
         //\App\Providers\ComposerServiceProvider::class,
-        niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
+        #niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
 
     ],
 
@@ -250,7 +250,7 @@ return [
         'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
         'Stream' => \App\Facades\Stream::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
-        'PDF' => niklasravnsborg\LaravelPdf\Facades\Pdf::class,
+        #'PDF' => niklasravnsborg\LaravelPdf\Facades\Pdf::class,
 
     ],
 

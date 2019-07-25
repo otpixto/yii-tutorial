@@ -23,16 +23,18 @@ class ReportJob implements ShouldQueue
 
     protected $report;
     protected $user;
+	protected $provider;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct ( Report $report, User $user )
+    public function __construct ( Report $report, User $user, Provider $provider )
     {
         $this->report = $report;
         $this->user = $user;
+		$this->provider = $provider;
     }
 
     /**
@@ -50,14 +52,11 @@ class ReportJob implements ShouldQueue
         {
 
             \Auth::login( $this->user );
-			$provider = $this->user->provider;
-			if ( ! $provider ) return;
-			
-			Provider::setCurrent( $provider );
+			Provider::setCurrent( $this->provider );
 
             $logs->addInfo( 'Пользователь', [ \Auth::user() ] );
             $logs->addInfo( 'Отчет', [ $this->report ] );
-            $logs->addInfo( 'Поставщик', [ $provider ] );
+            $logs->addInfo( 'Поставщик', [ $this->provider ] );
 
 
             $date_from = $this->report->date_from;
