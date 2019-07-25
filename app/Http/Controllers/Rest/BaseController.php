@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Rest;
 use App\Classes\Push;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendSms;
+use App\Models\Provider;
 use App\Models\ProviderKey;
 use App\Models\ProviderToken;
 use App\Models\SmsConfirm;
@@ -363,6 +364,7 @@ class BaseController extends Controller
             }
             else
             {
+                Provider::setCurrent( $user->provider );
                 return true;
             }
         }
