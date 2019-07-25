@@ -121,8 +121,7 @@ class LKController extends BaseController
             }
 
             $buildings = Building
-                ::mineProvider()
-                ->where( 'provider_id', '=', \Auth::user()->provider_id )
+                ::where( 'provider_id', '=', \Auth::user()->provider_id )
                 ->where( 'name', 'like', $term )
                 ->orderBy( 'name' )
                 ->take( 30 );
