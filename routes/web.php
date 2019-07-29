@@ -122,6 +122,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
 
+        Route::get( '/rest/send_info', 'RestController@sendInfo' )->name( 'rest.send_info' );
+
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
         Route::get( '/profile/unsubscribe/{user_id}', 'ProfileController@unsubscribe' )->name( 'profile.unsubscribe' );
 
