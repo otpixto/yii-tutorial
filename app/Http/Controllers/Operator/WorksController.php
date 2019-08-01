@@ -970,7 +970,7 @@ class WorksController extends BaseController
             $managements = Management::whereId( $request->get( 'managements', [] ) )
                 ->get();
 
-            $completedWork = Work::find( $work->id );
+            $work->load('buildings');
 
             foreach ( $usersForEmail as $user )
             {
@@ -986,7 +986,7 @@ class WorksController extends BaseController
                     $buildingsIds[] = $building->id;
                 }
 
-                $workBuildings = $completedWork->buildings->whereIn( 'id', $buildingsIds )
+                $workBuildings = $work->buildings->whereIn( 'id', $buildingsIds )
                     ->pluck( 'name' );
 
                 $message = view( 'mail.new_work', compact( 'user', 'work', 'managements', 'workBuildings' ) )->render();
