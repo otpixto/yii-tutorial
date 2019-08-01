@@ -209,7 +209,7 @@ class Provider extends BaseModel
 
     public static function getCurrent ()
     {
-        $provider = self::mine()->current()->first();
+        $provider = self::current()->first();
         self::setCurrent( $provider );
 		return $provider;
     }
