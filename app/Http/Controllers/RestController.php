@@ -80,8 +80,8 @@ class RestController extends Controller
         {
             return $this->error( 106 );
         }
-		$phoneSession->user->number = $phoneSession->number;
-		$phoneSession->user->save();
+        $phoneSession->user->number = $phoneSession->number;
+        $phoneSession->user->save();
         \DB::commit();
         return $this->success();
     }
@@ -141,7 +141,7 @@ class RestController extends Controller
         }
 
         $session = PhoneSession
-			::notClosed()
+            ::notClosed()
             ->where( 'number', '=', $request->get( 'number' ) )
             ->first();
         if ( ! $session )

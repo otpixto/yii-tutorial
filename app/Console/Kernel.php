@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Classes\GzhiHandler;
 use App\Console\Commands\CreateSegments;
 use App\Console\Commands\CreateUser;
 use App\Console\Commands\FixAddresses;
@@ -46,7 +47,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule ( Schedule $schedule )
     {
-         //
+         $schedule->call(function (){
+             (new GzhiHandler())->sendGzhiInfo();
+         })
+             ->everyFiveMinutes();
+
+        $schedule->call(function (){
+            (new GzhiHandler())->getGzhiRequestsStatus();
+        })
+            ->everyFifteenMinutes();
     }
 
     /**
