@@ -811,10 +811,10 @@ class ProvidersController extends BaseController
                             $segment->save();
                         }
                         $parent_id = $segment->id;
+                        $building->segment_id = $segment->id;
+                        $building->save();
                     }
                 }
-                $building->segment_id = $segment->id;
-                $building->save();
                 \DB::commit();
             }
             return redirect()
