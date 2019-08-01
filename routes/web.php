@@ -392,6 +392,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'providers/{provider_id}/keys/{key_id}/update', 'Admin\ProvidersController@keysUpdate' )->name( 'providers.keys.update' );
             Route::put( 'providers/{provider_id}/logo/upload', 'Admin\ProvidersController@uploadLogo' )->name( 'providers.logo.upload' );
             Route::delete( 'providers/{provider_id}/logo/delete', 'Admin\ProvidersController@deleteLogo' )->name( 'providers.logo.delete' );
+            Route::post( 'providers/{provider_id}/upload/addresses', 'Admin\ProvidersController@uploadAddresses' )->name( 'providers.upload.addresses' );
 
             Route::get( 'roles/{role_id}/perms', 'Admin\RolesController@perms' )->name( 'roles.perms' );
             Route::put( 'roles/{role_id}/perms', 'Admin\RolesController@updatePerms' );

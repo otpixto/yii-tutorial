@@ -8,6 +8,8 @@ use App\Models\Management;
 use App\Models\Provider;
 use App\Models\ProviderKey;
 use App\Models\ProviderToken;
+use App\Models\Segment;
+use App\Models\SegmentType;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -746,6 +748,86 @@ class ProvidersController extends BaseController
         return redirect()->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Логотип успешно загружен' );
 
+    }
+
+    public function uploadAddresses ( Request $request, $provider_id )
+    {
+        try
+        {
+            set_time_limit( 0 );
+            ini_set( 'memory_limit', '256M' );
+            $handle = fopen( $request->file( 'file' ), 'r' );
+            $firstIgnore = false;
+            while ( $row = fgetcsv( $handle, 1000, ',' ) )
+            {
+                if ( ! $firstIgnore )
+                {
+                    $firstIgnore = true;
+                    continue;
+                }
+                \DB::beginTransaction();
+                $building_name = array_shift( $row );
+                $arr = array_chunk( $row, 2 );
+                if ( count( $arr ) % 2 )
+                {
+                    throw new \Exception( 'Некорректное число столбцов' );
+                }
+                $building = Building
+                    ::where( 'provider_id', '=', $provider_id )
+                    ->where( 'name', '=', $building_name )
+                    ->first();
+                if ( ! $building )
+                {
+                    $exp = explode( ',', $building_name );
+                    $number = trim( str_replace( 'д.', '', end( $exp ) ) );
+                    $building = Building::create([
+                        'provider_id' => $provider_id,
+                        'name' => $building_name,
+                        'number' => $number,
+                        'building_type_id' => 1,
+                    ]);
+                }
+                $parent_id = null;
+                foreach ( $arr as $i => $cell )
+                {
+                    $segmentType = SegmentType
+                        ::where( 'name', '=', trim( $cell[ 0 ] ) )
+                        ->first();
+                    if ( $segmentType )
+                    {
+                        $segment = Segment
+                            ::where( 'provider_id', '=', $provider_id )
+                            ->where( 'name', '=', trim( $cell[ 1 ] ) )
+                            ->where( 'segment_type_id', '=', $segmentType->id )
+                            ->first();
+                        if ( ! $segment )
+                        {
+                            $segment = Segment::create([
+                                'name'                  => trim( $cell[ 1 ] ),
+                                'parent_id'             => $parent_id,
+                                'provider_id'           => $provider_id,
+                                'segment_type_id'       => $segmentType->id,
+                            ]);
+                            $segment->save();
+                        }
+                        $parent_id = $segment->id;
+                    }
+                }
+                $building->segment_id = $segment->id;
+                $building->save();
+                \DB::commit();
+            }
+            return redirect()
+                ->back()
+                ->with( 'success', 'Данные успешно загружены' );
+        }
+        catch ( \Exception $e )
+        {
+            \DB::rollback();
+            return redirect()
+                ->back()
+                ->withErrors( [ $e->getMessage() ] );
+        }
     }
 
 }

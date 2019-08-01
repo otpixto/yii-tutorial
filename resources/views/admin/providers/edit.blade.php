@@ -247,27 +247,17 @@
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">АИС ГЖИ</h3>
+                        <h3 class="panel-title">Загрузить реестр адресов</h3>
                     </div>
                     <div class="panel-body">
 
-                        {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.update', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                        {!! Form::open( [ 'url' => route( 'providers.upload.addresses', $provider->id ), 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
 
                         <div class="form-group">
-
-                            <div class="col-xs-4">
-                                {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::text( 'guid', \Input::old( 'guid', $provider->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
+                            <div class="col-xs-12">
+                                {!! Form::label( 'file', 'Файл', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
                             </div>
-                            <div class="col-xs-4">
-                                {!! Form::label( 'username', 'Логин', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::text( 'username', \Input::old( 'username', $provider->username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
-                            </div>
-                            <div class="col-xs-4">
-                                {!! Form::label( 'password', 'Пароль', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::text( 'password', \Input::old( 'password', $provider->password ), [ 'class' => 'form-control', 'placeholder' => 'Пароль' ] ) !!}
-                            </div>
-
                         </div>
 
                         <div class="form-group hidden-print">
