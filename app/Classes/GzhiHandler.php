@@ -178,7 +178,7 @@ SOAP;
 
         try
         {
-            $curl = $curl = $this->proceedCurl( $this->url, $accessData, $data, $this->soapAction );
+            $curl = $curl = $this->proceedCurl( $accessData, $data, $this->soapAction );
 
             $response = curl_exec( $curl );
 
@@ -241,8 +241,6 @@ SOAP;
 
         $packDate = date( 'Y-m-d\TH:i:s' );
 
-        $url = GzhiApiProvider::GJI_SOAP_URL;
-
         $i = 0;
 
         foreach ( $gzhiRequests as $gzhiRequest )
@@ -274,7 +272,7 @@ SOAP;
 </soapenv:Envelope>
 SOAP;
 
-            $curl = $curl = $this->proceedCurl( $url, $accessData, $data, $soapAction );
+            $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
 
             $response = curl_exec( $curl );
 
@@ -349,7 +347,7 @@ SOAP;
 
     }
 
-    private function proceedCurl ( $url, $accessData, $data, $soapAction )
+    private function proceedCurl ( $accessData, $data, $soapAction )
     {
         $headers = [
             'Content-type: text/xml',
@@ -359,7 +357,7 @@ SOAP;
 
         $curl = curl_init();
         curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
-        curl_setopt( $curl, CURLOPT_URL, $url );
+        curl_setopt( $curl, CURLOPT_URL, $this->url );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $curl, CURLOPT_USERPWD, $accessData );
         curl_setopt( $curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
