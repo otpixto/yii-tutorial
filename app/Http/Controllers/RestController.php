@@ -13,8 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Webpatser\Uuid\Uuid;
-use SoapClient;
 
 class RestController extends Controller
 {
@@ -24,14 +22,14 @@ class RestController extends Controller
     private $logs;
 
     private $errors = [
-        100 => 'Авторизация провалена',
-        101 => 'Авторизованный телефон не найден',
-        102 => 'Пользователь отключен',
-        103 => 'Для данного пользователя уже создан черновик',
-        104 => 'Запись о звонке не найдена в БД',
-        105 => 'Заявитель не найден',
-        106 => 'Астериск ответил ошибкой',
-        900 => 'Внутренняя ошибка',
+        100         => 'Авторизация провалена',
+        101         => 'Авторизованный телефон не найден',
+        102         => 'Пользователь отключен',
+        103         => 'Для данного пользователя уже создан черновик',
+        104         => 'Запись о звонке не найдена в БД',
+        105         => 'Заявитель не найден',
+        106         => 'Астериск ответил ошибкой',
+        900         => 'Внутренняя ошибка',
     ];
 
     public function __construct ( Request $request )
@@ -63,11 +61,11 @@ class RestController extends Controller
         $provider_id = $auth->provider_id;
         $auth->delete();
         $asterisk = new Asterisk();
-        $phoneSession = PhoneSession::create( [
-            'provider_id' => $provider_id,
-            'user_id' => $user_id,
-            'number' => $number
-        ] );
+        $phoneSession = PhoneSession::create([
+            'provider_id'   => $provider_id,
+            'user_id'       => $user_id,
+            'number'        => $number
+        ]);
         if ( $phoneSession instanceof MessageBag )
         {
             return $this->error( 900 );
@@ -97,12 +95,12 @@ class RestController extends Controller
         }
 
         $response = [
-            'customer' => null,
-            'provider' => null,
-            'users' => []
+            'customer'  => null,
+            'provider'  => null,
+            'users'     => []
         ];
 
-        $phone_office = mb_substr( $request->get( 'phone_office' ), - 10 );
+        $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
 
         $providerPhone = ProviderPhone
             ::where( 'phone', '=', $phone_office )
@@ -113,7 +111,7 @@ class RestController extends Controller
             $response[ 'provider' ] = $providerPhone->name;
             if ( $providerPhone->provider )
             {
-                $call_phone = mb_substr( $request->get( 'call_phone' ), - 10 );
+                $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
                 $customer = $providerPhone->provider->customers()
                     ->where( 'phone', '=', $call_phone )
                     ->orWhere( 'phone2', '=', $call_phone )
@@ -126,9 +124,7 @@ class RestController extends Controller
                         'name' => $customer->getName(),
                     ];
                 }
-                $response[ 'users' ] = $providerPhone->provider->phoneSessions()
-                    ->pluck( PhoneSession::$_table . '.user_id' )
-                    ->toArray();
+                $response[ 'users' ] = $providerPhone->provider->phoneSessions()->pluck( PhoneSession::$_table . '.user_id' )->toArray();
             }
         }
 
@@ -160,17 +156,17 @@ class RestController extends Controller
         $user = $session->user;
 
         $response = [
-            'ticket' => null,
-            'provider' => null,
-            'user' => $user->id
+            'ticket'    => null,
+            'provider'  => null,
+            'user'      => $user->id
         ];
 
         $draft = Ticket
             ::draft( $user->id )
             ->first();
 
-        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), - 10 );
-        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), - 10 );
+        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
+        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
 
         $provider = Provider
             ::mine( $user )
@@ -178,7 +174,7 @@ class RestController extends Controller
             {
                 return $q
                     ->where( 'phone', '=', $phone_office );
-            } )
+            })
             ->first();
 
         if ( ! $draft )
@@ -190,7 +186,8 @@ class RestController extends Controller
             $draft->phone = $phone;
             $draft->call_phone = $draft->phone;
             $draft->call_id = $request->get( 'call_id' );
-        } else
+        }
+        else
         {
             $draft->phone = $phone;
             $draft->call_phone = $draft->phone;
@@ -259,9 +256,9 @@ class RestController extends Controller
         $message = $this->errors[ $code ] ?? null;
         $this->logs->addError( 'Ошибка', [ $code, $message ] );
         return [
-            'success' => false,
-            'code' => $code,
-            'message' => $message
+            'success'   => false,
+            'code'      => $code,
+            'message'   => $message
         ];
     }
 
@@ -269,8 +266,8 @@ class RestController extends Controller
     {
         $this->logs->addInfo( 'Успешно', is_array( $message ) ? $message : [ $message ] );
         return [
-            'success' => true,
-            'message' => $message
+            'success'   => true,
+            'message'   => $message
         ];
     }
 
@@ -294,110 +291,6 @@ class RestController extends Controller
         $status = $hash == $_hash;
         $this->is_auth = $status;
         return $status;
-    }
-
-    public function sendInfo ()
-    {
-        #$url = 'https://test-gzhi.eiasmo.ru/eds-service';
-        $url = 'https://next-lk.eiasmo.ru/eds-service/';
-        #$wsdl = 'https://test-gzhi.eiasmo.ru/eds-service/eds.wsdl';
-        $wsdl = 'https://mo.eds-juk.ru/ais/eds.wsdl';
-        #$orgGuid = 'A04C784E-EAF5-11E7-8A70-99D7D5FACC35';
-        $orgGuid = 'A04C784E-EAF5-11E7-8A70-99D7D5FACC35';
-        $username = 'es_eds_ram';
-        //$username = 'user_omsu892661153630';
-        $password = 'sYU2mMUl9H';
-        $password = 's9d34f95df4e';
-
-        $typeGuid = '19A16311-EBF0-4E27-8F64-D470868A5457';
-        $addressGuid = 'A6BD8EF6-BA54-11E7-8E30-FE5F11EEAB0E';
-        $ukGuid = '355F5138-BB06-11E7-9583-B5CD11EEAB0E';
-
-        $date = '2019-07-08';
-        $address = 'sa';
-        $text = 'dsfwse';
-
-        $uuid = Uuid::generate();
-        $appealGuid = Uuid::generate();
-        $transportGuid = Uuid::generate();
-        $numberReg = Uuid::generate();
-        $dateReg = date( 'Y-m-d' );
-
-        $data = <<<SOAP
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <eds:importAppealRequest Id="?" eds:version="1.0.0.2">
-         <eds:Header>
-            <!--You may enter the following 3 items in any order-->
-            <eds:OrgGUID>$orgGuid</eds:OrgGUID>
-            <eds:PackGUID>$uuid</eds:PackGUID>
-            <eds:PackDate>2019-07-16T09:12:12</eds:PackDate>
-         </eds:Header>
-         <eds:Appeal>
-            <eds:AppealGUID>$appealGuid</eds:AppealGUID>
-            <eds:TransportGUID>$transportGuid</eds:TransportGUID>
-            <eds:AppealInformation>
-               <eds:CreationDate>2019-07-16T09:24:12</eds:CreationDate>
-               <eds:Status>30</eds:Status>
-               <eds:Initiator>
-                  <eds:Name>Иванов Иван Иванович</eds:Name>
-                  <eds:Mail>ivanov@mail.ru</eds:Mail>
-                  <eds:Phone>+7-917-657-32-45</eds:Phone>
-                  <eds:PostAddress>$address</eds:PostAddress>
-               </eds:Initiator>
-               <eds:TypeAppeal>1</eds:TypeAppeal>
-               <eds:KindAppeal>1001</eds:KindAppeal>
-               <eds:AddressGUID>$addressGuid</eds:AddressGUID>
-               <eds:AddressNote>Около второго подъезда</eds:AddressNote>
-               <eds:FlatNum>2</eds:FlatNum>
-               <eds:Domofon>домофон 2</eds:Domofon>
-               <eds:NeedAccess>Постучите 3 раза</eds:NeedAccess>
-               <eds:Text>С крыши лед падает!!!</eds:Text>
-               <eds:IsSkipAnswer>0</eds:IsSkipAnswer>
-               <eds:OrgGUID>$ukGuid</eds:OrgGUID>
-               <eds:NumberReg>$numberReg</eds:NumberReg>
-               <eds:DateReg>$dateReg</eds:DateReg>
-               <eds:DatePlan>2019-07-16T09:30:12</eds:DatePlan>
-               <eds:Description>Какое-то описание</eds:Description>
-            </eds:AppealInformation>
-         </eds:Appeal>
-      </eds:importAppealRequest>
-   </soapenv:Body>
-</soapenv:Envelope>
-SOAP;
-
-        $headers = [
-            'Content-type: text/xml',
-            'Cache-Control: no-cache',
-            //'Content-length: ' . mb_strlen( $xml ),
-            'SOAPAction: "ImportAppealData"',
-        ];
-
-        try
-        {
-
-            $curl = curl_init();
-            curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
-            curl_setopt( $curl, CURLOPT_URL, $url );
-            curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-            curl_setopt( $curl, CURLOPT_USERPWD, $username . ':' . $password ); // username and password - declared at the top of the doc
-            curl_setopt( $curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
-            curl_setopt( $curl, CURLOPT_TIMEOUT, 30 );
-            curl_setopt( $curl, CURLOPT_POST, 1 );
-            curl_setopt( $curl, CURLOPT_POSTFIELDS, $data );
-            curl_setopt( $curl, CURLOPT_HTTPHEADER, $headers );
-            curl_setopt( $curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
-
-            $response = curl_exec( $curl );
-
-            dd($response);
-
-        }
-        catch ( \Exception $e )
-        {
-            dd( $e );
-        }
     }
 
 }
