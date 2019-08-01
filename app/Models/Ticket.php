@@ -344,6 +344,7 @@ class Ticket extends BaseModel
     {
         return $query
             ->where( self::$_table . '.author_id', '=', $user_id ?: \Auth::user()->id )
+            ->where( self::$_table . '.provider_id', '=', Provider::getCurrent()->id )
             ->where( self::$_table . '.status_code', '=', 'draft' );
     }
 

@@ -636,21 +636,9 @@ class TicketsController extends BaseController
 
         $types = Type
             ::mine()
-            ->orderBy( Type::$_table .'.name' );
-
-        if ( $ticket->provider_id )
-        {
-            $types
-                ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id );
-        }
-
-        $types = $types->pluck( 'name', 'id' );
-
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', 'id' );
+            ->orderBy( Type::$_table .'.name' )
+            ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
+            ->pluck( 'name', 'id' );
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
@@ -660,7 +648,6 @@ class TicketsController extends BaseController
         return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'ticket', $ticket )
-            ->with( 'providers', $providers )
             ->with( 'vendors', $vendors )
             ->with( 'emergency', $emergency )
             ->with( 'places', Ticket::$places );
@@ -679,7 +666,6 @@ class TicketsController extends BaseController
         {
 
             $rules = [
-                'provider_id'               => 'nullable|integer',
                 'vendor_id'                 => 'nullable|integer',
                 'vendor_date'               => 'nullable|date',
                 'type_id'                   => 'required|integer',
@@ -720,8 +706,9 @@ class TicketsController extends BaseController
                         ->where( function ( $q2 )
                         {
                             return $q2
-                                ->where( 'status_code', '=', 'draft' )
-                                ->where( 'author_id', '=', \Auth::user()->id );
+                                ->where( 'author_id', '=', \Auth::user()->id )
+                                ->where( 'provider_id', '=', Provider::getCurrent()->id )
+                                ->where( 'status_code', '=', 'draft' );
                         })
                         ->orWhere( 'status_code', '=', 'moderate' );
                 })
