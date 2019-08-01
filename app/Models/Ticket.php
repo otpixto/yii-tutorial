@@ -271,6 +271,11 @@ class Ticket extends BaseModel
         return $this->belongsTo( Type::class );
     }
 
+    public function gzhiRequest ()
+    {
+        return $this->hasOne( GzhiRequest::class );
+    }
+
     public function vendor ()
     {
         return $this->belongsTo( Vendor::class );
