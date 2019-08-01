@@ -262,7 +262,7 @@
 
                         <div class="form-group hidden-print">
                             <div class="col-xs-12">
-                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                                {!! Form::submit( 'Загрузить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                         </div>
 
