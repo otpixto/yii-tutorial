@@ -121,12 +121,12 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
 
         }
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) )
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || !$ticket->type->gzhi_code_type || !$ticket->type->gzhi_code)
         {
             return 0;
         }
 
-        $address = $ticket->building->name ?? 'Пусто';
+        $address = (isset($ticket->building->name)) ? substr($ticket->building->name, 0, 49) : 'Пусто';
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
 
