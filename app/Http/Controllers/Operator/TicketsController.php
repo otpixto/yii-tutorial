@@ -844,7 +844,7 @@ class TicketsController extends BaseController
                 $password = str_random( 5 );
                 $message = 'lk.eds-region.ru. Логин: ' . $ticket->phone . '. Пароль: ' . $password;
 
-                $res = User
+                $user = User
                     ::create([
                         'provider_id'                   => $ticket->provider_id,
                         'active'                        => 1,
@@ -853,9 +853,10 @@ class TicketsController extends BaseController
                         'lastname'                      => $ticket->lastname,
                         'phone'                         => $ticket->phone,
                         'password'                      => $password,
+                        'roles'                         => [ 'user' ]
                     ]);
 
-                if ( $res instanceof MessageBag )
+                if ( $user instanceof MessageBag )
                 {
                     return redirect()->back()
                         ->withInput()
