@@ -721,7 +721,6 @@ class LKController extends BaseController
                 'ticket_id'             => 'required|integer',
                 'rate'                  => 'required|integer|min:1|max:5',
                 'rate_comment'          => 'required_if:rate,1|required_if:rate,2|required_if:rate,3|max:1000',
-                'force'          		=> 'nullable|boolean',
                 'files'                 => 'nullable|array',
                 'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
             ]);
@@ -739,32 +738,31 @@ class LKController extends BaseController
                 return $this->error( 'Заявка не найдена', 404 );
             }
 
-            if ( (int) $request->get( 'force', 0 ) )
-            {
-                $ticketManagements = $ticket->managements;
-            }
-            else
-            {
-                $ticketManagements = $ticket->managements()
-                    ->whereIn( 'status_code', [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client' ] )
-                    ->get();
-            }
-
-            if ( ! $ticketManagements->count() )
+            if ( ! $ticket->managements->count() )
             {
                 return $this->error( 'Невозможно поставить оценку заявке' );
             }
 
-            foreach ( $ticketManagements as $ticketManagement )
+            $flag = false;
+            foreach ( $ticket->managements as $ticketManagement )
             {
-                $ticketManagement->rate = $request->get( 'rate' );
-                $ticketManagement->rate_comment = $request->get( 'rate_comment' );
-                $ticketManagement->save();
-                $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
-                if ( $res instanceof MessageBag )
+                if ( $ticketManagement->canRate() )
                 {
-                    return $this->error( $res->first() );
+                    $ticketManagement->rate = $request->get( 'rate' );
+                    $ticketManagement->rate_comment = $request->get( 'rate_comment' );
+                    $ticketManagement->save();
+                    $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
+                    if ( $res instanceof MessageBag )
+                    {
+                        return $this->error( $res->first() );
+                    }
+                    $flag = true;
                 }
+            }
+
+            if ( ! $flag )
+            {
+                return $this->error( 'Невозможно поставить оценку заявке' );
             }
 
             foreach ( $request->file( 'files', [] ) as $_file )

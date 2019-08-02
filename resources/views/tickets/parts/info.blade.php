@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="col-lg-6 hidden-print">
-        @if ( $ticketManagement && $ticketManagement->status_code == 'closed_with_confirm' && ! $ticketManagement->rate )
+        @if ( $ticketManagement && $ticketManagement->status_code == 'closed_with_confirm' && $ticketManagement->canRate( true ) )
             @include( 'tickets.parts.rate_form' )
         @else
             <div class="margin-top-15">

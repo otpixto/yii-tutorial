@@ -66,6 +66,8 @@ class LK
                     'executor_name'     => null,
                     'scheduled_begin'   => null,
                     'scheduled_end'     => null,
+                    'rate'              => $ticketManagement->rate,
+                    'rate_comment'      => $ticketManagement->rate_comment,
                     'services'          => [],
                 ];
                 if ( $ticketManagement->executor )

@@ -791,11 +791,11 @@ class TicketManagement extends BaseModel
         return $this->ticket_id . '/' . $this->id;
     }
 
-    public function canRate ()
+    public function canRate ( $ignoreStatus = false ) : bool
     {
         if ( is_null( $this->can_rate ) )
         {
-            if ( \Auth::user()->can( 'tickets.rate' ) && ! $this->rate && in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client' ] ) )
+            if ( ( ( Provider::isSystemUrl() && \Auth::user()->can( 'lk.tickets.rate' ) ) || \Auth::user()->can( 'tickets.rate' ) ) && ! $this->rate && ( $ignoreStatus || in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client', 'closed_with_confirm' ] ) ) )
             {
                 $this->can_rate = true;
             }

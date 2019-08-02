@@ -2299,6 +2299,12 @@ class TicketsController extends BaseController
                 ->route( 'tickets.index' )
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
+        if ( ! $ticketManagement->canRate() )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Невозможно поставить оценку' ] );
+        }
         \DB::beginTransaction();
         $ticketManagement->rate = $request->get( 'rate' );
         $ticketManagement->rate_comment = $request->get( 'comment', null );

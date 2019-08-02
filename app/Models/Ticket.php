@@ -1039,7 +1039,7 @@ class Ticket extends BaseModel
                 if ( $ticketManagement->canRate() )
                 {
                     $this->can_rate = true;
-                    break;
+                    return true;
                 }
             }
             $this->can_rate = false;

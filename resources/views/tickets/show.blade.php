@@ -492,34 +492,36 @@
                     setExecutor();
 
 				})
-			
-				.on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
-				{
 
-					if ( $( '#rate' ).length ) return;
+                @if ( $ticketManagement->canRate() )
+                    .on( 'confirmed', '[data-status="closed_with_confirm"]', function ( e, pe )
+                    {
 
-					e.preventDefault();
-					pe.preventDefault();
+                        if ( $( '#rate' ).length ) return;
 
-					if ( $( this ).hasClass( 'submit-loading' ) )
-					{
-						$( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
-					}
+                        e.preventDefault();
+                        pe.preventDefault();
 
-					var dialog = bootbox.dialog({
-						title: 'Оцените работу УО',
-						message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
-					});
+                        if ( $( this ).hasClass( 'submit-loading' ) )
+                        {
+                            $( this ).find( ':submit' ).removeClass( 'loading' ).removeAttr( 'disabled' );
+                        }
 
-					dialog.init( function ()
-					{
-						$.get( '{{ route( 'tickets.rate', $ticketManagement->id ) }}', function ( response )
-						{
-							dialog.find( '.bootbox-body' ).html( response );
-						});
-					});
+                        var dialog = bootbox.dialog({
+                            title: 'Оцените работу УО',
+                            message: '<p><i class="fa fa-spin fa-spinner"></i> Загрузка... </p>'
+                        });
 
-				})
+                        dialog.init( function ()
+                        {
+                            $.get( '{{ route( 'tickets.rate', $ticketManagement->id ) }}', function ( response )
+                            {
+                                dialog.find( '.bootbox-body' ).html( response );
+                            });
+                        });
+
+                    })
+                @endif
 				
 			@endif
 
