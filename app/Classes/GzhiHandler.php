@@ -243,32 +243,34 @@ SOAP;
     public function getGzhiRequestsStatus ()
     {
 
-        $soapAction = $this->soapGetStateAction;
-
-        $gzhiRequests = GzhiRequest::where( [
-            'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
-            'Action' => $this->soapAction
-        ] )
-            ->get();
-
-        $packDate = date( 'Y-m-d\TH:i:s' );
-
-        $i = 0;
-
-        foreach ( $gzhiRequests as $gzhiRequest )
+        try
         {
+            $soapAction = $this->soapGetStateAction;
 
-            $packGuid = Uuid::generate();
+            $gzhiRequests = GzhiRequest::where( [
+                'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
+                'Action' => $this->soapAction
+            ] )
+                ->get();
 
-            $gzhiApiProvider = $gzhiRequest->gzhiApiProvider;
+            $packDate = date( 'Y-m-d\TH:i:s' );
 
-            $username = $gzhiApiProvider->login;
+            $i = 0;
 
-            $password = $gzhiApiProvider->password;
+            foreach ( $gzhiRequests as $gzhiRequest )
+            {
 
-            $accessData = $username . ':' . $password;
+                $packGuid = Uuid::generate();
 
-            $data = <<<SOAP
+                $gzhiApiProvider = $gzhiRequest->gzhiApiProvider;
+
+                $username = $gzhiApiProvider->login;
+
+                $password = $gzhiApiProvider->password;
+
+                $accessData = $username . ':' . $password;
+
+                $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
@@ -284,106 +286,127 @@ SOAP;
 </soapenv:Envelope>
 SOAP;
 
-            $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+                $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
 
-            $response = curl_exec( $curl );
+                $response = curl_exec( $curl );
 
-            $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+                $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
-            curl_close( $curl );
+                curl_close( $curl );
 
-            if ( $status_code != 200 )
-            {
-                $this->errorMessage .= "CURL status: $status_code; ";
-                continue;
-            }
-
-            $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
-
-            $xml = new \SimpleXMLElement( $response );
-
-            if ( isset( $xml->faultstring ) )
-            {
-                $this->errorMessage .= $xml->faultstring;
-            }
-
-            if ( ! isset( $xml->soapenvBody ) )
-            {
-                $this->errorMessage .= " SOAP structure error; ";
-                continue;
-            }
-
-            $body = $xml->soapenvBody;
-
-            $status = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsTransportStatus ?? "";
-
-            $gzhiErrors = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsERRORS ?? [];
-
-            if ( count( $gzhiErrors ) )
-            {
-                foreach ( $gzhiErrors as $gzhiError )
+                if ( $status_code != 200 )
                 {
-                    $this->errorMessage .= "Ошибка {$gzhiRequest->PackGUID} | {$gzhiError->edsErrorCode} | {$gzhiError->edsErrorText} <br>";
+                    $this->errorMessage .= "CURL status: $status_code; ";
+                    continue;
                 }
-            } else
-            {
-                if ( isset( $gzhiErrors->edsErrorCode ) && isset( $gzhiErrors->edsErrorText ) )
+
+                $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+                if ( $response )
                 {
-                    $this->errorMessage .= "Ошибка {$gzhiRequest->PackGUID} | {$gzhiErrors->edsErrorCode} | {$gzhiErrors->edsErrorText} <br>";
+                    $xml = new \SimpleXMLElement( $response );
+
+                    if ( isset( $xml->faultstring ) )
+                    {
+                        $this->errorMessage .= $xml->faultstring;
+                    }
+
+                    if ( ! isset( $xml->soapenvBody ) )
+                    {
+                        $this->errorMessage .= " SOAP structure error; ";
+                        continue;
+                    }
+
+                    $body = $xml->soapenvBody;
+
+                    $status = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsTransportStatus ?? "";
+
+                    $gzhiErrors = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsERRORS ?? [];
+
+                    if ( count( $gzhiErrors ) )
+                    {
+                        foreach ( $gzhiErrors as $gzhiError )
+                        {
+                            $this->errorMessage .= "Ошибка {$gzhiRequest->PackGUID} | {$gzhiError->edsErrorCode} | {$gzhiError->edsErrorText} <br>";
+                        }
+                    } else
+                    {
+                        if ( isset( $gzhiErrors->edsErrorCode ) && isset( $gzhiErrors->edsErrorText ) )
+                        {
+                            $this->errorMessage .= "Ошибка {$gzhiRequest->PackGUID} | {$gzhiErrors->edsErrorCode} | {$gzhiErrors->edsErrorText} <br>";
+                        }
+                    }
+
+                    if ( $status == GzhiRequest::GZHI_REQUEST_TRANSPORT_STATUS_SUCCESS )
+                    {
+                        $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+
+                        $gzhiRequest->CompleteDate = date( 'Y-m-d H:i:s' );
+
+                        $i ++;
+                    } else
+                    {
+                        $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_ERROR;
+
+                        $gzhiRequest->Error = $this->errorMessage;
+                    }
+                    $gzhiRequest->save();
                 }
             }
 
-            if ( $status == GzhiRequest::GZHI_REQUEST_TRANSPORT_STATUS_SUCCESS )
-            {
-                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+            $logText = "Заявок обработано: $i; \n $this->errorMessage \n";
 
-                $gzhiRequest->CompleteDate = date( 'Y-m-d H:i:s' );
+            echo $logText;
 
-                $i ++;
-            } else
-            {
-                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_ERROR;
+            Log::info( $logText );
 
-                $gzhiRequest->Error = $this->errorMessage;
-            }
-            $gzhiRequest->save();
+            $log = \App\Models\Log::create( [
+                'text' => $logText
+            ] );
+
+            $log->save();
         }
-
-        $logText = "Заявок обработано: $i; \n $this->errorMessage \n";
-
-        echo $logText;
-
-        Log::info( $logText );
-
-        $log = \App\Models\Log::create( [
-            'text' => $logText
-        ] );
-
-        $log->save();
+        catch ( \Exception $e )
+        {
+            Log::info( $e->getMessage() );
+            $log = \App\Models\Log::create( [
+                'text' => $e->getMessage()
+            ] );
+            $log->save();
+        }
 
     }
 
     private function proceedCurl ( $accessData, $data, $soapAction )
     {
-        $headers = [
-            'Content-type: text/xml',
-            'Cache-Control: no-cache',
-            'SOAPAction: "' . $soapAction . '"',
-        ];
-
-        $curl = curl_init();
-        curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
-        curl_setopt( $curl, CURLOPT_URL, $this->url );
-        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt( $curl, CURLOPT_USERPWD, $accessData );
-        curl_setopt( $curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
-        curl_setopt( $curl, CURLOPT_TIMEOUT, 30 );
-        curl_setopt( $curl, CURLOPT_POST, 1 );
-        curl_setopt( $curl, CURLOPT_POSTFIELDS, $data );
-        curl_setopt( $curl, CURLOPT_HTTPHEADER, $headers );
-        curl_setopt( $curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
-
-        return $curl;
+        try
+        {
+            $headers = [
+                'Content-type: text/xml',
+                'Cache-Control: no-cache',
+                'SOAPAction: "' . $soapAction . '"',
+            ];
+            $curl = curl_init();
+            curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
+            curl_setopt( $curl, CURLOPT_URL, $this->url );
+            curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+            curl_setopt( $curl, CURLOPT_USERPWD, $accessData );
+            curl_setopt( $curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
+            curl_setopt( $curl, CURLOPT_TIMEOUT, 30 );
+            curl_setopt( $curl, CURLOPT_POST, 1 );
+            curl_setopt( $curl, CURLOPT_POSTFIELDS, $data );
+            curl_setopt( $curl, CURLOPT_HTTPHEADER, $headers );
+            curl_setopt( $curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
+            return $curl;
+        }
+        catch ( \Exception $e )
+        {
+            Log::info( $e->getMessage() );
+            $log = \App\Models\Log::create( [
+                'text' => $e->getMessage()
+            ] );
+            $log->save();
+        }
     }
 
 }
