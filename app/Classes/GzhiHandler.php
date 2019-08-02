@@ -2,10 +2,12 @@
 
 namespace App\Classes;
 
+use App\Jobs\GzhiJob;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Ticket;
 use Carbon\Carbon;
+use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Log;
 use Webpatser\Uuid\Uuid;
 
@@ -23,7 +25,7 @@ class GzhiHandler
     private $errorMessage;
 
 
-    public function __construct ()
+    public function __construct ( $status = null )
     {
         $this->url = GzhiApiProvider::GJI_SOAP_URL;
 
@@ -31,7 +33,7 @@ class GzhiHandler
 
         $this->soapGetStateAction = GzhiRequest::GZHI_REQUEST_GET_STATE_METHOD;
 
-        $this->requestStatus = GzhiRequest::GZHI_REQUEST_STATUS_REGISTERED;
+        $this->requestStatus = $status ?? GzhiRequest::GZHI_REQUEST_STATUS_REGISTERED;
 
         $this->errorMessage = '';
     }
@@ -90,7 +92,7 @@ class GzhiHandler
 
     }
 
-    public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
+    public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider) : int
     {
 
         $username = $gzhiProvider->login;
@@ -111,29 +113,32 @@ class GzhiHandler
         ] )
             ->first();
 
+        $ticket->load('managements');
+
         if ( ! $gzhiRequest )
         {
 
             $gzhiRequest = new GzhiRequest();
 
-        } else
+        }
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) )
         {
-
-            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR ) return 0;
-
+            return 0;
         }
 
-        $address = $ticket->building->name;
+        $address = $ticket->building->name ?? 'Пусто';
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
+
+        $email = $ticket->managements[ 0 ]->management->email ?? 'test@test.ru';
 
         $text = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
         $packGuid = Uuid::generate();
 
-        $appealGuid = Uuid::generate();
+        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : Uuid::generate();
 
-        $transportGuid = Uuid::generate();
+        $transportGuid = ( ! empty( $gzhiRequest->TransportGUID ) ) ? $gzhiRequest->TransportGUID : Uuid::generate();
 
         $numberReg = Uuid::generate();
 
@@ -156,7 +161,7 @@ class GzhiHandler
                <eds:Status>{$this->requestStatus}</eds:Status>
                <eds:Initiator>
                   <eds:Name>{$ticket->firstname}</eds:Name>
-                  <eds:Mail>{$ticket->managements[0]->management->email}</eds:Mail>
+                  <eds:Mail>$email</eds:Mail>
                   <eds:Phone>{$ticket->phone}</eds:Phone>
                   <eds:PostAddress>$address</eds:PostAddress>
                </eds:Initiator>
@@ -215,13 +220,20 @@ SOAP;
                 'Action' => $this->soapAction,
                 'OrgGUID' => $orgGuid,
                 'PackGUID' => $packGuid,
+                'TransportGUID' => $transportGuid,
                 'PackDate' => $packDate,
                 'Status' => ( $this->errorMessage == '' ) ? GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK : GzhiRequest::GZHI_REQUEST_STATUS_ERROR,
                 'Error' => $this->errorMessage,
-                'gzhi_api_provider_id' => $gzhiProvider->id
+                'gzhi_api_provider_id' => $gzhiProvider->id,
+                'attempts_count' => ++$gzhiRequest->attempts_count
             ] );
 
             $gzhiRequest->save();
+        }
+
+        if( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
+        {
+            Job::dispatch( new GzhiJob( $ticket, $gzhiProvider ) )->late(300);
         }
 
         return 1;
@@ -327,10 +339,14 @@ SOAP;
 
                 $gzhiRequest->CompleteDate = date( 'Y-m-d H:i:s' );
 
-                $gzhiRequest->save();
-
                 $i ++;
+            } else
+            {
+                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_ERROR;
+
+                $gzhiRequest->Error = $this->errorMessage;
             }
+            $gzhiRequest->save();
         }
 
         $logText = "Заявок обработано: $i; \n $this->errorMessage \n";

@@ -47,15 +47,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule ( Schedule $schedule )
     {
-         $schedule->call(function (){
-             (new GzhiHandler())->sendGzhiInfo();
-         })
-             ->everyFiveMinutes();
 
         $schedule->call(function (){
             (new GzhiHandler())->getGzhiRequestsStatus();
         })
-            ->everyFifteenMinutes();
+            ->everyMinute();
+
     }
 
     /**
