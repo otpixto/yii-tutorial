@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\GzhiJob;
 use App\Jobs\SendPush;
 use App\Jobs\SendStream;
 use App\Models\Asterisk\Cdr;
@@ -536,7 +537,7 @@ class Ticket extends BaseModel
         return $ticket;
 
     }
-	
+
 	public function edit ( array $attributes = [] )
 	{
         if ( ! empty( $attributes[ 'phone' ] ) )
@@ -627,6 +628,28 @@ class Ticket extends BaseModel
 
 		return $this;
 	}
+
+	public function save ( array $options = [] )
+    {
+        $result = parent::save( $options );
+
+        if(isset($this->building()->first()->name))
+        {
+            $buildingName = $this->building()->first()->name;
+
+            $gzhiProviders = GzhiApiProvider::get();
+
+            foreach ($gzhiProviders as $gzhiProvider)
+            {
+                if(strpos($buildingName, $gzhiProvider->name))
+                {
+                    $this->dispatch( new GzhiJob( $this, $gzhiProvider ) );
+                }
+            }
+        }
+
+        return $result;
+    }
 
     public function getName ()
     {
