@@ -25,6 +25,7 @@ class Ticket extends BaseModel
     private $can_group = null;
     private $can_call = null;
     private $can_create_user = null;
+    private $can_rate = null;
 
     private $availableStatuses = null;
 
@@ -1013,7 +1014,7 @@ class Ticket extends BaseModel
         return $this->can_call;
     }
 
-    public function canGroup ()
+    public function canGroup () : bool
     {
         if ( is_null( $this->can_group ) )
         {
@@ -1027,6 +1028,23 @@ class Ticket extends BaseModel
             }
         }
         return $this->can_group;
+    }
+
+    public function canRate () : bool
+    {
+        if ( is_null( $this->can_rate ) )
+        {
+            foreach ( $this->managements as $ticketManagement )
+            {
+                if ( $ticketManagement->canRate() )
+                {
+                    $this->can_rate = true;
+                    break;
+                }
+            }
+            $this->can_rate = false;
+        }
+        return $this->can_rate;
     }
 
     public function getStatusHistory ( $status_code )
