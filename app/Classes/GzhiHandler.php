@@ -372,7 +372,8 @@ SOAP;
 
         $soapAction = $this->soapGetStateAction;
 
-        $gzhiApiProvider = GzhiApiProvider::whereName('Жуковский')->first();
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Жуковский' )
+            ->first();
 
         $orgGuid = $gzhiApiProvider->org_guid;
 
@@ -446,20 +447,20 @@ SOAP;
 
         $gzhiTypes = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAppealKind;
 
-        $countGzhiTypes = count($gzhiTypes);
+        $countGzhiTypes = count( $gzhiTypes );
 
         $types = Type::all();
 
-        foreach ($types as &$type)
+        foreach ( $types as &$type )
         {
             $i = 1;
 
-            foreach ($gzhiTypes as $gzhiType)
+            foreach ( $gzhiTypes as $gzhiType )
             {
 
                 $edsName = (String) $gzhiType->edsName;
 
-                if(strpos($type->name, $edsName))
+                if ( strpos( $type->name, $edsName ) )
                 {
                     $type->gzhi_code = $gzhiType->edsCode;
                     $type->gzhi_code_type = $gzhiType->edsCodeType;
@@ -470,7 +471,7 @@ SOAP;
                     continue 2;
                 }
 
-                if($i == $countGzhiTypes)
+                if ( $i == $countGzhiTypes )
                 {
                     $type->gzhi_code_type = GzhiRequest::GZHI_REQUEST_CODE_TYPE;
                     $type->gzhi_code = GzhiRequest::GZHI_REQUEST_CODE;
@@ -479,7 +480,7 @@ SOAP;
 
                     continue 2;
                 }
-                $i++;
+                $i ++;
             }
         }
 

@@ -42,20 +42,22 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule ( Schedule $schedule )
     {
 
-        $schedule->call(function (){
-            (new GzhiHandler())->fillTypes();
-        })
-            ->monthlyOn(1, '3:00');
+        $schedule->call( function ()
+        {
+            ( new GzhiHandler() )->fillTypes();
+        } )
+            ->monthlyOn( 1, '3:00' );
 
-        $schedule->call(function (){
-            (new GzhiHandler())->getGzhiRequestsStatus();
-        })
+        $schedule->call( function ()
+        {
+            ( new GzhiHandler() )->getGzhiRequestsStatus();
+        } )
             ->everyMinute();
 
     }
