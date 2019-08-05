@@ -6,6 +6,7 @@ use App\Jobs\GzhiJob;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Ticket;
+use App\Models\Type;
 use Carbon\Carbon;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Log;
@@ -92,7 +93,7 @@ class GzhiHandler
 
     }
 
-    public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider) : int
+    public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
 
         $username = $gzhiProvider->login;
@@ -113,7 +114,7 @@ class GzhiHandler
         ] )
             ->first();
 
-        $ticket->load('managements');
+        $ticket->load( 'managements' );
 
         if ( ! $gzhiRequest )
         {
@@ -121,12 +122,12 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
 
         }
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || !$ticket->type->gzhi_code_type || !$ticket->type->gzhi_code)
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code )
         {
             return 0;
         }
 
-        $address = (isset($ticket->building->name)) ? substr($ticket->building->name, 0, 49) : 'Пусто';
+        $address = ( isset( $ticket->building->name ) ) ? substr( $ticket->building->name, 0, 49 ) : 'Пусто';
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
 
@@ -225,15 +226,16 @@ SOAP;
                 'Status' => ( $this->errorMessage == '' ) ? GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK : GzhiRequest::GZHI_REQUEST_STATUS_ERROR,
                 'Error' => $this->errorMessage,
                 'gzhi_api_provider_id' => $gzhiProvider->id,
-                'attempts_count' => ++$gzhiRequest->attempts_count
+                'attempts_count' => ++ $gzhiRequest->attempts_count
             ] );
 
             $gzhiRequest->save();
         }
 
-        if( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
+        if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
         {
-            Job::dispatch( new GzhiJob( $ticket, $gzhiProvider ) )->late(300);
+            Job::dispatch( new GzhiJob( $ticket, $gzhiProvider ) )
+                ->late( 300 );
         }
 
         return 1;
@@ -360,6 +362,126 @@ SOAP;
         ] );
 
         $log->save();
+
+    }
+
+    public function fillTypes ()
+    {
+
+        $packGuid = Uuid::generate();
+
+        $soapAction = $this->soapGetStateAction;
+
+        $gzhiApiProvider = GzhiApiProvider::whereName('Жуковский')->first();
+
+        $orgGuid = $gzhiApiProvider->org_guid;
+
+        $username = $gzhiApiProvider->login;
+
+        $password = $gzhiApiProvider->password;
+
+        $accessData = $username . ':' . $password;
+
+        $packDate = date( 'Y-m-d\TH:i:s' );
+
+        $data = <<<SOAP
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <eds:getStateDSRequest Id="?" eds:version="1.0.0.2">
+            <eds:Header>
+                <eds:OrgGUID>$orgGuid</eds:OrgGUID>
+                <eds:PackGUID>$packGuid</eds:PackGUID>
+                <eds:PackDate>$packDate</eds:PackDate>
+            </eds:Header>
+            <eds:PackGUID>67b3ab59-b1fd-11e9-8c02-ddd67477fd67</eds:PackGUID>
+        </eds:getStateDSRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
+SOAP;
+
+        $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+
+        $response = curl_exec( $curl );
+
+        $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+
+        curl_close( $curl );
+
+        if ( $status_code != 200 )
+        {
+            $this->errorMessage .= "CURL status: $status_code; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+        $xml = new \SimpleXMLElement( $response );
+
+        if ( isset( $xml->faultstring ) )
+        {
+            $this->errorMessage .= $xml->faultstring;
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+        }
+
+        if ( ! isset( $xml->soapenvBody ) )
+        {
+            $this->errorMessage .= " SOAP structure error; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $gzhiTypes = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAppealKind;
+
+        $countGzhiTypes = count($gzhiTypes);
+
+        $types = Type::all();
+
+        foreach ($types as &$type)
+        {
+            $i = 1;
+
+            foreach ($gzhiTypes as $gzhiType)
+            {
+
+                $edsName = (String) $gzhiType->edsName;
+
+                if(strpos($type->name, $edsName))
+                {
+                    $type->gzhi_code = $gzhiType->edsCode;
+                    $type->gzhi_code_type = $gzhiType->edsCodeType;
+                    $type->gzhi_name = $edsName;
+
+                    $type->save();
+
+                    continue 2;
+                }
+
+                if($i == $countGzhiTypes)
+                {
+                    $type->gzhi_code_type = GzhiRequest::GZHI_REQUEST_CODE_TYPE;
+                    $type->gzhi_code = GzhiRequest::GZHI_REQUEST_CODE;
+
+                    $type->save();
+
+                    continue 2;
+                }
+                $i++;
+            }
+        }
 
     }
 

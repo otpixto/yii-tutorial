@@ -49,6 +49,11 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->call(function (){
+            (new GzhiHandler())->fillTypes();
+        })
+            ->monthlyOn(1, '3:00');
+
+        $schedule->call(function (){
             (new GzhiHandler())->getGzhiRequestsStatus();
         })
             ->everyMinute();

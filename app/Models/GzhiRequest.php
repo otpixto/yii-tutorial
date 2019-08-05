@@ -17,6 +17,9 @@ class GzhiRequest extends BaseModel
 
     const GZHI_REQUEST_MAX_ATTEMPTS_COUNT = 30;
 
+    const GZHI_REQUEST_CODE_TYPE = 36;
+    const GZHI_REQUEST_CODE = 36001;
+
 
     public $table = 'gzhi_requests';
 
