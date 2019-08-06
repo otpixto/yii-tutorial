@@ -200,31 +200,4 @@ class ProfileController extends Controller
             ->with( 'user', $user );
     }
 
-
-    public function unsubscribe ( $id )
-    {
-        $user = User::find( $id );
-
-        if ( ! $user )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Пользователь не найден' );
-        }
-
-        if ( \Auth::user()->id != $id )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Доступ запрещен' );
-        }
-
-        $user->email_subscribed = 0;
-        if ( ! $user->save() )
-        {
-            return view( 'parts.error' )
-                ->with( 'error', 'Ошибка сохранения' );
-        }
-
-        return view( 'profile.email_unsubscribe' );
-    }
-
 }

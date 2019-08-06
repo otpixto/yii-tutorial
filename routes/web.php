@@ -56,6 +56,7 @@ Route::group( [ 'middleware' => 'rest' ], function ()
             Route::any( 'address-del', 'Rest\LKController@addressDel' )->name( 'rest.lk.address.del' );
             Route::any( 'check', 'Rest\LKController@check' )->name( 'rest.lk.check' );
             Route::any( 'push', 'Rest\LKController@push' )->name( 'rest.lk.push' );
+            Route::any( 'unsubscribe', 'Rest\LKController@unsubscribe' )->name( 'rest.lk.unsubscribe' );
         });
 
         Route::prefix( 'devices' )->group( function ()

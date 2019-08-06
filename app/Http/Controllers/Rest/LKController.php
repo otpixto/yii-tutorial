@@ -14,6 +14,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Storage;
 
@@ -43,13 +44,14 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'phone'         => 'required|digits:10',
-                'password'      => 'required|min:5|max:50',
-            ]);
+                'phone' => 'required|digits:10',
+                'password' => 'required|min:5|max:50',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             if ( ! $this->checkAuth( $request, $error, $httpCode ) )
@@ -68,12 +70,12 @@ class LKController extends BaseController
 
             $token = $this->providerToken->token;
 
-            return $this->success([
-                'id'                => $user->id,
-                'fullname'          => $user->getName(),
-                'token'             => $this->sms_confirm ? null : $token,
-                'sms_confirm'       => (bool) $this->sms_confirm,
-            ]);
+            return $this->success( [
+                'id' => $user->id,
+                'fullname' => $user->getName(),
+                'token' => $this->sms_confirm ? null : $token,
+                'sms_confirm' => (bool) $this->sms_confirm,
+            ] );
 
         }
         catch ( \Exception $e )
@@ -95,12 +97,13 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'term'                  => 'required|min:3',
-            ]);
+                'term' => 'required|min:3',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $term = trim( $request->get( 'term' ) );
@@ -196,16 +199,16 @@ class LKController extends BaseController
             $customer = $user->customer;
 
             $response = [
-                'user_id'               => $user->id,
-                'firstname'             => $user->firstname,
-                'middlename'            => $user->middlename,
-                'lastname'              => $user->lastname,
-                'phone'                 => $user->phone,
-                'email'                 => $user->email,
-                'customer_id'           => null,
-                'building_id'           => null,
-                'building_name'         => null,
-                'flat'                  => null,
+                'user_id' => $user->id,
+                'firstname' => $user->firstname,
+                'middlename' => $user->middlename,
+                'lastname' => $user->lastname,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'customer_id' => null,
+                'building_id' => null,
+                'building_name' => null,
+                'flat' => null,
             ];
 
             if ( $customer )
@@ -215,8 +218,7 @@ class LKController extends BaseController
                 {
                     $response[ 'building_id' ] = $customer->actualBuilding->id;
                     $response[ 'building_name' ] = $customer->actualBuilding->name;
-                }
-                else
+                } else
                 {
                     $response[ 'building_id' ] = null;
                     $response[ 'building_name' ] = null;
@@ -226,8 +228,8 @@ class LKController extends BaseController
                 foreach ( $customer->buildings as $building )
                 {
                     $response[ 'buildings' ][] = [
-                        'id'		=> $building->id,
-                        'text'		=> $building->name,
+                        'id' => $building->id,
+                        'text' => $building->name,
                     ];
                 }
             }
@@ -275,12 +277,13 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'building_id'         => 'required|integer',
-            ]);
+                'building_id' => 'required|integer',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $user = \Auth::user();
@@ -302,7 +305,8 @@ class LKController extends BaseController
                 return $this->error( 'Адрес уже добавлен' );
             }
 
-            $customer->buildings()->attach( $building->id );
+            $customer->buildings()
+                ->attach( $building->id );
 
             $this->addLog( 'Добавил адрес ' . $building->name );
 
@@ -328,12 +332,13 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'building_id'         => 'required|integer',
-            ]);
+                'building_id' => 'required|integer',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $user = \Auth::user();
@@ -355,7 +360,8 @@ class LKController extends BaseController
                 return $this->error( 'Адрес еще не добавлен' );
             }
 
-            $customer->buildings()->detach( $building->id );
+            $customer->buildings()
+                ->detach( $building->id );
 
             $this->addLog( 'Убрал адрес ' . $building->name );
 
@@ -381,18 +387,19 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'page'                => 'nullable|integer|min:1',
-                'ticket_id'           => 'nullable|integer',
-                'date_from'           => 'nullable|date|date_format:Y-m-d',
-                'date_to'             => 'nullable|date|date_format:Y-m-d|after_or_equal:date_from',
-                'building_id'         => 'nullable|integer',
-                'type_id'             => 'nullable|integer',
-                'status_code'         => 'nullable|string',
-            ]);
+                'page' => 'nullable|integer|min:1',
+                'ticket_id' => 'nullable|integer',
+                'date_from' => 'nullable|date|date_format:Y-m-d',
+                'date_to' => 'nullable|date|date_format:Y-m-d|after_or_equal:date_from',
+                'building_id' => 'nullable|integer',
+                'type_id' => 'nullable|integer',
+                'status_code' => 'nullable|string',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $tickets = Ticket
@@ -404,8 +411,8 @@ class LKController extends BaseController
                         {
                             return $customer
                                 ->where( 'phone', '=', \Auth::user()->phone );
-                        });
-                })
+                        } );
+                } )
                 ->whereHas( 'building' )
                 ->where( 'status_code', '!=', 'draft' );
 
@@ -418,13 +425,15 @@ class LKController extends BaseController
             if ( $request->get( 'date_from' ) )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )
+                        ->toDateTimeString() ] );
             }
 
             if ( $request->get( 'date_to' ) )
             {
                 $tickets
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )
+                        ->toDateTimeString() ] );
             }
 
             if ( $request->get( 'building_id' ) )
@@ -442,7 +451,7 @@ class LKController extends BaseController
                         return $type
                             ->where( 'id', '=', $type_id )
                             ->orWhere( 'parent_id', '=', $type_id );
-                    });
+                    } );
             }
 
             if ( $request->get( 'status_code' ) )
@@ -481,16 +490,17 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'page'                => 'nullable|integer|min:1',
-                'work_id'             => 'nullable|integer',
-                'date_from'           => 'nullable|date|date_format:Y-m-d',
-                'date_to'             => 'nullable|date|date_format:Y-m-d|after:date_from',
-                'building_id'         => 'nullable|integer',
-            ]);
+                'page' => 'nullable|integer|min:1',
+                'work_id' => 'nullable|integer',
+                'date_from' => 'nullable|date|date_format:Y-m-d',
+                'date_to' => 'nullable|date|date_format:Y-m-d|after:date_from',
+                'building_id' => 'nullable|integer',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $works = Work
@@ -505,13 +515,15 @@ class LKController extends BaseController
             if ( $request->get( 'date_from' ) )
             {
                 $works
-                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )->toDateTimeString() ] );
+                    ->whereRaw( 'DATE( created_at ) >= ?', [ Carbon::parse( $request->get( 'date_from' ) )
+                        ->toDateTimeString() ] );
             }
 
             if ( $request->get( 'date_to' ) )
             {
                 $works
-                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )->toDateTimeString() ] );
+                    ->whereRaw( 'DATE( created_at ) <= ?', [ Carbon::parse( $request->get( 'date_to' ) )
+                        ->toDateTimeString() ] );
             }
 
             if ( $request->get( 'building_id' ) )
@@ -522,7 +534,8 @@ class LKController extends BaseController
                         $ids = [];
                         if ( \Auth::user()->customer )
                         {
-                            $ids = \Auth::user()->customer->buildings->pluck( 'id' )->toArray();
+                            $ids = \Auth::user()->customer->buildings->pluck( 'id' )
+                                ->toArray();
                             if ( \Auth::user()->customer->actualBuilding )
                             {
                                 $ids[] = \Auth::user()->customer->actualBuilding->id;
@@ -533,9 +546,8 @@ class LKController extends BaseController
                             ->where( 'lat', '!=', - 1 )
                             ->whereIn( Building::$_table . '.id', $ids )
                             ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
-                    });
-            }
-            else
+                    } );
+            } else
             {
                 $works
                     ->whereHas( 'buildings', function ( $buildings ) use ( $request )
@@ -543,7 +555,8 @@ class LKController extends BaseController
                         $ids = [];
                         if ( \Auth::user()->customer )
                         {
-                            $ids = \Auth::user()->customer->buildings->pluck( 'id' )->toArray();
+                            $ids = \Auth::user()->customer->buildings->pluck( 'id' )
+                                ->toArray();
                             if ( \Auth::user()->customer->actualBuilding )
                             {
                                 $ids[] = \Auth::user()->customer->actualBuilding->id;
@@ -553,7 +566,7 @@ class LKController extends BaseController
                             ->where( 'lon', '!=', - 1 )
                             ->where( 'lat', '!=', - 1 )
                             ->whereIn( Building::$_table . '.id', $ids );
-                    });
+                    } );
             }
 
             $works = $works
@@ -586,39 +599,40 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'type_id'               => 'required|integer',
-                'building_id'           => 'required|integer',
-                'flat'                  => 'required',
-                'text'                  => 'required|max:1000',
-                'phone'                 => 'nullable|digits:10',
-                'time_from'             => 'nullable|required_with:time_to|date_format:H:i',
-                'time_to'               => 'nullable|required_with:time_from|date_format:H:i|after:time_from',
-                'files'                 => 'nullable|array',
-                'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
-            ]);
+                'type_id' => 'required|integer',
+                'building_id' => 'required|integer',
+                'flat' => 'required',
+                'text' => 'required|max:1000',
+                'phone' => 'nullable|digits:10',
+                'time_from' => 'nullable|required_with:time_to|date_format:H:i',
+                'time_to' => 'nullable|required_with:time_from|date_format:H:i|after:time_from',
+                'files' => 'nullable|array',
+                'files.*' => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             \DB::beginTransaction();
 
-            $ticket = Ticket::create([
-                'type_id'           => $request->get( 'type_id' ),
-                'building_id'       => $request->get( 'building_id' ),
-                'flat'              => $request->get( 'flat' ),
-                'text'              => $request->get( 'text' ),
-                'time_from'         => $request->get( 'time_from' ),
-                'time_to'           => $request->get( 'time_to' ),
-                'provider_id'       => \Auth::user()->provider_id,
-                'phone'             => \Auth::user()->phone,
-                'phone2'            => $request->get( 'phone' ),
-                'firstname'         => \Auth::user()->firstname,
-                'middlename'        => \Auth::user()->middlename,
-                'lastname'          => \Auth::user()->lastname,
-                'from_lk'           => 1,
-            ]);
+            $ticket = Ticket::create( [
+                'type_id' => $request->get( 'type_id' ),
+                'building_id' => $request->get( 'building_id' ),
+                'flat' => $request->get( 'flat' ),
+                'text' => $request->get( 'text' ),
+                'time_from' => $request->get( 'time_from' ),
+                'time_to' => $request->get( 'time_to' ),
+                'provider_id' => \Auth::user()->provider_id,
+                'phone' => \Auth::user()->phone,
+                'phone2' => $request->get( 'phone' ),
+                'firstname' => \Auth::user()->firstname,
+                'middlename' => \Auth::user()->middlename,
+                'lastname' => \Auth::user()->lastname,
+                'from_lk' => 1,
+            ] );
 
             $res = $ticket->changeStatus( 'moderate', true );
             if ( $res instanceof MessageBag )
@@ -633,12 +647,12 @@ class LKController extends BaseController
                 {
                     return $this->error( trans( 'lk.file' ) );
                 }
-                $file = File::create([
-                    'model_id'      => $ticket->id,
-                    'model_name'    => get_class( $ticket ),
-                    'path'          => $path,
-                    'name'          => $_file->getClientOriginalName()
-                ]);
+                $file = File::create( [
+                    'model_id' => $ticket->id,
+                    'model_name' => get_class( $ticket ),
+                    'path' => $path,
+                    'name' => $_file->getClientOriginalName()
+                ] );
                 if ( $file instanceof MessageBag )
                 {
                     Storage::delete( $path );
@@ -652,7 +666,8 @@ class LKController extends BaseController
 
             \DB::commit();
 
-            \Cache::tags( 'tickets_counts' )->flush();
+            \Cache::tags( 'tickets_counts' )
+                ->flush();
 
             $response = LK::ticketInfo( $ticket );
 
@@ -680,17 +695,18 @@ class LKController extends BaseController
             $user = \Auth::user();
 
             $validation = \Validator::make( $request->all(), [
-                'email'              => 'required|email|unique:users,email,' . $user->id,
-            ]);
+                'email' => 'required|email|unique:users,email,' . $user->id,
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
-            $res = $user->edit([
+            $res = $user->edit( [
                 'email' => $request->get( 'email' )
-            ]);
+            ] );
             if ( $res instanceof MessageBag )
             {
                 return $this->error( $res->first() );
@@ -718,16 +734,17 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'ticket_id'             => 'required|integer',
-                'rate'                  => 'required|integer|min:1|max:5',
-                'rate_comment'          => 'required_if:rate,1|required_if:rate,2|required_if:rate,3|max:1000',
-                'files'                 => 'nullable|array',
-                'files.*'               => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
-            ]);
+                'ticket_id' => 'required|integer',
+                'rate' => 'required|integer|min:1|max:5',
+                'rate_comment' => 'required_if:rate,1|required_if:rate,2|required_if:rate,3|max:1000',
+                'files' => 'nullable|array',
+                'files.*' => 'file|mimes:jpg,jpeg,png,bmp,webp|max:2048',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             \DB::beginTransaction();
@@ -772,12 +789,12 @@ class LKController extends BaseController
                 {
                     return $this->error( trans( 'lk.file' ) );
                 }
-                $file = File::create([
-                    'model_id'      => $ticket->id,
-                    'model_name'    => get_class( $ticket ),
-                    'path'          => $path,
-                    'name'          => $_file->getClientOriginalName()
-                ]);
+                $file = File::create( [
+                    'model_id' => $ticket->id,
+                    'model_name' => get_class( $ticket ),
+                    'path' => $path,
+                    'name' => $_file->getClientOriginalName()
+                ] );
                 if ( $file instanceof MessageBag )
                 {
                     Storage::delete( $path );
@@ -791,7 +808,8 @@ class LKController extends BaseController
 
             \DB::commit();
 
-            \Cache::tags( 'tickets_counts' )->flush();
+            \Cache::tags( 'tickets_counts' )
+                ->flush();
 
             return $this->success( [ 'message' => 'OK' ] );
 
@@ -815,12 +833,13 @@ class LKController extends BaseController
         {
 
             $validation = \Validator::make( $request->all(), [
-                'phone'         => 'required|digits:10',
-            ]);
+                'phone' => 'required|digits:10',
+            ] );
 
             if ( $validation->fails() )
             {
-                return $this->error( $validation->errors()->first() );
+                return $this->error( $validation->errors()
+                    ->first() );
             }
 
             $phone = $request->get( 'phone' );
@@ -855,6 +874,24 @@ class LKController extends BaseController
             return $this->error( 'Внутренняя ошибка системы!', 500 );
         }
 
+    }
+
+    public function unsubscribe ()
+    {
+        try
+        {
+            $user = \Auth::user();
+
+            $user->email_subscribed = 0;
+
+            $user->save();
+
+            return $this->success( [ 'message' => 'OK' ] );
+        }
+        catch ( \Exception $e )
+        {
+            return $this->error( 'Внутренняя ошибка системы!', 500 );
+        }
     }
 
 }
