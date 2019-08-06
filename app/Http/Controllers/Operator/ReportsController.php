@@ -216,7 +216,7 @@ class ReportsController extends BaseController
             {
                 $report->data = null;
                 $report->save();
-                $this->dispatch( new ReportJob( $report, \Auth::user() ) );
+                $this->dispatch( new ReportJob( $report, \Auth::user(), Provider::getCurrent() ) );
                 return redirect()->back();
             }
             else
