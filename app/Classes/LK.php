@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 
 class LK
 {
+    const LK_URL = 'https://lk.eds-region.ru';
 
     public static function ticketsInfo ( LengthAwarePaginator $tickets, $user_token = null, $withDetails = false ) : array
     {

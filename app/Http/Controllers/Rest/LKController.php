@@ -480,7 +480,6 @@ class LKController extends BaseController
 
     public function works ( Request $request ) : Response
     {
-
         if ( ! $this->checkAll( $request, $error, $httpCode ) )
         {
             return $this->error( $error, $httpCode );
@@ -876,8 +875,13 @@ class LKController extends BaseController
 
     }
 
-    public function unsubscribe ()
+    public function unsubscribe (Request $request)
     {
+        if ( ! $this->checkAll( $request, $error, $httpCode ) )
+        {
+            return $this->error( $error, $httpCode );
+        }
+
         try
         {
             $user = \Auth::user();
