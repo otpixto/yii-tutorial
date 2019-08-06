@@ -373,17 +373,17 @@
                                 %
                             </td>
                             <td class="text-center">
-                                {{ $row[ 'statuses' ][ 'not_completed' ][ 0 ] }}
-                            </td>
-                            <td class="text-center text-nowrap">
-                                {{ $row[ 'statuses' ][ 'not_completed' ][ 1 ] }}
-                                %
-                            </td>
-                            <td class="text-center">
                                 {{ $row[ 'statuses' ][ 'in_process' ][ 0 ] }}
                             </td>
                             <td class="text-center text-nowrap">
                                 {{ $row[ 'statuses' ][ 'in_process' ][ 1 ] }}
+                                %
+                            </td>
+                            <td class="text-center">
+                                {{ $row[ 'statuses' ][ 'not_completed' ][ 0 ] }}
+                            </td>
+                            <td class="text-center text-nowrap">
+                                {{ $row[ 'statuses' ][ 'not_completed' ][ 1 ] }}
                                 %
                             </td>
                             <td class="text-center">
