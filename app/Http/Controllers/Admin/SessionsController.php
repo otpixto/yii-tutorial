@@ -95,7 +95,8 @@ class SessionsController extends BaseController
         Title::add( 'Добавить в очередь' );
 
         $res = User
-            ::role( 'operator' )
+            ::mine()
+            ->role( 'operator' )
             ->orderBy( 'lastname' )
             ->orderBy( 'firstname' )
             ->orderBy( 'middlename' )
@@ -106,15 +107,9 @@ class SessionsController extends BaseController
         {
             $operators[ $r->id ] = $r->getName();
         }
-		
-		$providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->get();
 
         return view('admin.sessions.create' )
-            ->with( 'operators', $operators )
-            ->with( 'providers', $providers );
+            ->with( 'operators', $operators );
 
     }
 
@@ -155,31 +150,15 @@ class SessionsController extends BaseController
     {
 		
 		$rules = [
-			'provider_id'   => 'nullable|integer',
 			'user_id'       => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
 			'number'        => 'required|string|min:2'
 		];
 
         $this->validate( $request, $rules );
-		
-		$providers = Provider::mine()->get();
-        $attributes = $request->all();
-        if ( $providers->count() == 1 )
-        {
-            $attributes[ 'provider_id' ] = $providers->first()->id;
-        }
-        else if ( ! empty( $request->get( 'provider_id' ) ) )
-        {
-            $attributes[ 'provider_id' ] = $request->get( 'provider_id' );
-        }
-        else
-        {
-            return redirect()->back()->withInput()->withErrors( [ 'Выберите провайдера' ] );
-        }
 
         $asterisk = new Asterisk();
         \DB::beginTransaction();
-        $phoneSession = PhoneSession::create( $attributes );
+        $phoneSession = PhoneSession::create( $request->all() );
         if ( $phoneSession instanceof MessageBag )
         {
             return redirect()->back()
