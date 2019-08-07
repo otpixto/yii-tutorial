@@ -58,7 +58,7 @@ class Kernel extends ConsoleKernel
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
-            ->everyMinute();
+            ->everyFiveMinutes();
 
     }
 
