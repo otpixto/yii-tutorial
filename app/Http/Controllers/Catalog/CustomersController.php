@@ -232,33 +232,6 @@ class CustomersController extends BaseController
      */
     public function show ( $id )
     {
-        if ( $id == 'fix' )
-        {
-            $customers = Customer
-                ::whereRaw( 'LENGTH( phone ) < 10' )
-                ->get();
-            foreach ( $customers as $customer )
-            {
-                $customer->delete();
-            }
-            $customers = Customer
-                ::orderBy( 'id', 'desc' )
-                ->get();
-            foreach ( $customers as $customer )
-            {
-                if ( ! $customer->trashed() )
-                {
-                    $_customers = Customer
-                        ::where( 'phone', '=', $customer->phone )
-                        ->where( 'id', '!=', $customer->id )
-                        ->get();
-                    foreach ( $_customers as $_customer )
-                    {
-                        $_customer->delete();
-                    }
-                }
-            }
-        }
         return redirect()->route( 'customers.index' );
     }
 
