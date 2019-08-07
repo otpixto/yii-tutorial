@@ -38,10 +38,6 @@
                     <!-- PERSONAL INFO TAB -->
                     <div class="steps" id="step1" data-step="1">
                         <div class="form-group">
-                            {!! Form::label( 'providers', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'providers[]', $providers->pluck( 'name', 'id' ), \Input::old( 'providers' ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Поставщик', 'multiple' ] ) !!}
-                        </div>
-                        <div class="form-group">
                             {!! Form::label( 'lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::text( 'lastname', \Input::old( 'lastname' ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
                         </div>

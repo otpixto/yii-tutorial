@@ -2,38 +2,40 @@
 
 @section( 'users.content' )
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                <i class="fa fa-plus"></i>
-                Добавить УО
-            </h3>
-        </div>
-        <div class="panel-body">
-            {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.managements.add', $user->id ], 'class' => 'submit-loading' ] ) !!}
-            <div class="row">
-                <div class="col-md-12">
-                    <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
-                        @foreach ( $availableManagements as $management => $arr )
-                            <optgroup label="{{ $management }}">
-                                @foreach ( $arr as $management_id => $management_name )
-                                    <option value="{{ $management_id }}">
-                                        {{ $management_name }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                        @endforeach
-                    </select>
-                </div>
+    @if ( \Auth::user()->can( 'admin.users.managements' ) )
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <i class="fa fa-plus"></i>
+                    Добавить УО
+                </h3>
             </div>
-            <div class="row margin-top-15">
-                <div class="col-md-12">
-                    {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
+            <div class="panel-body">
+                {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.managements.add', $user->id ], 'class' => 'submit-loading' ] ) !!}
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                            @foreach ( $availableManagements as $management => $arr )
+                                <optgroup label="{{ $management }}">
+                                    @foreach ( $arr as $management_id => $management_name )
+                                        <option value="{{ $management_id }}">
+                                            {{ $management_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
+                <div class="row margin-top-15">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
             </div>
-            {!! Form::close() !!}
         </div>
-    </div>
+    @endif
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -65,9 +67,11 @@
 
             @forelse ( $userManagements as $r )
                 <div class="margin-bottom-5">
-                    <button type="button" class="btn btn-xs btn-danger" data-delete="user-management" data-management="{{ $r->id }}">
-                        <i class="fa fa-remove"></i>
-                    </button>
+                    @if ( \Auth::user()->can( 'admin.users.managements' ) )
+                        <button type="button" class="btn btn-xs btn-danger" data-delete="user-management" data-management="{{ $r->id }}">
+                            <i class="fa fa-remove"></i>
+                        </button>
+                    @endif
                     <a href="{{ route( 'managements.edit', $r->id ) }}">
                         @if ( $r->parent )
                             <span class="text-muted">

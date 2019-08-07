@@ -2,27 +2,31 @@
 
 @section( 'users.content' )
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                Добавить к Поставщику
-            </h3>
-        </div>
-        <div class="panel-body">
-            {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.providers.add', $user->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
-            <div class="form-group">
-                <div class="col-md-12">
-                    {!! Form::select( 'providers[]', $providers, null, [ 'class' => 'form-control select2', 'id' => 'providers', 'multiple' ] ) !!}
-                </div>
+    @if ( \Auth::user()->can( 'admin.users.providers' ) )
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Добавить к Поставщику
+                </h3>
             </div>
-            <div class="form-group">
-                <div class="col-md-12">
-                    {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
+            <div class="panel-body">
+                {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.providers.add', $user->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::select( 'providers[]', $providers, null, [ 'class' => 'form-control select2', 'id' => 'providers', 'multiple' ] ) !!}
+                    </div>
                 </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
+                    </div>
+                </div>
+                {!! Form::close() !!}
             </div>
-            {!! Form::close() !!}
         </div>
-    </div>
+
+    @endif
 
     <div class="panel panel-default">
         <div class="panel-body">
@@ -31,9 +35,11 @@
 
             @forelse ( $userProviders as $r )
                 <div class="margin-bottom-5">
-                    <button type="button" class="btn btn-xs btn-danger" data-delete="user-provider" data-provider="{{ $r->id }}">
-                        <i class="fa fa-remove"></i>
-                    </button>
+                    @if ( \Auth::user()->can( 'admin.users.providers' ) )
+                        <button type="button" class="btn btn-xs btn-danger" data-delete="user-provider" data-provider="{{ $r->id }}">
+                            <i class="fa fa-remove"></i>
+                        </button>
+                    @endif
                     <a href="{{ route( 'providers.edit', $r->id ) }}">
                         {{ $r->name }}
                     </a>

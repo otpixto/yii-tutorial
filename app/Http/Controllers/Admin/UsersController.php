@@ -74,23 +74,60 @@ class UsersController extends BaseController
 
         $roles = Role::orderBy( 'name' )->get();
 
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->get();
-
         return view('admin.users.create' )
-            ->with( 'roles', $roles )
-            ->with( 'providers', $providers );
+            ->with( 'roles', $roles );
 
     }
 
     public function store ( Request $request )
     {
 
-        $this->validate( $request, User::$rules_create );
+        $this->validate( $request, [
+            'firstname' => [
+                'required',
+                'max:255',
+            ],
+            'middlename' => [
+                'nullable',
+                'max:255',
+            ],
+            'lastname' => [
+                'required',
+                'max:255',
+            ],
+            'phone' => [
+                'nullable',
+                'max:18',
+                'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            ],
+            'email' => [
+                'required',
+                'email',
+                'unique:users',
+                'max:255',
+            ],
+            'password' => [
+                'required',
+                'min: 6',
+                'confirmed'
+            ],
+            'prefix' => [
+                'nullable',
+                'max:255',
+            ],
+            'roles' => [
+                'nullable',
+                'array',
+            ],
+        ]);
 
-        $user = User::create( $request->all() );
+        $attributes = $request->all();
+        if ( Provider::getCurrent() )
+        {
+            $attributes[ 'providers' ][] = Provider::getCurrent()->id;
+        }
+
+        $user = User::create( $attributes );
 
         if ( $user instanceof MessageBag )
         {

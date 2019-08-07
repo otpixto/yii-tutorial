@@ -209,9 +209,11 @@ class Provider extends BaseModel
 
     public static function getCurrent ()
     {
-        $provider = self::current()->first();
-        self::setCurrent( $provider );
-		return $provider;
+        if ( ! self::$current )
+        {
+            self::setCurrent( self::current()->first() );
+        }
+        return self::$current;
     }
 	
 	public static function setCurrent ( Provider $provider = null )

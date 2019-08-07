@@ -65,49 +65,6 @@ class User extends BaseModel implements
         'email_subscribed'
     ];
 
-    public static $rules_create = [
-        'providers' => [
-            'required',
-            'array',
-        ],
-        'firstname' => [
-            'required',
-            'max:255',
-        ],
-        'middlename' => [
-            'nullable',
-            'max:255',
-        ],
-        'lastname' => [
-            'required',
-            'max:255',
-        ],
-        'phone' => [
-            'nullable',
-            'max:18',
-            'regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-        ],
-        'email' => [
-            'required',
-            'email',
-            'unique:users',
-            'max:255',
-        ],
-        'password' => [
-            'required',
-            'min: 6',
-            'confirmed'
-        ],
-        'prefix' => [
-            'nullable',
-            'max:255',
-        ],
-        'roles' => [
-            'nullable',
-            'array',
-        ],
-    ];
-
     /**
      * The attributes that should be hidden for arrays.
      *
