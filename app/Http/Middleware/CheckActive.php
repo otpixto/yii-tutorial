@@ -18,7 +18,7 @@ class CheckActive
     {
         if ( \Auth::user() && ! \Auth::user()->isActive() )
         {
-            throw new InactiveException;
+            abort( 403, 'Пользователь не активирован' );
         }
         return $next( $request );
     }
