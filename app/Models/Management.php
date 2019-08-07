@@ -90,7 +90,9 @@ class Management extends BaseModel
 
     public function buildings ()
     {
-        return $this->belongsToMany( Building::class, 'managements_buildings' );
+        $res = $this->belongsToMany( Building::class, 'managements_buildings' );
+
+        return $res;
     }
 
     public function parent ()
