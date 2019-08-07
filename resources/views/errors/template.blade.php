@@ -69,7 +69,7 @@
                                 На главную
                             </span>
                         </a>
-                        <a href="mailto:{{ urlencode( config( 'mail.support' ) ) }}?subject=Error%20{{ $exception->getStatusCode() }}&body=url:%20{{ url()->full() }}%0D%0Amessage:%20{{ str_replace( ' ', '%20', $error ) }}" class="btn btn-default btn-lg">
+                        <a href="mailto:{{ urlencode( config( 'mail.support' ) ) }}?subject={{ $exception->getStatusCode() . '%20' . $error }}&body=url:%20{{ url()->full() }}@if ( \Auth::user() )%0D%0Auser:%20{{ \Auth::user()->email }}@endif" class="btn btn-default btn-lg">
                             <i class="glyphicon glyphicon-envelope"></i>
                             <span class="hidden-xs">
                                 Написать письмо
