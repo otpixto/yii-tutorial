@@ -162,20 +162,10 @@ class RestController extends Controller
         ];
 
         $draft = Ticket
-            ::draft( $user->id )
+            ::draft( $user->id, $session->provider->id )
             ->first();
 
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
-        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office' ) ), -10 );
-
-        $provider = Provider
-            ::mine( $user )
-            ->whereHas( 'phones', function ( $q ) use ( $phone_office )
-            {
-                return $q
-                    ->where( 'phone', '=', $phone_office );
-            })
-            ->first();
 
         if ( ! $draft )
         {
@@ -183,25 +173,16 @@ class RestController extends Controller
             $draft->status_code = 'draft';
             $draft->status_name = Ticket::$statuses[ 'draft' ];
             $draft->author_id = $user->id;
-            $draft->phone = $phone;
-            $draft->call_phone = $draft->phone;
-            $draft->call_id = $request->get( 'call_id' );
-        }
-        else
-        {
-            $draft->phone = $phone;
-            $draft->call_phone = $draft->phone;
-            $draft->call_id = $request->get( 'call_id' );
+            $draft->provider_id = $session->provider->id;
         }
 
-        if ( $provider )
-        {
-            $draft->provider_id = $provider->id;
-            $response[ 'provider' ] = $provider->name;
-        }
+        $draft->phone = $phone;
+        $draft->call_phone = $draft->phone;
+        $draft->call_id = $request->get( 'call_id' );
 
         $draft->save();
 
+        $response[ 'provider' ] = $session->provider->name;
         $response[ 'ticket' ] = $draft->id;
 
         return $this->success( $response );

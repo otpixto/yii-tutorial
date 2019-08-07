@@ -343,11 +343,11 @@ class Ticket extends BaseModel
             ->whereNotIn( self::$_table . '.status_code', self::$final_statuses );
     }
 
-    public function scopeDraft ( $query, $user_id = null )
+    public function scopeDraft ( $query, $user_id = null, $provider_id = null )
     {
         return $query
             ->where( self::$_table . '.author_id', '=', $user_id ?: \Auth::user()->id )
-            ->where( self::$_table . '.provider_id', '=', Provider::getCurrent()->id )
+            ->where( self::$_table . '.provider_id', '=', $provider_id ?: Provider::getCurrent()->id )
             ->where( self::$_table . '.status_code', '=', 'draft' );
     }
 
