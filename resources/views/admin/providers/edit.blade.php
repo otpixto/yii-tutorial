@@ -60,19 +60,19 @@
                                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                             <div class="col-xs-6 text-right">
-                                <a href="{{ route( 'buildings.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ $provider->getUrl() . route( 'buildings.index', [], false ) }}" class="btn btn-default btn-circle">
                                     Здания
                                     <span class="badge">
                                         {{ $provider->buildings()->count() }}
                                     </span>
                                 </a>
-                                <a href="{{ route( 'managements.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ $provider->getUrl() . route( 'managements.index', [], false ) }}" class="btn btn-default btn-circle">
                                     УО
                                     <span class="badge">
                                         {{ $provider->managements()->count() }}
                                     </span>
                                 </a>
-                                <a href="{{ route( 'types.index', [ 'provider_id' => $provider->id ] ) }}" class="btn btn-default btn-circle">
+                                <a href="{{ $provider->getUrl() . route( 'types.index', [], false ) }}" class="btn btn-default btn-circle">
                                     Классификатор
                                     <span class="badge">
                                         {{ $provider->types()->count() }}
