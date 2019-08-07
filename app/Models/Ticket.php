@@ -412,27 +412,29 @@ class Ticket extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         return $query
-            ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
 			->mineProvider()
-            ->orWhere( function ( $q ) use ( $flags )
+            ->where( function ( $q ) use ( $flags )
             {
-                $q
-                    ->mineProvider();
-                if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
-                {
-                    $q
-                        ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
-                }
-                if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
-                {
-                    $q
-                        ->whereHas( 'managements', function ( $managements )
+                return $q
+                    ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                    ->orWhere( function ( $q2 ) use ( $flags )
+                    {
+                        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                         {
-                            return $managements
-                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
-                        });
-                }
-                return $q;
+                            $q2
+                                ->whereIn( Ticket::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                        }
+                        $q2
+                            ->whereHas( 'managements', function ( $managements ) use ( $flags )
+                            {
+                                if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+                                {
+                                    return $managements
+                                        ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+                                }
+                            });
+                        return $q2;
+                    });
             });
     }
 
