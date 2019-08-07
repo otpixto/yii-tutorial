@@ -11,15 +11,6 @@
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'hidden-print submit-loading' ] ) !!}
 
-    @if ( $providers->count() > 1 )
-        <div class="row margin-bottom-15">
-            <div class="col-md-6 col-md-offset-3">
-                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
-            </div>
-        </div>
-    @endif
-
     <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}
@@ -92,25 +83,25 @@
             <table class="table table-striped sortable" id="data">
                 <thead>
                 <tr>
-                    <th>
+                    <th width="5%">
                         № заявки
                     </th>
-                    <th>
+                    <th width="5%">
                         Дата создания
                     </th>
-                    <th>
+                    <th width="20%">
                         Адрес заявки
                     </th>
-                    <th>
-                        Классификатор
+                    <th width="25%">
+                        Текст заявки
                     </th>
-                    <th>
+                    <th width="20%">
                         Выполненные работы
                     </th>
-                    <th>
+                    <th width="20%">
                         Статус заявки \ Выполнено
                     </th>
-                    <th class="text-center">
+                    <th width="5%" class="text-center">
                         Оценка
                     </th>
                 </tr>
@@ -130,16 +121,7 @@
                             {{ $ticketManagement->ticket->getAddress( true ) }}
                         </td>
                         <td>
-                            @if ( $ticketManagement->ticket->type )
-                                @if ( $ticketManagement->ticket->type->parent )
-                                    <div class="bold">
-                                        {{ $ticketManagement->ticket->type->parent->name }}
-                                    </div>
-                                @endif
-                                <div>
-                                    {{ $ticketManagement->ticket->type->name }}
-                                </div>
-                            @endif
+                            {{ $ticketManagement->ticket->text }}
                         </td>
                         <td>
                             <ol class="list-unstyled">

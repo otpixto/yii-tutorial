@@ -179,14 +179,6 @@ class ReportsController extends BaseController
 		
 		$date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 		
 		$title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ';
 		
@@ -244,8 +236,6 @@ class ReportsController extends BaseController
         ];
 		
 		return view( 'reports.totals' )
-            ->with( 'provider_id', $provider_id )
-            ->with( 'providers', $providers )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'reports', $reports )
@@ -272,19 +262,10 @@ class ReportsController extends BaseController
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
-		
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 
         $availableManagements = Management
             ::mine()
             ->with( 'parent' )
-			->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
 
@@ -375,8 +356,6 @@ class ReportsController extends BaseController
             ->with( 'ticketManagements', $ticketManagements ?? null )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'availableStatuses', $availableStatuses )
-			->with( 'providers', $providers )
-            ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'status_code', $status_code );
@@ -396,14 +375,6 @@ class ReportsController extends BaseController
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
-		
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 
         $data = [
             'total' => 0,
@@ -418,7 +389,6 @@ class ReportsController extends BaseController
         $availableManagements = Management
             ::mine()
             ->with( 'parent' )
-			->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
 
@@ -543,8 +513,6 @@ class ReportsController extends BaseController
             ->with( 'managements', $managements )
             ->with( 'managements_ids', $managements_ids )
             ->with( 'availableManagements', $availableManagements )
-			->with( 'providers', $providers )
-            ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to );
 
@@ -565,14 +533,6 @@ class ReportsController extends BaseController
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
-		
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 
         if ( $building_id )
         {
@@ -580,11 +540,10 @@ class ReportsController extends BaseController
             $ticketManagements = TicketManagement
                 ::mine()
                 ->whereBetween( 'created_at', [ $date_from, $date_to ] )
-                ->whereHas( 'ticket', function ( $ticket ) use ( $building_id, $provider_id )
+                ->whereHas( 'ticket', function ( $ticket ) use ( $building_id )
                 {
                     return $ticket
-                        ->where( 'building_id', '=', $building_id )
-                        ->where( 'provider_id', '=', $provider_id );
+                        ->where( 'building_id', '=', $building_id );
                 })
                 ->get();
         }
@@ -633,8 +592,6 @@ class ReportsController extends BaseController
 						
         return view( 'reports.addresses' )
             ->with( 'ticketManagements', $ticketManagements )
-			->with( 'providers', $providers )
-            ->with( 'provider_id', $provider_id )
             ->with( 'building_id', $building_id )
             ->with( 'building', $building )
             ->with( 'date_from', $date_from )
@@ -655,19 +612,10 @@ class ReportsController extends BaseController
         {
             return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
         }
-		
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 
         $availableManagements = Management
             ::mine()
             ->with( 'parent' )
-            ->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
 
@@ -765,8 +713,6 @@ class ReportsController extends BaseController
             ->with( 'totals', $totals ?? null )
             ->with( 'managements', $managements ?? null )
             ->with( 'availableManagements', $availableManagements )
-			->with( 'providers', $providers )
-            ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'managements_ids', $managements_ids );
@@ -979,19 +925,10 @@ class ReportsController extends BaseController
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $managements_ids = $request->get( 'managements_ids', [] );
-		
-		$providers = Provider
-			::mine()
-			->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-			
-		$provider_id = $request->get( 'provider_id', $providers->keys()->first() );
 
         $availableManagements = Management
             ::mine()
             ->with( 'parent' )
-            ->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
 
@@ -1002,7 +939,6 @@ class ReportsController extends BaseController
                 ::mine()
                 ->whereNull( 'parent_id' )
                 ->orderBy( 'name' )
-                ->where( 'provider_id', '=', $provider_id )
                 ->get();
 
             $managements = $availableManagements
@@ -1131,8 +1067,6 @@ class ReportsController extends BaseController
             ->with( 'availableManagements', $availableManagements )
             ->with( 'categories_count', $categories_count ?? 0 )
             ->with( 'managements_count', $managements_count ?? 0 )
-			->with( 'providers', $providers )
-            ->with( 'provider_id', $provider_id )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'managements_ids', $managements_ids );
