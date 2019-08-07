@@ -196,7 +196,8 @@ class ReportsController extends BaseController
         {
 
             $report = Report
-                ::where( 'user_id', '=', \Auth::user()->id )
+                ::mineProvider()
+                ->where( 'user_id', '=', \Auth::user()->id )
                 ->where( 'date_from', '=', $date_from->toDateTimeString() )
                 ->where( 'date_to', '=', $date_to->toDateTimeString() )
                 ->first();
@@ -227,7 +228,8 @@ class ReportsController extends BaseController
         }
 
         $reports = Report
-            ::where( 'user_id', '=', \Auth::user()->id )
+            ::mineProvider()
+            ->where( 'user_id', '=', \Auth::user()->id )
             ->orderBy( 'date_from' )
             ->orderBy( 'date_to' )
             ->get();
