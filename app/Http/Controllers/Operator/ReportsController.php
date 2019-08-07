@@ -6,7 +6,6 @@ use App\Classes\Title;
 use App\Jobs\ReportJob;
 use App\Models\Building;
 use App\Models\Asterisk\Cdr;
-use App\Models\Executor;
 use App\Models\Log;
 use App\Models\Management;
 use App\Models\Report;
@@ -18,8 +17,6 @@ use App\Models\TypeGroup;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class ReportsController extends BaseController
 {

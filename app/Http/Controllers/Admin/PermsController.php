@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
-use App\Models\Log;
 use App\User;
 use App\Models\Permission;
 use App\Models\Role;

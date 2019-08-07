@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
-use App\Models\Log;
 use App\Models\PhoneSession;
-use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

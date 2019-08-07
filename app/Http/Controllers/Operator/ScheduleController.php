@@ -3,13 +3,7 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Classes\Title;
-use App\Models\Customer;
-use App\Models\Ticket;
-use App\Models\TicketManagement;
-use App\Models\Type;
 use Illuminate\Http\Request;
-use Illuminate\Support\MessageBag;
-use Ramsey\Uuid\Uuid;
 
 class ScheduleController extends BaseController
 {
