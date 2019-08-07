@@ -897,6 +897,7 @@ class ReportsController extends BaseController
 
         $res = Ticket
             ::mine()
+            ->where( 'status_code', '!=', 'draft' )
             ->whereBetween( 'created_at', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] );
 
         if ( $operator_id )
