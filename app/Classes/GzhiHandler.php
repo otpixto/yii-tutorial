@@ -127,7 +127,7 @@ class GzhiHandler
             return 0;
         }
 
-        $address = ( isset( $ticket->building->name ) ) ? substr( $ticket->building->name, 0, 49 ) : 'Пусто';
+        $address = ( isset( $ticket->building->name ) ) ? mb_substr( $ticket->building->name, 0, 49 ) : 'Пусто';
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
 
@@ -144,7 +144,7 @@ class GzhiHandler
         $numberReg = Uuid::generate();
 
         $data = <<<SOAP
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
       <eds:importAppealRequest Id="?" eds:version="1.0.0.4">
@@ -506,6 +506,7 @@ SOAP;
         {
             $headers = [
                 'Content-type: text/xml',
+                'Charset: utf-8',
                 'Cache-Control: no-cache',
                 'SOAPAction: "' . $soapAction . '"',
             ];

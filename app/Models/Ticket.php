@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\GzhiHandler;
 use App\Jobs\GzhiJob;
 use App\Jobs\SendPush;
 use App\Jobs\SendStream;
@@ -643,6 +644,7 @@ class Ticket extends BaseModel
             {
                 if(strpos($buildingName, $gzhiProvider->name))
                 {
+                    //(new GzhiHandler)->handleGzhiTicket($this, $gzhiProvider);
                     $this->dispatch( new GzhiJob( $this, $gzhiProvider ) );
                 }
             }
