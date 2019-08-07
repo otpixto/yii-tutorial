@@ -18,17 +18,14 @@ class CheckProvider
     {
         if ( $request->getUri() != route( 'logout' ) )
         {
-            if ( ! Provider::isSystemUrl() )
+            $provider = Provider::getCurrent();
+            if ( ! $provider )
             {
-                $provider = Provider::getCurrent();
-                if ( ! $provider )
-                {
-                    return response( view('errors.404' ) );
-                }
-                if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers()->mine()->find( $provider->id ) && ! \Auth::user()->admin )
-                {
-                    return redirect()->route( 'error.403' );
-                }
+                return response( view('errors.404' ) );
+            }
+            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers()->mine()->find( $provider->id ) && ! \Auth::user()->admin )
+            {
+                return redirect()->route( 'error.403' );
             }
         }
         return $next( $request );
