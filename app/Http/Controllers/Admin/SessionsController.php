@@ -74,7 +74,8 @@ class SessionsController extends BaseController
         }
 
         $activeSessions = PhoneSession
-            ::whereNull( 'closed_at' )
+            ::mine()
+            ->whereNull( 'closed_at' )
             ->get();
 
         $this->addLog( 'Просмотрел список сессий (стр.' . $request->get( 'page', 1 ) . ')' );
