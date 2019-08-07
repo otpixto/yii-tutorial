@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
@@ -35,10 +36,8 @@ class Handler extends ExceptionHandler
             return $this->unauthenticated($request, $e);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
-        } elseif ($e instanceof InactiveException) {
-            \Auth::guard()->logout();
-            return redirect()->route( 'login' )
-                ->withErrors( [ $e->getMessage() ] );
+        } elseif ($e instanceof QueryException) {
+            abort( 500 );
         }
 
         return $this->prepareResponse($request, $e);
