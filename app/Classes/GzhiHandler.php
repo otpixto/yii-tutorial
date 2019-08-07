@@ -122,7 +122,7 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
 
         }
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $gzhiRequest->Status > 0 )
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code )
         {
             return 0;
         }
