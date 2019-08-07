@@ -1,1 +1,1 @@
-test
+@extends( 'errors.template' )
