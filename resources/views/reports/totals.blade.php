@@ -387,7 +387,7 @@
                                 %
                             </td>
                             <td class="text-center">
-                                {{ $row[ 'avg_rate' ] }}
+                                {{ $row[ 'avg_rate' ] ?: '-' }}
                             </td>
                             <td class="text-center">
                                 <span data-field="rating" @if ( $row[ 'rating' ] >= 40 ) class="text-success bold" @elseif ( $row[ 'rating' ] >= 30 ) class="text-warning bold" @else class="text-danger bold" @endif>
@@ -488,7 +488,7 @@
                                 %
                             </td>
                             <td class="text-center">
-                                {{ $row[ 'avg_rate' ] }}
+                                {{ $row[ 'avg_rate' ] ?: '-' }}
                             </td>
                         </tr>
                     @endforeach
