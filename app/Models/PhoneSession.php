@@ -76,6 +76,7 @@ class PhoneSession extends BaseModel
 	public function scopeMine ( $query )
     {
         return $query
+            ->mineProvider()
             ->whereHas( 'user', function ( $user )
             {
                 return $user
