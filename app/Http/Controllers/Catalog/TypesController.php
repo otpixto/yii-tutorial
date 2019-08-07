@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Management;
-use App\Models\Provider;
 use App\Models\Type;
 use App\Models\TypeGroup;
 use Illuminate\Http\Request;
@@ -110,18 +109,11 @@ class TypesController extends BaseController
             ->orderBy( 'name' )
             ->get();
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-
         $this->addLog( 'Просмотрел классификатор (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.types.index' )
             ->with( 'types', $types )
-            ->with( 'parents', $parents )
-            ->with( 'providers', $providers );
+            ->with( 'parents', $parents );
 
     }
 

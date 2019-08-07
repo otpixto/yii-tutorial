@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Classes\Title;
 use App\Models\Executor;
-use App\Models\Log;
 use App\Models\Management;
 use App\User;
 use Illuminate\Http\Request;

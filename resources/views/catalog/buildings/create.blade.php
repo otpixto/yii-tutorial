@@ -16,12 +16,7 @@
 
         <div class="form-group">
 
-            <div class="col-md-4">
-                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $providers->count() == 1 ? $providers->keys()[ 0 ] : null ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
-            </div>
-
-            <div class="col-md-8">
+            <div class="col-md-12">
                 {!! Form::label( 'guid', 'GUID', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::text( 'guid', \Input::old( 'guid' ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
             </div>

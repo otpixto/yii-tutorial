@@ -16,12 +16,7 @@
 
         <div class="form-group">
 
-            <div class="col-md-6">
-                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $segment->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
-            </div>
-
-            <div class="col-md-6">
+            <div class="col-md-12">
                 {!! Form::label( 'segment_type_id', 'Тип сегмента', [ 'class' => 'control-label' ] ) !!}
                 {!! Form::select( 'segment_type_id', $segmentTypes, \Input::old( 'segment_type_id', $segment->segment_type_id ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
             </div>

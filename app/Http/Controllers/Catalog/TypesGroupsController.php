@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers\Catalog;
 
-use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Models\Building;
-use App\Models\BuildingType;
 use App\Models\TypeGroup;
 use App\Models\Provider;
-use App\Models\Segment;
-use App\Models\SegmentType;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -50,17 +46,10 @@ class TypesGroupsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->get();
-
         $this->addLog( 'Просмотрел список групп (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.groups.types.index' )
-            ->with( 'groups', $groups )
-            ->with( 'providers', $providers );
+            ->with( 'groups', $groups );
 
     }
 
@@ -72,16 +61,11 @@ class TypesGroupsController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить группу' );
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
         $models = [
             Building::class => 'Здания',
             Type::class => 'Классификатор',
         ];
         return view( 'catalog.groups.types.create' )
-            ->with( 'providers', $providers )
             ->with( 'models', $models );
     }
 
@@ -149,14 +133,8 @@ class TypesGroupsController extends BaseController
                 ->withErrors( [ 'Группа не найдена' ] );
         }
 
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         return view( 'catalog.groups.types.edit' )
-            ->with( 'group', $group )
-            ->with( 'providers', $providers );
+            ->with( 'group', $group );
 
     }
 

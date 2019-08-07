@@ -7,7 +7,6 @@ use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingType;
 use App\Models\Executor;
-use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
@@ -151,17 +150,10 @@ class ManagementsController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
-            $providers = Provider
-                ::mine()
-                ->current()
-                ->orderBy( 'name' )
-                ->get();
-
             $this->addLog( 'Просмотрел список УО (стр.' . $request->get( 'page', 1 ) . ')' );
 
             return view( 'catalog.managements.parts.list' )
-                ->with( 'managements', $managements )
-                ->with( 'providers', $providers );
+                ->with( 'managements', $managements );
 
         }
 
@@ -180,12 +172,6 @@ class ManagementsController extends BaseController
                 ->with( 'error', 'Доступ запрещен' );
         }
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
         $parents = Management
             ::mine()
             ->whereNull( Management::$_table . '.parent_id' )
@@ -193,7 +179,6 @@ class ManagementsController extends BaseController
             ->pluck( Management::$_table . '.name', Management::$_table . '.id' );
 
         return view( 'catalog.managements.parts.search' )
-            ->with( 'providers', $providers ?? [] )
             ->with( 'parents', $parents ?? [] )
             ->with( 'categories', Management::$categories );
 
@@ -206,18 +191,8 @@ class ManagementsController extends BaseController
      */
     public function create ()
     {
-
         Title::add( 'Добавить УО' );
-
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-
-        return view( 'catalog.managements.create' )
-            ->with( 'providers', $providers );
-
+        return view( 'catalog.managements.create' );
     }
 
     /**
@@ -310,15 +285,8 @@ class ManagementsController extends BaseController
                 ->withErrors( [ 'УО не найдена' ] );
         }
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-
         return view( 'catalog.managements.edit' )
-            ->with( 'management', $management )
-            ->with( 'providers', $providers );
+            ->with( 'management', $management );
 
     }
 

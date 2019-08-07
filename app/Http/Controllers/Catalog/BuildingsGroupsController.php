@@ -10,7 +10,6 @@ use App\Models\BuildingType;
 use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
-use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -50,17 +49,10 @@ class BuildingsGroupsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->get();
-
         $this->addLog( 'Просмотрел список групп (стр.' . $request->get( 'page', 1 ) . ')' );
 
         return view( 'catalog.groups.buildings.index' )
-            ->with( 'groups', $groups )
-            ->with( 'providers', $providers );
+            ->with( 'groups', $groups );
 
     }
 
@@ -72,12 +64,7 @@ class BuildingsGroupsController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить группу' );
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-        return view( 'catalog.groups.buildings.create' )
-            ->with( 'providers', $providers );
+        return view( 'catalog.groups.buildings.create' );
     }
 
     /**
@@ -144,14 +131,8 @@ class BuildingsGroupsController extends BaseController
                 ->withErrors( [ 'Группа не найдена' ] );
         }
 
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         return view( 'catalog.groups.buildings.edit' )
-            ->with( 'group', $group )
-            ->with( 'providers', $providers );
+            ->with( 'group', $group );
 
     }
 

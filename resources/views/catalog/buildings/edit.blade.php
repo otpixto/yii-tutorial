@@ -19,22 +19,7 @@
 
                 <div class="form-group">
 
-                    @if ( $providers->count() > 1 )
-                        <div class="col-md-3">
-                            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                            {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $building->provider_id ), [ 'class' => 'form-control select2', 'placeholder' => 'Поставщик', 'required' ] ) !!}
-                        </div>
-                    @else
-                        <div class="col-md-3">
-                            {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                            <span class="form-control">
-                                {{ $building->provider->name }}
-                            </span>
-                        </div>
-                        {!! Form::hidden( 'provider_id', $building->provider_id ) !!}
-                    @endif
-
-                    <div class="col-md-7">
+                    <div class="col-md-10">
                         {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::text( 'name', \Input::old( 'name', $building->name ), [ 'class' => 'form-control', 'placeholder' => 'Адрес', 'required' ] ) !!}
                     </div>

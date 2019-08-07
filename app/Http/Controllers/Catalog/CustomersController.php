@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Customer;
-use App\Models\Log;
 use App\Models\Provider;
 use App\Models\Segment;
 use Illuminate\Http\Request;
@@ -170,14 +169,7 @@ class CustomersController extends BaseController
             $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
         }
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
         return view( 'catalog.customers.parts.search' )
-            ->with( 'providers', $providers ?? [] )
             ->with( 'segment', $segment ?? [] )
             ->with( 'actual_building', $actual_building ?? [] );
 
@@ -191,13 +183,7 @@ class CustomersController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить заявителя' );
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-        return view( 'catalog.customers.create' )
-            ->with( 'providers', $providers );
+        return view( 'catalog.customers.create' );
     }
 
     /**
@@ -301,16 +287,9 @@ class CustomersController extends BaseController
             ->whereHas( 'type' )
             ->paginate( 30 );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
             ->with( 'tickets', $tickets )
-            ->with( 'providers', $providers )
             ->with( 'calls', $calls );
 
     }

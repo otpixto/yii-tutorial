@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Log;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 

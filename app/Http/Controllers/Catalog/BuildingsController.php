@@ -6,7 +6,6 @@ use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingRoom;
 use App\Models\BuildingType;
-use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
 use Illuminate\Http\Request;
@@ -29,12 +28,6 @@ class BuildingsController extends BaseController
         $segment_id = $request->get( 'segment_id' );
         $building_type_id = $request->get( 'building_type_id' );
         $management_id = $request->get( 'management_id' );
-
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->get();
 
         $buildings = Building
             ::mine( Building::IGNORE_MANAGEMENT )
@@ -93,8 +86,7 @@ class BuildingsController extends BaseController
 
         return view( 'catalog.buildings.index' )
             ->with( 'buildings', $buildings )
-            ->with( 'buildingTypes', $buildingTypes )
-            ->with( 'providers', $providers );
+            ->with( 'buildingTypes', $buildingTypes );
 
     }
 
@@ -186,17 +178,11 @@ class BuildingsController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить здание' );
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
         $buildingTypes = BuildingType
             ::mine()
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
         return view( 'catalog.buildings.create' )
-            ->with( 'providers', $providers )
             ->with( 'buildingTypes', $buildingTypes );
     }
 
@@ -283,12 +269,6 @@ class BuildingsController extends BaseController
 
         $segments = $building->getSegments();
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
         {
             $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
@@ -313,7 +293,6 @@ class BuildingsController extends BaseController
 
         return view( 'catalog.buildings.edit' )
             ->with( 'building', $building )
-            ->with( 'providers', $providers )
             ->with( 'segments', $segments )
             ->with( 'buildingTypes', $buildingTypes );
 

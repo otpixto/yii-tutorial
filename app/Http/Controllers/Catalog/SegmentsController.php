@@ -58,12 +58,6 @@ class SegmentsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->get();
-
         $segmentTypes = SegmentType
             ::mine()
             ->orderBy( SegmentType::$_table . '.sort' )
@@ -74,7 +68,6 @@ class SegmentsController extends BaseController
 
         return view( 'catalog.segments.index' )
             ->with( 'segments', $segments )
-            ->with( 'providers', $providers )
             ->with( 'segmentTypes', $segmentTypes );
 
     }
@@ -82,18 +75,12 @@ class SegmentsController extends BaseController
     public function create ()
     {
         Title::add( 'Добавить сегмент' );
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( 'name', 'id' );
         $segmentTypes = SegmentType
             ::mine()
             ->orderBy( SegmentType::$_table . '.sort' )
             ->orderBy( SegmentType::$_table . '.name' )
             ->pluck( 'name', 'id' );
         return view( 'catalog.segments.create' )
-            ->with( 'providers', $providers )
             ->with( 'segmentTypes', $segmentTypes );
     }
 
@@ -145,11 +132,6 @@ class SegmentsController extends BaseController
                 ->withErrors( [ 'Сегмент не найден' ] );
         }
 
-        $providers = Provider
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
         $segmentTypes = SegmentType
             ::mine()
             ->orderBy( 'name' )
@@ -157,7 +139,6 @@ class SegmentsController extends BaseController
 
         return view( 'catalog.segments.edit' )
             ->with( 'segment', $segment )
-            ->with( 'providers', $providers )
             ->with( 'segmentTypes', $segmentTypes );
 
     }

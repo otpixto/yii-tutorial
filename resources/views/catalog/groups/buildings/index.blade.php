@@ -50,33 +50,6 @@
                     </div>
                 </div>
 
-                @if ( $providers->count() > 1 )
-                    <div class="portlet light ">
-                        <div class="portlet-title">
-                            <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                                <span class="caption-subject font-green-sharp bold uppercase">Поставщики</span>
-                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
-                            </div>
-                        </div>
-                        <div class="portlet-body todo-project-list-content" style="height: auto;">
-                            <div class="todo-project-list">
-                                <ul class="nav nav-stacked">
-                                    @foreach ( $providers as $provider )
-                                        <li @if ( \Input::get( 'provider_id' ) == $provider->id ) class="active" @endif>
-                                            <a href="?provider_id={{ $provider->id }}">
-                                                {{ $provider->name }}
-                                                <span class="badge badge-info pull-right">
-                                                    {{ $provider->typesGroups()->count() }}
-                                                </span>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
             </div>
             <!-- END TODO SIDEBAR -->
 

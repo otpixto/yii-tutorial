@@ -19,12 +19,7 @@
 
                 <div class="form-group">
 
-                    <div class="col-xs-3">
-                        {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'provider_id', $providers->pluck( 'name', 'id' ), \Input::old( 'provider_id', $customer->provider_id ), [ 'class' => 'form-control select2', 'data-placeholder' => 'Поставщик' ] ) !!}
-                    </div>
-
-                    <div class="col-xs-7">
+                    <div class="col-xs-10">
                         {!! Form::label( 'actual_building_id', 'Адрес проживания', [ 'class' => 'control-label' ] ) !!}
                         {!! Form::select( 'actual_building_id', $customer->actualBuilding ? $customer->actualBuilding()->pluck( 'name', 'id' ) : [], $customer->actual_building_id, [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес проживания', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проживания', 'required' ] ) !!}
                     </div>
