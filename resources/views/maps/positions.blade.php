@@ -12,15 +12,6 @@
 
     {!! Form::open( [ 'method' => 'get', 'class' => 'form-horizontal submit-loading', 'id' => 'filter-form' ] ) !!}
 
-    @if ( $providers->count() > 1 )
-        <div class="row margin-bottom-15">
-            <div class="col-md-6 col-md-offset-3">
-                {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label' ] ) !!}
-                {!! Form::select( 'provider_id', $providers, $provider_id, [ 'class' => 'form-control' ] ) !!}
-            </div>
-        </div>
-    @endif
-
     <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'date_from', 'Период', [ 'class' => 'control-label' ] ) !!}

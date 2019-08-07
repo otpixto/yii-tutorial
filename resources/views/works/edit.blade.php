@@ -34,15 +34,6 @@
                 </div>
             </div>
 
-            @if ( $providers->count() > 1 )
-                <div class="form-group">
-                    {!! Form::label( 'provider_id', 'Поставщик', [ 'class' => 'control-label col-xs-3' ] ) !!}
-                    <div class="col-xs-9">
-                        {!! Form::select( 'provider_id', $providers, \Input::old( 'provider_id', $works->provider_id ?? null ), [ 'class' => 'form-control select2 autosave', 'data-placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
-                    </div>
-                </div>
-            @endif
-
             <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">

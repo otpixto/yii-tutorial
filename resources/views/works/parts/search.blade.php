@@ -51,16 +51,6 @@
     </div>
 </div>
 <hr />
-@if ( count( $providers ) > 1 )
-    <div class="row margin-top-10">
-        <h4 class="col-md-2">
-            Поставщик
-        </h4>
-        <div class="col-md-10">
-            {!! Form::select( 'provider_id', [ null => 'ВСЕ (' . count( $providers ) . ')' ] + $providers->toArray(), '', [ 'class' => 'form-control select2' ] ) !!}
-        </div>
-    </div>
-@endif
 <div class="row">
     <h4 class="col-md-2">
         Начало действия
