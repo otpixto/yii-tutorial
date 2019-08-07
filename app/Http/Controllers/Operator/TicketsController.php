@@ -149,12 +149,6 @@ class TicketsController extends BaseController
             ->orderBy( Type::$_table .'.name' )
             ->pluck( 'name', 'id' );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', 'id' );
-
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
             ->pluck( Vendor::$_table . '.name', 'id' )
@@ -163,7 +157,6 @@ class TicketsController extends BaseController
         return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'ticket', $ticket )
-            ->with( 'providers', $providers )
             ->with( 'vendors', $vendors )
             ->with( 'places', Ticket::$places )
             ->with( 'moderate', 1 );
@@ -311,12 +304,6 @@ class TicketsController extends BaseController
             $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
         }
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
             ->pluck( Vendor::$_table . '.name', Vendor::$_table . '.id' )
@@ -394,7 +381,6 @@ class TicketsController extends BaseController
             ->with( 'types', $types ?? [] )
             ->with( 'managements', $managements ?? [] )
             ->with( 'operators', $operators ?? [] )
-            ->with( 'providers', $providers ?? [] )
             ->with( 'vendors', $vendors ?? [] )
             ->with( 'building', $building ?? [] )
             ->with( 'segment', $segment ?? [] )

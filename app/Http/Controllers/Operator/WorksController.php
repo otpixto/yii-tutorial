@@ -781,12 +781,6 @@ class WorksController extends BaseController
 
         $managements = [];
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
         $res = Management
             ::mine()
             ->with( 'parent' )
@@ -807,7 +801,6 @@ class WorksController extends BaseController
         return view( 'works.parts.search' )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'managements', $managements )
-            ->with( 'providers', $providers )
             ->with( 'categories', $categories );
 
     }
@@ -831,19 +824,9 @@ class WorksController extends BaseController
                 ->get();
         }
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
-        $provider_id = $request->get( 'provider_id', $providers->keys()
-            ->first() );
-
         $res = Type
             ::mine()
             ->where( 'works', '=', 1 )
-            ->where( 'provider_id', '=', $provider_id )
             ->get()
             ->sortBy( 'name' );
         $availableCategories = [];
@@ -854,7 +837,6 @@ class WorksController extends BaseController
 
         $res = Management
             ::mine()
-            ->where( 'provider_id', '=', $provider_id )
             ->with( 'parent' )
             ->get()
             ->sortBy( 'name' );
@@ -866,7 +848,6 @@ class WorksController extends BaseController
 
         return view( 'works.create' )
             ->with( 'availableManagements', $availableManagements )
-            ->with( 'providers', $providers )
             ->with( 'buildings', $buildings )
             ->with( 'availableCategories', $availableCategories );
 
@@ -1059,12 +1040,6 @@ class WorksController extends BaseController
 
         Title::add( 'Редактировать отключение #' . $work->id );
 
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( Provider::$_table . '.name' )
-            ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
-
         $availableCategories = Type
             ::mine()
             ->where( 'works', '=', 1 )
@@ -1085,7 +1060,6 @@ class WorksController extends BaseController
         return view( 'works.edit' )
             ->with( 'work', $work )
             ->with( 'availableManagements', $availableManagements )
-            ->with( 'providers', $providers )
             ->with( 'availableCategories', $availableCategories );
 
     }
