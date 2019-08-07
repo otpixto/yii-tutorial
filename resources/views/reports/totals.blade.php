@@ -597,7 +597,7 @@
 @endsection
 
 @section( 'js' )
-    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="/assets/global/plugins/highcharts.js"></script>
 
     <script type="text/javascript">
 
