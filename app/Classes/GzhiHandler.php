@@ -116,13 +116,20 @@ class GzhiHandler
 
         $ticket->load( 'managements' );
 
-        if ( ! $gzhiRequest )
+        if ( $gzhiRequest )
         {
 
-            $gzhiRequest = new GzhiRequest();
+            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR )
+            {
+                return 0;
+            }
 
+        } else
+        {
+            $gzhiRequest = new GzhiRequest();
         }
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $gzhiRequest->Status > 0 )
+
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code )
         {
             return 0;
         }
