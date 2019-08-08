@@ -29,17 +29,30 @@ class Mosreg extends Command
                 ::whereNotNull( 'mosreg_id' )
                 ->whereNotNull( 'mosreg_username' )
                 ->whereNotNull( 'mosreg_password' )
-                ->whereHas( 'buildings', function ( $buildings )
+                ->where( function ( $q )
                 {
-                    return $buildings
-                        ->whereNull( 'mosreg_id' );
+                    return $q
+                        ->whereHas( 'buildings', function ( $buildings )
+                        {
+                            return $buildings
+                                ->whereNull( 'mosreg_id' );
+                        })
+                        ->orWhereHas( 'childs', function ( $childs )
+                        {
+                            return $childs
+                                ->whereHas( 'buildings', function ( $buildings )
+                                {
+                                    return $buildings
+                                        ->whereNull( 'mosreg_id' );
+                                });
+                        });
                 })
                 ->get();
             foreach ( $managements as $management )
             {
                 try
                 {
-                    $this->line( $management->name );
+                    $this->line( $management->name . ' (' . $management->id . ')' );
                     $mosreg = null;
                     if ( $management->hasMosreg( $mosreg ) )
                     {
@@ -47,6 +60,7 @@ class Mosreg extends Command
                         $this->parseBuildings( $mosreg, $buildings );
                         foreach ( $management->childs as $child )
                         {
+                            $this->line( $child->name . ' (' . $child->id . ')' );
                             $buildings = $this->getBuildings( $child );
                             $this->parseBuildings( $mosreg, $buildings );
                         }
