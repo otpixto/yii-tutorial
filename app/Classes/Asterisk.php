@@ -70,7 +70,7 @@ class Asterisk
             else
             {
                 $result .= $line;
-                usleep( 100 );
+                usleep( 200 );
             }
 		}
 		$this->last_result = trim( $result );
