@@ -64,17 +64,13 @@ class Mosreg extends Command
         $buildings = $management
             ->buildings()
             ->whereNull( 'mosreg_id' )
-            ->get();
-        if ( count( $this->buildings ) )
-        {
-            $buildings = $buildings
-                ->filter( function ( $value, $key )
-                {
-                    $return = ! in_array( $value->id, $this->buildings );
-                    $this->buildings[] = $value->id;
-                    return $return;
-                });
-        }
+            ->get()
+            ->filter( function ( $item )
+            {
+                $return = ! in_array( $item->id, $this->buildings );
+                $this->buildings[] = $item->id;
+                return $return;
+            });
         return $buildings;
     }
 
