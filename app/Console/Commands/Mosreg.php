@@ -34,7 +34,7 @@ class Mosreg extends Command
             {
                 try
                 {
-                    $this->info( $management->name );
+                    $this->line( $management->name );
                     $mosreg = null;
                     if ( $management->hasMosreg( $mosreg ) )
                     {
@@ -87,16 +87,16 @@ class Mosreg extends Command
             {
                 try
                 {
-                    $this->line( $building->name );
+                    $this->line( "\t" . $building->name . ' (' . $building->id . ')' );
                     $res = $mosreg->searchAddress( $building->name, true );
                     $cnt = count( $res );
                     if ( ! $cnt )
                     {
-                        $this->warn( 'Ничего не найдено' );
+                        $this->warn( "\t\t" . 'Ничего не найдено' );
                     }
                     else if ( count( $res ) == 1 )
                     {
-                        $this->info( 'Адрес найден' );
+                        $this->info( "\t\t" .'Адрес найден' );
                         $building->mosreg_id = $res[ 0 ]->addressId;
                         $building->save();
                     }
@@ -107,8 +107,8 @@ class Mosreg extends Command
                         {
                             $values[] = $r->label;
                         }
-                        print_r( $values );
-                        $answer = $this->anticipate('Выберите адрес', $values, 0 );
+                        $this->table( array_keys( $values ), $values );
+                        $answer = $this->anticipate("\t\t" .'Выберите адрес', $values, 0 );
                         if ( isset( $res[ $answer ] ) )
                         {
                             $building->mosreg_id = $res[ $answer ]->addressId;
@@ -116,7 +116,7 @@ class Mosreg extends Command
                         }
                         else
                         {
-                            $this->error( 'Некорректный выбор' );
+                            $this->error( "\t\t" .'Некорректный выбор' );
                         }
                     }
                 }
