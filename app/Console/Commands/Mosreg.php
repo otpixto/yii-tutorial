@@ -29,6 +29,11 @@ class Mosreg extends Command
                 ::whereNotNull( 'mosreg_id' )
                 ->whereNotNull( 'mosreg_username' )
                 ->whereNotNull( 'mosreg_password' )
+                ->whereHas( 'buildings', function ( $buildings )
+                {
+                    return $buildings
+                        ->whereNull( 'mosreg_id' );
+                })
                 ->get();
             foreach ( $managements as $management )
             {
