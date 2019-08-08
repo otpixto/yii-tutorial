@@ -14,6 +14,8 @@ class Mosreg extends Command
 
     protected $description = 'Mosreg';
 
+    private $buildings = [];
+
     public function __construct ()
     {
         parent::__construct();
@@ -32,20 +34,15 @@ class Mosreg extends Command
             {
                 try
                 {
+                    $this->info( $management->name );
                     $mosreg = null;
                     if ( $management->hasMosreg( $mosreg ) )
                     {
-                        $buildings = $management
-                            ->buildings()
-                            ->whereNull( 'mosreg_id' )
-                            ->get();
+                        $buildings = $this->getBuildings( $management );
                         $this->parseBuildings( $mosreg, $buildings );
                         foreach ( $management->childs as $child )
                         {
-                            $buildings = $child
-                                ->buildings()
-                                ->whereNull( 'mosreg_id' )
-                                ->get();
+                            $buildings = $this->getBuildings( $child );
                             $this->parseBuildings( $mosreg, $buildings );
                         }
                     }
@@ -60,6 +57,25 @@ class Mosreg extends Command
         {
             $this->error( $e->getMessage() );
         }
+    }
+
+    private function getBuildings ( Management $management )
+    {
+        $buildings = $management
+            ->buildings()
+            ->whereNull( 'mosreg_id' )
+            ->get();
+        if ( count( $this->buildings ) )
+        {
+            $buildings = $buildings
+                ->filter( function ( $value, $key )
+                {
+                    $return = ! in_array( $value->id, $this->buildings );
+                    $this->buildings[] = $value->id;
+                    return $return;
+                });
+        }
+        return $buildings;
     }
 
     private function parseBuildings ( MosregClient $mosreg, Collection $buildings )
