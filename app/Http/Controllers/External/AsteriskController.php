@@ -4,6 +4,7 @@ namespace App\Http\Controllers\External;
 
 use App\Classes\Asterisk;
 use App\Models\PhoneSession;
+use App\Models\Provider;
 use App\Models\Ticket;
 use App\User;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class AsteriskController extends BaseController
 
     public function __construct ()
     {
-        $this->asterisk = new Asterisk();
+        $this->asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
         parent::__construct();
     }
 
@@ -41,6 +42,11 @@ class AsteriskController extends BaseController
 		}
         return view( 'asterisk.list' )
             ->with( 'states', $states );
+    }
+
+    public function add ( $number )
+    {
+        $this->asterisk->queueAdd( $number );
     }
 
     public function remove ( $number )
@@ -79,7 +85,7 @@ class AsteriskController extends BaseController
         }
 
         $rest_curl_url = config( 'rest.curl_url' ) . '/ticket-call?ticket_call_id=' . (int) $ticketCall->id;
-        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, 1, $rest_curl_url ) )
+        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, $rest_curl_url ) )
         {
             dd( $this->asterisk->last_result );
         }

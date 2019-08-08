@@ -37,7 +37,6 @@ class UserPhoneAuth extends BaseModel
     {
         parent::__construct( $attributes );
         $this->where( 'created_at', '<=', Carbon::now()->subSeconds( self::$timeout )->toDateTimeString() )->delete();
-        self::$asterisk = new Asterisk();
     }
 
     public static function create ( array $attributes = [] )
@@ -67,8 +66,8 @@ class UserPhoneAuth extends BaseModel
         if ( $v->fails() ) return $v->messages();
 
         $phoneAuth = UserPhoneAuth
-            ::where( 'number', '=', $attributes['number'] )
-            ->where( 'code', '=', $attributes['code'] )
+            ::where( 'number', '=', $attributes[ 'number' ] )
+            ->where( 'code', '=', $attributes[ 'code' ] )
             ->first();
 
         if ( ! $phoneAuth )
@@ -76,9 +75,11 @@ class UserPhoneAuth extends BaseModel
             return new MessageBag( [ 'Неверный код' ] );
         }
 
-        if ( ! self::$asterisk->queueAdd( $phoneAuth->number ) )
+        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+
+        if ( ! $asterisk->queueAdd( $phoneAuth->number ) )
         {
-            return new MessageBag( [ self::$asterisk->last_result ] );
+            return new MessageBag( [ $asterisk->last_result ] );
         }
 
         $phoneAuth->delete();
@@ -90,7 +91,9 @@ class UserPhoneAuth extends BaseModel
     private static function callWithCode ( $number, $code )
     {
 
-        if ( ! self::$asterisk || ! self::$asterisk->originate( $number, $code ) )
+        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+
+        if ( ! $asterisk || ! $asterisk->originate( $number, $code ) )
         {
             return new MessageBag([ 'Ошибка Астериска' ]);
         }

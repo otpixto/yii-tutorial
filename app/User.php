@@ -270,7 +270,7 @@ class User extends BaseModel implements
         $this->openPhoneSession->close();
         $this->number = null;
         $this->save();
-        $asterisk = new Asterisk();
+        $asterisk = new Asterisk( $this->openPhoneSession->provider->getAsteriskConfig() );
         if ( ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );

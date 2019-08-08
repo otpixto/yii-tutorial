@@ -222,6 +222,18 @@ class Provider extends BaseModel
         return new GzhiConfig( $this );
     }
 
+    public function getAsteriskConfig ()
+    {
+        $config = config( 'asterisk' );
+        $config[ 'queue' ] = $this->queue;
+        $config[ 'context' ] = $this->context;
+        $config[ 'channel_mask' ] = $this->channel_mask;
+        $config[ 'channel_prefix' ] = $this->channel_prefix;
+        $config[ 'channel_postfix' ] = $this->channel_postfix;
+        $config[ 'channel_postfix_trunc' ] = $this->channel_postfix_trunc;
+        return $config;
+    }
+
     public static function getLogo ()
     {
         if ( self::getCurrent() && self::$current->logo  )

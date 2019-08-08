@@ -57,20 +57,22 @@ class ProfileController extends Controller
             return 'ERROR: Некорректные данные';
         }
 
-        if ( ! \Auth::user()->openPhoneSession )
+        $session = \Auth::user()->openPhoneSession;
+
+        if ( ! $session )
         {
             return 'ERROR: Телефон не авторизован';
         }
 
-        $asterisk = new Asterisk();
-        $queue = $asterisk->queue( \Auth::user()->openPhoneSession->provider->queue );
+        $asterisk = new Asterisk( $session->provider->getAsteriskConfig() );
+        $queue = $asterisk->queue();
 
         if ( ! $queue )
         {
             return 'ERROR: Очередь не найдена';
         }
 
-        $number = \Auth::user()->openPhoneSession->number;
+        $number = $session->number;
 
         if ( ! isset( $queue[ 'list' ][ $number ] ) )
         {
@@ -85,7 +87,8 @@ class ProfileController extends Controller
         if ( $asterisk->redirect( $channel, $number, 'outgoing-autodial' ) )
         {
             return 'SUCCESS: Переадресация прошла успешно';
-        } else
+        }
+        else
         {
             return 'ERROR: Не получилось переадресовать звонок';
         }
@@ -124,29 +127,10 @@ class ProfileController extends Controller
         {
             return redirect()->route( 'profile.phone' );
         }
-        $rules = [
-            'provider_id' => 'nullable|integer',
+        $this->validate( $request, [
             'number' => 'required|min:2|max:10',
-        ];
-        $this->validate( $request, $rules );
-        $providers = Provider::mine()
-            ->current()
-            ->get();
-        $attributes = $request->all();
-        if ( $providers->count() == 1 )
-        {
-            $attributes[ 'provider_id' ] = $providers->first()->id;
-        } else if ( ! empty( $request->get( 'provider_id' ) ) )
-        {
-            $attributes[ 'provider_id' ] = $request->get( 'provider_id' );
-        } else
-        {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors( [ 'Выберите провайдера' ] );
-        }
-        $phoneAuth = UserPhoneAuth::create( $attributes );
+        ]);
+        $phoneAuth = UserPhoneAuth::create( $request->all() );
         if ( $phoneAuth instanceof MessageBag )
         {
             return redirect()

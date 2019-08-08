@@ -91,7 +91,8 @@ Route::group( [ 'middleware' => 'rest' ], function ()
     Route::prefix( 'asterisk' )->group( function ()
     {
         Route::get( 'queues/{queue?}', 'External\AsteriskController@queues' )->name( 'asterisk.queues' );
-        Route::post( 'queues/{queue}', 'External\AsteriskController@queuesView' )->name( 'asterisk.queues' );
+        Route::post( 'queues/{queue?}', 'External\AsteriskController@queuesView' )->name( 'asterisk.queues' );
+        Route::get( 'add/{number}', 'External\AsteriskController@add' )->name( 'asterisk.add' );
         Route::get( 'remove/{number}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
         Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
     });

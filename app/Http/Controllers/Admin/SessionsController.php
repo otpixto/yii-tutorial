@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\PhoneSession;
+use App\Models\Provider;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -154,7 +155,7 @@ class SessionsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $asterisk = new Asterisk();
+        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
         \DB::beginTransaction();
         $phoneSession = PhoneSession::create( $request->all() );
         if ( $phoneSession instanceof MessageBag )
