@@ -60,9 +60,12 @@ class Mosreg extends Command
                         $this->parseBuildings( $mosreg, $buildings );
                         foreach ( $management->childs as $child )
                         {
-                            $this->line( $child->name . ' (' . $child->id . ')' );
                             $buildings = $this->getBuildings( $child );
-                            $this->parseBuildings( $mosreg, $buildings );
+                            if ( $buildings->count() )
+                            {
+                                $this->line( $child->name . ' (' . $child->id . ')' );
+                                $this->parseBuildings( $mosreg, $buildings );
+                            }
                         }
                     }
                 }
