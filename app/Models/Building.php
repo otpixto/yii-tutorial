@@ -139,6 +139,22 @@ class Building extends BaseModel
             return new MessageBag( [ 'Такой адрес уже существует' ] );
         }
         $building = parent::create( $attributes );
+        if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
+        {
+            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
+            if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
+            {
+                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
+                $building->lon = $pos[ 0 ];
+                $building->lat = $pos[ 1 ];
+            }
+            else
+            {
+                $building->lon = -1;
+                $building->lat = -1;
+            }
+            $building->save();
+        }
         $building->save();
         return $building;
     }
@@ -163,7 +179,24 @@ class Building extends BaseModel
             $attributes[ 'date_of_construction' ] = Carbon::parse( $attributes[ 'date_of_construction' ] )->format( 'Y-m-d' );
         }
         $attributes[ 'is_first_floor_living' ] = ! empty( $attributes[ 'is_first_floor_living' ] ) ? 1 : 0;
-        return parent::edit( $attributes );
+        $building = parent::edit( $attributes );
+        if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
+        {
+            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
+            if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
+            {
+                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
+                $building->lon = $pos[ 0 ];
+                $building->lat = $pos[ 1 ];
+            }
+            else
+            {
+                $building->lon = -1;
+                $building->lat = -1;
+            }
+            $building->save();
+        }
+        return $building;
     }
 
     public function scopeMine ( $query, ... $flags )

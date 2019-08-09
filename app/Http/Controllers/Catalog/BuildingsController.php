@@ -269,23 +269,6 @@ class BuildingsController extends BaseController
 
         $segments = $building->getSegments();
 
-        if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
-        {
-            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
-            if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
-            {
-                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-                $building->lon = $pos[0];
-                $building->lat = $pos[1];
-            }
-            else
-            {
-                $building->lon = -1;
-                $building->lat = -1;
-            }
-            $building->save();
-        }
-
         $buildingTypes = BuildingType
             ::mine()
             ->orderBy( 'name' )
@@ -331,25 +314,7 @@ class BuildingsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $attributes = $request->all();
-
-        if ( ! empty( $attributes[ 'name' ] ) && $building->name != $attributes[ 'name' ] )
-        {
-            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $attributes[ 'name' ] ) ) );
-            if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
-            {
-                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-                $attributes[ 'lon' ] = $pos[0];
-                $attributes[ 'lat' ] = $pos[1];
-            }
-            else
-            {
-                $attributes[ 'lon' ] = -1;
-                $attributes[ 'lat' ] = -1;
-            }
-        }
-
-        $res = $building->edit( $attributes );
+        $res = $building->edit( $request->all() );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()
