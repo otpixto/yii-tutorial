@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendStream;
 use App\Models\Building;
+use App\Models\File;
 use App\Models\Management;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
@@ -12,6 +13,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class WebhookController extends Controller
 {
@@ -114,6 +116,22 @@ class WebhookController extends Controller
             else
             {
                 $this->dispatch( new SendStream( 'update', $ticketManagement ) );
+            }
+
+            if ( $request->hasFile( 'files' ) )
+            {
+                foreach ( $request->file( 'files' ) as $_file )
+                {
+                    $path = Storage::putFile( 'files', $_file );
+                    $file = File::create([
+                        'model_id'      => $ticketManagement->id,
+                        'model_name'    => get_class( $ticketManagement ),
+                        'path'          => $path,
+                        'name'          => $_file->getClientOriginalName()
+                    ]);
+                    $file->save();
+                    $file->addLog( 'Загрузил файл "' . $file->name . '"' );
+                }
             }
 
             $mosreg = null;
