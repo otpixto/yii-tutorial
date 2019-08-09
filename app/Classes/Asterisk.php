@@ -295,7 +295,7 @@ class Asterisk
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         $channel = $this->config[ 'channel_mask' ];
         $channel = str_replace( '{{prefix}}', $this->config[ 'channel_prefix' ], $channel );
-        if ( mb_strlen( $number ) >= 10 )
+        if ( mb_strlen( $number ) == 10 )
         {
 			$channel = str_replace( '{{number}}', '8' . $number, $channel );
             $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix_trunc' ], $channel );
