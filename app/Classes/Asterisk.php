@@ -256,7 +256,7 @@ class Asterisk
         return $queues[ $queue ?: $this->config[ 'queue' ] ] ?? null;
     }
 
-    public function redirect ( $channel, $number, $context = 'default', $priority = 1 )
+    public function redirect ( $channel, $number, $context = 'default' )
     {
         if ( ! $this->auth ) return false;
         $exten = $this->prepareNumber( $number );
@@ -265,6 +265,7 @@ class Asterisk
             'Channel'       => $channel,
             'Context'       => $context,
             'Exten'         => $exten,
+            'Priority'      => 1,
         ]);
         return $this->isSuccess();
     }
