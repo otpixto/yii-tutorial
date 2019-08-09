@@ -140,7 +140,7 @@ class Asterisk
     {
         if ( ! $this->auth ) return false;
         $channel = $this->prepareChannel( $number_from );
-        $exten = $this->prepareNumber( $number_to );
+        $exten = $this->prepareExten( $number_to );
         $packet = [
             'Action'        => 'originate',
             'Channel'       => $channel,
@@ -163,7 +163,6 @@ class Asterisk
     public function hangup ( $number )
     {
         if ( ! $this->auth ) return false;
-        $number = $this->prepareNumber( $number );
         $channel = $this->prepareChannel( $number );
         $this->write([
             'Action'        => 'hangup',
@@ -259,7 +258,7 @@ class Asterisk
     public function redirect ( $channel, $number, $context = 'default' )
     {
         if ( ! $this->auth ) return false;
-        $exten = $this->prepareNumber( $number );
+        $exten = $this->prepareExten( $number );
         $this->write([
             'Action'        => 'redirect',
             'Channel'       => $channel,
@@ -281,28 +280,29 @@ class Asterisk
         dd( $result );
     }
 
-    public function prepareNumber ( $number )
+    public function prepareExten ( $number )
     {
         $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         if ( mb_strlen( $number ) == 10 )
         {
-            $number = '+798' . mb_substr( $number, -10 );
+            $number = '98' . mb_substr( $number, -10 );
         }
         return $number;
     }
 
     public function prepareChannel ( $number )
     {
-        $number = $this->prepareNumber( $number );
+        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
         $channel = $this->config[ 'channel_mask' ];
-        $channel = str_replace( '{{number}}', $number, $channel );
         $channel = str_replace( '{{prefix}}', $this->config[ 'channel_prefix' ], $channel );
         if ( mb_strlen( $number ) >= 10 )
         {
+			$channel = str_replace( '{{number}}', '8' . $number, $channel );
             $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix_trunc' ], $channel );
         }
         else
         {
+			$channel = str_replace( '{{number}}', $number, $channel );
             $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix' ], $channel );
         }
         return $channel;
