@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Http\Controllers\Controller;
+use App\Models\Building;
 use App\Traits\LogsTrait;
 
 class BaseController extends Controller
@@ -41,6 +42,20 @@ class BaseController extends Controller
     {
         $this->clearCache();
         return redirect()->back()->with( 'success', 'Кеш успешно сброшен' );
+    }
+
+    public function lonlat ()
+    {
+        $buildings = Building
+            ::whereNull( 'lon' )
+            ->orWhereNull( 'lat' )
+            ->get();
+        foreach ( $buildings as $building )
+        {
+            $building->getCoordinates();
+        }
+        return redirect()
+            ->to( '/' );
     }
 
 }

@@ -357,6 +357,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
         Route::prefix( 'admin' )->group( function ()
         {
 
+            Route::get( '/lonlat', 'Admin\BaseController@lonlat' )->name( 'lonlat' );
+
             Route::resource( 'users', 'Admin\UsersController' );
             Route::resource( 'roles', 'Admin\RolesController' );
             Route::resource( 'perms', 'Admin\PermsController' );

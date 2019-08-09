@@ -139,22 +139,7 @@ class Building extends BaseModel
             return new MessageBag( [ 'Такой адрес уже существует' ] );
         }
         $building = parent::create( $attributes );
-        if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
-        {
-            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
-            if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
-            {
-                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
-                $building->lon = $pos[ 0 ];
-                $building->lat = $pos[ 1 ];
-            }
-            else
-            {
-                $building->lon = -1;
-                $building->lat = -1;
-            }
-            $building->save();
-        }
+        $building->getCoordinates();
         $building->save();
         return $building;
     }
@@ -182,21 +167,26 @@ class Building extends BaseModel
         $building = parent::edit( $attributes );
         if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
         {
-            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
-            if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
-            {
-                $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
-                $building->lon = $pos[ 0 ];
-                $building->lat = $pos[ 1 ];
-            }
-            else
-            {
-                $building->lon = -1;
-                $building->lat = -1;
-            }
-            $building->save();
+            $this->getCoordinates();
         }
         return $building;
+    }
+
+    public function getCoordinates ()
+    {
+        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $this->name ) ) );
+        if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
+        {
+            $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
+            $this->lon = $pos[ 0 ];
+            $this->lat = $pos[ 1 ];
+        }
+        else
+        {
+            $this->lon = -1;
+            $this->lat = -1;
+        }
+        $this->save();
     }
 
     public function scopeMine ( $query, ... $flags )
