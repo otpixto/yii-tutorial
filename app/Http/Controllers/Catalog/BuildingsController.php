@@ -215,19 +215,6 @@ class BuildingsController extends BaseController
                 ->withErrors( $building );
         }
 
-        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
-        if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
-        {
-            $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-            $building->lon = $pos[0];
-            $building->lat = $pos[1];
-        }
-        else
-        {
-            $building->lon = -1;
-            $building->lat = -1;
-        }
-
         $building->save();
 
         self::clearCache();
