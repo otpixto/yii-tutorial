@@ -7,6 +7,8 @@ use App\Jobs\SendEmail;
 use App\Models\BaseModel;
 use App\Models\Building;
 use App\Models\Customer;
+use App\Models\PhoneSession;
+use App\Models\Provider;
 use App\Models\Ticket;
 use App\Models\UserPosition;
 use App\Notifications\MailResetPasswordToken;
@@ -258,6 +260,44 @@ class User extends BaseModel implements
             asort( $res );
         }
         return $res;
+    }
+
+    public function phoneSessionReg ( $number )
+    {
+        if ( $this->openPhoneSession )
+        {
+            return new MessageBag( [ 'Телефон пользователя уже зарегистрирован' ] );
+        }
+        \DB::beginTransaction();
+        $provider_id = Provider::getCurrent()->id;
+        $phoneSession = PhoneSession::create([
+            'provider_id'   => $provider_id,
+            'user_id'       => $this->id,
+            'number'        => $number
+        ]);
+        if ( $phoneSession instanceof MessageBag )
+        {
+            return $phoneSession;
+        }
+        $phoneSession->save();
+        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
+        if ( $log instanceof MessageBag )
+        {
+            return $log;
+        }
+        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+        $queue = $asterisk->queue();
+        if ( isset( $queue[ 'list' ][ $number ] ) )
+        {
+            return new MessageBag( [ 'Номер телефона занят' ] );
+        }
+        if ( ! $asterisk->queueAdd( $number ) )
+        {
+            return new MessageBag( [ $asterisk->last_result ] );
+        }
+        $this->number = $phoneSession->number;
+        $this->save();
+        \DB::commit();
     }
 
     public function phoneSessionUnreg ()

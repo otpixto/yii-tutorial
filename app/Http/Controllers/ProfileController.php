@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
-use App\Models\Provider;
-use App\Models\UserPhoneAuth;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -112,13 +110,7 @@ class ProfileController extends Controller
             return redirect()->route( 'profile.phone' );
         }
         Title::add( 'Регистрация телефона' );
-        $providers = Provider
-            ::mine()
-            ->current()
-            ->orderBy( 'name' )
-            ->get();
-        return view( 'profile.phone_reg' )
-            ->with( 'providers', $providers );
+        return view( 'profile.phone_reg' );
     }
 
     public function postPhoneReg ( Request $request )
@@ -130,16 +122,16 @@ class ProfileController extends Controller
         $this->validate( $request, [
             'number' => 'required|min:2|max:10',
         ]);
-        $phoneAuth = UserPhoneAuth::create( $request->all() );
-        if ( $phoneAuth instanceof MessageBag )
+        $phoneSession = \Auth::user()->phoneSessionReg( $request->get( 'number' ) );
+        if ( $phoneSession instanceof MessageBag )
         {
             return redirect()
                 ->back()
-                ->withErrors( $phoneAuth );
+                ->withErrors( $phoneSession );
         }
-        $phoneAuth->save();
-        return view( 'profile.phone_confirm' )
-            ->with( 'phoneAuth', $phoneAuth );
+        return redirect()
+            ->route( 'profile.phone' )
+            ->with( 'success', 'Телефон успешно авторизован' );
     }
 
     public function postPhoneUnreg ()
@@ -152,8 +144,7 @@ class ProfileController extends Controller
                 ->back()
                 ->withErrors( $log );
         }
-        $res = \Auth::user()
-            ->phoneSessionUnreg();
+        $res = \Auth::user()->phoneSessionUnreg();
         if ( $res instanceof MessageBag )
         {
             return redirect()
