@@ -130,7 +130,6 @@ class WebhookController extends Controller
                         'name'          => $_file->getClientOriginalName()
                     ]);
                     $file->save();
-                    $file->addLog( 'Загрузил файл "' . $file->name . '"' );
                 }
             }
 
