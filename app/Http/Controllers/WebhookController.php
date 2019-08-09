@@ -52,8 +52,15 @@ class WebhookController extends Controller
                 ]);
             }
 
-            $mosreg_status = $request->json( 'status_code' );
-            $mosreg_id = $request->json( 'mosreg_id' );
+            $json = $request->get( 'ticket' );
+            if ( empty( $json ) )
+            {
+                return $this->error( 'Empty JSON' );
+            }
+            $data = json_decode( $json );
+
+            $mosreg_status = $data->status_code;
+            $mosreg_id = $data->mosreg_id;
 
             if ( ! isset( Ticket::$mosreg_statuses[ $mosreg_status ] ) )
             {
@@ -66,14 +73,14 @@ class WebhookController extends Controller
             if ( ! $ticketManagement )
             {
                 $type = Type
-                    ::where( 'mosreg_id', '=', $request->json( 'type_id' ) )
+                    ::where( 'mosreg_id', '=', $data->type_id )
                     ->first();
                 if ( ! $type )
                 {
                     return $this->error( 'Type not found' );
                 }
                 $building = Building
-                    ::where( 'mosreg_id', '=', $request->json( 'address_id' ) )
+                    ::where( 'mosreg_id', '=', $data->address_id )
                     ->first();
                 if ( ! $building )
                 {
@@ -84,22 +91,22 @@ class WebhookController extends Controller
                     'provider_id'               => $management->provider_id,
                     'type_id'                   => $type->id,
                     'building_id'               => $building->id,
-                    'flat'                      => $request->json( 'flat' ),
+                    'flat'                      => $data->flat,
                     'actual_building_id'        => $building->id,
-                    'actual_flat'               => $request->json( 'flat' ),
-                    'phone'                     => mb_substr( $request->json( 'customer_phone' ), -10 ),
-                    'firstname'                 => $request->json( 'customer_name' ),
+                    'actual_flat'               => $data->flat,
+                    'phone'                     => mb_substr( $data->customer_phone, -10 ),
+                    'firstname'                 => $data->customer_name,
                     'place_id'                  => 1,
-                    'text'                      => $request->json( 'text' ),
+                    'text'                      => $data->text,
                     'vendor_id'                 => 1,
-                    'vendor_number'             => $request->json( 'mosreg_number' ),
-                    'vendor_date'               => Carbon::parse( $request->json( 'mosreg_created_at' ) )->toDateTimeString(),
+                    'vendor_number'             => $data->mosreg_number,
+                    'vendor_date'               => Carbon::parse( $data->mosreg_created_at )->toDateTimeString(),
                 ]);
                 $ticket->save();
                 $ticketManagement = new TicketManagement([
                     'ticket_id'         => $ticket->id,
                     'management_id'     => $management->id,
-                    'mosreg_id'         => $request->json( 'mosreg_id' ),
+                    'mosreg_id'         => $data->mosreg_id,
                 ]);
                 $ticketManagement->save();
                 $this->dispatch( new SendStream( 'create', $ticketManagement ) );
