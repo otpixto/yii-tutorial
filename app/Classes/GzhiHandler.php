@@ -192,12 +192,13 @@ class GzhiHandler
    </soapenv:Body>
 </soapenv:Envelope>
 SOAP;
-        Log::info( $data );
+
         $log = \App\Models\Log::create( [
             'text' => $data
         ] );
 
         $log->save();
+
         try
         {
             $curl = $curl = $this->proceedCurl( $accessData, $data, $this->soapAction );
