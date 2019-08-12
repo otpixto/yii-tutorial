@@ -25,16 +25,20 @@ class GzhiHandler
 
     private $errorMessage;
 
+    private $apiVersion;
+
 
     public function __construct ( $status = null )
     {
-        $this->url = GzhiApiProvider::GJI_SOAP_URL;
+        $this->url = GzhiRequest::GJI_SOAP_URL;
 
         $this->soapAction = GzhiRequest::GZHI_REQUEST_IMPORT_METHOD;
 
         $this->soapGetStateAction = GzhiRequest::GZHI_REQUEST_GET_STATE_METHOD;
 
         $this->requestStatus = $status ?? GzhiRequest::GZHI_REQUEST_STATUS_REGISTERED;
+
+        $this->apiVersion = GzhiRequest::GZHI_REQUEST_API_VERSION;
 
         $this->errorMessage = '';
     }
@@ -154,7 +158,7 @@ class GzhiHandler
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
-      <eds:importAppealRequest Id="?" eds:version="1.0.0.4">
+      <eds:importAppealRequest Id="?" eds:version="{$this->apiVersion}">
          <eds:Header>
             <!--You may enter the following 3 items in any order-->
             <eds:OrgGUID>$orgGuid</eds:OrgGUID>
@@ -283,7 +287,7 @@ SOAP;
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
-      <eds:getStateDSRequest Id="?" eds:version="1.0.0.2">
+      <eds:getStateDSRequest Id="?" eds:version="{$this->apiVersion}">
          <eds:Header>
             <eds:OrgGUID>$gzhiRequest->OrgGUID</eds:OrgGUID>\n
             <eds:PackGUID>$packGuid</eds:PackGUID>
