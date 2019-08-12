@@ -54,11 +54,11 @@ class Kernel extends ConsoleKernel
         } )
             ->monthlyOn( 1, '3:00' );
 
-        $schedule->call( function ()
-        {
-            ( new GzhiHandler() )->getGzhiRequestsStatus();
-        } )
-            ->everyFiveMinutes();
+//        $schedule->call( function ()
+//        {
+//            ( new GzhiHandler() )->getGzhiRequestsStatus();
+//        } )
+//            ->everyFiveMinutes();
 
     }
 
