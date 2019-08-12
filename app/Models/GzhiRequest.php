@@ -22,7 +22,7 @@ class GzhiRequest extends BaseModel
 
     const GZHI_REQUEST_API_VERSION = "1.0.0.4";
 
-    const GJI_SOAP_URL = 'https://next-lk.eiasmo.ru/eds-service/';
+    const GJI_SOAP_URL = 'https://lk.eiasmo.ru/eds-service/';
 
 
     public $table = 'gzhi_requests';
