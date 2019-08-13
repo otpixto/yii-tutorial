@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Classes\MosregClient;
+use App\Models\Building;
 use App\Models\Management;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -120,25 +121,7 @@ class Mosreg extends Command
                     }
                     else
                     {
-                        $values = [];
-                        foreach ( $res as $i => $r )
-                        {
-                            $values[] = [
-                                $i,
-                                $r->label,
-                            ];
-                        }
-                        $this->table( [ 'Select', 'Address' ], $values );
-                        $answer = $this->ask("\t\t" .'Выберите адрес', 0 );
-                        if ( isset( $res[ $answer ] ) )
-                        {
-                            $building->mosreg_id = $res[ $answer ]->addressId;
-                            $building->save();
-                        }
-                        else
-                        {
-                            $this->error( "\t\t" .'Некорректный выбор' );
-                        }
+                        $this->selectAddress( $building, $res );
                     }
                 }
                 catch ( \Exception $e )
@@ -150,6 +133,30 @@ class Mosreg extends Command
         catch ( \Exception $e )
         {
             $this->error( $e->getMessage() );
+        }
+    }
+
+    private function selectAddress ( Building $building, $res = [] )
+    {
+        $values = [];
+        foreach ( $res as $i => $r )
+        {
+            $values[] = [
+                $i,
+                $r->label,
+            ];
+        }
+        $this->table( [ 'Select', 'Address' ], $values );
+        $answer = $this->ask("\t\t" .'Выберите адрес', 0 );
+        if ( isset( $res[ $answer ] ) )
+        {
+            $building->mosreg_id = $res[ $answer ]->addressId;
+            $building->save();
+        }
+        else
+        {
+            $this->error( "\t\t" .'Некорректный выбор' );
+            return $this->selectAddress( $building, $res );
         }
     }
 
