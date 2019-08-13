@@ -138,7 +138,7 @@ class GzhiHandler
             return 0;
         }
 
-        $address = ( isset( $ticket->building->name ) ) ? mb_substr( $ticket->building->name, 0, 49 ) : 'Пусто';
+        $address = ( isset( $ticket->building->name ) ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->building->name ), 0, 49 ) : 'Пусто';
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
 
@@ -341,6 +341,27 @@ SOAP;
                     $status = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsTransportStatus ?? "";
 
                     $gzhiErrors = $body->edsgetStateDSResult->edsGetObjectStateResult->edsTransportInformation->edsERRORS ?? [];
+
+                    $objectGUID = $body->edsgetStateDSResult->edsGetObjectStateResult->edsObjectInformation->edsObjectGUID ?? null;
+
+                    if ( $objectGUID )
+                    {
+                        $ticket = Ticket::find( $gzhiRequest->ticket_id );
+
+                        if ( $ticket )
+                        {
+                            $gzhiDate = $body->edsgetStateDSResult->edsGetObjectStateResult->edsObjectInformation->edsObjectState->edsUpdateDate ?? date( 'Y-m-d H:i:s' );
+
+                            $gzhiDate = Carbon::parse( (String) $gzhiDate )
+                                ->format( 'Y-m-d H:i:s' );
+
+                            $ticket->vendor_number = (String) $objectGUID;
+
+                            $ticket->vendor_date = $gzhiDate;
+
+                            $ticket->save();
+                        }
+                    }
 
                     if ( count( $gzhiErrors ) )
                     {
