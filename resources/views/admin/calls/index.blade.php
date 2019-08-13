@@ -15,7 +15,7 @@
         <div class="form-group">
             {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label col-md-3 col-xs-2' ] ) !!}
             <div class="col-md-6 col-xs-10">
-                {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
+                {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $operators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
             </div>
         </div>
         <div class="form-group">

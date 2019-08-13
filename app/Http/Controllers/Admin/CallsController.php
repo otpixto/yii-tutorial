@@ -133,20 +133,18 @@ class CallsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        if ( \Cache::tags( [ 'users', 'reports' ] )->has( 'operators' ) )
+        $res = User
+            ::mine()
+            ->role( 'operator' )
+            ->orderBy( 'lastname' )
+            ->orderBy( 'firstname' )
+            ->orderBy( 'middlename' )
+            ->get();
+
+        $operators = [];
+        foreach ( $res as $r )
         {
-            $availableOperators = \Cache::tags( [ 'users', 'reports' ] )->get( 'operators' );
-        }
-        else
-        {
-            $res = User::role( 'operator' )->get();
-            $availableOperators = [];
-            foreach ( $res as $r )
-            {
-                $availableOperators[ $r->id ] = $r->getName();
-            }
-            asort( $availableOperators );
-            \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+            $operators[ $r->id ] = $r->getName();
         }
 
         $this->addLog( 'Просмотрел звонки (стр.' . $request->get( 'page', 1 ) . ')' );
@@ -155,7 +153,7 @@ class CallsController extends BaseController
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
-            ->with( 'availableOperators', $availableOperators )
+            ->with( 'operators', $operators )
             ->with( 'providerContexts', $providerContexts )
             ->with( 'operator_id', $operator_id );
 
