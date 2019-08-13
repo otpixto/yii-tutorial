@@ -16,10 +16,13 @@ class CheckActive
      */
     public function handle ( $request, Closure $next )
     {
-        if ( \Auth::user() && ! \Auth::user()->isActive() )
-        {
-            abort( 403, 'Пользователь не активирован' );
-        }
+		if ( $request->getUri() != route( 'logout' ) )
+		{
+			if ( \Auth::user() && ! \Auth::user()->isActive() )
+			{
+				abort( 403, 'Пользователь не активирован' );
+			}
+		}
         return $next( $request );
     }
 }

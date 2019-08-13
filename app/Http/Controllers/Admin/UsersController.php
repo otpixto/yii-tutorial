@@ -241,7 +241,8 @@ class UsersController extends BaseController
             ->paginate( 30 );
 
         $providers = Provider
-            ::whereNotIn( Provider::$_table . '.id', $user->providers()->pluck( Provider::$_table . '.id' ) )
+			::mine()
+            ->whereNotIn( Provider::$_table . '.id', $user->providers()->pluck( Provider::$_table . '.id' ) )
             ->pluck( 'name', 'id' );
 
         return view('admin.users.providers' )
