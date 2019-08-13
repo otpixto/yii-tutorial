@@ -121,12 +121,15 @@ class Mosreg extends Command
                     else
                     {
                         $values = [];
-                        foreach ( $res as $r )
+                        foreach ( $res as $i => $r )
                         {
-                            $values[] = $r->label;
+                            $values[] = [
+                                $i,
+                                $r->label,
+                            ];
                         }
-                        $this->table( array_keys( $values ), $values );
-                        $answer = $this->anticipate("\t\t" .'Выберите адрес', $values, 0 );
+                        $this->table( [ 'Select', 'Address' ], $values );
+                        $answer = $this->ask("\t\t" .'Выберите адрес', 0 );
                         if ( isset( $res[ $answer ] ) )
                         {
                             $building->mosreg_id = $res[ $answer ]->addressId;

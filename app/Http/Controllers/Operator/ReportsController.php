@@ -886,20 +886,18 @@ class ReportsController extends BaseController
             }
         });
 
-        if ( \Cache::tags( [ 'users', 'reports' ] )->has( 'operators' ) )
+        $res = User
+            ::mine()
+            ->role( 'operator' )
+            ->orderBy( 'lastname' )
+            ->orderBy( 'firstname' )
+            ->orderBy( 'middlename' )
+            ->get();
+
+        $operators = [];
+        foreach ( $res as $r )
         {
-            $availableOperators = \Cache::tags( [ 'users', 'reports' ] )->get( 'operators' );
-        }
-        else
-        {
-            $res = User::role( 'operator' )->get();
-            $availableOperators = [];
-            foreach ( $res as $r )
-            {
-                $availableOperators[ $r->id ] = $r->getName();
-            }
-            asort( $availableOperators );
-            \Cache::tags( [ 'users', 'reports' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+            $operators[ $r->id ] = $r->getName();
         }
 
         $this->addLog( 'Просмотрел отчет по операторам' );
@@ -909,7 +907,7 @@ class ReportsController extends BaseController
             ->with( 'totals', $totals )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
-            ->with( 'availableOperators', $availableOperators )
+            ->with( 'operators', $operators )
             ->with( 'operator_id', $operator_id );
 
     }

@@ -34,7 +34,7 @@
     <div class="row margin-bottom-15">
         <div class="col-md-6 col-md-offset-3">
             {!! Form::label( 'operator', 'Оператор', [ 'class' => 'control-label' ] ) !!}
-            {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $availableOperators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
+            {!! Form::select( 'operator_id', [ null => ' -- ВСЕ -- ' ] + $operators, $operator_id, [ 'class' => 'form-control select2' ] ) !!}
         </div>
     </div>
 
