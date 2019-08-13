@@ -3,6 +3,7 @@
 namespace App\Classes;
 
 use App\Jobs\GzhiJob;
+use App\Models\Building;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Ticket;
@@ -134,12 +135,14 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code )
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null )
         {
             return 0;
         }
 
         $address = ( isset( $ticket->building->name ) ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->building->name ), 0, 49 ) : 'Пусто';
+
+        $gzhiAddressGUID = $ticket->building->gzhi_address_guid;
 
         $managementGuid = $ticket->managements[ 0 ]->management->guid;
 
@@ -180,7 +183,7 @@ class GzhiHandler
                </eds:Initiator>
                <eds:TypeAppeal>{$ticket->type->gzhi_code_type}</eds:TypeAppeal>
                <eds:KindAppeal>{$ticket->type->gzhi_code}</eds:KindAppeal>
-               <eds:Address>$address</eds:Address>
+               <eds:AddressGUID>$gzhiAddressGUID</eds:AddressGUID>
                <eds:Text>$text</eds:Text>
                <eds:IsSkipAnswer>0</eds:IsSkipAnswer>
                <eds:OrgGUID>$managementGuid</eds:OrgGUID>
@@ -444,7 +447,7 @@ SOAP;
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
     <soapenv:Header/>
     <soapenv:Body>
-        <eds:getStateDSRequest Id="?" eds:version="1.0.0.2">
+        <eds:getStateDSRequest Id="?" eds:version="{$this->apiVersion}">
             <eds:Header>
                 <eds:OrgGUID>$orgGuid</eds:OrgGUID>
                 <eds:PackGUID>$packGuid</eds:PackGUID>
@@ -538,6 +541,118 @@ SOAP;
                 $i ++;
             }
         }
+
+    }
+
+    public function fillAddresses ()
+    {
+
+        $packGuid = Uuid::generate();
+
+        $soapAction = $this->soapGetStateAction;
+
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Жуковский' )
+            ->first();
+
+        $orgGuid = $gzhiApiProvider->org_guid;
+
+        $username = $gzhiApiProvider->login;
+
+        $password = $gzhiApiProvider->password;
+
+        $accessData = $username . ':' . $password;
+
+        $packDate = date( 'Y-m-d\TH:i:s' );
+
+        $data = <<<SOAP
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <eds:getStateDSRequest Id="?" eds:version="{$this->apiVersion}">
+            <eds:Header>
+                <eds:OrgGUID>$orgGuid</eds:OrgGUID>
+                <eds:PackGUID>$packGuid</eds:PackGUID>
+                <eds:PackDate>$packDate</eds:PackDate>
+            </eds:Header>
+            <eds:PackGUID>68b4ab59-b1fd-11e9-8c02-ddd67477fd67</eds:PackGUID>
+        </eds:getStateDSRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
+SOAP;
+
+        $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+
+        $response = curl_exec( $curl );
+
+        $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+
+        curl_close( $curl );
+
+        if ( $status_code != 200 )
+        {
+            $this->errorMessage .= "CURL status: $status_code; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+        $xml = new \SimpleXMLElement( $response );
+
+        if ( isset( $xml->faultstring ) )
+        {
+            $this->errorMessage .= $xml->faultstring;
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+        }
+
+        if ( ! isset( $xml->soapenvBody ) )
+        {
+            $this->errorMessage .= " SOAP structure error; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses;
+
+        $buildings = Building::all();
+
+        $i = 0;
+
+        foreach ( $buildings as &$building )
+        {
+
+            foreach ( $gzhiAddresses as $gzhiAddress )
+            {
+
+                $edsName = (String) $gzhiAddress->edsAddressName;
+
+                if ( strpos( $building->name, $edsName ) )
+                {
+                    $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
+
+                    $building->save();
+
+                    $i++;
+
+                    continue 2;
+                }
+
+            }
+        }
+
+        echo "Обработано позиций: " . $i;
 
     }
 

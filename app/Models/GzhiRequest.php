@@ -20,7 +20,7 @@ class GzhiRequest extends BaseModel
     const GZHI_REQUEST_CODE_TYPE = 36;
     const GZHI_REQUEST_CODE = 36001;
 
-    const GZHI_REQUEST_API_VERSION = "1.0.0.4";
+    const GZHI_REQUEST_API_VERSION = "1.0.0.5";
 
     const GJI_SOAP_URL = 'https://lk.eiasmo.ru/eds-service/';
 

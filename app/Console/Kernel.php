@@ -60,6 +60,12 @@ class Kernel extends ConsoleKernel
         } )
             ->everyFiveMinutes();
 
+//        $schedule->call( function ()
+//        {
+//            ( new GzhiHandler() )->fillAddresses();
+//        } )
+//            ->everyMinute();
+
     }
 
     /**
