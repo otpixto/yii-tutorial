@@ -146,7 +146,7 @@ class Mosreg extends Command
                 $r->label,
             ];
         }
-        $this->table( [ 'Select', 'Address' ], $values );
+        $this->table( [ '#', 'Address' ], $values );
         $answer = $this->ask("\t\t" .'Выберите адрес', 0 );
         if ( isset( $res[ $answer ] ) )
         {
