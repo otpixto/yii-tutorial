@@ -29,14 +29,14 @@
                                 <th>
                                     Длительность
                                 </th>
-                                <th>
-                                    Заявка
-                                </th>
-                                @if ( \Auth::user()->can( 'calls' ) )
+                                @if ( \Auth::user()->can( 'admin.calls.all' ) )
                                     <th>
                                         Запись
                                     </th>
                                 @endif
+								<th class="text-right">
+                                    Заявка
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,16 +51,7 @@
                                 <td>
                                     {{ date( 'H:i:s', mktime( 0, 0, $call->billsec ) ) }}
                                 </td>
-                                <td>
-                                    @if ( $call->ticket )
-                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}">
-                                            #{{ $call->ticket->id }}
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                @if ( \Auth::user()->can( 'calls' ) )
+                                @if ( \Auth::user()->can( 'admin.calls.all' ) )
                                     <td>
                                         @if ( $call->hasMp3() )
                                             <a href="{{ $call->getMp3() }}" target="_blank">
@@ -73,6 +64,15 @@
                                         @endif
                                     </td>
                                 @endif
+								<td class="text-right">
+                                    @if ( $call->ticket )
+                                        <a href="{{ route( 'tickets.show', $call->ticket->id ) }}">
+                                            #{{ $call->ticket->id }}
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
