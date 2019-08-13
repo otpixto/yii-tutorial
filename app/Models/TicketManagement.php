@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\SegmentChilds;
+use App\Jobs\SendPush;
 use App\Jobs\SendStream;
 use App\Jobs\SendTelegramMessage;
 use Carbon\Carbon;
@@ -1060,6 +1061,11 @@ class TicketManagement extends BaseModel
                 $message .= PHP_EOL . $this->getUrl() . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
+
+                if ( $this->executor && $this->executor->user && $this->executor->user->push_id )
+                {
+                    $this->dispatch( new SendPush( config( 'push.keys.eds' ), $this->executor->user->push_id, 'Вам назначена новая заявка', 'Вам назначена новая заявка ' . $this->getTicketNumber(), 'ticket', $this->id ) );
+                }
 
                 \Cache::tags( 'tickets.scheduled.now' )->flush();
 

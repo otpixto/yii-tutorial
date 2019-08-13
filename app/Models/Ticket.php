@@ -626,7 +626,7 @@ class Ticket extends BaseModel
 
         /*if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
         {
-            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Заявка отредактирована', 'ticket', $this->id ) );
+            $this->dispatch( new SendPush( config( 'push.keys.eds' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Заявка отредактирована', 'ticket', $this->id ) );
         }*/
 
 		return $this;
@@ -1126,7 +1126,7 @@ class Ticket extends BaseModel
 
             if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
             {
-                $this->dispatch( new SendPush( config( 'push.keys.lk' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Статус изменен на "' . $this->status_name . '"', 'ticket', $this->id ) );
+                $this->dispatch( new SendPush( config( 'push.keys.eds' ), $this->customer->user->push_id, 'Заявка отредактирована', 'Статус изменен на "' . $this->status_name . '"', 'ticket', $this->id ) );
             }
 
         }

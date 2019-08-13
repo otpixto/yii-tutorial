@@ -939,7 +939,7 @@ class WorksController extends BaseController
 
         foreach ( $usersForPush as $user )
         {
-            $this->dispatch( new SendPush( config( 'push.keys.lk' ), $user->push_id, 'Новое отключение', 'Новое отключение', 'work', $work->id ) );
+            $this->dispatch( new SendPush( config( 'push.keys.eds' ), $user->push_id, 'Новое отключение', 'Новое отключение', 'work', $work->id ) );
         }
 
         $usersForEmail = ( new User() )->getUsersForSendingMessage( $request, true );

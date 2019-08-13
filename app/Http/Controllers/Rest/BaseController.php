@@ -447,7 +447,7 @@ class BaseController extends Controller
                 return $this->error( $validation->errors()->first() );
             }
 
-            $client = new Push( config( 'push.keys.lk' ) );
+            $client = new Push( config( 'push.keys.eds' ) );
 
             $client
                 ->setData( $request->all() );
