@@ -7,6 +7,7 @@ use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Ticket;
 use App\Models\Type;
+use App\Models\Vendor;
 use Carbon\Carbon;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Log;
@@ -358,6 +359,8 @@ SOAP;
                             $ticket->vendor_number = (String) $objectGUID;
 
                             $ticket->vendor_date = $gzhiDate;
+
+                            $ticket->vendor_id = Vendor::GZHI_VENDOR_ID;
 
                             $ticket->save();
                         }
