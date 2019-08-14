@@ -33,7 +33,7 @@ class AsteriskController extends BaseController
 		if ( count( $numbers ) )
 		{
 			$users = User
-				::whereIn( 'number', array_keys( $states[ 'list' ] ) )
+				::whereIn( 'number', $numbers )
 				->get();
 			foreach ( $states[ 'list' ] as $number => & $state )
 			{
@@ -45,6 +45,7 @@ class AsteriskController extends BaseController
                 else if ( config( 'asterisk.remove_unreg' ) )
                 {
                     $this->asterisk->queueRemove( $number );
+                    unset( $states[ 'list' ][ $number ] );
                 }
 			}
 		}

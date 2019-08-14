@@ -43,7 +43,7 @@
                 </span>
             </td>
             <td>
-                @if ( $state[ 'operator' ] )
+                @if ( isset( $state[ 'operator' ] ) )
                     {{ $state[ 'operator' ]->getShortName() }}
                 @else
                     -

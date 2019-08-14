@@ -287,6 +287,22 @@ class User extends BaseModel implements
         }
         $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
         $queue = $asterisk->queue();
+        $numbers = array_keys( $queue[ 'list' ] );
+        if ( count( $numbers ) )
+        {
+            $users = User
+                ::whereIn( 'number', $numbers )
+                ->get();
+            foreach ( $numbers as $_number )
+            {
+                $operator = $users->where( 'number', $_number )->first();
+                if ( ! $operator && config( 'asterisk.remove_unreg' ) )
+                {
+                    $asterisk->queueRemove( $_number );
+                    unset( $queue[ 'list' ][ $_number ] );
+                }
+            }
+        }
         if ( isset( $queue[ 'list' ][ $number ] ) )
         {
             return new MessageBag( [ 'Номер телефона занят' ] );
