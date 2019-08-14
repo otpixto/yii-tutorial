@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'remove_unreg'              => env( 'ASTERISK_REMOVE_UNREG', false ),
     'external_ip'               => '109.206.159.155',
     'ip'				        => '10.10.10.155',
     'port'                      => 5038,

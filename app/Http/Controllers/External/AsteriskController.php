@@ -37,7 +37,15 @@ class AsteriskController extends BaseController
 				->get();
 			foreach ( $states[ 'list' ] as $number => & $state )
 			{
-				$state[ 'operator' ] = $users->where( 'number', $number )->first();
+			    $operator = $users->where( 'number', $number )->first();
+			    if ( $operator )
+                {
+                    $state[ 'operator' ] = $operator;
+                }
+                else if ( config( 'asterisk.remove_unreg' ) )
+                {
+                    $this->asterisk->queueRemove( $number );
+                }
 			}
 		}
         return view( 'asterisk.list' )
