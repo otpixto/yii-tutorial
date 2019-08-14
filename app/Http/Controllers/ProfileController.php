@@ -136,13 +136,9 @@ class ProfileController extends Controller
 
     public function postPhoneUnreg ()
     {
-        \DB::beginTransaction();
-        $log = \Auth::user()->openPhoneSession->addLog( 'Телефонная сессия завершена' );
-        if ( $log instanceof MessageBag )
+        if ( ! \Auth::user()->openPhoneSession )
         {
-            return redirect()
-                ->back()
-                ->withErrors( $log );
+            return redirect()->route( 'profile.phone_reg' );
         }
         $res = \Auth::user()->phoneSessionUnreg();
         if ( $res instanceof MessageBag )
@@ -151,7 +147,6 @@ class ProfileController extends Controller
                 ->back()
                 ->withErrors( $res );
         }
-        \DB::commit();
         return redirect()
             ->route( 'profile.phone_reg' )
             ->with( 'success', 'Телефон успешно разлогинен' );

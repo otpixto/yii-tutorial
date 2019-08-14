@@ -306,16 +306,26 @@ class User extends BaseModel implements
         {
             return new MessageBag( [ 'Телефон пользователя не зарегистрирован' ] );
         }
+        \DB::beginTransaction();
+        $log = $this->openPhoneSession->addLog( 'Телефонная сессия завершена' );
+        if ( $log instanceof MessageBag )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( $log );
+        }
+        \Cookie::forget( 'phone' );
         $number = $this->openPhoneSession->number;
+        $provider = $this->openPhoneSession->provider;
         $this->openPhoneSession->close();
         $this->number = null;
         $this->save();
-        $asterisk = new Asterisk( $this->openPhoneSession->provider->getAsteriskConfig() );
+        $asterisk = new Asterisk( $provider->getAsteriskConfig() );
         if ( ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
-        \Cookie::forget( 'phone' );
+        \DB::commit();
     }
 
     public function getPhone ( $html = false )
