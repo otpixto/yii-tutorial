@@ -13,7 +13,7 @@
 
         <div class="form-group">
             <div class="col-xs-3 control-label">
-                Провайдер
+                Поставщик
             </div>
             <div class="col-xs-6">
                 <span class="form-control">
