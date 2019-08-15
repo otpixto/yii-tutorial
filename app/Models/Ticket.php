@@ -703,6 +703,20 @@ class Ticket extends BaseModel
         }
         return $phones;
     }
+    
+    public function getCallPhone ( $html = false )
+    {
+        $phone = null;
+        if ( ! empty( $this->call_phone ) )
+        {
+            $phone = '+7 (' . mb_substr( $this->call_phone, 0, 3 ) . ') ' . mb_substr( $this->call_phone, 3, 3 ) . '-' . mb_substr( $this->call_phone, 6, 2 ). '-' . mb_substr( $this->call_phone, 8, 2 );
+            if ( $html )
+            {
+                $phone = '<a href="tel:7' . $this->call_phone . '" class="inherit">' . $phone . '</a';
+            }
+        }
+        return $phone;
+    }
 
     public function getAvailableStatuses ( $perm_for, $with_names = false, $sort = false )
     {

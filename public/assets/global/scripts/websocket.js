@@ -31,20 +31,15 @@ socket
     .on( 'picked_up', function ( data )
     {
         var phone = data.phone;
-        $.cookie( 'phone', phone );
         if ( window.location.pathname == '/tickets/create' && $( '#phone' ).length )
         {
             $( '#phone' ).val( phone ).trigger( 'keyup' );
         }
-        $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-warning' );
-        $( '#call-phone' ).text( phone );
     })
 
     .on( 'picked_down', function ( data )
     {
-        $.removeCookie( 'phone' );
-        $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-success' );
-        $( '#call-phone' ).text( '' );
+        //
     })
 
     .on( 'call', function ( data )

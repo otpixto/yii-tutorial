@@ -330,7 +330,6 @@ class User extends BaseModel implements
                 ->back()
                 ->withErrors( $log );
         }
-        \Cookie::forget( 'phone' );
         $number = $this->openPhoneSession->number;
         $provider = $this->openPhoneSession->provider;
         $this->openPhoneSession->close();

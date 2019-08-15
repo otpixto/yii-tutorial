@@ -518,13 +518,6 @@ $( document )
             }
         });
 
-        var phone = $.cookie ? $.cookie( 'phone' ) : null;
-        if ( phone && $( '#phone-state' ).length )
-		{
-            $( '#phone-state' ).attr( 'class', 'btn btn-sm btn-warning' );
-            $( '#call-phone' ).text( phone );
-		}
-
 		$( '.form-control:hidden' ).css( 'width', '100%' );
 
         $( '.toggle' ).each( function ()

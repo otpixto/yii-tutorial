@@ -29,6 +29,7 @@ class RestController extends Controller
         104         => 'Запись о звонке не найдена в БД',
         105         => 'Заявитель не найден',
         106         => 'Астериск ответил ошибкой',
+        107         => 'Поставщик не определен',
         900         => 'Внутренняя ошибка',
     ];
 
@@ -140,9 +141,12 @@ class RestController extends Controller
             return $this->error( 100 );
         }
 
+        $number = mb_substr( $request->get( 'number' ), -10 );
+        $office_number = mb_substr( $request->get( 'office_number' ), -10 );
+
         $session = PhoneSession
             ::notClosed()
-            ->where( 'number', '=', $request->get( 'number' ) )
+            ->where( 'number', '=', $number )
             ->first();
         if ( ! $session )
         {
@@ -153,16 +157,28 @@ class RestController extends Controller
             return $this->error( 102 );
         }
 
+        $provider = $session->provider;
         $user = $session->user;
 
+        if ( ! $provider )
+        {
+            return $this->error( 107 );
+        }
+
+        $providerPhone = $provider
+            ->phones()
+            ->where( 'phone', '=', $office_number )
+            ->first();
+
         $response = [
-            'ticket'    => null,
-            'provider'  => null,
-            'user'      => $user->id
+            'ticket'                => null,
+            'provider'              => null,
+            'provider_phone'        => null,
+            'user'                  => $user->id
         ];
 
         $draft = Ticket
-            ::draft( $user->id, $session->provider->id )
+            ::draft( $user->id, $provider->id )
             ->first();
 
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
@@ -173,16 +189,18 @@ class RestController extends Controller
             $draft->status_code = 'draft';
             $draft->status_name = Ticket::$statuses[ 'draft' ];
             $draft->author_id = $user->id;
-            $draft->provider_id = $session->provider->id;
+            $draft->provider_id = $provider->id;
         }
 
         $draft->phone = $phone;
         $draft->call_phone = $draft->phone;
         $draft->call_id = $request->get( 'call_id' );
+        $draft->call_description = $providerPhone->name ?? null;
 
         $draft->save();
 
-        $response[ 'provider' ] = $session->provider->name;
+        $response[ 'provider' ] = $provider->name;
+        $response[ 'provider_phone' ] = $providerPhone->name ?? null;
         $response[ 'ticket' ] = $draft->id;
 
         return $this->success( $response );

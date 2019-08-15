@@ -3,6 +3,24 @@
 
 <div class="row">
 
+    @if ( $ticket->call_phone || $ticket->call_description )
+        <div class="col-xs-12">
+            <div class="alert alert-info h4">
+                @if ( $ticket->call_description )
+                    <span class="bold">
+                        {{ $ticket->call_description }}
+                    </span>
+                    @if ( $ticket->call_phone )
+                        <span class="small">
+                            входящий номер:
+                            {{ $ticket->getCallPhone() }}
+                        </span>
+                    @endif
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="col-lg-7">
 
         <div class="form-group">
