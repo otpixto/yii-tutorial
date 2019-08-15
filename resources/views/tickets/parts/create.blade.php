@@ -10,12 +10,12 @@
                     <span class="bold">
                         {{ $ticket->call_description }}
                     </span>
-                    @if ( $ticket->call_phone )
-                        <span class="small">
-                            входящий номер:
-                            {{ $ticket->getCallPhone() }}
-                        </span>
-                    @endif
+                @endif
+                @if ( $ticket->call_phone )
+                    <span class="small">
+                        входящий номер:
+                        {{ $ticket->getCallPhone() }}
+                    </span>
                 @endif
             </div>
         </div>
