@@ -142,7 +142,8 @@ class RestController extends Controller
         }
 
         $number = mb_substr( $request->get( 'number' ), -10 );
-        $office_number = mb_substr( $request->get( 'office_number' ), -10 );
+        $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
+        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
 
         $session = PhoneSession
             ::notClosed()
@@ -167,7 +168,7 @@ class RestController extends Controller
 
         $providerPhone = $provider
             ->phones()
-            ->where( 'phone', '=', $office_number )
+            ->where( 'phone', '=', $phone_office )
             ->first();
 
         $response = [
@@ -180,8 +181,6 @@ class RestController extends Controller
         $draft = Ticket
             ::draft( $user->id, $provider->id )
             ->first();
-
-        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
 
         if ( ! $draft )
         {
