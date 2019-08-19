@@ -337,6 +337,15 @@ class Ticket extends BaseModel
         return $this->belongsTo( Cdr::class, 'call_id', 'uniqueid' );
     }
 
+    public function vendors ()
+    {
+        return $this->belongsToMany( Vendor::class, 'ticket_vendor' )
+            ->withPivot(
+                'number',
+                'datetime'
+            );
+    }
+
     public function scopeNotFinaleStatuses ( $query )
     {
         return $query

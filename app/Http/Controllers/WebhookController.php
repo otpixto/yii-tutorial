@@ -105,6 +105,10 @@ class WebhookController extends Controller
                     'vendor_date'               => Carbon::parse( $data->mosreg_created_at )->toDateTimeString(),
                 ]);
                 $ticket->save();
+                $ticket->vendors()->attach( 1, [
+                    'number'        => $ticket->vendor_number,
+                    'datetime'      => $ticket->vendor_date,
+                ]);
                 $ticketManagement = new TicketManagement([
                     'ticket_id'         => $ticket->id,
                     'management_id'     => $management->id,
