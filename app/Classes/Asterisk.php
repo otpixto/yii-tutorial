@@ -11,7 +11,9 @@ class Asterisk
 		'user' 		                => 'asterisk',
 		'pass' 		                => 'asterisk',
         'queue'                     => 'default',
-        'context'                   => 'default',
+        'incoming_context'          => 'default',
+        'outgoing_context'          => 'default',
+        'autodial_context'          => 'default',
         'channel_mask'              => '{{prefix}}{{number}}{{postfix}}',
         'channel_prefix'            => 'SIP/',
         'channel_postfix'           => '',
@@ -24,7 +26,9 @@ class Asterisk
         'user',
         'pass',
         'queue',
-        'context',
+        'incoming_context',
+        'outgoing_context',
+        'autodial_context',
         'channel_mask',
     ];
 
@@ -136,7 +140,7 @@ class Asterisk
         return $result;
     }
 	
-    public function originate ( $number_from, $number_to, $context = null, $callerId = null, $url = null )
+    public function originate ( $number_from, $number_to, $callerId = null, $url = null )
     {
         if ( ! $this->auth ) return false;
         $channel = $this->prepareChannel( $number_from );
@@ -144,7 +148,7 @@ class Asterisk
         $packet = [
             'Action'        => 'originate',
             'Channel'       => $channel,
-            'Context'       => $context ?: $this->config[ 'context' ],
+            'Context'       => $this->config[ 'autodial_context' ],
             'Exten'         => $exten,
             'Async'         => 'true',
         ];
@@ -255,29 +259,18 @@ class Asterisk
         return $queues[ $queue ?: $this->config[ 'queue' ] ] ?? null;
     }
 
-    public function redirect ( $channel, $number, $context = 'default' )
+    public function redirect ( $channel, $number )
     {
         if ( ! $this->auth ) return false;
         $exten = $this->prepareExten( $number );
         $this->write([
             'Action'        => 'redirect',
             'Channel'       => $channel,
-            'Context'       => $context,
+            'Context'       => $this->config[ 'incoming_context' ],
             'Exten'         => $exten,
             'Priority'      => 1,
         ]);
         return $this->isSuccess();
-    }
-
-    public function extentionState ( $exten, $context = 'default' )
-    {
-        if ( ! $this->auth ) return false;
-        $result = $this->write([
-            'Action'        => 'ExtensionState',
-            'Context'       => $context,
-            'Exten'         => $exten,
-        ]);
-        dd( $result );
     }
 
     public function prepareExten ( $number )

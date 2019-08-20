@@ -41,6 +41,7 @@ class CallsController extends BaseController
             ::mine()
             ->orderBy( 'id', 'desc' )
             ->where( 'dst', '!=', 's' )
+            ->whereIn( 'dcontext', $providerContexts->keys() )
             ->whereBetween( 'calldate', [ $date_from->toDateTimeString(), $date_to->toDateTimeString() ] );
 
         if ( $operator_id )
@@ -104,11 +105,6 @@ class CallsController extends BaseController
         {
             $calls
                 ->where( 'dcontext', '=', $request->get( 'context' ) );
-        }
-        else
-        {
-            $calls
-                ->whereIn( 'dcontext', $providerContexts->keys() );
         }
 
         if ( ! empty( $request->get( 'caller' ) ) )

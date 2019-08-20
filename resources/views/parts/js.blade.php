@@ -27,24 +27,26 @@
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script src="/assets/layouts/layout5/scripts/layout.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $( document )
+@if ( \App\Models\Provider::getCurrent() )
+    <script type="text/javascript">
+        $( document )
 
-        .ready( function ()
-        {
-            getQueues( '{{ \App\Models\Provider::getCurrent() ? \App\Models\Provider::$current->queue : config( 'asterisk.queue' ) }}' );
-        })
+            .ready( function ()
+            {
+                getQueues( '{{ \App\Models\Provider::getCurrent()->queue }}' );
+            })
 
-        .on( 'click', '#queues-info', function ( e )
-        {
-            e.preventDefault();
-            getQueues( '{{ \App\Models\Provider::getCurrent() ? \App\Models\Provider::$current->queue : config( 'asterisk.queue' ) }}', true );
-        })
+            .on( 'click', '#queues-info', function ( e )
+            {
+                e.preventDefault();
+                getQueues( '{{ \App\Models\Provider::getCurrent()->queue }}', true );
+            })
 
-        .on( 'mouseover', '#queues-info', function ()
-        {
-            getQueues( '{{ \App\Models\Provider::getCurrent() ? \App\Models\Provider::$current->queue : config( 'asterisk.queue' ) }}' );
-        });
-</script>
+            .on( 'mouseover', '#queues-info', function ()
+            {
+                getQueues( '{{ \App\Models\Provider::getCurrent()->queue }}' );
+            });
+    </script>
+@endif
 <!-- END THEME LAYOUT SCRIPTS -->
 @yield( 'js' )

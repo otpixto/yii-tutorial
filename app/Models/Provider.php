@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Classes\Asterisk;
 use App\Classes\GzhiConfig;
 use App\User;
 use Illuminate\Support\MessageBag;
@@ -16,6 +17,8 @@ class Provider extends BaseModel
     public static $name = 'Поставщик';
 
     public static $current = null;
+
+    private $asterisk = null;
 
     protected $nullable = [
         'guid',
@@ -226,7 +229,11 @@ class Provider extends BaseModel
     {
         $config = config( 'asterisk' );
         $config[ 'queue' ] = $this->queue;
-        $config[ 'context' ] = $this->context;
+        $config[ 'ip' ] = $this->asterisk_ip;
+        $config[ 'external_ip' ] = $this->asterisk_external_ip;
+        $config[ 'incoming_context' ] = $this->incoming_context;
+        $config[ 'outgoing_context' ] = $this->outgoing_context;
+        $config[ 'autodial_context' ] = $this->autodial_context;
         $config[ 'channel_mask' ] = $this->channel_mask;
         $config[ 'channel_prefix' ] = $this->channel_prefix;
         $config[ 'channel_postfix' ] = $this->channel_postfix;
@@ -234,11 +241,20 @@ class Provider extends BaseModel
         return $config;
     }
 
+    public function getAsterisk ( $flush = false ) : Asterisk
+    {
+        if ( $flush || is_null( $this->asterisk ) )
+        {
+            $this->asterisk = new Asterisk( $this->getAsteriskConfig() );
+        }
+        return $this->asterisk;
+    }
+
     public static function getLogo ()
     {
-        if ( self::getCurrent() && self::$current->logo  )
+        if ( self::getCurrent() && self::getCurrent()->logo  )
         {
-            return '/storage/' . self::$current->logo;
+            return '/storage/' . self::getCurrent()->logo;
         }
         else
         {

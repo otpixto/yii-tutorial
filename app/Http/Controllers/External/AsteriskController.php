@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\External;
 
-use App\Classes\Asterisk;
 use App\Models\PhoneSession;
 use App\Models\Provider;
 use App\Models\Ticket;
@@ -17,7 +16,7 @@ class AsteriskController extends BaseController
 
     public function __construct ()
     {
-        $this->asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+        $this->asterisk = Provider::getCurrent()->getAsterisk();
         parent::__construct();
     }
 
@@ -60,7 +59,6 @@ class AsteriskController extends BaseController
 
     public function remove ( $number )
     {
-
         $this->asterisk->queueRemove( $number );
         $phoneSession = PhoneSession
             ::where( 'number', '=', $number )
@@ -70,35 +68,27 @@ class AsteriskController extends BaseController
         {
             $phoneSession->close();
         }
-
         return redirect()->route( 'asterisk.queues' );
-
     }
 
     public function call ( Request $request )
     {
-
         $number_from = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
         if ( ! $number_from ) return;
-
         $number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
         if ( ! $number_to ) return;
-
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
         if ( ! $ticket || ! $ticket->canCall() ) return;
-
         $ticketCall = $ticket->createCall( $number_from, $number_to );
         if ( $ticketCall instanceof MessageBag )
         {
             dd( $ticketCall );
         }
-
         $rest_curl_url = config( 'rest.curl_url' ) . '/ticket-call?ticket_call_id=' . (int) $ticketCall->id;
-        if ( ! $this->asterisk->originate( $number_from, $number_to, 'outgoing-autodial', $number_from, $rest_curl_url ) )
+        if ( ! $this->asterisk->originate( $number_from, $number_to, $number_from, $rest_curl_url ) )
         {
             dd( $this->asterisk->last_result );
         }
-
     }
 
 }
