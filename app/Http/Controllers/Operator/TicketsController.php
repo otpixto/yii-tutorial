@@ -619,7 +619,7 @@ class TicketsController extends BaseController
         }
 
         //Title::add( 'Добавить заявку' );
-        Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
+        Title::add( 'Заявка #' . $ticket->id );
 
         $types = Type
             ::mine()
