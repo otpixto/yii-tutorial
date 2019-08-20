@@ -752,6 +752,7 @@ class TicketsController extends BaseController
                         ->withErrors( $ticketManagement );
                 }
 
+                $ticketManagement->created_at = Carbon::now()->toDateTimeString();
                 $ticketManagement->save();
 
                 if ( $ticketManagement->management->has_contract )
