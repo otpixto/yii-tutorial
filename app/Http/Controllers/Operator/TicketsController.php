@@ -53,6 +53,7 @@ class TicketsController extends BaseController
                     'management.parent',
                     'executor'
                 )
+                ->orderBy( 'created_at', 'desc' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
