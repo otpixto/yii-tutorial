@@ -122,6 +122,8 @@ class GzhiHandler
 
         $ticket->load( 'managements' );
 
+        $ticket->load( 'vendors' );
+
         if ( $gzhiRequest )
         {
 
@@ -251,6 +253,12 @@ SOAP;
             ] );
 
             $gzhiRequest->save();
+
+            $ticket->vendors()->attach( 4, [
+                'number'        => $appealGuid,
+                'datetime'      => Carbon::now()->toDateTimeString(),
+            ]);
+
         }
 
         if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
