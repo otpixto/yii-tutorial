@@ -93,7 +93,7 @@ class DeviceController extends BaseController
                 'date_from'           => 'nullable|date|date_format:Y-m-d',
                 'date_to'             => 'nullable|date|date_format:Y-m-d',
                 'building_id'         => 'nullable|integer',
-                'status_code'         => 'nullable|string',
+                'statuses'            => 'nullable|array',
             ]);
 
             if ( $validation->fails() )
@@ -131,10 +131,10 @@ class DeviceController extends BaseController
                     return $ticket;
                 });
 
-            if ( $request->get( 'status_code' ) )
+            if ( $request->get( 'statuses' ) )
             {
                 $tickets
-                    ->where( 'status_code', '=', $request->get( 'status_code' ) );
+                    ->whereIn( 'status_code', $request->get( 'statuses' ) );
             }
 
             $tickets = $tickets
