@@ -82,7 +82,7 @@ class ProfileController extends Controller
             return 'ERROR: Занято';
         }
 
-        if ( $asterisk->redirect( $channel, $number, 'incoming' ) )
+        if ( $asterisk->redirect( $channel, $number ) )
         {
             return 'SUCCESS: Переадресация прошла успешно';
         }
