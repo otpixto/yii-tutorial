@@ -653,6 +653,8 @@ class ProvidersController extends BaseController
             'password'              => 'nullable|string|max:50',
             'need_act'              => 'boolean',
             'sms_auth'              => 'boolean',
+            'asterisk_ip'           => 'nullable|ip',
+            'asterisk_external_ip'  => 'nullable|ip',
         ];
 
         if ( $request->has( 'name' ) || $request->has( 'domain' ) )

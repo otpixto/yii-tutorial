@@ -24,6 +24,16 @@ class Provider extends BaseModel
         'guid',
         'username',
         'password',
+        'asterisk_ip',
+        'asterisk_external_ip',
+        'queue',
+        'incoming_context',
+        'outgoing_context',
+        'autodial_context',
+        'channel_mask',
+        'channel_prefix',
+        'channel_postfix',
+        'channel_postfix_trunc',
     ];
 
     protected $fillable = [
@@ -34,6 +44,16 @@ class Provider extends BaseModel
         'domain',
         'need_act',
         'sms_auth',
+        'asterisk_ip',
+        'asterisk_external_ip',
+        'queue',
+        'incoming_context',
+        'outgoing_context',
+        'autodial_context',
+        'channel_mask',
+        'channel_prefix',
+        'channel_postfix',
+        'channel_postfix_trunc',
     ];
 
     public function phones ()

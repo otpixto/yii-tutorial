@@ -26,11 +26,12 @@
 
                         <div class="form-group">
 
-                            <div class="col-xs-6">
+                            <div class="col-md-6">
                                 {!! Form::label( 'name', 'Наименование', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::text( 'name', \Input::old( 'name', $provider->name ), [ 'class' => 'form-control', 'placeholder' => 'Наименование' ] ) !!}
                             </div>
-                            <div class="col-xs-6">
+
+                            <div class="col-md-6">
                                 {!! Form::label( 'domain', 'Домен', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::text( 'domain', \Input::old( 'domain', $provider->domain ), [ 'class' => 'form-control', 'placeholder' => 'Домен' ] ) !!}
                             </div>
@@ -39,27 +40,24 @@
 
                         <div class="form-group margin-top-15">
 
-                            <div class="col-xs-12">
+                            <div class="col-md-6">
                                 {!! Form::label( 'need_act', 'Требовать акт выполненных работ', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::checkbox( 'need_act', 1, \Input::old( 'need_act', $provider->need_act ) ) !!}
                             </div>
 
-                        </div>
-
-                        <div class="form-group margin-top-15">
-
-                            <div class="col-xs-12">
+                            <div class="col-md-6">
                                 {!! Form::label( 'sms_auth', 'Двухфакторная авторизация', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::checkbox( 'sms_auth', 1, \Input::old( 'sms_auth', $provider->sms_auth ) ) !!}
                             </div>
 
                         </div>
 
+
                         <div class="form-group hidden-print">
-                            <div class="col-xs-6">
+                            <div class="col-md-6">
                                 {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
-                            <div class="col-xs-6 text-right">
+                            <div class="col-md-6 text-right">
                                 <a href="{{ $provider->getUrl() . route( 'buildings.index', [], false ) }}" class="btn btn-default btn-circle">
                                     Здания
                                     <span class="badge">
@@ -78,6 +76,88 @@
                                         {{ $provider->types()->count() }}
                                     </span>
                                 </a>
+                            </div>
+                        </div>
+
+                        {!! Form::close() !!}
+
+                    </div>
+
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Телефония</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.update', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                        <div class="form-group">
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'asterisk_ip', 'IP', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'asterisk_ip', \Input::old( 'asterisk_ip', $provider->asterisk_ip ), [ 'class' => 'form-control', 'placeholder' => 'IP' ] ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'asterisk_external_ip', 'IP внешний', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'asterisk_external_ip', \Input::old( 'asterisk_external_ip', $provider->asterisk_external_ip ), [ 'class' => 'form-control', 'placeholder' => 'IP внешний' ] ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'queue', 'Очередь', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'queue', \Input::old( 'queue', $provider->queue ), [ 'class' => 'form-control', 'placeholder' => 'Очередь' ] ) !!}
+                            </div>
+
+                        </div>
+
+                        <div class="form-group margin-top-15">
+
+                            <div class="col-md-6">
+                                {!! Form::label( 'channel_mask', 'Маска канала', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'channel_mask', \Input::old( 'channel_mask', $provider->channel_mask ), [ 'class' => 'form-control', 'placeholder' => 'Маска канала' ] ) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                                {!! Form::label( 'channel_prefix', 'Префикс', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'channel_prefix', \Input::old( 'channel_prefix', $provider->channel_prefix ), [ 'class' => 'form-control', 'placeholder' => 'Префикс' ] ) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                                {!! Form::label( 'channel_postfix', 'Постфикс', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'channel_postfix', \Input::old( 'channel_postfix', $provider->channel_postfix ), [ 'class' => 'form-control', 'placeholder' => 'Постфикс' ] ) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                                {!! Form::label( 'channel_postfix_trunc', 'Постфикс (транк)', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'channel_postfix_trunc', \Input::old( 'channel_postfix_trunc', $provider->channel_postfix_trunc ), [ 'class' => 'form-control', 'placeholder' => 'Постфикс (транк)' ] ) !!}
+                            </div>
+
+                        </div>
+
+                        <div class="form-group margin-top-15">
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'incoming_context', 'Incoming context', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'incoming_context', \Input::old( 'incoming_context', $provider->incoming_context ), [ 'class' => 'form-control', 'placeholder' => 'Incoming context' ] ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'outgoing_context', 'Outgoing context', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'outgoing_context', \Input::old( 'outgoing_context', $provider->outgoing_context ), [ 'class' => 'form-control', 'placeholder' => 'Outgoing context' ] ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                {!! Form::label( 'autodial_context', 'Autodial context', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'autodial_context', \Input::old( 'autodial_context', $provider->autodial_context ), [ 'class' => 'form-control', 'placeholder' => 'Autodial context' ] ) !!}
+                            </div>
+
+                        </div>
+
+                        <div class="form-group hidden-print">
+                            <div class="col-md-6">
+                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                         </div>
 
@@ -151,7 +231,7 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-md-12">
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -243,7 +323,7 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-md-12">
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -254,14 +334,14 @@
                         {!! Form::open( [ 'url' => route( 'providers.upload.addresses', $provider->id ), 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
 
                         <div class="form-group">
-                            <div class="col-xs-12">
+                            <div class="col-md-12">
                                 {!! Form::label( 'file', 'Файл', [ 'class' => 'control-label' ] ) !!}
                                 {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
                             </div>
                         </div>
 
                         <div class="form-group hidden-print">
-                            <div class="col-xs-12">
+                            <div class="col-md-12">
                                 {!! Form::submit( 'Загрузить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                         </div>
@@ -276,7 +356,7 @@
         </div>
 
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-md-12">
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
