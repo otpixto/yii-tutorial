@@ -760,19 +760,25 @@ $( document )
         window.location.href = url;
     })
 
-    .on ( 'click', '[data-pickup]', function ( e )
+    .on ( 'click', '[data-action="pickup"]', function ( e )
     {
 
         e.preventDefault();
 
         if ( ! confirm( 'Вы уверены?' ) ) return;
 
-        var channel = $( this ).attr( 'data-pickup' );
+        var channel = $( this ).attr( 'data-channel' );
+        var call_id = $( this ).attr( 'data-call-id' );
+        var call_phone = $( this ).attr( 'data-call-phone' );
+        var call_description = $( this ).attr( 'data-call-description' );
 
         if ( ! channel ) return;
 
         $.post( '/pickup-call', {
-            channel: channel
+            channel: channel,
+            call_id: call_id,
+            call_phone: call_phone,
+            call_description: call_description
         });
 
         $( this ).closest( '.bootstrap-growl' ).remove();

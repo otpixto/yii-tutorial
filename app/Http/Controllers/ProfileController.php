@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Classes\Asterisk;
 use App\Classes\Title;
+use App\Models\Provider;
+use App\Models\Ticket;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
@@ -84,7 +86,31 @@ class ProfileController extends Controller
 
         if ( $asterisk->redirect( $channel, $number ) )
         {
+
+            $provider = Provider::getCurrent();
+
+            $draft = Ticket
+                ::draft()
+                ->first();
+
+            if ( ! $draft )
+            {
+                $draft = new Ticket();
+                $draft->status_code = 'draft';
+                $draft->status_name = Ticket::$statuses[ 'draft' ];
+                $draft->author_id = \Auth::user()->id;
+                $draft->provider_id = $provider->id;
+            }
+
+            $draft->phone = $request->get( 'call_phone' );
+            $draft->call_phone = $draft->phone;
+            $draft->call_id = $request->get( 'call_id' );
+            $draft->call_description = $request->get( 'call_description' );
+
+            $draft->save();
+
             return 'SUCCESS: Переадресация прошла успешно';
+
         }
         else
         {

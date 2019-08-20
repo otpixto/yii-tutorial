@@ -96,9 +96,9 @@ class RestController extends Controller
         }
 
         $response = [
-            'customer'  => null,
-            'provider'  => null,
-            'users'     => []
+            'customer'          => null,
+            'provider'          => null,
+            'users'             => []
         ];
 
         $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );

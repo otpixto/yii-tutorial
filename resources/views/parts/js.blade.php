@@ -21,9 +21,9 @@
 <script src="/assets/global/plugins/jquery.pulsate.min.js" type="text/javascript"></script>
 <script src="/assets/global/plugins/jquery-cookie-1.4.1/jquery.cookie.js"></script>
 <script src="/assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/common.js?28" type="text/javascript"></script>
+<script src="/assets/global/scripts/common.js?29" type="text/javascript"></script>
 <script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/websocket.js?25" type="text/javascript"></script>
+<script src="/assets/global/scripts/websocket.js?26" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script src="/assets/layouts/layout5/scripts/layout.min.js" type="text/javascript"></script>

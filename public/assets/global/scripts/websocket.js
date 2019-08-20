@@ -49,7 +49,7 @@ socket
         {
             message += '<h2>' + ( data.provider ) + '</h2>'
         }
-        message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-pickup="' + data.channel + '">Забрать</button></h4>';
+        message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup">Забрать</button></h4>';
         if ( data.customer )
 		{
 			if ( data.customer.address )
