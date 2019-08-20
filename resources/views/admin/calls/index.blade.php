@@ -120,7 +120,7 @@
                                     {!! $call->getCaller() !!}
                                 </td>
                                 <td>
-                                    @if ( $call->dcontext == 'incoming' )
+                                    @if ( mb_strpos( $call->dcontext, 'incoming' ) !== false )
                                         <i class="fa fa-chevron-circle-down text-success tooltips" title="Входящий"></i>
                                     @else
                                         <i class="fa fa-chevron-circle-up text-danger tooltips" title="Исходящий"></i>
