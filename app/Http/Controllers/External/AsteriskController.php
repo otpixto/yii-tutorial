@@ -41,10 +41,14 @@ class AsteriskController extends BaseController
                 {
                     $state[ 'operator' ] = $operator;
                 }
-                else if ( config( 'asterisk.remove_unreg' ) )
+                else
                 {
-                    $this->asterisk->queueRemove( $number );
-                    unset( $states[ 'list' ][ $number ] );
+                    $states[ 'count' ] --;
+                    if ( config( 'asterisk.remove_unreg' ) )
+                    {
+                        $this->asterisk->queueRemove( $number );
+                        unset( $states[ 'list' ][ $number ] );
+                    }
                 }
 			}
 		}
