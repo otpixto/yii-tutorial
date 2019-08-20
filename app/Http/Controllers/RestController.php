@@ -61,7 +61,7 @@ class RestController extends Controller
         $user_id = $auth->user_id;
         $provider_id = $auth->provider_id;
         $auth->delete();
-        $asterisk = new Asterisk( $auth->provider->getAsteriskConfig() );
+        $asterisk = $auth->provider->getAsterisk();
         $phoneSession = PhoneSession::create([
             'provider_id'   => $provider_id,
             'user_id'       => $user_id,

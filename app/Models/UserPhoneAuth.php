@@ -75,7 +75,7 @@ class UserPhoneAuth extends BaseModel
             return new MessageBag( [ 'Неверный код' ] );
         }
 
-        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+        $asterisk = Provider::getCurrent()->getAsterisk();
 
         if ( ! $asterisk->queueAdd( $phoneAuth->number ) )
         {
@@ -91,7 +91,7 @@ class UserPhoneAuth extends BaseModel
     private static function callWithCode ( $number, $code )
     {
 
-        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+        $asterisk = Provider::getCurrent()->getAsterisk();
 
         if ( ! $asterisk || ! $asterisk->originate( $number, $code ) )
         {

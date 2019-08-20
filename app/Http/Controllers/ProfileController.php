@@ -62,7 +62,7 @@ class ProfileController extends Controller
             return 'ERROR: Телефон не авторизован';
         }
 
-        $asterisk = new Asterisk( $session->provider->getAsteriskConfig() );
+        $asterisk = $session->provider->getAsterisk();
         $queue = $asterisk->queue();
 
         if ( ! $queue )

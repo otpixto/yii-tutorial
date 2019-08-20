@@ -147,38 +147,19 @@ class SessionsController extends BaseController
 
     public function store ( Request $request )
     {
-		
 		$rules = [
 			'user_id'       => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
 			'number'        => 'required|string|min:2'
 		];
-
         $this->validate( $request, $rules );
-
-        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
-        \DB::beginTransaction();
-        $phoneSession = PhoneSession::create( $request->all() );
-        if ( $phoneSession instanceof MessageBag )
+        $user = User::find( $request->get( 'user_id' ) );
+        $res = $user->phoneSessionReg( $request->get( 'number' ) );
+        if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
-                ->withErrors( $phoneSession );
+            return redirect()
+                ->route( 'sessions.index' )
+                ->withErrors( $res );
         }
-        $phoneSession->save();
-        $log = $phoneSession->addLog( 'Телефонная сессия началась' );
-        if ( $log instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $log );
-        }
-        if ( ! $asterisk->queueAdd( $request->get( 'number' ) ) )
-        {
-            return redirect()->back()
-                ->withErrors( $asterisk->last_result );
-        }
-        $phoneSession->user->number = $phoneSession->number;
-        $phoneSession->user->save();
-        \DB::commit();
-
         return redirect()->route( 'sessions.index' )
             ->with( 'success', 'Телефон успешно добавлен в очередь' );
 
@@ -199,21 +180,13 @@ class SessionsController extends BaseController
                 ->route( 'sessions.index' )
                 ->withErrors( [ 'Сессия уже закрыта' ] );
         }
-        //\DB::beginTransaction();
-        $log = $phoneSession->addLog( 'Телефонная сессия завершена' );
-        if ( $log instanceof MessageBag )
-        {
-            return redirect()->back()
-                ->withErrors( $log );
-        }
         $res = $phoneSession->user->phoneSessionUnreg();
-        /*if ( $res instanceof MessageBag )
+        if ( $res instanceof MessageBag )
         {
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( $res );
-        }*/
-        //\DB::commit();
+        }
         return redirect()->route( 'sessions.index' )
             ->with( 'success', 'Сессия успешно закрыта' );
     }

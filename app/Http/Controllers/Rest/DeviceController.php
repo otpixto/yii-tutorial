@@ -491,7 +491,7 @@ class DeviceController extends BaseController
                 return $this->error( $ticketCall->first() );
             }
 
-            $asterisk = new Asterisk( $ticketManagement->ticket->provider->getAsteriskConfig() );
+            $asterisk = $ticketManagement->ticket->provider->getAsterisk();
             $rest_curl_url = config( 'rest.curl_url' ) . '/ticket-call?ticket_call_id=' . (int) $ticketCall->id;
             if ( ! $asterisk->originate( $number_from, $number_to, $number_from, $rest_curl_url ) )
             {

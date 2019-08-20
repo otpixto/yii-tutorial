@@ -40,7 +40,7 @@ class PhoneSession extends BaseModel
     {
         if ( is_null( $this->_calls ) || $this->_limit != $limit )
         {
-            $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+            $asterisk = Provider::getCurrent()->getAsterisk();
             $channel = $asterisk->prepareChannel( $this->number );
             $calls = Cdr
                 ::answered()

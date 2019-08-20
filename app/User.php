@@ -285,7 +285,7 @@ class User extends BaseModel implements
         {
             return $log;
         }
-        $asterisk = new Asterisk( Provider::getCurrent()->getAsteriskConfig() );
+        $asterisk = Provider::getCurrent()->getAsterisk();
         $queue = $asterisk->queue();
         $numbers = array_keys( $queue[ 'list' ] );
         if ( count( $numbers ) )
@@ -335,8 +335,9 @@ class User extends BaseModel implements
         $this->openPhoneSession->close();
         $this->number = null;
         $this->save();
-        $asterisk = new Asterisk( $provider->getAsteriskConfig() );
-        if ( ! $asterisk->queueRemove( $number ) )
+        $asterisk = $provider->getAsterisk();
+        $queue = $asterisk->queue();
+        if ( isset( $queue[ 'list' ][ $number ] ) && ! $asterisk->queueRemove( $number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
