@@ -649,39 +649,47 @@ class TicketsController extends BaseController
     public function store ( Request $request )
     {
 
+        $rules = [
+            'vendor_id'                 => 'nullable|integer',
+            'vendor_date'               => 'nullable|date',
+            'type_id'                   => 'required|integer',
+            'ticket_id'                 => 'required|integer',
+            'building_id'               => 'required|integer',
+            'flat'                      => 'nullable',
+            'actual_address_id'         => 'nullable|integer',
+            'actual_flat'               => 'nullable',
+            'place_id'                  => 'required|integer',
+            'emergency'                 => 'boolean',
+            'urgently'                  => 'boolean',
+            'dobrodel'                  => 'boolean',
+            'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'firstname'                 => 'required',
+            'middlename'                => 'nullable',
+            'lastname'                  => 'nullable',
+            'customer_id'               => 'nullable|integer',
+            'text'                      => 'required',
+            'managements'               => 'required|array',
+            'create_another'            => 'nullable|boolean',
+            'create_user'               => 'nullable|boolean',
+        ];
+
+        $this->validate( $request, $rules );
+
         try
         {
-
-            $rules = [
-                'vendor_id'                 => 'nullable|integer',
-                'vendor_date'               => 'nullable|date',
-                'type_id'                   => 'required|integer',
-                'ticket_id'                 => 'required|integer',
-                'building_id'               => 'required|integer',
-                'flat'                      => 'nullable',
-                'actual_address_id'         => 'nullable|integer',
-                'actual_flat'               => 'nullable',
-                'place_id'                  => 'required|integer',
-                'emergency'                 => 'boolean',
-                'urgently'                  => 'boolean',
-                'dobrodel'                  => 'boolean',
-                'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-                'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-                'firstname'                 => 'required',
-                'middlename'                => 'nullable',
-                'lastname'                  => 'nullable',
-                'customer_id'               => 'nullable|integer',
-                'text'                      => 'required',
-                'managements'               => 'required|array',
-                'create_another'            => 'nullable|boolean',
-                'create_user'               => 'nullable|boolean',
-            ];
-
-            $this->validate( $request, $rules );
 
             if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
             {
                 return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
+            }
+
+            $managements = $request->get( 'managements', [] );
+            if ( ! count( $managements ) )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Необходимо выбрать УО' ] );
             }
 
             \DB::beginTransaction();
@@ -731,7 +739,7 @@ class TicketsController extends BaseController
             }
 
             $status_code = 'no_contract';
-            $managements = array_unique( $request->get( 'managements', [] ) );
+            $managements = array_unique( $managements );
             $managements_count = 0;
 
             foreach ( $managements as $management_id )
