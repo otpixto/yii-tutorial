@@ -24,6 +24,8 @@ class GzhiRequest extends BaseModel
 
     const GJI_SOAP_URL = 'https://lk.eiasmo.ru/eds-service/';
 
+    const GZHI_VENDOR_ID = 4;
+
 
     public $table = 'gzhi_requests';
 

@@ -137,7 +137,11 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null )
+        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : Uuid::generate();
+
+        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
+                ->where( [ 'number' => $appealGuid, 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
+                ->count() )
         {
             return 0;
         }
@@ -153,8 +157,6 @@ class GzhiHandler
         $text = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
         $packGuid = Uuid::generate();
-
-        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : Uuid::generate();
 
         $transportGuid = ( ! empty( $gzhiRequest->TransportGUID ) ) ? $gzhiRequest->TransportGUID : Uuid::generate();
 
@@ -254,10 +256,19 @@ SOAP;
 
             $gzhiRequest->save();
 
-            $ticket->vendors()->attach( 4, [
-                'number'        => $appealGuid,
-                'datetime'      => Carbon::now()->toDateTimeString(),
-            ]);
+            if ( ! $ticket->vendors()
+                ->where( [ 'number' => $appealGuid, 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
+                ->count() )
+            {
+
+                $ticket->vendors()
+                    ->attach( GzhiRequest::GZHI_VENDOR_ID, [
+                        'number' => $appealGuid,
+                        'datetime' => Carbon::now()
+                            ->toDateTimeString(),
+                    ] );
+
+            }
 
         }
 
@@ -652,7 +663,7 @@ SOAP;
 
                     $building->save();
 
-                    $i++;
+                    $i ++;
 
                     continue 2;
                 }
