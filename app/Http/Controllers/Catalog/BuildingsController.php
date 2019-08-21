@@ -420,13 +420,8 @@ class BuildingsController extends BaseController
 
         $res = Building
             ::mine( Building::IGNORE_MANAGEMENT )
-            ->leftJoin( BuildingType::$_table, BuildingType::$_table . '.id', '=', Building::$_table . '.building_type_id' )
-            ->select(
-                Building::$_table . '.id',
-                \DB::raw( 'CONCAT_WS( \' \', ' . Building::$_table . '.name, CONCAT( \'(\', ' . BuildingType::$_table . '.name, \')\' ) ) AS fullname' )
-            )
-            ->having( 'fullname', 'like', $s )
-            ->orderBy( 'fullname' );
+            ->where( 'name', 'like', $s )
+            ->orderBy( 'name' );
 
         if ( ! empty( $provider_id ) )
         {
@@ -442,7 +437,7 @@ class BuildingsController extends BaseController
 		{
 			$buildings[] = [
 				'id' => $r->id,
-				'text' => $r->fullname
+				'text' => $r->getAddress()
 			];
 		}
 

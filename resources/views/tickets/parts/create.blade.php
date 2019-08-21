@@ -34,11 +34,11 @@
 
         <div class="form-group">
             {!! Form::label( 'building_id', 'Адрес проблемы', [ 'class' => 'control-label col-xs-3' ] ) !!}
-            <div class="col-xs-5">
-                {!! Form::select( 'building_id', $ticket->building ? $ticket->building()->pluck( 'name', 'id' ) : [], \Input::old( 'building_id', $ticket->building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
+            <div class="col-xs-6">
+                {!! Form::select( 'building_id', $ticket->building ? [ $ticket->building->id => $ticket->building->getAddress() ] : [], \Input::old( 'building_id', $ticket->building_id ?? null ), [ 'class' => 'form-control autosave select2-ajax', 'placeholder' => 'Адрес', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес проблемы', 'required', 'autocomplete' => 'off' ] ) !!}
             </div>
             {!! Form::label( 'flat', 'Кв.', [ 'class' => 'control-label col-xs-1' ] ) !!}
-            <div class="col-xs-3">
+            <div class="col-xs-2">
                 {!! Form::text( 'flat', \Input::old( 'flat', $ticket->flat ?? null ), [ 'class' => 'form-control autosave', 'placeholder' => 'Кв. \ Офис', 'id' => 'flat', 'autocomplete' => 'off' ] ) !!}
             </div>
         </div>

@@ -82,8 +82,7 @@ class Building extends BaseModel
 
     public function getAddress ( $withType = false )
     {
-        //return $this->address . ' д. ' . $this->home;
-        $name = $this->name;
+        $name = str_replace( 'Московская обл., ', '', $this->name );
 		if ( $withType && $this->buildingType )
 		{
 			$name .= ' (' . $this->buildingType->name . ')';
