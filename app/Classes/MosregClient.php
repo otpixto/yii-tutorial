@@ -41,7 +41,7 @@ class MosregClient
         {
             $term = $this->normalizeAddress( $term );
         }
-        return $this->sendRequest( 'GET', '/api/address/search?username=' . $this->username . '&term=' . urlencode( $term ) );
+        return $this->sendRequest( 'GET', '/api/address/search?term=' . urlencode( $term ) );
     }
 
     public function getStatuses ()
@@ -51,38 +51,38 @@ class MosregClient
 
     public function getTickets ( int $page = 1 )
     {
-        return $this->sendRequest( 'GET', '/api/tickets?username=' . $this->username . '&page=' . $page );
+        return $this->sendRequest( 'GET', '/api/tickets?page=' . $page );
     }
 
     public function getTicket ( int $id )
     {
-        return $this->sendRequest( 'GET', '/api/tickets/' . $id . '/?username=' . $this->username );
+        return $this->sendRequest( 'GET', '/api/tickets/' . $id );
     }
 
     public function createTicket ( array $data = [] )
     {
-        return $this->sendRequest( 'POST', '/api/tickets/create/?username=' . $this->username, $data );
+        return $this->sendRequest( 'POST', '/api/tickets/create', $data );
     }
 
     public function toWork ( $id )
     {
-        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/towork?username=' . $this->username );
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/towork' );
     }
 
     public function answer ( $id, $answer_id, $comment = null )
     {
         if ( ! isset( self::$answers[ $answer_id ] ) ) return false;
-        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer?username=' . $this->username, compact( 'answer_id', 'comment' ) );
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer', compact( 'answer_id', 'comment' ) );
     }
 
     public function setWebhook ( $url )
     {
-        return $this->sendRequest( 'POST', '/api/webhook/set/?username=' . $this->username, compact( 'url' ) );
+        return $this->sendRequest( 'POST', '/api/webhook/set', compact( 'url' ) );
     }
 
     public function unsetWebhook ()
     {
-        return $this->sendRequest( 'POST', '/api/webhook/unset/?username=' . $this->username );
+        return $this->sendRequest( 'POST', '/api/webhook/unset' );
     }
 
     private function sendRequest ( $method, $path, array $data = [] )

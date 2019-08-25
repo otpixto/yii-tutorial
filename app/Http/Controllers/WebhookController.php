@@ -145,7 +145,7 @@ class WebhookController extends Controller
                     case 'NEW_CLAIM':
                     case 'UNSATISFIED':
                         $mosreg_status = 'IN_WORK';
-                        $mosreg->toWork( $ticketManagement->mosreg_id );
+                        $mosreg->toWork( $ticketManagement->mosreg_id, $management->mosreg_username );
                         break;
                 }
             }
