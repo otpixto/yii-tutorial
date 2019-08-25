@@ -134,21 +134,6 @@
 
                 {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
 
-
-                <div class="form-group">
-
-                    <div class="col-md-12 margin-bottom-15">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                GUID
-                            </span>
-                            {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
-                        </div>
-                    </div>
-
-                </div>
-
-
                 <div class="form-group">
 
                     <div class="col-md-6 margin-bottom-15">
