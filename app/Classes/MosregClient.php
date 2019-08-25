@@ -102,7 +102,7 @@ class MosregClient
             RequestOptions::FORM_PARAMS => $data
         ]);
         $response = json_decode( $response->getBody() );
-        $this->logs->addInfo( 'Response', $response );
+        $this->logs->addInfo( 'Response', (array) $response );
         return $response;
     }
 
