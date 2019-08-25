@@ -12,7 +12,6 @@ class MosregClient
 
     private $client = false;
 
-    public $id;
     private $username;
     private $password;
 
@@ -26,13 +25,12 @@ class MosregClient
         5517 => 'Отклонено. Вопрос не в компетенции УК',
     ];
 
-    public function __construct ( $id, $username, $password )
+    public function __construct ( $username, $password )
     {
         $this->client = new Client([
             'base_uri' => self::URL,
             RequestOptions::TIMEOUT => 5
         ]);
-        $this->id = $id;
         $this->username = $username;
         $this->password = $password;
     }
@@ -43,7 +41,7 @@ class MosregClient
         {
             $term = $this->normalizeAddress( $term );
         }
-        return $this->sendRequest( 'GET', '/api/address/search?company_id=' . $this->id . '&term=' . urlencode( $term ) );
+        return $this->sendRequest( 'GET', '/api/address/search?username=' . $this->username . '&term=' . urlencode( $term ) );
     }
 
     public function getStatuses ()
@@ -53,38 +51,38 @@ class MosregClient
 
     public function getTickets ( int $page = 1 )
     {
-        return $this->sendRequest( 'GET', '/api/tickets?company_id=' . $this->id . '&page=' . $page );
+        return $this->sendRequest( 'GET', '/api/tickets?username=' . $this->username . '&page=' . $page );
     }
 
     public function getTicket ( int $id )
     {
-        return $this->sendRequest( 'GET', '/api/tickets/' . $id . '/?company_id=' . $this->id );
+        return $this->sendRequest( 'GET', '/api/tickets/' . $id . '/?username=' . $this->username );
     }
 
     public function createTicket ( array $data = [] )
     {
-        return $this->sendRequest( 'POST', '/api/tickets/create/?company_id=' . $this->id, $data );
+        return $this->sendRequest( 'POST', '/api/tickets/create/?username=' . $this->username, $data );
     }
 
     public function toWork ( $id )
     {
-        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/towork?company_id=' . $this->id );
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/towork?username=' . $this->username );
     }
 
     public function answer ( $id, $answer_id, $comment = null )
     {
         if ( ! isset( self::$answers[ $answer_id ] ) ) return false;
-        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer?company_id=' . $this->id, compact( 'answer_id', 'comment' ) );
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer?username=' . $this->username, compact( 'answer_id', 'comment' ) );
     }
 
     public function setWebhook ( $url )
     {
-        return $this->sendRequest( 'POST', '/api/webhook/set/?company_id=' . $this->id, compact( 'url' ) );
+        return $this->sendRequest( 'POST', '/api/webhook/set/?username=' . $this->username, compact( 'url' ) );
     }
 
     public function unsetWebhook ()
     {
-        return $this->sendRequest( 'POST', '/api/webhook/unset/?company_id=' . $this->id );
+        return $this->sendRequest( 'POST', '/api/webhook/unset/?username=' . $this->username );
     }
 
     private function sendRequest ( $method, $path, array $data = [] )

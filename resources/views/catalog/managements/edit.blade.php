@@ -151,16 +151,7 @@
 
                 <div class="form-group">
 
-                    <div class="col-md-4 margin-bottom-15">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                Mosreg ID
-                            </span>
-                            {!! Form::text( 'mosreg_id', \Input::old( 'mosreg_id', $management->mosreg_id ), [ 'class' => 'form-control', 'placeholder' => 'Mosreg ID' ] ) !!}
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 margin-bottom-15">
+                    <div class="col-md-6 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 Логин
@@ -169,7 +160,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 margin-bottom-15">
+                    <div class="col-md-6 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 Пароль
@@ -180,10 +171,10 @@
 
                 </div>
 
-                @if(!empty($management->mosreg_id) && !empty($management->mosreg_username) && !empty($management->mosreg_password))
+                @if ( ! empty( $management->mosreg_username ) && ! empty( $management->mosreg_password ) )
                     <div class="form-group">
 
-                        @if(!$management->webhook_active)
+                        @if ( !$management->webhook_active )
                             <div class="col-md-4 margin-bottom-15">
                                 <a href="{{ route( 'managements.webhook_token.generate', $management->id ) }}"
                                    class="btn btn-default btn-circle btn-warning">Подключить

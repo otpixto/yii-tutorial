@@ -280,11 +280,11 @@ class Management extends BaseModel
     {
         if ( $this->mosreg_id && $this->mosreg_username && $this->mosreg_password )
         {
-            $mosreg = new MosregClient( $this->mosreg_id, $this->mosreg_username, $this->mosreg_password );
+            $mosreg = new MosregClient( $this->mosreg_username, $this->mosreg_password );
             return true;
         } else if ( $this->parent && $this->parent->mosreg_id && $this->parent->mosreg_username && $this->parent->mosreg_password )
         {
-            $mosreg = new MosregClient( $this->parent->mosreg_id, $this->parent->mosreg_username, $this->parent->mosreg_password );
+            $mosreg = new MosregClient( $this->parent->mosreg_username, $this->parent->mosreg_password );
             return true;
         }
         return false;

@@ -350,12 +350,12 @@ class ManagementsController extends BaseController
             }
         }
 
-        if ( $request->get( 'mosreg_id' ) )
+        if ( $request->get( 'mosreg_username' ) )
         {
             $old = Management
                 ::mine( Management::IGNORE_MANAGEMENT )
                 ->where( 'id', '!=', $management->id )
-                ->where( 'mosreg_id', '=', $request->get( 'mosreg_id' ) )
+                ->where( 'mosreg_username', '=', $request->get( 'mosreg_username' ) )
                 ->first();
             if ( $old )
             {
