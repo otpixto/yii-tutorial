@@ -27,8 +27,7 @@ class Mosreg extends Command
         try
         {
             $managements = Management
-                ::whereNotNull( 'mosreg_id' )
-                ->whereNotNull( 'mosreg_username' )
+                ::whereNotNull( 'mosreg_username' )
                 ->whereNotNull( 'mosreg_password' )
                 ->where( function ( $q )
                 {
