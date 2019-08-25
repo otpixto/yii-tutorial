@@ -112,11 +112,15 @@ class Mosreg extends Command
                             $address .= ' ' . $e;
                         }
                         else if ( mb_strpos( $e, 'д.' ) !== false )
-                        {
-                            $address .= ' ' . $e;
-                        }
+                    {
+                        $address .= ' ' . $e;
+                    }
                     }
                     $address = trim( $address );
+                    if ( mb_strlen( $address ) < 5 )
+                    {
+                        continue;
+                    }
                     $this->line( "\t" . $address . ' (' . $building->id . ')' );
                     $res = $mosreg->searchAddress( $address, true );
                     $cnt = count( $res );

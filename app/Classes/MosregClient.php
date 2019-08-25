@@ -93,7 +93,7 @@ class MosregClient
 
     private function sendRequest ( $method, $path, array $data = [] )
     {
-        $this->logs->addInfo( 'Request', $data );
+        $this->logs->addInfo( 'Request', compact( 'method', 'path', 'data' ) );
         $response = $this->client->request( $method, $path, [
             RequestOptions::AUTH => [
                 $this->username,
