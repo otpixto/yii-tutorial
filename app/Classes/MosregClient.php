@@ -4,6 +4,8 @@ namespace App\Classes;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class MosregClient
 {
@@ -14,6 +16,8 @@ class MosregClient
 
     private $username;
     private $password;
+
+    private $logs;
 
     public static $answers = [
         4635 => 'Решено. Выявлены нарушения, меры приняты',
@@ -33,6 +37,8 @@ class MosregClient
         ]);
         $this->username = $username;
         $this->password = $password;
+        $this->logs = new Logger( 'MOSREG' );
+        $this->logs->pushHandler( new StreamHandler( storage_path( 'logs/mosreg.log' ) ) );
     }
 
     public function searchAddress ( $term, $normalize = false )
@@ -87,6 +93,7 @@ class MosregClient
 
     private function sendRequest ( $method, $path, array $data = [] )
     {
+        $this->logs->addInfo( 'Request', $data );
         $response = $this->client->request( $method, $path, [
             RequestOptions::AUTH => [
                 $this->username,
@@ -94,7 +101,9 @@ class MosregClient
             ],
             RequestOptions::FORM_PARAMS => $data
         ]);
-        return json_decode( $response->getBody() );
+        $response = json_decode( $response->getBody() );
+        $this->logs->addInfo( 'Response', $response );
+        return $response;
     }
 
     public function normalizeAddress ( $address )
