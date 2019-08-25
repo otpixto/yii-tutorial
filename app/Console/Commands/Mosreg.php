@@ -155,6 +155,10 @@ class Mosreg extends Command
     private function selectAddress ( Building $building, $res = [] )
     {
         $values = [];
+        usort( $res, function ( $a, $b )
+        {
+            return mb_strlen( $a ) <=> mb_strlen( $b );
+        });
         foreach ( $res as $i => $r )
         {
             $values[] = [
