@@ -89,9 +89,7 @@ class Mosreg extends Command
             ->get()
             ->filter( function ( $item )
             {
-                $return = ! in_array( $item->id, $this->buildings );
-                $this->buildings[] = $item->id;
-                return $return;
+                return ! in_array( $item->id, $this->buildings );
             });
         return $buildings;
     }
@@ -105,8 +103,22 @@ class Mosreg extends Command
             {
                 try
                 {
-                    $this->line( "\t" . $building->name . ' (' . $building->id . ')' );
-                    $res = $mosreg->searchAddress( $building->name, true );
+                    $address_exp = explode( ', ', $building->getAddress() );
+                    $address = '';
+                    foreach ( $address_exp as $e )
+                    {
+                        if ( mb_strpos( $e, 'ул.' ) !== false )
+                        {
+                            $address .= ' ' . $e;
+                        }
+                        else if ( mb_strpos( $e, 'д.' ) !== false )
+                        {
+                            $address .= ' ' . $e;
+                        }
+                    }
+                    $address = trim( $address );
+                    $this->line( "\t" . $address . ' (' . $building->id . ')' );
+                    $res = $mosreg->searchAddress( $address, true );
                     $cnt = count( $res );
                     if ( ! $cnt )
                     {
@@ -117,6 +129,7 @@ class Mosreg extends Command
                         $this->info( "\t\t" .'Адрес найден' );
                         $building->mosreg_id = $res[ 0 ]->addressId;
                         $building->save();
+                        $this->buildings[] = $building->id;
                     }
                     else
                     {
@@ -151,6 +164,7 @@ class Mosreg extends Command
         {
             $building->mosreg_id = $res[ $answer ]->addressId;
             $building->save();
+            $this->buildings[] = $building->id;
         }
         else
         {
