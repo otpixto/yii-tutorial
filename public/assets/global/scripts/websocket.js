@@ -30,10 +30,9 @@ socket
 
     .on( 'picked_up', function ( data )
     {
-        var phone = data.phone;
-        if ( window.location.pathname == '/tickets/create' && $( '#phone' ).length )
+        if ( window.location.pathname == '/tickets/create' )
         {
-            $( '#phone' ).val( phone ).trigger( 'keyup' );
+            window.location.reload();
         }
     })
 
