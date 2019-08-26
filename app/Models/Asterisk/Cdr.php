@@ -130,6 +130,11 @@ class Cdr extends BaseModel
         return mb_substr( $this->dcontext, 0, 8 );
     }
 
+    public function isContext ( $context )
+    {
+        return mb_strpos( $this->dcontext, $context ) !== false;
+    }
+
     public function getOperator ()
     {
         if ( $this->_operator == '-1' )
@@ -181,7 +186,7 @@ class Cdr extends BaseModel
     public function getAnswer ()
     {
         $res = null;
-        if ( $this->getContext() == 'incoming' )
+        if ( mb_strpos( $this->getContext(), 'incoming' ) !== false )
         {
             $queueLog = $this->queueLogs()->completed()->orderBy( 'time', 'desc' )->first();
             if ( $queueLog && $queueLog->operator() )

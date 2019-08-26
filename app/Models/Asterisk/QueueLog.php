@@ -40,11 +40,12 @@ class QueueLog extends BaseModel
     {
         if ( $this->_operator == '-1' )
         {
+            $agent = $this->agent;
             $this->_operator = User
-                ::whereHas( 'phoneSession', function ( $q )
+                ::whereHas( 'phoneSession', function ( $q ) use ( $agent )
                 {
                     return $q
-                        ->where( 'number', '=', $this->number() )
+                        ->where( 'channel', '=', $agent )
                         ->where( 'created_at', '<=', Carbon::parse( $this->time )->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
                         ->where( function ( $q2 )
                         {
