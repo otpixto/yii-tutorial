@@ -2422,6 +2422,8 @@ class TicketsController extends BaseController
             'firstname'                 => null,
             'lastname'                  => null,
             'middlename'                => null,
+            'call_phone'                => null,
+            'call_description'          => null,
         ]);
         $ticket->emergency = 0;
         $ticket->urgently = 0;

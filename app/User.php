@@ -269,11 +269,15 @@ class User extends BaseModel implements
             return new MessageBag( [ 'Телефон пользователя уже зарегистрирован' ] );
         }
         \DB::beginTransaction();
+        $asterisk = Provider::getCurrent()->getAsterisk();
         $provider_id = Provider::getCurrent()->id;
+        $channel = $asterisk->prepareChannel( $number );
         $phoneSession = PhoneSession::create([
             'provider_id'   => $provider_id,
             'user_id'       => $this->id,
-            'number'        => $number
+            'number'        => $number,
+            'channel'       => $channel,
+            'queue'         => $asterisk->getConfig( 'queue' ),
         ]);
         if ( $phoneSession instanceof MessageBag )
         {
@@ -285,34 +289,16 @@ class User extends BaseModel implements
         {
             return $log;
         }
-        $asterisk = Provider::getCurrent()->getAsterisk();
         $queue = $asterisk->queue();
-        $numbers = array_keys( $queue[ 'list' ] );
-        if ( count( $numbers ) )
-        {
-            $users = User
-                ::whereIn( 'number', $numbers )
-                ->get();
-            foreach ( $numbers as $_number )
-            {
-                $operator = $users->where( 'number', $_number )->first();
-                if ( ! $operator && config( 'asterisk.remove_unreg' ) )
-                {
-                    $asterisk->queueRemove( $_number );
-                    unset( $queue[ 'list' ][ $_number ] );
-                }
-            }
-        }
-        if ( isset( $queue[ 'list' ][ $number ] ) )
+        $channel = $asterisk->prepareChannel( $number );
+        if ( isset( $queue[ 'list' ][ $channel ] ) )
         {
             return new MessageBag( [ 'Номер телефона занят' ] );
         }
-        if ( ! $asterisk->queueAdd( $number ) )
+        if ( ! $asterisk->queueAddByChannel( $channel ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
-        $this->number = $phoneSession->number;
-        $this->save();
         \DB::commit();
     }
 
@@ -333,11 +319,10 @@ class User extends BaseModel implements
         $number = $this->openPhoneSession->number;
         $provider = $this->openPhoneSession->provider;
         $this->openPhoneSession->close();
-        $this->number = null;
-        $this->save();
         $asterisk = $provider->getAsterisk();
         $queue = $asterisk->queue();
-        if ( isset( $queue[ 'list' ][ $number ] ) && ! $asterisk->queueRemove( $number ) )
+        $channel = $asterisk->prepareChannel( $number );
+        if ( isset( $queue[ 'list' ][ $channel ] ) && ! $asterisk->queueRemoveByChannel( $channel ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }

@@ -252,6 +252,9 @@ class Ticket extends BaseModel
         'postponed_to',
         'time_from',
         'time_to',
+        'call_phone',
+        'call_id',
+        'call_description',
     ];
 
     public function managements ()

@@ -77,12 +77,10 @@ class RestController extends Controller
         {
             return $this->error( 900 );
         }
-        if ( ! $asterisk->queueAdd( $number ) )
+        if ( ! $asterisk->queueAddByExten( $number ) )
         {
             return $this->error( 106 );
         }
-        $phoneSession->user->number = $phoneSession->number;
-        $phoneSession->user->save();
         \DB::commit();
         return $this->success();
     }
@@ -144,10 +142,11 @@ class RestController extends Controller
         $number = mb_substr( $request->get( 'number' ), -10 );
         $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
+        $interface = $request->get( 'interface' );
 
         $session = PhoneSession
             ::notClosed()
-            ->where( 'number', '=', $number )
+            ->where( 'channel', '=', $interface )
             ->first();
         if ( ! $session )
         {

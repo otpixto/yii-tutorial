@@ -186,25 +186,37 @@ class Asterisk
         return $this->isSuccess();
     }
 
-    public function queueAdd ( $number )
+    public function queueAddByExten ( $exten, $queue = null )
     {
         if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $number );
+        $channel = $this->prepareChannel( $exten );
+        return $this->queueAddByChannel( $channel, $queue );
+    }
+
+    public function queueAddByChannel ( $channel, $queue = null )
+    {
+        if ( ! $this->auth ) return false;
         $this->write([
             'Action'        => 'QueueAdd',
-            'Queue'         => $this->config[ 'queue' ],
+            'Queue'         => $queue ?: $this->config[ 'queue' ],
             'Interface'     => $channel,
         ]);
         return $this->isSuccess();
     }
 
-    public function queueRemove ( $number )
+    public function queueRemoveByExten ( $exten, $queue = null )
     {
         if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $number );
+        $channel = $this->prepareChannel( $exten );
+        return $this->queueRemoveByChannel( $channel, $queue );
+    }
+
+    public function queueRemoveByChannel ( $channel, $queue = null )
+    {
+        if ( ! $this->auth ) return false;
         $this->write([
             'Action'        => 'QueueRemove',
-            'Queue'         => $this->config[ 'queue' ],
+            'Queue'         => $queue ?: $this->config[ 'queue' ],
             'Interface'     => $channel,
         ]);
         return $this->isSuccess();
@@ -226,7 +238,7 @@ class Asterisk
         {
             preg_match( '/(.*) has/', $e, $matches );
             $queue = trim( $matches[ 1 ] );
-            preg_match_all( '/(local|sip)\/(\d*)(.*)(not\ in\ use|busy|ringing)/i', $e, $matches );
+            preg_match_all( '/((local|sip)\/(\d*)(@\d*|)) (.*)(not\ in\ use|busy|ringing|in call|unavailable)/i', $e, $matches );
             $count = count( $matches[ 0 ] );
             $data[ $queue ] = [
                 'list' => [],
@@ -236,10 +248,14 @@ class Asterisk
             ];
             for ( $i = 0; $i < $count; $i ++ )
             {
-                $isFree = preg_match( '/not\ in\ use/i', $matches[ 4 ][ $i ] );
-                $number = mb_substr( $matches[ 2 ][ $i ], -10 );
-                $data[ $queue ][ 'list' ][ $number ] = [
-                    'isFree' => $isFree ? 1 : 0
+                $isFree = preg_match( '/not\ in\ use/i', $matches[ 6 ][ $i ] );
+                $channel = $matches[ 1 ][ $i ];
+                $number = mb_substr( $matches[ 3 ][ $i ], -10 );
+                $data[ $queue ][ 'list' ][ $channel ] = [
+                    'prefix'    => $matches[ 2 ][ $i ],
+                    'number'    => $number,
+                    'postfix'   => $matches[ 4 ][ $i ],
+                    'isFree'    => $isFree ? 1 : 0
                 ];
                 if ( ! $isFree )
                 {
@@ -299,6 +315,11 @@ class Asterisk
             $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix' ], $channel );
         }
         return $channel;
+    }
+
+    public function getConfig ( $key )
+    {
+        return $this->config[ $key ] ?? null;
     }
 
     public function __destruct ()

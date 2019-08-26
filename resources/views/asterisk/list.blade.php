@@ -32,14 +32,17 @@
             <th class="text-center">
                 Свободен
             </th>
+            <th>
+                Интерфейс
+            </th>
         </tr>
     </thead>
     <tbody>
-    @foreach ( $states[ 'list' ] as $number => $state )
+    @foreach ( $states[ 'list' ] as $channel => $state )
         <tr>
             <td>
                 <span class="bold">
-                    {{ $number }}
+                    {{ $state[ 'number' ] }}
                 </span>
             </td>
             <td>
@@ -55,6 +58,11 @@
                 @else
                     @include( 'parts.no' )
                 @endif
+            </td>
+            <td>
+                <span class="text-muted small">
+                    {{ $channel }}
+                </span>
             </td>
         </tr>
     @endforeach

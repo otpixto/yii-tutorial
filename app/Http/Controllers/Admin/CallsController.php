@@ -70,7 +70,7 @@ class CallsController extends BaseController
                                                 ->orWhereHas( 'queueLogs', function ( $queueLogs ) use ( $phoneSession )
                                                 {
                                                     return $queueLogs
-                                                        ->where( \DB::raw( 'REPLACE( agent, \'SIP/\', \'\' )' ), $phoneSession->number );
+                                                        ->where( 'agent', '=', $phoneSession->channel );
                                                 });
                                         });
                                 });

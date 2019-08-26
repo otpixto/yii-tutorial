@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Classes\Asterisk;
 use App\Models\Asterisk\Cdr;
 use App\User;
 use Carbon\Carbon;
@@ -28,7 +27,9 @@ class PhoneSession extends BaseModel
     protected $fillable = [
         'provider_id',
         'user_id',
-        'number'
+        'number',
+        'channel',
+        'queue',
     ];
 
     public function user ()
@@ -41,7 +42,7 @@ class PhoneSession extends BaseModel
         if ( is_null( $this->_calls ) || $this->_limit != $limit )
         {
             $asterisk = Provider::getCurrent()->getAsterisk();
-            $channel = $asterisk->prepareChannel( $this->number );
+            $channel = $this->channel ?: $asterisk->prepareChannel( $this->number );
             $calls = Cdr
                 ::answered()
                 ->incoming()

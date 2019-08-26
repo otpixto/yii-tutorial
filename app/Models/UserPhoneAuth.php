@@ -77,7 +77,7 @@ class UserPhoneAuth extends BaseModel
 
         $asterisk = Provider::getCurrent()->getAsterisk();
 
-        if ( ! $asterisk->queueAdd( $phoneAuth->number ) )
+        if ( ! $asterisk->queueAddByExten( $phoneAuth->number ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }

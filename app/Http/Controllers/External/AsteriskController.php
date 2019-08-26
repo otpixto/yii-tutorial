@@ -34,9 +34,9 @@ class AsteriskController extends BaseController
 			$users = User
 				::whereIn( 'number', $numbers )
 				->get();
-			foreach ( $states[ 'list' ] as $number => & $state )
+			foreach ( $states[ 'list' ] as $channel => & $state )
 			{
-			    $operator = $users->where( 'number', $number )->first();
+			    $operator = $users->where( 'channel', $channel )->first();
 			    if ( $operator )
                 {
                     $state[ 'operator' ] = $operator;
@@ -46,8 +46,8 @@ class AsteriskController extends BaseController
                     $states[ 'count' ] --;
                     if ( config( 'asterisk.remove_unreg' ) )
                     {
-                        $this->asterisk->queueRemove( $number );
-                        unset( $states[ 'list' ][ $number ] );
+                        $this->asterisk->queueRemoveByChannel( $channel );
+                        unset( $states[ 'list' ][ $channel ] );
                     }
                 }
 			}
@@ -56,16 +56,16 @@ class AsteriskController extends BaseController
             ->with( 'states', $states );
     }
 
-    public function add ( $number )
+    public function add ( Request $request, $exten )
     {
-        $this->asterisk->queueAdd( $number );
+        $this->asterisk->queueAddByExten( $exten, $request->get( 'queue' ) );
     }
 
-    public function remove ( $number )
+    public function remove ( Request $request, $exten )
     {
-        $this->asterisk->queueRemove( $number );
+        $this->asterisk->queueRemoveByExten( $exten, $request->get( 'queue' ) );
         $phoneSession = PhoneSession
-            ::where( 'number', '=', $number )
+            ::where( 'number', '=', $exten )
             ->notClosed()
             ->first();
         if ( $phoneSession )
@@ -77,7 +77,7 @@ class AsteriskController extends BaseController
 
     public function call ( Request $request )
     {
-        $number_from = \Auth::user()->number ?: \Auth::user()->openPhoneSession->number;
+        $number_from = \Auth::user()->openPhoneSession->number;
         if ( ! $number_from ) return;
         $number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
         if ( ! $number_to ) return;
