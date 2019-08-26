@@ -37,7 +37,7 @@ class AsteriskController extends BaseController
 				->get();
 			foreach ( $states[ 'list' ] as $channel => & $state )
 			{
-			    $session = $sessions->where( 'channel', $channel )->orderBy( 'id' )->first();
+			    $session = $sessions->where( 'channel', $channel )->sortByDesc( 'id' )->first();
 			    if ( $session && $session->user )
                 {
                     $state[ 'operator' ] = $session->user;
