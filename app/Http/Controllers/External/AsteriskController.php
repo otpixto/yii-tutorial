@@ -28,27 +28,19 @@ class AsteriskController extends BaseController
     public function queuesView ( $queue )
     {
         $states = $this->asterisk->queue( $queue );
-		$numbers = array_keys( $states[ 'list' ] );
-		if ( count( $numbers ) )
+		$channels = array_keys( $states[ 'list' ] );
+		if ( count( $channels ) )
 		{
-			$users = User
-				::whereIn( 'number', $numbers )
+			$sessions = PhoneSession
+				::whereIn( 'channel', $channels )
+                ->notClosed()
 				->get();
 			foreach ( $states[ 'list' ] as $channel => & $state )
 			{
-			    $operator = $users->where( 'channel', $channel )->first();
-			    if ( $operator )
+			    $session = $sessions->where( 'channel', $channel )->orderBy( 'id' )->first();
+			    if ( $session && $session->user )
                 {
-                    $state[ 'operator' ] = $operator;
-                }
-                else
-                {
-                    $states[ 'count' ] --;
-                    if ( config( 'asterisk.remove_unreg' ) )
-                    {
-                        $this->asterisk->queueRemoveByChannel( $channel );
-                        unset( $states[ 'list' ][ $channel ] );
-                    }
+                    $state[ 'operator' ] = $session->user;
                 }
 			}
 		}
