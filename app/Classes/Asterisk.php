@@ -238,7 +238,8 @@ class Asterisk
         {
             preg_match( '/(.*) has/', $e, $matches );
             $queue = trim( $matches[ 1 ] );
-            preg_match_all( '/((local|sip)\/(\d*)(@\d*|)) (.*)(not\ in\ use|busy|ringing|in call|unavailable)/i', $e, $matches );
+            $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . ') (.*)(not\ in\ use|busy|ringing|in call|unavailable)/i';
+            preg_match_all( $pattern, $e, $matches );
             $count = count( $matches[ 0 ] );
             $data[ $queue ] = [
                 'list' => [],
@@ -248,13 +249,11 @@ class Asterisk
             ];
             for ( $i = 0; $i < $count; $i ++ )
             {
-                $isFree = preg_match( '/not\ in\ use/i', $matches[ 6 ][ $i ] );
+                $isFree = preg_match( '/not\ in\ use/i', $matches[ 4 ][ $i ] );
                 $channel = $matches[ 1 ][ $i ];
-                $number = mb_substr( $matches[ 3 ][ $i ], -10 );
+                $number = mb_substr( $matches[ 2 ][ $i ], -10 );
                 $data[ $queue ][ 'list' ][ $channel ] = [
-                    'prefix'    => $matches[ 2 ][ $i ],
                     'number'    => $number,
-                    'postfix'   => $matches[ 4 ][ $i ],
                     'isFree'    => $isFree ? 1 : 0
                 ];
                 if ( ! $isFree )
