@@ -21,10 +21,10 @@
         <div class="form-group">
             {!! Form::label( null, 'Номер', [ 'class' => 'col-md-3 col-xs-2 control-label' ] ) !!}
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control', 'placeholder' => 'Кто звонит', 'minlength' => 2, 'maxlength' => 10 ] ) !!}
+                {!! Form::text( 'caller', \Input::get( 'caller' ), [ 'class' => 'form-control', 'placeholder' => 'Кто звонит', 'minlength' => 2 ] ) !!}
             </div>
             <div class="col-md-3 col-xs-5">
-                {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control', 'placeholder' => 'Кому звонят', 'minlength' => 2, 'maxlength' => 10 ] ) !!}
+                {!! Form::text( 'answer', \Input::get( 'answer' ), [ 'class' => 'form-control', 'placeholder' => 'Кому звонят', 'minlength' => 2 ] ) !!}
             </div>
         </div>
 
