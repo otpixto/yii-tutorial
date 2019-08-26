@@ -20,14 +20,14 @@ class AsteriskController extends BaseController
         parent::__construct();
     }
 
-    public function queues ( $queue = null )
+    public function queue ()
     {
-        return $queue ? $this->asterisk->queue( $queue ) : $this->asterisk->queues( true );
+        return $this->asterisk->queue();
     }
 
-    public function queuesView ( $queue )
+    public function queueView ()
     {
-        $states = $this->asterisk->queue( $queue );
+        $states = $this->asterisk->queue();
 		$channels = array_keys( $states[ 'list' ] );
 		if ( count( $channels ) )
 		{
@@ -64,7 +64,7 @@ class AsteriskController extends BaseController
         {
             $phoneSession->close();
         }
-        return redirect()->route( 'asterisk.queues' );
+        return redirect()->route( 'asterisk.queue' );
     }
 
     public function call ( Request $request )

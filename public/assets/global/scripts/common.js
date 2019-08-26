@@ -418,14 +418,14 @@ function genPassword ( length )
     return text;
 };
 
-function getQueues ( queue, modal )
+function getQueue ( modal )
 {
     if ( modal )
     {
         Modal.create( 'asterisk-list', function ()
         {
             Modal.setTitle( 'Очередь звонков' );
-            $.post( '/asterisk/queues/' + queue, function ( response )
+            $.post( '/asterisk/queue', function ( response )
             {
                 Modal.setBody( response, 'asterisk-list' );
             });
@@ -436,7 +436,7 @@ function getQueues ( queue, modal )
         if ( $( '#queues' ).length && ! $( '#queues' ).hasClass( 'loading' ) )
         {
             $( '#queues' ).addClass( 'loading' );
-            $.getJSON( '/asterisk/queues/' + queue, function ( response )
+            $.getJSON( '/asterisk/queue', function ( response )
             {
                 if ( response )
                 {
