@@ -72,19 +72,17 @@ class ProfileController extends Controller
             return 'ERROR: Очередь не найдена';
         }
 
-        $number = $session->number;
-
-        if ( ! isset( $queue[ 'list' ][ $number ] ) )
+        if ( ! isset( $queue[ 'list' ][ $session->channel ] ) )
         {
             return 'ERROR: Телефон не найден в очереди';
         }
 
-        if ( ! $queue[ 'list' ][ $number ][ 'isFree' ] )
+        if ( ! $queue[ 'list' ][ $session->channel ][ 'isFree' ] )
         {
             return 'ERROR: Занято';
         }
 
-        if ( $asterisk->redirect( $channel, $number ) )
+        if ( $asterisk->redirect( $channel, $session->number ) )
         {
 
             $provider = Provider::getCurrent();
