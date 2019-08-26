@@ -1299,10 +1299,10 @@ class TicketsController extends BaseController
 
             case 'rate':
 
-                if ( \Auth::user()->can( 'tickets.rate' ) )
+                $ticketManagement = $ticket->managements()->mine()->find( $id );
+                if ( $ticketManagement )
                 {
-                    $ticketManagement = $ticket->managements()->mine()->find( $id );
-                    if ( $ticketManagement )
+                    if ( $ticketManagement->canRate() )
                     {
                         return view( 'tickets.parts.rate_form' )
                             ->with( 'ticketManagement', $ticketManagement );
@@ -1310,13 +1310,13 @@ class TicketsController extends BaseController
                     else
                     {
                         return view( 'parts.error' )
-                            ->with( 'error', 'Заявка не найдена' );
+                            ->with( 'error', 'Невозможно изменить оценку' );
                     }
                 }
                 else
                 {
                     return view( 'parts.error' )
-                        ->with( 'error', 'Ошибка доступа' );
+                        ->with( 'error', 'Заявка не найдена' );
                 }
 
                 break;
