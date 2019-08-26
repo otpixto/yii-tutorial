@@ -32,4 +32,13 @@ class Log extends BaseModel
         return parent::create( $attributes );
     }
 
+    public function scopeMine ( $query )
+    {
+        if ( ! \Auth::user()->admin )
+        {
+            return $query
+                ->where( 'host', '=', Provider::getCurrent()->domain );
+        }
+    }
+
 }

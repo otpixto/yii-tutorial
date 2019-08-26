@@ -20,7 +20,8 @@ class LogsController extends BaseController
     {
 
         $logs = Log
-            ::orderBy( 'id', 'desc' )
+            ::mine()
+            ->orderBy( 'id', 'desc' )
             ->whereHas( 'author', function ( $author )
             {
                 return $author
