@@ -35,6 +35,17 @@
 
         <div class="form-group">
             <div class="col-xs-3 control-label">
+                Интерфейс
+            </div>
+            <div class="col-xs-6">
+                <span class="form-control">
+                    {{ \Auth::user()->openPhoneSession->channel }}
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-3 control-label">
                 Телефон зарегистрирован
             </div>
             <div class="col-xs-6">
