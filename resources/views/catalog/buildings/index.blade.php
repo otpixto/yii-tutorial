@@ -117,7 +117,7 @@
                                         </th>
                                     @endif
                                     <th class="text-center">
-                                        GUID
+                                        ГЖИ
                                     </th>
                                     <th class="text-right">
                                         &nbsp;
@@ -141,7 +141,7 @@
                                             </td>
                                         @endif
                                         <td class="text-center">
-                                            @if ( $building->guid )
+                                            @if ( $building->mosreg_id )
                                                 @include( 'parts.yes' )
                                             @else
                                                 @include( 'parts.no' )
