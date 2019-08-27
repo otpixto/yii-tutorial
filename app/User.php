@@ -316,16 +316,13 @@ class User extends BaseModel implements
                 ->back()
                 ->withErrors( $log );
         }
-        $number = $this->openPhoneSession->number;
-        $provider = $this->openPhoneSession->provider;
-        $this->openPhoneSession->close();
-        $asterisk = $provider->getAsterisk();
+        $asterisk = $this->openPhoneSession->getAsterisk();
         $queue = $asterisk->queue();
-        $channel = $asterisk->prepareChannel( $number );
-        if ( isset( $queue[ 'list' ][ $channel ] ) && ! $asterisk->queueRemoveByChannel( $channel ) )
+        if ( isset( $queue[ 'list' ][ $this->openPhoneSession->channel ] ) && ! $asterisk->queueRemoveByChannel( $this->openPhoneSession->channel ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
+        $this->openPhoneSession->close();
         \DB::commit();
     }
 
