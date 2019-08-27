@@ -316,7 +316,7 @@ class User extends BaseModel implements
                 ->back()
                 ->withErrors( $log );
         }
-        $asterisk = $this->openPhoneSession->getAsterisk();
+        $asterisk = $this->openPhoneSession->provider->getAsterisk();
         $queue = $asterisk->queue();
         if ( isset( $queue[ 'list' ][ $this->openPhoneSession->channel ] ) && ! $asterisk->queueRemoveByChannel( $this->openPhoneSession->channel ) )
         {
