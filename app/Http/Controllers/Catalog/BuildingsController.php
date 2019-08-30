@@ -196,7 +196,6 @@ class BuildingsController extends BaseController
     {
 
         $rules = [
-            'provider_id'           => 'required|integer',
             'segment_id'            => 'required|integer',
             'building_type_id'      => 'required|integer',
             'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
@@ -287,7 +286,6 @@ class BuildingsController extends BaseController
         }
 		
 		$rules = [
-            'provider_id'           => 'nullable|integer',
             'building_type_id'      => 'nullable|integer',
             'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name'                  => 'nullable|max:255',

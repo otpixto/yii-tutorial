@@ -196,7 +196,6 @@ class CustomersController extends BaseController
     {
 
         $rules = [
-            'provider_id'           => 'nullable|integer',
             'firstname'             => 'required|max:191',
             'middlename'            => 'nullable|max:191',
             'lastname'              => 'required|max:191',
@@ -278,7 +277,6 @@ class CustomersController extends BaseController
     {
 
         $rules = [
-            'provider_id'           => 'nullable|integer',
             'firstname'             => 'required|max:191',
             'middlename'            => 'nullable|max:191',
             'lastname'              => 'required|max:191',

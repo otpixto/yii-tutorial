@@ -157,7 +157,7 @@ class Mosreg extends Command
         $values = [];
         usort( $res, function ( $a, $b )
         {
-            return mb_strlen( $a->label ) - mb_strlen( $b->label );
+            return mb_strlen( $a->label ) - mb_strlen( $b->label ) + strcmp( $a->label, $b->label );
         });
         foreach ( $res as $i => $r )
         {

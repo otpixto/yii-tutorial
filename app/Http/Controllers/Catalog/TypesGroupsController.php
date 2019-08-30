@@ -79,7 +79,6 @@ class TypesGroupsController extends BaseController
     {
 
         $rules = [
-            'provider_id'           => 'required|integer',
             'name'                  => 'required|max:255',
         ];
 
@@ -157,7 +156,6 @@ class TypesGroupsController extends BaseController
         }
 		
 		$rules = [
-            'provider_id'           => 'required|integer',
             'name'                  => 'required|unique:types_groups,name,' . $group->id . '|max:255',
         ];
 
