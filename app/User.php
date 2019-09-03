@@ -291,11 +291,7 @@ class User extends BaseModel implements
         }
         $queue = $asterisk->queue();
         $channel = $asterisk->prepareChannel( $number );
-        if ( isset( $queue[ 'list' ][ $channel ] ) )
-        {
-            return new MessageBag( [ 'Номер телефона занят' ] );
-        }
-        if ( ! $asterisk->queueAddByChannel( $channel ) )
+        if ( ! isset( $queue[ 'list' ][ $channel ] ) && ! $asterisk->queueAddByChannel( $channel ) )
         {
             return new MessageBag( [ $asterisk->last_result ] );
         }
