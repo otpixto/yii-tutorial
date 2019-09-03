@@ -293,7 +293,9 @@ class User extends BaseModel implements
         $channel = $asterisk->prepareChannel( $number );
         if ( ! isset( $queue[ 'list' ][ $channel ] ) && ! $asterisk->queueAddByChannel( $channel ) )
         {
-            return new MessageBag( [ $asterisk->last_result ] );
+			$error = $asterisk->last_result;
+			$asterisk->queueRemoveByChannel( $channel );
+            return new MessageBag( [ $error ] );
         }
         \DB::commit();
     }
