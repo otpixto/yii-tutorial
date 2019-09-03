@@ -26,6 +26,23 @@ class GzhiRequest extends BaseModel
 
     const GZHI_VENDOR_ID = 4;
 
+    const GZHI_STATUSES_LIST = [
+        'transferred',
+        'transferred_again',
+        'accepted',
+        'assigned',
+        'completed_with_act',
+        'completed_without_act',
+        'closed_with_confirm',
+        'closed_without_confirm',
+        'not_verified',
+        'waiting',
+        'in_process',
+        'confirmation_operator',
+        'confirmation_client',
+        'conflict'
+    ];
+
 
     public $table = 'gzhi_requests';
 
