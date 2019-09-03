@@ -139,16 +139,7 @@
 
                 <div class="form-group">
 
-                    <div class="col-md-7 margin-bottom-15">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                GUID
-                            </span>
-                            {!! Form::text( 'guid', \Input::old( 'guid', $building->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID' ] ) !!}
-                        </div>
-                    </div>
-
-                    <div class="col-md-5 margin-bottom-15">
+                    <div class="col-md-12 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 Mosreg ID

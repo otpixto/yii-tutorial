@@ -88,7 +88,6 @@ class SegmentsController extends BaseController
     {
 
         $rules = [
-            'provider_id'           => 'required|integer',
             'parent_id'             => 'nullable|integer',
             'segment_type_id'       => 'required|integer',
             'name'                  => 'required|unique:buildings,name|max:255',
@@ -155,7 +154,6 @@ class SegmentsController extends BaseController
         }
 
         $rules = [
-            'provider_id'           => 'required|integer',
             'parent_id'             => 'nullable|integer',
             'segment_type_id'       => 'required|integer',
             'name'                  => 'required|unique:buildings,name|max:255',

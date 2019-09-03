@@ -111,7 +111,7 @@
                                         </th>
                                     @endif
                                     <th class="text-center">
-                                        GUID
+                                        ГЖИ
                                     </th>
                                     <th class="text-center">
                                         Необходим акт
@@ -150,7 +150,7 @@
                                             </td>
                                         @endif
                                         <td class="text-center">
-                                            @if ( $type->guid )
+                                            @if ( $type->mosreg_id )
                                                 @include( 'parts.yes' )
                                             @else
                                                 @include( 'parts.no' )

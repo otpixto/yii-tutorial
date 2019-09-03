@@ -42,7 +42,7 @@
                 </th>
             @endif
             <th class="text-center">
-                GUID
+                ГЖИ
             </th>
             <th class="text-center" width="80">
                 Есть договор
@@ -97,7 +97,7 @@
                     </td>
                 @endif
                 <td class="text-center">
-                    @if ( $management->guid )
+                    @if ( $management->webhook_active )
                         @include( 'parts.yes' )
                     @else
                         @include( 'parts.no' )
