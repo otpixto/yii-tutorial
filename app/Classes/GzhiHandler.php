@@ -139,6 +139,12 @@ class GzhiHandler
 
         $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : Uuid::generate();
 
+        if($ticket->type->gzhi_code_type == 36 || $ticket->type->gzhi_code_type == '36' || $ticket->type->gzhi_code == 36001 || $ticket->type->gzhi_code == '36001')
+        {
+            return 0;
+        }
+
+
         if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] || $ticket->type_id == null || $ticket->status_code == 'draft' || $ticket->type->gzhi_code == 36001 || $ticket->type->gzhi_code_type == 36 || !in_array($ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST) )
                 ->count() )
