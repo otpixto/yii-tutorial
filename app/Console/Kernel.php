@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
         {
             ( new GzhiHandler() )->fillTypes();
         } )
-            ->monthlyOn( 1, '3:00' );
+            ->everyMinute();
 
         $schedule->call( function ()
         {
