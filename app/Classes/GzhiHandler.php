@@ -101,7 +101,6 @@ class GzhiHandler
 
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
-        exit;
 
         $username = $gzhiProvider->login;
 
@@ -539,6 +538,19 @@ SOAP;
         {
             $i = 1;
 
+            if($type->gzhi_code == '36001')
+            {
+
+                $type->gzhi_code_type = null;
+
+                $type->gzhi_code = null;
+
+                $type->save();
+
+                continue;
+            }
+
+
             foreach ( $gzhiTypes as $gzhiType )
             {
 
@@ -557,8 +569,8 @@ SOAP;
 
                 if ( $i == $countGzhiTypes )
                 {
-                    $type->gzhi_code_type = GzhiRequest::GZHI_REQUEST_CODE_TYPE;
-                    $type->gzhi_code = GzhiRequest::GZHI_REQUEST_CODE;
+                    $type->gzhi_code_type = null;
+                    $type->gzhi_code = null;
 
                     $type->save();
 
