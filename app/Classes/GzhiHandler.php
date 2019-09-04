@@ -101,8 +101,7 @@ class GzhiHandler
 
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
-
-        return 0;
+        exit;
 
         $username = $gzhiProvider->login;
 
