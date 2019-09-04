@@ -17,8 +17,8 @@ class GzhiRequest extends BaseModel
 
     const GZHI_REQUEST_MAX_ATTEMPTS_COUNT = 30;
 
-    const GZHI_REQUEST_CODE_TYPE = 36;
-    const GZHI_REQUEST_CODE = 36001;
+    const GZHI_REQUEST_CODE_TYPE = null;
+    const GZHI_REQUEST_CODE = null;
 
     const GZHI_REQUEST_API_VERSION = "1.0.0.5";
 
