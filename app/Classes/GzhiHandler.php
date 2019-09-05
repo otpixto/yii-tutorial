@@ -175,7 +175,6 @@ class GzhiHandler
    <soapenv:Body>
       <eds:importAppealRequest Id="?" eds:version="{$this->apiVersion}">
          <eds:Header>
-            <!--You may enter the following 3 items in any order-->
             <eds:OrgGUID>$orgGuid</eds:OrgGUID>
             <eds:PackGUID>$packGuid</eds:PackGUID>
             <eds:PackDate>$packDate</eds:PackDate>
