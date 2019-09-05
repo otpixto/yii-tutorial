@@ -102,8 +102,6 @@ class GzhiHandler
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
 
-        return 0;
-
         $username = $gzhiProvider->login;
 
         $password = $gzhiProvider->password;
@@ -125,6 +123,8 @@ class GzhiHandler
         $ticket->load( 'managements' );
 
         $ticket->load( 'vendors' );
+
+        $ticket->load( 'customer' );
 
         if ( $gzhiRequest )
         {
@@ -154,7 +154,10 @@ class GzhiHandler
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
-        $email = $ticket->managements[ 0 ]->management->email ?? 'eds@eds.ru';
+        if ( $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' )
+        {
+            return 0;
+        }
 
         $text = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
@@ -163,6 +166,8 @@ class GzhiHandler
         $transportGuid = ( ! empty( $gzhiRequest->TransportGUID ) ) ? $gzhiRequest->TransportGUID : Uuid::generate();
 
         $numberReg = Uuid::generate();
+
+        $name = $ticket->customer->getName();
 
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
@@ -182,8 +187,7 @@ class GzhiHandler
                <eds:CreationDate>$packDate</eds:CreationDate>
                <eds:Status>{$this->requestStatus}</eds:Status>
                <eds:Initiator>
-                  <eds:Name>{$ticket->firstname}</eds:Name>
-                  <eds:Mail>$email</eds:Mail>
+                  <eds:Name>$name</eds:Name>
                   <eds:Phone>{$ticket->phone}</eds:Phone>
                   <eds:PostAddress>$address</eds:PostAddress>
                </eds:Initiator>
