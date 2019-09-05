@@ -154,7 +154,7 @@ class GzhiHandler
 
         $actualAddress = $ticket->customer->getActualAddress() ?? '';
 
-        $address = ( $actualAddress != '' ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->customer->buildings[ 0 ]->name ), 0, 49 ) : ( mb_substr( $ticket->building->name, 0, 49 ) );
+        $address = ( $actualAddress != '' ) ? mb_substr( str_replace( 'Московская обл., ', '', $actualAddress ), 0, 49 ) : ( mb_substr( $ticket->building->name, 0, 49 ) );
 
         $gzhiAddressGUID = $ticket->building->gzhi_address_guid;
 
