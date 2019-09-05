@@ -139,6 +139,8 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
+        $ticket->customer->load('buildings');
+
         $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : (string) Uuid::generate();
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
@@ -150,7 +152,9 @@ class GzhiHandler
             return 0;
         }
 
-        $address = ( isset( $ticket->customer->buildings[ 0 ]->name ) ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->customer->buildings[ 0 ]->name ), 0, 49 ) : ( $ticket->building->name ?? 'Пусто' );
+        $actualAddress = $ticket->customer->getActualAddress();
+
+        $address = ( $actualAddress != '' ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->customer->buildings[ 0 ]->name ), 0, 49 ) : ( mb_substr( $ticket->building->name, 0, 49 ) );
 
         $gzhiAddressGUID = $ticket->building->gzhi_address_guid;
 
