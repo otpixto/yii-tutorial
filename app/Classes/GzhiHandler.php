@@ -139,7 +139,7 @@ class GzhiHandler
 
         $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : (string) Uuid::generate();
 
-        if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
+        if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
                 ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
         {
