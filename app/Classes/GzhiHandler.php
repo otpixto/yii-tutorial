@@ -141,9 +141,11 @@ class GzhiHandler
 
         $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : (string) Uuid::generate();
 
+        $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
+
         if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
-                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
+                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' )
         {
             return 0;
         }
@@ -151,13 +153,6 @@ class GzhiHandler
         $address = ( isset( $ticket->building->name ) ) ? mb_substr( str_replace( 'Московская обл., ', '', $ticket->building->name ), 0, 49 ) : 'Пусто';
 
         $gzhiAddressGUID = $ticket->building->gzhi_address_guid;
-
-        $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
-
-        if ( $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' )
-        {
-            return 0;
-        }
 
         $text = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
