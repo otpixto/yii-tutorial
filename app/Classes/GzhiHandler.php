@@ -102,6 +102,8 @@ class GzhiHandler
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
 
+        return 0;
+
         $username = $gzhiProvider->login;
 
         $password = $gzhiProvider->password;
@@ -152,7 +154,7 @@ class GzhiHandler
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
-        $email = $ticket->managements[ 0 ]->management->email ?? 'test@test.ru';
+        $email = $ticket->managements[ 0 ]->management->email ?? 'eds@eds.ru';
 
         $text = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
