@@ -167,7 +167,7 @@ class GzhiHandler
 
         $numberReg = Uuid::generate();
 
-        $name = $ticket->customer->getName();
+        $name = $ticket->customer->getName() ?? $ticket->lastname . " " . $ticket->firstname . " " . $ticket->middlename;
 
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
