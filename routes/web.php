@@ -124,6 +124,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
 
+        //Route::get( 'test-orgs', 'HomeController@testOrgs' )->name( 'home.test-orgs' );
+
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
         Route::get( '/profile/unsubscribe/{user_id}', 'ProfileController@unsubscribe' )->name( 'profile.unsubscribe' );
 

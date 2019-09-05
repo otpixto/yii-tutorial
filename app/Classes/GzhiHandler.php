@@ -137,17 +137,11 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
-        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : Uuid::generate();
-
-        if($ticket->type->gzhi_code_type == 36 || $ticket->type->gzhi_code_type == '36' || $ticket->type->gzhi_code == 36001 || $ticket->type->gzhi_code == '36001')
-        {
-            return 0;
-        }
-
+        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : (string) Uuid::generate();
 
         if ( ! isset( $ticket->managements[ 0 ]->management->guid ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
-                ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] || $ticket->type_id == null || $ticket->status_code == 'draft' || $ticket->type->gzhi_code == 36001 || $ticket->type->gzhi_code_type == 36 || !in_array($ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST) )
-                ->count() )
+                ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
+                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
         {
             return 0;
         }
@@ -156,7 +150,7 @@ class GzhiHandler
 
         $gzhiAddressGUID = $ticket->building->gzhi_address_guid;
 
-        $managementGuid = $ticket->managements[ 0 ]->management->guid;
+        $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
         $email = $ticket->managements[ 0 ]->management->email ?? 'test@test.ru';
 
@@ -488,6 +482,7 @@ SOAP;
 
         $response = curl_exec( $curl );
 
+
         $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
         curl_close( $curl );
@@ -530,55 +525,24 @@ SOAP;
 
         $gzhiTypes = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAppealKind;
 
-        $countGzhiTypes = count( $gzhiTypes );
+        $i = 0;
 
-        $types = Type::all();
+        $dataArray = [];
 
-        foreach ( $types as &$type )
+        foreach ( $gzhiTypes as $gzhiType )
         {
-            $i = 1;
 
-            if($type->gzhi_code == '36001')
-            {
+            $dataArray[ $i ][ 'edsCode' ] = (string) $gzhiType->edsCode;
+            $dataArray[ $i ][ 'edsCodeType' ] = (string) $gzhiType->edsCodeType;
+            $dataArray[ $i ][ 'edsName' ] = (string) $gzhiType->edsName;
 
-                $type->gzhi_code_type = null;
+            $i ++;
 
-                $type->gzhi_code = null;
-
-                $type->save();
-
-                continue;
-            }
-
-
-            foreach ( $gzhiTypes as $gzhiType )
-            {
-
-                $edsName = (String) $gzhiType->edsName;
-
-                if ( strpos( $type->name, $edsName ) )
-                {
-                    $type->gzhi_code = $gzhiType->edsCode;
-                    $type->gzhi_code_type = $gzhiType->edsCodeType;
-                    $type->gzhi_name = $edsName;
-
-                    $type->save();
-
-                    continue 2;
-                }
-
-                if ( $i == $countGzhiTypes )
-                {
-                    $type->gzhi_code_type = null;
-                    $type->gzhi_code = null;
-
-                    $type->save();
-
-                    continue 2;
-                }
-                $i ++;
-            }
         }
+
+        $headersArray = array( 'edsCode', 'edsCodeType', 'edsName' );
+
+        $this->generateCSV( $headersArray, $dataArray );
 
     }
 
@@ -692,6 +656,131 @@ SOAP;
 
         echo "Обработано позиций: " . $i;
 
+    }
+
+
+    public function getOrgList ()
+    {
+
+        $packGuid = Uuid::generate();
+
+        $soapAction = $this->soapGetStateAction;
+
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Жуковский' )
+            ->first();
+
+        $orgGuid = $gzhiApiProvider->org_guid;
+
+        $username = $gzhiApiProvider->login;
+
+        $password = $gzhiApiProvider->password;
+
+        $accessData = $username . ':' . $password;
+
+        $packDate = date( 'Y-m-d\TH:i:s' );
+
+        $data = <<<SOAP
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+    <soapenv:Header/>
+        <soapenv:Body>
+            <eds:getStateDSRequest Id="?" eds:version="{$this->apiVersion}">
+            <eds:Header>
+             <!--  You may enter the following 3 items in any order  -->
+            <eds:OrgGUID>$orgGuid</eds:OrgGUID>
+            <eds:PackGUID>$packGuid</eds:PackGUID>
+            <eds:PackDate>$packDate</eds:PackDate>
+            </eds:Header>
+            <eds:PackGUID>68b4ab29-b1fd-11e9-8c02-ddd67477fd67</eds:PackGUID>
+            </eds:getStateDSRequest>
+        </soapenv:Body>
+</soapenv:Envelope>
+SOAP;
+
+        $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+
+        $response = curl_exec( $curl );
+
+
+        $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+
+        curl_close( $curl );
+
+        if ( $status_code != 200 )
+        {
+            $this->errorMessage .= "CURL status: $status_code; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+        $xml = new \SimpleXMLElement( $response );
+
+        if ( isset( $xml->faultstring ) )
+        {
+            $this->errorMessage .= $xml->faultstring;
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+        }
+
+        if ( ! isset( $xml->soapenvBody ) )
+        {
+            $this->errorMessage .= " SOAP structure error; ";
+            $log = \App\Models\Log::create( [
+                'text' => $this->errorMessage
+            ] );
+
+            $log->save();
+            return false;
+        }
+
+        $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsOrgs;
+
+        $dataArray = [];
+        $i = 0;
+
+        foreach ( $gzhiAddresses as $gzhiAddress )
+        {
+
+            $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsOrgGUID;
+            $dataArray[ $i ][ 'edsFullName' ] = (string) $gzhiAddress->edsFullName;
+            $dataArray[ $i ][ 'edsName' ] = (string) $gzhiAddress->edsName;
+            $dataArray[ $i ][ 'edsAddress' ] = (string) $gzhiAddress->edsAddress;
+            $dataArray[ $i ][ 'edsAddressJur' ] = (string) $gzhiAddress->edsAddressJur;
+
+            $i ++;
+
+        }
+
+        $headersArray = array( 'edsOrgGUID', 'edsFullName', 'edsName', 'edsAddress', 'edsAddressJur' );
+
+        $this->generateCSV( $headersArray, $dataArray );
+
+    }
+
+    private function generateCSV ( array $headersArray, array $dataArray )
+    {
+        $Filename = 'Level.csv';
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        Header( 'Content-Type: application/force-download' );
+        header( 'Content-Disposition: attachment; filename=' . $Filename . '' );
+
+        $output = fopen( 'php://output', 'w' );
+
+        fputcsv( $output, $headersArray );
+
+        foreach ( $dataArray as $row )
+        {
+            fputcsv( $output, $row );
+        }
+        fclose( $output );
     }
 
     private function proceedCurl ( $accessData, $data, $soapAction )

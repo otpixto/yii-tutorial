@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\GzhiHandler;
 use App\Classes\Title;
 
 class HomeController extends Controller
@@ -34,6 +35,11 @@ class HomeController extends Controller
     {
         return view('home' )
             ->with( 'title', 'Главная' );
+    }
+
+    public function testOrgs()
+    {
+        ( new GzhiHandler() )->fillTypes();
     }
 
 }
