@@ -182,7 +182,8 @@ class GzhiHandler
         if ( $ticket->status->gzhi_status_code > 50 )
         {
             $isDone = 'true';
-            $answer = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
+
+            $answer = ( $ticket->postponed_comment == '' ) ? 'Выполнено' : $ticket->postponed_comment;
 
             $fact = "<eds:Fact>
                   <eds:DateFact>$packDate</eds:DateFact>
