@@ -215,18 +215,17 @@ class GzhiHandler
                <eds:Prolong>
                   <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
                </eds:Prolong>
+               <eds:Fact>
+                  <eds:DateFact>$packDate</eds:DateFact>
+                  <eds:IsDone>$isDone</eds:IsDone>
+                  <eds:Answer>$answer</eds:Answer>
+		        </eds:Fact>
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
    </soapenv:Body>
 </soapenv:Envelope>
 SOAP;
-
-//        <eds:Fact>
-//                  <eds:DateFact>$packDate</eds:DateFact>
-//                  <eds:IsDone>$isDone</eds:IsDone>
-//                  <eds:Answer>$answer</eds:Answer>
-//		        </eds:Fact>
 
         $log = \App\Models\Log::create( [
             'text' => $data
