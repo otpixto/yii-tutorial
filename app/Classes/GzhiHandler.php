@@ -176,6 +176,10 @@ class GzhiHandler
 
         $prolongReason = GzhiRequest::GZHI_DEFAULT_PROLONG_REASON;
 
+        $isDone = ($ticket->status->gzhi_status_code > 50) ? true : false;
+
+        $answer = ($ticket->postponed_comment == '') ? 'Пусто' : $ticket->postponed_comment;
+
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
@@ -209,6 +213,11 @@ class GzhiHandler
                <eds:Prolong>
                   <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
                </eds:Prolong>
+               <eds:Fact>
+                  <eds:DateFact>$packDate</eds:DateFact>
+                  <eds:IsDone>$isDone</eds:IsDone>
+                  <eds:Answer>$answer</eds:Answer>
+		        </eds:Fact>
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
