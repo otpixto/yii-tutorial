@@ -178,7 +178,7 @@ class GzhiHandler
 
         $prolongReason = GzhiRequest::GZHI_DEFAULT_PROLONG_REASON;
 
-        $isDone = ($ticket->status->gzhi_status_code > 50) ? true : false;
+        $isDone = ($ticket->status->gzhi_status_code > 50) ? 'true' : 'false';
 
         $answer = ($ticket->postponed_comment == '') ? 'Пусто' : $ticket->postponed_comment;
 
