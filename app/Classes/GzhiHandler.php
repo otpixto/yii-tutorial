@@ -205,7 +205,7 @@ class GzhiHandler
                <eds:KindAppeal>{$ticket->type->gzhi_code}</eds:KindAppeal>
                <eds:AddressGUID>$gzhiAddressGUID</eds:AddressGUID>
                <eds:Text>$text</eds:Text>
-               <eds:IsSkipAnswer>0</eds:IsSkipAnswer>
+               <eds:IsSkipAnswer>1</eds:IsSkipAnswer>
                <eds:OrgGUID>$managementGuid</eds:OrgGUID>
                <eds:NumberReg>$numberReg</eds:NumberReg>
                <eds:DateReg>$dateReg</eds:DateReg>
