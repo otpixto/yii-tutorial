@@ -324,6 +324,11 @@ class Ticket extends BaseModel
             ->where( Status::$_table . '.model_name', '=', get_class( $this ) );
     }
 
+    public function status ()
+    {
+        return $this->belongsTo( Status::class, 'status_code', 'status_code' );
+    }
+
     public function statusesHistory ()
     {
         return $this->hasMany( StatusHistory::class, 'model_id' )

@@ -130,10 +130,12 @@ class GzhiHandler
 
         $ticket->load( 'customer' );
 
+        $ticket->load( 'status' );
+
         if ( $gzhiRequest )
         {
 
-            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR )
+            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR && $gzhiRequest->ticket_status_code == $ticket->status_code )
             {
                 return 0;
             }
@@ -145,13 +147,13 @@ class GzhiHandler
 
         $ticket->customer->load('buildings');
 
-        $appealGuid = ( ! empty( $gzhiRequest->PackGUID ) ) ? $gzhiRequest->PackGUID : (string) Uuid::generate();
+        $appealGuid = ( ! empty( $gzhiRequest->appeal_guid ) ) ? $gzhiRequest->appeal_guid : (string) Uuid::generate();
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
         if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
-                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' )
+                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' || !$ticket->status->gzhi_status_code )
         {
             return 0;
         }
@@ -172,6 +174,8 @@ class GzhiHandler
 
         $name = $ticket->customer->getName() ?? $ticket->lastname . " " . $ticket->firstname . " " . $ticket->middlename;
 
+        $prolongReason = GzhiRequest::GZHI_DEFAULT_PROLONG_REASON;
+
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
@@ -187,7 +191,7 @@ class GzhiHandler
             <eds:TransportGUID>$transportGuid</eds:TransportGUID>
             <eds:AppealInformation>
                <eds:CreationDate>$packDate</eds:CreationDate>
-               <eds:Status>{$this->requestStatus}</eds:Status>
+               <eds:Status>{$ticket->status->gzhi_status_code}</eds:Status>
                <eds:Initiator>
                   <eds:Name>$name</eds:Name>
                   <eds:Phone>{$ticket->phone}</eds:Phone>
@@ -202,6 +206,9 @@ class GzhiHandler
                <eds:NumberReg>$numberReg</eds:NumberReg>
                <eds:DateReg>$dateReg</eds:DateReg>
                <eds:DatePlan>$planDate</eds:DatePlan>
+               <eds:Prolong>
+                  <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
+               </eds:Prolong>
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
@@ -259,7 +266,9 @@ SOAP;
                 'Status' => ( $this->errorMessage == '' ) ? GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK : GzhiRequest::GZHI_REQUEST_STATUS_ERROR,
                 'Error' => $this->errorMessage,
                 'gzhi_api_provider_id' => $gzhiProvider->id,
-                'attempts_count' => ++ $gzhiRequest->attempts_count
+                'attempts_count' => ++ $gzhiRequest->attempts_count,
+                'appeal_guid' => $appealGuid,
+                'ticket_status_code' => $ticket->status_code
             ] );
 
             $gzhiRequest->save();
