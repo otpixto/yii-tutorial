@@ -116,7 +116,8 @@ class GzhiHandler
 
         $deadLine = $ticket->deadline_execution ?? $ticket->deadline_acceptance ?? $ticket->created_at;
 
-        $planDate = Carbon::parse($deadLine)->format('Y-m-d\TH:i:s');
+        $planDate = Carbon::parse( $deadLine )
+            ->format( 'Y-m-d\TH:i:s' );
 
         $gzhiRequest = GzhiRequest::where( [
             'ticket_id' => $ticket->id,
@@ -145,7 +146,7 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
-        $ticket->customer->load('buildings');
+        $ticket->customer->load( 'buildings' );
 
         $appealGuid = ( ! empty( $gzhiRequest->appeal_guid ) ) ? $gzhiRequest->appeal_guid : (string) Uuid::generate();
 
@@ -155,7 +156,7 @@ class GzhiHandler
 
         if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
-                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' || !$ticket->status->gzhi_status_code )
+                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' || ! $ticket->status->gzhi_status_code )
         {
             return 0;
         }
@@ -178,9 +179,20 @@ class GzhiHandler
 
         $prolongReason = GzhiRequest::GZHI_DEFAULT_PROLONG_REASON;
 
-        $isDone = ($ticket->status->gzhi_status_code > 50) ? 'true' : 'false';
+        if ( $ticket->status->gzhi_status_code > 50 )
+        {
+            $isDone = 'true';
+            $answer = ( $ticket->postponed_comment == '' ) ? 'Пусто' : $ticket->postponed_comment;
 
-        $answer = ($ticket->postponed_comment == '') ? 'Пусто' : $ticket->postponed_comment;
+            $fact = "<eds:Fact>
+                  <eds:DateFact>$packDate</eds:DateFact>
+                  <eds:IsDone>$isDone</eds:IsDone>
+                  <eds:Answer>$answer</eds:Answer>
+		        </eds:Fact>";
+        } else
+        {
+            $fact = '';
+        }
 
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
@@ -215,11 +227,7 @@ class GzhiHandler
                <eds:Prolong>
                   <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
                </eds:Prolong>
-               <eds:Fact>
-                  <eds:DateFact>$packDate</eds:DateFact>
-                  <eds:IsDone>$isDone</eds:IsDone>
-                  <eds:Answer>$answer</eds:Answer>
-		        </eds:Fact>
+               $fact
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
