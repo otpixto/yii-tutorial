@@ -151,6 +151,8 @@ class GzhiHandler
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
+        //$managementGuid = '357EF0C4-BB06-11E7-9583-B5CD11EEAB0E';
+
         if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
                 ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
                 ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' || !$ticket->status->gzhi_status_code )
@@ -213,17 +215,18 @@ class GzhiHandler
                <eds:Prolong>
                   <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
                </eds:Prolong>
-               <eds:Fact>
-                  <eds:DateFact>$packDate</eds:DateFact>
-                  <eds:IsDone>$isDone</eds:IsDone>
-                  <eds:Answer>$answer</eds:Answer>
-		        </eds:Fact>
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
    </soapenv:Body>
 </soapenv:Envelope>
 SOAP;
+
+//        <eds:Fact>
+//                  <eds:DateFact>$packDate</eds:DateFact>
+//                  <eds:IsDone>$isDone</eds:IsDone>
+//                  <eds:Answer>$answer</eds:Answer>
+//		        </eds:Fact>
 
         $log = \App\Models\Log::create( [
             'text' => $data
