@@ -114,6 +114,10 @@ class GzhiHandler
 
         $packDate = date( 'Y-m-d\TH:i:s' );
 
+        $deadLine = $ticket->deadline_execution ?? $ticket->deadline_acceptance ?? $ticket->created_at;
+
+        $planDate = Carbon::parse($deadLine)->format('Y-m-d\TH:i:s');
+
         $gzhiRequest = GzhiRequest::where( [
             'ticket_id' => $ticket->id,
             'Action' => $this->soapAction
@@ -197,7 +201,7 @@ class GzhiHandler
                <eds:OrgGUID>$managementGuid</eds:OrgGUID>
                <eds:NumberReg>$numberReg</eds:NumberReg>
                <eds:DateReg>$dateReg</eds:DateReg>
-               <eds:DatePlan>$packDate</eds:DatePlan>
+               <eds:DatePlan>$planDate</eds:DatePlan>
             </eds:AppealInformation>
          </eds:Appeal>
       </eds:importAppealRequest>
