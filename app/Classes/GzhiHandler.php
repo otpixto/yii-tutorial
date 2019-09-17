@@ -89,8 +89,6 @@ class GzhiHandler
 
         echo $logText;
 
-        Log::info( $logText );
-
         $log = \App\Models\Log::create( [
             'text' => $logText
         ] );
@@ -460,8 +458,6 @@ SOAP;
 
             echo $logText;
 
-            Log::info( $logText );
-
             $log = \App\Models\Log::create( [
                 'text' => $logText
             ] );
@@ -470,11 +466,13 @@ SOAP;
         }
         catch ( \Exception $e )
         {
-            Log::info( $e->getMessage() );
+
             $log = \App\Models\Log::create( [
                 'text' => $e->getMessage()
             ] );
+
             $log->save();
+
         }
 
     }
@@ -845,11 +843,13 @@ SOAP;
         }
         catch ( \Exception $e )
         {
-            Log::info( $e->getMessage() );
+
             $log = \App\Models\Log::create( [
                 'text' => $e->getMessage()
             ] );
+
             $log->save();
+
         }
     }
 
