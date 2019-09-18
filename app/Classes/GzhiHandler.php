@@ -173,7 +173,7 @@ class GzhiHandler
 
         $numberReg = Uuid::generate();
 
-        $name = $ticket->customer->getName() ?? $ticket->lastname . " " . $ticket->firstname . " " . $ticket->middlename;
+        $name = $ticket->getName() ?? $ticket->lastname . " " . $ticket->firstname . " " . $ticket->middlename;
 
         $prolongReason = GzhiRequest::GZHI_DEFAULT_PROLONG_REASON;
 
