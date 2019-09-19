@@ -342,7 +342,7 @@ class Management extends BaseModel
                     $management->save();
                     return redirect()
                         ->back()
-                        ->withErrors( [ $management->error ?? $error ] );
+                        ->withErrors( [ $result->error ?? $error ] );
                 }
             } else
             {
