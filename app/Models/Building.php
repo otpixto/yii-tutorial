@@ -175,7 +175,12 @@ class Building extends BaseModel
     {
         try
         {
-            $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $this->name ) ) );
+            $url = 'https://geocode-maps.yandex.ru/1.x/?geocode=' . urlencode( $this->name ) . '&format=json';
+            if ( $this->provider->yandex_key )
+            {
+                $url .= '&apikey=' . $this->provider->yandex_key;
+            }
+            $yandex = json_decode( file_get_contents( $url ) );
             if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
             {
                 $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
@@ -191,7 +196,7 @@ class Building extends BaseModel
         }
         catch ( \Exception $e )
         {
-
+            dd( $e );
         }
     }
 
