@@ -47,8 +47,9 @@ class BaseController extends Controller
     public function lonlat ()
     {
         $buildings = Building
-            ::whereNull( 'lon' )
-            ->orWhereNull( 'lat' )
+            ::mine()
+            ->whereNull( 'lon' )
+            ->whereNull( 'lat' )
             ->get();
         foreach ( $buildings as $building )
         {
