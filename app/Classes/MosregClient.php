@@ -31,10 +31,10 @@ class MosregClient
 
     public function __construct ( $username, $password )
     {
-        $this->client = new Client([
+        $this->client = new Client( [
             'base_uri' => self::URL,
             RequestOptions::TIMEOUT => 5
-        ]);
+        ] );
         $this->username = $username;
         $this->password = $password;
         $this->logs = new Logger( 'MOSREG' );
@@ -100,7 +100,7 @@ class MosregClient
                 $this->password
             ],
             RequestOptions::FORM_PARAMS => $data
-        ]);
+        ] );
         $response = json_decode( $response->getBody() );
         $this->logs->addInfo( 'Response', (array) $response );
         return $response;
@@ -114,6 +114,11 @@ class MosregClient
         //$address = preg_replace( '/(.* \d+)[а-яa-z]+/iU', '$1', $address );
         $address = trim( $address );
         return $address;
+    }
+
+    public function changePassword ( $password )
+    {
+        return $this->sendRequest( 'POST', '/api/password/change', compact( 'password' ) );
     }
 
 }
