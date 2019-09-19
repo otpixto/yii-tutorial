@@ -115,7 +115,7 @@ class GzhiHandler
         $deadLine = $ticket->deadline_execution ?? $ticket->deadline_acceptance ?? $ticket->created_at;
 
         $planDate = Carbon::parse( $deadLine )
-            ->format( 'Y-m-d\TH:i:s' );
+            ->format( 'Y-m-d' );
 
         $gzhiRequest = GzhiRequest::where( [
             'ticket_id' => $ticket->id,
