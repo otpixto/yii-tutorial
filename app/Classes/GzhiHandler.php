@@ -144,10 +144,11 @@ class GzhiHandler
             $gzhiRequest = new GzhiRequest();
         }
 
-        if ( ! isset( $ticket->customer ) )
+        if ( ! isset( $ticket->customer ) || !isset($ticket->managements[0]) )
         {
             return 0;
         }
+
         $ticket->customer->load( 'buildings' );
 
         $appealGuid = ( ! empty( $gzhiRequest->appeal_guid ) ) ? $gzhiRequest->appeal_guid : (string) Uuid::generate();
