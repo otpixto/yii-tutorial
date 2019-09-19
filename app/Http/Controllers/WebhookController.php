@@ -65,6 +65,7 @@ class WebhookController extends Controller
                 ] );
             }
 
+
             $json = $request->get( 'ticket' );
             if ( empty( $json ) )
             {
