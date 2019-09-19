@@ -160,6 +160,16 @@ class Management extends BaseModel
         return $query;
     }
 
+
+    public function edit ( array $attributes = [] )
+    {
+        if ( ! empty( $attributes[ 'mosreg_password' ] ) && $attributes[ 'mosreg_password' ] != $this->mosreg_password && $this->hasMosreg( $mosregClient ) )
+        {
+            $mosregClient->changePassword( $attributes[ 'mosreg_password' ] );
+        }
+        return parent::edit( $attributes );
+    }
+
     public function addExecutor ( $name, $phone = null )
     {
         if ( ! empty( $phone ) )
@@ -331,7 +341,7 @@ class Management extends BaseModel
 
                 if ( isset( $result->message ) && $result->message == "OK" )
                 {
-                    $management->webhook_active = ($token) ? 1 : 0;
+                    $management->webhook_active = ( $token ) ? 1 : 0;
                     $management->save();
                     return redirect()
                         ->back()
