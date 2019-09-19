@@ -49,9 +49,20 @@ class WebhookController extends Controller
 
             if ( $request->json( 'webhook' ) == 'init' )
             {
-                return $this->success([
+                return $this->success( [
                     'message' => 'OK'
-                ]);
+                ] );
+            } elseif ( $request->json( 'webhook' ) == 'deinit' )
+            {
+                $management->webhook_active = 0;
+
+                $management->webhook_token = null;
+
+                $management->save();
+
+                return $this->success( [
+                    'message' => 'OK'
+                ] );
             }
 
             $json = $request->get( 'ticket' );
@@ -88,36 +99,37 @@ class WebhookController extends Controller
                 {
                     return $this->error( 'Address not found' );
                 }
-                $ticket = new Ticket([
-                    'author_id'                 => \Auth::user()->id,
-                    'provider_id'               => $management->provider_id,
-                    'type_id'                   => $type->id,
-                    'building_id'               => $building->id,
-                    'flat'                      => $data->flat,
-                    'actual_building_id'        => $building->id,
-                    'actual_flat'               => $data->flat,
-                    'phone'                     => mb_substr( $data->customer_phone, -10 ),
-                    'firstname'                 => $data->customer_name,
-                    'place_id'                  => 1,
-                    'text'                      => $data->text,
-                    'vendor_id'                 => 1,
-                    'vendor_number'             => $data->mosreg_number,
-                    'vendor_date'               => Carbon::parse( $data->mosreg_created_at )->toDateTimeString(),
-                ]);
+                $ticket = new Ticket( [
+                    'author_id' => \Auth::user()->id,
+                    'provider_id' => $management->provider_id,
+                    'type_id' => $type->id,
+                    'building_id' => $building->id,
+                    'flat' => $data->flat,
+                    'actual_building_id' => $building->id,
+                    'actual_flat' => $data->flat,
+                    'phone' => mb_substr( $data->customer_phone, - 10 ),
+                    'firstname' => $data->customer_name,
+                    'place_id' => 1,
+                    'text' => $data->text,
+                    'vendor_id' => 1,
+                    'vendor_number' => $data->mosreg_number,
+                    'vendor_date' => Carbon::parse( $data->mosreg_created_at )
+                        ->toDateTimeString(),
+                ] );
                 $ticket->save();
-                $ticket->vendors()->attach( 1, [
-                    'number'        => $ticket->vendor_number,
-                    'datetime'      => $ticket->vendor_date,
-                ]);
-                $ticketManagement = new TicketManagement([
-                    'ticket_id'         => $ticket->id,
-                    'management_id'     => $management->id,
-                    'mosreg_id'         => $data->mosreg_id,
-                ]);
+                $ticket->vendors()
+                    ->attach( 1, [
+                        'number' => $ticket->vendor_number,
+                        'datetime' => $ticket->vendor_date,
+                    ] );
+                $ticketManagement = new TicketManagement( [
+                    'ticket_id' => $ticket->id,
+                    'management_id' => $management->id,
+                    'mosreg_id' => $data->mosreg_id,
+                ] );
                 $ticketManagement->save();
                 $this->dispatch( new SendStream( 'create', $ticketManagement ) );
-            }
-            else
+            } else
             {
                 $this->dispatch( new SendStream( 'update', $ticketManagement ) );
             }
@@ -127,12 +139,12 @@ class WebhookController extends Controller
                 foreach ( $request->file( 'files' ) as $_file )
                 {
                     $path = Storage::putFile( 'files', $_file );
-                    $file = File::create([
-                        'model_id'      => $ticketManagement->id,
-                        'model_name'    => get_class( $ticketManagement ),
-                        'path'          => $path,
-                        'name'          => $_file->getClientOriginalName()
-                    ]);
+                    $file = File::create( [
+                        'model_id' => $ticketManagement->id,
+                        'model_name' => get_class( $ticketManagement ),
+                        'path' => $path,
+                        'name' => $_file->getClientOriginalName()
+                    ] );
                     $file->save();
                 }
             }
@@ -152,11 +164,10 @@ class WebhookController extends Controller
 
             if ( $ticketManagement->changeMosregStatus( $mosreg_status ) )
             {
-                return $this->success([
+                return $this->success( [
                     'message' => 'OK'
-                ]);
-            }
-            else
+                ] );
+            } else
             {
                 return $this->error( 'Failed to change status' );
             }
