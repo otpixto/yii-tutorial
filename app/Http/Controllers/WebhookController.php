@@ -75,14 +75,16 @@ class WebhookController extends Controller
             if ( ! $ticketManagement )
             {
                 $type = Type
-                    ::where( 'mosreg_id', '=', $data->type_id )
+		    ::where( 'provider_id', '=', $management->provider_id )
+                    ->where( 'mosreg_id', '=', $data->type_id )
                     ->first();
                 if ( ! $type )
                 {
                     return $this->error( 'Type not found' );
                 }
                 $building = Building
-                    ::where( 'mosreg_id', '=', $data->address_id )
+                    ::where( 'provider_id', '=', $management->provider_id )
+		    ->where( 'mosreg_id', '=', $data->address_id )
                     ->first();
                 if ( ! $building )
                 {
