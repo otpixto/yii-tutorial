@@ -249,14 +249,14 @@ class Asterisk
             ];
             for ( $i = 0; $i < $count; $i ++ )
             {
-                $isFree = preg_match( '/not\ in\ use/i', $matches[ 4 ][ $i ] );
+                $isBusy = preg_match( '/busy/i', $matches[ 4 ][ $i ] );
                 $channel = $matches[ 1 ][ $i ];
                 $number = mb_substr( $matches[ 2 ][ $i ], -10 );
                 $data[ $queue ][ 'list' ][ $channel ] = [
                     'number'    => $number,
-                    'isFree'    => $isFree ? 1 : 0
+                    'isFree'    => $isBusy ? 0 : 1
                 ];
-                if ( ! $isFree )
+                if ( $isBusy )
                 {
                     $data[ $queue ][ 'busy' ] ++;
                 }
