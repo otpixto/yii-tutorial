@@ -80,7 +80,7 @@ class TicketManagement extends BaseModel
         'not_verified' => [
             'confirmation_operator',
         ],
-		'from_lk' => [
+        'from_lk' => [
             'created',
             'cancel',
         ],
@@ -88,15 +88,15 @@ class TicketManagement extends BaseModel
             'created',
             'cancel',
         ],
-		'confirmation_operator' => [
-			'confirmation_client',
-			'transferred_again',
-		],
-		'confirmation_client' => [
-			'closed_with_confirm',
-			'closed_without_confirm',
-			'transferred_again',
-		],
+        'confirmation_operator' => [
+            'confirmation_client',
+            'transferred_again',
+        ],
+        'confirmation_client' => [
+            'closed_with_confirm',
+            'closed_without_confirm',
+            'transferred_again',
+        ],
     ];
 
     protected $nullable = [
@@ -105,10 +105,10 @@ class TicketManagement extends BaseModel
     ];
 
     public static $rules = [
-        'ticket_id'             => 'required|integer',
-        'management_id'         => 'required|integer',
-        'status_code'           => 'nullable|max:191',
-        'status_name'           => 'nullable|max:191',
+        'ticket_id' => 'required|integer',
+        'management_id' => 'required|integer',
+        'status_code' => 'nullable|max:191',
+        'status_name' => 'nullable|max:191',
     ];
 
     protected $fillable = [
@@ -183,8 +183,8 @@ class TicketManagement extends BaseModel
     public function scopeMine ( $query, ... $flags )
     {
         $query
-			->whereHas( 'ticket', function ( $ticket ) use ( $flags )
-			{
+            ->whereHas( 'ticket', function ( $ticket ) use ( $flags )
+            {
                 $ticket
                     ->mine();
                 if ( in_array( self::I_AM_OWNER, $flags ) )
@@ -193,18 +193,23 @@ class TicketManagement extends BaseModel
                         ->where( 'owner_id', '=', \Auth::user()->id );
                 }
                 return $ticket;
-			});
-        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
+            } );
+        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()
+                ->can( 'supervisor.all_statuses.show' ) )
         {
             $query
-                ->whereIn( self::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                ->whereIn( self::$_table . '.status_code', \Auth::user()
+                    ->getAvailableStatuses( 'show' ) );
         }
-		if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
-		{
-			$query
-				->whereIn( self::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
-		}
-		return $query;
+        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()
+                ->can( 'supervisor.all_managements' ) )
+        {
+            $query
+                ->whereIn( self::$_table . '.management_id', \Auth::user()
+                    ->managements()
+                    ->pluck( Management::$_table . '.id' ) );
+        }
+        return $query;
     }
 
     public function scopeForme ( $query )
@@ -214,7 +219,7 @@ class TicketManagement extends BaseModel
             {
                 return $executor
                     ->where( 'user_id', '=', \Auth::user()->id );
-            });
+            } );
     }
 
     public function scopeOverdue ( $query )
@@ -225,7 +230,7 @@ class TicketManagement extends BaseModel
             {
                 return $ticket
                     ->overdue();
-            });
+            } );
     }
 
     public function scopeOverdueAcceptance ( $query )
@@ -236,7 +241,7 @@ class TicketManagement extends BaseModel
             {
                 return $ticket
                     ->overdueAcceptance();
-            });
+            } );
     }
 
     public function scopeOverdueExecution ( $query )
@@ -247,7 +252,7 @@ class TicketManagement extends BaseModel
             {
                 return $ticket
                     ->overdueExecution();
-            });
+            } );
     }
 
     public function scopeNotFinaleStatuses ( $query )
@@ -259,7 +264,8 @@ class TicketManagement extends BaseModel
     public function scopeSearch ( $query, Request $request )
     {
 
-        if ( \Auth::user()->can( 'tickets.search' ) )
+        if ( \Auth::user()
+            ->can( 'tickets.search' ) )
         {
 
             $types = [];
@@ -275,6 +281,11 @@ class TicketManagement extends BaseModel
             if ( ! empty( $request->get( 'types' ) ) )
             {
                 $types = explode( ',', $request->get( 'types' ) );
+            } elseif ( $request->get( 'category_id' ) )
+            {
+                $types = Type::where( 'parent_id', $request->get( 'category_id' ) )
+                    ->pluck( 'id' )
+                    ->toArray();
             }
 
             if ( ! empty( $request->get( 'operators' ) ) )
@@ -319,18 +330,18 @@ class TicketManagement extends BaseModel
                                     {
                                         $tags
                                             ->where( 'text', 'LIKE', $tag );
-                                    }
-                                    else
+                                    } else
                                     {
                                         $tags
                                             ->orWhere( 'text', 'LIKE', $tag );
                                     }
                                 }
                                 return $tags;
-                            });
+                            } );
                     }
 
-                    if ( \Auth::user()->can( 'tickets.search' ) )
+                    if ( \Auth::user()
+                        ->can( 'tickets.search' ) )
                     {
 
                         if ( count( $types ) )
@@ -356,7 +367,7 @@ class TicketManagement extends BaseModel
                                     return $q
                                         ->where( Ticket::$_table . '.phone', 'like', $p )
                                         ->orWhere( Ticket::$_table . '.phone2', 'like', $p );
-                                });
+                                } );
                         }
 
                         if ( ! empty( $request->get( 'firstname' ) ) )
@@ -418,49 +429,57 @@ class TicketManagement extends BaseModel
                     if ( ! empty( $request->get( 'created_from' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'created_from' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'created_from' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'created_to' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'created_to' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'created_to' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'accepted_from' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.accepted_at >= ?', [ Carbon::parse( $request->get( 'accepted_from' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.accepted_at >= ?', [ Carbon::parse( $request->get( 'accepted_from' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'accepted_to' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.accepted_at <= ?', [ Carbon::parse( $request->get( 'accepted_to' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.accepted_at <= ?', [ Carbon::parse( $request->get( 'accepted_to' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'completed_from' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.completed_at >= ?', [ Carbon::parse( $request->get( 'completed_from' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.completed_at >= ?', [ Carbon::parse( $request->get( 'completed_from' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'completed_to' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.completed_at <= ?', [ Carbon::parse( $request->get( 'completed_to' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.completed_at <= ?', [ Carbon::parse( $request->get( 'completed_to' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'postponed_from' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.postponed_at >= ?', [ Carbon::parse( $request->get( 'postponed_from' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.postponed_at >= ?', [ Carbon::parse( $request->get( 'postponed_from' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'postponed_to' ) ) )
                     {
                         $ticket
-                            ->whereRaw( Ticket::$_table . '.postponed_at <= ?', [ Carbon::parse( $request->get( 'postponed_to' ) )->toDateTimeString() ] );
+                            ->whereRaw( Ticket::$_table . '.postponed_at <= ?', [ Carbon::parse( $request->get( 'postponed_to' ) )
+                                ->toDateTimeString() ] );
                     }
 
                     if ( ! empty( $request->get( 'operator_id' ) ) )
@@ -477,7 +496,8 @@ class TicketManagement extends BaseModel
 
                     if ( ! empty( $request->get( 'segments' ) ) )
                     {
-                        $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                        $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                            ->get();
                         if ( $segments->count() )
                         {
                             $segmentIds = [];
@@ -491,7 +511,7 @@ class TicketManagement extends BaseModel
                                 {
                                     return $building
                                         ->whereIn( Building::$_table . '.segment_id', $segmentIds );
-                                });
+                                } );
                         }
                     }
 
@@ -543,7 +563,7 @@ class TicketManagement extends BaseModel
                             ->where( 'owner_id', '=', \Auth::user()->id );
                     }
 
-                });
+                } );
 
             if ( count( $statuses ) )
             {
@@ -622,13 +642,15 @@ class TicketManagement extends BaseModel
         if ( ! empty( $request->get( 'scheduled_from' ) ) )
         {
             $query
-                ->whereRaw( TicketManagement::$_table . '.scheduled_begin >= ?', [ Carbon::parse( $request->get( 'scheduled_from' ) )->toDateTimeString() ] );
+                ->whereRaw( TicketManagement::$_table . '.scheduled_begin >= ?', [ Carbon::parse( $request->get( 'scheduled_from' ) )
+                    ->toDateTimeString() ] );
         }
 
         if ( ! empty( $request->get( 'scheduled_to' ) ) )
         {
             $query
-                ->whereRaw( TicketManagement::$_table . '.scheduled_end <= ?', [ Carbon::parse( $request->get( 'scheduled_to' ) )->toDateTimeString() ] );
+                ->whereRaw( TicketManagement::$_table . '.scheduled_end <= ?', [ Carbon::parse( $request->get( 'scheduled_to' ) )
+                    ->toDateTimeString() ] );
         }
 
         if ( ! empty( $request->get( 'history_status_code' ) ) )
@@ -641,15 +663,17 @@ class TicketManagement extends BaseModel
                     if ( ! empty( $request->get( 'history_from' ) ) )
                     {
                         $statusesHistory
-                            ->whereRaw( StatusHistory::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'history_from' ) )->toDateTimeString() ] );
+                            ->whereRaw( StatusHistory::$_table . '.created_at >= ?', [ Carbon::parse( $request->get( 'history_from' ) )
+                                ->toDateTimeString() ] );
                     }
                     if ( ! empty( $request->get( 'history_to' ) ) )
                     {
                         $statusesHistory
-                            ->whereRaw( StatusHistory::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'history_to' ) )->toDateTimeString() ] );
+                            ->whereRaw( StatusHistory::$_table . '.created_at <= ?', [ Carbon::parse( $request->get( 'history_to' ) )
+                                ->toDateTimeString() ] );
                     }
                     return $statusesHistory;
-                });
+                } );
         }
 
     }
@@ -658,7 +682,8 @@ class TicketManagement extends BaseModel
     {
         if ( ! count( $services ) )
         {
-            $this->services()->delete();
+            $this->services()
+                ->delete();
             return true;
         }
         $ids = [];
@@ -676,8 +701,7 @@ class TicketManagement extends BaseModel
                 {
                     return $res;
                 }
-            }
-            else
+            } else
             {
                 $ticketManagementService = $this->createService( $service );
                 if ( $ticketManagementService instanceof MessageBag )
@@ -687,7 +711,9 @@ class TicketManagement extends BaseModel
             }
             $ids[] = $ticketManagementService->id;
         }
-        $this->services()->whereNotIn( 'id', $ids )->delete();
+        $this->services()
+            ->whereNotIn( 'id', $ids )
+            ->delete();
         return true;
     }
 
@@ -710,13 +736,15 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->availableStatuses ) )
         {
-            $user_statuses = \Auth::user()->getAvailableStatuses( $perm_for );
+            $user_statuses = \Auth::user()
+                ->getAvailableStatuses( $perm_for );
             $this->availableStatuses = [];
-            if ( \Auth::user()->can( 'supervisor.all_statuses.' . $perm_for ) )
+            if ( \Auth::user()
+                ->can( 'supervisor.all_statuses.' . $perm_for ) )
             {
                 $this->availableStatuses = $user_statuses;
-            }
-            else if ( \Auth::user()->can( 'tickets.status' ) )
+            } else if ( \Auth::user()
+                ->can( 'tickets.status' ) )
             {
                 $workflow = self::$workflow[ $this->status_code ] ?? [];
                 foreach ( $workflow as $status_code )
@@ -735,8 +763,7 @@ class TicketManagement extends BaseModel
             {
                 $res[ $status_code ] = Ticket::$statuses[ $status_code ] ?? null;
             }
-        }
-        else
+        } else
         {
             $res = $this->availableStatuses;
         }
@@ -796,11 +823,12 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_rate ) )
         {
-            if ( ( ( Provider::isSystemUrl() && \Auth::user()->can( 'lk.tickets.rate' ) ) || \Auth::user()->can( 'tickets.rate' ) ) && ! $this->rate && ( $ignoreStatus || in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client', 'closed_with_confirm' ] ) ) )
+            if ( ( ( Provider::isSystemUrl() && \Auth::user()
+                            ->can( 'lk.tickets.rate' ) ) || \Auth::user()
+                        ->can( 'tickets.rate' ) ) && ! $this->rate && ( $ignoreStatus || in_array( $this->status_code, [ 'completed_with_act', 'completed_without_act', 'confirmation_operator', 'confirmation_client', 'closed_with_confirm' ] ) ) )
             {
                 $this->can_rate = true;
-            }
-            else
+            } else
             {
                 $this->can_rate = false;
             }
@@ -812,11 +840,11 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_set_management ) )
         {
-            if ( \Auth::user()->can( 'tickets.management' ) )
+            if ( \Auth::user()
+                ->can( 'tickets.management' ) )
             {
                 $this->can_set_management = true;
-            }
-            else
+            } else
             {
                 $this->can_set_management = false;
             }
@@ -828,11 +856,11 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_set_executor ) )
         {
-            if ( \Auth::user()->can( 'tickets.executor' ) && in_array( $this->status_code, [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'waiting', 'in_process' ] ) )
+            if ( \Auth::user()
+                    ->can( 'tickets.executor' ) && in_array( $this->status_code, [ 'transferred', 'transferred_again', 'accepted', 'assigned', 'waiting', 'in_process' ] ) )
             {
                 $this->can_set_executor = true;
-            }
-            else
+            } else
             {
                 $this->can_set_executor = false;
             }
@@ -844,11 +872,11 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_print_act ) )
         {
-            if ( \Auth::user()->can( 'tickets.act' ) && $this->management->has_contract && $this->status_code )
+            if ( \Auth::user()
+                    ->can( 'tickets.act' ) && $this->management->has_contract && $this->status_code )
             {
                 $this->can_print_act = true;
-            }
-            else
+            } else
             {
                 $this->can_print_act = false;
             }
@@ -860,11 +888,11 @@ class TicketManagement extends BaseModel
     {
         if ( is_null( $this->can_upload_act ) )
         {
-            if ( \Auth::user()->can( 'tickets.files' ) && $this->management->has_contract )
+            if ( \Auth::user()
+                    ->can( 'tickets.files' ) && $this->management->has_contract )
             {
                 $this->can_upload_act = true;
-            }
-            else
+            } else
             {
                 $this->can_upload_act = false;
             }
@@ -883,7 +911,7 @@ class TicketManagement extends BaseModel
 
         if ( ! isset( Ticket::$statuses[ $status_code ] ) )
         {
-            return new MessageBag([ 'Некорректный статус' ]);
+            return new MessageBag( [ 'Некорректный статус' ] );
         }
 
         if ( ! $force )
@@ -909,12 +937,12 @@ class TicketManagement extends BaseModel
             $this->status_name = $status_name;
             $this->save();
 
-            $statusHistory = StatusHistory::create([
-                'model_id'          => $this->id,
-                'model_name'        => get_class( $this ),
-                'status_code'       => $status_code,
-                'status_name'       => $status_name,
-            ]);
+            $statusHistory = StatusHistory::create( [
+                'model_id' => $this->id,
+                'model_name' => get_class( $this ),
+                'status_code' => $status_code,
+                'status_name' => $status_name,
+            ] );
             if ( $statusHistory instanceof MessageBag )
             {
                 return $statusHistory;
@@ -936,9 +964,9 @@ class TicketManagement extends BaseModel
         {
             return false;
         }
-        $res = $this->edit([
+        $res = $this->edit( [
             'mosreg_status' => $status_code
-        ]);
+        ] );
         if ( $res instanceof MessageBag )
         {
             return false;
@@ -1023,7 +1051,8 @@ class TicketManagement extends BaseModel
                     $this->changeMosregStatus( 'IN_WORK', false );
                 }
 
-                \Cache::tags( 'tickets.scheduled.now' )->flush();
+                \Cache::tags( 'tickets.scheduled.now' )
+                    ->flush();
 
                 break;
 
@@ -1038,7 +1067,7 @@ class TicketManagement extends BaseModel
                 $this->sendTelegramChangeStatus();
 
                 break;
-				
+
             case 'assigned':
 
                 $res = $this->changeTicketStatus();
@@ -1051,7 +1080,8 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()
+                        ->getName( true ) . PHP_EOL . PHP_EOL;
 
                 if ( $this->executor )
                 {
@@ -1067,10 +1097,11 @@ class TicketManagement extends BaseModel
                     $this->dispatch( new SendPush( config( 'push.keys.eds' ), $this->executor->user->push_id, 'Вам назначена новая заявка', 'Вам назначена новая заявка ' . $this->getTicketNumber(), 'ticket', $this->id ) );
                 }
 
-                \Cache::tags( 'tickets.scheduled.now' )->flush();
+                \Cache::tags( 'tickets.scheduled.now' )
+                    ->flush();
 
                 break;
-				
+
             case 'completed_with_act':
             case 'completed_without_act':
 
@@ -1159,7 +1190,8 @@ class TicketManagement extends BaseModel
 
                 $this->sendTelegramChangeStatus();
 
-                \Cache::tags( 'tickets.scheduled.now' )->flush();
+                \Cache::tags( 'tickets.scheduled.now' )
+                    ->flush();
 
                 break;
 
@@ -1176,7 +1208,8 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()
+                        ->getName( true ) . PHP_EOL . PHP_EOL;
 
                 $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
@@ -1207,7 +1240,8 @@ class TicketManagement extends BaseModel
 
                 $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
                 $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-                $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL;
+                $message .= 'Изменения внес: ' . \Auth::user()
+                        ->getName( true ) . PHP_EOL;
 
                 $this->sendTelegram( $message, true );
 
@@ -1255,7 +1289,8 @@ class TicketManagement extends BaseModel
 
         $message .= '<b>Адрес проблемы: ' . $ticket->getAddress( true ) . '</b>' . PHP_EOL;
         $message .= 'Тип заявки: ' . $ticket->type->name . PHP_EOL;
-        $message .= 'Изменения внес: ' . \Auth::user()->getName( true ) . PHP_EOL . PHP_EOL;
+        $message .= 'Изменения внес: ' . \Auth::user()
+                ->getName( true ) . PHP_EOL . PHP_EOL;
 
         $message .= 'Статус: ' . $this->status_name . PHP_EOL;
 
@@ -1280,7 +1315,7 @@ class TicketManagement extends BaseModel
             }
         }
 
-		/*
+        /*
         foreach ( $this->management->childs as $child )
         {
             if ( ! $child->has_contract ) continue;
@@ -1292,7 +1327,7 @@ class TicketManagement extends BaseModel
                 }
             }
         }
-		*/
+        */
 
         $this->dispatch( new SendTelegramMessage( $chatIds, $message ) );
 
@@ -1306,8 +1341,7 @@ class TicketManagement extends BaseModel
             $url = $this->management->provider->ssl ? 'https://' : 'http://';
             $url .= $this->management->provider->domain;
             $url .= route( 'tickets.show', $this->getTicketNumber(), false );
-        }
-        else
+        } else
         {
             $url = route( 'tickets.show', $this->getTicketNumber() );
         }
@@ -1317,14 +1351,18 @@ class TicketManagement extends BaseModel
     public static function getCountByStatus ( $status_code, $force = false )
     {
         $key = 'ticket.status.' . Provider::getSubDomain() . '.' . \Auth::user()->id . '.' . $status_code;
-        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->has( $key ) )
+        if ( ! $force && \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )
+                ->has( $key ) )
         {
-            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->get( $key );
-        }
-        else
+            $count = \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )
+                ->get( $key );
+        } else
         {
-            $count = self::mine()->where( 'status_code', '=', $status_code )->count();
-            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )->put( $key, $count, \Config::get( 'cache.time' ) );
+            $count = self::mine()
+                ->where( 'status_code', '=', $status_code )
+                ->count();
+            \Cache::tags( [ 'dynamic', 'ticket', 'count' ] )
+                ->put( $key, $count, \Config::get( 'cache.time' ) );
         }
         return $count;
     }
@@ -1334,8 +1372,7 @@ class TicketManagement extends BaseModel
         if ( ! $this->management->need_act )
         {
             return false;
-        }
-        else
+        } else
         {
             return $this->ticket->needAct();
         }
