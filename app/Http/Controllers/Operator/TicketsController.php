@@ -21,6 +21,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 
@@ -64,33 +65,36 @@ class TicketsController extends BaseController
 
         }
 
-		if ( \Auth::user()->can( 'tickets.scheduled' ) )
-		{
-			if ( \Cache::tags( 'tickets.scheduled.now' )->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
-			{
-				$scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )->get( 'tickets.scheduled.now.' . \Auth::user()->id );
-			}
-			else
-			{
-				$now = Carbon::now()->toDateTimeString();
-				$scheduledTicketManagements = TicketManagement
-					::mine()
-					->where( 'status_code', '=', 'assigned' )
-					->where( 'scheduled_begin', '<=', $now )
-					->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
-					{
-						return $ticket
-							->whereNotNull( 'postponed_to' )
-							->where( 'postponed_to', '>', $now );
-					})
-					->get();
-				\Cache::tags( 'tickets.scheduled.now' )->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
-			}
-		}
-		else
-		{
-			$scheduledTicketManagements = new Collection();
-		}
+        if ( \Auth::user()
+            ->can( 'tickets.scheduled' ) )
+        {
+            if ( \Cache::tags( 'tickets.scheduled.now' )
+                ->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+            {
+                $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )
+                    ->get( 'tickets.scheduled.now.' . \Auth::user()->id );
+            } else
+            {
+                $now = Carbon::now()
+                    ->toDateTimeString();
+                $scheduledTicketManagements = TicketManagement
+                    ::mine()
+                    ->where( 'status_code', '=', 'assigned' )
+                    ->where( 'scheduled_begin', '<=', $now )
+                    ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+                    {
+                        return $ticket
+                            ->whereNotNull( 'postponed_to' )
+                            ->where( 'postponed_to', '>', $now );
+                    } )
+                    ->get();
+                \Cache::tags( 'tickets.scheduled.now' )
+                    ->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+            }
+        } else
+        {
+            $scheduledTicketManagements = new Collection();
+        }
 
         /*$counts = TicketManagement
             ::mine()
@@ -147,7 +151,7 @@ class TicketsController extends BaseController
         $types = Type
             ::mine()
             //->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
-            ->orderBy( Type::$_table .'.name' )
+            ->orderBy( Type::$_table . '.name' )
             ->pluck( 'name', 'id' );
 
         $vendors = Vendor
@@ -180,7 +184,8 @@ class TicketsController extends BaseController
                 ->back()
                 ->withErrors( $res );
         }
-        \Cache::tags( 'tickets_counts' )->flush();
+        \Cache::tags( 'tickets_counts' )
+            ->flush();
         return redirect()
             ->route( 'tickets.moderate' )
             ->with( 'success', 'Заявка отклонена' );
@@ -189,9 +194,12 @@ class TicketsController extends BaseController
     public function export ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'tickets.export' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.export' ) )
         {
-            return redirect()->back()->withErrors( [ 'Доступ запрещен' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Доступ запрещен' ] );
         }
 
         $ticketManagements = TicketManagement
@@ -201,7 +209,9 @@ class TicketsController extends BaseController
 
         if ( $ticketManagements->count() > 3000 )
         {
-            return redirect()->back()->withErrors( [ 'Уточните критерии поиска' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Уточните критерии поиска' ] );
         }
 
         $data = [];
@@ -211,22 +221,24 @@ class TicketsController extends BaseController
             $ticket = $ticketManagement->ticket;
             if ( ! $ticket || $ticket->status_code == 'draft' ) continue;
             $data[ $i ] = [
-                '#'                     => $ticket->id,
-                'Дата и время'          => $ticket->created_at->format( 'd.m.y H:i' ),
-                'Текущий статус'        => $ticket->status_name,
-                'Здание'                => $ticket->building->name,
-                'Квартира'              => $ticket->flat,
-                'Проблемное место'      => $ticket->getPlace(),
-                'Классификатор'         => $ticket->type->name,
-                'Текст обращения'       => $ticket->text,
-                'ФИО заявителя'         => $ticket->getName(),
-                'Телефон(ы) заявителя'  => $ticket->getPhones(),
+                '#' => $ticket->id,
+                'Дата и время' => $ticket->created_at->format( 'd.m.y H:i' ),
+                'Текущий статус' => $ticket->status_name,
+                'Здание' => $ticket->building->name,
+                'Квартира' => $ticket->flat,
+                'Проблемное место' => $ticket->getPlace(),
+                'Классификатор' => $ticket->type->name,
+                'Текст обращения' => $ticket->text,
+                'ФИО заявителя' => $ticket->getName(),
+                'Телефон(ы) заявителя' => $ticket->getPhones(),
             ];
-            if ( \Auth::user()->can( 'tickets.field_opeator' ) )
+            if ( \Auth::user()
+                ->can( 'tickets.field_opeator' ) )
             {
                 $data[ $i ][ 'Оператор' ] = $ticket->author->getName();
             }
-            if ( \Auth::user()->can( 'tickets.field_management' ) )
+            if ( \Auth::user()
+                ->can( 'tickets.field_management' ) )
             {
                 $data[ $i ][ 'Служба эксплуатации' ] = $ticketManagement->management->name;
                 if ( $ticketManagement->executor )
@@ -244,8 +256,9 @@ class TicketsController extends BaseController
             $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
             {
                 $sheet->fromArray( $data );
-            });
-        })->export( 'xls' );
+            } );
+        } )
+            ->export( 'xls' );
 
         die;
 
@@ -254,7 +267,8 @@ class TicketsController extends BaseController
     public function searchForm ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'tickets.search' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.search' ) )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Доступ запрещен' );
@@ -265,7 +279,8 @@ class TicketsController extends BaseController
         $operators = [];
         $statuses = [];
 
-        if ( \Auth::user()->can( 'tickets.search' ) )
+        if ( \Auth::user()
+            ->can( 'tickets.search' ) )
         {
 
             if ( ! empty( $request->get( 'statuses' ) ) )
@@ -297,12 +312,14 @@ class TicketsController extends BaseController
 
         if ( ! empty( $request->get( 'building_id' ) ) )
         {
-            $building = Building::where( 'id', $request->get( 'building_id' ) )->pluck( 'name', 'id' );
+            $building = Building::where( 'id', $request->get( 'building_id' ) )
+                ->pluck( 'name', 'id' );
         }
 
         if ( ! empty( $request->get( 'actual_building_id' ) ) )
         {
-            $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
+            $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )
+                ->pluck( 'name', 'id' );
         }
 
         $vendors = Vendor
@@ -310,7 +327,8 @@ class TicketsController extends BaseController
             ->pluck( Vendor::$_table . '.name', Vendor::$_table . '.id' )
             ->toArray();
 
-        $availableStatuses = \Auth::user()->getAvailableStatuses( 'show', true, true );
+        $availableStatuses = \Auth::user()
+            ->getAvailableStatuses( 'show', true, true );
         $res = Type
             ::mine()
             ->where( 'provider_id', '=', Provider::getCurrent()->id ?? null )
@@ -324,13 +342,15 @@ class TicketsController extends BaseController
             $availableTypes[ $r->parent->name ][ $r->id ] = $r->name;
         }
 
-        if ( \Auth::user()->can( 'tickets.field_operator' ) )
+        if ( \Auth::user()
+            ->can( 'tickets.field_operator' ) )
         {
-            if ( \Cache::tags( [ 'users', 'ticket' ] )->has( 'operators' ) )
+            if ( \Cache::tags( [ 'users', 'ticket' ] )
+                ->has( 'operators' ) )
             {
-                $availableOperators = \Cache::tags( [ 'users', 'ticket' ] )->get( 'operators' );
-            }
-            else
+                $availableOperators = \Cache::tags( [ 'users', 'ticket' ] )
+                    ->get( 'operators' );
+            } else
             {
                 $res = Ticket
                     ::select( 'author_id' )
@@ -343,11 +363,13 @@ class TicketsController extends BaseController
                     $availableOperators[ $r->author_id ] = $r->author->getName();
                 }
                 asort( $availableOperators );
-                \Cache::tags( [ 'users', 'ticket' ] )->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
+                \Cache::tags( [ 'users', 'ticket' ] )
+                    ->put( 'operators', $availableOperators, \Config::get( 'cache.time' ) );
             }
         }
 
-        if ( \Auth::user()->can( 'tickets.field_management' ) )
+        if ( \Auth::user()
+            ->can( 'tickets.field_management' ) )
         {
             $res = Management
                 ::mine()
@@ -406,7 +428,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
 
@@ -433,7 +455,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->where( 'building_id', '=', $ticket->building_id )
             ->where( 'flat', '=', $ticket->flat )
             ->orderBy( 'id', 'desc' )
@@ -463,7 +485,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->where( 'phone', '!=', $ticket->phone )
             ->where( 'flat', '!=', $ticket->flat )
             ->orderBy( 'id', 'desc' )
@@ -513,7 +535,7 @@ class TicketsController extends BaseController
             {
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $ticket->building_id );
-            })
+            } )
             ->where( 'category_id', '=', $category_id )
             ->orderBy( 'id', 'desc' )
             ->paginate( config( 'pagination.per_page' ) );
@@ -529,8 +551,10 @@ class TicketsController extends BaseController
     public function line ( Request $request, $id )
     {
 
-        $field_operator = \Auth::user()->can( 'tickets.field_operator' );
-        $field_management = \Auth::user()->can( 'tickets.field_management' );
+        $field_operator = \Auth::user()
+            ->can( 'tickets.field_operator' );
+        $field_management = \Auth::user()
+            ->can( 'tickets.field_management' );
 
         $ticketManagement = TicketManagement
             ::mine()
@@ -566,21 +590,20 @@ class TicketsController extends BaseController
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->where( 'id', '=', $id )
                 ->first();
             return view( 'parts.comments' )
                 ->with( 'origin', $ticket )
                 ->with( 'comments', $ticket->comments );
-        }
-        else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
+        } else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
         {
             $tickets = Ticket
                 ::whereHas( 'managements', function ( $managements )
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->whereIn( 'id', $request->get( 'ids' ) )
                 ->with( 'comments' )
                 ->get();
@@ -621,11 +644,46 @@ class TicketsController extends BaseController
         //Title::add( 'Добавить заявку' );
         Title::add( 'Заявка #' . $ticket->id );
 
-        $types = Type
-            ::mine()
-            ->orderBy( Type::$_table .'.name' )
-            ->where( Type::$_table .'.provider_id', '=', $ticket->provider_id )
-            ->pluck( 'name', 'id' );
+        $user = Auth::user();
+
+        if ( $user
+            ->can( 'tickets.all_types' ) )
+        {
+            $types = Type
+                ::mine()
+                ->orderBy( Type::$_table . '.name' )
+                ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+                ->pluck( 'name', 'id' );
+        } else
+        {
+            $types = [];
+
+            $user->load('managements');
+
+            if($user->managements->count())
+            {
+                $typesArray = [];
+
+                foreach ($user->managements as $userManagement)
+                {
+                    $userManagement->load('types');
+
+                    if($userManagement->types->count() && is_array($userManagement->types->pluck('id')->toArray()))
+                    {
+                        $typesArray = array_merge($typesArray, $userManagement->types->pluck('id')->toArray());
+                    }
+                    $typesArray = array_unique($typesArray);
+
+                }
+
+                $types = Type
+                    ::mine()
+                    ->orderBy( Type::$_table . '.name' )
+                    ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+                    ->whereIn('id', $typesArray)
+                    ->pluck( 'name', 'id' );
+            }
+        }
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
@@ -643,35 +701,35 @@ class TicketsController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'vendor_id'                 => 'nullable|integer',
-            'vendor_date'               => 'nullable|date',
-            'type_id'                   => 'required|integer',
-            'ticket_id'                 => 'required|integer',
-            'building_id'               => 'required|integer',
-            'flat'                      => 'nullable',
-            'actual_address_id'         => 'nullable|integer',
-            'actual_flat'               => 'nullable',
-            'place_id'                  => 'required|integer',
-            'emergency'                 => 'boolean',
-            'urgently'                  => 'boolean',
-            'dobrodel'                  => 'boolean',
-            'phone'                     => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                    => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'firstname'                 => 'required',
-            'middlename'                => 'nullable',
-            'lastname'                  => 'nullable',
-            'customer_id'               => 'nullable|integer',
-            'text'                      => 'required',
-            'managements'               => 'required|array',
-            'create_another'            => 'nullable|boolean',
-            'create_user'               => 'nullable|boolean',
+            'vendor_id' => 'nullable|integer',
+            'vendor_date' => 'nullable|date',
+            'type_id' => 'required|integer',
+            'ticket_id' => 'required|integer',
+            'building_id' => 'required|integer',
+            'flat' => 'nullable',
+            'actual_address_id' => 'nullable|integer',
+            'actual_flat' => 'nullable',
+            'place_id' => 'required|integer',
+            'emergency' => 'boolean',
+            'urgently' => 'boolean',
+            'dobrodel' => 'boolean',
+            'phone' => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'firstname' => 'required',
+            'middlename' => 'nullable',
+            'lastname' => 'nullable',
+            'customer_id' => 'nullable|integer',
+            'text' => 'required',
+            'managements' => 'required|array',
+            'create_another' => 'nullable|boolean',
+            'create_user' => 'nullable|boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -681,7 +739,9 @@ class TicketsController extends BaseController
 
             if ( ! isset( Ticket::$places[ $request->get( 'place_id' ) ] ) )
             {
-                return redirect()->back()->withErrors( [ 'Некорректное проблемное место' ] );
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Некорректное проблемное место' ] );
             }
 
             $managements = $request->get( 'managements', [] );
@@ -704,9 +764,9 @@ class TicketsController extends BaseController
                                 ->where( 'author_id', '=', \Auth::user()->id )
                                 ->where( 'provider_id', '=', Provider::getCurrent()->id )
                                 ->where( 'status_code', '=', 'draft' );
-                        })
+                        } )
                         ->orWhere( 'status_code', '=', 'moderate' );
-                })
+                } )
                 ->find( $request->get( 'ticket_id' ) );
 
             if ( ! $ticket )
@@ -716,23 +776,27 @@ class TicketsController extends BaseController
                     ->withErrors( [ 'Невозможно создать заявку' ] );
             }
 
-            $ticket->created_at = Carbon::now()->toDateTimeString();
+            $ticket->created_at = Carbon::now()
+                ->toDateTimeString();
             $ticket->author_id = \Auth::user()->id;
             $res = $ticket->edit( $request->all() );
 
             if ( $res instanceof MessageBag )
             {
-                return redirect()->back()->withErrors( $res );
+                return redirect()
+                    ->back()
+                    ->withErrors( $res );
             }
 
-            $customer = $ticket->customer()->mine()->first();
+            $customer = $ticket->customer()
+                ->mine()
+                ->first();
 
             if ( $customer )
             {
                 $customer->edit( $request->all() );
                 $ticket->customer_id = $customer->id;
-            }
-            else
+            } else
             {
                 $customer = Customer::create( $request->all() );
                 $customer->save();
@@ -745,22 +809,25 @@ class TicketsController extends BaseController
             foreach ( $managements as $management_id )
             {
 
-                $ticketManagement = $ticket->managements()->find( $management_id );
+                $ticketManagement = $ticket->managements()
+                    ->find( $management_id );
                 if ( $ticketManagement ) continue;
 
-                $ticketManagement = TicketManagement::create([
-                    'ticket_id'         => $ticket->id,
-                    'management_id'     => $management_id,
-                ]);
+                $ticketManagement = TicketManagement::create( [
+                    'ticket_id' => $ticket->id,
+                    'management_id' => $management_id,
+                ] );
 
                 if ( $ticketManagement instanceof MessageBag )
                 {
-                    return redirect()->back()
+                    return redirect()
+                        ->back()
                         ->withInput()
                         ->withErrors( $ticketManagement );
                 }
 
-                $ticketManagement->created_at = Carbon::now()->toDateTimeString();
+                $ticketManagement->created_at = Carbon::now()
+                    ->toDateTimeString();
                 $ticketManagement->save();
 
                 if ( $ticketManagement->management->has_contract )
@@ -768,15 +835,15 @@ class TicketsController extends BaseController
                     if ( $request->get( 'create_another' ) )
                     {
                         $status_code = 'transferred';
-                    }
-                    else
+                    } else
                     {
                         $status_code = 'created';
                     }
                     $res = $ticketManagement->changeStatus( $status_code, true );
                     if ( $res instanceof MessageBag )
                     {
-                        return redirect()->back()
+                        return redirect()
+                            ->back()
                             ->withInput()
                             ->withErrors( $res );
                     }
@@ -807,13 +874,13 @@ class TicketsController extends BaseController
                         $ticketManagement->save();
                     }*/
 
-                }
-                else
+                } else
                 {
                     $res = $ticketManagement->changeStatus( 'no_contract', true );
                     if ( $res instanceof MessageBag )
                     {
-                        return redirect()->back()
+                        return redirect()
+                            ->back()
                             ->withInput()
                             ->withErrors( $res );
                     }
@@ -829,7 +896,8 @@ class TicketsController extends BaseController
 
             if ( $res instanceof MessageBag )
             {
-                return redirect()->back()
+                return redirect()
+                    ->back()
                     ->withInput()
                     ->withErrors( $res );
             }
@@ -841,20 +909,21 @@ class TicketsController extends BaseController
                 $message = 'lk.eds-region.ru. Логин: ' . $ticket->phone . '. Пароль: ' . $password;
 
                 $user = User
-                    ::create([
-                        'provider_id'                   => $ticket->provider_id,
-                        'active'                        => 1,
-                        'firstname'                     => $ticket->firstname,
-                        'middlename'                    => $ticket->middlename,
-                        'lastname'                      => $ticket->lastname,
-                        'phone'                         => $ticket->phone,
-                        'password'                      => $password,
-                        'roles'                         => [ 'user' ]
-                    ]);
+                    ::create( [
+                        'provider_id' => $ticket->provider_id,
+                        'active' => 1,
+                        'firstname' => $ticket->firstname,
+                        'middlename' => $ticket->middlename,
+                        'lastname' => $ticket->lastname,
+                        'phone' => $ticket->phone,
+                        'password' => $password,
+                        'roles' => [ 'user' ]
+                    ] );
 
                 if ( $user instanceof MessageBag )
                 {
-                    return redirect()->back()
+                    return redirect()
+                        ->back()
                         ->withInput()
                         ->withErrors( $res );
                 }
@@ -872,34 +941,35 @@ class TicketsController extends BaseController
 
                 if ( $anotherTicket instanceof MessageBag )
                 {
-                    return redirect()->back()
+                    return redirect()
+                        ->back()
                         ->withInput()
                         ->withErrors( $anotherTicket );
                 }
 
-                $anotherTicket->fill([
-                    'firstname'                     => $ticket->firstname,
-                    'middlename'                    => $ticket->middlename,
-                    'lastname'                      => $ticket->lastname,
-                    'phone'                         => $ticket->phone,
-                    'phone2'                        => $ticket->phone2,
-                    'actual_building_id'            => $ticket->actual_building_id,
-                    'actual_flat'                   => $ticket->actual_flat,
-                ]);
+                $anotherTicket->fill( [
+                    'firstname' => $ticket->firstname,
+                    'middlename' => $ticket->middlename,
+                    'lastname' => $ticket->lastname,
+                    'phone' => $ticket->phone,
+                    'phone2' => $ticket->phone2,
+                    'actual_building_id' => $ticket->actual_building_id,
+                    'actual_flat' => $ticket->actual_flat,
+                ] );
 
                 $anotherTicket->call_phone = $ticket->call_phone;
                 $anotherTicket->call_id = $ticket->call_id;
                 $anotherTicket->save();
 
-            }
-            else
+            } else
             {
                 $redirect = route( 'tickets.show', $managements_count == 1 ? $ticketManagement->getTicketNumber() : $ticket->id );
             }
 
             \DB::commit();
 
-            \Cache::tags( 'tickets_counts' )->flush();
+            \Cache::tags( 'tickets_counts' )
+                ->flush();
 
             return redirect()
                 ->to( $redirect )
@@ -908,7 +978,9 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            return redirect()->back()->withErrors( [ 'Внутренняя ошибка системы!' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Внутренняя ошибка системы!' ] );
         }
 
     }
@@ -916,14 +988,15 @@ class TicketsController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $ticket_id
-     * @param  int  $ticket_management_id
+     * @param int $ticket_id
+     * @param int $ticket_management_id
      * @return \Illuminate\Http\Response
      */
     public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
 
-        $ticket = Ticket::mine()->find( $ticket_id );
+        $ticket = Ticket::mine()
+            ->find( $ticket_id );
         $ticketManagement = null;
 
         if ( ! $ticket )
@@ -939,8 +1012,7 @@ class TicketsController extends BaseController
             {
                 return redirect()
                     ->route( 'tickets.create' );
-            }
-            else
+            } else
             {
                 return redirect()
                     ->route( 'tickets.index' )
@@ -967,31 +1039,36 @@ class TicketsController extends BaseController
             $servicesCount = $ticketManagement
                 ->services()
                 ->count();
-        }
-        else
+        } else
         {
-            $ticketManagements = $ticket->managements()->mine()->get();
+            $ticketManagements = $ticket->managements()
+                ->mine()
+                ->get();
             if ( $ticketManagements->count() == 1 )
             {
                 return redirect()
-                    ->route( 'tickets.show', $ticketManagements->first()->getTicketNumber() );
+                    ->route( 'tickets.show', $ticketManagements->first()
+                        ->getTicketNumber() );
             }
             $ticket->addLog( 'Просмотрел заявку №' . $ticket->id );
             Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
             $servicesCount = 0;
         }
 
-        if ( \Auth::user()->can( 'tickets.calls.all' ) || \Auth::user()->can( 'tickets.calls.mine' ) )
+        if ( \Auth::user()
+                ->can( 'tickets.calls.all' ) || \Auth::user()
+                ->can( 'tickets.calls.mine' ) )
         {
-            $ticketCalls = $ticket->calls()->actual();
-            if ( ! \Auth::user()->can( 'tickets.calls.all' ) )
+            $ticketCalls = $ticket->calls()
+                ->actual();
+            if ( ! \Auth::user()
+                ->can( 'tickets.calls.all' ) )
             {
                 $ticketCalls
                     ->mine();
             }
             $ticketCalls = $ticketCalls->get();
-        }
-        else
+        } else
         {
             $ticketCalls = new Collection();
         }
@@ -1022,7 +1099,7 @@ class TicketsController extends BaseController
             {
                 return $buildings
                     ->where( Building::$_table . '.id', '=', $ticket->building_id );
-            })
+            } )
             ->where( 'category_id', '=', $ticket->type->parent_id ?: $ticket->type->id )
             ->count();
 
@@ -1032,7 +1109,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->where( 'phone', '!=', $ticket->phone )
             ->where( 'flat', '!=', $ticket->flat )
             ->count();
@@ -1045,7 +1122,7 @@ class TicketsController extends BaseController
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->count();
         }
 
@@ -1054,7 +1131,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->where( 'building_id', '=', $ticket->building_id )
             ->where( 'flat', '=', $ticket->flat )
             ->count();
@@ -1064,8 +1141,7 @@ class TicketsController extends BaseController
         if ( $ticketManagement )
         {
             $need_act = $ticketManagement->needAct();
-        }
-        else
+        } else
         {
             $need_act = $ticket->needAct();
         }
@@ -1100,10 +1176,10 @@ class TicketsController extends BaseController
         }
 
         $rules = [
-            'services.*.name'				        => 'required|string',
-            'services.*.quantity'				    => 'required|numeric|min:1',
-            'services.*.unit'				        => 'required|string',
-            'services.*.amount'				        => 'required|numeric|min:0',
+            'services.*.name' => 'required|string',
+            'services.*.quantity' => 'required|numeric|min:1',
+            'services.*.unit' => 'required|string',
+            'services.*.amount' => 'required|numeric|min:0',
         ];
 
         $this->validate( $request, $rules );
@@ -1146,12 +1222,12 @@ class TicketsController extends BaseController
                 {
                     return $types
                         ->where( Type::$_table . '.id', '=', $ticket->type_id );
-                })
+                } )
                 ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
                 {
                     return $buildings
                         ->where( Building::$_table . '.id', '=', $ticket->building_id );
-                })
+                } )
                 ->orderBy( 'parent.name' )
                 ->orderBy( Management::$_table . '.name' )
                 ->get();
@@ -1162,7 +1238,7 @@ class TicketsController extends BaseController
                 {
                     return $buildings
                         ->where( Building::$_table . '.id', '=', $ticket->building_id );
-                })
+                } )
                 ->where( 'category_id', '=', $ticket->type->parent_id ?: $ticket->type->id )
                 ->count();
 
@@ -1172,7 +1248,7 @@ class TicketsController extends BaseController
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->where( 'phone', '!=', $ticket->phone )
                 ->where( 'flat', '!=', $ticket->flat )
                 ->count();
@@ -1182,7 +1258,7 @@ class TicketsController extends BaseController
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->where( 'building_id', '=', $ticket->building_id )
                 ->where( 'flat', '=', $ticket->flat )
                 ->count();
@@ -1195,12 +1271,11 @@ class TicketsController extends BaseController
                     {
                         return $managements
                             ->mine();
-                    })
+                    } )
                     ->count();
             }
 
-        }
-        else if ( $ticket->phone )
+        } else if ( $ticket->phone )
         {
             $customerTickets = $ticket
                 ->customerTickets()
@@ -1208,7 +1283,7 @@ class TicketsController extends BaseController
                 {
                     return $managements
                         ->mine();
-                })
+                } )
                 ->paginate( config( 'pagination.per_page' ) );
             $customerTicketsCount = $customerTickets->count();
         }
@@ -1238,7 +1313,9 @@ class TicketsController extends BaseController
 
         if ( $ticket_management_id )
         {
-            $ticketManagement = $ticket->managements()->mine()->find( $ticket_management_id );
+            $ticketManagement = $ticket->managements()
+                ->mine()
+                ->find( $ticket_management_id );
             if ( ! $ticketManagement )
             {
                 return view( 'parts.error' )
@@ -1261,9 +1338,9 @@ class TicketsController extends BaseController
 
         if ( $ticket_management_id )
         {
-            $logs = $ticketLogs->merge( $ticketManagementLogs )->sortBy( 'created_at' );
-        }
-        else
+            $logs = $ticketLogs->merge( $ticketManagementLogs )
+                ->sortBy( 'created_at' );
+        } else
         {
             $logs = $ticketLogs;
         }
@@ -1284,46 +1361,47 @@ class TicketsController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( Request $request, $id )
     {
 
         $ticket = Ticket::find( $id );
-		$param = $request->get( 'param' );
-		$id = $request->get( 'id' );
+        $param = $request->get( 'param' );
+        $id = $request->get( 'id' );
 
-		switch ( $param )
-		{
+        switch ( $param )
+        {
 
             case 'rate':
 
-                $ticketManagement = $ticket->managements()->mine()->find( $id );
+                $ticketManagement = $ticket->managements()
+                    ->mine()
+                    ->find( $id );
                 if ( $ticketManagement )
                 {
                     if ( $ticketManagement->canRate() )
                     {
                         return view( 'tickets.parts.rate_form' )
                             ->with( 'ticketManagement', $ticketManagement );
-                    }
-                    else
+                    } else
                     {
                         return view( 'parts.error' )
                             ->with( 'error', 'Невозможно изменить оценку' );
                     }
-                }
-                else
+                } else
                 {
                     return view( 'parts.error' )
                         ->with( 'error', 'Заявка не найдена' );
                 }
 
                 break;
-			
-			case 'type':
 
-			    if ( \Auth::user()->can( 'tickets.edit' ) )
+            case 'type':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
                 {
                     $res = Type
                         ::mine()
@@ -1332,7 +1410,7 @@ class TicketsController extends BaseController
                             return $q
                                 ->whereNotNull( 'parent_id' )
                                 ->orWhere( 'id', '=', $ticket->type_id );
-                        })
+                        } )
                         ->orderBy( 'name' )
                         ->get();
                     $types = [];
@@ -1344,171 +1422,171 @@ class TicketsController extends BaseController
                         ->with( 'ticket', $ticket )
                         ->with( 'types', $types )
                         ->with( 'param', $param );
-                }
-                else
+                } else
                 {
                     return view( 'parts.error' )
                         ->with( 'error', 'Ошибка доступа' );
                 }
-			
-				break;
-				
-			case 'building':
 
-                if ( \Auth::user()->can( 'tickets.edit' ) )
+                break;
+
+            case 'building':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
                 {
                     return view( 'tickets.edit.building' )
                         ->with( 'ticket', $ticket )
                         ->with( 'param', $param );
-                }
-                else
+                } else
                 {
                     return view( 'parts.error' )
                         ->with( 'error', 'Ошибка доступа' );
                 }
-			
-				break;
+
+                break;
 
             case 'actual_building':
 
-                if ( \Auth::user()->can( 'tickets.edit' ) )
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
                 {
                     return view( 'tickets.edit.actual_building' )
                         ->with( 'ticket', $ticket )
                         ->with( 'param', $param );
-                }
-                else
+                } else
                 {
                     return view( 'parts.error' )
                         ->with( 'error', 'Ошибка доступа' );
                 }
 
                 break;
-				
-			case 'mark':
 
-                if ( \Auth::user()->can( 'tickets.edit' ) )
+            case 'mark':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
                 {
                     return view( 'tickets.edit.mark' )
                         ->with( 'ticket', $ticket )
                         ->with( 'param', $param );
-                }
-                else
-                {
-                    return view( 'parts.error' )
-                        ->with( 'error', 'Ошибка доступа' );
-                }
-			
-				break;
-				
-			case 'text':
-
-                if ( \Auth::user()->can( 'tickets.edit' ) )
-                {
-                    return view( 'tickets.edit.text' )
-                        ->with( 'ticket', $ticket )
-                        ->with( 'param', $param );
-                }
-                else
-                {
-                    return view( 'parts.error' )
-                        ->with( 'error', 'Ошибка доступа' );
-                }
-			
-				break;
-				
-			case 'name':
-
-                if ( \Auth::user()->can( 'tickets.edit' ) )
-                {
-                    return view( 'tickets.edit.name' )
-                        ->with( 'ticket', $ticket )
-                        ->with( 'param', $param );
-                }
-                else
-                {
-                    return view( 'parts.error' )
-                        ->with( 'error', 'Ошибка доступа' );
-                }
-			
-				break;
-				
-			case 'phone':
-
-                if ( \Auth::user()->can( 'tickets.edit' ) )
-                {
-                    return view( 'tickets.edit.phone' )
-                        ->with( 'ticket', $ticket )
-                        ->with( 'param', $param );
-                }
-                else
-                {
-                    return view( 'parts.error' )
-                        ->with( 'error', 'Ошибка доступа' );
-                }
-
-			
-				break;
-
-            case 'schedule':
-
-                if ( \Auth::user()->can( 'tickets.executor' ) )
-                {
-                    return view( 'tickets.edit.schedule' )
-                        ->with( 'ticket', $ticket )
-                        ->with( 'param', $param );
-                }
-                else
+                } else
                 {
                     return view( 'parts.error' )
                         ->with( 'error', 'Ошибка доступа' );
                 }
 
                 break;
-				
-		}
+
+            case 'text':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.text' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                } else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
+                break;
+
+            case 'name':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.name' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                } else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
+                break;
+
+            case 'phone':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.edit' ) )
+                {
+                    return view( 'tickets.edit.phone' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                } else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
+
+                break;
+
+            case 'schedule':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.executor' ) )
+                {
+                    return view( 'tickets.edit.schedule' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                } else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
+                break;
+
+        }
 
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
     {
-		
+
         $ticket = Ticket::find( $id );
-		if ( ! $ticket )
-		{
-			return redirect()
-                ->route( 'tickets.index' )
-				->withErrors( [ 'Заявка не найдена' ] );
-		}
-
-		$attributes = $request->all();
-
-		if ( ! empty( $attributes[ 'scheduled_begin_date' ] ) && ! empty( $attributes[ 'scheduled_begin_time' ] ) )
+        if ( ! $ticket )
         {
-            $attributes[ 'scheduled_begin' ] = Carbon::parse( $attributes[ 'scheduled_begin_date' ] . ' ' . $attributes[ 'scheduled_begin_time' ] )->toDateTimeString();
+            return redirect()
+                ->route( 'tickets.index' )
+                ->withErrors( [ 'Заявка не найдена' ] );
+        }
+
+        $attributes = $request->all();
+
+        if ( ! empty( $attributes[ 'scheduled_begin_date' ] ) && ! empty( $attributes[ 'scheduled_begin_time' ] ) )
+        {
+            $attributes[ 'scheduled_begin' ] = Carbon::parse( $attributes[ 'scheduled_begin_date' ] . ' ' . $attributes[ 'scheduled_begin_time' ] )
+                ->toDateTimeString();
         }
         if ( ! empty( $attributes[ 'scheduled_end_date' ] ) && ! empty( $attributes[ 'scheduled_end_time' ] ) )
         {
-            $attributes[ 'scheduled_end' ] = Carbon::parse( $attributes[ 'scheduled_end_date' ] . ' ' . $attributes[ 'scheduled_end_time' ] )->toDateTimeString();
+            $attributes[ 'scheduled_end' ] = Carbon::parse( $attributes[ 'scheduled_end_date' ] . ' ' . $attributes[ 'scheduled_end_time' ] )
+                ->toDateTimeString();
         }
-		
-		$res = $ticket->edit( $attributes );
 
-		if ( $res instanceof MessageBag )
+        $res = $ticket->edit( $attributes );
+
+        if ( $res instanceof MessageBag )
         {
             if ( $request->ajax() )
             {
                 $error = $res->first();
                 return compact( 'error' );
-            }
-            else
+            } else
             {
                 return redirect()
                     ->back()
@@ -1521,23 +1599,22 @@ class TicketsController extends BaseController
         if ( $request->ajax() )
         {
             return compact( 'success' );
-        }
-        else
+        } else
         {
             return redirect()
                 ->back()
                 ->with( 'success', $success );
         }
-		
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy ( $id )
     {
         //
     }
@@ -1563,7 +1640,8 @@ class TicketsController extends BaseController
 
             if ( ! empty( $request->get( 'postponed_to' ) ) )
             {
-                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+                $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )
+                    ->toDateString();
                 if ( ! empty( $request->get( 'postponed_comment' ) ) )
                 {
                     $ticket->postponed_comment = $request->get( 'postponed_comment' );
@@ -1584,8 +1662,7 @@ class TicketsController extends BaseController
                         ->withErrors( [ 'Заявка не найдена' ] );
                 }
                 $res = $ticketManagement->changeStatus( $request->get( 'status_code' ) );
-            }
-            else
+            } else
             {
                 $res = $ticket->changeStatus( $request->get( 'status_code' ) );
             }
@@ -1595,14 +1672,16 @@ class TicketsController extends BaseController
                 $res = $ticket->addComment( $request->get( 'comment' ) );
                 if ( $res instanceof MessageBag )
                 {
-                    return redirect()->back()
+                    return redirect()
+                        ->back()
                         ->withErrors( $res );
                 }
             }
 
             if ( $res instanceof MessageBag )
             {
-                return redirect()->back()
+                return redirect()
+                    ->back()
                     ->withErrors( $res );
             }
 
@@ -1627,14 +1706,19 @@ class TicketsController extends BaseController
 
             \DB::commit();
 
-            \Cache::tags( 'tickets_counts' )->flush();
+            \Cache::tags( 'tickets_counts' )
+                ->flush();
 
-            return redirect()->back()->with( 'success', 'Статус изменен' );
+            return redirect()
+                ->back()
+                ->with( 'success', 'Статус изменен' );
 
         }
         catch ( \Exception $e )
         {
-            return redirect()->back()->withErrors( [ 'Внутренняя ошибка системы!' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Внутренняя ошибка системы!' ] );
         }
 
     }
@@ -1642,8 +1726,8 @@ class TicketsController extends BaseController
     public function getPostponed ( Request $request )
     {
         $this->validate( $request, [
-            'ticket_id'      => 'required|integer',
-        ]);
+            'ticket_id' => 'required|integer',
+        ] );
         $ticket = Ticket
             ::mine()
             ->find( $request->get( 'ticket_id' ) );
@@ -1659,18 +1743,20 @@ class TicketsController extends BaseController
     public function postPostponed ( Request $request, $ticket_id )
     {
         $this->validate( $request, [
-            'postponed_to'              => 'required|date',
-            'postponed_comment'         => 'nullable',
-        ]);
+            'postponed_to' => 'required|date',
+            'postponed_comment' => 'nullable',
+        ] );
         $ticket = Ticket
             ::mine()
             ->find( $ticket_id );
         if ( ! $ticket )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
-        $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )->toDateString();
+        $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )
+            ->toDateString();
         if ( ! empty( $request->get( 'postponed_comment' ) ) )
         {
             $ticket->postponed_comment = $request->get( 'postponed_comment' );
@@ -1679,10 +1765,13 @@ class TicketsController extends BaseController
         $res = $ticket->changeStatus( 'waiting', true );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $res );
         }
-        return redirect()->back()->with( 'success', 'Статус изменен' );
+        return redirect()
+            ->back()
+            ->with( 'success', 'Статус изменен' );
     }
 
     public function postpone ( Request $request, $id )
@@ -1707,7 +1796,9 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 2 )
                 {
-                    return redirect()->back()->withErrors( [ 'Для группировки необходимо выбрать 2 или более заявок' ] );
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Для группировки необходимо выбрать 2 или более заявок' ] );
                 }
 
                 $tickets = Ticket
@@ -1717,10 +1808,13 @@ class TicketsController extends BaseController
 
                 if ( $tickets->count() != count( $request->get( 'tickets' ) ) )
                 {
-                    return redirect()->back()->withErrors( [ 'Количество выбранных заявок не совпадает с количество найденных!' ] );
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Количество выбранных заявок не совпадает с количество найденных!' ] );
                 }
 
-                $uuid = Uuid::uuid4()->toString();
+                $uuid = Uuid::uuid4()
+                    ->toString();
                 $parent = null;
                 foreach ( $tickets as $ticket )
                 {
@@ -1729,8 +1823,7 @@ class TicketsController extends BaseController
                     {
                         $ticket->parent_id = null;
                         $parent = $ticket;
-                    }
-                    else
+                    } else
                     {
                         $ticket->parent_id = $parent->id;
                     }
@@ -1743,7 +1836,9 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 1 )
                 {
-                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одну заявку' ] );
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Выберите хотя бы одну заявку' ] );
                 }
 
                 $tickets = Ticket
@@ -1754,15 +1849,15 @@ class TicketsController extends BaseController
                 foreach ( $tickets as $ticket )
                 {
                     $group = $ticket->group()
-                        ->whereNotIn( 'id', $tickets->pluck( 'id' )->toArray() )
+                        ->whereNotIn( 'id', $tickets->pluck( 'id' )
+                            ->toArray() )
                         ->get();
                     if ( $group->count() == 1 )
                     {
-                        $group[0]->group_uuid = null;
-                        $group[0]->parent_id = null;
-                        $group[0]->save();
-                    }
-                    else if ( ! $ticket->parent_id )
+                        $group[ 0 ]->group_uuid = null;
+                        $group[ 0 ]->parent_id = null;
+                        $group[ 0 ]->save();
+                    } else if ( ! $ticket->parent_id )
                     {
                         $parent = null;
                         foreach ( $group as $row )
@@ -1771,8 +1866,7 @@ class TicketsController extends BaseController
                             {
                                 $row->parent_id = null;
                                 $parent = $row;
-                            }
-                            else
+                            } else
                             {
                                 $row->parent_id = $parent->id;
                             }
@@ -1790,7 +1884,9 @@ class TicketsController extends BaseController
 
                 if ( count( $request->get( 'tickets', [] ) ) < 1 )
                 {
-                    return redirect()->back()->withErrors( [ 'Выберите хотя бы одну заявку' ] );
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Выберите хотя бы одну заявку' ] );
                 }
 
                 $tickets = Ticket
@@ -1806,14 +1902,18 @@ class TicketsController extends BaseController
                 break;
 
             default:
-                return redirect()->back()->withErrors( [ 'Некорректное действие' ] );
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Некорректное действие' ] );
                 break;
 
         }
 
         \DB::commit();
 
-        return redirect()->back()->with( 'success', 'Готово' );
+        return redirect()
+            ->back()
+            ->with( 'success', 'Готово' );
 
     }
 
@@ -1825,7 +1925,7 @@ class TicketsController extends BaseController
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->find( $ticket_id );
         if ( ! $ticket )
         {
@@ -1851,12 +1951,10 @@ class TicketsController extends BaseController
         if ( $ticketManagement->act )
         {
             $act = $ticketManagement->act;
-        }
-        else if ( $ticketManagement->management->acts->count() )
+        } else if ( $ticketManagement->management->acts->count() )
         {
             $act = $ticketManagement->management->acts->first();
-        }
-        else if ( $ticketManagement->management->parent && $ticketManagement->management->parent->acts->count() )
+        } else if ( $ticketManagement->management->parent && $ticketManagement->management->parent->acts->count() )
         {
             $act = $ticketManagement->management->parent->acts->first();
         }
@@ -1869,8 +1967,7 @@ class TicketsController extends BaseController
             return view( 'tickets.management_act' )
                 ->with( 'content', $content );
 
-        }
-        else
+        } else
         {
 
             $services = $ticketManagement->services;
@@ -1878,7 +1975,10 @@ class TicketsController extends BaseController
             $lines = 10 - $services->count();
             if ( $lines < 0 ) $lines = 0;
 
-            $total = $services->sum( function ( $service ){ return $service[ 'amount' ] * $service[ 'quantity' ]; } );
+            $total = $services->sum( function ( $service )
+            {
+                return $service[ 'amount' ] * $service[ 'quantity' ];
+            } );
 
             return view( 'tickets.act' )
                 ->with( 'ticketManagement', $ticketManagement )
@@ -1895,7 +1995,8 @@ class TicketsController extends BaseController
 
         Title::set( 'Наряд-заказ' );
 
-        if ( ! \Auth::user()->can( 'tickets.waybill' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.waybill' ) )
         {
             return redirect()
                 ->route( 'tickets.index' )
@@ -1937,33 +2038,37 @@ class TicketsController extends BaseController
         }
 
         $management = $ticketManagement->management;
-        $executors = [ null => 'Выбрать из списка' ] + $management->executors()->pluck( 'name', 'id' )->toArray();
-		
+        $executors = [ null => 'Выбрать из списка' ] + $management->executors()
+                ->pluck( 'name', 'id' )
+                ->toArray();
+
         return view( 'tickets.edit.executor' )
             ->with( 'ticketManagement', $ticketManagement )
             ->with( 'management', $management )
             ->with( 'executors', $executors );
-			
+
     }
 
     public function postExecutor ( Request $request, $id )
     {
 
         $this->validate( $request, [
-            'executor_id'               => 'required_without:executor_name|nullable|integer',
-            'executor_name'             => 'required_without:executor_id|nullable',
-            'scheduled_begin_date'      => 'required|date|date_format:Y-m-d',
-            'scheduled_begin_time'      => 'required|date_format:H:i',
-            'scheduled_end_date'        => 'required|date|date_format:Y-m-d|after_or_equal:scheduled_begin_date',
-            'scheduled_end_time'        => 'required|date_format:H:i',
-        ]);
+            'executor_id' => 'required_without:executor_name|nullable|integer',
+            'executor_name' => 'required_without:executor_id|nullable',
+            'scheduled_begin_date' => 'required|date|date_format:Y-m-d',
+            'scheduled_begin_time' => 'required|date_format:H:i',
+            'scheduled_end_date' => 'required|date|date_format:Y-m-d|after_or_equal:scheduled_begin_date',
+            'scheduled_end_time' => 'required|date_format:H:i',
+        ] );
 
         $scheduled_begin = Carbon::parse( $request->get( 'scheduled_begin_date' ) . ' ' . $request->get( 'scheduled_begin_time' ) );
         $scheduled_end = Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) );
 
-        if ( $scheduled_begin->timestamp < 0 || $scheduled_end->timestamp < 0  )
+        if ( $scheduled_begin->timestamp < 0 || $scheduled_end->timestamp < 0 )
         {
-            return redirect()->back()->withErrors( [ 'Некорректная дата' ] );
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Некорректная дата' ] );
         }
 
         $ticketManagement = TicketManagement::find( $id );
@@ -1986,8 +2091,7 @@ class TicketsController extends BaseController
                     ->back()
                     ->withErrors( [ 'Исполнитель не найден' ] );
             }
-        }
-        else if ( $request->get( 'executor_name' ) )
+        } else if ( $request->get( 'executor_name' ) )
         {
             $executor = $ticketManagement
                 ->management
@@ -1997,35 +2101,33 @@ class TicketsController extends BaseController
                 ->first();
             if ( ! $executor )
             {
-                $executor = Executor::create([
-                    'management_id'     => $ticketManagement->management->id,
-                    'name'              => $request->get( 'executor_name' )
-                ]);
+                $executor = Executor::create( [
+                    'management_id' => $ticketManagement->management->id,
+                    'name' => $request->get( 'executor_name' )
+                ] );
                 if ( $executor instanceof MessageBag )
                 {
                     if ( $request->ajax() )
                     {
                         $error = $executor->first();
                         return compact( 'error' );
-                    }
-                    else
+                    } else
                     {
                         return redirect()
                             ->back()
                             ->withErrors( $executor );
                     }
                 }
-            }
-            else
+            } else
             {
                 $executor->deleted_at = null;
             }
             $executor->save();
         }
         $attributes = [
-            'executor_id'           => $executor->id,
-            'scheduled_begin'       => $scheduled_begin->toDateTimeString(),
-            'scheduled_end'         => $scheduled_end->toDateTimeString(),
+            'executor_id' => $executor->id,
+            'scheduled_begin' => $scheduled_begin->toDateTimeString(),
+            'scheduled_end' => $scheduled_end->toDateTimeString(),
         ];
         $ticketManagement->fill( $attributes );
         if ( $ticketManagement->isDirty() )
@@ -2038,8 +2140,7 @@ class TicketsController extends BaseController
                 {
                     $error = $res->first();
                     return compact( 'error' );
-                }
-                else
+                } else
                 {
                     return redirect()
                         ->back()
@@ -2053,8 +2154,7 @@ class TicketsController extends BaseController
                 {
                     $error = $res->first();
                     return compact( 'error' );
-                }
-                else
+                } else
                 {
                     return redirect()
                         ->back()
@@ -2067,13 +2167,13 @@ class TicketsController extends BaseController
 
         $success = 'Исполнитель успешно назначен';
 
-        \Cache::tags( 'tickets.scheduled.now' )->flush();
+        \Cache::tags( 'tickets.scheduled.now' )
+            ->flush();
 
         if ( $request->ajax() )
         {
             return compact( 'success' );
-        }
-        else
+        } else
         {
             return redirect()
                 ->back()
@@ -2086,12 +2186,12 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, [
-            'executor_id'               => 'required|integer',
-            'scheduled_begin_date'      => 'required|date_format:Y-m-d',
-            'scheduled_begin_time'      => 'required|date_format:H:i',
-            'scheduled_end_date'        => 'required|date_format:Y-m-d',
-            'scheduled_end_time'        => 'required|date_format:H:i',
-        ]);
+            'executor_id' => 'required|integer',
+            'scheduled_begin_date' => 'required|date_format:Y-m-d',
+            'scheduled_begin_time' => 'required|date_format:H:i',
+            'scheduled_end_date' => 'required|date_format:Y-m-d',
+            'scheduled_end_time' => 'required|date_format:H:i',
+        ] );
 
         $scheduled_begin = Carbon::parse( $request->get( 'scheduled_begin_date' ) . ' ' . $request->get( 'scheduled_begin_time' ) );
         $scheduled_end = Carbon::parse( $request->get( 'scheduled_end_date' ) . ' ' . $request->get( 'scheduled_end_time' ) );
@@ -2114,9 +2214,9 @@ class TicketsController extends BaseController
         {
             return [
                 'finded' => [
-                    'number'                => $ticketManagement->getTicketNumber(),
-                    'scheduled_begin'       => $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ),
-                    'scheduled_end'         => $ticketManagement->scheduled_end->format( 'd.m.Y H:i' )
+                    'number' => $ticketManagement->getTicketNumber(),
+                    'scheduled_begin' => $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ),
+                    'scheduled_end' => $ticketManagement->scheduled_end->format( 'd.m.Y H:i' )
                 ]
             ];
         }
@@ -2151,12 +2251,12 @@ class TicketsController extends BaseController
                     {
                         return $types
                             ->where( Type::$_table . '.id', '=', $ticket->type_id );
-                    })
+                    } )
                     ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $ticket->building_id );
-                    });
+                    } );
                 if ( $ticketManagement->management->parent_id )
                 {
                     $q
@@ -2166,10 +2266,10 @@ class TicketsController extends BaseController
                                 ->whereNull( Management::$_table . '.parent_id' )
                                 ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id )
                                 ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
-                        });
+                        } );
                 }
                 return $q;
-            })
+            } )
             ->orderBy( 'parent.name' )
             ->orderBy( Management::$_table . '.name' )
             ->get();
@@ -2185,8 +2285,8 @@ class TicketsController extends BaseController
     {
 
         $this->validate( $request, [
-            'management_id'               => 'required|integer',
-        ]);
+            'management_id' => 'required|integer',
+        ] );
 
         $ticketManagement = TicketManagement::find( $id );
         if ( ! $ticketManagement )
@@ -2210,12 +2310,12 @@ class TicketsController extends BaseController
                     {
                         return $types
                             ->where( Type::$_table . '.id', '=', $ticket->type_id );
-                    })
+                    } )
                     ->whereHas( 'buildings', function ( $buildings ) use ( $ticket )
                     {
                         return $buildings
                             ->where( Building::$_table . '.id', '=', $ticket->building_id );
-                    });
+                    } );
                 if ( $ticketManagement->management->parent_id )
                 {
                     $q
@@ -2225,13 +2325,14 @@ class TicketsController extends BaseController
                                 ->whereNull( Management::$_table . '.parent_id' )
                                 ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->id )
                                 ->orWhere( Management::$_table . '.parent_id', '=', $ticketManagement->management->parent_id );
-                        });
+                        } );
                 }
                 return $q;
-            })
+            } )
             ->get();
 
-        $management = $managements->where( 'id', $request->get( 'management_id' ) )->first();
+        $management = $managements->where( 'id', $request->get( 'management_id' ) )
+            ->first();
 
         if ( ! $management )
         {
@@ -2256,7 +2357,8 @@ class TicketsController extends BaseController
             $res = $ticketManagement->addLog( 'Назначено УО "' . $management_name . '"' );
             if ( $res instanceof MessageBag )
             {
-                return redirect()->back()
+                return redirect()
+                    ->back()
                     ->withErrors( $res );
             }
             $this->dispatch( new SendStream( 'update', $ticketManagement ) );
@@ -2264,7 +2366,9 @@ class TicketsController extends BaseController
 
         \DB::commit();
 
-        return redirect()->back()->with( 'success', 'УО успешно назначено' );
+        return redirect()
+            ->back()
+            ->with( 'success', 'УО успешно назначено' );
 
     }
 
@@ -2308,27 +2412,30 @@ class TicketsController extends BaseController
         if ( $ticketManagement->rate_comment )
         {
             $res = $ticketManagement->addLog( 'Поставлена оценка "' . $ticketManagement->rate . '" с комментарием "' . $ticketManagement->rate_comment . '"' );
-        }
-        else
+        } else
         {
             $res = $ticketManagement->addLog( 'Поставлена оценка "' . $ticketManagement->rate . '"' );
         }
         if ( $res instanceof MessageBag )
         {
-			return redirect()
+            return redirect()
                 ->route( 'tickets.index' )
                 ->withErrors( $res );
         }
-		if ( $request->get( 'closed_with_confirm', 0 ) == 1 && $ticketManagement->status_code != 'closed_with_confirm' )
+        if ( $request->get( 'closed_with_confirm', 0 ) == 1 && $ticketManagement->status_code != 'closed_with_confirm' )
         {
             $res = $ticketManagement->changeStatus( 'closed_with_confirm', true );
             if ( $res instanceof MessageBag )
             {
-                return redirect()->back()->withErrors( $res );
+                return redirect()
+                    ->back()
+                    ->withErrors( $res );
             }
         }
-		\DB::commit();
-        return redirect()->back()->with( 'success', 'Ваша оценка учтена' );
+        \DB::commit();
+        return redirect()
+            ->back()
+            ->with( 'success', 'Ваша оценка учтена' );
     }
 
     public function postSave ( Request $request, $id )
@@ -2344,23 +2451,25 @@ class TicketsController extends BaseController
                 foreach ( $tags as $tag )
                 {
                     $tag = trim( $tag );
-                    if ( empty( $tag ) || $ticket->tags()->where( 'text', '=', $tag )->count() ) continue;
+                    if ( empty( $tag ) || $ticket->tags()
+                            ->where( 'text', '=', $tag )
+                            ->count() ) continue;
                     $ticket->addTag( $tag );
                 }
                 break;
             case 'type_id':
-                $res = $ticket->edit([
+                $res = $ticket->edit( [
                     $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
-                ]);
+                ] );
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
                 }
                 break;
             default:
-                $res = $ticket->edit([
+                $res = $ticket->edit( [
                     $request->get( 'field' ) => $request->get( 'value' )
-                ]);
+                ] );
                 if ( $res instanceof MessageBag )
                 {
                     return $res;
@@ -2379,7 +2488,9 @@ class TicketsController extends BaseController
         $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
         $tag = trim( $request->get( 'tag', '' ) );
-        if ( empty( $tag ) || $ticket->tags()->where( 'text', '=', $tag )->count() ) return;
+        if ( empty( $tag ) || $ticket->tags()
+                ->where( 'text', '=', $tag )
+                ->count() ) return;
         $ticket->addTag( $tag );
     }
 
@@ -2387,7 +2498,9 @@ class TicketsController extends BaseController
     {
         $ticket = Ticket::find( $id );
         if ( ! $ticket ) return;
-        $tag = $ticket->tags()->where( 'text', '=', trim( $request->get( 'tag', '' ) ) )->first();
+        $tag = $ticket->tags()
+            ->where( 'text', '=', trim( $request->get( 'tag', '' ) ) )
+            ->first();
         if ( ! $tag ) return;
         $tag->delete();
     }
@@ -2407,24 +2520,24 @@ class TicketsController extends BaseController
                 ->route( 'tickets.index' )
                 ->withErrors( [ 'Невозможно отменить добавленную заявку' ] );
         }
-        $ticket->fill([
-            'provider_id'               => Provider::getCurrent()->id ?? null,
-            'type_id'                   => null,
-            'building_id'               => null,
-            'place_id'                  => null,
-            'flat'                      => null,
-            'actual_building_id'        => null,
-            'actual_flat'               => null,
-            'phone'                     => null,
-            'phone2'                    => null,
-            'customer_id'               => null,
-            'text'                      => null,
-            'firstname'                 => null,
-            'lastname'                  => null,
-            'middlename'                => null,
-            'call_phone'                => null,
-            'call_description'          => null,
-        ]);
+        $ticket->fill( [
+            'provider_id' => Provider::getCurrent()->id ?? null,
+            'type_id' => null,
+            'building_id' => null,
+            'place_id' => null,
+            'flat' => null,
+            'actual_building_id' => null,
+            'actual_flat' => null,
+            'phone' => null,
+            'phone2' => null,
+            'customer_id' => null,
+            'text' => null,
+            'firstname' => null,
+            'lastname' => null,
+            'middlename' => null,
+            'call_phone' => null,
+            'call_description' => null,
+        ] );
         $ticket->emergency = 0;
         $ticket->urgently = 0;
         $ticket->dobrodel = 0;
@@ -2437,20 +2550,21 @@ class TicketsController extends BaseController
     public function search ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'catalog.customers.tickets' ) )
+        if ( ! \Auth::user()
+            ->can( 'catalog.customers.tickets' ) )
         {
             return null;
         }
 
         $phone = str_replace( '+7', '', $request->get( 'phone' ) );
-        $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), -10 );
+        $phone = mb_substr( preg_replace( '/[^0-9]/', '', $phone ), - 10 );
 
         $tickets = Ticket
             ::whereHas( 'managements', function ( $managements )
             {
                 return $managements
                     ->mine();
-            })
+            } )
             ->where( 'phone', '=', $phone )
             ->where( 'status_code', '!=', 'draft' )
             ->orderBy( 'id', 'desc' )
@@ -2468,7 +2582,8 @@ class TicketsController extends BaseController
     public function filter ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'tickets.search' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.search' ) )
         {
             return redirect()
                 ->back()
@@ -2489,11 +2604,11 @@ class TicketsController extends BaseController
 
         if ( isset( $data[ 'statuses' ] ) )
         {
-            if ( ! count( $data[ 'statuses' ] ) || count( $data[ 'statuses' ] ) == count( \Auth::user()->getAvailableStatuses( 'show' ) ) )
+            if ( ! count( $data[ 'statuses' ] ) || count( $data[ 'statuses' ] ) == count( \Auth::user()
+                    ->getAvailableStatuses( 'show' ) ) )
             {
                 unset( $data[ 'statuses' ] );
-            }
-            else
+            } else
             {
                 $data[ 'statuses' ] = implode( ',', $data[ 'statuses' ] );
             }
@@ -2514,8 +2629,7 @@ class TicketsController extends BaseController
             if ( ! count( $data[ 'types' ] ) || count( $data[ 'types' ] ) == Type::count() )
             {
                 unset( $data[ 'types' ] );
-            }
-            else
+            } else
             {
                 $data[ 'types' ] = implode( ',', $data[ 'types' ] );
             }
@@ -2530,8 +2644,7 @@ class TicketsController extends BaseController
         if ( $request->ajax() )
         {
             return $data;
-        }
-        else
+        } else
         {
             return redirect()->route( 'tickets.index', $data );
         }
@@ -2542,8 +2655,13 @@ class TicketsController extends BaseController
     {
         Title::add( 'Календарь' );
         list ( $month, $year ) = explode( '.', $date );
-        $beginDate = Carbon::create( $year, $month, 1 )->setTime( 0, 0, 0 )->toDateTimeString();
-        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth()->setTime( 23, 59, 59 )->toDateTimeString();
+        $beginDate = Carbon::create( $year, $month, 1 )
+            ->setTime( 0, 0, 0 )
+            ->toDateTimeString();
+        $endDate = Carbon::create( $year, $month, 1 )
+            ->endOfMonth()
+            ->setTime( 23, 59, 59 )
+            ->toDateTimeString();
         $res = Management
             ::mine()
             ->whereHas( 'parent' )
@@ -2567,7 +2685,8 @@ class TicketsController extends BaseController
 
         list ( $month, $year ) = explode( '.', $request->get( 'date' ) );
         $beginDate = Carbon::create( $year, $month, 1 );
-        $endDate = Carbon::create( $year, $month, 1 )->endOfMonth();
+        $endDate = Carbon::create( $year, $month, 1 )
+            ->endOfMonth();
 
         $ticketManagements = TicketManagement
             ::mine()
@@ -2584,7 +2703,8 @@ class TicketsController extends BaseController
 
                 if ( ! empty( $request->get( 'segments' ) ) )
                 {
-                    $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )->get();
+                    $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                        ->get();
                     if ( $segments->count() )
                     {
                         $segmentIds = [];
@@ -2598,11 +2718,11 @@ class TicketsController extends BaseController
                             {
                                 return $building
                                     ->whereIn( Building::$_table . '.segment_id', $segmentIds );
-                            });
+                            } );
                     }
                 }
 
-            })
+            } )
             ->whereNotNull( TicketManagement::$_table . '.scheduled_end' )
             ->where( \DB::raw( 'YEAR( scheduled_begin )' ), '=', $year )
             ->where( \DB::raw( 'MONTH( scheduled_begin )' ), '=', $month );
@@ -2627,10 +2747,10 @@ class TicketsController extends BaseController
             $title .= ' ' . ( $ticketManagement->executor ? $ticketManagement->executor->name : 'Не назначен' );
             $title .= ' ' . $ticketManagement->ticket->getAddress();
             $data[ 'events' ][] = [
-                'url'       => route( 'tickets.show', $ticketManagement->getTicketNumber() ),
-                'title'     => $title,
-                'start'     => $ticketManagement->scheduled_begin->format( 'Y-m-d H:i:s' ),
-                'end'       => $ticketManagement->scheduled_end->format( 'Y-m-d H:i:s' ),
+                'url' => route( 'tickets.show', $ticketManagement->getTicketNumber() ),
+                'title' => $title,
+                'start' => $ticketManagement->scheduled_begin->format( 'Y-m-d H:i:s' ),
+                'end' => $ticketManagement->scheduled_end->format( 'Y-m-d H:i:s' ),
             ];
         }
 
@@ -2650,7 +2770,8 @@ class TicketsController extends BaseController
     public function owner ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'tickets.owner' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.owner' ) )
         {
             return redirect()
                 ->back()
@@ -2671,7 +2792,7 @@ class TicketsController extends BaseController
                 return $ticketManagements
                     ->mine()
                     ->whereIn( 'id', $ids );
-            })
+            } )
             ->whereNull( 'owner_id' )
             ->get();
         if ( ! $tickets->count() )
@@ -2687,7 +2808,8 @@ class TicketsController extends BaseController
             $ticket->save();
         }
 
-        \Cache::tags( 'tickets_counts' )->flush();
+        \Cache::tags( 'tickets_counts' )
+            ->flush();
 
         return redirect()
             ->back()
@@ -2698,7 +2820,8 @@ class TicketsController extends BaseController
     public function ownerCancel ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'tickets.owner' ) )
+        if ( ! \Auth::user()
+            ->can( 'tickets.owner' ) )
         {
             return redirect()
                 ->back()
@@ -2719,7 +2842,7 @@ class TicketsController extends BaseController
                 return $ticketManagements
                     ->mine()
                     ->whereIn( 'id', $ids );
-            })
+            } )
             ->where( 'owner_id', '=', \Auth::user()->id )
             ->get();
         if ( ! $tickets->count() )
@@ -2735,7 +2858,8 @@ class TicketsController extends BaseController
             $ticket->save();
         }
 
-        \Cache::tags( 'tickets_counts' )->flush();
+        \Cache::tags( 'tickets_counts' )
+            ->flush();
 
         return redirect()
             ->back()
@@ -2745,9 +2869,13 @@ class TicketsController extends BaseController
 
     public function clearCache ()
     {
-        \Cache::tags( 'tickets' )->flush();
-        \Cache::tags( 'tickets_counts' )->flush();
-        return redirect()->route( 'tickets.index' )->with( 'success', 'Кеш успешно сброшен' );
+        \Cache::tags( 'tickets' )
+            ->flush();
+        \Cache::tags( 'tickets_counts' )
+            ->flush();
+        return redirect()
+            ->route( 'tickets.index' )
+            ->with( 'success', 'Кеш успешно сброшен' );
     }
-	
+
 }
