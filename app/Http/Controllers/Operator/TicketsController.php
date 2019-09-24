@@ -231,6 +231,7 @@ class TicketsController extends BaseController
                 'Текст обращения' => $ticket->text,
                 'ФИО заявителя' => $ticket->getName(),
                 'Телефон(ы) заявителя' => $ticket->getPhones(),
+                'Выполнить до' => $ticket->deadline_execution ? $ticket->deadline_execution->format( 'd.m.Y H:i' ) : null
             ];
             if ( \Auth::user()
                 ->can( 'tickets.field_opeator' ) )
