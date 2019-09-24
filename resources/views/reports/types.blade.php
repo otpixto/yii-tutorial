@@ -49,6 +49,13 @@
     </div>
 
     <div class="row margin-bottom-15">
+        <div class="col-md-6 col-md-offset-3">
+            {!! Form::label( 'categories_ids[]', 'Категории', [ 'class' => 'control-label' ] ) !!}
+            {!! Form::select( 'categories_ids[]', $availableCategories->pluck( 'name', 'id' ), $categories_ids, [ 'class' => 'mt-multiselect form-control', 'multiple' => true ] ) !!}
+        </div>
+    </div>
+
+    <div class="row margin-bottom-15">
         <div class="col-xs-offset-3 col-xs-3">
             {!! Form::submit( 'Применить', [ 'class' => 'btn btn-primary' ] ) !!}
             @if ( $data && count( $data ) && \Auth::user()->can( 'reports.export' ) )
@@ -65,26 +72,26 @@
 
         <table class="table table-striped sortable" id="table-categories">
             <thead>
-                <tr>
-                    <th>
-                        Категория проблем
-                    </th>
-                    <th class="text-center info bold">
-                        Поступило заявок, кол-во
-                    </th>
-                    <th class="text-center">
-                        Процент от общего количества
-                    </th>
-                    <th class="text-center info bold">
-                        Выполнено заявок, кол-во
-                    </th>
-                    <th class="text-center">
-                        Процент выполненных заявок
-                    </th>
-                </tr>
+            <tr>
+                <th>
+                    Категория проблем
+                </th>
+                <th class="text-center info bold">
+                    Поступило заявок, кол-во
+                </th>
+                <th class="text-center">
+                    Процент от общего количества
+                </th>
+                <th class="text-center info bold">
+                    Выполнено заявок, кол-во
+                </th>
+                <th class="text-center">
+                    Процент выполненных заявок
+                </th>
+            </tr>
             </thead>
             <tbody>
-            @foreach ( $categories as $category )
+            @foreach ( $availableCategories as $category )
                 @if ( isset( $data[ 'categories' ][ $category->id ] ) )
                     <tr>
                         <td>
@@ -112,23 +119,23 @@
             @endforeach
             </tbody>
             <tfoot>
-                <tr>
-                    <th class="text-right">
-                        Всего:
-                    </th>
-                    <th class="text-center warning bold">
-                        {{ $data[ 'total' ] }}
-                    </th>
-                    <th class="text-center">
-                        100%
-                    </th>
-                    <th class="text-center warning bold">
-                        {{ $data[ 'closed' ] }}
-                    </th>
-                    <th class="text-center">
-                        {{ $data[ 'percent' ] }}%
-                    </th>
-                </tr>
+            <tr>
+                <th class="text-right">
+                    Всего:
+                </th>
+                <th class="text-center warning bold">
+                    {{ $data[ 'total' ] }}
+                </th>
+                <th class="text-center">
+                    100%
+                </th>
+                <th class="text-center warning bold">
+                    {{ $data[ 'closed' ] }}
+                </th>
+                <th class="text-center">
+                    {{ $data[ 'percent' ] }}%
+                </th>
+            </tr>
             </tfoot>
         </table>
 
@@ -189,38 +196,38 @@
                 @endforeach
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <th class="text-right">
-                            Всего:
-                        </th>
-                        @foreach ( $managements as $management )
-                            <th class="text-center">
-                                {{ $data[ 'managements' ][ $management->id ][ 'closed' ] }}
-                                /
-                                {{ $data[ 'managements' ][ $management->id ][ 'total' ] }}
-                            </th>
-                        @endforeach
-                        <th class="text-center warning bold">
-                            {{ $data[ 'closed' ] }}
+                <tr>
+                    <th class="text-right">
+                        Всего:
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
+                            {{ $data[ 'managements' ][ $management->id ][ 'closed' ] }}
                             /
-                            {{ $data[ 'total' ] }}
+                            {{ $data[ 'managements' ][ $management->id ][ 'total' ] }}
                         </th>
-                    </tr>
-                    <tr>
-                        <th class="text-right">
-                            В % соотношении:
-                        </th>
-                        @foreach ( $managements as $management )
-                            <th class="text-center">
+                    @endforeach
+                    <th class="text-center warning bold">
+                        {{ $data[ 'closed' ] }}
+                        /
+                        {{ $data[ 'total' ] }}
+                    </th>
+                </tr>
+                <tr>
+                    <th class="text-right">
+                        В % соотношении:
+                    </th>
+                    @foreach ( $managements as $management )
+                        <th class="text-center">
                                 <span data-category="{{ $management->name }}" data-percent="{{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}">
                                     {{ $data[ 'managements' ][ $management->id ][ 'percent_total' ] }}%
                                 </span>
-                            </th>
-                        @endforeach
-                        <th class="text-center warning bold">
-                            100%
                         </th>
-                    </tr>
+                    @endforeach
+                    <th class="text-center warning bold">
+                        100%
+                    </th>
+                </tr>
                 </tfoot>
             </table>
         </div>
@@ -271,9 +278,9 @@
             .ready( function ()
             {
 
-               $( '.datepicker' ).datepicker({
-                   format: 'dd.mm.yyyy',
-               });
+                $( '.datepicker' ).datepicker({
+                    format: 'dd.mm.yyyy',
+                });
 
                 var dataProviderCategories = [];
 
