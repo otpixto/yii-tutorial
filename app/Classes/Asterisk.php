@@ -73,17 +73,18 @@ class Asterisk
         {
             $this->last_result = '';
             $result = '';
+            $startTime = time();
             while ( $line = fgets( $this->socket, self::LENGTH ) )
             {
                 $status = socket_get_status( $this->socket );
-                if ( $line == self::EOL && ! $status[ 'unread_bytes' ] )
+                if ( ( $line == self::EOL && ! $status[ 'unread_bytes' ] ) || ( time() - $startTime >= self::TIMEOUT ) )
                 {
                     break;
                 }
                 else
                 {
                     $result .= $line;
-                    usleep( 10000 );
+                    usleep( 5000 );
                 }
             }
             $this->last_result = trim( $result );
