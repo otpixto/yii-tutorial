@@ -144,21 +144,6 @@ class DataController extends BaseController
         {
             if ( ! isset( $data[ $r->building_id ] ) )
             {
-                if ( ! $r->building->lon || ! $r->building->lat )
-                {
-                    $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $r->building->name ) ) );
-                    if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
-                    {
-                        $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
-                        $r->building->lon = $pos[ 0 ];
-                        $r->building->lat = $pos[ 1 ];
-                    } else
-                    {
-                        $r->building->lon = - 1;
-                        $r->building->lat = - 1;
-                    }
-                    $r->building->save();
-                }
                 $data[ $r->building_id ] = [
                     'building_id'           => $r->building_id,
                     'building_name'         => $r->building->name,
@@ -221,22 +206,6 @@ class DataController extends BaseController
             {
                 if ( ! isset( $data[ $building->id ] ) )
                 {
-                    if ( ! $building->lon || ! $building->lat )
-                    {
-                        $yandex = json_decode( file_get_contents( 'https://geocode-maps.yandex.ru/1.x/?format=json&geocode=' . urldecode( $building->name ) ) );
-                        if ( isset( $yandex->response->GeoObjectCollection->featureMember[0] ) )
-                        {
-                            $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos );
-                            $building->lon = $pos[0];
-                            $building->lat = $pos[1];
-                        }
-                        else
-                        {
-                            $building->lon = -1;
-                            $building->lat = -1;
-                        }
-                        $building->save();
-                    }
                     $data[ $building->id ] = [
                         'building_id' => $building->id,
                         'building_name' => $building->name,
