@@ -369,9 +369,11 @@ class Asterisk
                         $data[ $queue ][ 'busy' ] ++;
                     }
                 }
-                preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
+                if ( preg_match_all( '/(\d+)\.\s(sip|local)/i', $e, $callers_matches ) )
+                {
+                    $data[ $queue ][ 'callers' ] = count( $callers_matches[ 0 ] );
+                }
                 ksort( $data[ $queue ][ 'list' ] );
-                $data[ $queue ][ 'callers' ] = count( $matches[ 0 ] );
             }
             return $data;
         }
