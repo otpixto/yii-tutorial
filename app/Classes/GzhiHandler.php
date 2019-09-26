@@ -331,6 +331,7 @@ SOAP;
                 'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
                 'Action' => $this->soapAction
             ] )
+                ->where('attempts_count', '<', 10)
                 ->get();
 
             $packDate = date( 'Y-m-d\TH:i:s' );
