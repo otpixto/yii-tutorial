@@ -77,7 +77,7 @@ socket
 
     .on( 'stream', function ( data )
     {
-        console.log( 'stream', data || null );
+        //console.log( 'stream', data || null );
         if ( ! data || ! data.action ) return;
         switch ( data.action )
         {
@@ -118,7 +118,7 @@ socket
             case 'update':
                 if ( $( '#ticket-id' ).val() )
                 {
-                    console.log( 'update ticket', $( '#ticket-id' ).val() );
+                    //console.log( 'update ticket', $( '#ticket-id' ).val() );
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
                     $( '#ticket-show' ).load( window.location.href );
                 }
