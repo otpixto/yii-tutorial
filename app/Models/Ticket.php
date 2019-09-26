@@ -1311,7 +1311,7 @@ class Ticket extends BaseModel
 
         if ( in_array( $this->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
         {
-            //$this->processGzhi();
+            $this->processGzhi();
         }
 
     }
