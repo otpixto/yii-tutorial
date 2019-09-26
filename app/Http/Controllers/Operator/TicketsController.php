@@ -658,31 +658,18 @@ class TicketsController extends BaseController
         } else
         {
             $types = [];
-
-            $user->load('managements');
-
-            if($user->managements->count())
+            if ( $user->managements->count() )
             {
-                $typesArray = [];
-
-                foreach ($user->managements as $userManagement)
+                foreach ( $user->managements as $userManagement )
                 {
-                    $userManagement->load('types');
-
-                    if($userManagement->types->count() && is_array($userManagement->types->pluck('id')->toArray()))
+                    foreach ( $userManagement->types as $type )
                     {
-                        $typesArray = array_merge($typesArray, $userManagement->types->pluck('id')->toArray());
+                        if ( ! isset( $types[ $type->id ] ) )
+                        {
+                            $types[ $type->id ] = $type->name;
+                        }
                     }
-                    $typesArray = array_unique($typesArray);
-
                 }
-
-                $types = Type
-                    ::mine()
-                    ->orderBy( Type::$_table . '.name' )
-                    ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
-                    ->whereIn('id', $typesArray)
-                    ->pluck( 'name', 'id' );
             }
         }
 
