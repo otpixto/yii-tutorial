@@ -668,7 +668,7 @@ class Ticket extends BaseModel
                 if ( strpos( $buildingName, $gzhiProvider->name ) )
                 {
                     //(new GzhiHandler)->handleGzhiTicket($this, $gzhiProvider);
-                    //$this->dispatch( new GzhiJob( $this, $gzhiProvider ) );
+                    $this->dispatch( new GzhiJob( $this, $gzhiProvider ) );
                 }
             }
         }
