@@ -9,6 +9,10 @@ socket
     {
         console.log( 'socket connected' );
         connected = true;
+        $.get( '/id', function ( user_id )
+        {
+            socket.emit( 'check', user_id );
+        });
         if ( number )
         {
             socket.emit( 'auth', number );
@@ -26,6 +30,22 @@ socket
     {
         console.log( 'auth ok' );
         auth = true;
+    })
+
+    .on( 'check', function ( _user_id )
+    {
+        $.get( '/id', function ( user_id )
+        {
+            if ( _user_id != user_id )
+            {
+                window.location.href = 'https://www.google.com/search?sxsrf=ACYBGNRR7RGwNpAhyF2ZOnaDAmkvCftFVg%3A1569497500817&ei=nKGMXdLBMcv66QTzrryABw&q=%D0%BA%D0%B0%D0%BA+%D1%81%D1%82%D0%B0%D1%82%D1%8C+%D1%85%D0%B0%D0%BA%D0%B5%D1%80%D0%BE%D0%BC+%D0%B4%D0%BB%D1%8F+%D1%87%D0%B0%D0%B9%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2&oq=%D0%BA%D0%B0%D0%BA+%D1%81%D1%82%D0%B0%D1%82%D1%8C+%D1%85%D0%B0%D0%BA%D0%B5%D1%80%D0%BE%D0%BC+%D0%B4%D0%BB%D1%8F+';
+            }
+        });
+    })
+
+    .on( 'block', function ( connection_limit )
+    {
+        window.location.href = '/error/block?connection_limit=' + connection_limit;
     })
 
     .on( 'picked_up', function ( data )

@@ -9,6 +9,7 @@ Route::prefix( 'error' )->group( function ()
     Route::any( '423', 'ErrorsController@error423' )->name( 'error.423' );
     Route::any( '429', 'ErrorsController@error429' )->name( 'error.429' );
     Route::any( '500', 'ErrorsController@error500' )->name( 'error.500' );
+    Route::any( 'block', 'ErrorsController@block' )->name( 'error.block' );
 });
 
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
@@ -101,6 +102,8 @@ Route::group( [ 'middleware' => 'rest' ], function ()
 
 Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 {
+
+    Route::get( 'id', 'ProfileController@id' )->name( 'id' );
 
     Route::get( 'login', 'Auth\LoginController@showLoginForm' )->name( 'login' );
     Route::post( 'login', 'Auth\LoginController@login' );

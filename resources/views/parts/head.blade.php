@@ -11,8 +11,11 @@
     <meta name="robots" content="noindex, nofollow" />
     {{--<meta name="viewport" content="width=device-width, initial-scale=1.0" />--}}
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    @if ( \Auth::user() && \Auth::user()->openPhoneSession )
-        <meta name="user-phone" content="{{ \Auth::user()->openPhoneSession->number }}" />
+    @if ( \Auth::user() )
+        <meta name="user-id" content="{{ \Auth::user()->id }}" />
+        @if ( \Auth::user()->openPhoneSession )
+            <meta name="user-phone" content="{{ \Auth::user()->openPhoneSession->number }}" />
+        @endif
     @endif
     {{--<meta content="width=device-width, initial-scale=1" name="viewport" />--}}
     <meta content="{{ \App\Classes\Title::render() }}" name="description" />
