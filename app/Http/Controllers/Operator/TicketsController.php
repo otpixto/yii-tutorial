@@ -2110,7 +2110,8 @@ class TicketsController extends BaseController
             'scheduled_end' => $scheduled_end->toDateTimeString(),
         ];
         $ticketManagement->fill( $attributes );
-        if ( $ticketManagement->isDirty() )
+        $changed = $ticketManagement->isDirty();
+        if ( $changed )
         {
             $ticketManagement->save();
             $res = $ticketManagement->addLog( 'Назначен исполнитель "' . $executor->name . '" на время с "' . $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) . '" до "' . $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) . '"' );
@@ -2141,9 +2142,13 @@ class TicketsController extends BaseController
                         ->withErrors( $res );
                 }
             }
-            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
         }
         \DB::commit();
+
+        if ( $changed )
+        {
+            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
+        }
 
         $success = 'Исполнитель успешно назначен';
 
@@ -2322,8 +2327,9 @@ class TicketsController extends BaseController
         }
 
         $ticketManagement->management_id = $management->id;
+        $changed = $ticketManagement->isDirty();
 
-        if ( $ticketManagement->isDirty() )
+        if ( $changed )
         {
             $ticketManagement->executor_id = null;
             $ticketManagement->scheduled_begin = null;
@@ -2341,10 +2347,14 @@ class TicketsController extends BaseController
                     ->back()
                     ->withErrors( $res );
             }
-            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
         }
 
         \DB::commit();
+
+        if ( $changed )
+        {
+            $this->dispatch( new SendStream( 'update', $ticketManagement ) );
+        }
 
         return redirect()
             ->back()

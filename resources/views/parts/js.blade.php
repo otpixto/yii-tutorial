@@ -23,12 +23,13 @@
 <script src="/assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js" type="text/javascript"></script>
 <script src="/assets/global/scripts/common.js?30" type="text/javascript"></script>
 <script src="https://system.eds-region.ru:8443/socket.io/socket.io.js" type="text/javascript"></script>
-<script src="/assets/global/scripts/websocket.js?27" type="text/javascript"></script>
+<script src="/assets/global/scripts/websocket.js?30" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script src="/assets/layouts/layout5/scripts/layout.min.js" type="text/javascript"></script>
 @if ( \App\Models\Provider::getCurrent() )
     <script type="text/javascript">
+        var ticketsAutoupdate = @php echo \Auth::user()->can( 'tickets.autoupdate' ) ? 'true;' : 'false;' @endphp
         $( document )
 
             .ready( function ()

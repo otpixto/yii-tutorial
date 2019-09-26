@@ -12,14 +12,28 @@ class Stream
 
     public function __construct ()
     {
-        $this->client = new Client();
+        try
+        {
+            $this->client = new Client();
+        }
+        catch ( \Exception $e )
+        {
+
+        }
     }
 
     public function send ( $data )
     {
-        $this->client->post( \Config::get( 'rest.stream_url' ), [
-            RequestOptions::JSON => $data
-        ]);
+        try
+        {
+            $this->client->post( \Config::get( 'rest.stream_url' ), [
+                RequestOptions::JSON => $data
+            ]);
+        }
+        catch ( \Exception $e )
+        {
+
+        }
     }
 
 }
