@@ -654,15 +654,12 @@ class Ticket extends BaseModel
         return $this;
     }
 
-    public function save ( array $options = [] )
+    public function processGzhi ()
     {
-        $result = parent::save( $options );
 
-        if ( isset( $this->building()
-                ->first()->name ) )
+        if ( isset( $this->building()->name ) )
         {
-            $buildingName = $this->building()
-                ->first()->name;
+            $buildingName = $this->building()->name;
 
             $gzhiProviders = GzhiApiProvider::get();
 
@@ -676,7 +673,6 @@ class Ticket extends BaseModel
             }
         }
 
-        return $result;
     }
 
     public function getName ()
@@ -1311,6 +1307,11 @@ class Ticket extends BaseModel
 
                 break;
 
+        }
+
+        if ( in_array( $this->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
+        {
+            //$this->processGzhi();
         }
 
     }

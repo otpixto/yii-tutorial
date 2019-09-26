@@ -100,6 +100,19 @@ class GzhiHandler
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
 
+        $ticket->load( 'managements' );
+
+        $ticket->load( 'customer' );
+
+        if ( ! isset( $ticket->customer ) || !isset($ticket->managements[0]) )
+        {
+            return 0;
+        }
+
+        $ticket->load( 'vendors' );
+
+        $ticket->load( 'status' );
+
         $username = $gzhiProvider->login;
 
         $password = $gzhiProvider->password;
@@ -123,14 +136,6 @@ class GzhiHandler
         ] )
             ->first();
 
-        $ticket->load( 'managements' );
-
-        $ticket->load( 'vendors' );
-
-        $ticket->load( 'customer' );
-
-        $ticket->load( 'status' );
-
         if ( $gzhiRequest )
         {
 
@@ -142,11 +147,6 @@ class GzhiHandler
         } else
         {
             $gzhiRequest = new GzhiRequest();
-        }
-
-        if ( ! isset( $ticket->customer ) || !isset($ticket->managements[0]) )
-        {
-            return 0;
         }
 
         $ticket->customer->load( 'buildings' );
@@ -310,9 +310,9 @@ SOAP;
 
         }
 
-        if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
+        if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT && method_exists($ticket, 'dispatch') )
         {
-            Job::dispatch( new GzhiJob( $ticket, $gzhiProvider ) )
+            $ticket->dispatch( new GzhiJob( $ticket, $gzhiProvider ) )
                 ->late( 300 );
         }
 
