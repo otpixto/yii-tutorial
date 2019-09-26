@@ -37,4 +37,9 @@ class ErrorsController extends Controller
         return view( 'errors.500' );
     }
 
+    public function block ()
+    {
+        return view( 'errors.block' );
+    }
+
 }

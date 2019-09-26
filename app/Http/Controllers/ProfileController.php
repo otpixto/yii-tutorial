@@ -19,6 +19,11 @@ class ProfileController extends Controller
         Title::add( 'Профиль пользователя' );
     }
 
+    public function id ( Request $request )
+    {
+        return (int) $request->user()->id;
+    }
+
     public function loginas ( Request $request, $id )
     {
         if ( ! \Auth::user()->admin && ! \Auth::user()
