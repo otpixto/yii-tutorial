@@ -323,6 +323,7 @@ SOAP;
     public function getGzhiRequestsStatus ()
     {
 
+
         try
         {
             $soapAction = $this->soapGetStateAction;
@@ -331,7 +332,7 @@ SOAP;
                 'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
                 'Action' => $this->soapAction
             ] )
-                ->where('attempts_count', '<', 10)
+                ->where('attempts_count', '<', GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT)
                 ->get();
 
             $packDate = date( 'Y-m-d\TH:i:s' );
