@@ -110,7 +110,7 @@ class RestController extends Controller
             $providerPhone = ProviderPhone
                 ::where( 'phone', '=', $phone_office )
                 ->first();
-            \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 60 );
+            \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
         }
 
         if ( $providerPhone )
@@ -119,11 +119,19 @@ class RestController extends Controller
             if ( $providerPhone->provider )
             {
                 $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
-                $customer = $providerPhone->provider->customers()
-                    ->where( 'phone', '=', $call_phone )
-                    ->orWhere( 'phone2', '=', $call_phone )
-                    ->orderBy( 'id', 'desc' )
-                    ->first();
+                if ( \Cache::has( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone ) )
+                {
+                    $customer = \Cache::get( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone );
+                }
+                else
+                {
+                    $customer = $providerPhone->provider->customers()
+                        ->where( 'phone', '=', $call_phone )
+                        ->orWhere( 'phone2', '=', $call_phone )
+                        ->orderBy( 'id', 'desc' )
+                        ->first();
+                    \Cache::put( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone, $customer, 1440 );
+                }
                 if ( $customer )
                 {
                     $response[ 'customer' ] = [
