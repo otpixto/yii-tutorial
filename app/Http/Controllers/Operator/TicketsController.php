@@ -559,13 +559,7 @@ class TicketsController extends BaseController
 
         $ticketManagement = TicketManagement
             ::mine()
-            ->where( 'id', '=', $id )
-            ->with(
-                'comments',
-                'ticket',
-                'management'
-            )
-            ->first();
+            ->find( $id );
 
         if ( ! $ticketManagement ) return;
 
