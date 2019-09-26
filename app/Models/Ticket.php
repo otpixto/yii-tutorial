@@ -657,9 +657,9 @@ class Ticket extends BaseModel
     public function processGzhi ()
     {
 
-        if ( isset( $this->building()->name ) )
+        if ( isset( $this->building->name ) )
         {
-            $buildingName = $this->building()->name;
+            $buildingName = $this->building->name;
 
             $gzhiProviders = GzhiApiProvider::get();
 
