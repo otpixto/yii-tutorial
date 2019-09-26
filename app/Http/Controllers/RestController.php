@@ -130,7 +130,10 @@ class RestController extends Controller
                         ->orWhere( 'phone2', '=', $call_phone )
                         ->orderBy( 'id', 'desc' )
                         ->first();
-                    \Cache::put( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone, $customer, 1440 );
+                    if ( $customer )
+                    {
+                        \Cache::put( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone, $customer, 1440 );
+                    }
                 }
                 if ( $customer )
                 {
