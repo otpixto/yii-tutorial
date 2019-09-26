@@ -84,6 +84,7 @@ socket
                 initIntercom( data.cam_src || null );
                 break;
             case 'create':
+                if ( ! ticketsAutoupdate ) return;
                 var line = $( '#ticket-management-' + data.ticket_management_id );
                 if ( line.length ) return;
                 $.post( '/tickets/line/' + data.ticket_management_id,
@@ -114,6 +115,7 @@ socket
                 );
                 break;
             case 'update':
+                if ( ! ticketsAutoupdate ) return;
                 if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
@@ -155,7 +157,7 @@ socket
                         }
                     );
                 }
-                else
+                else if ( data.ticket_id )
                 {
                     var lines = $( '[data-ticket="' + data.ticket_id + '"]' );
                     if ( ! lines.length ) return;
@@ -198,6 +200,7 @@ socket
                 }
                 break;
             case 'comment':
+                if ( ! ticketsAutoupdate ) return;
                 if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
