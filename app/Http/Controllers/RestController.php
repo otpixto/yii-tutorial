@@ -101,9 +101,17 @@ class RestController extends Controller
 
         $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
 
-        $providerPhone = ProviderPhone
-            ::where( 'phone', '=', $phone_office )
-            ->first();
+        if ( \Cache::has( 'provider.phone.' . $phone_office ) )
+        {
+            $providerPhone = \Cache::get( 'provider.phone.' . $phone_office );
+        }
+        else
+        {
+            $providerPhone = ProviderPhone
+                ::where( 'phone', '=', $phone_office )
+                ->first();
+            \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
+        }
 
         if ( $providerPhone )
         {
@@ -111,11 +119,19 @@ class RestController extends Controller
             if ( $providerPhone->provider )
             {
                 $call_phone = mb_substr( $request->get( 'call_phone' ), -10 );
-                $customer = $providerPhone->provider->customers()
-                    ->where( 'phone', '=', $call_phone )
-                    ->orWhere( 'phone2', '=', $call_phone )
-                    ->orderBy( 'id', 'desc' )
-                    ->first();
+                if ( \Cache::has( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone ) )
+                {
+                    $customer = \Cache::get( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone );
+                }
+                else
+                {
+                    $customer = $providerPhone->provider->customers()
+                        ->where( 'phone', '=', $call_phone )
+                        ->orWhere( 'phone2', '=', $call_phone )
+                        ->orderBy( 'id', 'desc' )
+                        ->first();
+                    \Cache::put( 'provider.customer.' . $providerPhone->provider_id . '.' . $call_phone, $customer, 1440 );
+                }
                 if ( $customer )
                 {
                     $response[ 'customer' ] = [

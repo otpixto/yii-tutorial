@@ -56,277 +56,434 @@ class Asterisk
 
     private function connect ( $autologin = true )
     {
-        $this->socket = fsockopen( $this->config[ 'ip' ], $this->config[ 'port' ], $errno, $errstr, self::TIMEOUT );
-        return $autologin ? $this->login() : ( $this->socket ? true : false );
+        try
+        {
+            $this->socket = fsockopen( $this->config[ 'ip' ], $this->config[ 'port' ], $errno, $errstr, self::TIMEOUT );
+            return $autologin ? $this->login() : ( $this->socket ? true : false );
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function read ()
     {
-		$this->last_result = '';
-		$result = '';
-		while ( $line = fgets( $this->socket, self::LENGTH ) )
-		{
-            $status = socket_get_status( $this->socket );
-            if ( $line == self::EOL && ! $status[ 'unread_bytes' ] )
+        try
+        {
+            $this->last_result = '';
+            $result = '';
+            $startTime = time();
+            while ( $line = fgets( $this->socket, self::LENGTH ) )
             {
-                break;
+                $status = socket_get_status( $this->socket );
+                if ( ( $line == self::EOL && ! $status[ 'unread_bytes' ] ) || ( time() - $startTime >= self::TIMEOUT ) )
+                {
+                    break;
+                }
+                else
+                {
+                    $result .= $line;
+                    usleep( 5000 );
+                }
             }
-            else
-            {
-                $result .= $line;
-                usleep( 10000 );
-            }
-		}
-		$this->last_result = trim( $result );
-        return $this->last_result;
+            $this->last_result = trim( $result );
+            return $this->last_result;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function write ( $packet )
     {
-        if ( is_array( $packet ) )
+        try
         {
-            $packet = $this->preparePacket( $packet );
+            if ( is_array( $packet ) )
+            {
+                $packet = $this->preparePacket( $packet );
+            }
+            fwrite( $this->socket, $packet );
+            return $this->read();
         }
-        fwrite( $this->socket, $packet );
-        return $this->read();
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function preparePacket ( array $data = [] )
     {
-        $packet = '';
-        foreach ( $data as $key => $val )
+        try
         {
-            $packet .= $key . ': ' . $val . self::EOL;
+            $packet = '';
+            foreach ( $data as $key => $val )
+            {
+                $packet .= $key . ': ' . $val . self::EOL;
+            }
+            $packet .= self::EOL;
+            return $packet;
         }
-        $packet .= self::EOL;
-        return $packet;
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function isSuccess ( $result = null )
     {
-        if ( is_null( $result ) ) $result = $this->last_result;
-        return ! empty( $result ) && preg_match( '/response: success/i', $result ) ? true : false;
+        try
+        {
+            if ( is_null( $result ) ) $result = $this->last_result;
+            return ! empty( $result ) && preg_match( '/response: success/i', $result ) ? true : false;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function login ()
     {
-        if ( ! $this->socket ) return false;
-        $this->write([
-            'Action'        => 'login',
-            'Username'      => $this->config[ 'user' ],
-            'Secret'        => $this->config[ 'pass' ],
-            'Events'        => 'off',
-        ]);
-        $this->auth = $this->isSuccess();
-        return $this->auth;
+        try
+        {
+            if ( ! $this->socket ) return false;
+            $this->write([
+                'Action'        => 'login',
+                'Username'      => $this->config[ 'user' ],
+                'Secret'        => $this->config[ 'pass' ],
+                'Events'        => 'off',
+            ]);
+            $this->auth = $this->isSuccess();
+            return $this->auth;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     private function logout ()
     {
-        if ( ! $this->auth ) return false;
-        $this->write([
-            'Action'        => 'logoff',
-        ]);
-        $this->auth = false;
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $this->write([
+                'Action'        => 'logoff',
+            ]);
+            $this->auth = false;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function status ( $channel )
     {
-        if ( ! $this->auth ) return false;
-        $result = $this->write([
-            'Action'        => 'status',
-            'Channel'       => $channel,
-        ]);
-        return $result;
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $result = $this->write([
+                'Action'        => 'status',
+                'Channel'       => $channel,
+            ]);
+            return $result;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 	
     public function originate ( $number_from, $number_to, $callerId = null, $url = null )
     {
-        if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $number_from );
-        $exten = $this->prepareExten( $number_to );
-        $packet = [
-            'Action'        => 'originate',
-            'Channel'       => $channel,
-            'Context'       => $this->config[ 'autodial_context' ],
-            'Exten'         => $exten,
-            'Async'         => 'true',
-        ];
-        if ( $callerId )
+        try
         {
-            $packet[ 'CallerID' ] = $callerId;
+            if ( ! $this->auth ) return false;
+            $channel = $this->prepareChannel( $number_from );
+            $exten = $this->prepareExten( $number_to );
+            $packet = [
+                'Action'        => 'originate',
+                'Channel'       => $channel,
+                'Context'       => $this->config[ 'autodial_context' ],
+                'Exten'         => $exten,
+                'Async'         => 'true',
+            ];
+            if ( $callerId )
+            {
+                $packet[ 'CallerID' ] = $callerId;
+            }
+            if ( $url )
+            {
+                $packet[ 'Variable' ] = 'url=' . $url;
+            }
+            $this->write( $packet );
+            return $this->isSuccess();
         }
-        if ( $url )
+        catch ( \Exception $e )
         {
-            $packet[ 'Variable' ] = 'url=' . $url;
+            $this->last_result = $e->getMessage();
         }
-        $this->write( $packet );
-        return $this->isSuccess();
     }
 
     public function hangup ( $number )
     {
-        if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $number );
-        $this->write([
-            'Action'        => 'hangup',
-            'Channel'       => $channel,
-        ]);
-        return $this->isSuccess();
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $channel = $this->prepareChannel( $number );
+            $this->write([
+                'Action'        => 'hangup',
+                'Channel'       => $channel,
+            ]);
+            return $this->isSuccess();
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function bridge ( $channel1, $channel2 )
     {
-        if ( ! $this->auth ) return false;
-        $this->write([
-            'Action'        => 'bridge',
-            'Channel1'      => $channel1,
-            'Channel2'      => $channel2,
-        ]);
-        return $this->isSuccess();
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $this->write([
+                'Action'        => 'bridge',
+                'Channel1'      => $channel1,
+                'Channel2'      => $channel2,
+            ]);
+            return $this->isSuccess();
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queueAddByExten ( $exten, $queue = null )
     {
-        if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $exten );
-        return $this->queueAddByChannel( $channel, $queue );
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $channel = $this->prepareChannel( $exten );
+            return $this->queueAddByChannel( $channel, $queue );
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queueAddByChannel ( $channel, $queue = null )
     {
-        if ( ! $this->auth ) return false;
-        $this->write([
-            'Action'        => 'QueueAdd',
-            'Queue'         => $queue ?: $this->config[ 'queue' ],
-            'Interface'     => $channel,
-        ]);
-        return $this->isSuccess();
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $this->write([
+                'Action'        => 'QueueAdd',
+                'Queue'         => $queue ?: $this->config[ 'queue' ],
+                'Interface'     => $channel,
+            ]);
+            return $this->isSuccess();
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queueRemoveByExten ( $exten, $queue = null )
     {
-        if ( ! $this->auth ) return false;
-        $channel = $this->prepareChannel( $exten );
-        return $this->queueRemoveByChannel( $channel, $queue );
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $channel = $this->prepareChannel( $exten );
+            return $this->queueRemoveByChannel( $channel, $queue );
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queueRemoveByChannel ( $channel, $queue = null )
     {
-        if ( ! $this->auth ) return false;
-        $this->write([
-            'Action'        => 'QueueRemove',
-            'Queue'         => $queue ?: $this->config[ 'queue' ],
-            'Interface'     => $channel,
-        ]);
-        return $this->isSuccess();
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $this->write([
+                'Action'        => 'QueueRemove',
+                'Queue'         => $queue ?: $this->config[ 'queue' ],
+                'Interface'     => $channel,
+            ]);
+            return $this->isSuccess();
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queues ( $parse = false )
     {
-        if ( ! $this->auth ) return false;
-        $result = $this->write([
-            'Action'        => 'Queues',
-        ]);
-        if ( ! $parse )
+        try
         {
-            return $result;
-        }
-        $exp = explode( self::EOL . self::EOL, $result );
-        $data = [];
-        foreach ( $exp as $e )
-        {
-            preg_match( '/(.*) has/', $e, $matches );
-            $queue = trim( $matches[ 1 ] );
-            $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . ') (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
-            preg_match_all( $pattern, $e, $matches );
-            $count = count( $matches[ 0 ] );
-            $data[ $queue ] = [
-                'list' => [],
-                'count' => $count,
-                'callers' => 0,
-                'busy' => 0
-            ];
-            for ( $i = 0; $i < $count; $i ++ )
+            if ( ! $this->auth ) return false;
+            $result = $this->write([
+                'Action'        => 'Queues',
+            ]);
+            if ( ! $parse )
             {
-                $isBusy = preg_match( '/busy/i', $matches[ 4 ][ $i ] );
-                $channel = $matches[ 1 ][ $i ];
-                $number = mb_substr( $matches[ 2 ][ $i ], -10 );
-                $data[ $queue ][ 'list' ][ $channel ] = [
-                    'number'    => $number,
-                    'isFree'    => $isBusy ? 0 : 1
-                ];
-                if ( $isBusy )
-                {
-                    $data[ $queue ][ 'busy' ] ++;
-                }
+                return $result;
             }
-            preg_match_all( '/(\d)\.\s(sip|local)/i', $result, $matches );
-            ksort( $data[ $queue ][ 'list' ] );
-            $data[ $queue ][ 'callers' ] = count( $matches[ 0 ] );
+            $exp = explode( self::EOL . self::EOL, $result );
+            $data = [];
+            foreach ( $exp as $e )
+            {
+                preg_match( '/(.*) has/', $e, $matches );
+                $queue = trim( $matches[ 1 ] );
+                $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . ') (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
+                preg_match_all( $pattern, $e, $matches );
+                $count = count( $matches[ 0 ] );
+                $data[ $queue ] = [
+                    'list' => [],
+                    'count' => $count,
+                    'callers' => 0,
+                    'busy' => 0
+                ];
+                for ( $i = 0; $i < $count; $i ++ )
+                {
+                    $isBusy = preg_match( '/busy/i', $matches[ 4 ][ $i ] );
+                    $channel = $matches[ 1 ][ $i ];
+                    $number = mb_substr( $matches[ 2 ][ $i ], -10 );
+                    $data[ $queue ][ 'list' ][ $channel ] = [
+                        'number'    => $number,
+                        'isFree'    => $isBusy ? 0 : 1
+                    ];
+                    if ( $isBusy )
+                    {
+                        $data[ $queue ][ 'busy' ] ++;
+                    }
+                }
+                if ( preg_match_all( '/(\d+)\.\s(sip|local)/i', $e, $callers_matches ) )
+                {
+                    $data[ $queue ][ 'callers' ] = count( $callers_matches[ 0 ] );
+                }
+                ksort( $data[ $queue ][ 'list' ] );
+            }
+            return $data;
         }
-        return $data;
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function queue ( $queue = null )
     {
-        $queues = $this->queues( true );
-        return $queues[ $queue ?: $this->config[ 'queue' ] ] ?? null;
+        try
+        {
+            $queues = $this->queues( true );
+            return $queues[ $queue ?: $this->config[ 'queue' ] ] ?? null;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function redirect ( $channel, $number )
     {
-        if ( ! $this->auth ) return false;
-        $exten = $this->prepareExten( $number );
-        $this->write([
-            'Action'        => 'redirect',
-            'Channel'       => $channel,
-            'Context'       => $this->config[ 'incoming_context' ],
-            'Exten'         => $exten,
-            'Priority'      => 1,
-        ]);
-        return $this->isSuccess();
+        try
+        {
+            if ( ! $this->auth ) return false;
+            $exten = $this->prepareExten( $number );
+            $this->write([
+                'Action'        => 'redirect',
+                'Channel'       => $channel,
+                'Context'       => $this->config[ 'incoming_context' ],
+                'Exten'         => $exten,
+                'Priority'      => 1,
+            ]);
+            return $this->isSuccess();
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function prepareExten ( $number )
     {
-        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        if ( mb_strlen( $number ) == 10 )
+        try
         {
-            $number = '98' . mb_substr( $number, -10 );
+            $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
+            if ( mb_strlen( $number ) == 10 )
+            {
+                $number = '98' . mb_substr( $number, -10 );
+            }
+            return $number;
         }
-        return $number;
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function prepareChannel ( $number )
     {
-        $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
-        $channel = $this->config[ 'channel_mask' ];
-        $channel = str_replace( '{{prefix}}', $this->config[ 'channel_prefix' ], $channel );
-        if ( mb_strlen( $number ) == 10 )
+        try
         {
-			$channel = str_replace( '{{number}}', '8' . $number, $channel );
-            $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix_trunc' ], $channel );
+            $number = mb_substr( preg_replace( '/\D/', '', $number ), -10 );
+            $channel = $this->config[ 'channel_mask' ];
+            $channel = str_replace( '{{prefix}}', $this->config[ 'channel_prefix' ], $channel );
+            if ( mb_strlen( $number ) == 10 )
+            {
+                $channel = str_replace( '{{number}}', '8' . $number, $channel );
+                $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix_trunc' ], $channel );
+            }
+            else
+            {
+                $channel = str_replace( '{{number}}', $number, $channel );
+                $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix' ], $channel );
+            }
+            return $channel;
         }
-        else
+        catch ( \Exception $e )
         {
-			$channel = str_replace( '{{number}}', $number, $channel );
-            $channel = str_replace( '{{postfix}}', $this->config[ 'channel_postfix' ], $channel );
+            $this->last_result = $e->getMessage();
         }
-        return $channel;
     }
 
     public function getConfig ( $key )
     {
-        return $this->config[ $key ] ?? null;
+        try
+        {
+            return $this->config[ $key ] ?? null;
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
+        }
     }
 
     public function __destruct ()
     {
-        $this->logout();
-        if ( $this->socket  )
+        try
         {
-            fclose( $this->socket );
+            $this->logout();
+            if ( $this->socket  )
+            {
+                fclose( $this->socket );
+            }
+        }
+        catch ( \Exception $e )
+        {
+            $this->last_result = $e->getMessage();
         }
     }
 

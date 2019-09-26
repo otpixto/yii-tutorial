@@ -170,18 +170,18 @@ class ReportsController extends BaseController
             ->with( 'title', $title );
 
     }
-	
-	public function totals ( Request $request )
-    {
-		
-		$date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
-        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
-		
-		$title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ';
-		
-		Title::add( $title );
 
-		if ( $request->get( 'report', 0 ) == 1 )
+    public function totals ( Request $request )
+    {
+
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
+        $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+
+        $title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ';
+
+        Title::add( $title );
+
+        if ( $request->get( 'report', 0 ) == 1 )
         {
 
             $report = Report
@@ -223,7 +223,7 @@ class ReportsController extends BaseController
             ->orderBy( 'date_to' )
             ->get();
 
-		$statuses = [
+        $statuses = [
             'total'             => 'Зарегистрировано',
             'completed'         => 'Выполнено',
             'in_process'        => 'В работе',
@@ -231,8 +231,8 @@ class ReportsController extends BaseController
             'waiting'           => 'Отложены',
             'expired'           => 'Просрочено',
         ];
-		
-		return view( 'reports.totals' )
+
+        return view( 'reports.totals' )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
             ->with( 'reports', $reports )
@@ -586,7 +586,7 @@ class ReportsController extends BaseController
         }
 
         $this->addLog( 'Просмотрел отчет по адресу' );
-						
+
         return view( 'reports.addresses' )
             ->with( 'ticketManagements', $ticketManagements )
             ->with( 'building_id', $building_id )
@@ -616,7 +616,7 @@ class ReportsController extends BaseController
             ->get()
             ->sortBy( 'name' );
 
-		if ( count( $managements_ids ) )
+        if ( count( $managements_ids ) )
         {
 
             $totals = [
@@ -920,6 +920,7 @@ class ReportsController extends BaseController
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $managements_ids = $request->get( 'managements_ids', [] );
+        $categories_ids = $request->get( 'categories_ids', [] );
 
         $availableManagements = Management
             ::mine()
@@ -927,14 +928,14 @@ class ReportsController extends BaseController
             ->get()
             ->sortBy( 'name' );
 
-		if ( count( $managements_ids ) )
-        {
+        $availableCategories = Type
+            ::mine()
+            ->whereNull( 'parent_id' )
+            ->orderBy( 'name' )
+            ->get();
 
-            $categories = Type
-                ::mine()
-                ->whereNull( 'parent_id' )
-                ->orderBy( 'name' )
-                ->get();
+        if ( count( $managements_ids ) )
+        {
 
             $managements = $availableManagements
                 ->whereIn( 'id', $managements_ids );
@@ -959,7 +960,29 @@ class ReportsController extends BaseController
                     ->with(
                         'ticket',
                         'ticket.type'
-                    )
+                    );
+
+                if ( count( $categories_ids ) )
+                {
+                    $ticketManagements
+                        ->whereHas( 'ticket', function ( $ticket ) use ( $categories_ids )
+                        {
+                            return $ticket
+                                ->whereHas( 'type', function ( $type ) use ( $categories_ids )
+                                {
+                                    return $type
+                                        ->whereIn( 'parent_id', $categories_ids );
+                                });
+                        });
+                    $categories = $availableCategories
+                        ->whereIn( 'id', $categories_ids );
+                }
+                else
+                {
+                    $categories = $availableCategories;
+                }
+
+                $ticketManagements = $ticketManagements
                     ->get();
 
                 $data[ 'managements' ][ $management->id ] = [
@@ -1049,15 +1072,15 @@ class ReportsController extends BaseController
             $res[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
 
-        ksort( $res );
-
         $availableManagements = $res;
 
         $this->addLog( 'Просмотрел отчет по категориям' );
 
         return view( 'reports.types' )
             ->with( 'data', $data ?? null )
-            ->with( 'categories', $categories ?? null )
+            ->with( 'availableCategories', $availableCategories )
+            ->with( 'categories_ids', $categories_ids )
+            ->with( 'categories', $categories ?? [] )
             ->with( 'managements', $managements ?? null )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'categories_count', $categories_count ?? 0 )

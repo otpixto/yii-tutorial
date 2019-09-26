@@ -1239,12 +1239,17 @@ class WorksController extends BaseController
             ->select(
                 Building::$_table . '.id',
                 \DB::raw( 'CONCAT_WS( \' \', ' . Building::$_table . '.name, CONCAT( \'(\', ' . BuildingType::$_table . '.name, \')\' ) ) AS text' )
-            )
-            ->whereHas( 'managements', function ( $managements ) use ( $managements_ids )
-            {
-                return $managements
-                    ->whereIn( Management::$_table . '.id', $managements_ids );
-            } )
+            );
+        if ( $managements_ids && count( $managements_ids ) )
+        {
+            $buildings
+                ->whereHas( 'managements', function ( $managements ) use ( $managements_ids )
+                {
+                    return $managements
+                        ->whereIn( Management::$_table . '.id', $managements_ids );
+                });
+        }
+        $buildings = $buildings
             ->having( 'text', 'like', $s )
             ->orderBy( 'text' );
 
