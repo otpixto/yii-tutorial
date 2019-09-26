@@ -65,18 +65,15 @@ class TicketsController extends BaseController
 
         }
 
-        if ( \Auth::user()
-            ->can( 'tickets.scheduled' ) )
+        if ( \Auth::user()->can( 'tickets.scheduled' ) )
         {
-            if ( \Cache::tags( 'tickets.scheduled.now' )
-                ->has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+            if ( \Cache::has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
             {
-                $scheduledTicketManagements = \Cache::tags( 'tickets.scheduled.now' )
-                    ->get( 'tickets.scheduled.now.' . \Auth::user()->id );
-            } else
+                $scheduledTicketManagements = \Cache::get( 'tickets.scheduled.now.' . \Auth::user()->id );
+            }
+            else
             {
-                $now = Carbon::now()
-                    ->toDateTimeString();
+                $now = Carbon::now()->toDateTimeString();
                 $scheduledTicketManagements = TicketManagement
                     ::mine()
                     ->where( 'status_code', '=', 'assigned' )
@@ -86,12 +83,12 @@ class TicketsController extends BaseController
                         return $ticket
                             ->whereNotNull( 'postponed_to' )
                             ->where( 'postponed_to', '>', $now );
-                    } )
+                    })
                     ->get();
-                \Cache::tags( 'tickets.scheduled.now' )
-                    ->put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+                \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
             }
-        } else
+        }
+        else
         {
             $scheduledTicketManagements = new Collection();
         }
