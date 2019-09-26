@@ -322,7 +322,6 @@ SOAP;
 
     public function getGzhiRequestsStatus ()
     {
-        return 0;
 
         try
         {
@@ -448,7 +447,6 @@ SOAP;
 
                         $gzhiRequest->CompleteDate = date( 'Y-m-d H:i:s' );
 
-                        $i ++;
                     } else
                     {
                         $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_ERROR;
@@ -456,6 +454,8 @@ SOAP;
                         $gzhiRequest->Error = $this->errorMessage;
                     }
                     $gzhiRequest->save();
+
+                    $i ++;
                 }
             }
 
