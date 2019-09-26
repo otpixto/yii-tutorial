@@ -671,6 +671,7 @@ class TicketsController extends BaseController
                     }
                 }
             }
+            asort( $types );
         }
 
         $vendors = Vendor
