@@ -1301,7 +1301,7 @@ class TicketManagement extends BaseModel
 
         foreach ( $this->management->subscriptions as $subscription )
         {
-            if ( ! in_array( $subscription->telegram_id, $chatIds ) )
+            if ( $subscription->telegram_id && ! in_array( $subscription->telegram_id, $chatIds ) )
             {
                 $chatIds[] = $subscription->telegram_id;
             }
