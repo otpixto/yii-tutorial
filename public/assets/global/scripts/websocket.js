@@ -115,59 +115,21 @@ socket
                 );
                 break;
             case 'update':
-                if ( ! ticketsAutoupdate ) return;
                 if ( $( '#ticket-id' ).val() )
                 {
                     if ( $( '#ticket-id' ).val() != data.ticket_id ) return;
                     $( '#ticket-show' ).load( window.location.href );
                 }
-                else if ( data.ticket_management_id )
+                else
                 {
-                    var line = $( '#ticket-management-' + data.ticket_management_id );
-                    if ( ! line.length ) return;
-                    var isHidden = line.hasClass( 'hidden' );
-                    var isNew = line.hasClass( 'new' );
-                    $.post( '/tickets/line/' + data.ticket_management_id,
-                        {
-                            hideComments: true
-                        },
-                        function ( response )
-                        {
-                            if ( ! response ) return;
-                            var newLine = $( response );
-                            line.replaceWith( newLine );
-                            if ( isNew )
-                            {
-                                newLine.addClass( 'new' );
-                            }
-                            if ( isHidden )
-                            {
-                                newLine.addClass( 'hidden' );
-                            }
-                            else
-                            {
-                                newLine.pulsate({
-                                    repeat: 3,
-                                    speed: 500,
-                                    color: '#F1C40F',
-                                    glow: true,
-                                    reach: 15
-                                });
-                            }
-                        }
-                    );
-                }
-                else if ( data.ticket_id )
-                {
-                    var lines = $( '[data-ticket="' + data.ticket_id + '"]' );
-                    if ( ! lines.length ) return;
-                    lines.each( function()
+                    if ( ! ticketsAutoupdate ) return;
+                    if ( data.ticket_management_id )
                     {
-                        var line = $( this );
+                        var line = $( '#ticket-management-' + data.ticket_management_id );
+                        if ( ! line.length ) return;
                         var isHidden = line.hasClass( 'hidden' );
                         var isNew = line.hasClass( 'new' );
-                        var ticket_management_id = line.attr( 'data-ticket-management' );
-                        $.post( '/tickets/line/' + ticket_management_id,
+                        $.post( '/tickets/line/' + data.ticket_management_id,
                             {
                                 hideComments: true
                             },
@@ -196,7 +158,48 @@ socket
                                 }
                             }
                         );
-                    });
+                    }
+                    else if ( data.ticket_id )
+                    {
+                        var lines = $( '[data-ticket="' + data.ticket_id + '"]' );
+                        if ( ! lines.length ) return;
+                        lines.each( function()
+                        {
+                            var line = $( this );
+                            var isHidden = line.hasClass( 'hidden' );
+                            var isNew = line.hasClass( 'new' );
+                            var ticket_management_id = line.attr( 'data-ticket-management' );
+                            $.post( '/tickets/line/' + ticket_management_id,
+                                {
+                                    hideComments: true
+                                },
+                                function ( response )
+                                {
+                                    if ( ! response ) return;
+                                    var newLine = $( response );
+                                    line.replaceWith( newLine );
+                                    if ( isNew )
+                                    {
+                                        newLine.addClass( 'new' );
+                                    }
+                                    if ( isHidden )
+                                    {
+                                        newLine.addClass( 'hidden' );
+                                    }
+                                    else
+                                    {
+                                        newLine.pulsate({
+                                            repeat: 3,
+                                            speed: 500,
+                                            color: '#F1C40F',
+                                            glow: true,
+                                            reach: 15
+                                        });
+                                    }
+                                }
+                            );
+                        });
+                    }
                 }
                 break;
             case 'comment':
