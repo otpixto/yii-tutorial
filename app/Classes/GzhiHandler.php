@@ -310,11 +310,11 @@ SOAP;
 
         }
 
-        if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT && method_exists($ticket, 'dispatch') )
-        {
-            $ticket->dispatch( new GzhiJob( $ticket, $gzhiProvider ) )
-                ->late( 300 );
-        }
+//        if ( $this->errorMessage != '' && $gzhiRequest->attempts_count < GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT && method_exists($ticket, 'dispatch') )
+//        {
+//            $ticket->dispatch( new GzhiJob( $ticket, $gzhiProvider ) )
+//                ->late( 300 );
+//        }
 
         return 1;
 
