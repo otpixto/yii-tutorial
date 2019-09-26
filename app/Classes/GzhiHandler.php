@@ -455,8 +455,8 @@ SOAP;
                     }
                     $gzhiRequest->save();
 
-                    $i ++;
                 }
+                $i ++;
             }
 
             $logText = "Заявок обработано: $i; \n $this->errorMessage \n";
