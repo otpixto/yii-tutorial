@@ -24,8 +24,15 @@ class SendStream implements ShouldQueue
      */
     public function __construct ( $action, $object )
     {
-        $this->action = $action;
-        $this->object = $object;
+        try
+        {
+            $this->action = $action;
+            $this->object = $object;
+        }
+        catch ( \Exception $e )
+        {
+
+        }
     }
 
     /**
@@ -48,7 +55,7 @@ class SendStream implements ShouldQueue
                 case TicketManagement::class:
                     $data = [
                         'action' => $this->action,
-                        'ticket_id' => $this->object->ticket->id,
+                        'ticket_id' => $this->object->ticket->id ?? null,
                         'ticket_management_id' => $this->object->id
                     ];
                     break;

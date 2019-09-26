@@ -624,13 +624,6 @@ class Ticket extends BaseModel
             }
         }
 
-        if ( $this->status_code != 'draft' && $this->status_code != 'moderate' && $this->isDirty() )
-        {
-            $this->dispatch( new SendStream( 'update', $this ) );
-        }
-
-        $this->save();
-
         if ( $change_type && $this->type )
         {
             if ( $this->transferred_at )
@@ -643,7 +636,14 @@ class Ticket extends BaseModel
             {
                 $this->emergency = $this->type->emergency;
             }
-            $this->save();
+        }
+
+        $changed = $this->isDirty();
+        $this->save();
+
+        if ( $changed && $this->status_code != 'draft' && $this->status_code != 'moderate' )
+        {
+            $this->dispatch( new SendStream( 'update', $this ) );
         }
 
         /*if ( $this->customer && $this->customer->user && $this->customer->user->push_id )
