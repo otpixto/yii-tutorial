@@ -64,9 +64,9 @@ class GzhiHandler
                     ->where( 'lat', '!=', - 1 )
                     ->whereRaw( "`name` like '%$providerName%'" );
             } )
-                ->notFinaleStatuses()
-                ->where( 'created_at', '>=', Carbon::now()
-                    ->subMonth()
+                ->whereIn('status_code', GzhiRequest::GZHI_STATUSES_LIST)
+                ->where( 'updated_at', '>=', Carbon::now()
+                    ->subDay()
                     ->toDateTimeString() )
                 ->with(
                     'building',
@@ -322,7 +322,7 @@ SOAP;
 
     public function getGzhiRequestsStatus ()
     {
-        return 0;
+
         try
         {
             $soapAction = $this->soapGetStateAction;
