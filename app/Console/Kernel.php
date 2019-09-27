@@ -53,12 +53,13 @@ class Kernel extends ConsoleKernel
 //            ( new GzhiHandler() )->fillTypes();
 //        } )
 //            ->daily();
-
+	/*
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
             ->everyFiveMinutes();
+	*/
 
 //        $schedule->call( function ()
 //        {

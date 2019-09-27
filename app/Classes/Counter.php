@@ -10,7 +10,7 @@ use App\Models\Work;
 class Counter
 {
 
-    private static $cache_life = 60; // minutes
+    private static $cache_life = 1440; // minutes
 
     private static $tickets_count = null;
     private static $tickets_overdue_count = null;

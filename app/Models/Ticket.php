@@ -657,6 +657,7 @@ class Ticket extends BaseModel
     public function processGzhi ()
     {
 
+	return;
         if ( isset( $this->building->name ) )
         {
             $buildingName = $this->building->name;
