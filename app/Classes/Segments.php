@@ -6,7 +6,7 @@ class Segments
 {
 
     protected static $cache_tags = 'segments';
-    protected static $cache_life = 120;
+    protected static $cache_life = 1440;
 
     public static function clearCache ()
     {
