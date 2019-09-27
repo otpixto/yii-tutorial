@@ -322,7 +322,7 @@ SOAP;
 
     public function getGzhiRequestsStatus ()
     {
-
+        return 0;
         try
         {
             $soapAction = $this->soapGetStateAction;
