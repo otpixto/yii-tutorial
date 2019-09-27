@@ -13,7 +13,7 @@
     <meta content="{{ \App\Classes\Title::render() }}" name="description" />
     <meta content="{{ \Config::get( 'app.author' ) }}" name="author" />
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -35,14 +35,14 @@
         <div class="col-md-12">
             <div class="error-template">
                 <h1 class="big text-danger bold">
-                    Блокировка
+                    ;(
                 </h1>
                 <h2>
                     Превышено количество активных вкладок
                 </h2>
-                @if ( \Request::get( 'connection_limit' ) )
+                @if ( \Request::get( 'tabs_limit' ) )
                     <h4 class="text-muted">
-                        Допустимое количество активных вкладок: <b><u>{{ \Request::get( 'connection_limit' ) }}</u></b>
+                        Допустимое количество активных вкладок: <b><u>{{ \Request::get( 'tabs_limit' ) }}</u></b>
                     </h4>
                 @endif
                 <div class="error-actions">
@@ -52,7 +52,7 @@
                             На главную
                         </span>
                     </a>
-                    <a href="mailto:{{ urlencode( config( 'mail.support' ) ) }}?subject=Превышено количество активных вкладок&body=Ссылка:%20{{ url()->full() }}@if ( \Auth::user() )%0D%0AПользователь:%20{{ \Auth::user()->email }}@endif%0D%0AЛимит:%20{{ \Request::get( 'connection_limit' ) }}" class="btn btn-default btn-lg">
+                    <a href="mailto:{{ urlencode( config( 'mail.support' ) ) }}?subject=Превышено количество активных вкладок&body=Ссылка:%20{{ url()->full() }}@if ( \Auth::user() )%0D%0AПользователь:%20{{ \Auth::user()->email }}@endif%0D%0AЛимит:%20{{ \Request::get( 'tabs_limit' ) }}" class="btn btn-default btn-lg">
                         <i class="glyphicon glyphicon-envelope"></i>
                         <span class="hidden-xs">
                             Написать письмо

@@ -9,6 +9,7 @@ use App\Models\ProviderPhone;
 use App\Models\Ticket;
 use App\Models\TicketCall;
 use App\Models\UserPhoneAuth;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Monolog\Handler\StreamHandler;
@@ -231,24 +232,19 @@ class RestController extends Controller
         {
             return $this->error( 100 );
         }
+		
+		$user = User::find( $request->get( 'user_id' ) );
+		if ( ! $user || ! $user->isActive() )
+		{
+			return $this->error( 102 );
+		}
 
-        $session = PhoneSession
-            ::notClosed()
-            ->where( 'number', '=', $request->get( 'number' ) )
-            ->first();
-        if ( ! $session )
-        {
-            return $this->error( 101 );
-        }
-        if ( ! $session->user || ! $session->user->isActive() )
-        {
-            return $this->error( 102 );
-        }
-
-        $user = $session->user;
+        $session = $user->openPhoneSession;
 
         $response = [
-            'user' => $user->id
+            'user_id' 		=> $user->id,
+			'tabs_limit' 	=> $user->tabs_limit,
+			'number' 		=> $session ? $session->number : null,
         ];
 
         return $this->success( $response );

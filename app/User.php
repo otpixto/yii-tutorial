@@ -49,6 +49,7 @@ class User extends BaseModel implements
         'phone',
         'middlename',
         'roles',
+        'tabs_limit',
     ];
 
     protected $fillable = [
@@ -64,7 +65,8 @@ class User extends BaseModel implements
         'lon',
         'lat',
         'push_id',
-        'email_subscribed'
+        'email_subscribed',
+        'tabs_limit',
     ];
 
     /**

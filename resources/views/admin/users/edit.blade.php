@@ -75,6 +75,12 @@
                             {!! Form::text( 'prefix', \Input::old( 'prefix', $user->prefix ), [ 'class' => 'form-control', 'placeholder' => 'Приставка' ] ) !!}
                         </div>
                     </div>
+					<div class="form-group">
+                        {!! Form::label( 'tabs_limit', 'Лимит вкладок', [ 'class' => 'control-label col-md-3' ] ) !!}
+                        <div class="col-md-6">
+                            {!! Form::number( 'tabs_limit', \Input::old( 'tabs_limit', $user->tabs_limit ), [ 'class' => 'form-control', 'placeholder' => 'Лимит вкладок' ] ) !!}
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="col-md-6 col-md-offset-3">
                             {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
