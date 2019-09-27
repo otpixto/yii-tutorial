@@ -1200,13 +1200,30 @@ class ManagementsController extends BaseController
                 ->back()
                 ->withErrors( [ 'Не удалось установить webhook' ] );
         }
-
-        return ( new Management() )->handleWebhookToken( $management_id, $token );
+		try
+		{
+			return ( new Management() )->handleWebhookToken( $management_id, $token );
+		}
+		catch ( \GuzzleHttp\Exception\RequestException $e )
+		{
+			return redirect()
+				->back()
+				->withErrors( [ $e->getMessage() ] );
+		}
     }
 
     public function resetWebhookToken ( $management_id )
     {
-        return ( new Management() )->handleWebhookToken( $management_id );
+		try
+		{
+			return ( new Management() )->handleWebhookToken( $management_id );
+		}
+		catch ( \GuzzleHttp\Exception\RequestException $e )
+		{
+			return redirect()
+				->back()
+				->withErrors( [ $e->getMessage() ] );
+		}
     }
 
 }
