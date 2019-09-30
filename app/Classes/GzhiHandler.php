@@ -121,10 +121,13 @@ class GzhiHandler
 
         $orgGuid = $gzhiProvider->org_guid;
 
-        $dateReg = Carbon::parse( $ticket->updated_at )
+        $changingDate = $ticket->updated_at ?? $ticket->created_at;
+
+        $dateReg = Carbon::parse( $changingDate )
             ->format( 'Y-m-d' );
 
-        $packDate = date( 'Y-m-d\TH:i:s' );
+        $packDate = Carbon::parse( $changingDate )
+            ->format( 'Y-m-d\TH:i:s' );
 
         $deadLine = $ticket->deadline_execution ?? $ticket->deadline_acceptance ?? $ticket->created_at;
 
