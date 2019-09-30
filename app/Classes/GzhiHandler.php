@@ -121,7 +121,8 @@ class GzhiHandler
 
         $orgGuid = $gzhiProvider->org_guid;
 
-        $dateReg = date( 'Y-m-d' );
+        $dateReg = Carbon::parse( $ticket->updated_at )
+            ->format( 'Y-m-d' );
 
         $packDate = date( 'Y-m-d\TH:i:s' );
 
