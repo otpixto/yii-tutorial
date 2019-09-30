@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
-            ->everyFiveMinutes();
+            ->dailyAt('4:00');
 
         $schedule->call(function (){
             (new GzhiHandler())->sendGzhiInfo();
