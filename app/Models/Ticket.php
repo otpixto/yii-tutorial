@@ -654,28 +654,6 @@ class Ticket extends BaseModel
         return $this;
     }
 
-    public function processGzhi ()
-    {
-
-	return;
-        if ( isset( $this->building->name ) )
-        {
-            $buildingName = $this->building->name;
-
-            $gzhiProviders = GzhiApiProvider::get();
-
-            foreach ( $gzhiProviders as $gzhiProvider )
-            {
-                if ( strpos( $buildingName, $gzhiProvider->name ) )
-                {
-                    //(new GzhiHandler)->handleGzhiTicket($this, $gzhiProvider);
-                    $this->dispatch( new GzhiJob( $this, $gzhiProvider ) );
-                }
-            }
-        }
-
-    }
-
     public function getName ()
     {
         $name = [];
@@ -1308,11 +1286,6 @@ class Ticket extends BaseModel
 
                 break;
 
-        }
-
-        if ( in_array( $this->status_code, GzhiRequest::GZHI_STATUSES_LIST ) )
-        {
-            //$this->processGzhi();
         }
 
     }
