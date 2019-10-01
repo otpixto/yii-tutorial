@@ -230,7 +230,17 @@ class Provider extends BaseModel
     {
         if ( ! self::$current )
         {
-            self::setCurrent( self::current()->first() );
+            $host = \Request::getHost();
+            if ( \Cache::has( 'provider.' . $host ) )
+            {
+                $provider = \Cache::get( 'provider.' . $host );
+            }
+            else
+            {
+                $provider = self::current()->first();
+                \Cache::put( 'provider.' . $host, $provider, 1440 );
+            }
+            self::setCurrent( $provider );
         }
         return self::$current;
     }
