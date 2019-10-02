@@ -1115,7 +1115,7 @@ class TicketManagement extends BaseModel
                 $mosreg = null;
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    $comment = '';
+                    $comment = 'Выполненные работы: ' . PHP_EOL;
                     foreach ( $this->services as $service )
                     {
                         $comment .= $service->name . PHP_EOL;
@@ -1160,7 +1160,12 @@ class TicketManagement extends BaseModel
                 $mosreg = null;
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    $responseData = $mosreg->answer( $this->mosreg_id, 4635 );
+                    $comment = 'Выполненные работы: ' . PHP_EOL;
+                    foreach ( $this->services as $service )
+                    {
+                        $comment .= $service->name . PHP_EOL;
+                    }
+                    $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment );
                     if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
@@ -1188,7 +1193,8 @@ class TicketManagement extends BaseModel
                 $mosreg = null;
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    $responseData = $mosreg->answer( $this->mosreg_id, 4782 );
+                    $comment = 'Проблема не подтвердилась';
+                    $responseData = $mosreg->answer( $this->mosreg_id, 4782, $comment );
                     if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
