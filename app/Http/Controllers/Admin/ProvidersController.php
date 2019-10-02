@@ -655,6 +655,7 @@ class ProvidersController extends BaseController
             'sms_auth'              => 'boolean',
             'asterisk_ip'           => 'nullable|ip',
             'asterisk_external_ip'  => 'nullable|ip',
+            'telegram_id'           => 'nullable|integer',
         ];
 
         if ( $request->has( 'name' ) || $request->has( 'domain' ) )
@@ -666,6 +667,34 @@ class ProvidersController extends BaseController
         }
 
         $this->validate( $request, $rules );
+
+        if ( ! empty( $request->get( 'telegram_id' ) ) )
+        {
+            try
+            {
+                $response = \Telegram::sendMessage([
+                    'chat_id'                   => $request->get( 'telegram_id' ),
+                    'text'                      => 'Проверка связи',
+                    'parse_mode'                => 'html',
+                    'disable_web_page_preview'  => true,
+                    'reply_markup'              => \Telegram::replyKeyboardHide()
+                ]);
+                if ( ! $response->getMessageId() )
+                {
+                    return redirect()
+                        ->back()
+                        ->withInput()
+                        ->withErrors( [ 'Не удалось отправить тестовое сообщение' ] );
+                }
+            }
+            catch ( \Exception $e )
+            {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors( [ $e->getMessage() ] );
+            }
+        }
 
         $provider->edit( $request->all() );
 

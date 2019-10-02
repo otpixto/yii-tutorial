@@ -323,7 +323,7 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -343,6 +343,38 @@
                         <div class="form-group hidden-print">
                             <div class="col-md-12">
                                 {!! Form::submit( 'Загрузить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                        </div>
+
+                        {!! Form::close() !!}
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-md-6">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Системные оповещения
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::model( $provider, [ 'method' => 'put', 'route' => [ 'providers.update', $provider->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                {!! Form::label( 'telegram_id', 'ID Telegram', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'telegram_id', $provider->telegram_id, [ 'class' => 'form-control' ] ) !!}
+                            </div>
+                        </div>
+
+                        <div class="form-group hidden-print">
+                            <div class="col-md-12">
+                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                             </div>
                         </div>
 

@@ -4,12 +4,16 @@ namespace App\Models;
 
 use App\Classes\Asterisk;
 use App\Classes\GzhiConfig;
+use App\Jobs\SendTelegramMessage;
 use App\User;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\MessageBag;
 use Webpatser\Uuid\Uuid;
 
 class Provider extends BaseModel
 {
+
+    use DispatchesJobs;
 
     protected $table = 'providers';
     public static $_table = 'providers';
@@ -34,6 +38,7 @@ class Provider extends BaseModel
         'channel_prefix',
         'channel_postfix',
         'channel_postfix_trunc',
+        'telegram_id',
     ];
 
     protected $fillable = [
@@ -54,6 +59,7 @@ class Provider extends BaseModel
         'channel_prefix',
         'channel_postfix',
         'channel_postfix_trunc',
+        'telegram_id',
     ];
 
     public function phones ()
@@ -253,6 +259,14 @@ class Provider extends BaseModel
     public function getGzhiConfig ()
     {
         return new GzhiConfig( $this );
+    }
+
+    public function sendTelegramMessage ( $message ) : bool
+    {
+        if ( $this->telegram_id && ! empty( $message ) )
+        {
+            $this->dispatch( new SendTelegramMessage( $this->telegram_id, $message ) );
+        }
     }
 
     public function getAsteriskConfig ()
