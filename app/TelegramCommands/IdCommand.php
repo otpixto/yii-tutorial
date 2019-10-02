@@ -16,7 +16,7 @@ class IdCommand extends Command
      */
     protected $description = "ID текущего чата";
 
-    public function handle ()
+    public function handle ( $arguments )
     {
 
         $message = $this->getUpdate()->getMessage();
