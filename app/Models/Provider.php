@@ -261,7 +261,7 @@ class Provider extends BaseModel
         return new GzhiConfig( $this );
     }
 
-    public function sendTelegramMessage ( $message ) : bool
+    public function sendTelegramMessage ( $message )
     {
         if ( $this->telegram_id && ! empty( $message ) )
         {

@@ -93,7 +93,8 @@ class WebhookController extends Controller
                     if ( $management->provider )
                     {
                         $message = 'Не удалось опознать классификатор!' . PHP_EOL . PHP_EOL;
-                        $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                        $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
+                        $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
                         $message .= 'Классификатор мосрега: ' . $data->type_name . ' (id:' . $data->type_id . ')' . PHP_EOL;
                         $management->provider->sendTelegramMessage( $message );
                     }
@@ -108,7 +109,8 @@ class WebhookController extends Controller
                     if ( $management->provider )
                     {
                         $message = 'Не удалось опознать адрес!' . PHP_EOL . PHP_EOL;
-                        $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                        $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
+                        $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
                         $message .= 'Адрес мосрега: ' . $data->address_name . ' (id:' . $data->address_id . ')' . PHP_EOL;
                         $management->provider->sendTelegramMessage( $message );
                     }
@@ -178,7 +180,8 @@ class WebhookController extends Controller
                             $message = 'Не удалось сменить статус на <b>' . $mosreg_status . '</b>!' . PHP_EOL;
                             $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
                             $message .= 'Ссылка на заявку: ' . $ticketManagement->getUrl() . PHP_EOL;
-                            $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                            $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
+                            $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
                             $management->provider->sendTelegramMessage( $message );
                         }
                         break;
