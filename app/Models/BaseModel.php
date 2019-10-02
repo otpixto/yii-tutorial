@@ -147,7 +147,7 @@ class BaseModel extends Model
 			    if ( $mineCurrentProvider )
                 {
                     $q
-                        ->orWhere( 'provider_id', '=', $mineCurrentProvider->id );
+                        ->orWhere( static::getTable() . 'provider_id', '=', $mineCurrentProvider->id );
                 }
                 return $q;
 			});
