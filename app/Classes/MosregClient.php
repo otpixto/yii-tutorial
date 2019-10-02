@@ -77,7 +77,7 @@ class MosregClient
 
     public function answer ( $id, $answer_id, $comment = null )
     {
-        if ( ! isset( self::$answers[ $answer_id ] ) ) return false;
+        //if ( ! isset( self::$answers[ $answer_id ] ) ) return false;
         return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer', compact( 'answer_id', 'comment' ) );
     }
 

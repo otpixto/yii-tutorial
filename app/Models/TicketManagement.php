@@ -185,21 +185,18 @@ class TicketManagement extends BaseModel
         $query
             ->whereHas( 'ticket', function ( $ticket ) use ( $flags )
             {
-                $ticket
-                    ->mine();
-                if ( in_array( self::I_AM_OWNER, $flags ) )
-                {
-                    $ticket
-                        ->where( 'owner_id', '=', \Auth::user()->id );
-                }
-                return $ticket;
-            } );
-        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()
-                ->can( 'supervisor.all_statuses.show' ) )
+                return $ticket
+                    ->mine( $flags );
+            });
+        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
+        {
+            return $query
+                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+        }
+        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
         {
             $query
-                ->whereIn( self::$_table . '.status_code', \Auth::user()
-                    ->getAvailableStatuses( 'show' ) );
+                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
         }
         return $query;
     }
@@ -940,12 +937,13 @@ class TicketManagement extends BaseModel
                 return $statusHistory;
             }
             $statusHistory->save();
-        }
 
-        $res = $this->processStatus();
-        if ( $res instanceof MessageBag )
-        {
-            return $res;
+            $res = $this->processStatus();
+            if ( $res instanceof MessageBag )
+            {
+                return $res;
+            }
+
         }
 
     }
@@ -1039,7 +1037,7 @@ class TicketManagement extends BaseModel
                 $mosreg = null;
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    $mosreg->toWork( $this->mosreg_id );
+                    $responseData = $mosreg->toWork( $this->mosreg_id );
                     $this->changeMosregStatus( 'IN_WORK', false );
                 }
 

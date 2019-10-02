@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\MessageBag;
 
 class WebhookController extends Controller
 {
@@ -52,19 +53,16 @@ class WebhookController extends Controller
                 return $this->success( [
                     'message' => 'OK'
                 ] );
-            } elseif ( $request->json( 'webhook' ) == 'deinit' )
+            }
+            elseif ( $request->json( 'webhook' ) == 'deinit' )
             {
                 $management->webhook_active = 0;
-
                 $management->webhook_token = null;
-
                 $management->save();
-
                 return $this->success( [
                     'message' => 'OK'
                 ] );
             }
-
 
             $json = $request->get( 'ticket' );
             if ( empty( $json ) )
@@ -87,19 +85,35 @@ class WebhookController extends Controller
             if ( ! $ticketManagement )
             {
                 $type = Type
-		    ::where( 'provider_id', '=', $management->provider_id )
+		            ::where( 'provider_id', '=', $management->provider_id )
                     ->where( 'mosreg_id', '=', $data->type_id )
                     ->first();
                 if ( ! $type )
                 {
+                    if ( $management->provider )
+                    {
+                        $message = 'Не удалось опознать классификатор!' . PHP_EOL . PHP_EOL;
+                        $message .= 'Ссылка на заявку: ' . $ticketManagement->getUrl() . PHP_EOL;
+                        $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                        $message .= 'Классификатор мосрега: ' . $data->type_name . ' (id:' . $data->type_id . ')' . PHP_EOL;
+                        $management->provider->sendTelegramMessage( $message );
+                    }
                     return $this->error( 'Type not found' );
                 }
                 $building = Building
                     ::where( 'provider_id', '=', $management->provider_id )
-		    ->where( 'mosreg_id', '=', $data->address_id )
+		            ->where( 'mosreg_id', '=', $data->address_id )
                     ->first();
                 if ( ! $building )
                 {
+                    if ( $management->provider )
+                    {
+                        $message = 'Не удалось опознать адрес!' . PHP_EOL . PHP_EOL;
+                        $message .= 'Ссылка на заявку: ' . $ticketManagement->getUrl() . PHP_EOL;
+                        $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                        $message .= 'Адрес мосрега: ' . $data->address_name . ' (id:' . $data->address_id . ')' . PHP_EOL;
+                        $management->provider->sendTelegramMessage( $message );
+                    }
                     return $this->error( 'Address not found' );
                 }
                 $ticket = new Ticket( [
@@ -160,7 +174,15 @@ class WebhookController extends Controller
                     case 'NEW_CLAIM':
                     case 'UNSATISFIED':
                         $mosreg_status = 'IN_WORK';
-                        $mosreg->toWork( $ticketManagement->mosreg_id, $management->mosreg_username );
+                        $responseData = $mosreg->toWork( $ticketManagement->mosreg_id );
+                        if ( $responseData->message != 'OK' && $management->provider )
+                        {
+                            $message = 'Не удалось сменить статус на <b>' . $mosreg_status . '</b>!' . PHP_EOL;
+                            $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
+                            $message .= 'Ссылка на заявку: ' . $ticketManagement->getUrl() . PHP_EOL;
+                            $message .= 'Номер в мосрег: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                            $management->provider->sendTelegramMessage( $message );
+                        }
                         break;
                 }
             }
@@ -169,10 +191,11 @@ class WebhookController extends Controller
             {
                 return $this->success( [
                     'message' => 'OK'
-                ] );
-            } else
+                ]);
+            }
+            else
             {
-                return $this->error( 'Failed to change status' );
+                return $this->error( 'Status not changed' );
             }
 
         }

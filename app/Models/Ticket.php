@@ -433,31 +433,37 @@ class Ticket extends BaseModel
             ->mineProvider()
             ->where( function ( $q ) use ( $flags )
             {
-                return $q
+                if ( in_array( self::I_AM_OWNER, $flags ) )
+                {
+                    $q
+                        ->where( 'owner_id', '=', \Auth::user()->id );
+                }
+                $q
                     ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
                     ->orWhere( function ( $q2 ) use ( $flags )
                     {
-                        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()
-                                ->can( 'supervisor.all_statuses.show' ) )
+                        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
                         {
                             $q2
-                                ->whereIn( Ticket::$_table . '.status_code', \Auth::user()
-                                    ->getAvailableStatuses( 'show' ) );
+                                ->whereIn( Ticket::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                         }
                         $q2
                             ->whereHas( 'managements', function ( $managements ) use ( $flags )
                             {
-                                if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()
-                                        ->can( 'supervisor.all_managements' ) )
+                                if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
                                 {
                                     return $managements
-                                        ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()
-                                            ->managements()
-                                            ->pluck( Management::$_table . '.id' ) );
+                                        ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
                                 }
-                            } );
+                                if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
+                                {
+                                    $managements
+                                        ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                                }
+                            });
                         return $q2;
-                    } );
+                    });
+                return $q;
             } );
     }
 

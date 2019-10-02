@@ -141,14 +141,15 @@ class BaseModel extends Model
         return $query
 			->where( function ( $q )
 			{
-				return $q
-					->whereNull( static::getTable() . '.provider_id' )
-					->orWhereHas( 'provider', function ( $provider )
-					{
-						return $provider
-							->mine()
-							->current();
-					});
+                $mineCurrentProvider = \Auth::user()->providers->where( 'id', Provider::getCurrent()->id )->first();
+			    $q
+					->whereNull( static::getTable() . '.provider_id' );
+			    if ( $mineCurrentProvider )
+                {
+                    $q
+                        ->orWhere( 'provider_id', '=', $mineCurrentProvider->id );
+                }
+                return $q;
 			});
     }
 
