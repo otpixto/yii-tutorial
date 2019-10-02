@@ -265,7 +265,7 @@ class Provider extends BaseModel
     {
         if ( $this->telegram_id && ! empty( $message ) )
         {
-            $this->dispatch( new SendTelegramMessage( $this->telegram_id, $message ) );
+            $this->dispatch( new SendTelegramMessage( [ $this->telegram_id ], $message ) );
         }
     }
 
