@@ -1038,7 +1038,7 @@ class TicketManagement extends BaseModel
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $responseData = $mosreg->toWork( $this->mosreg_id );
-                    if ( $responseData->message != 'OK' && $this->management->provider )
+                    if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось сменить статус на <b>IN_WORK</b>!' . PHP_EOL;
                         $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
@@ -1121,7 +1121,7 @@ class TicketManagement extends BaseModel
                         $comment .= $service->name . PHP_EOL;
                     }
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment );
-                    if ( $responseData->message != 'OK' && $this->management->provider )
+                    if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
                         $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
@@ -1161,7 +1161,7 @@ class TicketManagement extends BaseModel
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635 );
-                    if ( $responseData->message != 'OK' && $this->management->provider )
+                    if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
                         $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
@@ -1189,7 +1189,7 @@ class TicketManagement extends BaseModel
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $responseData = $mosreg->answer( $this->mosreg_id, 4782 );
-                    if ( $responseData->message != 'OK' && $this->management->provider )
+                    if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
                         $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
