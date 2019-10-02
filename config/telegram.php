@@ -64,5 +64,6 @@ return [
         \App\Telegram\Bot\Commands\SubscribeCommand::class,
         \App\Telegram\Bot\Commands\UnSubscribeCommand::class,
         \App\Telegram\Bot\Commands\SubscriptionsCommand::class,
+        \App\Telegram\Bot\Commands\IdCommand::class,
     ],
 ];
