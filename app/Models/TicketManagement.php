@@ -1116,9 +1116,16 @@ class TicketManagement extends BaseModel
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $comment = 'Выполненные работы: ' . PHP_EOL;
-                    foreach ( $this->services as $service )
+                    if ( $this->services->count() )
                     {
-                        $comment .= $service->name . PHP_EOL;
+                        foreach ( $this->services as $service )
+                        {
+                            $comment .= $service->name . PHP_EOL;
+                        }
+                    }
+                    else
+                    {
+                        $comment .= '-' . PHP_EOL;
                     }
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment );
                     if ( isset( $responseData->error ) && $this->management->provider )
@@ -1161,9 +1168,16 @@ class TicketManagement extends BaseModel
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $comment = 'Выполненные работы: ' . PHP_EOL;
-                    foreach ( $this->services as $service )
+                    if ( $this->services->count() )
                     {
-                        $comment .= $service->name . PHP_EOL;
+                        foreach ( $this->services as $service )
+                        {
+                            $comment .= $service->name . PHP_EOL;
+                        }
+                    }
+                    else
+                    {
+                        $comment .= '-' . PHP_EOL;
                     }
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment );
                     if ( isset( $responseData->error ) && $this->management->provider )
@@ -1193,7 +1207,7 @@ class TicketManagement extends BaseModel
                 $mosreg = null;
                 if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
-                    $comment = 'Проблема не подтвердилась';
+                    $comment = 'Факты не подтвердились';
                     $responseData = $mosreg->answer( $this->mosreg_id, 4782, $comment );
                     if ( isset( $responseData->error ) && $this->management->provider )
                     {
