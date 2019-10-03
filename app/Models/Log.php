@@ -36,11 +36,16 @@ class Log extends BaseModel
     {
         return $query
             ->where( 'host', '=', Provider::getCurrent()->domain )
-			->orWhereHas( 'author', function ( $author )
-            {
-                return $author
-                    ->mine();
-            });
+			->orWhere( function ( $q )
+			{
+				return $q
+					->where( 'host', '=', 'system.eds-region.ru' )
+					->whereHas( 'author', function ( $author )
+					{
+						return $author
+							->mine();
+					})
+			});
     }
 
 }
