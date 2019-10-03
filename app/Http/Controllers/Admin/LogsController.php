@@ -21,12 +21,7 @@ class LogsController extends BaseController
 
         $logs = Log
             ::mine()
-            ->orderBy( 'id', 'desc' )
-            ->whereHas( 'author', function ( $author )
-            {
-                return $author
-                    ->mine();
-            });
+            ->orderBy( 'id', 'desc' );
 
         if ( ! empty( $request->get( 'date' ) ) )
         {
