@@ -149,7 +149,7 @@ class Building extends BaseModel
         {
             $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
             $building = self
-                ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
+                ::mine()
                 ->where( 'hash', '=', $attributes[ 'hash' ] )
                 ->where( 'id', '!=', $this->id )
                 ->first();
