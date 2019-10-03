@@ -186,9 +186,9 @@ class DataController extends BaseController
         $res = Work
             ::mine()
             ->current()
-            ->whereHas( 'building', function ( $building )
+            ->whereHas( 'buildings', function ( $buildings )
             {
-                return $building
+                return $buildings
                     ->whereNotNull( 'lon' )
                     ->whereNotNull( 'lat' )
                     ->where( 'lon', '!=', -1 )
