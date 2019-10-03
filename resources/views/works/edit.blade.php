@@ -133,7 +133,7 @@
                                 -
                             </button>
                         </span>
-                        {!! Form::select( 'buildings[]', $work->buildings()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ), $work->buildings()->pluck( \App\Models\Building::$_table . '.id' ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
+                        {!! Form::select( 'buildings[]', $workBuildings, array_keys( $workBuildings ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работы', 'required', 'multiple' ] ) !!}
                         <span class="input-group-btn">
                             <button class="btn btn-default tooltips" title="Добавить адреса" data-group-buildings="#buildings">
                                 +

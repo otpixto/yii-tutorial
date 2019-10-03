@@ -1056,11 +1056,18 @@ class WorksController extends BaseController
         {
             $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
+		
+		$workBuildings = [];
+		foreach ( $work->buildings as $building )
+		{
+			$workBuildings[ $building->id ] = $building->getAddress();
+		}
 
         return view( 'works.edit' )
             ->with( 'work', $work )
             ->with( 'availableManagements', $availableManagements )
-            ->with( 'availableCategories', $availableCategories );
+            ->with( 'availableCategories', $availableCategories )
+            ->with( 'workBuildings', $workBuildings );
 
     }
 
