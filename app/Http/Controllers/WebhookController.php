@@ -146,7 +146,8 @@ class WebhookController extends Controller
                 ] );
                 $ticketManagement->save();
                 $this->dispatch( new SendStream( 'create', $ticketManagement ) );
-            } else
+            }
+            else
             {
                 $this->dispatch( new SendStream( 'update', $ticketManagement ) );
             }
@@ -155,14 +156,22 @@ class WebhookController extends Controller
             {
                 foreach ( $request->file( 'files' ) as $_file )
                 {
-                    $path = Storage::putFile( 'files', $_file );
-                    $file = File::create( [
-                        'model_id' => $ticketManagement->id,
-                        'model_name' => get_class( $ticketManagement ),
-                        'path' => $path,
-                        'name' => $_file->getClientOriginalName()
-                    ] );
-                    $file->save();
+                    $file = File
+                        ::where( 'model_id', '=', $ticketManagement->id )
+                        ->where( 'model_name', '=', get_class( $ticketManagement ) )
+                        ->where( 'name', '=', $_file->getClientOriginalName() )
+                        ->first();
+                    if ( ! $file )
+                    {
+                        $path = Storage::putFile( 'files', $_file );
+                        $file = File::create( [
+                            'model_id' => $ticketManagement->id,
+                            'model_name' => get_class( $ticketManagement ),
+                            'path' => $path,
+                            'name' => $_file->getClientOriginalName()
+                        ] );
+                        $file->save();
+                    }
                 }
             }
 
