@@ -46,6 +46,7 @@ class BaseController extends Controller
 
     public function lonlat ()
     {
+        \Cache::forget( 'provider.' . \Request::getHost() );
         $buildings = Building
             ::mine()
             ->whereNull( 'lon' )
