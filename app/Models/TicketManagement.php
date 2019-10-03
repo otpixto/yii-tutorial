@@ -188,16 +188,6 @@ class TicketManagement extends BaseModel
                 return $ticket
                     ->mine( $flags );
             });
-        if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
-        {
-            $query
-                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )->toArray() );
-        }
-        if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
-        {
-            $query
-                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
-        }
         return $query;
     }
 
