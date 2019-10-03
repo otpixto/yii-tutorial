@@ -23,7 +23,7 @@ class CheckProvider
             {
                 abort( 404 );
             }
-            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers()->mine()->find( $provider->id ) && ! \Auth::user()->admin )
+            if ( \Auth::user() && \Auth::user()->isActive() && ! \Auth::user()->providers->find( $provider->id ) && ! \Auth::user()->admin )
             {
                 abort( 403 );
             }

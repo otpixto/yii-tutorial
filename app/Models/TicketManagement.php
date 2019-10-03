@@ -180,7 +180,7 @@ class TicketManagement extends BaseModel
             ->whereIn( self::$_table . '.status_code', [ 'closed_with_confirm', 'closed_without_confirm', 'cancel' ] );
     }
 
-    public function scopeMine ( $query, ... $flags )
+    public function scopeMine ( $query, array $flags = [] )
     {
         $query
             ->whereHas( 'ticket', function ( $ticket ) use ( $flags )
@@ -191,7 +191,7 @@ class TicketManagement extends BaseModel
         if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
         {
             $query
-                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
+                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )->toArray() );
         }
         if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
         {

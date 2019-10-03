@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Classes\SessionGuardExtended;
-use Illuminate\Auth\EloquentUserProvider;
+use App\Observers\UserObserver;
+use App\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,17 +14,11 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot ()
     {
         Schema::defaultStringLength( 191 );
         setlocale( LC_TIME, 'ru_RU.UTF-8' );
-        \Auth::extend(
-            'sessionExtended',
-            function ($app) {
-                $provider = new EloquentUserProvider($app['hash'], config('auth.providers.users.model'));
-                return new SessionGuardExtended('sessionExtended', $provider, app()->make('session.store'), request());
-            }
-        );
+        User::observe(UserObserver::class);
     }
 
     /**

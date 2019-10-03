@@ -7,7 +7,7 @@
                 <a href="{{ route( 'tickets.index' ) }}" class="text-uppercase">
                     <i class="fa fa-support"></i>
                     Заявки
-                    @if ( \Auth::user()->can( 'tickets.counter' ) )
+                    {{--@if ( \Auth::user()->can( 'tickets.counter' ) )
                         <span class="badge badge-info bold">
                             {{ \App\Classes\Counter::ticketsCount() }}
                         </span>
@@ -24,7 +24,7 @@
 								{{ \App\Classes\Counter::ticketsCountModerate() }}
 							</span>
 						@endif
-                    @endif
+                    @endif--}}
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->can( 'tickets.create' ) )
@@ -38,21 +38,21 @@
                         <li>
                             <a href="{{ route( 'tickets.index' ) }}?overdue_acceptance=1&statuses=transferred,transferred_again,accepted,assigned,in_process,completed_with_act,completed_without_act">
                                 Просроченные на принятие
-                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                {{--@if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-danger bold">
-                                    {{ \App\Classes\Counter::ticketsOverdueAcceptanceCount() }}
-                                </span>
-                                @endif
+                                        {{ \App\Classes\Counter::ticketsOverdueAcceptanceCount() }}
+                                    </span>
+                                @endif--}}
                             </a>
                         </li>
                         <li>
                             <a href="{{ route( 'tickets.index' ) }}?overdue_execution=1&statuses=transferred,transferred_again,accepted,assigned,in_process,completed_with_act,completed_without_act">
                                 Просроченные на исполнение
-                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                {{--@if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-danger bold">
                                         {{ \App\Classes\Counter::ticketsOverdueExecutionCount() }}
                                     </span>
-                                @endif
+                                @endif--}}
                             </a>
                         </li>
                     @endif
@@ -72,21 +72,21 @@
                         <li>
                             <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client', 'show' => 'mine' ] ) }}">
                                 Обзвон
-                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                {{--@if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">
                                         {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client' ) }}
                                     </span>
-                                @endif
+                                @endif--}}
                             </a>
                         </li>
                         <li>
                             <a href="{{ route( 'tickets.index', [ 'statuses' => 'confirmation_client', 'show' => 'owner' ] ) }}">
                                 Обзвон (мои)
-                                @if ( \Auth::user()->can( 'tickets.counter' ) )
+                                {{--@if ( \Auth::user()->can( 'tickets.counter' ) )
                                     <span class="badge badge-warning bold">
-                                    {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client', true ) }}
-                                </span>
-                                @endif
+                                        {{ \App\Classes\Counter::ticketsCountByStatus( 'confirmation_client', true ) }}
+                                    </span>
+                                @endif--}}
                             </a>
                         </li>
                     @endif
@@ -126,11 +126,11 @@
                     <li>
                         <a href="{{ route( 'works.index' ) }}?show=overdue">
                             Просроченные
-                            @if ( \Auth::user()->can( 'works.counter' ) )
+                            {{--@if ( \Auth::user()->can( 'works.counter' ) )
                                 <span class="badge badge-danger bold">
                                     {{ \App\Classes\Counter::worksOverdueCount() }}
                                 </span>
-                            @endif
+                            @endif--}}
                         </a>
                     </li>
                     @if ( \Auth::user()->can( 'works.period' ) )
@@ -202,7 +202,7 @@
                             </a>
                         </li>
                     @endif
-		    @if ( \Auth::user()->can( 'reports.totals' ) )
+		            @if ( \Auth::user()->can( 'reports.totals' ) )
                         <li>
                             <a href="{{ route( 'reports.totals' ) }}">
                                 Сводный отчет

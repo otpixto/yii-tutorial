@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Classes\Asterisk;
 use App\Jobs\SendEmail;
 use App\Models\BaseModel;
 use App\Models\Building;

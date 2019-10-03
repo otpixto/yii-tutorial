@@ -37,7 +37,7 @@ return [
 
     'guards' => [
         'crm' => [
-            'driver' => 'sessionExtended',
+            'driver' => 'session',
             'provider' => 'users',
         ],
         'lk' => [
@@ -69,7 +69,8 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            //'driver' => 'eloquent',
+            'driver' => 'cache-user',
             'model' => App\User::class,
         ],
 

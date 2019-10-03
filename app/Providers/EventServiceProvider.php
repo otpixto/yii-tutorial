@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -13,8 +12,11 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event' => [
-            'App\Listeners\EventListener',
+        'Illuminate\Auth\Events\Login' => [
+            'App\Listeners\UserLogin',
+        ],
+        'Illuminate\Auth\Events\Logout' => [
+            'App\Listeners\UserLogout',
         ],
     ];
 
@@ -23,15 +25,8 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot ()
     {
-
         parent::boot();
-
-        Event::listen( 'ticket.create', function ( $ticketManagement )
-        {
-            //
-        });
-
     }
 }
