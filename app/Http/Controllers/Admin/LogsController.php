@@ -21,6 +21,7 @@ class LogsController extends BaseController
 
         $logs = Log
             ::mine()
+			->where( 'created_at', '>=', Carbon::now()->subMonth()->toDateTimeString() )
             ->orderBy( 'id', 'desc' );
 
         if ( ! empty( $request->get( 'date' ) ) )
