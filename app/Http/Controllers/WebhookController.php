@@ -175,7 +175,7 @@ class WebhookController extends Controller
                     case 'UNSATISFIED':
                         $mosreg_status = 'IN_WORK';
                         $responseData = $mosreg->toWork( $ticketManagement->mosreg_id );
-                        if ( $responseData->message != 'OK' && $management->provider )
+                        if ( isset( $responseData->error ) && $management->provider )
                         {
                             $message = 'Не удалось сменить статус на <b>' . $mosreg_status . '</b>!' . PHP_EOL;
                             $message .= 'Ошибка: ' . $responseData->error . PHP_EOL . PHP_EOL;
