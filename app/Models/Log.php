@@ -44,7 +44,7 @@ class Log extends BaseModel
 					{
 						return $author
 							->mine();
-					})
+					});
 			});
     }
 
