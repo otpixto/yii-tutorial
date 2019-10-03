@@ -202,6 +202,14 @@ class WebhookController extends Controller
         }
         catch ( \Exception $e )
         {
+            if ( isset( $management ) && $management && $management->provider )
+            {
+                $message = 'Внутренняя ошибка программы!' . PHP_EOL;
+                $message .= 'Ошибка: ' . $e->getMessage() . PHP_EOL;
+                $message .= 'Файл: ' . $e->getFile() . PHP_EOL;
+                $message .= 'Строка: ' . $e->getLine() . PHP_EOL;
+                $management->provider->sendTelegramMessage( $message );
+            }
             return $this->error( $e->getMessage() );
         }
 
