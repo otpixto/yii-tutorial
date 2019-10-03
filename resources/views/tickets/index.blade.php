@@ -80,48 +80,48 @@
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="created,transferred,transferred_again" @if ( $request->get( 'statuses' ) == 'created,transferred,transferred_again' ) checked @endif>
                     Новые / На доработку
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'created', 'transferred', 'transferred_again' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'created', 'transferred', 'transferred_again' ) }})--}}
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="rejected,cancel" @if ( $request->get( 'statuses' ) == 'rejected,cancel' ) checked @endif>
                     Отклонены / Отменены
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'rejected', 'cancel' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'rejected', 'cancel' ) }})--}}
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="waiting,accepted" @if ( $request->get( 'statuses' ) == 'waiting,accepted' ) checked @endif>
                     Отложены / Не назначены
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'waiting', 'accepted' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'waiting', 'accepted' ) }})--}}
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="assigned,in_process" @if ( $request->get( 'statuses' ) == 'assigned,in_process' ) checked @endif>
                     Назначены / В работе
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'assigned', 'in_process' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'assigned', 'in_process' ) }})--}}
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="completed_with_act,completed_without_act" @if ( $request->get( 'statuses' ) == 'completed_with_act,completed_without_act' ) checked @endif>
                     Выполнены без акта / с актом
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'completed_with_act', 'completed_without_act' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'completed_with_act', 'completed_without_act' ) }})--}}
                 </label>
             </div>
             <div class="col-lg-2 col-md-3 col-sm-6 btn-group">
                 <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
                     <input type="radio" class="toggle tickets-filter" name="statuses" value="confirmation_operator,confirmation_client" @if ( $request->get( 'statuses' ) == 'confirmation_operator,confirmation_client' ) checked @endif>
                     Ожидают подтверждения
-                    <br />
-                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'confirmation_operator', 'confirmation_client' ) }})
+                    {{--<br />
+                    ({{ \App\Classes\Counter::ticketsCountByStatuses( 'confirmation_operator', 'confirmation_client' ) }})--}}
                 </label>
             </div>
         </div>
