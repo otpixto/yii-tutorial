@@ -1186,6 +1186,16 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
+                if ( ! $this->completed_at )
+                {
+                    $this->completed_at = Carbon::now()->toDateTimeString();
+                }
+
+                if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
+                {
+                    $this->duration_work = number_format( $this->completed_at->diffInMinutes( $this->transferred_at ) / 60, 2, '.', '' );
+                }
+
                 break;
 
             case 'transferred':
@@ -1198,14 +1208,18 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
-                $transferred_at = Carbon::now();
+                if ( ! $this->transferred_at )
+                {
+                    $this->transferred_at = Carbon::now()->toDateTimeString();
+                }
 
-                $this->transferred_at = $transferred_at->toDateTimeString();
+                $this->completed_at = null;
+                $this->duration_work = null;
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $this->type->period_acceptance ? $transferred_at->addMinutes( $this->type->period_acceptance * 60 ) : $transferred_at;
-                    $this->deadline_execution = $this->type->period_execution ? $transferred_at->addMinutes( $this->type->period_execution * 60 ) : $transferred_at;
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
                 }
 
                 $this->save();
@@ -1214,16 +1228,18 @@ class Ticket extends BaseModel
 
             case 'transferred_again':
 
-                $transferred_at = Carbon::now();
+                if ( ! $this->transferred_at )
+                {
+                    $this->transferred_at = Carbon::now()->toDateTimeString();
+                }
 
-                $this->transferred_at = $transferred_at->toDateTimeString();
                 $this->completed_at = null;
                 $this->duration_work = null;
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $this->type->period_acceptance ? $transferred_at->addMinutes( $this->type->period_acceptance * 60 ) : $transferred_at;
-                    $this->deadline_execution = $this->type->period_execution ? $transferred_at->addMinutes( $this->type->period_execution * 60 ) : $transferred_at;
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
                 }
 
                 $this->save();
@@ -1232,9 +1248,11 @@ class Ticket extends BaseModel
 
             case 'accepted':
 
-                $this->accepted_at = Carbon::now()
-                    ->toDateTimeString();
-                $this->save();
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
 
                 break;
 
@@ -1242,17 +1260,14 @@ class Ticket extends BaseModel
             case 'completed_without_act':
             case 'not_verified':
 
-                $transferred_at = $this->transferred_at;
-                $completed_at = Carbon::now();
-
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = $completed_at->toDateTimeString();
+                    $this->completed_at = Carbon::now()->toDateTimeString();
                 }
 
-                if ( ! $this->duration_work && $transferred_at )
+                if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
                 {
-                    $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+                    $this->duration_work = number_format( $this->completed_at->diffInMinutes( $this->transferred_at ) / 60, 2, '.', '' );
                 }
 
                 $this->save();
@@ -1275,17 +1290,31 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
-                $transferred_at = $this->transferred_at;
-                $completed_at = Carbon::now();
+                if ( ! $this->completed_at )
+                {
+                    $this->completed_at = Carbon::now()->toDateTimeString();
+                }
+
+                if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
+                {
+                    $this->duration_work = number_format( $this->completed_at->diffInMinutes( $this->transferred_at ) / 60, 2, '.', '' );
+                }
+
+                $this->save();
+
+                break;
+
+            case 'confirmation_operator':
+            case 'confirmation_client':
 
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = $completed_at->toDateTimeString();
+                    $this->completed_at = Carbon::now()->toDateTimeString();
                 }
 
-                if ( ! $this->duration_work && $transferred_at )
+                if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
                 {
-                    $this->duration_work = number_format( $completed_at->diffInMinutes( $transferred_at ) / 60, 2, '.', '' );
+                    $this->duration_work = number_format( $this->completed_at->diffInMinutes( $this->transferred_at ) / 60, 2, '.', '' );
                 }
 
                 $this->save();
