@@ -127,8 +127,10 @@ class DataController extends BaseController
             ->whereHas( 'building', function ( $building )
             {
                 return $building
-                    ->where( 'lon', '!=', - 1 )
-                    ->where( 'lat', '!=', - 1 );
+                    ->whereNotNull( 'lon' )
+                    ->whereNotNull( 'lat' )
+                    ->where( 'lon', '!=', -1 )
+                    ->where( 'lat', '!=', -1 );
             })
             ->where( 'created_at', '>=', Carbon::now()->subMonth()->toDateTimeString() )
             ->with(
@@ -184,11 +186,13 @@ class DataController extends BaseController
         $res = Work
             ::mine()
             ->current()
-            ->whereHas( 'buildings', function ( $buildings )
+            ->whereHas( 'building', function ( $building )
             {
-                return $buildings
-                    ->where( 'lon', '!=', - 1 )
-                    ->where( 'lat', '!=', - 1 );
+                return $building
+                    ->whereNotNull( 'lon' )
+                    ->whereNotNull( 'lat' )
+                    ->where( 'lon', '!=', -1 )
+                    ->where( 'lat', '!=', -1 );
             });
 
         if ( $request->get( 'category_id' ) )
