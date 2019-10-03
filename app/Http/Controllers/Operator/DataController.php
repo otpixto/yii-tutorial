@@ -206,7 +206,13 @@ class DataController extends BaseController
         $data = [];
         foreach ( $res as $r )
         {
-            foreach ( $r->buildings as $building )
+            $buildings = $r->buildings()
+                ->whereNotNull( 'lon' )
+                ->whereNotNull( 'lat' )
+                ->where( 'lon', '!=', -1 )
+                ->where( 'lat', '!=', -1 )
+                ->get();
+            foreach ( $buildings as $building )
             {
                 if ( ! isset( $data[ $building->id ] ) )
                 {
