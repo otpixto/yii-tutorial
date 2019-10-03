@@ -452,7 +452,7 @@ class Ticket extends BaseModel
                             {
                                 if ( ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' ) )
                                 {
-                                    return $managements
+                                    $managements
                                         ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements()->pluck( Management::$_table . '.id' ) );
                                 }
                                 if ( ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' ) )
@@ -460,11 +460,12 @@ class Ticket extends BaseModel
                                     $managements
                                         ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
                                 }
+                                return $managements;
                             });
                         return $q2;
                     });
                 return $q;
-            } );
+            });
     }
 
     public function scopeFastSearch ( $query, $search )
