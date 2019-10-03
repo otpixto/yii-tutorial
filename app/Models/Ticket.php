@@ -1186,6 +1186,12 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
+
                 if ( ! $this->completed_at )
                 {
                     $this->completed_at = Carbon::now()->toDateTimeString();
@@ -1233,6 +1239,12 @@ class Ticket extends BaseModel
                     $this->transferred_at = Carbon::now()->toDateTimeString();
                 }
 
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
+
                 $this->completed_at = null;
                 $this->duration_work = null;
 
@@ -1246,7 +1258,12 @@ class Ticket extends BaseModel
 
                 break;
 
+            case 'assigned':
             case 'accepted':
+            case 'in_process':
+            case 'waiting':
+            case 'conflict':
+            case 'rejected':
 
                 if ( ! $this->accepted_at )
                 {
@@ -1259,6 +1276,12 @@ class Ticket extends BaseModel
             case 'completed_with_act':
             case 'completed_without_act':
             case 'not_verified':
+
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
 
                 if ( ! $this->completed_at )
                 {
@@ -1290,6 +1313,12 @@ class Ticket extends BaseModel
                     return $res;
                 }
 
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
+
                 if ( ! $this->completed_at )
                 {
                     $this->completed_at = Carbon::now()->toDateTimeString();
@@ -1306,6 +1335,12 @@ class Ticket extends BaseModel
 
             case 'confirmation_operator':
             case 'confirmation_client':
+
+                if ( ! $this->accepted_at )
+                {
+                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->save();
+                }
 
                 if ( ! $this->completed_at )
                 {
