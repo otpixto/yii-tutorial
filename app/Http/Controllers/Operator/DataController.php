@@ -127,8 +127,10 @@ class DataController extends BaseController
             ->whereHas( 'building', function ( $building )
             {
                 return $building
-                    ->where( 'lon', '!=', - 1 )
-                    ->where( 'lat', '!=', - 1 );
+                    ->whereNotNull( 'lon' )
+                    ->whereNotNull( 'lat' )
+                    ->where( 'lon', '!=', -1 )
+                    ->where( 'lat', '!=', -1 );
             })
             ->where( 'created_at', '>=', Carbon::now()->subMonth()->toDateTimeString() )
             ->with(
@@ -187,8 +189,10 @@ class DataController extends BaseController
             ->whereHas( 'buildings', function ( $buildings )
             {
                 return $buildings
-                    ->where( 'lon', '!=', - 1 )
-                    ->where( 'lat', '!=', - 1 );
+                    ->whereNotNull( 'lon' )
+                    ->whereNotNull( 'lat' )
+                    ->where( 'lon', '!=', -1 )
+                    ->where( 'lat', '!=', -1 );
             });
 
         if ( $request->get( 'category_id' ) )
@@ -202,7 +206,13 @@ class DataController extends BaseController
         $data = [];
         foreach ( $res as $r )
         {
-            foreach ( $r->buildings as $building )
+            $buildings = $r->buildings()
+                ->whereNotNull( 'lon' )
+                ->whereNotNull( 'lat' )
+                ->where( 'lon', '!=', -1 )
+                ->where( 'lat', '!=', -1 )
+                ->get();
+            foreach ( $buildings as $building )
             {
                 if ( ! isset( $data[ $building->id ] ) )
                 {

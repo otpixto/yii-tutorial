@@ -77,7 +77,7 @@
                     {{ \App\Models\Work::$types[ $work->type_id ] ?? '-' }}
                 </td>
                 <td>
-                    @foreach ( $work->getAddressesGroupBySegment() as $segment )
+                    @foreach ( $work->getAddressesGroupBySegment( false ) as $segment )
                         <div class="margin-top-5">
                             <span class="small">
                                 {{ $segment[ 0 ] }}

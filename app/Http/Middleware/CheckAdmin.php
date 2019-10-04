@@ -15,10 +15,14 @@ class CheckAdmin
      */
     public function handle ( $request, Closure $next )
     {
-        if ( ! \Auth::user() || ! \Auth::user()->admin )
-        {
-            \Debugbar::disable();
-        }
+		if ( \Auth::user() && \Auth::user()->admin )
+		{
+			config([ 'debug' => true ]);
+		}
+		else
+		{
+			\Debugbar::disable();
+		}
         return $next( $request );
     }
 }

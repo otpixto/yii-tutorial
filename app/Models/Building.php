@@ -113,11 +113,17 @@ class Building extends BaseModel
         $current = $this->segment;
         $segments = collect();
         if ( ! $current ) return $segments;
-        $segments->push( $current );
+		if ( $current->segmentType->is_visible )
+		{
+			$segments->push( $current );
+		}
         while ( $current->parent )
         {
             $current = $current->parent;
-            $segments->push( $current );
+			if ( $current->segmentType->is_visible )
+			{
+				$segments->push( $current );
+			}
             if ( $break && $current->segmentType->break )
             {
                 break;
@@ -149,7 +155,7 @@ class Building extends BaseModel
         {
             $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
             $building = self
-                ::where( 'provider_id', '=', $attributes[ 'provider_id' ] )
+                ::mine()
                 ->where( 'hash', '=', $attributes[ 'hash' ] )
                 ->where( 'id', '!=', $this->id )
                 ->first();

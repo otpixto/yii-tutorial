@@ -34,11 +34,18 @@ class Log extends BaseModel
 
     public function scopeMine ( $query )
     {
-        if ( ! \Auth::user()->admin )
-        {
-            return $query
-                ->where( 'host', '=', Provider::getCurrent()->domain );
-        }
+        return $query
+            ->where( 'host', '=', Provider::getCurrent()->domain )
+			->orWhere( function ( $q )
+			{
+				return $q
+					->where( 'host', '=', 'system.eds-region.ru' )
+					->whereHas( 'author', function ( $author )
+					{
+						return $author
+							->mine();
+					});
+			});
     }
 
 }
