@@ -1424,4 +1424,23 @@ class TicketManagement extends BaseModel
         }
     }
 
+    public static function getScheduledTicketManagements()
+    {
+        $now = Carbon::now()->toDateTimeString();
+
+        $scheduledTicketManagements = self
+            ::mine()
+            ->where( 'status_code', '=', 'assigned' )
+            ->where( 'scheduled_begin', '<=', $now )
+            ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
+            {
+                return $ticket
+                    ->whereNotNull( 'postponed_to' )
+                    ->where( 'postponed_to', '>', $now );
+            })
+            ->get();
+
+        return $scheduledTicketManagements;
+    }
+
 }

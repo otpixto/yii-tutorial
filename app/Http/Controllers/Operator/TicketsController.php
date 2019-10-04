@@ -73,18 +73,7 @@ class TicketsController extends BaseController
             }
             else
             {
-                $now = Carbon::now()->toDateTimeString();
-                $scheduledTicketManagements = TicketManagement
-                    ::mine()
-                    ->where( 'status_code', '=', 'assigned' )
-                    ->where( 'scheduled_begin', '<=', $now )
-                    ->whereDoesntHave( 'ticket', function ( $ticket ) use ( $now )
-                    {
-                        return $ticket
-                            ->whereNotNull( 'postponed_to' )
-                            ->where( 'postponed_to', '>', $now );
-                    })
-                    ->get();
+                $scheduledTicketManagements = TicketManagement::getScheduledTicketManagements();
                 \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
             }
         }
@@ -102,6 +91,26 @@ class TicketsController extends BaseController
             ->with( 'request', $request )
             ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
 
+    }
+
+    public function ajaxUpdateTicketsList(Request $request)
+    {
+        if ( $request->ajax() )
+        {
+
+            if ( \Cache::has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
+            {
+
+                \Cache::forget( 'tickets.scheduled.now.' . \Auth::user()->id );
+
+                $scheduledTicketManagements = TicketManagement::getScheduledTicketManagements();
+
+                \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+
+                return \Illuminate\Support\Facades\View::make('tickets.parts.scheduled_tickets')->with('scheduledTicketManagements', $scheduledTicketManagements);
+            }
+
+        }
     }
 
     public function moderate ( Request $request )

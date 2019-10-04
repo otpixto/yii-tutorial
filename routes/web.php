@@ -223,6 +223,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'history/{ticket_id}/{ticket_management_id?}', 'Operator\TicketsController@history' )->name( 'tickets.history' );
             Route::post( 'comments/{id?}', 'Operator\TicketsController@comments' )->name( 'tickets.comments' );
             Route::put( 'services/{ticket_management_id}', 'Operator\TicketsController@saveServices' )->name( 'tickets.services.save' );
+            Route::post( 'ajax-update-tickets', 'Operator\TicketsController@ajaxUpdateTicketsList' )->name( 'tickets.ajax-update-tickets-list' );
 
         });
 
