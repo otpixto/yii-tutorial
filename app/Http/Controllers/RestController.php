@@ -110,6 +110,10 @@ class RestController extends Controller
         {
             $providerPhone = ProviderPhone
                 ::where( 'phone', '=', $phone_office )
+                ->with(
+                    'provider',
+                    'provider.phoneSessions'
+                )
                 ->first();
             \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
         }
