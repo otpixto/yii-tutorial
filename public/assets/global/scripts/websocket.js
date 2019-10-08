@@ -60,6 +60,7 @@ socket
     {
         if(window.location.href.indexOf('test=1') != -1)
         {
+            console.log(data);
             var message = '<div class="popup-everyone">';
             if ( data.provider )
             {
