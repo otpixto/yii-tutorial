@@ -204,3 +204,57 @@ body {
     background-repeat: no-repeat;
     display: block;
 }
+
+#number-of-calls {
+    font-size: 12px;
+    color: #fff;
+    background-color: #35c6d3;
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 3px;
+}
+#popup-calls {
+    margin-top: 1px;
+    width: 300px;
+    position: absolute;
+    max-height: 400px;
+    overflow: auto;
+    border: 1px solid #0c4270;
+    color: #0c4270;
+}
+#popup-calls .btn {
+    float: right;
+}
+#popup-calls .popup-phone,.popup-provider {
+    font-size: 15px;
+    color: #007bff;
+}
+#popup-calls .btn,.popup-phone,.popup-provider {
+    vertical-align: middle;
+}
+#popup-calls .popup-phone,.popup-provider {
+    font-weight: bold;
+}
+#popup-calls .popup-everyone {
+    background-color: #ffffff;
+    border: 1px solid #3d7dbd;
+    padding: 3px;
+}
+#popup-calls .popup-everyone p {
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+#popup-calls::-webkit-scrollbar {
+    width: 7px;
+
+}
+#popup-calls::-webkit-scrollbar-track {
+    background: #dfeaf9;
+}
+#popup-calls::-webkit-scrollbar-thumb {
+    background: #3d7dbd;
+}
+
+#popup-calls::-webkit-scrollbar-thumb:hover {
+    background: #315d91;
+}

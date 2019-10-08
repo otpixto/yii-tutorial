@@ -60,38 +60,74 @@ socket
     {
         if(window.location.href.indexOf('test=1') != -1)
         {
-            console.log(data);
+            var message = '<div class="popup-everyone">';
+            if ( data.provider )
+            {
+                message += '<span class="popup-provider">' + ( data.provider ) + '</span>';
+            }
+            message += '<span class="popup-phone"> ' + data.call_phone + ' </span><button type="button" class="btn btn-warning" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fas fa-phone"></i></button>';
+
+            if ( data.customer )
+            {
+                if ( data.customer.address )
+                {
+                    message += '<p>' + data.customer.address + '</p>';
+                }
+                if ( data.customer.name )
+                {
+                    message += '<p>' + data.customer.name + '</p>';
+                }
+            }
+            message += '</div>';
+
+            $.bootstrapGrowl( message, {
+                ele: 'body',
+                type: 'info',
+                offset: {
+                    from: 'bottom',
+                    amount: 20
+                },
+                align: 'left',
+                width: 350,
+                delay: 20000,
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
+
+
+        }else {
+            var message = '';
+            if ( data.provider )
+            {
+                message += '<h2>' + ( data.provider ) + '</h2>'
+            }
+            message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup">Забрать</button></h4>';
+            if ( data.customer )
+            {
+                if ( data.customer.address )
+                {
+                    message += '<div class="small">' + data.customer.address + '</div>';
+                }
+                if ( data.customer.name )
+                {
+                    message += '<div class="small">' + data.customer.name + '</div>';
+                }
+            }
+            $.bootstrapGrowl( message, {
+                ele: 'body',
+                type: 'info',
+                offset: {
+                    from: 'bottom',
+                    amount: 20
+                },
+                align: 'left',
+                width: 350,
+                delay: 20000,
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
         }
-        var message = '';
-        if ( data.provider )
-        {
-            message += '<h2>' + ( data.provider ) + '</h2>'
-        }
-        message += '<h4 class="bold"><i class="fa fa-phone-square fa-lg"></i> ' + data.call_phone + ' <button type="button" class="btn btn-success btn-sm" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup">Забрать</button></h4>';
-        if ( data.customer )
-		{
-			if ( data.customer.address )
-			{
-				message += '<div class="small">' + data.customer.address + '</div>';
-			}
-			if ( data.customer.name )
-			{
-				message += '<div class="small">' + data.customer.name + '</div>';
-			}
-		}
-        $.bootstrapGrowl( message, {
-            ele: 'body',
-            type: 'info',
-            offset: {
-                from: 'bottom',
-                amount: 20
-            },
-            align: 'left',
-            width: 350,
-            delay: 20000,
-            allow_dismiss: true,
-            stackup_spacing: 10
-        });
+
     })
 
     .on( 'stream', function ( data )
