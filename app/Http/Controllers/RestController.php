@@ -110,6 +110,10 @@ class RestController extends Controller
         {
             $providerPhone = ProviderPhone
                 ::where( 'phone', '=', $phone_office )
+                ->with(
+                    'provider',
+                    'provider.phoneSessions'
+                )
                 ->first();
             \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
         }
@@ -145,6 +149,45 @@ class RestController extends Controller
                 }
                 $response[ 'users' ] = $providerPhone->provider->phoneSessions()->pluck( PhoneSession::$_table . '.user_id' )->toArray();
             }
+        }
+
+        return $this->success( $response );
+
+    }
+
+    public function hangup ( Request $request )
+    {
+
+        if ( ! $this->auth( $request ) )
+        {
+            return $this->error( 100 );
+        }
+
+        $response = [
+            'users'             => []
+        ];
+
+        $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
+
+        if ( \Cache::has( 'provider.phone.' . $phone_office ) )
+        {
+            $providerPhone = \Cache::get( 'provider.phone.' . $phone_office );
+        }
+        else
+        {
+            $providerPhone = ProviderPhone
+                ::where( 'phone', '=', $phone_office )
+                ->with(
+                    'provider',
+                    'provider.phoneSessions'
+                )
+                ->first();
+            \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
+        }
+
+        if ( $providerPhone && $providerPhone->provider && $providerPhone->provider->phoneSessions->count() )
+        {
+            $response[ 'users' ] = $providerPhone->provider->phoneSessions->pluck( 'user_id' )->toArray();
         }
 
         return $this->success( $response );

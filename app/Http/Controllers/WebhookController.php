@@ -181,7 +181,7 @@ class WebhookController extends Controller
                 switch ( $mosreg_status )
                 {
                     case 'NEW_CLAIM':
-                    case 'UNSATISFIED':
+                    //case 'UNSATISFIED':
                         $mosreg_status = 'IN_WORK';
                         $responseData = $mosreg->toWork( $ticketManagement->mosreg_id );
                         if ( isset( $responseData->error ) && $management->provider )
@@ -197,16 +197,11 @@ class WebhookController extends Controller
                 }
             }
 
-            if ( $ticketManagement->changeMosregStatus( $mosreg_status ) )
-            {
-                return $this->success( [
-                    'message' => 'OK'
-                ]);
-            }
-            else
-            {
-                return $this->error( 'Status not changed' );
-            }
+            $ticketManagement->changeMosregStatus( $mosreg_status );
+
+            return $this->success( [
+                'message' => 'OK'
+            ]);
 
         }
         catch ( \Exception $e )
