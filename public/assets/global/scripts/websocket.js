@@ -58,6 +58,10 @@ socket
 
     .on( 'call', function ( data )
     {
+        if(window.location.href.indexOf('test=1') != -1)
+        {
+            console.log(data);
+        }
         var message = '';
         if ( data.provider )
         {
