@@ -7,6 +7,28 @@ socket
 
     .on( 'connect', function ()
     {
+        // var person = {
+        //     call_id: "1570535499.699941",
+        //
+        // };
+        //
+        // var me = Object.create(person);
+        //
+        // me.call_id = "1570535499.699941";
+        // me.call_phone = "9629273386";
+        // me.channel = "SIP/m9295070506-0002833d";
+        // me.customer = null;
+        // me.phone_office = "9629273386";
+        // me.provider = "!! Перезвон !!";
+        // var data = me;
+        //
+        // console.log( data );
+
+
+
+
+
+
         console.log( 'socket connected' );
         connected = true;
         $.get( '/id', function ( user_id )
@@ -60,13 +82,13 @@ socket
     {
         if(window.location.href.indexOf('test=1') != -1)
         {
-            console.log(data);
+
             var message = '<div class="popup-everyone">';
             if ( data.provider )
             {
                 message += '<span class="popup-provider">' + ( data.provider ) + '</span>';
             }
-            message += '<span class="popup-phone"> ' + data.call_phone + ' </span><button type="button" class="btn btn-warning" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fas fa-phone"></i></button>';
+            message += '<span class="popup-phone"> ' + data.call_phone + ' </span><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button>';
 
             if ( data.customer )
             {
@@ -81,19 +103,15 @@ socket
             }
             message += '</div>';
 
-            $.bootstrapGrowl( message, {
-                ele: 'body',
-                type: 'info',
-                offset: {
-                    from: 'bottom',
-                    amount: 20
-                },
-                align: 'left',
-                width: 350,
-                delay: 20000,
-                allow_dismiss: true,
-                stackup_spacing: 10
-            });
+            $('#popup-calls').prepend(message);
+
+            $('#popup-calls .bootstrap-growl').attr('style', '');
+
+            $('#popup-calls .bootstrap-growl').removeClass('alert');
+
+            var callsNumber = $('#number-of-calls .badge').html();
+
+            $('#number-of-calls .badge').html(++callsNumber);
 
 
         }else {

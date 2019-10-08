@@ -206,6 +206,7 @@ body {
 }
 
 #number-of-calls {
+    cursor: pointer;
     font-size: 12px;
     color: #fff;
     background-color: #35c6d3;
@@ -214,16 +215,18 @@ body {
     border-radius: 3px;
 }
 #popup-calls {
+    //display: none;
     margin-top: 1px;
     width: 300px;
     position: absolute;
     max-height: 400px;
     overflow: auto;
-    border: 1px solid #0c4270;
-    color: #0c4270;
+    top: 24px;
+    left: 74px;
 }
 #popup-calls .btn {
     float: right;
+    padding: 0.5px 5px;
 }
 #popup-calls .popup-phone,.popup-provider {
     font-size: 15px;

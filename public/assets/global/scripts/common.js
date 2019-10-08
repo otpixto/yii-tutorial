@@ -781,7 +781,11 @@ $( document )
             call_description: call_description
         });
 
-        $( this ).closest( '.bootstrap-growl' ).remove();
+        var callsNumber = $('#number-of-calls .badge').html();
+
+        $('#number-of-calls .badge').html(--callsNumber);
+
+        $( this ).closest( '.popup-everyone' ).remove();
 
     })
 
@@ -985,4 +989,9 @@ $( document )
     {
         if ( ! confirm ( $( this ).attr( 'data-confirm' ) ) ) return false;
         $( this ).trigger( 'confirmed', [ e ] );
+    })
+
+    .on ( 'click', '#number-of-calls', function ( e )
+    {
+        $('#popup-calls').toggle();
     });
