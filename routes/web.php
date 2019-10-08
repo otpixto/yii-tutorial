@@ -26,6 +26,7 @@ Route::group( [ 'middleware' => 'rest' ], function ()
 
         Route::post( 'call', 'RestController@createOrUpdateCallDraft' );
         Route::post( 'customer', 'RestController@customer' );
+        Route::post( 'hangup', 'RestController@hangup' );
         Route::post( 'user', 'RestController@user' );
         Route::any( 'ticket-call', 'RestController@ticketCall' );
 
@@ -127,7 +128,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
 
-        //Route::get( 'test-orgs', 'HomeController@testOrgs' )->name( 'home.test-orgs' );
+        Route::get( 'test', 'HomeController@test' )->name( 'home.test' );
 
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
         Route::get( '/profile/unsubscribe/{user_id}', 'ProfileController@unsubscribe' )->name( 'profile.unsubscribe' );
