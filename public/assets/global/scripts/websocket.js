@@ -105,7 +105,7 @@ socket
 
     .on( 'hangup', function ( data )
     {
-        console.log(111);
+        console.log(data);
     })
 
     .on( 'call', function ( data )
