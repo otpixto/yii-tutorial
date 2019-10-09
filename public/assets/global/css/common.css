@@ -213,6 +213,7 @@ body {
     display: inline-block;
     padding: 2px 12px;
     border-radius: 3px;
+    position: relative;
 }
 #popup-calls {
     display: none;
@@ -222,7 +223,7 @@ body {
     max-height: 400px;
     overflow: auto;
     top: 24px;
-    right: 150px;
+    right: 0px;
     border: 1px solid #3d7dbd;
     background-color: #ffffff;
 }
