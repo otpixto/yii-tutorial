@@ -35,6 +35,7 @@ socket
     })
 
     .on('picked_up', function (data) {
+        console.log(data);
         if (data.call_id) {
             var callId = data.call_id;
 
