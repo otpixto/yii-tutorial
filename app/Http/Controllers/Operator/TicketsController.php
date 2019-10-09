@@ -54,7 +54,7 @@ class TicketsController extends BaseController
                     'management.parent',
                     'executor'
                 )
-                ->orderBy( 'created_at', 'desc' )
+                ->orderBy( TicketManagement::$_table . '.created_at', 'desc' )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
@@ -1681,14 +1681,38 @@ class TicketsController extends BaseController
                 {
                     if ( ! empty( $request->get( 'reject_reason_id' ) ) )
                     {
-                        $mosreg->answer( $ticketManagement->mosreg_id, $request->get( 'reject_reason_id' ) );
-                        $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                        $responseData = $mosreg->answer( $ticketManagement->mosreg_id, $request->get( 'reject_reason_id' ) );
+                        if ( ! $responseData )
+                        {
+                            $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
+                        }
+                        else if ( ! $responseData->success )
+                        {
+                            $ticketManagement->addLog( $responseData->error );
+                        }
+                        $res = $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                        if ( $res instanceof MessageBag )
+                        {
+                            $ticketManagement->addLog( 'Не удалось сменить статус заявки' );
+                        }
                     }
                     if ( ! empty( $request->get( 'postponed_to' ) ) )
                     {
                         $comment = 'Отложено до ' . $ticket->postponed_to->format( 'd.m.Y' ) . PHP_EOL . $ticket->postponed_comment;
-                        $mosreg->answer( $ticketManagement->mosreg_id, 5076, $comment );
-                        $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                        $responseData = $mosreg->answer( $ticketManagement->mosreg_id, 5076, $comment );
+                        if ( ! $responseData )
+                        {
+                            $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
+                        }
+                        else if ( ! $responseData->success )
+                        {
+                            $ticketManagement->addLog( $responseData->error );
+                        }
+                        $res = $ticketManagement->changeMosregStatus( 'ANSWERED', false );
+                        if ( $res instanceof MessageBag )
+                        {
+                            $ticketManagement->addLog( 'Не удалось сменить статус заявки' );
+                        }
                     }
                 }
             }
