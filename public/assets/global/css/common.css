@@ -215,7 +215,7 @@ body {
     border-radius: 3px;
 }
 #popup-calls {
-    //display: none;
+    display: none;
     margin-top: 1px;
     width: 300px;
     position: absolute;

@@ -127,16 +127,11 @@ socket
             }
             message += '</div>';
 
-            $('#popup-calls').prepend(message);
-
-            $('#popup-calls .bootstrap-growl').attr('style', '');
-
-            $('#popup-calls .bootstrap-growl').removeClass('alert');
+            $('#inner-popup-calls').prepend(message);
 
             var callsNumber = $('#number-of-calls .badge').html();
 
             $('#number-of-calls .badge').html(++callsNumber);
-
 
         }else {
             var message = '';
