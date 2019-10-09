@@ -54,6 +54,7 @@ socket
 
 
 
+
         console.log( 'socket connected' );
         connected = true;
         $.get( '/id', function ( user_id )
@@ -105,6 +106,7 @@ socket
 
     .on( 'hangup', function ( data )
     {
+        console.log(data)
         if(data.call_id)
         {
             var callId = data.call_id;

@@ -265,7 +265,7 @@ body {
 #popup-calls .popup-everyone {
     background-color: #ffffff;
     border-top: 1px solid #3d7dbd;
-    cursor: none;
+    cursor: auto;
 }
 #popup-calls .popup-everyone p {
     margin-bottom: 2px;
