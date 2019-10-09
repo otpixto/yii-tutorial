@@ -137,14 +137,14 @@ class FilesController extends Controller
             $ticketManagement = TicketManagement::find( $request->get( 'model_id' ) );
             if ( $ticketManagement )
             {
+                foreach ( $files as $file )
+                {
+                    $file->addTag( BaseModel::TAG_COMPLETED );
+                }
                 $res = $ticketManagement->changeStatus( $request->get( 'status' ), true );
                 if ( $res instanceof MessageBag )
                 {
                     return redirect()->back()->withErrors( $res );
-                }
-                foreach ( $files as $file )
-                {
-                    $file->addTag( BaseModel::TAG_COMPLETED );
                 }
                 $success .= '. Статус изменен.';
             }
