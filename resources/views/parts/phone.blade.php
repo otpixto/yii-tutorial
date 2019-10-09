@@ -1,6 +1,6 @@
 @if ( \Auth::user()->can( 'phone' ) )
     <!-- BEGIN PHONE AUTH -->
-    @if(\Auth::user()->openPhoneSession && $_GET['test'] == 1)
+    @if(\Auth::user()->openPhoneSession)
     <div class="margin-right-10" id="number-of-calls">
     <span class="badge badge-danger bold">0</span>&nbsp;&nbsp;
             <i class="fa fa-phone"></i>
