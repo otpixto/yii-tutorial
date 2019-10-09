@@ -151,9 +151,10 @@ class MosregClient
                 foreach ( $files as $file )
                 {
                     $requestData[] = [
-                        'name'      => 'files[]',
-                        'contents'  => $file->getContents(),
-                        'filename'  => $file->name
+                        'Content-type'  => 'multipart/form-data',
+                        'name'          => 'files[]',
+                        'contents'      => $file->getContents(),
+                        'filename'      => $file->name
                     ];
                 }
             }
