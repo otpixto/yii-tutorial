@@ -35,19 +35,6 @@ socket
     })
 
     .on('picked_up', function (data) {
-        console.log(data);
-        if (data.call_id) {
-            var callId = data.call_id;
-
-            $('div[call_id="' + callId + '"]').remove();
-
-            var callsNumber = $('#number-of-calls-badge').html();
-
-            if (callsNumber > 0) {
-                $('#number-of-calls-badge').html(--callsNumber);
-            }
-
-        }
         if (window.location.pathname == '/tickets/create') {
             window.location.reload();
         }
@@ -73,7 +60,6 @@ socket
                 message += '<p>' + data.customer.name + '</p>';
             }
         }
-
         message += '</div></div></div>';
 
         $('#inner-popup-calls').prepend(message);
