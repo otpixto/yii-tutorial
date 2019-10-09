@@ -70,7 +70,7 @@ socket
 
     })
 
-    .on('hangup', function (data) {
+    .on('hangup, picked_up', function (data) {
         if (data.call_id) {
             var callId = data.call_id;
 
