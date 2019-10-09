@@ -60,6 +60,7 @@ socket
                 message += '<p>' + data.customer.name + '</p>';
             }
         }
+
         message += '</div></div></div>';
 
         $('#inner-popup-calls').prepend(message);
