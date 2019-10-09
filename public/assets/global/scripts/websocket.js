@@ -105,7 +105,14 @@ socket
 
     .on( 'hangup', function ( data )
     {
-        console.log(data);
+        if(data.call_id)
+        {
+            var callId = data.call_id;
+            $('div[call_id="' + callId + '"]').remove();
+            var callsNumber = $('#number-of-calls-badge').html();
+
+            $('#number-of-calls-badge').html(--callsNumber);
+        }
     })
 
     .on( 'call', function ( data )
