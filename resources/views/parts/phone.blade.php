@@ -8,10 +8,12 @@
             <i class="fa fa-phone"></i>
         </div>
         <div id="popup-calls">
+            <div class="al-logout-phone">
             <a href="{{ route( 'profile.phone' ) }}" class="btn btn-xs btn-danger" id="phone-state">
                 Разлогинить телефон
                 <span class="bold" id="call-phone"></span>
             </a>
+            </div>
             <div id="inner-popup-calls"></div>
         </div>
 

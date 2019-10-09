@@ -228,6 +228,9 @@ body {
     right: 0px;
     border: 1px solid #3d7dbd;
     background-color: #ffffff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 #popup-calls .btn {
     float: right;
@@ -235,8 +238,9 @@ body {
     margin-top: 4px;
 }
 #popup-calls .btn-danger {
-    float: none;
+    float: right;
     margin: 4px;
+    padding: 1px 2px;
 }
 
 #popup-calls .popup-provider {
@@ -244,6 +248,9 @@ body {
     background-color: #007bff;
     color: #FFFFFF;
     padding: 0 4px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    border-bottom-right-radius: 5px;
 }
 #popup-calls .row {
     margin: 0;
@@ -289,4 +296,7 @@ body {
 #popup-calls p{
     color: #333;
     margin: 0 0 10px;
+}
+.al-logout-phone{
+    height: 30px;
 }
