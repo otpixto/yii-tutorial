@@ -595,26 +595,26 @@ class TicketManagement extends BaseModel
             case 'not_processed':
                 $query
                     ->notProcessed()
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    ->orderBy( TicketManagement::$_table . '.created_at', 'desc' );
                 break;
             case 'in_process':
                 $query
                     ->inProcess()
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    ->orderBy( TicketManagement::$_table . '.created_at', 'desc' );
                 break;
             case 'completed':
                 $query
                     ->completed()
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    ->orderBy( TicketManagement::$_table . '.created_at', 'desc' );
                 break;
             case 'closed':
                 $query
                     ->closed()
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    ->orderBy( TicketManagement::$_table . '.created_at', 'desc' );
                 break;
             default:
                 $query
-                    ->orderBy( TicketManagement::$_table . '.ticket_id', 'desc' );
+                    ->orderBy( TicketManagement::$_table . '.created_at', 'desc' );
                 break;
         }
 
@@ -1117,7 +1117,14 @@ class TicketManagement extends BaseModel
                     {
                         $comment .= '-' . PHP_EOL;
                     }
-                    $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment );
+                    $files = $this->files()
+                        ->whereHas( 'tags', function ( $tags )
+                        {
+                            return $tags
+                                ->where( 'text', '=', BaseModel::TAG_COMPLETED );
+                        })
+                        ->get();
+                    $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment, $files );
                     if ( isset( $responseData->error ) && $this->management->provider )
                     {
                         $message = 'Не удалось дать ответ в мосрег!' . PHP_EOL;
