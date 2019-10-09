@@ -153,14 +153,14 @@ class MosregClient
                     $requestData[] = [
                         'Content-type'  => 'multipart/form-data',
                         'name'          => 'files[]',
-                        'contents'      => fopen( storage_path( 'app/' . $file->path ), 'r' ),
+                        'contents'      => $file->getContents(),
                         'filename'      => $file->name,
                     ];
                 }
             }
             if ( count( $requestData ) )
             {
-                $requestOptions[ RequestOptions::MULTIPART ] = $data;
+                $requestOptions[ RequestOptions::MULTIPART ] = $requestData;
             }
         }
         $response = $this->client->request( $method, $path, $requestOptions );
