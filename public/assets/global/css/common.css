@@ -216,7 +216,7 @@ body {
     position: relative;
 }
 #popup-calls {
-    display: none;
+    //display: none;
     margin-top: 1px;
     width: 300px;
     position: absolute;
@@ -236,7 +236,15 @@ body {
     margin: 4px;
 }
 
-#popup-calls .popup-phone,.popup-provider {
+#popup-calls .popup-provider {
+    font-size: 15px;
+    background-color: #007bff;
+    color: #FFFFFF;
+    padding: 0 4px;
+    margin-left: 0px;
+    margin-top: -2px;
+}
+#popup-calls .popup-phone {
     font-size: 15px;
     color: #007bff;
 }
