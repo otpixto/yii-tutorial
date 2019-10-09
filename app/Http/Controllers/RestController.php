@@ -111,8 +111,7 @@ class RestController extends Controller
             $providerPhone = ProviderPhone
                 ::where( 'phone', '=', $phone_office )
                 ->with(
-                    'provider',
-                    'provider.phoneSessions'
+                    'provider'
                 )
                 ->first();
             \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
@@ -178,8 +177,7 @@ class RestController extends Controller
             $providerPhone = ProviderPhone
                 ::where( 'phone', '=', $phone_office )
                 ->with(
-                    'provider',
-                    'provider.phoneSessions'
+                    'provider'
                 )
                 ->first();
             \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
