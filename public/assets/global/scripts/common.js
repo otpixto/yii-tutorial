@@ -781,9 +781,9 @@ $( document )
             call_description: call_description
         });
 
-        var callsNumber = $('#number-of-calls .badge').html();
+        var callsNumber = $('#number-of-calls-badge').html();
 
-        $('#number-of-calls .badge').html(--callsNumber);
+        $('#number-of-calls-badge').html(--callsNumber);
 
         $( this ).closest( '.popup-everyone' ).remove();
 
