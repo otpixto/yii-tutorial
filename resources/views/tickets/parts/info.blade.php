@@ -17,7 +17,8 @@
             </div>
             <div class="progress" id="progress">
                 @if ( $progressData[ 'percent' ] )
-                    <div class="{{ $progressData[ 'class' ] }}" role="progressbar" style="width: {{ $progressData[ 'percent' ] }}%"></div>
+                    <div class="{{ $progressData[ 'class' ] }}" role="progressbar"
+                         style="width: {{ $progressData[ 'percent' ] }}%"></div>
                 @endif
             </div>
             <div id="status-title">
@@ -254,7 +255,10 @@
                     <div class="col-xs-6">
                         <div class="note">
                             @if ( $ticket->canCall() )
-                                <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
+                                <button type="button"
+                                        class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                        data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                        data-phones="{{ $ticket->getPhones() }}">
                                     <i class="fa fa-phone"></i>
                                 </button>
                             @endif
@@ -305,7 +309,8 @@
                             <dl>
                                 <dt>
                                     @if ( $ticket->canEdit() )
-                                        <a href="javascript:;" class="hidden-print" data-toggle="#tags_edit, #tags_show">
+                                        <a href="javascript:;" class="hidden-print"
+                                           data-toggle="#tags_edit, #tags_show">
                                             <i class="fa fa-pencil"></i>
                                         </a>
                                     @endif
@@ -319,7 +324,8 @@
                                     @endif
                                     <div id="tags_show" class="margin-top-10">
                                         @forelse ( $ticket->tags as $tag )
-                                            <a href="{{ route( 'tickets.index', [ 'tags' => $tag->text ] ) }}" class="label label-info small margin-right-10">
+                                            <a href="{{ route( 'tickets.index', [ 'tags' => $tag->text ] ) }}"
+                                               class="label label-info small margin-right-10">
                                                 #{{ $tag->text }}
                                             </a>
                                         @empty
@@ -381,7 +387,8 @@
                                         </span>
                                     @endif
                                     @if ( $ticket->group_uuid )
-                                        <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
+                                        <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}"
+                                           class="badge badge-info bold">
                                             Сгруппировано
                                         </a>
                                         &nbsp;
@@ -436,7 +443,9 @@
                 <tr>
                     <td>
                         @if ( $ticket->canCall() )
-                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->management->getPhones() }}">
+                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                    data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                    data-phones="{{ $ticketManagement->management->getPhones() }}">
                                 <i class="fa fa-phone"></i>
                             </button>
                         @endif
@@ -481,13 +490,17 @@
                     <div class="col-xs-12">
                         <div class="note">
                             @if ( $ticketManagement->canPrintAct() )
-                                <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}"
+                                   class="btn btn-sm btn-info" target="_blank">
                                     <i class="glyphicon glyphicon-print"></i>
                                     Распечатать бланк Акта
                                 </a>
                             @endif
                             @if ( $ticketManagement->canUploadAct() )
-                                <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-title="Прикрепить оформленный акт" data-status="completed_with_act">
+                                <button class="btn btn-sm btn-primary" data-action="file"
+                                        data-model-name="{{ get_class( $ticketManagement ) }}"
+                                        data-model-id="{{ $ticketManagement->id }}"
+                                        data-title="Прикрепить оформленный акт" data-status="completed_with_act">
                                     <i class="glyphicon glyphicon-upload"></i>
                                     Прикрепить оформленный Акт
                                 </button>
@@ -505,6 +518,9 @@
                                 <i class="fa fa-file"></i>
                                 {{ $file->name }}
                             </a>
+                            @foreach($file->tags as $tag)
+                                <span class="badge badge-default">{{ $tag->text }}</span>
+                            @endforeach
                         </div>
                     @endforeach
                 </div>
@@ -532,12 +548,15 @@
                             @endif
                         </div>
                         @foreach ( $ticket->managements()->mine()->get() as $_ticketManagement )
-                            <hr />
+                            <hr/>
                             <div class="row">
                                 <div class="col-xs-5">
                                     <dl>
                                         @if ( $ticket->canCall() )
-                                            <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $_ticketManagement->management->getPhones() }}">
+                                            <button type="button"
+                                                    class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                                    data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                                    data-phones="{{ $_ticketManagement->management->getPhones() }}">
                                                 <i class="fa fa-phone"></i>
                                             </button>
                                         @endif
@@ -583,13 +602,17 @@
                                 <div class="row margin-top-10 hidden-print">
                                     <div class="col-xs-12">
                                         @if ( $_ticketManagement->canPrintAct() )
-                                            <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                            <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}"
+                                               class="btn btn-sm btn-info" target="_blank">
                                                 <i class="glyphicon glyphicon-print"></i>
                                                 Распечатать бланк Акта
                                             </a>
                                         @endif
                                         @if ( $_ticketManagement->canUploadAct() )
-                                            <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $_ticketManagement ) }}" data-model-id="{{ $_ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
+                                            <button class="btn btn-sm btn-primary" data-action="file"
+                                                    data-model-name="{{ get_class( $_ticketManagement ) }}"
+                                                    data-model-id="{{ $_ticketManagement->id }}"
+                                                    data-title="Прикрепить оформленный Акт">
                                                 <i class="glyphicon glyphicon-upload"></i>
                                                 Прикрепить оформленный Акт
                                             </button>
@@ -700,7 +723,7 @@
             </div>
         @endif
 
-        <hr />
+        <hr/>
 
         @if ( $ticket->deadline_acceptance && $ticket->deadline_execution )
             <div class="row">
@@ -775,7 +798,7 @@
             </div>
         @endif
 
-        <hr />
+        <hr/>
 
         @if ( ! is_null( $ticket->duration_work ) )
             <div class="row">
@@ -793,7 +816,8 @@
                 <div class="col-xs-12">
                     <div class="note">
                         @if ( $ticketManagement->canRate() )
-                            <a href="javascript:;" class="hidden-print" data-edit="rate" data-id="{{ $ticketManagement->id }}">
+                            <a href="javascript:;" class="hidden-print" data-edit="rate"
+                               data-id="{{ $ticketManagement->id }}">
                                 <i class="fa fa-pencil"></i>
                             </a>
                         @endif
@@ -812,28 +836,30 @@
         @if ( ( \Auth::user()->can( 'admin.calls.all' ) || ( \Auth::user()->can( 'admin.calls.my' ) && \Auth::user()->id == $ticket->author_id ) ) )
             <div class="row">
                 <div class="col-xs-12">
-                    @if ( $ticket->cdr && $ticket->cdr->hasMp3() )
-                        <div class="note">
-                            <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
-                                <i class="fa fa-chevron-circle-down text-success"></i>
-                                Входящий вызов
-                            </a>
-                        </div>
-                    @endif
-                    @if ( $ticketCalls->count() )
-                        @foreach ( $ticketCalls as $ticketCall )
-                            @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
-                                <div class="note">
-                                    <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
-                                        <i class="fa fa-chevron-circle-up text-danger"></i>
-                                        Исходящий вызов
-                                        <span class="text-muted small">
+                    @if(env('AL_LOCAL_VERSION') != 55)
+                        @if ( $ticket->cdr && $ticket->cdr->hasMp3() )
+                            <div class="note">
+                                <a href="{{ $ticket->cdr->getMp3() }}" target="_blank">
+                                    <i class="fa fa-chevron-circle-down text-success"></i>
+                                    Входящий вызов
+                                </a>
+                            </div>
+                        @endif
+                        @if ( $ticketCalls->count() )
+                            @foreach ( $ticketCalls as $ticketCall )
+                                @if ( $ticketCall->cdr && $ticketCall->cdr->hasMp3() )
+                                    <div class="note">
+                                        <a href="{{ $ticketCall->cdr->getMp3() }}" target="_blank">
+                                            <i class="fa fa-chevron-circle-up text-danger"></i>
+                                            Исходящий вызов
+                                            <span class="text-muted small">
                                         {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
                                     </span>
-                                    </a>
-                                </div>
-                            @endif
-                        @endforeach
+                                        </a>
+                                    </div>
+                                @endif
+                            @endforeach
+                        @endif
                     @endif
                 </div>
             </div>
@@ -844,7 +870,7 @@
 </div>
 
 @if ( \Auth::user()->can( 'tickets.comments' ) )
-    <hr />
+    <hr/>
     <div class="row margin-top-15">
         <div class="col-xs-12">
             <div class="note">
@@ -856,7 +882,10 @@
                     </div>
                     <div class="col-md-6 text-right">
                         @if ( $ticket && $ticket->canComment() )
-                            <button type="button" class="btn btn-primary hidden-print" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+                            <button type="button" class="btn btn-primary hidden-print" data-action="comment"
+                                    data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}"
+                                    data-origin-model-name="{{ get_class( $ticket ) }}"
+                                    data-origin-model-id="{{ $ticket->id }}" data-file="1">
                                 <i class="fa fa-commenting"></i>
                                 Добавить комментарий
                             </button>
