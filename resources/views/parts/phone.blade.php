@@ -4,7 +4,7 @@
     @if(\Auth::user()->openPhoneSession)
     <div class="margin-right-10" id="number-of-calls">
         <div id="number-of-calls-button">
-            <b>0</b>
+            <b id="number-of-calls-badge">0</b>
             <i class="fa fa-phone"></i>
         </div>
         <div id="popup-calls">

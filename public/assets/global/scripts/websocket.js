@@ -7,47 +7,47 @@ socket
 
     .on( 'connect', function ()
     {
-        var person = {
-            call_id: "1570535499.699941",
-
-        };
-
-        var me = Object.create(person);
-
-        me.call_id = "1570535499.699941";
-        me.call_phone = "9629273386";
-        me.channel = "SIP/m9295070506-0002833d";
-        me.customer = {'name' : 'Магамедов Мугамед Мугамедович Оглымед Мугамедович Оглы'};
-        me.customer.address = 'Жуковский ул. Дугина, д. 10, кв.100';
-        me.phone_office = "9629273386";
-        me.provider = "!! Перезвон !!";
-        var data = me;
-
-        var message = '<div class="popup-everyone" call_id="' + data.call_id + '"><div class="row">';
-        if ( data.provider )
-        {
-            message += '<div class="col-md-10"><span class="popup-provider">' + ( data.provider ) + '</span>';
-        }
-        message += '<div class="popup-phone"> ' + data.call_phone + ' </div></div><div class="col-md-2"><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button></div> ';
-
-        if ( data.customer )
-        {
-            if ( data.customer.address )
-            {
-                message += '<p>' + data.customer.address + '</p>';
-            }
-            if ( data.customer.name )
-            {
-                message += '<p>' + data.customer.name + '</p>';
-            }
-        }
-        message += '</div></div>';
-
-        $('#inner-popup-calls').prepend(message);
-
-        var callsNumber = $('#number-of-calls .badge').html();
-
-        $('#number-of-calls .badge').html(++callsNumber);
+        // var person = {
+        //     call_id: "1570535499.699941",
+        //
+        // };
+        //
+        // var me = Object.create(person);
+        //
+        // me.call_id = "1570535499.699941";
+        // me.call_phone = "9629273386";
+        // me.channel = "SIP/m9295070506-0002833d";
+        // me.customer = {'name' : 'Магамедов Мугамед Мугамедович Оглымед Мугамедович Оглы'};
+        // //me.customer.address = 'Жуковский ул. Дугина, д. 10, кв.100';
+        // me.phone_office = "9629273386";
+        // me.provider = "!! Перезвон !!";
+        // var data = me;
+        //
+        // var message = '<div class="popup-everyone" call_id="' + data.call_id + '"><div class="row">';
+        // if ( data.provider )
+        // {
+        //     message += '<div class="col-md-10"><span class="popup-provider">' + ( data.provider ) + '</span>';
+        // }
+        // message += '<div class="popup-phone"> ' + data.call_phone + ' </div></div><div class="col-md-2"><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button></div><div class="col-md-12"> ';
+        //
+        // if ( data.customer )
+        // {
+        //     if ( data.customer.address )
+        //     {
+        //         message += '<p>' + data.customer.address + '</p>';
+        //     }
+        //     if ( data.customer.name )
+        //     {
+        //         message += '<p>' + data.customer.name + '</p>';
+        //     }
+        // }
+        // message += '</div></div></div>';
+        //
+        // $('#inner-popup-calls').prepend(message);
+        //
+        // var callsNumber = $('#number-of-calls-badge').html();
+        //
+        // $('#number-of-calls-badge').html(++callsNumber);
 
 
 
@@ -105,7 +105,7 @@ socket
 
     .on( 'hangup', function ( data )
     {
-        console.log(data);
+        console.log(111);
     })
 
     .on( 'call', function ( data )
@@ -118,7 +118,7 @@ socket
             {
                 message += '<div class="col-md-10"><span class="popup-provider">' + ( data.provider ) + '</span>';
             }
-            message += '<div class="popup-phone"> ' + data.call_phone + ' </div></div><div class="col-md-2"><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button></div> ';
+            message += '<div class="popup-phone"> ' + data.call_phone + ' </div></div><div class="col-md-2"><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button></div><div class="col-md-12"> ';
 
             if ( data.customer )
             {
@@ -131,13 +131,13 @@ socket
                     message += '<p>' + data.customer.name + '</p>';
                 }
             }
-            message += '</div></div>';
+            message += '</div></div></div>';
 
             $('#inner-popup-calls').prepend(message);
 
-            var callsNumber = $('#number-of-calls .badge').html();
+            var callsNumber = $('#number-of-calls-badge').html();
 
-            $('#number-of-calls .badge').html(++callsNumber);
+            $('#number-of-calls-badge').html(++callsNumber);
 
         }else {
             var message = '';
