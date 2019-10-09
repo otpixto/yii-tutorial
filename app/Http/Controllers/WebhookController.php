@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendStream;
+use App\Models\BaseModel;
 use App\Models\Building;
 use App\Models\File;
 use App\Models\Management;
@@ -138,7 +139,7 @@ class WebhookController extends Controller
                     ->attach( 1, [
                         'number' => $ticket->vendor_number,
                         'datetime' => $ticket->vendor_date,
-                    ] );
+                    ]);
                 $ticketManagement = new TicketManagement( [
                     'ticket_id' => $ticket->id,
                     'management_id' => $management->id,
@@ -164,13 +165,14 @@ class WebhookController extends Controller
                     if ( ! $file )
                     {
                         $path = Storage::putFile( 'files', $_file );
-                        $file = File::create( [
+                        $file = File::create([
                             'model_id' => $ticketManagement->id,
                             'model_name' => get_class( $ticketManagement ),
                             'path' => $path,
                             'name' => $_file->getClientOriginalName()
-                        ] );
+                        ]);
                         $file->save();
+                        $file->addTag( BaseModel::TAG_MOSREG );
                     }
                 }
             }

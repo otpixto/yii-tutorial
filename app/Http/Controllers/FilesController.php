@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BaseModel;
 use App\Models\File;
 use App\Models\ProviderToken;
 use App\Models\Ticket;
@@ -83,7 +84,7 @@ class FilesController extends Controller
 				}
 			}
 
-            return response()->download( storage_path( 'app/' . $file->path ), $file->name );
+            return $file->download();
 
         }
         catch ( \Exception $e )
@@ -112,6 +113,8 @@ class FilesController extends Controller
         }
 
         \DB::beginTransaction();
+        $files = [];
+        $success = 'Файл(ы) добавлен(ы)';
         foreach ( $request->file( 'files', [] ) as $_file )
         {
             $path = Storage::putFile( 'files', $_file );
@@ -127,6 +130,7 @@ class FilesController extends Controller
             }
             $file->save();
             $file->parent->addLog( 'Загрузил файл "' . $file->name . '"' );
+            $files[] = $file;
         }
         if ( ! empty( $request->get( 'status' ) ) && $request->get( 'model_name' ) == TicketManagement::class && ! in_array( $file->parent->status_code, Ticket::$final_statuses ) )
         {
@@ -138,11 +142,16 @@ class FilesController extends Controller
                 {
                     return redirect()->back()->withErrors( $res );
                 }
+                foreach ( $files as $file )
+                {
+                    $file->addTag( BaseModel::TAG_COMPLETED );
+                }
+                $success .= '. Статус изменен.';
             }
         }
         \DB::commit();
 
-        return redirect()->back()->with( 'success', 'Файл(ы) добавлен(ы)' );
+        return redirect()->back()->with( 'success', $success );
 
     }
 	

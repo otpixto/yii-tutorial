@@ -117,7 +117,7 @@ class ExternalController extends BaseController
 			
 			$response = array_values( $data );
 			
-			\Cache::tags( 'external' )->put( 'external.works.' . $this->providerKey->provider_id . '.' . $request->get( 'segment_id', '0' ), $response, 5 );
+			\Cache::tags( 'external' )->put( 'external.works.' . $this->providerKey->provider_id . '.' . $request->get( 'segment_id', '0' ), $response, 15 );
 			
 		}
 

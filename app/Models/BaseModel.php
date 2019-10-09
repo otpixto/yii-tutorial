@@ -27,6 +27,9 @@ class BaseModel extends Model
     const IGNORE_STATUS = 4;
     const I_AM_OWNER = 5;
 
+    const TAG_COMPLETED = 'Выполненные работы';
+    const TAG_MOSREG = 'MOSREG';
+
     protected $dates = [
         'created_at',
         'updated_at',

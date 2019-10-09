@@ -82,6 +82,7 @@ class Ticket extends BaseModel
         'GZI_EXTRA_AUDIT' => 'Контроль ГЖИ: Внеплановая проверка',
         'GZI_SOLVED' => 'Закрыто (ГЖИ)',
         'UNSATISFIED_SENDED_TO_DD' => 'Отправлено в добродел',
+        'EXPIRED_RETURN_TO_DD' => 'Не взята в работу: возвращено в Добродел',
     ];
 
     public static $statuses_buttons = [
@@ -199,6 +200,7 @@ class Ticket extends BaseModel
         'UNSATISFIED' => 'transferred_again',
         'SOLVED' => 'GZI_SOLVED',
         'UNSATISFIED_SENDED_TO_DD' => 'UNSATISFIED_SENDED_TO_DD',
+        'EXPIRED_RETURN_TO_DD' => 'EXPIRED_RETURN_TO_DD',
         'GZI_REMEDY' => 'GZI_REMEDY',
         'GZI_REMEDY_ANSWER' => 'GZI_REMEDY_ANSWER',
         'GZI_EXPIRED' => 'GZI_EXPIRED',

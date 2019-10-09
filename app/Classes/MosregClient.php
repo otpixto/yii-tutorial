@@ -4,6 +4,7 @@ namespace App\Classes;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Collection;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -11,6 +12,7 @@ class MosregClient
 {
 
     const URL = 'https://mosreg.eds-juk.ru';
+    const TIMEOUT = 10;
 
     private $client = false;
 
@@ -31,10 +33,10 @@ class MosregClient
 
     public function __construct ( $username, $password )
     {
-        $this->client = new Client( [
-            'base_uri' => self::URL,
-            RequestOptions::TIMEOUT => 5
-        ] );
+        $this->client = new Client([
+            'base_uri'              => self::URL,
+            RequestOptions::TIMEOUT => self::TIMEOUT
+        ]);
         $this->username = $username;
         $this->password = $password;
         $this->logs = new Logger( 'MOSREG' );
@@ -47,7 +49,10 @@ class MosregClient
         {
             $term = $this->normalizeAddress( $term );
         }
-        return $this->sendRequest( 'GET', '/api/address/search?term=' . urlencode( $term ) );
+        $data = [
+            'term' => $term,
+        ];
+        return $this->sendRequest( 'GET', '/api/address/search', $data );
     }
 
     public function getStatuses ()
@@ -57,7 +62,10 @@ class MosregClient
 
     public function getTickets ( int $page = 1 )
     {
-        return $this->sendRequest( 'GET', '/api/tickets?page=' . $page );
+        $data = [
+            'page' => $page,
+        ];
+        return $this->sendRequest( 'GET', '/api/tickets', $data );
     }
 
     public function getTicket ( int $id )
@@ -75,15 +83,25 @@ class MosregClient
         return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/towork' );
     }
 
-    public function answer ( $id, $answer_id, $comment = null )
+    public function answer ( $id, $answer_id, $comment = '-', Collection $files = null )
     {
-        //if ( ! isset( self::$answers[ $answer_id ] ) ) return false;
-        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer', compact( 'answer_id', 'comment' ) );
+        if ( ! isset( self::$answers[ $answer_id ] ) )
+        {
+            throw new MosregException( 'Некорректный ID ответа' );
+        }
+        $data = [
+            'answer_id'     => $answer_id,
+            'comment'       => $comment,
+        ];
+        return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer', $data, $files );
     }
 
     public function setWebhook ( $url )
     {
-        return $this->sendRequest( 'POST', '/api/webhook/set', compact( 'url' ) );
+        $data = [
+            'url' => $url,
+        ];
+        return $this->sendRequest( 'POST', '/api/webhook/set', $data );
     }
 
     public function unsetWebhook ()
@@ -91,19 +109,63 @@ class MosregClient
         return $this->sendRequest( 'POST', '/api/webhook/unset' );
     }
 
-    private function sendRequest ( $method, $path, array $data = [] )
+    public function changePassword ( $password )
+    {
+        $data = [
+            'password' => $password,
+        ];
+        return $this->sendRequest( 'POST', '/api/password/change', $data );
+    }
+
+    private function sendRequest ( $method, $path, array $data = null, Collection $files = null )
     {
         $this->logs->addInfo( 'Request', compact( 'method', 'path', 'data' ) );
-        $response = $this->client->request( $method, $path, [
+        $requestOptions = [
             RequestOptions::AUTH => [
                 $this->username,
                 $this->password
             ],
-            RequestOptions::FORM_PARAMS => $data
-        ] );
-        $response = json_decode( $response->getBody() );
-        $this->logs->addInfo( 'Response', (array) $response );
-        return $response;
+        ];
+        if ( $method == 'GET' )
+        {
+            if ( $data )
+            {
+                $requestOptions[ RequestOptions::QUERY ] = $data;
+            }
+        }
+        else
+        {
+            $requestData = [];
+            if ( $data )
+            {
+                foreach ( $data as $name => $value )
+                {
+                    $requestData[] = [
+                        'name'      => $name,
+                        'contents'  => $value,
+                    ];
+                }
+            }
+            if ( $files )
+            {
+                foreach ( $files as $file )
+                {
+                    $requestData[] = [
+                        'name'      => 'files[]',
+                        'contents'  => $file->getContents(),
+                        'filename'  => $file->name
+                    ];
+                }
+            }
+            if ( count( $requestData ) )
+            {
+                $requestOptions[ RequestOptions::MULTIPART ] = $data;
+            }
+        }
+        $response = $this->client->request( $method, $path, $requestOptions );
+        $responseData = json_decode( $response->getBody() );
+        $this->logs->addInfo( 'Response', (array) $responseData );
+        return $responseData;
     }
 
     public function normalizeAddress ( $address )
@@ -114,11 +176,6 @@ class MosregClient
         //$address = preg_replace( '/(.* \d+)[а-яa-z]+/iU', '$1', $address );
         $address = trim( $address );
         return $address;
-    }
-
-    public function changePassword ( $password )
-    {
-        return $this->sendRequest( 'POST', '/api/password/change', compact( 'password' ) );
     }
 
 }

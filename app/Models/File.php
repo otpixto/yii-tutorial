@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
 class File extends BaseModel
 {
 
@@ -22,6 +24,16 @@ class File extends BaseModel
     public function getToken ()
     {
         return md5( $this->id . self::PASS );
+    }
+
+    public function download () : BinaryFileResponse
+    {
+        return response()->download( storage_path( 'app/' . $this->path ), $this->name );
+    }
+
+    public function getContents ()
+    {
+        return file_get_contents( storage_path( 'app/' . $this->path ) );
     }
 
 }

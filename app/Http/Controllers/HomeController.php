@@ -37,9 +37,10 @@ class HomeController extends Controller
             ->with( 'title', 'Главная' );
     }
 
-    public function testOrgs()
+    public function test ()
     {
-        ( new GzhiHandler() )->fillTypes();
+        $data = getrusage();
+        dd( $data );
     }
 
 }
