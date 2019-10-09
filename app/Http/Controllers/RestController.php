@@ -205,38 +205,55 @@ class RestController extends Controller
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
         $interface = $request->get( 'interface' );
 
-        $session = PhoneSession
-            ::notClosed()
-            ->where( 'channel', '=', $interface )
-            ->first();
-        if ( ! $session )
+        if ( \Cache::has( 'provider.phone.' . $phone_office ) )
         {
-            return $this->error( 101 );
+            $providerPhone = \Cache::get( 'provider.phone.' . $phone_office );
         }
-        if ( ! $session->user || ! $session->user->isActive() )
+        else
         {
-            return $this->error( 102 );
-        }
-
-        $provider = $session->provider;
-        $user = $session->user;
-
-        if ( ! $provider )
-        {
-            return $this->error( 107 );
+            $providerPhone = ProviderPhone
+                ::where( 'phone', '=', $phone_office )
+                ->with(
+                    'provider'
+                )
+                ->first();
+            \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
         }
 
-        $providerPhone = $provider
-            ->phones()
-            ->where( 'phone', '=', $phone_office )
-            ->first();
+        if ( $providerPhone )
+        {
+            $provider = $providerPhone->provider;
+            if ( ! $provider )
+            {
+                return $this->error( 107 );
+            }
+            $session = $provider
+                ->phoneSessions()
+                ->where( 'channel', '=', $interface )
+                ->first();
+            if ( ! $session )
+            {
+                return $this->error( 101 );
+            }
+            $user = $session->user;
+            if ( ! $user || ! $session->user->isActive() )
+            {
+                return $this->error( 102 );
+            }
+        }
 
         $response = [
             'ticket'                => null,
             'provider'              => null,
             'provider_phone'        => null,
-            'user'                  => $user->id
+            'user'                  => $user->id,
+            'users'                 => [],
         ];
+
+        if ( $provider->phoneSessions->count() )
+        {
+            $response[ 'users' ] = $provider->phoneSessions->pluck( 'user_id' )->toArray();
+        }
 
         $draft = Ticket
             ::draft( $user->id, $provider->id )
