@@ -232,7 +232,7 @@ body {
 #popup-calls .btn {
     float: right;
     padding: 6px 12px;
-    margin-top: 2px;
+    margin-top: 4px;
 }
 #popup-calls .btn-danger {
     float: none;
@@ -265,7 +265,6 @@ body {
 #popup-calls .popup-everyone {
     background-color: #ffffff;
     border-top: 1px solid #3d7dbd;
-    padding-bottom: 9px;
 }
 #popup-calls .popup-everyone p {
     margin-bottom: 2px;

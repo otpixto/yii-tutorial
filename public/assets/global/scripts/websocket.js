@@ -18,7 +18,7 @@ socket
         // me.call_phone = "9629273386";
         // me.channel = "SIP/m9295070506-0002833d";
         // me.customer = {'name' : 'Магамедов Мугамед Мугамедович Оглымед Мугамедович Оглы'};
-        // //me.customer.address = 'Жуковский ул. Дугина, д. 10, кв.100';
+        // me.customer.address = 'Жуковский ул. Дугина, д. 10, кв.100';
         // me.phone_office = "9629273386";
         // me.provider = "!! Перезвон !!";
         // var data = me;
