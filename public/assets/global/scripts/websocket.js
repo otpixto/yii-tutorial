@@ -22,7 +22,35 @@ socket
         // me.provider = "!! Перезвон !!";
         // var data = me;
         //
-        // console.log( data );
+        // var message = '<div class="popup-everyone">';
+        // if ( data.provider )
+        // {
+        //     message += '<span class="popup-provider">' + ( data.provider ) + '</span>';
+        // }
+        // message += '<span class="popup-phone"> ' + data.call_phone + ' </span><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button>';
+        //
+        // if ( data.customer )
+        // {
+        //     if ( data.customer.address )
+        //     {
+        //         message += '<p>' + data.customer.address + '</p>';
+        //     }
+        //     if ( data.customer.name )
+        //     {
+        //         message += '<p>' + data.customer.name + '</p>';
+        //     }
+        // }
+        // message += '</div>';
+        //
+        // $('#popup-calls').prepend(message);
+        //
+        // $('#popup-calls .bootstrap-growl').attr('style', '');
+        //
+        // $('#popup-calls .bootstrap-growl').removeClass('alert');
+        //
+        // var callsNumber = $('#number-of-calls .badge').html();
+        //
+        // $('#number-of-calls .badge').html(++callsNumber);
 
 
 

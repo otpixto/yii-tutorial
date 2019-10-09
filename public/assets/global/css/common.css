@@ -222,11 +222,11 @@ body {
     max-height: 400px;
     overflow: auto;
     top: 24px;
-    left: 74px;
+    left: -170px;
 }
 #popup-calls .btn {
     float: right;
-    padding: 0.5px 5px;
+    padding: 2px 8px;
 }
 #popup-calls .popup-phone,.popup-provider {
     font-size: 15px;
@@ -241,7 +241,8 @@ body {
 #popup-calls .popup-everyone {
     background-color: #ffffff;
     border: 1px solid #3d7dbd;
-    padding: 3px;
+    padding: 6px 4px;
+    padding-bottom: 9px;
 }
 #popup-calls .popup-everyone p {
     margin-bottom: 2px;
@@ -260,4 +261,9 @@ body {
 
 #popup-calls::-webkit-scrollbar-thumb:hover {
     background: #315d91;
+}
+
+#popup-calls p{
+    color: #333;
+    margin: 0 0 10px;
 }
