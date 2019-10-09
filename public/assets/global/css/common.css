@@ -222,12 +222,19 @@ body {
     max-height: 400px;
     overflow: auto;
     top: 24px;
-    left: -170px;
+    right: 150px;
+    border: 1px solid #3d7dbd;
+    background-color: #ffffff;
 }
 #popup-calls .btn {
     float: right;
     padding: 2px 8px;
 }
+#popup-calls .btn-danger {
+    float: none;
+    margin: 4px;
+}
+
 #popup-calls .popup-phone,.popup-provider {
     font-size: 15px;
     color: #007bff;
@@ -240,7 +247,7 @@ body {
 }
 #popup-calls .popup-everyone {
     background-color: #ffffff;
-    border: 1px solid #3d7dbd;
+    border-top: 1px solid #3d7dbd;
     padding: 6px 4px;
     padding-bottom: 9px;
 }
