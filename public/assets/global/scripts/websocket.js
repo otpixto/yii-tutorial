@@ -91,16 +91,20 @@ socket
         if (window.location.href.indexOf('test=1') != -1) {
 
             var message = '<div class="popup-everyone" call_id="' + data.call_id + '"><div class="row">';
-            if (data.provider) {
-                message += '<div class="col-md-10"><span class="popup-provider">' + (data.provider) + '</span>';
+            if ( data.provider )
+            {
+                message += '<div class="col-md-10"><span class="popup-provider">' + ( data.provider ) + '</span>';
             }
             message += '<div class="popup-phone"> ' + data.call_phone + ' </div></div><div class="col-md-2"><button type="button" class="btn btn-warning btn-small" data-channel="' + data.channel + '" data-call-id="' + data.call_id + '" data-call-phone="' + data.call_phone + '" data-call-description="' + data.provider + '" data-action="pickup"><i class="fa fa-phone"></i></button></div><div class="col-md-12"> ';
 
-            if (data.customer) {
-                if (data.customer.address) {
+            if ( data.customer )
+            {
+                if ( data.customer.address )
+                {
                     message += '<p>' + data.customer.address + '</p>';
                 }
-                if (data.customer.name) {
+                if ( data.customer.name )
+                {
                     message += '<p>' + data.customer.name + '</p>';
                 }
             }
