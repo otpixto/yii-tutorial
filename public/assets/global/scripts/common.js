@@ -991,7 +991,7 @@ $( document )
         $( this ).trigger( 'confirmed', [ e ] );
     })
 
-    .on ( 'click', '#number-of-calls', function ( e )
+    .on ( 'click', '#number-of-calls-button', function ( e )
     {
         $('#popup-calls').toggle();
     });

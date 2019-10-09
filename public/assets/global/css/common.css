@@ -211,12 +211,14 @@ body {
     color: #fff;
     background-color: #35c6d3;
     display: inline-block;
-    padding: 2px 12px;
     border-radius: 3px;
     position: relative;
 }
+#number-of-calls-button {
+    padding: 2px 12px;
+}
 #popup-calls {
-    //display: none;
+    display: none;
     margin-top: 1px;
     width: 300px;
     position: absolute;
@@ -229,7 +231,8 @@ body {
 }
 #popup-calls .btn {
     float: right;
-    padding: 2px 8px;
+    padding: 6px 12px;
+    margin-top: 2px;
 }
 #popup-calls .btn-danger {
     float: none;
@@ -241,10 +244,15 @@ body {
     background-color: #007bff;
     color: #FFFFFF;
     padding: 0 4px;
-    margin-left: 0px;
-    margin-top: -2px;
+}
+#popup-calls .row {
+    margin: 0;
+}
+#popup-calls .col-md-10 {
+   padding-left: 0;
 }
 #popup-calls .popup-phone {
+    margin-left: 15px;
     font-size: 15px;
     color: #007bff;
 }
@@ -257,10 +265,10 @@ body {
 #popup-calls .popup-everyone {
     background-color: #ffffff;
     border-top: 1px solid #3d7dbd;
-    padding: 6px 4px;
     padding-bottom: 9px;
 }
 #popup-calls .popup-everyone p {
+    margin-left: 15px;
     margin-bottom: 2px;
     font-size: 11px;
 }

@@ -3,8 +3,10 @@
     @if(request('test'))
     @if(\Auth::user()->openPhoneSession)
     <div class="margin-right-10" id="number-of-calls">
-    <span class="badge badge-danger bold">0</span>
-
+        <div id="number-of-calls-button">
+            <b>0</b>
+            <i class="fa fa-phone"></i>
+        </div>
         <div id="popup-calls">
             <a href="{{ route( 'profile.phone' ) }}" class="btn btn-xs btn-danger" id="phone-state">
                 Разлогинить телефон
