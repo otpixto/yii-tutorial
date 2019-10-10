@@ -73,7 +73,7 @@ class TicketsController extends BaseController
             else
             {
                 $scheduledTicketManagements = TicketManagement::getScheduledTicketManagements();
-                \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
+                \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 5 );
             }
         }
         else

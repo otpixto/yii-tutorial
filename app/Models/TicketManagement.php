@@ -1040,9 +1040,6 @@ class TicketManagement extends BaseModel
                     $this->changeMosregStatus( 'IN_WORK', false );
                 }
 
-                \Cache::tags( 'tickets.scheduled.now' )
-                    ->flush();
-
                 break;
 
             case 'accepted':
@@ -1085,9 +1082,6 @@ class TicketManagement extends BaseModel
                 {
                     $this->dispatch( new SendPush( config( 'push.keys.eds' ), $this->executor->user->push_id, 'Вам назначена новая заявка', 'Вам назначена новая заявка ' . $this->getTicketNumber(), 'ticket', $this->id ) );
                 }
-
-                \Cache::tags( 'tickets.scheduled.now' )
-                    ->flush();
 
                 break;
 
@@ -1232,9 +1226,6 @@ class TicketManagement extends BaseModel
                 }
 
                 $this->sendTelegramChangeStatus();
-
-                \Cache::tags( 'tickets.scheduled.now' )
-                    ->flush();
 
                 break;
 
@@ -1424,7 +1415,6 @@ class TicketManagement extends BaseModel
     public static function getScheduledTicketManagements()
     {
         $now = Carbon::now()->toDateTimeString();
-
         $scheduledTicketManagements = self
             ::mine()
             ->where( 'status_code', '=', 'assigned' )
@@ -1436,7 +1426,6 @@ class TicketManagement extends BaseModel
                     ->where( 'postponed_to', '>', $now );
             })
             ->get();
-
         return $scheduledTicketManagements;
     }
 
