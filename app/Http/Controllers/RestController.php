@@ -31,6 +31,7 @@ class RestController extends Controller
         105         => 'Заявитель не найден',
         106         => 'Астериск ответил ошибкой',
         107         => 'Поставщик не определен',
+        108         => 'Номер поставщика не найден',
         900         => 'Внутренняя ошибка',
     ];
 
@@ -200,7 +201,6 @@ class RestController extends Controller
             return $this->error( 100 );
         }
 
-        $number = mb_substr( $request->get( 'number' ), -10 );
         $phone_office = mb_substr( $request->get( 'phone_office' ), -10 );
         $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone' ) ), -10 );
         $interface = $request->get( 'interface' );
@@ -220,32 +220,36 @@ class RestController extends Controller
             \Cache::put( 'provider.phone.' . $phone_office, $providerPhone, 1440 );
         }
 
-        if ( $providerPhone )
+        if ( ! $providerPhone )
         {
-            $provider = $providerPhone->provider;
-            if ( ! $provider )
-            {
-                return $this->error( 107 );
-            }
-            $session = $provider
-                ->phoneSessions()
-                ->where( 'channel', '=', $interface )
-                ->first();
-            if ( ! $session )
-            {
-                return $this->error( 101 );
-            }
-            $user = $session->user;
-            if ( ! $user || ! $session->user->isActive() )
-            {
-                return $this->error( 102 );
-            }
+            return $this->error( 108 );
+        }
+
+        $provider = $providerPhone->provider;
+        if ( ! $provider )
+        {
+            return $this->error( 107 );
+        }
+
+        $session = $provider
+            ->phoneSessions()
+            ->where( 'channel', '=', $interface )
+            ->first();
+        if ( ! $session )
+        {
+            return $this->error( 101 );
+        }
+
+        $user = $session->user;
+        if ( ! $user || ! $user->isActive() )
+        {
+            return $this->error( 102 );
         }
 
         $response = [
             'ticket'                => null,
-            'provider'              => null,
-            'provider_phone'        => null,
+            'provider'              => $provider->name,
+            'provider_phone'        => $providerPhone->name,
             'user'                  => $user->id,
             'users'                 => [],
         ];
@@ -275,8 +279,6 @@ class RestController extends Controller
 
         $draft->save();
 
-        $response[ 'provider' ] = $provider->name;
-        $response[ 'provider_phone' ] = $providerPhone->name ?? null;
         $response[ 'ticket' ] = $draft->id;
 
         return $this->success( $response );
