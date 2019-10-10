@@ -98,27 +98,27 @@
                         {{ $data[ $management->id ][ 'total' ] }}
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="1">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}" data-field="1">
                             {{ $data[ $management->id ][ 'rate-1' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="2">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}" data-field="2">
                             {{ $data[ $management->id ][ 'rate-2' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="3">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}" data-field="3">
                             {{ $data[ $management->id ][ 'rate-3' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="4">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}" data-field="4">
                             {{ $data[ $management->id ][ 'rate-4' ] }}
                         </a>
                     </td>
                     <td class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}" data-field="5">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $management->id, 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}" data-field="5">
                             {{ $data[ $management->id ][ 'rate-5' ] }}
                         </a>
                     </td>
@@ -137,27 +137,27 @@
                         {{ $data[ 'total' ] }}
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 1, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}">
                             {{ $data[ 'rate-1' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 2, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}">
                             {{ $data[ 'rate-2' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 3, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}">
                             {{ $data[ 'rate-3' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 4, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}">
                             {{ $data[ 'rate-4' ] }}
                         </a>
                     </th>
                     <th class="text-center">
-                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y' ), 'created_to' => $date_to->format( 'd.m.Y' ) ] ) }}">
+                        <a href="{{ route( 'tickets.index', [ 'managements' => $managements->implode( 'id', ',' ), 'rate' => 5, 'created_from' => $date_from->format( 'd.m.Y H:i:s' ), 'created_to' => $date_to->format( 'd.m.Y H:i:s' ) ] ) }}">
                             {{ $data[ 'rate-5' ] }}
                         </a>
                     </th>
