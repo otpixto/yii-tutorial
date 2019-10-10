@@ -1117,6 +1117,7 @@ class TicketManagement extends BaseModel
                             return $tags
                                 ->where( 'text', '=', BaseModel::TAG_COMPLETED );
                         })
+                        ->where( 'created_at', '>=', Carbon::now()->subMinute()->toDateTimeString() )
                         ->get();
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment, $files );
                     if ( isset( $responseData->error ) && $this->management->provider )

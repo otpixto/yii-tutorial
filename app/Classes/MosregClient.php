@@ -146,14 +146,13 @@ class MosregClient
                     ];
                 }
             }
-            if ( $files )
+            if ( $files && $files->count() )
             {
                 foreach ( $files as $file )
                 {
                     $requestData[] = [
-                        'Content-type'  => 'multipart/form-data',
                         'name'          => 'files[]',
-                        'contents'      => $file->getContents(),
+                        'contents'      => fopen( storage_path( 'app/' . $file->path ), 'r' ),
                         'filename'      => $file->name,
                     ];
                 }
