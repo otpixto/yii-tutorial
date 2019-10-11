@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 
 class SendStream implements ShouldQueue
 {
@@ -16,6 +17,8 @@ class SendStream implements ShouldQueue
 
     protected $action;
     protected $object;
+	
+	public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -31,7 +34,7 @@ class SendStream implements ShouldQueue
         }
         catch ( \Exception $e )
         {
-
+			Log::critical( 'Exception', [ $e ] );
         }
     }
 
@@ -64,7 +67,13 @@ class SendStream implements ShouldQueue
         }
         catch ( \Exception $e )
         {
-
+			Log::critical( 'Exception', [ $e ] );
         }
     }
+	
+	public function failed ( \Exception $e )
+    {
+        Log::critical( 'Exception', [ $e ] );
+    }
+	
 }

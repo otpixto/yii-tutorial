@@ -19,6 +19,8 @@ class SendEmail implements ShouldQueue
     protected $message;
     protected $url;
     protected $mailable;
+	
+	public $tries = 1;
 
     /**
      * Create a new job instance.

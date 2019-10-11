@@ -174,13 +174,27 @@ class ReportsController extends BaseController
     public function totals ( Request $request )
     {
 
+		$this->validate( $request, [
+			'date_from'		=> 'nullable|date',
+			'date_to'		=> 'nullable|date',
+			'report'		=> 'nullable|boolean',
+			'recalc'		=> 'nullable|boolean',
+		]);
+		
         $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->startOfMonth()->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
+				
+		if ( $date_from->diffInDays( $date_to ) > 30 )
+		{
+			return redirect()
+				->back()
+				->withErrors( [ 'Нельзя использовать период свыше 30 дней!' ] );
+		}
 
         $title = 'СВОДНЫЙ ОТЧЕТ ОБРАЩЕНИЙ ЖИТЕЛЕЙ ПО ВОПРОСАМ ЖКХ';
 
         Title::add( $title );
-
+		
         if ( $request->get( 'report', 0 ) == 1 )
         {
 
@@ -198,7 +212,7 @@ class ReportsController extends BaseController
                     'date_to' => $date_to
                 ]);
                 $report->save();
-
+								
                 $this->dispatch( new ReportJob( $report, \Auth::user(), Provider::getCurrent() ) );
 
             }

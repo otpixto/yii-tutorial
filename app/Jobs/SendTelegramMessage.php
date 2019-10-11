@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Illuminate\Support\Facades\Log;
 
 class SendTelegramMessage implements ShouldQueue
 {
@@ -16,6 +17,8 @@ class SendTelegramMessage implements ShouldQueue
 
     protected $chatIds;
     protected $message;
+	
+	public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -31,7 +34,7 @@ class SendTelegramMessage implements ShouldQueue
 		}
 		catch ( \Exception $e )
 		{
-			
+			Log::critical( 'Exception', [ $e ] );
 		}
     }
 
@@ -63,7 +66,12 @@ class SendTelegramMessage implements ShouldQueue
         }
 		catch ( \Exception $e )
 		{
-
+			Log::critical( 'Exception', [ $e ] );
 		}
+    }
+	
+	public function failed ( \Exception $e )
+    {
+        Log::critical( 'Exception', [ $e ] );
     }
 }

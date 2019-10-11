@@ -14,12 +14,14 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use Illuminate\Support\Facades\Log;
 
 class ReportJob implements ShouldQueue
 {
+	
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+	
+	public $tries = 1;
 
     protected $report;
     protected $user;
@@ -32,6 +34,7 @@ class ReportJob implements ShouldQueue
      */
     public function __construct ( Report $report, User $user, Provider $provider )
     {
+		//Log::info( 'Вводные данные', [ $report, $user, $provider ] );
         $this->report = $report;
         $this->user = $user;
 		$this->provider = $provider;
@@ -45,24 +48,16 @@ class ReportJob implements ShouldQueue
     public function handle ()
     {
 
-        $logs = new Logger( 'REST' );
-        $logs->pushHandler( new StreamHandler( storage_path( 'logs/job_report.log' ) ) );
-
         try
         {
 
             \Auth::login( $this->user );
 			Provider::setCurrent( $this->provider );
 
-            $logs->addInfo( 'Пользователь', [ \Auth::user() ] );
-            $logs->addInfo( 'Отчет', [ $this->report ] );
-            $logs->addInfo( 'Поставщик', [ $this->provider ] );
-
-
             $date_from = $this->report->date_from;
             $date_to = $this->report->date_to;
-
-            $logs->addInfo( 'Период', [ $date_from, $date_to ] );
+			
+			//Log::info( 'Период', [ $date_from, $date_to ] );
 
             $diff_hours = $date_from->diffInHours( $date_to );
             $date_prev_from = ( clone $date_from )->subHours( $diff_hours );
@@ -442,9 +437,14 @@ class ReportJob implements ShouldQueue
         }
         catch ( \Exception $e )
         {
-            $logs->addCritical( 'Exception', [ $e ] );
+            Log::critical( 'Exception', [ $e ] );
         }
 
+    }
+	
+	public function failed ( \Exception $e )
+    {
+        Log::critical( 'Exception', [ $e ] );
     }
 
 }

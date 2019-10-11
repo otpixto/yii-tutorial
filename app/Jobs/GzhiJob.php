@@ -18,6 +18,7 @@ class GzhiJob implements ShouldQueue
     protected $ticket;
     protected $gzhiProvider;
 
+	public $tries = 1;
 
     public function __construct(Ticket $ticket, GzhiApiProvider $gzhiProvider)
     {

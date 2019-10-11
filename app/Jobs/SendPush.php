@@ -20,6 +20,8 @@ class SendPush implements ShouldQueue
     protected $body;
     protected $object;
     protected $id;
+	
+	public $tries = 1;
 
     /**
      * Create a new job instance.

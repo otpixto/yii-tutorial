@@ -50,7 +50,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 5,
         ],
 
         'slack' => [
@@ -59,6 +59,13 @@ return [
             'username' => 'Laravel Log',
             'emoji' => ':boom:',
             'level' => 'critical',
+        ],
+		
+		'job_report' => [
+            'driver' => 'daily',
+            'path' => storage_path( 'logs/job_report.log' ),
+            'level' => 'debug',
+            'days' => 3,
         ],
 
         'papertrail' => [
