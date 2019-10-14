@@ -1098,7 +1098,7 @@ class TicketManagement extends BaseModel
                 $this->sendTelegramChangeStatus();
 
                 $mosreg = null;
-                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                if ( $this->mosreg_status != 'ANSWERED' && $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $comment = 'Выполненные работы: ' . PHP_EOL;
                     if ( $this->services->count() )
@@ -1159,7 +1159,7 @@ class TicketManagement extends BaseModel
                 $this->sendTelegramChangeStatus();
 
                 $mosreg = null;
-                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                if ( $this->mosreg_status != 'ANSWERED' && $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $comment = 'Выполненные работы: ' . PHP_EOL;
                     if ( $this->services->count() )
@@ -1200,7 +1200,7 @@ class TicketManagement extends BaseModel
                 $this->sendTelegramChangeStatus();
 
                 $mosreg = null;
-                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                if ( $this->mosreg_status != 'ANSWERED' && $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $comment = 'Факты не подтвердились';
                     $responseData = $mosreg->answer( $this->mosreg_id, 4782, $comment );

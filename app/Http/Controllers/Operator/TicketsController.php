@@ -1676,7 +1676,7 @@ class TicketsController extends BaseController
             foreach ( $ticket->managements as $ticketManagement )
             {
                 $mosreg = null;
-                if ( $ticketManagement->mosreg_id && $ticketManagement->management && $ticketManagement->management->hasMosreg( $mosreg ) )
+                if ( $ticketManagement->mosreg_status != 'ANSWERED' && $ticketManagement->mosreg_id && $ticketManagement->management && $ticketManagement->management->hasMosreg( $mosreg ) )
                 {
                     if ( ! empty( $request->get( 'reject_reason_id' ) ) )
                     {
