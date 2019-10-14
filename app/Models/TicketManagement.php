@@ -1025,7 +1025,7 @@ class TicketManagement extends BaseModel
             case 'in_process':
 
                 $mosreg = null;
-                if ( $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
+                if ( $this->mosreg_status != 'IN_WORK' && $this->mosreg_id && $this->management && $this->management->hasMosreg( $mosreg ) )
                 {
                     $responseData = $mosreg->toWork( $this->mosreg_id );
                     if ( isset( $responseData->error ) && $this->management->provider )
