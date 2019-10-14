@@ -54,13 +54,20 @@ class SendTelegramMessage implements ShouldQueue
                 $logs->addInfo( 'Исходящее сообщение', [ $this->chatIds, $this->message ] );
                 foreach ( $this->chatIds as $chatId )
                 {
-                    \Telegram::sendMessage([
-                        'chat_id'                   => $chatId,
-                        'text'                      => trim( $this->message ),
-                        'parse_mode'                => 'html',
-                        'disable_web_page_preview'  => true,
-                        'reply_markup'              => \Telegram::replyKeyboardHide()
-                    ]);
+                    try
+                    {
+                        \Telegram::sendMessage([
+                            'chat_id'                   => $chatId,
+                            'text'                      => $this->message,
+                            'parse_mode'                => 'html',
+                            'disable_web_page_preview'  => true,
+                            'reply_markup'              => \Telegram::replyKeyboardHide()
+                        ]);
+                    }
+                    catch ( \Exception $e )
+                    {
+                        Log::critical( 'Exception', [ $chatId, $this->message, $e ] );
+                    }
                 }
             }
         }
