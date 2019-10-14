@@ -8,7 +8,9 @@
         </label>
     </div>
 </div>--}}
-<tr class="tickets @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) text-muted opacity @elseif ( $ticketManagement->ticket->emergency ) danger @endif" id="ticket-management-{{ $ticketManagement->id }}" data-ticket-management="{{ $ticketManagement->id }}" data-ticket="{{ $ticketManagement->ticket->id }}">
+<tr class="tickets @if ( in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ) text-muted opacity @elseif ( $ticketManagement->ticket->emergency ) danger @endif"
+    id="ticket-management-{{ $ticketManagement->id }}" data-ticket-management="{{ $ticketManagement->id }}"
+    data-ticket="{{ $ticketManagement->ticket->id }}">
     <td>
         <div class="mt-element-ribbon">
             <div class="ribbon ribbon-clip ribbon-shadow ribbon-color-{{ $ticketManagement->getClass() }}">
@@ -22,12 +24,14 @@
         @if ( \Auth::user()->can( 'tickets.waybill' ) )
             <label class="mt-checkbox mt-checkbox-outline">
                 {!! Form::checkbox( 'ids[]', $ticketManagement->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
-                <input type="checkbox" >
-                <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
+                <input type="checkbox">
+                <b>#{{ $ticketManagement->ticket->id }}</b>
+                <small class="text-muted">/{{ $ticketManagement->id }}</small>
                 <span></span>
             </label>
         @else
-            <b>#{{ $ticketManagement->ticket->id }}</b><small class="text-muted">/{{ $ticketManagement->id }}</small>
+            <b>#{{ $ticketManagement->ticket->id }}</b>
+            <small class="text-muted">/{{ $ticketManagement->id }}</small>
         @endif
         <div class="small text-muted">
             {{ $ticketManagement->created_at->format( 'd.m.Y H:i' ) }}
@@ -109,6 +113,18 @@
                 {{ $ticketManagement->executor->name }}
             </div>
         @endif
+        <br>
+        <div class="progress" id="progress">
+            @if ( $ticketManagement->ticket->getProgressData()[ 'percent' ] )
+                <div class="{{ $ticketManagement->ticket->getProgressData()[ 'class' ] }}" role="progressbar"
+                     style="width: {{ $ticketManagement->ticket->getProgressData()[ 'percent' ] }}%"></div>
+            @endif
+        </div>
+        <div id="status-title">
+            @if ( $ticketManagement->ticket->getProgressData()[ 'title' ] )
+                {{ $ticketManagement->ticket->getProgressData()[ 'title' ] }}
+            @endif
+        </div>
     </td>
     <td>
         @if ( $ticketManagement->ticket->type )
@@ -148,7 +164,7 @@
             @endif
         </div>
         @if ( \Auth::user()->can( 'tickets.field_text' ) )
-            <hr />
+            <hr/>
             <div class="small">
                 {{ $ticketManagement->ticket->text }}
             </div>
@@ -184,10 +200,14 @@
         </div>
     </td>
     <td class="text-right hidden-print text-nowrap">
-        <a class="btn btn-info tooltips" data-action="comment" data-model-name="{{ get_class( $ticketManagement->ticket ) }}" data-model-id="{{ $ticketManagement->ticket->id }}" data-file="1" title="Добавить комментарий">
+        <a class="btn btn-info tooltips" data-action="comment"
+           data-model-name="{{ get_class( $ticketManagement->ticket ) }}"
+           data-model-id="{{ $ticketManagement->ticket->id }}" data-file="1" title="Добавить комментарий">
             <i class="fa fa-comment"></i>
         </a>
-        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}" class="btn btn-{{ in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ? 'info' : 'primary' }} tooltips" title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
+        <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}"
+           class="btn btn-{{ in_array( $ticketManagement->status_code, \App\Models\Ticket::$final_statuses ) ? 'info' : 'primary' }} tooltips"
+           title="Открыть заявку #{{ $ticketManagement->getTicketNumber() }}">
             <i class="fa fa-chevron-right"></i>
         </a>
     </td>
