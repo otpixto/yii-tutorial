@@ -66,7 +66,7 @@ class SendTelegramMessage implements ShouldQueue
                     }
                     catch ( \Exception $e )
                     {
-                        Log::error( 'Не удалось отправить сообщение', [ $chatId, $this->message, $e->getMessage() ] );
+                        $logs->addError( 'Не удалось отправить сообщение', [ $chatId, $e->getMessage() ] );
                     }
                 }
             }
