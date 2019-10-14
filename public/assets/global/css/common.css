@@ -301,3 +301,7 @@ body {
 .al-logout-phone{
     height: 30px;
 }
+
+#tickets .progress{
+    background-color: #f0dfaf;
+}
