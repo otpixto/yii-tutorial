@@ -1035,6 +1035,7 @@ class TicketManagement extends BaseModel
                         $message .= 'Ссылка на заявку: ' . $this->getUrl() . PHP_EOL;
                         $message .= 'Мосрег ID: ' . $this->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $this->ticket->vendor_number . PHP_EOL . PHP_EOL;
+                        $message .= 'УО: ' . $this->management->name . PHP_EOL . PHP_EOL;
                         $this->management->provider->sendTelegramMessage( $message );
                     }
                     $this->changeMosregStatus( 'IN_WORK', false );
@@ -1127,6 +1128,7 @@ class TicketManagement extends BaseModel
                         $message .= 'Ссылка на заявку: ' . $this->getUrl() . PHP_EOL;
                         $message .= 'Мосрег ID: ' . $this->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $this->ticket->vendor_number . PHP_EOL . PHP_EOL;
+                        $message .= 'УО: ' . $this->management->name . PHP_EOL . PHP_EOL;
                         $this->management->provider->sendTelegramMessage( $message );
                     }
                     $this->changeMosregStatus( 'ANSWERED', false );
@@ -1179,6 +1181,7 @@ class TicketManagement extends BaseModel
                         $message .= 'Ссылка на заявку: ' . $this->getUrl() . PHP_EOL;
                         $message .= 'Мосрег ID: ' . $this->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $this->ticket->vendor_number . PHP_EOL . PHP_EOL;
+                        $message .= 'УО: ' . $this->management->name . PHP_EOL . PHP_EOL;
                         $this->management->provider->sendTelegramMessage( $message );
                     }
                     $this->changeMosregStatus( 'ANSWERED', false );
@@ -1208,6 +1211,7 @@ class TicketManagement extends BaseModel
                         $message .= 'Ссылка на заявку: ' . $this->getUrl() . PHP_EOL;
                         $message .= 'Мосрег ID: ' . $this->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $this->ticket->vendor_number . PHP_EOL . PHP_EOL;
+                        $message .= 'УО: ' . $this->management->name . PHP_EOL . PHP_EOL;
                         $this->management->provider->sendTelegramMessage( $message );
                     }
                     $this->changeMosregStatus( 'ANSWERED', false );

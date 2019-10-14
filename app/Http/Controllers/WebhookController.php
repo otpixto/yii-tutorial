@@ -97,6 +97,7 @@ class WebhookController extends Controller
                         $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
                         $message .= 'Классификатор мосрега: ' . $data->type_name . ' (id:' . $data->type_id . ')' . PHP_EOL;
+                        $message .= 'УО: ' . $management->name . PHP_EOL . PHP_EOL;
                         $management->provider->sendTelegramMessage( $message );
                     }
                     return $this->error( 'Type not found' );
@@ -113,6 +114,7 @@ class WebhookController extends Controller
                         $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
                         $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
                         $message .= 'Адрес мосрега: ' . $data->address_name . ' (id:' . $data->address_id . ')' . PHP_EOL;
+                        $message .= 'УО: ' . $management->name . PHP_EOL . PHP_EOL;
                         $management->provider->sendTelegramMessage( $message );
                     }
                     return $this->error( 'Address not found' );
@@ -193,6 +195,7 @@ class WebhookController extends Controller
                             $message .= 'Ссылка на заявку: ' . $ticketManagement->getUrl() . PHP_EOL;
                             $message .= 'Мосрег ID: ' . $data->mosreg_id . PHP_EOL;
                             $message .= 'Мосрег №: ' . $data->mosreg_number . PHP_EOL . PHP_EOL;
+                            $message .= 'УО: ' . $management->name . PHP_EOL . PHP_EOL;
                             $management->provider->sendTelegramMessage( $message );
                         }
                         break;
@@ -214,6 +217,7 @@ class WebhookController extends Controller
                 $message .= 'Ошибка: ' . $e->getMessage() . PHP_EOL;
                 $message .= 'Файл: ' . $e->getFile() . PHP_EOL;
                 $message .= 'Строка: ' . $e->getLine() . PHP_EOL;
+                $message .= 'УО: ' . $management->name . PHP_EOL . PHP_EOL;
                 $management->provider->sendTelegramMessage( $message );
             }
             return $this->error( $e->getMessage() );
