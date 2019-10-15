@@ -589,6 +589,11 @@ $( document )
         });
     })
 
+    .on( 'click', '.executor-toggle', function ( e )
+    {
+        $( '#executor_name, #executor_phone, #executor_id' ).val( '' ).trigger( 'change' );
+    })
+
     .on( 'click', '[data-group-data]', function ( e )
     {
         e.preventDefault();

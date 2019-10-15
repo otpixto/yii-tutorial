@@ -435,11 +435,6 @@
                 }
             })
 
-            .on( 'click', '.executor-toggle', function ( e )
-            {
-                $( '#executor_name, #executor_phone' ).val( '' );
-            })
-
             .on( 'change', '#managements', getExecutors );
 
     </script>
