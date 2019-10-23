@@ -13,7 +13,9 @@ Route::prefix( 'error' )->group( function ()
 });
 
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
+
 Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
+Route::get( '/files/view', 'FilesController@view' )->name( 'files.view' );
 
 Route::group( [ 'middleware' => 'rest' ], function ()
 {

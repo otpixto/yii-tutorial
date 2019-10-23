@@ -36,9 +36,12 @@
 				<ul class="list-inline media-files">
 					@foreach ( $comment->files as $file )
 						<li>
-							<a class="small" href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+							<a class="small" href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}" target="_blank">
 								<i class="fa fa-file"></i>
 								{{ $file->name }}
+							</a>
+							<a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+								<i class="fa fa-download"></i>
 							</a>
 						</li>
 					@endforeach

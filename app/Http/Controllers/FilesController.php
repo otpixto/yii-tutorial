@@ -94,6 +94,86 @@ class FilesController extends Controller
 
     }
 
+    public function view ( Request $request )
+    {
+
+        try
+        {
+
+            $this->validate( $request, [
+                'id'                => 'required|integer',
+                'token'             => 'required',
+                'user_token'        => 'nullable',
+            ]);
+
+            $file = File::find( $request->get( 'id' ) );
+            if ( ! $file )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Файл не найден' ] );
+            }
+
+            if ( $file->getToken() != $request->get( 'token' ) )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Некорректный токен файла' ] );
+            }
+
+            if ( $request->get( 'user_token' ) )
+            {
+                $providerToken = ProviderToken
+                    ::where( 'token', '=', $request->get( 'user_token' ) )
+                    ->whereHas( 'providerKey', function ( $providerKey )
+                    {
+                        return $providerKey
+                            ->whereHas( 'provider' );
+                    })
+                    ->first();
+                if ( ! $providerToken )
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Некорректный токен пользователя' ] );
+                }
+                if ( ! $providerToken->user || ! $providerToken->user->active )
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors( [ 'Пользователь не активен' ] );
+                }
+                \Auth::login( $providerToken->user );
+            }
+            else if ( ! \Auth::user() || ! \Auth::user()->active )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Пользователь не активен' ] );
+            }
+
+            if ( $file->parent )
+            {
+                if ( $file->parent->origin_model_name && $file->parent->parentOriginal )
+                {
+                    $file->parent->parentOriginal->addLog( 'Посмотрел файл "' . $file->name . '"' );
+                }
+                else
+                {
+                    $file->parent->addLog( 'Посмотрел файл "' . $file->name . '"' );
+                }
+            }
+
+            return $file->view();
+
+        }
+        catch ( \Exception $e )
+        {
+            return redirect()->back()->withErrors( $e->getMessage() );
+        }
+
+    }
+
     public function form ( Request $request )
     {
         return view( 'modals.files' )

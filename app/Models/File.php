@@ -28,7 +28,12 @@ class File extends BaseModel
 
     public function download () : BinaryFileResponse
     {
-        return response()->download( storage_path( 'app/' . $this->path ), $this->name );
+        return response()->download( storage_path( 'app/' . $this->path ), $this->name, [], 'attachment' );
+    }
+
+    public function view () : BinaryFileResponse
+    {
+        return response()->download( storage_path( 'app/' . $this->path ), $this->name, [], 'inline' );
     }
 
     public function getContents ()
