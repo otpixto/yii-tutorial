@@ -66,7 +66,7 @@ class GzhiHandler
             } )
                 ->whereIn('status_code', GzhiRequest::GZHI_STATUSES_LIST)
                 ->where( 'updated_at', '>=', Carbon::now()
-                    ->subDay()
+                    ->subDays(4)
                     ->toDateTimeString() )
                 ->with(
                     'building',
@@ -143,7 +143,7 @@ class GzhiHandler
         if ( $gzhiRequest )
         {
 
-            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR && $gzhiRequest->ticket_status_code == $ticket->status_code )
+            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR )
             {
                 return 0;
             }
