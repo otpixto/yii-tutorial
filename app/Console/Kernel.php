@@ -48,16 +48,16 @@ class Kernel extends ConsoleKernel
     protected function schedule ( Schedule $schedule )
     {
 
+        $schedule->call(function (){
+            (new GzhiHandler())->sendGzhiInfo();
+        })
+            ->dailyAt('16:50');
+
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
-            ->dailyAt('15:28');
-
-        $schedule->call(function (){
-            (new GzhiHandler())->sendGzhiInfo();
-        })
-            ->dailyAt('15:22');
+            ->dailyAt('16:58');
 
     }
 
