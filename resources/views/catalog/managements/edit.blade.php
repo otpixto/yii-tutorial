@@ -139,7 +139,7 @@
                     <div class="col-md-6 margin-bottom-15">
                         <div class="input-group">
                             <span class="input-group-addon">
-                                Логин
+                                Логин (ИНН)
                             </span>
                             {!! Form::text( 'mosreg_username', \Input::old( 'mosreg_username', $management->mosreg_username ), [ 'class' => 'form-control', 'placeholder' => 'Логин' ] ) !!}
                         </div>
@@ -368,7 +368,10 @@
                                     E-mail
                                 </th>
                                 <th>
-                                    Роль
+                                    Роли
+                                </th>
+                                <th class="text-center">
+                                    Активен
                                 </th>
                                 @if ( \Auth::user()->can( 'admin.users.edit' ) )
                                     <th>
@@ -388,6 +391,13 @@
                                     </td>
                                     <td>
                                         {{ $user->roles->implode( 'name', ', ' ) }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if ( $user->active )
+                                            @include( 'parts.yes' )
+                                        @else
+                                            @include( 'parts.no' )
+                                        @endif
                                     </td>
                                     @if ( \Auth::user()->can( 'admin.users.edit' ) )
                                         <td class="text-right">

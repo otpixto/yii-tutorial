@@ -11,7 +11,7 @@ use Monolog\Logger;
 class MosregClient
 {
 
-    const URL = 'https://mosreg.eds-juk.ru';
+    const URL = 'https://mosreg.eds-region.ru';
     const TIMEOUT = 10;
 
     private $client = false;
