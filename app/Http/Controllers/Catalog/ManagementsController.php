@@ -125,6 +125,7 @@ class ManagementsController extends BaseController
                         'Категория' => $management->getCategory(),
                         'Услуги' => $management->services,
                         'Наименование' => $management->name,
+                        'ИНН' => $management->mosreg_username,
                         'Телефон(ы)' => $management->getPhones(),
                         'Адрес' => $management->building->name ?? '',
                         'График работы' => $management->schedule,
