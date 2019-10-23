@@ -265,6 +265,8 @@ class UsersController extends BaseController
 
         $user->providers()->attach( $request->get( 'providers' ) );
 
+        \Cache::forget( 'user.' . $user->id );
+
         return redirect()->route( 'users.providers', $user->id )
             ->with( 'success', 'Привязка прошла успешно' );
 
@@ -288,6 +290,8 @@ class UsersController extends BaseController
         }
 
         $user->providers()->detach( $request->get( 'provider_id' ) );
+
+        \Cache::forget( 'user.' . $user->id );
 
     }
 
@@ -431,6 +435,8 @@ class UsersController extends BaseController
 
         $user->managements()->attach( $request->get( 'managements' ) );
 
+        \Cache::forget( 'user.' . $user->id );
+
         return redirect()->route( 'users.managements', $user->id )
             ->with( 'success', 'УО успешно привязаны' );
 
@@ -454,6 +460,8 @@ class UsersController extends BaseController
         }
 
         $user->managements()->detach( $request->get( 'management_id' ) );
+
+        \Cache::forget( 'user.' . $user->id );
 
     }
 
