@@ -13,6 +13,7 @@ Route::prefix( 'error' )->group( function ()
 });
 
 Route::any( '/bot/telegram/{token}', 'BotController@telegram' );
+Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
 
 Route::group( [ 'middleware' => 'rest' ], function ()
 {
@@ -122,8 +123,6 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     Route::post( '/pickup-call', 'ProfileController@pickupCall' )->name( 'pickup-call' );
     Route::resource( '/news', 'NewsController' );
     Route::get( '/rss', 'NewsController@rss' )->name( 'news.rss' );
-
-    Route::get( '/files/download', 'FilesController@download' )->name( 'files.download' );
 
     Route::group( [ 'middleware' => 'auth' ], function ()
     {
