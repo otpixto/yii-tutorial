@@ -402,6 +402,10 @@ class BaseController extends Controller
         try
         {
             $this->providerToken->delete();
+            $user = \Auth::user();
+            $user->push_id = null;
+            $user->save();
+            \Auth::logout();
             return $this->success( [ 'message' => 'Bye-bye!' ] );
         }
         catch ( \Exception $e )
