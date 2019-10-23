@@ -21,6 +21,9 @@
                 Наименование
             </th>
             <th>
+                ИНН
+            </th>
+            <th>
                 Адрес офиса
             </th>
             <th>
@@ -68,6 +71,9 @@
                         </div>
                     @endif
                     {{ $management->name }}
+                </td>
+                <td>
+                    {{ $management->mosreg_username }}
                 </td>
                 <td>
                     {{ $management->getAddress() }}
