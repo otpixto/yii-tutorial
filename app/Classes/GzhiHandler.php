@@ -143,7 +143,7 @@ class GzhiHandler
         if ( $gzhiRequest )
         {
 
-            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR && $gzhiRequest->ticket_status_code == $ticket->status_code )
+            if ( $gzhiRequest->Status != GzhiRequest::GZHI_REQUEST_STATUS_ERROR)
             {
                 return 0;
             }
