@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operator;
 
+use App\Classes\MosregClient;
 use App\Classes\SegmentChilds;
 use App\Classes\Title;
 use App\Jobs\SendSms;
@@ -64,19 +65,18 @@ class TicketsController extends BaseController
 
         }
 
-        if ( \Auth::user()->can( 'tickets.scheduled' ) )
+        if ( \Auth::user()
+            ->can( 'tickets.scheduled' ) )
         {
             if ( \Cache::has( 'tickets.scheduled.now.' . \Auth::user()->id ) )
             {
                 $scheduledTicketManagements = \Cache::get( 'tickets.scheduled.now.' . \Auth::user()->id );
-            }
-            else
+            } else
             {
                 $scheduledTicketManagements = TicketManagement::getScheduledTicketManagements();
                 \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 5 );
             }
-        }
-        else
+        } else
         {
             $scheduledTicketManagements = new Collection();
         }
@@ -92,7 +92,7 @@ class TicketsController extends BaseController
 
     }
 
-    public function ajaxUpdateTicketsList(Request $request)
+    public function ajaxUpdateTicketsList ( Request $request )
     {
         if ( $request->ajax() )
         {
@@ -106,7 +106,8 @@ class TicketsController extends BaseController
 
                 \Cache::put( 'tickets.scheduled.now.' . \Auth::user()->id, $scheduledTicketManagements, 15 );
 
-                return \Illuminate\Support\Facades\View::make('tickets.parts.scheduled_tickets')->with('scheduledTicketManagements', $scheduledTicketManagements);
+                return \Illuminate\Support\Facades\View::make( 'tickets.parts.scheduled_tickets' )
+                    ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
             }
 
         }
@@ -1684,8 +1685,7 @@ class TicketsController extends BaseController
                         if ( ! $responseData )
                         {
                             $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
-                        }
-                        else if ( ! $responseData->success )
+                        } else if ( ! $responseData->success )
                         {
                             $ticketManagement->addLog( $responseData->error );
                         }
@@ -1702,8 +1702,7 @@ class TicketsController extends BaseController
                         if ( ! $responseData )
                         {
                             $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
-                        }
-                        else if ( ! $responseData->success )
+                        } else if ( ! $responseData->success )
                         {
                             $ticketManagement->addLog( $responseData->error );
                         }
@@ -1714,6 +1713,11 @@ class TicketsController extends BaseController
                         }
                     }
                 }
+            }
+
+            if ( ! empty( $request->get( 'reject_reason_id' ) ) )
+            {
+                $ticket->addComment( MosregClient::$answers[ $request->get( 'reject_reason_id' ) ] );
             }
 
             \DB::commit();
