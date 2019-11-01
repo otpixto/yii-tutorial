@@ -1310,28 +1310,21 @@ class TicketsController extends BaseController
                 return view( 'parts.error' )
                     ->with( 'error', 'Заявка не найдена' );
             }
-            $ticketManagementLogs = $ticketManagement
+            $logs = $ticketManagement
                 ->logs()
                 ->with(
                     'author'
                 )
                 ->get();
         }
-
-        $ticketLogs = $ticket
-            ->logs()
-            ->with(
-                'author'
-            )
-            ->get();
-
-        if ( $ticket_management_id )
+        else
         {
-            $logs = $ticketLogs->merge( $ticketManagementLogs )
-                ->sortBy( 'created_at' );
-        } else
-        {
-            $logs = $ticketLogs;
+            $logs = $ticket
+                ->logs()
+                ->with(
+                    'author'
+                )
+                ->get();
         }
 
         $statuses = $ticket
