@@ -62,7 +62,7 @@ class PhoneSession extends BaseModel
             {
                 $calls->take( $limit );
             }
-            $this->_calls = $calls->paginate(5)->get();
+            $this->_calls = $calls->get();
         }
         return $this->_calls;
     }
