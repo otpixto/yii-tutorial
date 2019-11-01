@@ -131,7 +131,7 @@ class SessionsController extends BaseController
 
         Title::add( 'Телефонная сессия оператора ' . $session->user->getName() );
 
-        $calls = $session->calls();
+        $calls = $session->calls()->paginate(5);
 
         return view( 'admin.sessions.show' )
             ->with( 'session', $session )
