@@ -21,7 +21,7 @@
             </div>
             <div class="col-xs-6 text-right">
                 @if ( \Auth::user()->can( 'catalog.managements.export' ) )
-                    <a href="?export=1&{{ Request::getQueryString() }}" class="btn btn-default btn-lg">
+                    <a href="?export=1&{{ Request::getQueryString() }}" id="alExcelDownloadButton" class="btn btn-default btn-lg">
                         <i class="fa fa-download"></i>
                         Выгрузить в Excel
                     </a>
@@ -105,6 +105,10 @@
                 $( '#list' ).loading();
                 var button = $( this ).find( ':submit' );
                 button.attr( 'disabled', 'disabled' ).addClass( 'loading' );
+
+                var href = $('#alExcelDownloadButton').attr('href');
+                $('#alExcelDownloadButton').attr('href', href + $( this ).serialize());
+
                 $.ajax({
                     url: $( this ).attr( 'action' ),
                     method: $( this ).attr( 'method' ),
