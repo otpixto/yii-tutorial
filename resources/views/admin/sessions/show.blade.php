@@ -19,25 +19,25 @@
 
                     <table class="table table-hover table-striped">
                         <thead>
-                            <tr>
+                        <tr>
+                            <th>
+                                Дата звонка
+                            </th>
+                            <th>
+                                Входящий номер
+                            </th>
+                            <th>
+                                Длительность
+                            </th>
+                            @if ( \Auth::user()->can( 'admin.calls.all' ) )
                                 <th>
-                                    Дата звонка
+                                    Запись
                                 </th>
-                                <th>
-                                    Входящий номер
-                                </th>
-                                <th>
-                                    Длительность
-                                </th>
-                                @if ( \Auth::user()->can( 'admin.calls.all' ) )
-                                    <th>
-                                        Запись
-                                    </th>
-                                @endif
-								<th class="text-right">
-                                    Заявка
-                                </th>
-                            </tr>
+                            @endif
+                            <th class="text-right">
+                                Заявка
+                            </th>
+                        </tr>
                         </thead>
                         <tbody>
                         @foreach ( $calls as $call )
@@ -64,7 +64,7 @@
                                         @endif
                                     </td>
                                 @endif
-								<td class="text-right">
+                                <td class="text-right">
                                     @if ( $call->ticket )
                                         <a href="{{ route( 'tickets.show', $call->ticket->id ) }}">
                                             #{{ $call->ticket->id }}
@@ -77,6 +77,8 @@
                         @endforeach
                         </tbody>
                     </table>
+
+                    {{ $calls->links() }}
 
                 @else
                     @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )

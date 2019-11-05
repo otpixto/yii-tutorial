@@ -23,7 +23,8 @@ class SessionsController extends BaseController
     public function index ( Request $request )
     {
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->subMonth() ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()
+            ->subMonth() ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
 
         $sessions = PhoneSession
@@ -79,7 +80,7 @@ class SessionsController extends BaseController
 
         $this->addLog( 'Просмотрел список сессий (стр.' . $request->get( 'page', 1 ) . ')' );
 
-        return view('admin.sessions.index' )
+        return view( 'admin.sessions.index' )
             ->with( 'sessions', $sessions )
             ->with( 'operators', $operators )
             ->with( 'date_from', $date_from )
@@ -107,7 +108,7 @@ class SessionsController extends BaseController
             $operators[ $r->id ] = $r->getName();
         }
 
-        return view('admin.sessions.create' )
+        return view( 'admin.sessions.create' )
             ->with( 'operators', $operators );
 
     }
@@ -131,7 +132,7 @@ class SessionsController extends BaseController
 
         Title::add( 'Телефонная сессия оператора ' . $session->user->getName() );
 
-        $calls = $session->calls();
+        $calls = $session->calls( null, 20 );
 
         return view( 'admin.sessions.show' )
             ->with( 'session', $session )
@@ -147,10 +148,10 @@ class SessionsController extends BaseController
 
     public function store ( Request $request )
     {
-		$rules = [
-			'user_id'       => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
-			'number'        => 'required|string|min:2'
-		];
+        $rules = [
+            'user_id' => 'required|integer|unique:phone_sessions,user_id,NULL,id,closed_at,NULL',
+            'number' => 'required|string|min:2'
+        ];
         $this->validate( $request, $rules );
         $user = User::find( $request->get( 'user_id' ) );
         $res = $user->phoneSessionReg( $request->get( 'number' ) );
@@ -160,12 +161,13 @@ class SessionsController extends BaseController
                 ->route( 'sessions.index' )
                 ->withErrors( $res );
         }
-        return redirect()->route( 'sessions.index' )
+        return redirect()
+            ->route( 'sessions.index' )
             ->with( 'success', 'Телефон успешно добавлен в очередь' );
 
     }
 
-    public function destroy( $id )
+    public function destroy ( $id )
     {
         $phoneSession = PhoneSession::find( $id );
         if ( ! $phoneSession )
@@ -173,8 +175,7 @@ class SessionsController extends BaseController
             return redirect()
                 ->route( 'sessions.index' )
                 ->withErrors( [ 'Сессия не найдена' ] );
-        }
-        else if ( $phoneSession->closed_at )
+        } else if ( $phoneSession->closed_at )
         {
             return redirect()
                 ->route( 'sessions.index' )
@@ -187,7 +188,8 @@ class SessionsController extends BaseController
                 ->route( 'sessions.index' )
                 ->withErrors( $res );
         }
-        return redirect()->route( 'sessions.index' )
+        return redirect()
+            ->route( 'sessions.index' )
             ->with( 'success', 'Сессия успешно закрыта' );
     }
 

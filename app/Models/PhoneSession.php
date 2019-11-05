@@ -34,46 +34,56 @@ class PhoneSession extends BaseModel
 
     public function user ()
     {
-        return $this->belongsTo ( User::class );
+        return $this->belongsTo( User::class );
     }
 
-    public function calls ( $limit = null )
+    public function calls ( $limit = null, $perPage = null )
     {
         if ( is_null( $this->_calls ) || $this->_limit != $limit )
         {
-            $asterisk = Provider::getCurrent()->getAsterisk();
+            $asterisk = Provider::getCurrent()
+                ->getAsterisk();
             $channel = $this->channel ?: $asterisk->prepareChannel( $this->number );
             $calls = Cdr
                 ::answered()
                 ->incoming()
-                ->where( 'calldate', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() )
+                ->where( 'calldate', '>=', $this->created_at->subSeconds( \Config::get( 'asterisk.tolerance' ) )
+                    ->toDateTimeString() )
                 ->whereHas( 'queueLogs', function ( $queueLogs ) use ( $channel )
                 {
                     return $queueLogs
                         ->completed()
                         ->where( 'agent', '=', $channel );
-                });
+                } );
             if ( $this->deleted_at )
             {
                 $calls
-                    ->where( 'calldate', '<=', $this->deleted_at->addSeconds( \Config::get( 'asterisk.tolerance' ) )->toDateTimeString() );
+                    ->where( 'calldate', '<=', $this->deleted_at->addSeconds( \Config::get( 'asterisk.tolerance' ) )
+                        ->toDateTimeString() );
             }
             if ( $limit )
             {
                 $calls->take( $limit );
             }
-            $this->_calls = $calls->get();
+            if ( $perPage )
+            {
+                $this->_calls = $calls->paginate( $perPage );
+            } else
+            {
+                $this->_calls = $calls->get();
+            }
+
         }
         return $this->_calls;
     }
-	
-	public function scopeNotClosed ( $query )
-	{
-		return $query
-			->whereNull( 'closed_at' );
-	}
 
-	public function scopeMine ( $query )
+    public function scopeNotClosed ( $query )
+    {
+        return $query
+            ->whereNull( 'closed_at' );
+    }
+
+    public function scopeMine ( $query )
     {
         return $query
             ->mineProvider()
@@ -81,12 +91,13 @@ class PhoneSession extends BaseModel
             {
                 return $user
                     ->mine();
-            });
+            } );
     }
 
     public function close ()
     {
-        $this->closed_at = Carbon::now()->toDateTimeString();
+        $this->closed_at = Carbon::now()
+            ->toDateTimeString();
         $this->save();
     }
 
