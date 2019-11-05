@@ -16,12 +16,12 @@
 			Срочно
 		</label>
 	</div>
-	<div class="col-xs-4">
-		<label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-			{!! Form::checkbox( 'dobrodel', 1, $ticket->dobrodel ) !!}
-			<span></span>
-			Добродел
-		</label>
-	</div>
+{{--	<div class="col-xs-4">--}}
+{{--		<label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">--}}
+{{--			{!! Form::checkbox( 'dobrodel', 1, $ticket->dobrodel ) !!}--}}
+{{--			<span></span>--}}
+{{--			Добродел--}}
+{{--		</label>--}}
+{{--	</div>--}}
 </div>
 {!! Form::close() !!}

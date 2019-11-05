@@ -271,11 +271,11 @@
                 <i class="icon-fire"></i>
                 Аварийная
             </label>
-            <label>
-                {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}
-                <i class="icon-heart"></i>
-                Добродел
-            </label>
+{{--            <label>--}}
+{{--                {!! Form::checkbox( 'dobrodel', 1, \Input::get( 'dobrodel' ), [ 'class' => 'icheck' ] ) !!}--}}
+{{--                <i class="icon-heart"></i>--}}
+{{--                Добродел--}}
+{{--            </label>--}}
             <label>
                 {!! Form::checkbox( 'from_lk', 1, \Input::get( 'from_lk' ), [ 'class' => 'icheck' ] ) !!}
                 <i class="icon-user-follow"></i>

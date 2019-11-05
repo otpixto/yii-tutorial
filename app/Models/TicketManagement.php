@@ -376,7 +376,7 @@ class TicketManagement extends BaseModel
                         if ( ! empty( $request->get( 'dobrodel' ) ) )
                         {
                             $ticket
-                                ->where( Ticket::$_table . '.dobrodel', '=', 1 );
+                                ->where( Ticket::$_table . '.vendor_id', '=', 2 );
                         }
 
                         if ( ! empty( $request->get( 'from_lk' ) ) )
