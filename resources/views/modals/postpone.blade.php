@@ -4,14 +4,14 @@
 {!! Form::hidden( 'status_code', $status_code ) !!}
 <div class="form-group">
 	<div class="col-xs-12">
-		{!! Form::label( 'postponed_to', 'Дата', [ 'class' => 'control-label' ] ) !!}
-		{!! Form::date( 'postponed_to', null, [ 'class' => 'form-control', 'required' ] ) !!}
+		{!! Form::label( 'postponed_to', 'Дата', [ 'class' => 'control-label' ] ) !!} <span class="form-element-required">*</span>
+		{!! Form::date( 'postponed_to', null, [ 'class' => 'form-control', 'required' => 'required' ] ) !!}
 	</div>
 </div>
 <div class="form-group">
 	<div class="col-xs-12">
-		{!! Form::label( 'postponed_comment', 'Комментарий', [ 'class' => 'control-label' ] ) !!}
-		{!! Form::textarea( 'postponed_comment', null, [ 'class' => 'form-control', 'required' ] ) !!}
+		{!! Form::label( 'postponed_comment', 'Комментарий', [ 'class' => 'control-label' ] ) !!} <span class="form-element-required">*</span>
+		{!! Form::textarea( 'postponed_comment', null, [ 'class' => 'form-control', 'required' => 'required' ] ) !!}
 	</div>
 </div>
 {!! Form::close() !!}

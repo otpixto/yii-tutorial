@@ -686,6 +686,21 @@
                         {
                             e.preventDefault();
                             var thisForm = $( this );
+
+                            if (thisForm.find( '[name="postponed_to"]' ).val() == ''){
+                                thisForm.find( '[name="postponed_to"]' ).css('border', '1px solid red');
+                                return false;
+                            } else {
+                                thisForm.find( '[name="postponed_to"]' ).css('border', '1px solid #c2cad8');
+                            }
+
+                            if (thisForm.find( '[name="postponed_comment"]' ).val() == ''){
+                                thisForm.find( '[name="postponed_comment"]' ).css('border', '1px solid red');
+                                return false;
+                            } else {
+                                thisForm.find( '[name="postponed_comment"]' ).css('border', '1px solid #c2cad8');
+                            }
+
                             form
                                 .removeAttr( 'data-confirm' )
                                 .append(
