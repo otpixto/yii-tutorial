@@ -3,7 +3,7 @@
     <div class="form-group">
         {!! Form::label( 'postponed_to', 'Отложить до', [ 'class' => 'control-label col-xs-3' ] ) !!}
         <div class="col-xs-9">
-            {!! Form::date( 'postponed_to', $ticket->postponed_to ? $ticket->postponed_to->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', , 'required' => 'required' ] ) !!}
+            {!! Form::date( 'postponed_to', $ticket->postponed_to ? $ticket->postponed_to->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' => 'required' ] ) !!}
         </div>
     </div>
     <div class="form-group">
