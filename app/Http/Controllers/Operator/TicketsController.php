@@ -1316,8 +1316,7 @@ class TicketsController extends BaseController
                     'author'
                 )
                 ->get();
-        }
-        else
+        } else
         {
             $logs = $ticket
                 ->logs()
@@ -1771,7 +1770,22 @@ class TicketsController extends BaseController
             $ticket->postponed_comment = $request->get( 'postponed_comment' );
         }
         $ticket->save();
+
+        $ticketManagements = $ticket
+            ->managements()
+            ->get();
+        if ( $ticketManagements )
+        {
+            foreach ( $ticketManagements as $ticketManagement )
+            {
+                $ticketManagement->status_code = 'waiting';
+                $ticketManagement->status_name = 'Отложено';
+                $ticketManagement->save();
+            }
+        }
+
         $res = $ticket->changeStatus( 'waiting', true );
+
         if ( $res instanceof MessageBag )
         {
             return redirect()
