@@ -357,7 +357,7 @@ class Asterisk
                 ];
                 for ( $i = 0; $i < $count; $i ++ )
                 {
-                    $isBusy = preg_match( '/busy/i', $matches[ 4 ][ $i ] );
+                    $isBusy = preg_match( '/busy/i', $matches[ 5 ][ $i ] );
                     $channel = $matches[ 1 ][ $i ];
                     $number = mb_substr( $matches[ 2 ][ $i ], -10 );
                     $data[ $queue ][ 'list' ][ $channel ] = [
