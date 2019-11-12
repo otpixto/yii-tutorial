@@ -346,7 +346,7 @@ class Asterisk
             {
                 preg_match( '/(.*) has/', $e, $matches );
                 $queue = trim( $matches[ 1 ] );
-                $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . ') (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
+                $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . '(' . preg_quote( $this->config[ 'channel_postfix_trunc' ], '/' ) . '|)) (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
                 preg_match_all( $pattern, $e, $matches );
                 $count = count( $matches[ 0 ] );
                 $data[ $queue ] = [
