@@ -153,11 +153,11 @@
                                     </td>
                                 @endif
                                 <td class="text-right">
-                                    @if ( $call->getContext() == 'incoming' && $call->ticket )
+                                    @if ( $call->getContext() == 'incoming' && $call->ticket && $call->ticket->status != 'draft' )
                                         <a href="{{ route( 'tickets.show', $call->ticket->id ) }}" class="tooltips" title="Открыть заявку #{{ $call->ticket->id }}">
                                             #{{ $call->ticket->id }}
                                         </a>
-                                    @elseif ( $call->getContext() == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket )
+                                    @elseif ( $call->getContext() == 'outgoing' && $call->ticketCall && $call->ticketCall->ticket && $call->ticketCall->ticket->status != 'draft' )
                                         <a href="{{ route( 'tickets.show', $call->ticketCall->ticket->id ) }}" class="tooltips" title="Открыть заявку #{{ $call->ticketCall->ticket->id }}">
                                             #{{ $call->ticketCall->ticket->id }}
                                         </a>
