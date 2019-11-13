@@ -346,7 +346,7 @@ class Asterisk
             {
                 preg_match( '/(.*) has/', $e, $matches );
                 $queue = trim( $matches[ 1 ] );
-                $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . ') (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
+                $pattern = '/(' . preg_quote( $this->config[ 'channel_prefix' ], '/' ) . '(\d*)' . preg_quote( $this->config[ 'channel_postfix' ], '/' ) . '(' . preg_quote( $this->config[ 'channel_postfix_trunc' ], '/' ) . '|)) (.*)(not\ in\ use|in\ use|busy|ringing|in call|unavailable)/i';
                 preg_match_all( $pattern, $e, $matches );
                 $count = count( $matches[ 0 ] );
                 $data[ $queue ] = [
@@ -357,7 +357,7 @@ class Asterisk
                 ];
                 for ( $i = 0; $i < $count; $i ++ )
                 {
-                    $isBusy = preg_match( '/busy/i', $matches[ 4 ][ $i ] );
+                    $isBusy = preg_match( '/busy/i', $matches[ 5 ][ $i ] );
                     $channel = $matches[ 1 ][ $i ];
                     $number = mb_substr( $matches[ 2 ][ $i ], -10 );
                     $data[ $queue ][ 'list' ][ $channel ] = [
