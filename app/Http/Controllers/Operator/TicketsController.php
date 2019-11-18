@@ -1718,6 +1718,8 @@ class TicketsController extends BaseController
             \Cache::tags( 'tickets_counts' )
                 ->flush();
 
+            $success = 'Статус изменен';
+
             return redirect()
                 ->back()
                 ->with( 'success', 'Статус изменен' );
@@ -1725,16 +1727,10 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            $log = \App\Models\Log::create( [
-                'text' => 'ошибка ' . $e->getMessage()
-            ] );
-
-            $log->save();
-
             Log::error($e->getMessage());
             return redirect()
                 ->back()
-                ->withErrors( [ 'Внутренняя ошибка системы!!!' ] );
+                ->withErrors( [ 'Внутренняя ошибка системы!' ] );
         }
 
     }
