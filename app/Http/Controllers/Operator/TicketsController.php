@@ -1724,7 +1724,11 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            $this->addLog( $e->getMessage() );
+            $log = Log::create( [
+                'text' => $e->getMessage()
+            ] );
+
+            $log->save();
             return redirect()
                 ->back()
                 ->withErrors( [ 'Внутренняя ошибка системы!' ] );
