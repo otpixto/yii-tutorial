@@ -23,6 +23,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 
@@ -1729,9 +1730,11 @@ class TicketsController extends BaseController
             ] );
 
             $log->save();
+
+            Log::error($e->getMessage());
             return redirect()
                 ->back()
-                ->withErrors( [ 'Внутренняя ошибка системы!' ] );
+                ->withErrors( [ 'Внутренняя ошибка системы!!!' ] );
         }
 
     }
