@@ -1725,7 +1725,7 @@ class TicketsController extends BaseController
         catch ( \Exception $e )
         {
             $log = \App\Models\Log::create( [
-                'text' => $e->getMessage()
+                'text' => 'ошибка ' . $e->getMessage()
             ] );
 
             $log->save();
