@@ -1695,7 +1695,7 @@ class TicketsController extends BaseController
                         if ( ! $responseData )
                         {
                             $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
-                        } else if ( ! $responseData->success )
+                        } else if ( !isset($responseData->success) || !$responseData->success )
                         {
                             $ticketManagement->addLog( $responseData->error );
                         }
