@@ -1724,7 +1724,7 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            $log = Log::create( [
+            $log = \App\Models\Log::create( [
                 'text' => $e->getMessage()
             ] );
 
