@@ -1718,8 +1718,6 @@ class TicketsController extends BaseController
             \Cache::tags( 'tickets_counts' )
                 ->flush();
 
-            $success = 'Статус изменен';
-
             return redirect()
                 ->back()
                 ->with( 'success', 'Статус изменен' );
