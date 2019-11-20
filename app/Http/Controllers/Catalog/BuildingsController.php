@@ -299,7 +299,7 @@ class BuildingsController extends BaseController
 
         $this->validate( $request, $rules );
 
-        $res = $building->edit( $request->all() );
+        $res = $building->edit( $request->all(), true );
         if ( $res instanceof MessageBag )
         {
             return redirect()->back()

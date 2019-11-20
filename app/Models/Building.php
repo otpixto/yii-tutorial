@@ -149,7 +149,7 @@ class Building extends BaseModel
         return $building;
     }
 
-    public function edit ( array $attributes = [] )
+    public function edit ( array $attributes = [], $updateCoordinates = false )
     {
         if ( ! empty( $attributes[ 'name' ] ) )
         {
@@ -170,7 +170,7 @@ class Building extends BaseModel
         }
         $attributes[ 'is_first_floor_living' ] = ! empty( $attributes[ 'is_first_floor_living' ] ) ? 1 : 0;
         $building = parent::edit( $attributes );
-        if ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 )
+        if ( $updateCoordinates || ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 ) )
         {
             $this->getCoordinates();
         }
