@@ -498,14 +498,14 @@ $( window )
             $( '#modal-support' ).modal( 'show' );
             setTimeout( function()
             {
+                $( '#support-subject' ).val( '' );
+                $( '#support-body' ).val( "\n\n" + 'Адрес страницы: ' + window.location.href );
                 takeScreenshot( document.querySelector( 'body div.wrapper' ), function ( canvas )
                 {
                     canvas.classList.add( 'img-responsive' );
                     canvas.removeAttribute( 'style' );
                     var canvasData = canvas.toDataURL( 'image/png' );
                     $( '#support-data' ).val( canvasData );
-                    $( '#support-subject' ).val( '' );
-                    $( '#support-body' ).val( "\n\n" + 'Адрес страницы: ' + window.location.href );
                     $( '#screenshot-support' ).html( canvas );
                 });
             }, 1 );
