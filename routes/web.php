@@ -130,6 +130,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     {
 
         Route::get( 'test', 'HomeController@test' )->name( 'home.test' );
+        Route::post( 'support', 'ProfileController@support' )->name( 'support.store' );
 
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
         Route::get( '/profile/unsubscribe/{user_id}', 'ProfileController@unsubscribe' )->name( 'profile.unsubscribe' );
@@ -148,6 +149,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
 
         Route::get( '/file', 'FilesController@form' )->name( 'files.form' );
         Route::post( '/file', 'FilesController@store' )->name( 'files.store' );
+        Route::post( '/file/test', 'FilesController@test' )->name( 'files.test' );
 
         Route::get( '/binds/delete', 'BindsController@delete' )->name( 'binds.delete' );
 

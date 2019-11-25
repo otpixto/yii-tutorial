@@ -407,6 +407,15 @@ if ($.ui && $.ui.dialog && $.ui.dialog.prototype._allowInteraction) {
     };
 }
 
+function takeScreenshot ( obj, callback )
+{
+    html2canvas( obj ).then( function ( canvas )
+    {
+        //callback.call( obj, canvas );
+        callback( canvas );
+    });
+};
+
 function genPassword ( length )
 {
     var possible = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -479,6 +488,24 @@ function deinitIntercom ()
         .addClass( 'hidden' );
 };
 
+$( window )
+    .on( 'keydown', function ( e )
+    {
+        if ( e.ctrlKey && e.which == 83 )
+        {
+            e.preventDefault();
+            $( '#modal-support' ).modal( 'show' );
+            takeScreenshot( document.querySelector( 'body div.wrapper' ), function ( canvas )
+            {
+                canvas.classList.add( 'img-responsive' );
+                canvas.removeAttribute( 'style' );
+                var canvasData = canvas.toDataURL( 'image/png' );
+                $( '#support-data' ).val( canvasData );
+                $( '#screenshot-support' ).html( canvas );
+            });
+        }
+    });
+
 $( document )
 
     .ajaxError( function ( err, err2 )
@@ -501,14 +528,14 @@ $( document )
 	.ready ( function ()
 	{
 
-        $( '#intercom' )
+        /*$( '#intercom' )
             .draggable()
             .pulsate({
                 speed: 600,
                 color: '#CC0000',
                 glow: true,
                 reach: 10
-            });
+            });*/
 
         $( '.test' ).loading();
 

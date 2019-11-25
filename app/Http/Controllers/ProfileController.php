@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Asterisk;
 use App\Classes\Title;
 use App\Models\Provider;
 use App\Models\Ticket;
 use App\User;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -17,6 +18,23 @@ class ProfileController extends Controller
     {
         $this->middleware( 'auth' );
         Title::add( 'Профиль пользователя' );
+    }
+
+    public function support ( Request $request )
+    {
+        $user = \Auth::user();
+        $client = new Client([
+            'base_uri' => 'https://support.eds-region.ru'
+        ]);
+        $client->post( '/rest/ticket', [
+            RequestOptions::JSON => [
+                'email' => $user->email,
+                'name' => $user->getName(),
+                'subject' => $request->get( 'subject' ),
+                'body' => $request->get( 'body' ),
+                'data' => $request->get( 'data' ),
+            ],
+        ]);
     }
 
     public function id ( Request $request )
