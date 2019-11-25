@@ -35,6 +35,9 @@ class ProfileController extends Controller
                 'data' => $request->get( 'data' ),
             ],
         ]);
+        return [
+            'success' => 'Обращение успешно добавлено'
+        ];
     }
 
     public function id ( Request $request )
