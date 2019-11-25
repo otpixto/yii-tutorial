@@ -22,22 +22,31 @@ class ProfileController extends Controller
 
     public function support ( Request $request )
     {
-        $user = \Auth::user();
-        $client = new Client([
-            'base_uri' => 'https://support.eds-region.ru'
-        ]);
-        $client->post( '/rest/ticket', [
-            RequestOptions::JSON => [
-                'email' => $user->email,
-                'name' => $user->getName(),
-                'subject' => $request->get( 'subject' ),
-                'body' => $request->get( 'body' ),
-                'data' => $request->get( 'data' ),
-            ],
-        ]);
-        return [
-            'success' => 'Обращение успешно добавлено'
-        ];
+        try
+        {
+            $user = \Auth::user();
+            $client = new Client([
+                'base_uri' => 'https://support.eds-region.ru'
+            ]);
+            $client->post( '/rest/ticket', [
+                RequestOptions::JSON => [
+                    'email' => $user->email,
+                    'name' => $user->getName(),
+                    'subject' => $request->get( 'subject' ),
+                    'body' => $request->get( 'body' ),
+                    'data' => $request->get( 'data' ),
+                ],
+            ]);
+            return [
+                'success' => 'Обращение успешно добавлено'
+            ];
+        }
+        catch ( \Exception $e )
+        {
+            return [
+                'error' => $e->getMessage()
+            ];
+        }
     }
 
     public function id ( Request $request )
