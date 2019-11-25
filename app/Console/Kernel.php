@@ -13,6 +13,7 @@ use App\Console\Commands\ImportAddress;
 use App\Console\Commands\ImportTypes;
 use App\Console\Commands\ImportVerin;
 use App\Console\Commands\Mosreg;
+use App\Console\Commands\MosregSync;
 use App\Console\Commands\Sync;
 use App\Console\Commands\TestTelnet;
 use Illuminate\Console\Scheduling\Schedule;
@@ -37,6 +38,7 @@ class Kernel extends ConsoleKernel
         Mosreg::class,
         CreateSegments::class,
         ImportTypes::class,
+        MosregSync::class,
     ];
 
     /**
