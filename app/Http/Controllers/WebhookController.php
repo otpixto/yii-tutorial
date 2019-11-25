@@ -28,7 +28,7 @@ class WebhookController extends Controller
     public function ticket ( Request $request, $token )
     {
 
-        \DB::beginTransaction();
+        //\DB::beginTransaction();
 
         try
         {
@@ -227,19 +227,19 @@ class WebhookController extends Controller
 
     protected function error ( $error, $httpCode = null ) : Response
     {
-        if ( \DB::transactionLevel() )
+        /*if ( \DB::transactionLevel() )
         {
             \DB::rollback();
-        }
+        }*/
         return response( compact( 'error' ), $httpCode ?: 200 );
     }
 
     protected function success ( $response ) : Response
     {
-        if ( \DB::transactionLevel() )
+        /*if ( \DB::transactionLevel() )
         {
             \DB::commit();
-        }
+        }*/
         return response( $response, 200 );
     }
 
