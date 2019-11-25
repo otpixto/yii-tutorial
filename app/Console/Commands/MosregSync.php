@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\TicketManagement;
+use App\User;
 use Illuminate\Console\Command;
 
 class MosregSync extends Command
@@ -21,6 +22,12 @@ class MosregSync extends Command
     {
         try
         {
+            $user = User::find( config( 'gzhi.user_id' ) );
+            if ( ! $user )
+            {
+                throw new \Exception( 'User not found' );
+            }
+            \Auth::login( $user );
             $ticketManagements = TicketManagement
                 ::whereNotNull( 'mosreg_id' )
                 ->whereNotIn( 'status_code', self::STATUSES )
