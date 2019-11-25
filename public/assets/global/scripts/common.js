@@ -494,15 +494,19 @@ $( window )
         if ( e.ctrlKey && e.which == 83 )
         {
             e.preventDefault();
-            takeScreenshot( document.querySelector( 'body div.wrapper' ), function ( canvas )
+            $( window ).scrollTop( 0 );
+            $( '#modal-support' ).modal( 'show' );
+            setTimeout( function()
             {
-                canvas.classList.add( 'img-responsive' );
-                canvas.removeAttribute( 'style' );
-                var canvasData = canvas.toDataURL( 'image/png' );
-                $( '#support-data' ).val( canvasData );
-                $( '#screenshot-support' ).html( canvas );
-                $( '#modal-support' ).modal( 'show' );
-            });
+                takeScreenshot( document.querySelector( 'body div.wrapper' ), function ( canvas )
+                {
+                    canvas.classList.add( 'img-responsive' );
+                    canvas.removeAttribute( 'style' );
+                    var canvasData = canvas.toDataURL( 'image/png' );
+                    $( '#support-data' ).val( canvasData );
+                    $( '#screenshot-support' ).html( canvas );
+                });
+            }, 1 );
         }
     });
 
