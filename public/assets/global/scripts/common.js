@@ -504,6 +504,8 @@ $( window )
                     canvas.removeAttribute( 'style' );
                     var canvasData = canvas.toDataURL( 'image/png' );
                     $( '#support-data' ).val( canvasData );
+                    $( '#support-subject' ).val( '' );
+                    $( '#support-body' ).val( "\n\n" + 'Адрес страницы: ' + window.location.href );
                     $( '#screenshot-support' ).html( canvas );
                 });
             }, 1 );
