@@ -494,7 +494,6 @@ $( window )
         if ( e.ctrlKey && e.which == 83 )
         {
             e.preventDefault();
-            $( '#modal-support' ).modal( 'show' );
             takeScreenshot( document.querySelector( 'body div.wrapper' ), function ( canvas )
             {
                 canvas.classList.add( 'img-responsive' );
@@ -502,6 +501,7 @@ $( window )
                 var canvasData = canvas.toDataURL( 'image/png' );
                 $( '#support-data' ).val( canvasData );
                 $( '#screenshot-support' ).html( canvas );
+                $( '#modal-support' ).modal( 'show' );
             });
         }
     });
