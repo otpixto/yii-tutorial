@@ -11,6 +11,9 @@ class Push
     public $body = null;
     public $data = [];
 
+    private $request;
+    private $response;
+
     public function __construct ( $apiKey )
     {
         $headers = [
@@ -76,9 +79,20 @@ class Push
             ];
             $request[ 'notification' ] = $notification;
         }
-        curl_setopt( $this->curl,CURLOPT_POSTFIELDS, json_encode( $request ) );
-        $response = curl_exec( $this->curl );
-        return $response;
+        $this->request = json_encode( $request );
+        curl_setopt( $this->curl,CURLOPT_POSTFIELDS, $this->request );
+        $this->response = curl_exec( $this->curl );
+        return $this->getResponse();
+    }
+
+    public function getRequest ()
+    {
+        return $this->request ?? null;
+    }
+
+    public function getResponse ()
+    {
+        return $this->response ?? null;
     }
 
     public function __destruct ()
