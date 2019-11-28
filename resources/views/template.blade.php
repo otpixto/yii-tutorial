@@ -126,7 +126,7 @@
     </a>
 </div>
 
-<div id="intercom" class="hidden hidden-print">
+{{--<div id="intercom" class="hidden hidden-print">
     <div id="intercom-title">
         ЗВОНОК НА 112
         <a href="javascript:;" class="pull-right text-danger" id="intercom-close">
@@ -134,9 +134,9 @@
         </a>
     </div>
     <a href="{{ route( 'tickets.create' ) }}" id="intercom-image"></a>
-</div>
+</div>--}}
 
-<div class="modal fade in hidden-print" role="basic" aria-hidden="true" data-id="modal" id="modal-push">
+{{--<div class="modal fade in hidden-print" role="basic" aria-hidden="true" data-id="modal" id="modal-push">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -164,6 +164,56 @@
                             <button type="submit" class="btn btn-success">
                                 Отправить
                             </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>--}}
+
+<div class="modal fade in hidden-print" role="basic" aria-hidden="true" data-id="modal" id="modal-support">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">
+                    Обращение в техническую поддержку
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route( 'support.store' ) }}" method="post" id="form-support" class="submit-loading ajax">
+                    <input type="hidden" name="data" id="support-data" value="" />
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="push-title control-label">Тема</label>
+                            <input type="text" name="subject" id="support-subject" value="" class="form-control" required="required" />
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-xs-12">
+                            <label for="push-message control-label">Сообщение</label>
+                            <textarea name="body" id="support-body" class="form-control" rows="10" required="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-xs-12">
+                            <button type="submit" class="btn btn-success">
+                                Отправить
+                            </button>
+                            <a href="javascript:;" data-toggle="#screenshot-support">
+                                Скриншот экрана
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-xs-12">
+                            <div id="screenshot-support" class="hidden"></div>
                         </div>
                     </div>
                 </form>

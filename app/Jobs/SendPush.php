@@ -8,6 +8,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class SendPush implements ShouldQueue
 {
@@ -49,18 +51,30 @@ class SendPush implements ShouldQueue
      */
     public function handle ()
     {
-        $client = new Push( $this->apiKey );
-        $client
-            ->setTitle( $this->title )
-            ->setBody( $this->body )
-            ->setData( 'object', $this->object )
-            ->setData( 'id', $this->id );
-        foreach ( $this->tokens as $token )
+        $logs = new Logger( 'PUSH' );
+        $logs->pushHandler( new StreamHandler( storage_path( 'logs/push.log' ) ) );
+        $logs->addInfo( 'INIT', [ $this->apiKey, $this->tokens ] );
+        try
         {
-            if ( ! empty( $token ) )
+            $client = new Push( $this->apiKey );
+            $client
+                ->setTitle( $this->title )
+                ->setBody( $this->body )
+                ->setData( 'object', $this->object )
+                ->setData( 'id', $this->id );
+            foreach ( $this->tokens as $token )
             {
-                $client->sendTo( $token );
+                if ( ! empty( $token ) )
+                {
+                    $client->sendTo( $token );
+                    $logs->addInfo( 'REQUEST', [ $client->getRequest() ] );
+                    $logs->addInfo( 'RESPONSE', [ $client->getResponse() ] );
+                }
             }
+        }
+        catch ( \Exception $e )
+        {
+            $logs->addCritical( 'EXCEPTION', [ $e ] );
         }
     }
 
