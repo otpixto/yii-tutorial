@@ -202,7 +202,7 @@
                             </a>
                         </li>
                     @endif
-		            @if ( \Auth::user()->can( 'reports.totals' ) )
+                    @if ( \Auth::user()->can( 'reports.totals' ) )
                         <li>
                             <a href="{{ route( 'reports.totals' ) }}">
                                 Сводный отчет
@@ -222,34 +222,34 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu">
-                @if ( \Auth::user()->can( 'maps.tickets' ) )
-                    <li>
-                        <a href="{{ route( 'maps.tickets' ) }}">
-                            География обращений
-                        </a>
-                    </li>
-                @endif
-                @if ( \Auth::user()->can( 'maps.works' ) )
-                    <li>
-                        <a href="{{ route( 'maps.works' ) }}">
-                            География отключений
-                        </a>
-                    </li>
-                @endif
-                @if ( \Auth::user()->canOne( 'maps.zones.show', 'maps.zones.edit' ) )
-                    <li>
-                        <a href="{{ route( 'zones.index' ) }}">
-                            Зоны обслуживания
-                        </a>
-                    </li>
-                @endif
-                @if ( \Auth::user()->can( 'maps.positions' ) )
-                    <li>
-                        <a href="{{ route( 'maps.positions' ) }}">
-                            Где сотрудник
-                        </a>
-                    </li>
-                @endif
+                    @if ( \Auth::user()->can( 'maps.tickets' ) )
+                        <li>
+                            <a href="{{ route( 'maps.tickets' ) }}">
+                                География обращений
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'maps.works' ) )
+                        <li>
+                            <a href="{{ route( 'maps.works' ) }}">
+                                География отключений
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->canOne( 'maps.zones.show', 'maps.zones.edit' ) )
+                        <li>
+                            <a href="{{ route( 'zones.index' ) }}">
+                                Зоны обслуживания
+                            </a>
+                        </li>
+                    @endif
+                    @if ( \Auth::user()->can( 'maps.positions' ) )
+                        <li>
+                            <a href="{{ route( 'maps.positions' ) }}">
+                                Где сотрудник
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
         @endif
@@ -264,56 +264,56 @@
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->can( 'catalog.customers.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'customers.index' ) }}" class="nav-link">
                                 Заявители
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'catalog.segments.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'segments.index' ) }}" class="nav-link">
                                 Сегменты
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'buildings.index' ) }}" class="nav-link">
                                 Здания
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'catalog.groups.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'types_groups.index' ) }}" class="nav-link">
                                 Группы классификатора
                             </a>
                         </li>
                     @endif
-                        @if ( \Auth::user()->can( 'catalog.groups.show' ) )
-                            <li aria-haspopup="true" >
-                                <a href="{{ route( 'buildings_groups.index' ) }}" class="nav-link">
-                                    Группы адресов
-                                </a>
-                            </li>
-                        @endif
+                    @if ( \Auth::user()->can( 'catalog.groups.show' ) )
+                        <li aria-haspopup="true">
+                            <a href="{{ route( 'buildings_groups.index' ) }}" class="nav-link">
+                                Группы адресов
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->can( 'catalog.types.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'types.index' ) }}" class="nav-link">
                                 Классификатор
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'catalog.managements.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'managements.index' ) }}" class="nav-link">
                                 Управляющие организации (УО)
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->can( 'catalog.executors.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'executors.index' ) }}" class="nav-link">
                                 Исполнители
                             </a>
@@ -333,54 +333,61 @@
                 </a>
                 <ul class="dropdown-menu">
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.users.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'users.index' ) }}" class="nav-link">
                                 Пользователи
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.sessions.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'sessions.index' ) }}" class="nav-link">
                                 Телефонные сессии
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'calls.index' ) }}" class="nav-link">
                                 Телефонные звонки
                             </a>
                         </li>
                     @endif
+                    @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
+                        <li aria-haspopup="true">
+                            <a href="{{ route( 'admin.missed_calls' ) }}" class="nav-link">
+                                Пропущенные телефонные звонки
+                            </a>
+                        </li>
+                    @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.subscriptions' ) )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'subscriptions.index' ) }}" class="nav-link">
                                 Активные подписки
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.logs' ) )
-                         <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'logs.index' ) }}" class="nav-link">
                                 Системные логи
                             </a>
                         </li>
                     @endif
                     @if ( \Auth::user()->admin )
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'perms.index' ) }}" class="nav-link">
                                 <i class="fa fa-star text-warning"></i>
                                 Права
                             </a>
                         </li>
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'roles.index' ) }}" class="nav-link">
                                 <i class="fa fa-star text-warning"></i>
                                 Роли
                             </a>
                         </li>
-                        <li aria-haspopup="true" >
+                        <li aria-haspopup="true">
                             <a href="{{ route( 'providers.index' ) }}" class="nav-link">
                                 <i class="fa fa-star text-warning"></i>
                                 Поставщики
