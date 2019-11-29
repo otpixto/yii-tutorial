@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\Title;
 use App\Models\Asterisk\Cdr;
+use App\Models\Asterisk\MissedCall;
 use App\Models\ProviderContext;
 use App\User;
 use Carbon\Carbon;
@@ -21,7 +22,8 @@ class CallsController extends BaseController
     public function index ( Request $request )
     {
 
-        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()->setTime( 0, 0, 0 ) ) );
+        $date_from = Carbon::parse( $request->get( 'date_from', Carbon::now()
+            ->setTime( 0, 0, 0 ) ) );
         $date_to = Carbon::parse( $request->get( 'date_to', Carbon::now() ) );
         $operator_id = $request->get( 'operator_id', null );
 
@@ -31,7 +33,7 @@ class CallsController extends BaseController
                 return $provider
                     ->mine()
                     ->current();
-            })
+            } )
             ->groupBy(
                 'context'
             )
@@ -62,7 +64,8 @@ class CallsController extends BaseController
                                 ->orWhere( function ( $q2 ) use ( $phoneSession )
                                 {
                                     return $q2
-                                        ->whereBetween( 'calldate', [ $phoneSession->created_at->toDateTimeString(), $phoneSession->closed_at ? $phoneSession->closed_at->toDateTimeString() : Carbon::now()->toDateTimeString() ] )
+                                        ->whereBetween( 'calldate', [ $phoneSession->created_at->toDateTimeString(), $phoneSession->closed_at ? $phoneSession->closed_at->toDateTimeString() : Carbon::now()
+                                            ->toDateTimeString() ] )
                                         ->where( function ( $q3 ) use ( $phoneSession )
                                         {
                                             return $q3
@@ -71,17 +74,16 @@ class CallsController extends BaseController
                                                 {
                                                     return $queueLogs
                                                         ->where( 'agent', '=', $phoneSession->channel );
-                                                });
-                                        });
-                                });
+                                                } );
+                                        } );
+                                } );
                         }
-                    }
-                    else
+                    } else
                     {
                         $q->where( 'src', '=', '-1' );
                     }
                     return $q;
-                });
+                } );
         }
 
         if ( ! empty( $request->get( 'status' ) ) )
@@ -91,8 +93,7 @@ class CallsController extends BaseController
                 ->groupBy(
                     'uniqueid'
                 );
-        }
-        else
+        } else
         {
             $calls
                 ->groupBy(
@@ -145,7 +146,7 @@ class CallsController extends BaseController
 
         $this->addLog( 'Просмотрел звонки (стр.' . $request->get( 'page', 1 ) . ')' );
 
-        return view('admin.calls.index' )
+        return view( 'admin.calls.index' )
             ->with( 'calls', $calls )
             ->with( 'date_from', $date_from )
             ->with( 'date_to', $date_to )
@@ -181,9 +182,21 @@ class CallsController extends BaseController
         return redirect()->route( 'calls.index' );
     }
 
-    public function destroy( $id )
+    public function destroy ( $id )
     {
         return redirect()->route( 'calls.index' );
+    }
+
+    public function missedCalls ()
+    {
+        Title::add( 'Пропущеныые телефонные звонки' );
+
+        $missedCalls = MissedCall::whereNull( 'call_id' )
+            ->with( 'customer' )
+            ->get();
+
+        return view( 'admin.calls.missed_calls' )
+            ->with( 'missedCalls', $missedCalls );
     }
 
 }

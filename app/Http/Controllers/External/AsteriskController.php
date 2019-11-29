@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\External;
 
+use App\Models\Asterisk\MissedCall;
 use App\Models\PhoneSession;
 use App\Models\Provider;
 use App\Models\Ticket;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -16,7 +18,8 @@ class AsteriskController extends BaseController
 
     public function __construct ()
     {
-        $this->asterisk = Provider::getCurrent()->getAsterisk();
+        $this->asterisk = Provider::getCurrent()
+            ->getAsterisk();
         parent::__construct();
     }
 
@@ -28,22 +31,24 @@ class AsteriskController extends BaseController
     public function queueView ()
     {
         $states = $this->asterisk->queue();
-		$channels = array_keys( $states[ 'list' ] );
-		if ( count( $channels ) )
-		{
-			$sessions = PhoneSession
-				::whereIn( 'channel', $channels )
+        $channels = array_keys( $states[ 'list' ] );
+        if ( count( $channels ) )
+        {
+            $sessions = PhoneSession
+                ::whereIn( 'channel', $channels )
                 ->notClosed()
-				->get();
-			foreach ( $states[ 'list' ] as $channel => & $state )
-			{
-			    $session = $sessions->where( 'channel', $channel )->sortByDesc( 'id' )->first();
-			    if ( $session && $session->user )
+                ->get();
+            foreach ( $states[ 'list' ] as $channel => & $state )
+            {
+                $session = $sessions->where( 'channel', $channel )
+                    ->sortByDesc( 'id' )
+                    ->first();
+                if ( $session && $session->user )
                 {
                     $state[ 'operator' ] = $session->user;
                 }
-			}
-		}
+            }
+        }
         return view( 'asterisk.list' )
             ->with( 'states', $states );
     }
@@ -71,7 +76,7 @@ class AsteriskController extends BaseController
     {
         $number_from = \Auth::user()->openPhoneSession->number;
         if ( ! $number_from ) return;
-        $number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), -10 );
+        $number_to = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), - 10 );
         if ( ! $number_to ) return;
         $ticket = Ticket::find( $request->get( 'ticket_id' ) );
         if ( ! $ticket || ! $ticket->canCall() ) return;
@@ -84,6 +89,24 @@ class AsteriskController extends BaseController
         if ( ! $this->asterisk->originate( $number_from, $number_to, $number_from, $rest_curl_url ) )
         {
             dd( $this->asterisk->last_result );
+        }
+    }
+
+    public function missedCall ( Request $request )
+    {
+        if ( ! $request->get( 'phone', '' ) ) return;
+
+        $phoneNumber = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), - 10 );
+
+        if ( strlen( $phoneNumber ) == 10 )
+        {
+            $missedCall = MissedCall::firstOrNew( [ 'phone' => $phoneNumber ] );
+            $missedCall->calls_count = ++ $missedCall->calls_count;
+            $missedCall->phone = $phoneNumber;
+            $missedCall->create_date = Carbon::now()
+                ->toDateTimeString();
+            $missedCall->call_id = null;
+            $missedCall->save();
         }
     }
 

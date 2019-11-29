@@ -100,6 +100,7 @@ Route::group( [ 'middleware' => 'rest' ], function ()
         Route::get( 'add/{exten}', 'External\AsteriskController@add' )->name( 'asterisk.add' );
         Route::get( 'remove/{exten}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
         Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
+        Route::any( 'missed_call', 'External\AsteriskController@missedCall' )->name( 'asterisk.missed_call' );
     });
 
 });
@@ -377,6 +378,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'sessions', 'Admin\SessionsController' );
             Route::resource( 'calls', 'Admin\CallsController' );
             Route::resource( 'subscriptions', 'Admin\SubscriptionsController' );
+
+            Route::get( 'missed_calls', 'Admin\CallsController@missedCalls' )->name('admin.missed_calls');
 
             Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
 
