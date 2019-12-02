@@ -193,7 +193,6 @@ class CallsController extends BaseController
 
         $missedCalls = MissedCall::whereNull( 'call_id' )
             ->with( 'customer' )
-            ->orderByDesc('id')
             ->get();
 
         return view( 'admin.calls.missed_calls' )
