@@ -356,7 +356,8 @@
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
                         <li aria-haspopup="true">
                             <a href="{{ route( 'admin.missed_calls' ) }}" class="nav-link">
-                                Пропущенные телефонные звонки
+                                Перезвонить
+                                <span class="badge badge-danger left bold" style="right: 60px;">{{ \App\Models\Asterisk\MissedCall::whereNull( 'call_id' )->count() }}</span>
                             </a>
                         </li>
                     @endif
