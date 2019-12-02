@@ -380,6 +380,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::resource( 'subscriptions', 'Admin\SubscriptionsController' );
 
             Route::get( 'missed_calls', 'Admin\CallsController@missedCalls' )->name('admin.missed_calls');
+            Route::get( 'recall_missed_call', 'Admin\CallsController@recallMissedCall' )->name('admin.recall_missed_call');
 
             Route::get( 'clear-cache', 'Admin\BaseController@clearCacheAndRedirect' )->name( 'admin.clear_cache' );
 

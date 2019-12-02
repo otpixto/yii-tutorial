@@ -199,4 +199,15 @@ class CallsController extends BaseController
             ->with( 'missedCalls', $missedCalls );
     }
 
+    public function recallMissedCall ( Request $request )
+    {
+        if ( $request->id && $request->call_id )
+        {
+            $missedCall = MissedCall::find( $request->id );
+            $missedCall->call_id = $request->call_id;
+            $missedCall->save();
+        }
+        return redirect()->back();
+    }
+
 }

@@ -47,7 +47,8 @@
                                     {{ \Carbon\Carbon::parse( $call->create_date )->format( 'd.m.Y H:i' ) }}
                                 </td>
                                 <td>
-
+                                    <a href="{{ route('admin.recall_missed_call', ['id' => $call->id, 'call_id' => 1]) }}"
+                                       class="btn btn-sm btn-danger">Позвонить</a>
                                 </td>
                             </tr>
                         @endforeach
