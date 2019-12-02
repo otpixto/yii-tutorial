@@ -189,7 +189,7 @@ class CallsController extends BaseController
 
     public function missedCalls ()
     {
-        Title::add( 'Пропущеныые телефонные звонки' );
+        Title::add( 'Пропущенные телефонные звонки' );
 
         $missedCalls = MissedCall::whereNull( 'call_id' )
             ->with( 'customer' )
