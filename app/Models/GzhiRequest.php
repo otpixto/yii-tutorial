@@ -11,6 +11,9 @@ class GzhiRequest extends BaseModel
     const GZHI_REQUEST_TRANSPORT_STATUS_SUCCESS = "110";
 
     const GZHI_REQUEST_IMPORT_METHOD = "ImportAppealData";
+
+    const GZHI_REQUEST_EXPORT_METHOD = "ExportAppealData";
+
     const GZHI_REQUEST_GET_STATE_METHOD = "GetStateDS";
 
     const GZHI_REQUEST_STATUS_REGISTERED = 30;
@@ -22,9 +25,9 @@ class GzhiRequest extends BaseModel
 
     const GZHI_DEFAULT_PROLONG_REASON = 230;
 
-    const GZHI_REQUEST_API_VERSION = "1.0.0.5";
+    const GZHI_REQUEST_API_VERSION = "1.0.0.7";
 
-    const GJI_SOAP_URL = 'https://lk.eiasmo.ru/eds-service/';
+    const GJI_SOAP_URL = 'https://next-lk.eiasmo.ru/eds-service/';
 
     const GZHI_VENDOR_ID = 4;
 

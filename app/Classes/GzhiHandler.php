@@ -36,6 +36,8 @@ class GzhiHandler
 
         $this->soapAction = GzhiRequest::GZHI_REQUEST_IMPORT_METHOD;
 
+        $this->soapExportAction = GzhiRequest::GZHI_REQUEST_EXPORT_METHOD;
+
         $this->soapGetStateAction = GzhiRequest::GZHI_REQUEST_GET_STATE_METHOD;
 
         $this->requestStatus = $status ?? GzhiRequest::GZHI_REQUEST_STATUS_REGISTERED;
@@ -64,7 +66,7 @@ class GzhiHandler
                     ->where( 'lat', '!=', - 1 )
                     ->whereRaw( "`name` like '%$providerName%'" );
             } )
-                ->whereIn('status_code', GzhiRequest::GZHI_STATUSES_LIST)
+                ->whereIn( 'status_code', GzhiRequest::GZHI_STATUSES_LIST )
                 ->where( 'updated_at', '>=', Carbon::now()
                     ->subDay()
                     ->toDateTimeString() )
@@ -104,7 +106,7 @@ class GzhiHandler
 
         $ticket->load( 'customer' );
 
-        if ( ! isset( $ticket->customer ) || !isset($ticket->managements[0]) )
+        if ( ! isset( $ticket->customer ) || ! isset( $ticket->managements[ 0 ] ) )
         {
             return 0;
         }
@@ -334,7 +336,7 @@ SOAP;
                 'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
                 'Action' => $this->soapAction
             ] )
-                ->where('attempts_count', '<', GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT)
+                ->where( 'attempts_count', '<', GzhiRequest::GZHI_REQUEST_MAX_ATTEMPTS_COUNT )
                 ->get();
 
             $packDate = date( 'Y-m-d\TH:i:s' );
@@ -739,7 +741,7 @@ SOAP;
 </soapenv:Envelope>
 SOAP;
 
-        $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+        $curl = $this->proceedCurl( $accessData, $data, $soapAction );
 
         $response = curl_exec( $curl );
 
@@ -859,6 +861,184 @@ SOAP;
             $log->save();
 
         }
+    }
+
+    public function exportGzhiTickets ()
+    {
+
+        $ticketsCount = 0;
+
+        $gzhiProviders = GzhiApiProvider::get();
+
+        $packDate = Carbon::now()->format( 'Y-m-d\TH:i:s' );
+
+        $changeFromDate = Carbon::now()->subDays(30)->format( 'Y-m-d\TH:i:s' );
+
+        foreach ( $gzhiProviders as $gzhiProvider )
+        {
+
+            $packGuid = Uuid::generate();
+
+            $username = $gzhiProvider->login;
+
+            $password = $gzhiProvider->password;
+
+            $accessData = $username . ':' . $password;
+
+            $data = <<<SOAP
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <eds:exportAppealRequest Id="?" eds:version="{$this->apiVersion}">
+         <eds:Header>
+            <eds:OrgGUID>{$gzhiProvider->org_guid}</eds:OrgGUID>
+            <eds:PackGUID>$packGuid</eds:PackGUID>
+            <eds:PackDate>$packDate</eds:PackDate>
+         </eds:Header>  
+         <eds:ChangeFromDate>$changeFromDate</eds:ChangeFromDate>
+         <eds:WithActions>true</eds:WithActions>
+      </eds:exportAppealRequest>
+   </soapenv:Body>
+</soapenv:Envelope>
+SOAP;
+
+            $curl = $this->proceedCurl( $accessData, $data, $this->soapExportAction );
+
+            $response = curl_exec( $curl );
+
+            $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+
+            curl_close( $curl );
+
+            if ( $status_code != 200 )
+            {
+                $this->errorMessage .= "CURL status: $status_code; ";
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
+
+                $log->save();
+                return false;
+            }
+
+            $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+            $xml = new \SimpleXMLElement( $response );
+
+            if ( ! isset( $xml->soapenvBody->Success->PackGUID ) ) continue;
+
+            $sendingPackGUID = (string) $xml->soapenvBody->Success->PackGUID;
+
+            if ( isset( $xml->faultstring ) )
+            {
+                $this->errorMessage .= $xml->faultstring;
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
+
+                $log->save();
+            }
+
+            $gzhiRequest = new GzhiRequest();
+
+            $gzhiRequest->fill( [
+                'Action' => $this->soapExportAction,
+                'OrgGUID' => $gzhiProvider->org_guid,
+                'PackGUID' => $sendingPackGUID,
+                'PackDate' => $packDate,
+                'Status' => ( $this->errorMessage == '' ) ? GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK : GzhiRequest::GZHI_REQUEST_STATUS_ERROR,
+                'Error' => $this->errorMessage,
+                'gzhi_api_provider_id' => $gzhiProvider->id
+            ] );
+
+            $gzhiRequest->save();
+        }
+
+        $logText = "Заявок обработано: $ticketsCount; \n $this->errorMessage \n";
+
+        echo $logText;
+
+        $log = \App\Models\Log::create( [
+            'text' => $logText
+        ] );
+
+        $log->save();
+
+    }
+
+    public function fillExportedTickets ()
+    {
+
+        $gzhiRequests = GzhiRequest::where( [
+            'Status' => GzhiRequest::GZHI_REQUEST_STATUS_IN_WORK,
+            'Action' => $this->soapExportAction
+        ] )
+            ->get();
+
+        foreach ($gzhiRequests as $gzhiRequest){
+
+            $secondPackGuid = Uuid::generate();
+
+            $packDate = Carbon::now()->format( 'Y-m-d\TH:i:s' );
+
+            $username = $gzhiRequest->gzhiApiProvider->login;
+
+            $password = $gzhiRequest->gzhiApiProvider->password;
+
+            $accessData = $username . ':' . $password;
+
+            $secondData = <<<SOAP
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+    <soapenv:Header/>
+        <soapenv:Body>
+            <eds:getStateDSRequest Id="?" eds:version="{$this->apiVersion}">
+            <eds:Header>
+            <eds:OrgGUID>{$gzhiRequest->gzhiApiProvider->org_guid}</eds:OrgGUID>
+            <eds:PackGUID>$secondPackGuid</eds:PackGUID>
+            <eds:PackDate>$packDate</eds:PackDate>
+            </eds:Header>
+            <eds:PackGUID>$$gzhiRequest->PackGUID</eds:PackGUID>
+            </eds:getStateDSRequest>
+        </soapenv:Body>
+</soapenv:Envelope>
+SOAP;
+
+            $curl2 = $this->proceedCurl( $accessData, $secondData, $this->soapGetStateAction );
+
+            $response2 = curl_exec( $curl2 );
+
+            dd($response2);
+
+            $status_code = curl_getinfo( $curl2, CURLINFO_HTTP_CODE );
+
+            if ( $status_code != 200 )
+            {
+                $this->errorMessage .= "CURL status: $status_code; ";
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
+
+                $log->save();
+                return false;
+            }
+
+            $response2 = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response2 );
+
+            $xml2 = new \SimpleXMLElement( $response2 );
+
+            dd( $xml2 );
+
+            if ( isset( $xml2->faultstring ) )
+            {
+                $this->errorMessage .= $xml2->faultstring;
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
+
+                $log->save();
+            }
+        }
+
     }
 
 }
