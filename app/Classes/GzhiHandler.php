@@ -1048,6 +1048,8 @@ SOAP;
                     continue;
                 }
 
+                if(!isset($xml->soapenvBody->edsgetStateDSResult->edsAppealResult)) continue;
+
                 $gzhiTickets = $xml->soapenvBody->edsgetStateDSResult->edsAppealResult->edsAppeal;
 
                 if ( count( $gzhiTickets ) )
@@ -1099,7 +1101,7 @@ SOAP;
 
                                 $ticket->status_code = $status->status_code ?? '';
 
-                                $ticket->author_id = $management->author_id ?? 1;
+                                $ticket->author_id = env( 'MOSREG_USER_ID' ) ?? $management->author_id ?? 1;
 
                                 $ticket->status_name = $status->status_name ?? '';
 
@@ -1121,6 +1123,8 @@ SOAP;
                                 $ticket->rate_comment = (string) $gzhiTicketInformation->edsAnswer;
 
                                 $ticket->save();
+
+                                //dd($ticket);
 
                                 if ( $management )
                                 {

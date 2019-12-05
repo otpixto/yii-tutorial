@@ -62,16 +62,16 @@ class Kernel extends ConsoleKernel
             ->dailyAt('3:00');
 
 
-        $schedule->call( function ()
-        {
-            ( new GzhiHandler() )->exportGzhiTickets();
-        } )
-            ->dailyAt('1:20');
-
-        $schedule->call(function (){
-            (new GzhiHandler())->sendGzhiInfo();
-        })
-            ->dailyAt('1:40');
+//        $schedule->call( function ()
+//        {
+//            ( new GzhiHandler() )->exportGzhiTickets();
+//        } )
+//            ->dailyAt('1:20');
+//
+//        $schedule->call(function (){
+//            (new GzhiHandler())->sendGzhiInfo();
+//        })
+//            ->dailyAt('1:40');
 
     }
 
