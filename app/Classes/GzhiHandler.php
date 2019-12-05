@@ -984,7 +984,7 @@ SOAP;
 
         $ticketsCount = 0;
 
-        if ( is_iterable( $gzhiRequests ) )
+        if ( count( $gzhiRequests ) )
         {
             foreach ( $gzhiRequests as $gzhiRequest )
             {
@@ -1050,7 +1050,7 @@ SOAP;
 
                 $gzhiTickets = $xml->soapenvBody->edsgetStateDSResult->edsAppealResult->edsAppeal;
 
-                if ( is_iterable( $gzhiTickets ) )
+                if ( count( $gzhiTickets ) )
                 {
                     foreach ( $gzhiTickets as $gzhiTicket )
                     {
