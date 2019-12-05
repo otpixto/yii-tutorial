@@ -13,6 +13,8 @@ class FillTypesTable extends Migration
      */
     public function up ()
     {
+        return true;
+
         $fileName = 'files/fill_types.csv';
 
         $csvData = File::get( storage_path( $fileName ) );

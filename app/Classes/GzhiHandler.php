@@ -2,16 +2,16 @@
 
 namespace App\Classes;
 
-use App\Jobs\GzhiJob;
 use App\Models\Building;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
+use App\Models\Management;
+use App\Models\Status;
 use App\Models\Ticket;
+use App\Models\TicketManagement;
 use App\Models\Type;
 use App\Models\Vendor;
 use Carbon\Carbon;
-use Illuminate\Queue\Jobs\Job;
-use Illuminate\Support\Facades\Log;
 use Webpatser\Uuid\Uuid;
 
 class GzhiHandler
@@ -870,9 +870,12 @@ SOAP;
 
         $gzhiProviders = GzhiApiProvider::get();
 
-        $packDate = Carbon::now()->format( 'Y-m-d\TH:i:s' );
+        $packDate = Carbon::now()
+            ->format( 'Y-m-d\TH:i:s' );
 
-        $changeFromDate = Carbon::now()->subDays(30)->format( 'Y-m-d\TH:i:s' );
+        $changeFromDate = Carbon::now()
+            ->subDays( 1 )
+            ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
         {
@@ -906,6 +909,8 @@ SOAP;
 
             $response = curl_exec( $curl );
 
+            if ( $response == "" ) continue;
+
             $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
             curl_close( $curl );
@@ -918,7 +923,7 @@ SOAP;
                 ] );
 
                 $log->save();
-                return false;
+                continue;
             }
 
             $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
@@ -952,6 +957,8 @@ SOAP;
             ] );
 
             $gzhiRequest->save();
+
+            $ticketsCount ++;
         }
 
         $logText = "Заявок обработано: $ticketsCount; \n $this->errorMessage \n";
@@ -975,19 +982,25 @@ SOAP;
         ] )
             ->get();
 
-        foreach ($gzhiRequests as $gzhiRequest){
+        $ticketsCount = 0;
 
-            $secondPackGuid = Uuid::generate();
+        if ( is_iterable( $gzhiRequests ) )
+        {
+            foreach ( $gzhiRequests as $gzhiRequest )
+            {
 
-            $packDate = Carbon::now()->format( 'Y-m-d\TH:i:s' );
+                $secondPackGuid = Uuid::generate();
 
-            $username = $gzhiRequest->gzhiApiProvider->login;
+                $packDate = Carbon::now()
+                    ->format( 'Y-m-d\TH:i:s' );
 
-            $password = $gzhiRequest->gzhiApiProvider->password;
+                $username = $gzhiRequest->gzhiApiProvider->login;
 
-            $accessData = $username . ':' . $password;
+                $password = $gzhiRequest->gzhiApiProvider->password;
 
-            $secondData = <<<SOAP
+                $accessData = $username . ':' . $password;
+
+                $secondData = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
     <soapenv:Header/>
         <soapenv:Body>
@@ -997,46 +1010,169 @@ SOAP;
             <eds:PackGUID>$secondPackGuid</eds:PackGUID>
             <eds:PackDate>$packDate</eds:PackDate>
             </eds:Header>
-            <eds:PackGUID>$$gzhiRequest->PackGUID</eds:PackGUID>
+            <eds:PackGUID>$gzhiRequest->PackGUID</eds:PackGUID>
             </eds:getStateDSRequest>
         </soapenv:Body>
 </soapenv:Envelope>
 SOAP;
 
-            $curl2 = $this->proceedCurl( $accessData, $secondData, $this->soapGetStateAction );
+                $curl = $this->proceedCurl( $accessData, $secondData, $this->soapGetStateAction );
 
-            $response2 = curl_exec( $curl2 );
+                $response = curl_exec( $curl );
 
-            dd($response2);
+                $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
-            $status_code = curl_getinfo( $curl2, CURLINFO_HTTP_CODE );
+                if ( $status_code != 200 )
+                {
+                    $this->errorMessage .= "CURL status: $status_code; ";
+                    $log = \App\Models\Log::create( [
+                        'text' => $this->errorMessage
+                    ] );
 
-            if ( $status_code != 200 )
-            {
-                $this->errorMessage .= "CURL status: $status_code; ";
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
+                    $log->save();
+                    continue;
+                }
 
-                $log->save();
-                return false;
+                $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+
+                $xml = new \SimpleXMLElement( $response );
+
+                if ( isset( $xml->faultstring ) )
+                {
+                    $this->errorMessage .= $xml->faultstring;
+                    $log = \App\Models\Log::create( [
+                        'text' => $this->errorMessage
+                    ] );
+
+                    $log->save();
+                    continue;
+                }
+
+                $gzhiTickets = $xml->soapenvBody->edsgetStateDSResult->edsAppealResult->edsAppeal;
+
+                if ( is_iterable( $gzhiTickets ) )
+                {
+                    foreach ( $gzhiTickets as $gzhiTicket )
+                    {
+                        try
+                        {
+
+                            $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
+
+                            $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
+
+                            $management = Management::where( 'gzhi_guid', $orgGUID )
+                                ->first();
+
+                            if ( ! $management ) continue;
+
+                            $ticket = Ticket::where( [
+                                'gzhi_appeal_number' => (string) $gzhiTicket->edsAppealNumber,
+                                'gzhi_number_eds' => (string) $gzhiTicketInformation->edsNumberEDS
+                            ] )
+                                ->first();
+
+                            if ( ! $ticket )
+                            {
+
+                                $status = Status::where( 'gzhi_status_code', $gzhiTicketInformation->edsStatus )
+                                    ->first();
+
+                                if ( ! $status )
+                                {
+                                    $status = Status::where( 'status_code', 'draft' )
+                                        ->first();
+                                }
+
+                                $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
+
+                                $building = Building::where( 'gzhi_address_guid', $addressGUID )
+                                    ->first();
+
+                                $type = Type::where( 'gzhi_code', (string) $gzhiTicketInformation->edsKindAppeal )
+                                    ->first();
+
+                                $ticket = new Ticket();
+
+                                $ticket->transferred_at = Carbon::parse( (string) $gzhiTicketInformation->edsCreationDate )
+                                    ->format( 'Y-m-d H:i:s' );
+
+                                $ticket->status_code = $status->status_code ?? '';
+
+                                $ticket->author_id = $management->author_id ?? 1;
+
+                                $ticket->status_name = $status->status_name ?? '';
+
+                                $ticket->gzhi_number_eds = (string) $gzhiTicketInformation->edsNumberEDS;
+
+                                $ticket->gzhi_appeal_number = (string) $gzhiTicket->edsAppealNumber;
+
+                                $ticket->lastname = (string) $gzhiTicketInformation->edsInitiator->edsName ?? '';
+
+                                $ticket->type_id = $type->id ?? null;
+
+                                $ticket->building_id = $building->id ?? null;
+
+                                $ticket->text = (string) $gzhiTicketInformation->edsText;
+
+                                $ticket->deadline_execution = Carbon::parse( (string) $gzhiTicketInformation->edsCreationDateedsDateNormative )
+                                    ->format( 'Y-m-d H:i:s' );
+
+                                $ticket->rate_comment = (string) $gzhiTicketInformation->edsAnswer;
+
+                                $ticket->save();
+
+                                if ( $management )
+                                {
+
+                                    $ticketManagement = new TicketManagement();
+
+                                    $ticketManagement->ticket_id = $ticket->id;
+
+                                    $ticketManagement->management_id = $management->id;
+
+                                    $ticketManagement->status_code = $status->status_code ?? '';
+
+                                    $ticketManagement->status_name = $status->status_name ?? '';
+
+                                    $ticketManagement->save();
+
+                                }
+
+                                $ticketsCount ++;
+
+                            } else
+                            {
+                                continue;
+                            }
+
+                        }
+                        catch ( \Exception $e )
+                        {
+                            $this->errorMessage .= $e->getTraceAsString();
+                            $log = \App\Models\Log::create( [
+                                'text' => $this->errorMessage
+                            ] );
+
+                            $log->save();
+                            continue;
+                        }
+                    }
+                }
+
+                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+                $gzhiRequest->save();
             }
 
-            $response2 = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response2 );
+            $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";
 
-            $xml2 = new \SimpleXMLElement( $response2 );
+            echo $logText;
 
-            dd( $xml2 );
+            $log = \App\Models\Log::create( [
+                'text' => $logText
+            ] );
 
-            if ( isset( $xml2->faultstring ) )
-            {
-                $this->errorMessage .= $xml2->faultstring;
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
-
-                $log->save();
-            }
+            $log->save();
         }
 
     }
