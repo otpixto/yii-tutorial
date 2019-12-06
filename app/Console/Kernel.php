@@ -50,28 +50,34 @@ class Kernel extends ConsoleKernel
     protected function schedule ( Schedule $schedule )
     {
 
-        $schedule->call( function ()
+        if ( env( 'AL_LOCAL_SERVER' ) == true )
         {
-            ( new GzhiHandler() )->getGzhiRequestsStatus();
-        } )
-            ->dailyAt('4:00');
+            $schedule->call( function ()
+            {
+                ( new GzhiHandler() )->exportGzhiTickets();
+            } )
+                ->dailyAt( '11:37' );
 
-        $schedule->call(function (){
-            (new GzhiHandler())->sendGzhiInfo();
-        })
-            ->dailyAt('3:00');
+            $schedule->call( function ()
+            {
+                ( new GzhiHandler() )->fillExportedTickets();
+            } )
+                ->dailyAt( '12:30' );
+        } else
+        {
 
+            $schedule->call( function ()
+            {
+                ( new GzhiHandler() )->getGzhiRequestsStatus();
+            } )
+                ->dailyAt( '4:00' );
 
-//        $schedule->call( function ()
-//        {
-//            ( new GzhiHandler() )->exportGzhiTickets();
-//        } )
-//            ->dailyAt('1:20');
-//
-//        $schedule->call(function (){
-//            (new GzhiHandler())->sendGzhiInfo();
-//        })
-//            ->dailyAt('1:40');
+            $schedule->call( function ()
+            {
+                ( new GzhiHandler() )->sendGzhiInfo();
+            } )
+                ->dailyAt( '3:00' );
+        }
 
     }
 

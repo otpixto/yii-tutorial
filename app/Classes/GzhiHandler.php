@@ -1048,7 +1048,7 @@ SOAP;
                     continue;
                 }
 
-                if(!isset($xml->soapenvBody->edsgetStateDSResult->edsAppealResult)) continue;
+                if ( ! isset( $xml->soapenvBody->edsgetStateDSResult->edsAppealResult ) ) continue;
 
                 $gzhiTickets = $xml->soapenvBody->edsgetStateDSResult->edsAppealResult->edsAppeal;
 
@@ -1061,6 +1061,8 @@ SOAP;
 
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
+                            if ( $gzhiTicketInformation->edsIsEDS == 'true' ) continue;
+
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
                             $management = Management::where( 'gzhi_guid', $orgGUID )
@@ -1068,10 +1070,7 @@ SOAP;
 
                             if ( ! $management ) continue;
 
-                            $ticket = Ticket::where( [
-                                'gzhi_appeal_number' => (string) $gzhiTicket->edsAppealNumber,
-                                'gzhi_number_eds' => (string) $gzhiTicketInformation->edsNumberEDS
-                            ] )
+                            $ticket = Ticket::where('gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber)
                                 ->first();
 
                             if ( ! $ticket )
@@ -1088,11 +1087,18 @@ SOAP;
 
                                 $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
 
+                                //////////////
+                                $addressGUID = 'FF64D598-BA52-11E7-B867-FE5F11EEAB0E';
+
                                 $building = Building::where( 'gzhi_address_guid', $addressGUID )
                                     ->first();
 
+                                if ( ! $building ) continue;
+
                                 $type = Type::where( 'gzhi_code', (string) $gzhiTicketInformation->edsKindAppeal )
                                     ->first();
+
+                                if ( ! $type ) continue;
 
                                 $ticket = new Ticket();
 
@@ -1105,7 +1111,7 @@ SOAP;
 
                                 $ticket->status_name = $status->status_name ?? '';
 
-                                $ticket->gzhi_number_eds = (string) $gzhiTicketInformation->edsNumberEDS;
+                                $ticket->gzhi_number_eds = (string) $gzhiTicketInformation->edsNumberReg;
 
                                 $ticket->gzhi_appeal_number = (string) $gzhiTicket->edsAppealNumber;
 
@@ -1115,6 +1121,8 @@ SOAP;
 
                                 $ticket->building_id = $building->id ?? null;
 
+                                $ticket->place_id = 1;
+
                                 $ticket->text = (string) $gzhiTicketInformation->edsText;
 
                                 $ticket->deadline_execution = Carbon::parse( (string) $gzhiTicketInformation->edsCreationDateedsDateNormative )
@@ -1123,8 +1131,6 @@ SOAP;
                                 $ticket->rate_comment = (string) $gzhiTicketInformation->edsAnswer;
 
                                 $ticket->save();
-
-                                //dd($ticket);
 
                                 if ( $management )
                                 {
@@ -1164,8 +1170,8 @@ SOAP;
                     }
                 }
 
-                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
-                $gzhiRequest->save();
+                //$gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+                //$gzhiRequest->save();
             }
 
             $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";
