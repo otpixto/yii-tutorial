@@ -100,6 +100,20 @@
     </div>
 </div>
 <hr />
+
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        Истекает срок исполнения в течение:
+    </h4>
+    <div class="col-md-10">
+        <select class="form-control" data-label="left" name="deadline_execution">
+                <option value="" selected="selected">-</option>
+                <option value="24">24 часа</option>
+                <option value="48">48 часов</option>
+                <option value="72">72 часа</option>
+        </select>
+    </div>
+</div>
 <div class="row">
     <h4 class="col-md-2">
         Периоды

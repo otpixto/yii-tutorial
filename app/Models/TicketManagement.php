@@ -187,7 +187,7 @@ class TicketManagement extends BaseModel
             {
                 return $ticket
                     ->mine( $flags );
-            });
+            } );
         return $query;
     }
 
@@ -285,6 +285,16 @@ class TicketManagement extends BaseModel
                     {
                         $ticket
                             ->where( Ticket::$_table . '.customer_id', '=', $request->get( 'customer_id' ) );
+                    }
+
+                    if ( $request->get( 'deadline_execution' ) )
+                    {
+
+                        $deadLineExecution = Carbon::now()
+                            ->addHours( $request->get( 'deadline_execution' ) );
+
+                        $ticket
+                            ->whereBetween( Ticket::$_table . '.deadline_execution', [Carbon::now()->format('Y-m-d H:i:s'), $deadLineExecution->format('Y-m-d H:i:s')] );
                     }
 
                     if ( ! empty( $request->get( 'group' ) ) )
@@ -1107,8 +1117,7 @@ class TicketManagement extends BaseModel
                         {
                             $comment .= $service->name . PHP_EOL;
                         }
-                    }
-                    else
+                    } else
                     {
                         $comment .= '-' . PHP_EOL;
                     }
@@ -1117,8 +1126,10 @@ class TicketManagement extends BaseModel
                         {
                             return $tags
                                 ->where( 'text', '=', BaseModel::TAG_COMPLETED );
-                        })
-                        ->where( 'created_at', '>=', Carbon::now()->subMinute()->toDateTimeString() )
+                        } )
+                        ->where( 'created_at', '>=', Carbon::now()
+                            ->subMinute()
+                            ->toDateTimeString() )
                         ->get();
                     $responseData = $mosreg->answer( $this->mosreg_id, 4635, $comment, $files );
                     if ( isset( $responseData->error ) && $this->management->provider )
@@ -1168,8 +1179,7 @@ class TicketManagement extends BaseModel
                         {
                             $comment .= $service->name . PHP_EOL;
                         }
-                    }
-                    else
+                    } else
                     {
                         $comment .= '-' . PHP_EOL;
                     }
@@ -1417,9 +1427,10 @@ class TicketManagement extends BaseModel
         }
     }
 
-    public static function getScheduledTicketManagements()
+    public static function getScheduledTicketManagements ()
     {
-        $now = Carbon::now()->toDateTimeString();
+        $now = Carbon::now()
+            ->toDateTimeString();
         $scheduledTicketManagements = self
             ::mine()
             ->where( 'status_code', '=', 'assigned' )
@@ -1429,7 +1440,7 @@ class TicketManagement extends BaseModel
                 return $ticket
                     ->whereNotNull( 'postponed_to' )
                     ->where( 'postponed_to', '>', $now );
-            })
+            } )
             ->get();
         return $scheduledTicketManagements;
     }
