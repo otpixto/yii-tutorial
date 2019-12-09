@@ -1065,6 +1065,9 @@ SOAP;
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
+                            ///////////
+                            $orgGUID = "3CFBB24C-BB06-11E7-9583-B5CD11EEAB0E";
+
                             $management = Management::where( 'gzhi_guid', $orgGUID )
                                 ->first();
 
@@ -1092,6 +1095,7 @@ SOAP;
 
                                 $building = Building::where( 'gzhi_address_guid', $addressGUID )
                                     ->first();
+
 
                                 if ( ! $building ) continue;
 
@@ -1170,8 +1174,8 @@ SOAP;
                     }
                 }
 
-                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
-                $gzhiRequest->save();
+                //$gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+                //$gzhiRequest->save();
             }
 
             $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";
