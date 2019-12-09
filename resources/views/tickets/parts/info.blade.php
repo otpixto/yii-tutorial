@@ -399,6 +399,12 @@
                                     Требуется Акт выполненных работ
                                 </span>
                                     @endif
+                                    @if ( in_array($ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
+                                        <span class="badge badge-danger bold">
+                                            <i class="icon-support"></i>
+                                            {{ $ticket->status_name }}
+                                        </span>
+                                    @endif
                                 </dd>
                             </dl>
                         </div>
@@ -514,7 +520,8 @@
                 <div class="note note-default">
                     @foreach ( $ticketManagement->files as $file )
                         <div>
-                            <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}" target="_blank">
+                            <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}"
+                               target="_blank">
                                 <i class="fa fa-file"></i>
                                 {{ $file->name }}
                             </a>

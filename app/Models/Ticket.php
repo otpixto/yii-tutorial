@@ -85,6 +85,14 @@ class Ticket extends BaseModel
         'EXPIRED_RETURN_TO_DD' => 'Не взята в работу: возвращено в Добродел',
     ];
 
+    public static $gzhi_statuses = [
+        'GZI_REMEDY',
+        'GZI_REMEDY_ANSWER',
+        'GZI_EXPIRED',
+        'GZI_EXTRA_AUDIT',
+        'GZI_SOLVED'
+    ];
+
     public static $statuses_buttons = [
         'rejected' => [
             'name' => 'Отклонить',
