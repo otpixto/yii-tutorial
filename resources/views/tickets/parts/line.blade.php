@@ -162,18 +162,18 @@
                     Из Мосрега
                 </span>
             @endif
+                @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
+                    <span class="badge badge-danger bold">
+               <i class="icon-support"></i>
+                {{ $ticketManagement->ticket->status_name }}
+            </span>
+                @endif
         </div>
         @if ( \Auth::user()->can( 'tickets.field_text' ) )
             <hr/>
             <div class="small">
                 {{ $ticketManagement->ticket->text }}
             </div>
-        @endif
-        @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
-            <span class="badge badge-danger bold">
-               <i class="icon-support"></i>
-                {{ $ticketManagement->ticket->status_name }}
-            </span>
         @endif
         {{--@if ( \Auth::user()->can( 'tickets.services.show' ) && $ticketManagement->services->count() )
             <hr />
