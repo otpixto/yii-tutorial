@@ -40,7 +40,7 @@ class HomeController extends Controller
     public function test ()
     {
         //(new GzhiHandler())->exportGzhiTickets();
-        //(new GzhiHandler())->fillExportedTickets();
+        //(new GzhiHandler())->getOrgList();
         $data = getrusage();
         dd( $data );
     }

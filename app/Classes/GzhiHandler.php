@@ -711,7 +711,7 @@ SOAP;
 
         $soapAction = $this->soapGetStateAction;
 
-        $gzhiApiProvider = GzhiApiProvider::whereName( 'Жуковский' )
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Раменское' )
             ->first();
 
         $orgGuid = $gzhiApiProvider->org_guid;
@@ -735,7 +735,7 @@ SOAP;
             <eds:PackGUID>$packGuid</eds:PackGUID>
             <eds:PackDate>$packDate</eds:PackDate>
             </eds:Header>
-            <eds:PackGUID>68b4ab29-b1fd-11e9-8c02-ddd67477fd67</eds:PackGUID>
+            <eds:PackGUID>49b4ab69-b2fd-21e9-9c02-ddd67477fd67</eds:PackGUID>
             </eds:getStateDSRequest>
         </soapenv:Body>
 </soapenv:Envelope>
@@ -1170,8 +1170,8 @@ SOAP;
                     }
                 }
 
-                //$gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
-                //$gzhiRequest->save();
+                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+                $gzhiRequest->save();
             }
 
             $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";
