@@ -286,7 +286,7 @@ class Work extends BaseModel
                         if ( ! isset( $result[ $building->segment_id ] ) )
                         {
                             $result[ $building->segment_id ] = [
-                                $building->getFullName( false ),
+                                $name,
                                 [
                                     $name
                                 ]
