@@ -122,7 +122,7 @@ class Building extends BaseModel
         {
             $current = $this->segment;
             $segments = collect();
-            if ( ! $current ) return $segments;
+            if (  $current ) return $segments;
             if ( $current->segmentType->is_visible )
             {
                 $segments->push( $current );
