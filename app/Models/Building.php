@@ -83,11 +83,11 @@ class Building extends BaseModel
     public function getAddress ( $withType = false )
     {
         $name = str_replace( 'Московская обл., ', '', $this->name );
-        if ( $withType && $this->buildingType )
-        {
-            $name .= ' (' . $this->buildingType->name . ')';
-        }
-        return $name;
+		if ( $withType && $this->buildingType )
+		{
+			$name .= ' (' . $this->buildingType->name . ')';
+		}
+		return $name;
     }
 
     public function getFullName ( $withNumber = true )
@@ -118,44 +118,42 @@ class Building extends BaseModel
 
     public function getSegments ( $break = false )
     {
-        try
+        $current = $this->segment;
+        $segments = collect();
+        if ( ! $current ) return $segments;
+		if ( $current->segmentType->is_visible )
+		{
+			$segments->push( $current );
+		}
+		$maxNum = 10;
+		$num = 0;
+        while ( $current->parent )
         {
-            $current = $this->segment;
-            $segments = collect();
-            if ( ! $current ) return $segments;
-            if ( isset( $current->segmentType ) && $current->segmentType->is_visible )
+            if ( $current->id == $current->parent->id || ( $num ++ ) >= $maxNum )
             {
-                $segments->push( $current );
+                break;
             }
-            if ( $current->parent )
+            else
             {
-                while ( $current->parent )
+                $current = $current->parent;
+                if ( $current->segmentType->is_visible )
                 {
-                    $current = $current->parent;
-                    if ( isset( $current->segmentType ) && $current->segmentType->is_visible )
-                    {
-                        $segments->push( $current );
-                    }
-                    if ( $break && isset( $current->segmentType ) && $current->segmentType->break )
-                    {
-                        break;
-                    }
+                    $segments->push( $current );
+                }
+                else if ( $break && $current->segmentType->break )
+                {
+                    break;
                 }
             }
-            return $segments->reverse();
-
         }
-        catch ( \Exception $exception )
-        {
-            \Illuminate\Support\Facades\Log::error( $exception->getTraceAsString() );
-        }
+        return $segments->reverse();
     }
 
     public static function create ( array $attributes = [] )
     {
         $attributes[ 'hash' ] = self::genHash( $attributes[ 'name' ] );
         $building = self
-            ::mine()
+			::mine()
             ->where( 'hash', '=', $attributes[ 'hash' ] )
             ->first();
         if ( $building )
@@ -185,12 +183,11 @@ class Building extends BaseModel
         }
         if ( ! empty( $attributes[ 'date_of_construction' ] ) )
         {
-            $attributes[ 'date_of_construction' ] = Carbon::parse( $attributes[ 'date_of_construction' ] )
-                ->format( 'Y-m-d' );
+            $attributes[ 'date_of_construction' ] = Carbon::parse( $attributes[ 'date_of_construction' ] )->format( 'Y-m-d' );
         }
         $attributes[ 'is_first_floor_living' ] = ! empty( $attributes[ 'is_first_floor_living' ] ) ? 1 : 0;
         $building = parent::edit( $attributes );
-        if ( $updateCoordinates || ( ( ! $building->lon || ! $building->lat ) && $building->lon != - 1 && $building->lat != - 1 ) )
+        if ( $updateCoordinates || ( ( ! $building->lon || ! $building->lat ) && $building->lon != -1 && $building->lat != -1 ) )
         {
             $this->getCoordinates();
         }
@@ -212,10 +209,11 @@ class Building extends BaseModel
                 $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
                 $this->lon = $pos[ 0 ];
                 $this->lat = $pos[ 1 ];
-            } else
+            }
+            else
             {
-                $this->lon = - 1;
-                $this->lat = - 1;
+                $this->lon = -1;
+                $this->lat = -1;
             }
             $this->save();
         }
@@ -234,7 +232,7 @@ class Building extends BaseModel
                 {
                     return $managements
                         ->mine();
-                } );
+                });
         }
         if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
         {
