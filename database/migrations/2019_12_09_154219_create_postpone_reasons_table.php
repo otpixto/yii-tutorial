@@ -13,7 +13,7 @@ class CreatePostponeReasonsTable extends Migration
      */
     public function up()
     {
-        Schema::create('decline_reasons', function (Blueprint $table) {
+        Schema::create('reject_reasons', function (Blueprint $table) {
             $table->increments('id');
             $table->string('eds_number', 10)->nullable()->comment('№ п/п в ЕДС');
             $table->string('type', 100)->nullable()->comment('Вид');
@@ -21,11 +21,7 @@ class CreatePostponeReasonsTable extends Migration
             $table->string('eds_code', 10)->nullable()->comment('Код ЕДС МО');
         });
 
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->tinyInteger('decline_reason_id')->after('mosreg_id')->nullable()->comment('ID причины отклонения (decline_reasons)');
-        });
-
-        \Illuminate\Support\Facades\DB::table('decline_reasons')->insert([
+        \Illuminate\Support\Facades\DB::table('reject_reasons')->insert([
             [
                 'eds_number' => 10,
                 'type' => 'Заявка на работы',
@@ -126,6 +122,6 @@ class CreatePostponeReasonsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('decline_reasons');
+        Schema::dropIfExists('reject_reasons');
     }
 }
