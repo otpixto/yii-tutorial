@@ -1717,7 +1717,7 @@ class TicketsController extends BaseController
                 } else {
                     $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name;
                 }
-                $ticket->reject_reason_id = $request->get( 'reject_reason_id' );
+                $ticket->decline_reason_id = $request->get( 'reject_reason_id' );
 
                 $ticket->save();
 
