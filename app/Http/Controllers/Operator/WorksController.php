@@ -216,7 +216,7 @@ class WorksController extends BaseController
 
             $this->addLog( 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')' );
 
-            \Illuminate\Support\Facades\Log::error($works);
+            \Illuminate\Support\Facades\Log::error("<pre>" . $works . "</pre>");
 
             return view( 'works.parts.list' )
                 ->with( 'works', $works );
