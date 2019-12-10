@@ -37,190 +37,195 @@ class WorksController extends BaseController
 
         if ( $request->ajax() )
         {
-
-            $managements = [];
-            $executors = [];
-
-            if ( ! empty( $request->get( 'managements' ) ) )
+            try
             {
-                $managements = explode( ',', $request->get( 'managements' ) );
-            }
 
-            if ( ! empty( $request->get( 'executors' ) ) )
-            {
-                $executors = explode( ',', $request->get( 'executors' ) );
-            }
+                $managements = [];
+                $executors = [];
 
-            $works = Work
-                ::mine()
-                ->orderBy( Work::$_table . '.id', 'desc' );
-
-            switch ( $request->get( 'show', $show ) )
-            {
-                case 'overdue':
-                    $works
-                        ->current()
-                        ->overdue();
-                    break;
-                case 'period':
-
-                    break;
-                default:
-                    $works
-                        ->current();
-                    break;
-            }
-
-            if ( ! empty( $request->get( 'id' ) ) )
-            {
-                $works
-                    ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
-            }
-
-            if ( ! empty( $request->get( 'category_id' ) ) )
-            {
-                $works
-                    ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
-            }
-
-            if ( $request->get( 'type_id' ) != '' )
-            {
-                $works
-                    ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
-            }
-
-            if ( ! empty( $request->get( 'composition' ) ) )
-            {
-                $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
-                $works
-                    ->where( Work::$_table . '.composition', 'like', $q );
-            }
-
-            if ( ! empty( $request->get( 'reason' ) ) )
-            {
-                $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
-                $works
-                    ->where( Work::$_table . '.reason', 'like', $q );
-            }
-
-            if ( ! empty( $request->get( 'begin_from' ) ) )
-            {
-                $begin_from = Carbon::parse( $request->get( 'begin_from' ) )
-                    ->toDateTimeString();
-                $works
-                    ->where( Work::$_table . '.time_begin', '>=', $begin_from );
-            }
-
-            if ( ! empty( $request->get( 'begin_to' ) ) )
-            {
-                $begin_to = Carbon::parse( $request->get( 'begin_to' ) )
-                    ->toDateTimeString();
-                $works
-                    ->where( Work::$_table . '.time_begin', '<=', $begin_to );
-            }
-
-            if ( ! empty( $request->get( 'end_from' ) ) )
-            {
-                $end_from = Carbon::parse( $request->get( 'end_from' ) )
-                    ->toDateTimeString();
-                $works
-                    ->where( function ( $q ) use ( $end_from )
-                    {
-                        return $q
-                            ->where( Work::$_table . '.time_end', '>=', $end_from )
-                            ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
-                    } );
-            }
-
-            if ( ! empty( $request->get( 'end_to' ) ) )
-            {
-                $end_to = Carbon::parse( $request->get( 'end_to' ) )
-                    ->toDateTimeString();
-                $works
-                    ->where( function ( $q ) use ( $end_to )
-                    {
-                        return $q
-                            ->where( Work::$_table . '.time_end', '<=', $end_to )
-                            ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
-                    } );
-            }
-
-            if ( count( $managements ) )
-            {
-                $works
-                    ->whereHas( 'managements', function ( $_managements ) use ( $managements )
-                    {
-                        return $_managements
-                            ->whereIn( Management::$_table . '.id', $managements );
-                    } );
-            }
-
-            if ( count( $executors ) )
-            {
-                $works
-                    ->whereHas( 'executors', function ( $_executors ) use ( $executors )
-                    {
-                        return $_executors
-                            ->whereIn( Executor::$_table . '.id', $executors );
-                    } );
-            }
-
-            if ( ! empty( $request->get( 'segments' ) ) )
-            {
-                $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
-                    ->get();
-                if ( $segments->count() )
+                if ( ! empty( $request->get( 'managements' ) ) )
                 {
-                    $segmentsIds = [];
-                    foreach ( $segments as $segment )
-                    {
-                        $segmentName = $segment->type->name ?? '';
-                        if ( $segment->parent )
-                        {
-                            $segmentName .= ' ' . $segment->parent->name;
-                        }
-                        $segmentName .= ' ' . $segment->name;
-                        $filters[] = 'Сегмент: ' . $segmentName;
-                        $segmentChilds = new SegmentChilds( $segment );
-                        $segmentsIds += $segmentChilds->ids;
-                    }
+                    $managements = explode( ',', $request->get( 'managements' ) );
+                }
+
+                if ( ! empty( $request->get( 'executors' ) ) )
+                {
+                    $executors = explode( ',', $request->get( 'executors' ) );
+                }
+
+                $works = Work
+                    ::mine()
+                    ->orderBy( Work::$_table . '.id', 'desc' );
+
+                switch ( $request->get( 'show', $show ) )
+                {
+                    case 'overdue':
+                        $works
+                            ->current()
+                            ->overdue();
+                        break;
+                    case 'period':
+
+                        break;
+                    default:
+                        $works
+                            ->current();
+                        break;
+                }
+
+                if ( ! empty( $request->get( 'id' ) ) )
+                {
                     $works
-                        ->whereHas( 'buildings', function ( $buildings ) use ( $segmentsIds )
+                        ->where( Work::$_table . '.id', '=', $request->get( 'id' ) );
+                }
+
+                if ( ! empty( $request->get( 'category_id' ) ) )
+                {
+                    $works
+                        ->where( Work::$_table . '.category_id', '=', $request->get( 'category_id' ) );
+                }
+
+                if ( $request->get( 'type_id' ) != '' )
+                {
+                    $works
+                        ->where( Work::$_table . '.type_id', '=', $request->get( 'type_id' ) );
+                }
+
+                if ( ! empty( $request->get( 'composition' ) ) )
+                {
+                    $q = '%' . str_replace( ' ', '%', $request->get( 'composition' ) ) . '%';
+                    $works
+                        ->where( Work::$_table . '.composition', 'like', $q );
+                }
+
+                if ( ! empty( $request->get( 'reason' ) ) )
+                {
+                    $q = '%' . str_replace( ' ', '%', $request->get( 'reason' ) ) . '%';
+                    $works
+                        ->where( Work::$_table . '.reason', 'like', $q );
+                }
+
+                if ( ! empty( $request->get( 'begin_from' ) ) )
+                {
+                    $begin_from = Carbon::parse( $request->get( 'begin_from' ) )
+                        ->toDateTimeString();
+                    $works
+                        ->where( Work::$_table . '.time_begin', '>=', $begin_from );
+                }
+
+                if ( ! empty( $request->get( 'begin_to' ) ) )
+                {
+                    $begin_to = Carbon::parse( $request->get( 'begin_to' ) )
+                        ->toDateTimeString();
+                    $works
+                        ->where( Work::$_table . '.time_begin', '<=', $begin_to );
+                }
+
+                if ( ! empty( $request->get( 'end_from' ) ) )
+                {
+                    $end_from = Carbon::parse( $request->get( 'end_from' ) )
+                        ->toDateTimeString();
+                    $works
+                        ->where( function ( $q ) use ( $end_from )
                         {
-                            return $buildings
-                                ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
+                            return $q
+                                ->where( Work::$_table . '.time_end', '>=', $end_from )
+                                ->orWhere( Work::$_table . '.time_end_fact', '>=', $end_from );
                         } );
                 }
-            }
 
-            if ( ! empty( $request->get( 'building_id' ) ) )
-            {
-                $works
-                    ->whereHas( 'buildings', function ( $buildings ) use ( $request )
+                if ( ! empty( $request->get( 'end_to' ) ) )
+                {
+                    $end_to = Carbon::parse( $request->get( 'end_to' ) )
+                        ->toDateTimeString();
+                    $works
+                        ->where( function ( $q ) use ( $end_to )
+                        {
+                            return $q
+                                ->where( Work::$_table . '.time_end', '<=', $end_to )
+                                ->orWhere( Work::$_table . '.time_end_fact', '<=', $end_to );
+                        } );
+                }
+
+                if ( count( $managements ) )
+                {
+                    $works
+                        ->whereHas( 'managements', function ( $_managements ) use ( $managements )
+                        {
+                            return $_managements
+                                ->whereIn( Management::$_table . '.id', $managements );
+                        } );
+                }
+
+                if ( count( $executors ) )
+                {
+                    $works
+                        ->whereHas( 'executors', function ( $_executors ) use ( $executors )
+                        {
+                            return $_executors
+                                ->whereIn( Executor::$_table . '.id', $executors );
+                        } );
+                }
+
+                if ( ! empty( $request->get( 'segments' ) ) )
+                {
+                    $segments = Segment::whereIn( 'id', $request->get( 'segments' ) )
+                        ->get();
+                    if ( $segments->count() )
                     {
-                        return $buildings
-                            ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
-                    } );
+                        $segmentsIds = [];
+                        foreach ( $segments as $segment )
+                        {
+                            $segmentName = $segment->type->name ?? '';
+                            if ( $segment->parent )
+                            {
+                                $segmentName .= ' ' . $segment->parent->name;
+                            }
+                            $segmentName .= ' ' . $segment->name;
+                            $filters[] = 'Сегмент: ' . $segmentName;
+                            $segmentChilds = new SegmentChilds( $segment );
+                            $segmentsIds += $segmentChilds->ids;
+                        }
+                        $works
+                            ->whereHas( 'buildings', function ( $buildings ) use ( $segmentsIds )
+                            {
+                                return $buildings
+                                    ->whereIn( Building::$_table . '.segment_id', $segmentsIds );
+                            } );
+                    }
+                }
+
+                if ( ! empty( $request->get( 'building_id' ) ) )
+                {
+                    $works
+                        ->whereHas( 'buildings', function ( $buildings ) use ( $request )
+                        {
+                            return $buildings
+                                ->where( Building::$_table . '.id', '=', $request->get( 'building_id' ) );
+                        } );
+                }
+
+                $works = $works
+                    ->with(
+                        'buildings',
+                        'buildings.buildingType',
+                        'managements',
+                        'managements.parent',
+                        'category'
+                    )
+                    ->paginate( config( 'pagination.per_page' ) )
+                    ->appends( $request->all() );
+
+                $this->addLog( 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')' );
+
+                return view( 'works.parts.list' )
+                    ->with( 'works', $works );
+
             }
-
-            $works = $works
-                ->with(
-                    'buildings',
-                    'buildings.buildingType',
-                    'managements',
-                    'managements.parent',
-                    'category'
-                )
-                ->paginate( config( 'pagination.per_page' ) )
-                ->appends( $request->all() );
-
-            $this->addLog( 'Просмотрел список отключений (стр.' . $request->get( 'page', 1 ) . ')' );
-
-            \Illuminate\Support\Facades\Log::error($works);
-
-            return view( 'works.parts.list' )
-                ->with( 'works', $works );
-
+            catch ( \Exception $e )
+            {
+                \Illuminate\Support\Facades\Log::error( $e->getTraceAsString() );
+            }
         }
 
         if ( \Auth::user()
@@ -953,7 +958,7 @@ class WorksController extends BaseController
             $managements = Management::whereId( $request->get( 'managements', [] ) )
                 ->get();
 
-            $work->load('buildings');
+            $work->load( 'buildings' );
 
             foreach ( $usersForEmail as $user )
             {
@@ -1058,12 +1063,12 @@ class WorksController extends BaseController
         {
             $availableManagements[ $r->parent->name ?? 'Разное' ][ $r->id ] = $r->name;
         }
-		
-		$workBuildings = [];
-		foreach ( $work->buildings as $building )
-		{
-			$workBuildings[ $building->id ] = $building->getAddress();
-		}
+
+        $workBuildings = [];
+        foreach ( $work->buildings as $building )
+        {
+            $workBuildings[ $building->id ] = $building->getAddress();
+        }
 
         return view( 'works.edit' )
             ->with( 'work', $work )
@@ -1256,7 +1261,7 @@ class WorksController extends BaseController
                 {
                     return $managements
                         ->whereIn( Management::$_table . '.id', $managements_ids );
-                });
+                } );
         }
         $buildings = $buildings
             ->having( 'text', 'like', $s )
