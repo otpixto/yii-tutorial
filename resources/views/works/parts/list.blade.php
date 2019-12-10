@@ -94,7 +94,7 @@
                         <div class="small">
                             @if ( $management->parent )
                                 <span class="text-muted">
-                                {{ $management->parent->name }}
+                                {{ $management->parent->name ?? '' }}
                             </span>
                             @endif
                             {{ $management->name }}
