@@ -11,8 +11,9 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.0",
         "barryvdh/laravel-debugbar": "2.4.3",
+        "doctrine/dbal": "^2.5",
         "iphome/laravel-permission": "dev-master",
         "irazasyed/telegram-bot-sdk": "^2.0",
         "laravel/framework": "~5.5",
