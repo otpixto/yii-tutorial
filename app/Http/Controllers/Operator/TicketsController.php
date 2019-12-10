@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\Executor;
 use App\Models\Management;
 use App\Models\Provider;
+use App\Models\RejectReason;
 use App\Models\Segment;
 use App\Models\Ticket;
 use App\Models\TicketManagement;
@@ -984,7 +985,6 @@ class TicketsController extends BaseController
      */
     public function show ( Request $request, $ticket_id, $ticket_management_id = null )
     {
-
         $ticket = Ticket::mine()
             ->find( $ticket_id );
         $ticketManagement = null;
@@ -1712,7 +1712,16 @@ class TicketsController extends BaseController
 
             if ( ! empty( $request->get( 'reject_reason_id' ) ) )
             {
-                $ticket->addComment( MosregClient::$answers[ $request->get( 'reject_reason_id' ) ] );
+                if ( ! empty( $request->get( 'reject_reason_comment' ) ) ) {
+                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name . ' | ' . $request->get( 'reject_reason_comment' );
+                } else {
+                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name;
+                }
+                $ticket->reject_reason_id = $request->get( 'reject_reason_id' );
+
+                $ticket->save();
+
+                $ticket->addComment( $rejectComment, '#fceeb6' );
             }
 
             \DB::commit();

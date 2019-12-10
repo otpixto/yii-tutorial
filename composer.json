@@ -13,6 +13,7 @@
     "require": {
         "php": ">=7.2",
         "barryvdh/laravel-debugbar": "2.4.3",
+        "doctrine/dbal": "^2.10",
         "iphome/laravel-permission": "dev-master",
         "irazasyed/telegram-bot-sdk": "^2.0",
         "laravel/framework": "~5.5",

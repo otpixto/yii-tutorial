@@ -540,31 +540,35 @@
 
                 var id = $( this ).attr( 'data-id' );
 
+
+                let reasons = "{{ \App\Models\RejectReason::pluck('name', 'id')->toJson() }}";
+
+                let txt = document.createElement("textarea");
+                txt.innerHTML = reasons;
+                let textValue = txt.value;
+                let inputOptions = JSON.parse(textValue);
+
+                let optionsForInput = [
+                    {
+                        text: 'Выберите из списка',
+                        value: '',
+                    },
+                ];
+
+                for (var k in inputOptions){
+                    if (inputOptions.hasOwnProperty(k)) {
+                        let oneOpt = {
+                                text: inputOptions[k],
+                                value: k,
+                            };
+                        optionsForInput.push(oneOpt);
+                    }
+                }
+
                 bootbox.prompt({
                     title: 'Укажите причину отклонения заявки',
                     inputType: 'select',
-                    inputOptions: [
-                        {
-                            text: 'Выберите из списка',
-                            value: '',
-                        },
-                        {
-                            text: 'Отклонено. Ответ по проблеме предоставлялся ранее',
-                            value: 4929,
-                        },
-                        {
-                            text: 'Отклонено. Объект не находится в обслуживании организации',
-                            value: 5370,
-                        },
-                        {
-                            text: 'Отклонено. Вопрос не в компетенции организации',
-                            value: 5517,
-                        },
-                        {
-                            text: 'Не достаточно контактных данных (эл. почта/ телефон/ адрес)',
-                            value: 5223,
-                        }
-                    ],
+                    inputOptions: optionsForInput,
                     callback: function ( result )
                     {
                         if ( result === null )
@@ -577,14 +581,19 @@
                             alert( 'Причина обязательна!' );
                             return false;
                         }
+                        let rejectText = $('#alRejectComment').val();
                         form
                             .removeAttr( 'data-confirm' )
                             .append(
                                 $( '<input type="hidden" name="reject_reason_id">' ).val( result )
-                            );
+                            ).append(
+                            $( '<input type="hidden" id="alHiddenRejectReason" name="reject_reason_comment">' ).val( rejectText )
+                        );
                         form.submit();
                     }
-                });
+                },);
+
+                $('.bootbox-form').append('<br><textarea class="bootbox-input bootbox-input-textarea form-control" id="alRejectComment" name="reject_reason_comment" placeholder="Комментарий"></textarea>');
 
             })
 
