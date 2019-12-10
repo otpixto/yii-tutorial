@@ -139,7 +139,7 @@ class Building extends BaseModel
                     break;
                 }
             }
-            return $segments->reverse();
+            return $segments;
 
         }
         catch ( \Exception $exception )
