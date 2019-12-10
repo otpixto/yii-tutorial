@@ -125,7 +125,7 @@ class Building extends BaseModel
             if ( ! $current ) return $segments;
             if ( isset( $current->segmentType ) && $current->segmentType->is_visible )
             {
-                //$segments->push( $current );
+                $segments->push( $current );
             }
             if ( $current->parent )
             {
