@@ -38,8 +38,8 @@ class Work extends BaseModel
         'reason',
         'text',
         'composition',
-		'time_begin',
-		'time_end',
+        'time_begin',
+        'time_end',
         'time_end_fact',
         'type_id',
         'deadline',
@@ -137,30 +137,32 @@ class Work extends BaseModel
     public function edit ( array $attributes = [] )
     {
 
-        if ( !empty( $attributes['phone'] ) )
+        if ( ! empty( $attributes[ 'phone' ] ) )
         {
-            $attributes['phone'] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes['phone'] ) ), -10 );
+            $attributes[ 'phone' ] = mb_substr( preg_replace( '/[^0-9]/', '', str_replace( '+7', '', $attributes[ 'phone' ] ) ), - 10 );
         }
 
-        $exp = explode( ':', $attributes['time_begin'] );
-        $dt_begin = Carbon::parse( $attributes['date_begin'] )->setTime( $exp[0], $exp[1], 0 );
+        $exp = explode( ':', $attributes[ 'time_begin' ] );
+        $dt_begin = Carbon::parse( $attributes[ 'date_begin' ] )
+            ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
 
-        $exp = explode( ':', $attributes['time_end'] );
-        $dt_end = Carbon::parse( $attributes['date_end'] )->setTime( $exp[0], $exp[1], 0 );
+        $exp = explode( ':', $attributes[ 'time_end' ] );
+        $dt_end = Carbon::parse( $attributes[ 'date_end' ] )
+            ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
 
-        if ( ! empty( $attributes['time_end_fact'] ) )
+        if ( ! empty( $attributes[ 'time_end_fact' ] ) )
         {
-            $exp = explode( ':', $attributes['time_end_fact'] );
-            $dt_end_fact = Carbon::parse( $attributes['date_end_fact'] )->setTime( $exp[0], $exp[1], 0 );
-            $attributes['time_end_fact'] = $dt_end_fact->toDateTimeString();
-        }
-        else
+            $exp = explode( ':', $attributes[ 'time_end_fact' ] );
+            $dt_end_fact = Carbon::parse( $attributes[ 'date_end_fact' ] )
+                ->setTime( $exp[ 0 ], $exp[ 1 ], 0 );
+            $attributes[ 'time_end_fact' ] = $dt_end_fact->toDateTimeString();
+        } else
         {
-            $attributes['time_end_fact'] = null;
+            $attributes[ 'time_end_fact' ] = null;
         }
 
-        $attributes['time_begin'] = $dt_begin->toDateTimeString();
-        $attributes['time_end'] = $dt_end->toDateTimeString();
+        $attributes[ 'time_begin' ] = $dt_begin->toDateTimeString();
+        $attributes[ 'time_end' ] = $dt_end->toDateTimeString();
 
         return parent::edit( $attributes );
 
@@ -177,18 +179,19 @@ class Work extends BaseModel
                     {
                         return $buildings
                             ->mine();
-                    });
-                if ( ! \Auth::user()->can( 'supervisor.all_managements' ) )
+                    } );
+                if ( ! \Auth::user()
+                    ->can( 'supervisor.all_managements' ) )
                 {
                     $q
                         ->whereHas( 'managements', function ( $managements )
                         {
                             return $managements
                                 ->mineProvider();
-                        });
+                        } );
                 }
                 return $q;
-            });
+            } );
         return $query;
     }
 
@@ -199,15 +202,16 @@ class Work extends BaseModel
             {
                 return $q
                     ->whereNull( self::$_table . '.time_end_fact' )
-                    ->orWhere( self::$_table . '.time_end_fact', '>=', Carbon::now()->toDateTimeString() );
-            });
+                    ->orWhere( self::$_table . '.time_end_fact', '>=', Carbon::now()
+                        ->toDateTimeString() );
+            } );
     }
-	
-	public function scopeOverdue ( $query )
-	{
-		return $query
-			->whereRaw( 'time_end < COALESCE( time_end_fact, CURRENT_TIMESTAMP )' );
-	}
+
+    public function scopeOverdue ( $query )
+    {
+        return $query
+            ->whereRaw( 'time_end < COALESCE( time_end_fact, CURRENT_TIMESTAMP )' );
+    }
 
     public function getClass ()
     {
@@ -216,12 +220,10 @@ class Work extends BaseModel
         if ( $this->isExpired() )
         {
             return 'danger';
-        }
-        else if ( $dt_begin->timestamp > $dt_now->timestamp )
+        } else if ( $dt_begin->timestamp > $dt_now->timestamp )
         {
             return 'text-muted';
-        }
-        else
+        } else
         {
             return '';
         }
@@ -237,12 +239,12 @@ class Work extends BaseModel
             if ( ! $management->has_contract ) continue;
             foreach ( $management->subscriptions as $subscription )
             {
-                \Telegram::sendMessage([
-                    'chat_id'                   => $subscription->telegram_id,
-                    'text'                      => $message,
-                    'parse_mode'                => 'html',
-                    'disable_web_page_preview'  => true
-                ]);
+                \Telegram::sendMessage( [
+                    'chat_id' => $subscription->telegram_id,
+                    'text' => $message,
+                    'parse_mode' => 'html',
+                    'disable_web_page_preview' => true
+                ] );
             }
         }
 
@@ -253,8 +255,7 @@ class Work extends BaseModel
         if ( ! $this->time_end_fact )
         {
             return Carbon::parse( $this->time_end )->timestamp <= Carbon::now()->timestamp;
-        }
-        else
+        } else
         {
             return Carbon::parse( $this->time_end_fact )->timestamp > Carbon::parse( $this->time_end )->timestamp;
         }
@@ -262,39 +263,48 @@ class Work extends BaseModel
 
     public function canComment ()
     {
-        return \Auth::user()->can( 'works.comments_add' );
+        return \Auth::user()
+            ->can( 'works.comments_add' );
     }
 
     public function getAddressesGroupBySegment ( $withBuildingType = true )
     {
         $result = [];
-        foreach ( $this->buildings as $building )
+        try
         {
-			$name = $building->number;
-			if ( $withBuildingType )
-			{
-				$name .= ' (' . $building->buildingType->name . ')';
-			}
-			if ( $building->segment_id )
+            if ( $this->buildings )
             {
-                if ( ! isset( $result[ $building->segment_id ] ) )
+                foreach ( $this->buildings as $building )
                 {
-                    $result[ $building->segment_id ] = [
-                        $building->getFullName( false ),
-                        [
-                            $name
-                        ]
-                    ];
-                }
-                else
-                {
-                    $result[ $building->segment_id ][ 1 ][] = $name;
+                    $name = $building->number;
+                    if ( $withBuildingType )
+                    {
+                        $name .= ' (' . $building->buildingType->name . ')';
+                    }
+                    if ( $building->segment_id )
+                    {
+                        if ( ! isset( $result[ $building->segment_id ] ) )
+                        {
+                            $result[ $building->segment_id ] = [
+                                $building->getFullName( false ),
+                                [
+                                    $name
+                                ]
+                            ];
+                        } else
+                        {
+                            $result[ $building->segment_id ][ 1 ][] = $name;
+                        }
+                    } else
+                    {
+                        $result[] = [ $building->name ];
+                    }
                 }
             }
-            else
-            {
-                $result[] = [ $building->name ];
-            }
+        }
+        catch ( \Exception $exception )
+        {
+            \Illuminate\Support\Facades\Log::error( $exception->getTraceAsString() );
         }
         return $result;
     }
