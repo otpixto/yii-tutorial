@@ -81,13 +81,15 @@
                         @foreach ( $work->getAddressesGroupBySegment( false ) as $segment )
                             @if(count($segment))
                                 <div class="margin-top-5">
-                            <span class="small">
-                                {{ $segment[ 0 ] }}
-                            </span>
-                                    @if ( ! empty( $segment[ 1 ] ) )
+                                    @if ( isset( $segment[ 0 ] ) )
+                                        <span class="small">
+                                            {{ $segment[ 0 ] }}
+                                        </span>
+                                    @endif
+                                    @if ( isset( $segment[ 1 ] ) )
                                         <span class="bold">
-                                    д. {{ implode( ', ', $segment[ 1 ] ) }}
-                                </span>
+                                            д. {{ implode( ', ', $segment[ 1 ] ) }}
+                                        </span>
                                     @endif
                                 </div>
                             @endif
