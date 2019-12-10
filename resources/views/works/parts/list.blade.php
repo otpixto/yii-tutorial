@@ -73,23 +73,25 @@
                     <div class="small">
                         {{ $work->reason }}
                     </div>
-                    <hr />
+                    <hr/>
                     {{ \App\Models\Work::$types[ $work->type_id ] ?? '-' }}
                 </td>
                 <td>
                     @foreach ( $work->getAddressesGroupBySegment( false ) as $segment )
-                        <div class="margin-top-5">
+                        @if(count($segment))
+                            <div class="margin-top-5">
                             <span class="small">
                                 {{ $segment[ 0 ] }}
                             </span>
-                            @if ( ! empty( $segment[ 1 ] ) )
-                                <span class="bold">
+                                @if ( ! empty( $segment[ 1 ] ) )
+                                    <span class="bold">
                                     д. {{ implode( ', ', $segment[ 1 ] ) }}
                                 </span>
-                            @endif
-                        </div>
+                                @endif
+                            </div>
+                        @endif
                     @endforeach
-                    <hr />
+                    <hr/>
                     @foreach ( $work->managements as $management )
                         <div class="small">
                             @if ( $management->parent )
@@ -105,7 +107,7 @@
                     <div class="bold">
                         {{ $work->category->name ?? '-' }}
                     </div>
-                    <hr />
+                    <hr/>
                     <div class="small">
                         {{ $work->composition }}
                     </div>
@@ -142,7 +144,8 @@
                     @endif
                 </td>
                 <td class="text-right hidden-print text-nowrap">
-                    <a class="btn btn-info tooltips" data-action="comment" data-model-name="{{ get_class( $work ) }}" data-model-id="{{ $work->id }}" data-file="1" title="Добавить комментарий">
+                    <a class="btn btn-info tooltips" data-action="comment" data-model-name="{{ get_class( $work ) }}"
+                       data-model-id="{{ $work->id }}" data-file="1" title="Добавить комментарий">
                         <i class="fa fa-comment"></i>
                     </a>
                     <a href="{{ route( 'works.edit', $work->id ) }}" class="btn btn-primary">
