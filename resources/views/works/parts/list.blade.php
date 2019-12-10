@@ -103,7 +103,7 @@
                 </td>
                 <td>
                     <div class="bold">
-                        {{ $work->category->name }}
+                        {{ $work->category->name ?? '-' }}
                     </div>
                     <hr />
                     <div class="small">
