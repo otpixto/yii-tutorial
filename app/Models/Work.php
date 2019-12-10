@@ -272,7 +272,7 @@ class Work extends BaseModel
         $result = [];
         try
         {
-            if ( $this->buildings )
+            if ( $this->buildings && count($this->buildings) )
             {
                 foreach ( $this->buildings as $building )
                 {
