@@ -19,6 +19,8 @@ class CreatePostponeReasonsTable extends Migration
             $table->string('type', 100)->nullable()->comment('Вид');
             $table->string('name', 255)->notNull()->comment('Наименование');
             $table->string('eds_code', 10)->nullable()->comment('Код ЕДС МО');
+            $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
         });
 
         \Illuminate\Support\Facades\DB::table('reject_reasons')->insert([
