@@ -122,19 +122,19 @@ class Building extends BaseModel
         {
             $current = $this->segment;
             $segments = collect();
-            if (  $current ) return $segments;
-            if ( $current->segmentType->is_visible )
+            if ( ! $current ) return $segments;
+            if ( isset($current->segmentType) && $current->segmentType->is_visible )
             {
                 $segments->push( $current );
             }
             while ( $current->parent )
             {
                 $current = $current->parent;
-                if ( $current->segmentType->is_visible )
+                if ( isset($current->segmentType) && $current->segmentType->is_visible )
                 {
                     $segments->push( $current );
                 }
-                if ( $break && $current->segmentType->break )
+                if ( $break && isset($current->segmentType) && $current->segmentType->break )
                 {
                     break;
                 }
