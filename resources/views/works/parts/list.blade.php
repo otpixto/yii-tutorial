@@ -77,18 +77,18 @@
                     {{ \App\Models\Work::$types[ $work->type_id ] ?? '-' }}
                 </td>
                 <td>
-{{--                    @foreach ( $work->getAddressesGroupBySegment( false ) as $segment )--}}
-{{--                        <div class="margin-top-5">--}}
-{{--                            <span class="small">--}}
-{{--                                {{ $segment[ 0 ] }}--}}
-{{--                            </span>--}}
-{{--                            @if ( ! empty( $segment[ 1 ] ) )--}}
-{{--                                <span class="bold">--}}
-{{--                                    д. {{ implode( ', ', $segment[ 1 ] ) }}--}}
-{{--                                </span>--}}
-{{--                            @endif--}}
-{{--                        </div>--}}
-{{--                    @endforeach--}}
+                    @foreach ( $work->getAddressesGroupBySegment( false ) as $segment )
+                        <div class="margin-top-5">
+                            <span class="small">
+                                {{ $segment[ 0 ] }}
+                            </span>
+                            @if ( ! empty( $segment[ 1 ] ) )
+                                <span class="bold">
+                                    д. {{ implode( ', ', $segment[ 1 ] ) }}
+                                </span>
+                            @endif
+                        </div>
+                    @endforeach
                     <hr />
                     @foreach ( $work->managements as $management )
                         <div class="small">
