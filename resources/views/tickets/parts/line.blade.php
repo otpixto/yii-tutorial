@@ -159,7 +159,7 @@
             @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::EAIS_VENDOR_ID )
                 <span class="badge badge-danger bold">
                     <i class="icon-check"></i>
-                    Из ЕАИС
+                    Из ЕИАС
                 </span>
             @endif
             @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::GZHI_VENDOR_ID )

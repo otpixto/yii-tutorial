@@ -298,7 +298,7 @@
             <label>
                 {!! Form::checkbox( 'from_eais', 1, \Input::get( 'from_eais' ), [ 'class' => 'icheck' ] ) !!}
                 <i class="icon-check"></i>
-                Из ЕАИС
+                Из ЕИАС
             </label>
             <label>
                 {!! Form::checkbox( 'from_gzhi', 1, \Input::get( 'from_gzhi' ), [ 'class' => 'icheck' ] ) !!}
