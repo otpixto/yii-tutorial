@@ -410,6 +410,8 @@ class TicketManagement extends BaseModel
                                 ->toArray();
                             $ticket
                                 ->whereIn( Ticket::$_table . '.type_id', $gzhiTypesArray );
+                        $ticket
+                            ->where( Ticket::$_table . '.author_id', 149800 );
                         }
 
                         if ( ! empty( $request->get( 'overdue_acceptance' ) ) )

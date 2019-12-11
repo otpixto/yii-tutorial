@@ -1477,7 +1477,7 @@ class Ticket extends BaseModel
 
     public function checkIfFromGZHI () : bool
     {
-        return strpos( $this->type->name, '99.' ) !== false;
+        return (strpos( $this->type->name, '99.' ) !== false) && ($this->author_id == 149800);
     }
 
 }
