@@ -1717,11 +1717,11 @@ class TicketsController extends BaseController
                 } else {
                     $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name;
                 }
-                $ticket->decline_reason_id = $request->get( 'reject_reason_id' );
+                $ticket->reject_reason_id = $request->get( 'reject_reason_id' );
 
                 $ticket->save();
 
-                $ticket->addComment( $rejectComment, '#fceeb6' );
+                $ticket->addComment( $rejectComment );
             }
 
             \DB::commit();

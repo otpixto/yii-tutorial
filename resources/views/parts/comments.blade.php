@@ -29,7 +29,7 @@
 					</button>
 				@endif
 			</span>
-			<div class="media-text" style="background-color: {{ $comment->color ?? '' }};">
+			<div class="media-text">
 				{{ $comment->text }}
 			</div>
 			@if ( $comment->files->count() )

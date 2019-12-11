@@ -14,7 +14,7 @@ trait CommentsTrait
             ->where( 'model_name', '=', static::class );
     }
 
-    public function addComment ( $text, $color = null )
+    public function addComment ( $text )
     {
         if ( ! isset( $this->id ) )
         {
@@ -29,7 +29,6 @@ trait CommentsTrait
         {
             return $comment;
         }
-        $comment->color = $color;
         $comment->save();
         if ( method_exists( $this, 'addLog' ) )
         {
