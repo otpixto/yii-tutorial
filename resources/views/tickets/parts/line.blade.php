@@ -221,17 +221,22 @@
 @if ( ! isset( $hideComments ) || ! $hideComments )
     <tr class="comments @if ( $ticketManagement->ticket->isFinalStatus() ) text-muted opacity @endif">
         <td colspan="5">
-            @if ( $ticketManagement->ticket->status_code == 'waiting' && ! empty( $ticketManagement->ticket->postponed_comment ) )
+            @if ( $ticketManagement->ticket->status_code == 'waiting')
                 <div class="note note-warning">
                     <span class="small text-muted">Комментарий к отложенной заявке:</span>
-                    {{ $ticketManagement->ticket->postponed_comment }}
+                    @if($ticketManagement->ticket->postpone_reason_id)
+                        {{ \App\Models\PostponeReason::whereId( $ticketManagement->ticket->postpone_reason_id )->first()->name . ". " }}
+                    @endif
+                    @if(! empty( $ticketManagement->ticket->postponed_comment ) )
+                        {{ $ticketManagement->ticket->postponed_comment }}
+                    @endif
                 </div>
             @endif
 
             @if ( $ticketManagement->ticket->status_code == 'rejected' && $ticketManagement->ticket->reject_reason_id )
                 <div class="note note-warning">
                     <span class="small text-muted">Комментарий к отклоненной заявке:</span>
-                    {{ \App\Models\RejectReason::whereId( $ticketManagement->ticket->reject_reason_id )->first()->name . ' ' . $ticketManagement->ticket->reject_comment }}
+                    {{ \App\Models\RejectReason::whereId( $ticketManagement->ticket->reject_reason_id )->first()->name . '. ' . $ticketManagement->ticket->reject_comment }}
                 </div>
             @endif
 

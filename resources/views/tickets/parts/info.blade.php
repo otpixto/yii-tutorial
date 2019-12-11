@@ -74,9 +74,14 @@
     </div>
 </div>
 
-@if ( $ticket->status_code == 'waiting' && ! empty( $ticket->postponed_comment ) )
+@if ( $ticket->status_code == 'waiting' )
     <div class="alert alert-warning">
-        {{ $ticket->postponed_comment }}
+        @if($ticket->postpone_reason_id)
+            {{ \App\Models\PostponeReason::whereId( $ticket->postpone_reason_id )->first()->name . ". " }}
+        @endif
+        @if(! empty( $ticket->postponed_comment ))
+            {{ $ticket->postponed_comment }}
+        @endif
     </div>
 @endif
 

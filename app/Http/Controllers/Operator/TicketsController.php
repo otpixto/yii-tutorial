@@ -1628,6 +1628,10 @@ class TicketsController extends BaseController
                 {
                     $ticket->postponed_comment = $request->get( 'postponed_comment' );
                 }
+                if ( ! empty( $request->get( 'postpone_reason_id' ) ) )
+                {
+                    $ticket->postpone_reason_id = $request->get( 'postpone_reason_id' );
+                }
                 $ticket->save();
             }
 

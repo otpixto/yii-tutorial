@@ -703,18 +703,19 @@
                                 thisForm.find( '[name="postponed_to"]' ).css('border', '1px solid #c2cad8');
                             }
 
-                            if (thisForm.find( '[name="postponed_comment"]' ).val() == ''){
-                                thisForm.find( '[name="postponed_comment"]' ).css('border', '1px solid red');
+                            if (thisForm.find( '[name="postpone_reason_id"]' ).val() == ''){
+                                thisForm.find( '[name="postpone_reason_id"]' ).css('border', '1px solid red');
                                 return false;
                             } else {
-                                thisForm.find( '[name="postponed_comment"]' ).css('border', '1px solid #c2cad8');
+                                thisForm.find( '[name="postpone_reason_id"]' ).css('border', '1px solid #c2cad8');
                             }
 
                             form
                                 .removeAttr( 'data-confirm' )
                                 .append(
                                     $( '<input type="hidden" name="postponed_to">' ).val( thisForm.find( '[name="postponed_to"]' ).val() ),
-                                    $( '<input type="hidden" name="postponed_comment">' ).val( thisForm.find( '[name="postponed_comment"]' ).val() )
+                                    $( '<input type="hidden" name="postponed_comment">' ).val( thisForm.find( '[name="postponed_comment"]' ).val() ),
+                                    $( '<input type="hidden" name="postpone_reason_id">' ).val( thisForm.find( '[name="postpone_reason_id"]' ).val() )
                                 );
                             form.submit();
                         }
