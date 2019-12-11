@@ -395,6 +395,18 @@ class TicketManagement extends BaseModel
                                 ->where( Ticket::$_table . '.from_lk', '=', 1 );
                         }
 
+                        if ( ! empty( $request->get( 'from_eais' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.vendor_id', '=', Vendor::EAIS_VENDOR_ID );
+                        }
+
+                        if ( ! empty( $request->get( 'from_gzhi' ) ) )
+                        {
+                            $ticket
+                                ->where( Ticket::$_table . '.vendor_id', '=', Vendor::GZHI_VENDOR_ID );
+                        }
+
                         if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
                         {
                             $ticket

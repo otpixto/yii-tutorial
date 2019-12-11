@@ -295,6 +295,16 @@
                 <i class="icon-user-follow"></i>
                 Из ЛК
             </label>
+            <label>
+                {!! Form::checkbox( 'from_eais', 1, \Input::get( 'from_eais' ), [ 'class' => 'icheck' ] ) !!}
+                <i class="icon-check"></i>
+                Из ЕАИС
+            </label>
+            <label>
+                {!! Form::checkbox( 'from_gzhi', 1, \Input::get( 'from_gzhi' ), [ 'class' => 'icheck' ] ) !!}
+                <i class="icon-key"></i>
+                Из ГЖИ
+            </label>
         </div>
     </div>
 </div>

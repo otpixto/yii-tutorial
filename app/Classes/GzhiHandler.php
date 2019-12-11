@@ -426,7 +426,7 @@ SOAP;
 
                             $ticket->vendor_date = $gzhiDate;
 
-                            $ticket->vendor_id = Vendor::GZHI_VENDOR_ID;
+                            $ticket->vendor_id = Vendor::EAIS_VENDOR_ID;
 
                             $ticket->save();
                         }
@@ -1133,6 +1133,8 @@ SOAP;
                                     ->format( 'Y-m-d H:i:s' );
 
                                 $ticket->rate_comment = (string) $gzhiTicketInformation->edsAnswer;
+
+                                $ticket->vendor_id = Vendor::EAIS_VENDOR_ID;
 
                                 $ticket->save();
 
