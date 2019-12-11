@@ -1714,6 +1714,7 @@ class TicketsController extends BaseController
             {
                 if ( ! empty( $request->get( 'reject_reason_comment' ) ) ) {
                     $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name . ' | ' . $request->get( 'reject_reason_comment' );
+                    $ticket->reject_comment = $request->get( 'reject_reason_comment' );
                 } else {
                     $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name;
                 }

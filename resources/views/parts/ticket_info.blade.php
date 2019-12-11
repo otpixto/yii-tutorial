@@ -67,7 +67,8 @@
             <div class="col-xs-6">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="type">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="type">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -99,11 +100,22 @@
             @endif
         @endif
 
+        @if ( $ticket->status_code == 'rejected' && $ticket->reject_reason_id )
+            <div class="note note-warning">
+                <dl>
+                    <dt>Комментарий отклоненной заявки:</dt>
+                    <dd>{{ \App\Models\RejectReason::whereId( $ticket->reject_reason_id )->first()->name . ' ' . $ticket->reject_comment }}</dd>
+                </dl>
+            </div>
+        @endif
+
+
         <div class="row">
             <div class="col-xs-6">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="building">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="building">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -125,7 +137,8 @@
             <div class="col-xs-6">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="mark">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="mark">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -159,7 +172,8 @@
                                 </span>
                             @endif
                             @if ( $ticket->group_uuid )
-                                <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}" class="badge badge-info bold">
+                                <a href="{{ route( 'tickets.index' ) }}?group={{ $ticket->group_uuid }}"
+                                   class="badge badge-info bold">
                                     Сгруппировано
                                 </a>
                                 &nbsp;
@@ -175,7 +189,8 @@
             <div class="col-xs-12">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="text">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="text">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -187,7 +202,7 @@
             </div>
         </div>
 
-        <hr />
+        <hr/>
 
         @if ( $ticket->type )
             <div class="row">
@@ -379,7 +394,8 @@
             <div class="col-xs-6">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="name">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="name">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -392,12 +408,15 @@
             <div class="col-xs-6">
                 <div class="note">
                     @if ( $ticket->canCall() )
-                        <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticket->getPhones() }}">
+                        <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                data-phones="{{ $ticket->getPhones() }}">
                             <i class="fa fa-phone"></i>
                         </button>
                     @endif
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="phone">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="phone">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -413,7 +432,8 @@
             <div class="col-xs-12">
                 <div class="note">
                     @if ( $ticket->canEdit() )
-                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print" data-edit="actual_building">
+                        <button type="button" class="btn btn-lg btn-default pull-left margin-right-10 hidden-print"
+                                data-edit="actual_building">
                             <i class="fa fa-edit"></i>
                         </button>
                     @endif
@@ -431,7 +451,7 @@
             </div>
         </div>
 
-        <hr />
+        <hr/>
 
         @if ( $ticket->type && $ticket->type->need_act )
             <div class="alert alert-warning">
@@ -468,7 +488,10 @@
                         <div class="col-lg-6">
                             <div class="note">
                                 @if ( $ticket->canCall() )
-                                    <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $ticketManagement->management->getPhones() }}">
+                                    <button type="button"
+                                            class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                            data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                            data-phones="{{ $ticketManagement->management->getPhones() }}">
                                         <i class="fa fa-phone"></i>
                                     </button>
                                 @endif
@@ -539,13 +562,18 @@
                             <div class="col-xs-12">
                                 <div class="note">
                                     @if ( $ticketManagement->canPrintAct() )
-                                        <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                        <a href="{{ route( 'tickets.act', $ticketManagement->getTicketNumber() ) }}"
+                                           class="btn btn-sm btn-info" target="_blank">
                                             <i class="glyphicon glyphicon-print"></i>
                                             Распечатать бланк Акта
                                         </a>
                                     @endif
                                     @if ( $ticketManagement->canUploadAct() )
-                                        <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $ticketManagement ) }}" data-model-id="{{ $ticketManagement->id }}" data-title="Прикрепить оформленный акт" data-status="completed_with_act">
+                                        <button class="btn btn-sm btn-primary" data-action="file"
+                                                data-model-name="{{ get_class( $ticketManagement ) }}"
+                                                data-model-id="{{ $ticketManagement->id }}"
+                                                data-title="Прикрепить оформленный акт"
+                                                data-status="completed_with_act">
                                             <i class="glyphicon glyphicon-upload"></i>
                                             Прикрепить оформленный Акт
                                         </button>
@@ -590,12 +618,15 @@
                                     @endif
                                 </div>
                                 @foreach ( $ticket->managements()->mine()->get() as $_ticketManagement )
-                                    <hr />
+                                    <hr/>
                                     <div class="row">
                                         <div class="col-xs-5">
                                             <dl>
                                                 @if ( $ticket->canCall() )
-                                                    <button type="button" class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print" data-action="ticket-call" data-ticket="{{ $ticket->id }}" data-phones="{{ $_ticketManagement->management->getPhones() }}">
+                                                    <button type="button"
+                                                            class="btn btn-lg btn-warning pull-right margin-left-10 hidden-print"
+                                                            data-action="ticket-call" data-ticket="{{ $ticket->id }}"
+                                                            data-phones="{{ $_ticketManagement->management->getPhones() }}">
                                                         <i class="fa fa-phone"></i>
                                                     </button>
                                                 @endif
@@ -641,13 +672,17 @@
                                         <div class="row margin-top-10 hidden-print">
                                             <div class="col-xs-12">
                                                 @if ( $_ticketManagement->canPrintAct() )
-                                                    <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}" class="btn btn-sm btn-info" target="_blank">
+                                                    <a href="{{ route( 'tickets.act', $_ticketManagement->getTicketNumber() ) }}"
+                                                       class="btn btn-sm btn-info" target="_blank">
                                                         <i class="glyphicon glyphicon-print"></i>
                                                         Распечатать бланк Акта
                                                     </a>
                                                 @endif
                                                 @if ( $_ticketManagement->canUploadAct() )
-                                                    <button class="btn btn-sm btn-primary" data-action="file" data-model-name="{{ get_class( $_ticketManagement ) }}" data-model-id="{{ $_ticketManagement->id }}" data-title="Прикрепить оформленный Акт">
+                                                    <button class="btn btn-sm btn-primary" data-action="file"
+                                                            data-model-name="{{ get_class( $_ticketManagement ) }}"
+                                                            data-model-id="{{ $_ticketManagement->id }}"
+                                                            data-title="Прикрепить оформленный Акт">
                                                         <i class="glyphicon glyphicon-upload"></i>
                                                         Прикрепить оформленный Акт
                                                     </button>
@@ -706,7 +741,8 @@
                                                             {!! Form::text( 'amount', $service->amount ?? null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                                         </div>
                                                         <div class="col-xs-1 text-right hidden-print">
-                                                            <button type="button" data-repeater-delete="" class="btn btn-danger">
+                                                            <button type="button" data-repeater-delete=""
+                                                                    class="btn btn-danger">
                                                                 <i class="fa fa-close"></i>
                                                             </button>
                                                         </div>
@@ -728,7 +764,8 @@
                                                         {!! Form::text( 'amount', '', [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
                                                     </div>
                                                     <div class="col-xs-1 text-right hidden-print">
-                                                        <button type="button" data-repeater-delete="" class="btn btn-danger">
+                                                        <button type="button" data-repeater-delete=""
+                                                                class="btn btn-danger">
                                                             <i class="fa fa-close"></i>
                                                         </button>
                                                     </div>
@@ -743,10 +780,11 @@
                                                 {{ number_format( $ticketManagement->services->sum( function ( $service ){ return $service[ 'amount' ] * $service[ 'quantity' ]; } ), 2, '.', '' ) }}
                                             </div>
                                         </div>
-                                        <hr class="hidden-print" />
+                                        <hr class="hidden-print"/>
                                         <div class="row hidden-print">
                                             <div class="col-xs-6">
-                                                <button type="button" data-repeater-create="" class="btn btn-sm btn-default mt-repeater-add">
+                                                <button type="button" data-repeater-create=""
+                                                        class="btn btn-sm btn-default mt-repeater-add">
                                                     <i class="fa fa-plus"></i>
                                                     Добавить
                                                 </button>
@@ -777,7 +815,7 @@
                                                     {{ $service->amount }}
                                                 </div>
                                             </div>
-                                            <hr />
+                                            <hr/>
                                         @endforeach
                                     @else
                                         <div class="small text-danger">Выполненных работ нет</div>
@@ -808,7 +846,10 @@
                 @if ( $ticket && $ticket->canComment() )
                     <div class="row hidden-print">
                         <div class="col-xs-12">
-                            <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment" data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}" data-origin-model-name="{{ get_class( $ticket ) }}" data-origin-model-id="{{ $ticket->id }}" data-file="1">
+                            <button type="button" class="btn btn-block btn-primary btn-lg" data-action="comment"
+                                    data-model-name="{{ get_class( $ticket ) }}" data-model-id="{{ $ticket->id }}"
+                                    data-origin-model-name="{{ get_class( $ticket ) }}"
+                                    data-origin-model-id="{{ $ticket->id }}" data-file="1">
                                 <i class="fa fa-commenting"></i>
                                 Добавить комментарий
                             </button>
@@ -820,7 +861,8 @@
 
             <div id="customer_tickets" class="tab-pane fade margin-top-15">
                 <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100"
+                         aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                         Загрузка...
                     </div>
                 </div>
@@ -828,7 +870,8 @@
 
             <div id="neighbors_tickets" class="tab-pane fade margin-top-15">
                 <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="100"
+                         aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                         Загрузка...
                     </div>
                 </div>

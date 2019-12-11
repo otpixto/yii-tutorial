@@ -162,12 +162,12 @@
                     Из Мосрега
                 </span>
             @endif
-                @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
-                    <span class="badge badge-danger bold">
+            @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
+                <span class="badge badge-danger bold">
                <i class="icon-support"></i>
                 {{ $ticketManagement->ticket->status_name }}
             </span>
-                @endif
+            @endif
         </div>
         @if ( \Auth::user()->can( 'tickets.field_text' ) )
             <hr/>
@@ -227,6 +227,14 @@
                     {{ $ticketManagement->ticket->postponed_comment }}
                 </div>
             @endif
+
+            @if ( $ticketManagement->ticket->status_code == 'rejected' && $ticketManagement->ticket->reject_reason_id )
+                <div class="note note-warning">
+                    <span class="small text-muted">Комментарий к отклоненной заявке:</span>
+                    {{ \App\Models\RejectReason::whereId( $ticketManagement->ticket->reject_reason_id )->first()->name . ' ' . $ticketManagement->ticket->reject_comment }}
+                </div>
+            @endif
+
             @if ( isset( $ticketManagement ) && $ticketManagement->rate_comment )
                 <div class="note note-danger">
                     <span class="small text-muted">Комментарий к оценке:</span>
