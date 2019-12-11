@@ -32,7 +32,7 @@ class GzhiHandler
 
     public function __construct ( $status = null )
     {
-        $this->url = GzhiRequest::GJI_SOAP_URL;
+        $this->url = env('EIAS_INTEGRATION_URL') ?? GzhiRequest::GJI_SOAP_URL;
 
         $this->soapAction = GzhiRequest::GZHI_REQUEST_IMPORT_METHOD;
 
@@ -425,8 +425,6 @@ SOAP;
                             $ticket->vendor_number = (String) $objectGUID;
 
                             $ticket->vendor_date = $gzhiDate;
-
-                            $ticket->vendor_id = Vendor::EAIS_VENDOR_ID;
 
                             $ticket->save();
                         }
@@ -1095,7 +1093,6 @@ SOAP;
 
                                 $building = Building::where( 'gzhi_address_guid', $addressGUID )
                                     ->first();
-
 
                                 if ( ! $building ) continue;
 
