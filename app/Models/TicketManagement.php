@@ -294,7 +294,8 @@ class TicketManagement extends BaseModel
                             ->addHours( $request->get( 'deadline_execution' ) );
 
                         $ticket
-                            ->whereBetween( Ticket::$_table . '.deadline_execution', [Carbon::now()->format('Y-m-d H:i:s'), $deadLineExecution->format('Y-m-d H:i:s')] );
+                            ->whereBetween( Ticket::$_table . '.deadline_execution', [ Carbon::now()
+                                ->format( 'Y-m-d H:i:s' ), $deadLineExecution->format( 'Y-m-d H:i:s' ) ] );
                     }
 
                     if ( ! empty( $request->get( 'group' ) ) )
@@ -403,8 +404,12 @@ class TicketManagement extends BaseModel
 
                         if ( ! empty( $request->get( 'from_gzhi' ) ) )
                         {
+                            $gzhiTypesArray = Type::where( 'name', 'like', '99.%' )
+                                ->get()
+                                ->pluck( 'id' )
+                                ->toArray();
                             $ticket
-                                ->where( Ticket::$_table . '.vendor_id', '=', Vendor::GZHI_VENDOR_ID );
+                                ->whereIn( Ticket::$_table . '.type_id', $gzhiTypesArray );
                         }
 
                         if ( ! empty( $request->get( 'overdue_acceptance' ) ) )

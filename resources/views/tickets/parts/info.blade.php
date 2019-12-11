@@ -391,7 +391,7 @@
                                             Из ЕИАС
                                         </span>
                                     @endif
-                                    @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::GZHI_VENDOR_ID )
+                                    @if ( $ticketManagement->ticket->checkIfFromGZHI() )
                                         <span class="badge badge-info bold">
                                             <i class="icon-key"></i>
                                             Из ГЖИ

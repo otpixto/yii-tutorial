@@ -446,8 +446,10 @@ class Ticket extends BaseModel
             $query
                 ->where( 'owner_id', '=', \Auth::user()->id );
         }
-        $filter_managements = ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()->can( 'supervisor.all_managements' );
-        $filter_statuses = ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()->can( 'supervisor.all_statuses.show' );
+        $filter_managements = ! in_array( self::IGNORE_MANAGEMENT, $flags ) && ! \Auth::user()
+                ->can( 'supervisor.all_managements' );
+        $filter_statuses = ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()
+                ->can( 'supervisor.all_statuses.show' );
         if ( $filter_managements || $filter_statuses )
         {
             $query
@@ -460,7 +462,8 @@ class Ticket extends BaseModel
                             if ( $filter_statuses )
                             {
                                 $q2
-                                    ->whereIn( Ticket::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                                    ->whereIn( Ticket::$_table . '.status_code', \Auth::user()
+                                        ->getAvailableStatuses( 'show' ) );
                             }
                             if ( $filter_managements || $filter_statuses )
                             {
@@ -470,20 +473,22 @@ class Ticket extends BaseModel
                                         if ( $filter_managements )
                                         {
                                             $managements
-                                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )->toArray() );
+                                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )
+                                                    ->toArray() );
                                         }
                                         if ( $filter_statuses )
                                         {
                                             $managements
-                                                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()->getAvailableStatuses( 'show' ) );
+                                                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()
+                                                    ->getAvailableStatuses( 'show' ) );
                                         }
                                         return $managements;
-                                    });
+                                    } );
                             }
                             return $q2;
-                        });
+                        } );
                     return $q;
-                });
+                } );
         }
         return $query;
     }
@@ -1209,13 +1214,15 @@ class Ticket extends BaseModel
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = Carbon::now()->toDateTimeString();
+                    $this->completed_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
@@ -1237,7 +1244,8 @@ class Ticket extends BaseModel
 
                 if ( ! $this->transferred_at )
                 {
-                    $this->transferred_at = Carbon::now()->toDateTimeString();
+                    $this->transferred_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 $this->completed_at = null;
@@ -1245,8 +1253,10 @@ class Ticket extends BaseModel
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
-                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )
+                        ->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )
+                        ->toDateTimeString() : $this->transferred_at->toDateTimeString();
                 }
 
                 $this->save();
@@ -1257,12 +1267,14 @@ class Ticket extends BaseModel
 
                 if ( ! $this->transferred_at )
                 {
-                    $this->transferred_at = Carbon::now()->toDateTimeString();
+                    $this->transferred_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
@@ -1271,8 +1283,10 @@ class Ticket extends BaseModel
 
                 if ( $this->type )
                 {
-                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
-                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_acceptance = $this->type->period_acceptance ? $this->transferred_at->addMinutes( $this->type->period_acceptance * 60 )
+                        ->toDateTimeString() : $this->transferred_at->toDateTimeString();
+                    $this->deadline_execution = $this->type->period_execution ? $this->transferred_at->addMinutes( $this->type->period_execution * 60 )
+                        ->toDateTimeString() : $this->transferred_at->toDateTimeString();
                 }
 
                 $this->save();
@@ -1288,7 +1302,8 @@ class Ticket extends BaseModel
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
@@ -1300,13 +1315,15 @@ class Ticket extends BaseModel
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = Carbon::now()->toDateTimeString();
+                    $this->completed_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
@@ -1336,13 +1353,15 @@ class Ticket extends BaseModel
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = Carbon::now()->toDateTimeString();
+                    $this->completed_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
@@ -1359,13 +1378,15 @@ class Ticket extends BaseModel
 
                 if ( ! $this->accepted_at )
                 {
-                    $this->accepted_at = Carbon::now()->toDateTimeString();
+                    $this->accepted_at = Carbon::now()
+                        ->toDateTimeString();
                     $this->save();
                 }
 
                 if ( ! $this->completed_at )
                 {
-                    $this->completed_at = Carbon::now()->toDateTimeString();
+                    $this->completed_at = Carbon::now()
+                        ->toDateTimeString();
                 }
 
                 if ( ! $this->duration_work && $this->transferred_at && $this->completed_at )
@@ -1452,6 +1473,11 @@ class Ticket extends BaseModel
         {
             return $this->provider->need_act ?? 0;
         }
+    }
+
+    public function checkIfFromGZHI () : bool
+    {
+        return strpos( $this->type->name, '99.' ) !== false;
     }
 
 }
