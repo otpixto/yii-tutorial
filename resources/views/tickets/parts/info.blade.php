@@ -385,6 +385,18 @@
                                             Из ЛК
                                         </span>
                                     @endif
+                                    @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::EAIS_VENDOR_ID )
+                                        <span class="badge badge-danger bold">
+                                            <i class="icon-check"></i>
+                                            Из ЕАИС
+                                        </span>
+                                    @endif
+                                    @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::GZHI_VENDOR_ID )
+                                        <span class="badge badge-info bold">
+                                            <i class="icon-key"></i>
+                                            Из ГЖИ
+                                        </span>
+                                    @endif
                                     @if ( $ticket->from_mosreg )
                                         <span class="badge badge-danger bold">
                                             <i class="icon-support"></i>
