@@ -11,7 +11,7 @@
 <div class="form-group">
 	<div class="col-xs-12">
 		{!! Form::label( 'postpone_reason_id', 'Причина', [ 'class' => 'control-label' ] ) !!} <span class="form-element-required">*</span>
-		{!! Form::select( 'postpone_reason_id', array_merge(["" => "Выберите из списка"], \App\Models\PostponeReason::pluck('name', 'id')->toArray()), "", [ 'class' => 'form-control', 'required' => 'required' ] ) !!}
+		{!! Form::select( 'postpone_reason_id', \App\Models\PostponeReason::pluck('name', 'id')->toArray(), "", [ 'class' => 'form-control', 'required' => 'required' ] ) !!}
 	</div>
 </div>
 <div class="form-group">
