@@ -29,6 +29,8 @@ class GzhiRequest extends BaseModel
 
     const GJI_SOAP_URL = 'https://lk.eiasmo.ru/eds-service/';
 
+    const EIAS_INTEGRATION_FILE_REST_URL = 'https://lk.eiasmo.ru/file-service/rest/';
+
     const GZHI_VENDOR_ID = 4;
 
     const GZHI_STATUSES_LIST = [

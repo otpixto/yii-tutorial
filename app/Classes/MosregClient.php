@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\RejectReason;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
@@ -33,10 +34,10 @@ class MosregClient
 
     public function __construct ( $username, $password )
     {
-        $this->client = new Client([
-            'base_uri'              => self::URL,
+        $this->client = new Client( [
+            'base_uri' => self::URL,
             RequestOptions::TIMEOUT => self::TIMEOUT
-        ]);
+        ] );
         $this->username = $username;
         $this->password = $password;
         $this->logs = new Logger( 'MOSREG' );
@@ -85,13 +86,23 @@ class MosregClient
 
     public function answer ( $id, $answer_id, $comment = '-', Collection $files = null )
     {
-        if ( ! isset( self::$answers[ $answer_id ] ) )
+        $rejectReason = RejectReason::where( 'id', $answer_id )
+            ->first();
+
+        if ( $rejectReason )
+        {
+            $mosregId = $rejectReason->mosreg_id;
+        } else {
+            throw new MosregException( 'Некорректный ID ответа' );
+        }
+
+        if ( ! isset( self::$answers[ $mosregId ] ) )
         {
             throw new MosregException( 'Некорректный ID ответа' );
         }
         $data = [
-            'answer_id'     => $answer_id,
-            'comment'       => $comment,
+            'answer_id' => $mosregId,
+            'comment' => $comment,
         ];
         return $this->sendRequest( 'POST', '/api/tickets/' . $id . '/answer', $data, $files );
     }
@@ -132,8 +143,7 @@ class MosregClient
             {
                 $requestOptions[ RequestOptions::QUERY ] = $data;
             }
-        }
-        else
+        } else
         {
             $requestData = [];
             if ( $data )
@@ -141,8 +151,8 @@ class MosregClient
                 foreach ( $data as $name => $value )
                 {
                     $requestData[] = [
-                        'name'      => $name,
-                        'contents'  => $value,
+                        'name' => $name,
+                        'contents' => $value,
                     ];
                 }
             }
@@ -151,9 +161,9 @@ class MosregClient
                 foreach ( $files as $file )
                 {
                     $requestData[] = [
-                        'name'          => 'files[]',
-                        'contents'      => fopen( storage_path( 'app/' . $file->path ), 'r' ),
-                        'filename'      => $file->name,
+                        'name' => 'files[]',
+                        'contents' => fopen( storage_path( 'app/' . $file->path ), 'r' ),
+                        'filename' => $file->name,
                     ];
                 }
             }

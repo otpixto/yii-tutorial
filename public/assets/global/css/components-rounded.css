@@ -9577,7 +9577,7 @@ Custom colored portlets
 
 .portlet > .portlet-body.red,
 .portlet.red {
-  background-color: #e7505a; }
+  background-color: rgb(234,173,22); }
 
 .portlet.solid.red > .portlet-title,
 .portlet.solid.red > .portlet-body {
@@ -9611,7 +9611,7 @@ Custom colored portlets
   border: 1px solid #ed7d84;
   border-top: 0; }
   .portlet.box.red > .portlet-title {
-    background-color: #e7505a; }
+    background-color: rgb(234,173,22); }
     .portlet.box.red > .portlet-title > .caption {
       color: #ffffff; }
       .portlet.box.red > .portlet-title > .caption > i {

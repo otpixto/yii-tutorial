@@ -18,10 +18,10 @@
                         <i class="fa fa-info"></i>
                         Требуется действие
                     </div>
+                        <a href="javascript:;" class="btn btn-sm btn-danger pull-right alReloadButton" id="alReloadTickets" data-original-title="" title="Обновить">Обновить</a>
                     <div class="tools">
-                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
-                        <a href="javascript:;" class="fullscreen" data-original-title="" title=""> </a>
-                        <a href="javascript:;" class="reload" id="alReloadTickets" data-original-title="" title=""> </a>
+                            <a href="javascript:;" class="collapse" data-original-title="" title="Скрыть/Показать"> </a>
+                            <a href="javascript:;" class="fullscreen" data-original-title="" title="Полный экран"> </a>
                     </div>
                 </div>
                 <div class="portlet-body" id="alPortletBody">
@@ -438,7 +438,7 @@
                 $('.tickets-filter:checked').parent().addClass('active');
 
                 $('#scheduled-tickets').pulsate({
-                    color: '#bf1c56'
+                    color: 'rgb(234,173,22)'
                 });
 
             })

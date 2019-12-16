@@ -4,6 +4,7 @@ namespace App\Classes;
 
 use App\Models\Building;
 use App\Models\Customer;
+use App\Models\File;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Management;
@@ -35,6 +36,8 @@ class GzhiHandler
     public function __construct ( $status = null )
     {
         $this->url = env( 'EIAS_INTEGRATION_URL' ) ?? GzhiRequest::GJI_SOAP_URL;
+
+        $this->fileRestUrl = env( 'EIAS_INTEGRATION_FILE_REST_URL' ) ?? GzhiRequest::EIAS_INTEGRATION_FILE_REST_URL;
 
         $this->soapAction = GzhiRequest::GZHI_REQUEST_IMPORT_METHOD;
 
@@ -239,10 +242,10 @@ class GzhiHandler
 //        }
 
         $executors = '';
-        if (  $ticket->managements[ 0 ]->management->executors()
+        if ( $ticket->managements[ 0 ]->management->executors()
             ->first() )
         {
-                $executors .= "<eds:WorkerFIO>{$ticket->managements[ 0 ]->management->executors()
+            $executors .= "<eds:WorkerFIO>{$ticket->managements[ 0 ]->management->executors()
             ->first()->name}</eds:WorkerFIO>";
         }
 
@@ -1126,7 +1129,6 @@ SOAP;
                     {
                         try
                         {
-
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
                             if ( $gzhiTicketInformation->edsIsEDS == 'true' ) continue;
@@ -1212,6 +1214,20 @@ SOAP;
 
                                 $ticket->save();
 
+                                if ( isset( $gzhiTicketInformation->edsInitiatorFiles )
+                                    && count( $gzhiTicketInformation->edsInitiatorFiles )
+                                    && isset( $gzhiTicketInformation->edsInitiatorFiles->edsName )
+                                    && isset( $gzhiTicketInformation->edsInitiatorFiles->edsAttachmentGUID ) )
+                                {
+
+                                    foreach ( $gzhiTicketInformation->edsInitiatorFiles as $edsInitiatorFile )
+                                    {
+                                        $edsFileName = (string) $edsInitiatorFile->edsName;
+                                        $edsAttachmentGUID = (string) $edsInitiatorFile->edsAttachmentGUID;
+                                        $this->curlGetFile( $edsFileName, $edsAttachmentGUID, $ticket->id, $accessData, $gzhiRequest->gzhiApiProvider->org_guid );
+                                    }
+                                }
+
                                 if ( $management )
                                 {
 
@@ -1265,6 +1281,83 @@ SOAP;
             $log->save();
         }
 
+    }
+
+    public function curlGetFile ( $edsFileName, $edsAttachmentGUID, $ticketId, $accessData, $orgGUID )
+    {
+        try
+        {
+            $arr = explode( '.', $edsFileName );
+            if ( count( $arr ) != 2 )
+            {
+                return;
+            }
+            $extension = $arr[ 1 ];
+
+            $headers = [
+                'Content-type: application/x-www-form-urlencoded',
+                'X-Upload-OrgGUID: ' . $orgGUID
+            ];
+            $url = $this->fileRestUrl . $edsAttachmentGUID . '?getfile';
+
+            $curl = curl_init();
+            curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, 1 );
+            curl_setopt( $curl, CURLOPT_URL, $url );
+            curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+            curl_setopt( $curl, CURLOPT_USERPWD, $accessData );
+            curl_setopt( $curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
+            curl_setopt( $curl, CURLOPT_TIMEOUT, 30 );
+            curl_setopt( $curl, CURLOPT_HTTPHEADER, $headers );
+            curl_setopt( $curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
+            $response = curl_exec( $curl );
+
+            $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+
+            if ( $status_code != 200 )
+            {
+                $this->errorMessage .= "CURL status: $status_code; ";
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
+
+                $log->save();
+                return;
+            }
+
+            $fileHashName = md5( rand( 1111, 9999 ) ) . md5( rand( 1111, 9999 ) ) . '.' . $extension;
+
+            $path = 'files/' . $fileHashName;
+
+            $destination = storage_path( 'app/' ) . $path;
+
+            $file = fopen( $destination, "w+" );
+
+            fputs( $file, $response );
+
+            fclose( $file );
+
+            $file = File::create( [
+                'model_id' => $ticketId,
+                'model_name' => 'App\Models\Ticket',
+                'path' => $path,
+                'name' => $edsFileName
+            ] );
+
+            $file->save();
+
+        }
+        catch ( \Exception $e )
+        {
+
+            $log = \App\Models\Log::create( [
+                'text' => $e->getMessage()
+            ] );
+
+            $log->save();
+
+            dd( $e->getMessage() );
+
+        }
     }
 
 }
