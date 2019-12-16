@@ -3,6 +3,7 @@
 namespace App\Classes;
 
 use App\Models\Building;
+use App\Models\Customer;
 use App\Models\GzhiApiProvider;
 use App\Models\GzhiRequest;
 use App\Models\Management;
@@ -12,6 +13,7 @@ use App\Models\TicketManagement;
 use App\Models\Type;
 use App\Models\Vendor;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Webpatser\Uuid\Uuid;
 
 class GzhiHandler
@@ -32,7 +34,7 @@ class GzhiHandler
 
     public function __construct ( $status = null )
     {
-        $this->url = env('EIAS_INTEGRATION_URL') ?? GzhiRequest::GJI_SOAP_URL;
+        $this->url = env( 'EIAS_INTEGRATION_URL' ) ?? GzhiRequest::GJI_SOAP_URL;
 
         $this->soapAction = GzhiRequest::GZHI_REQUEST_IMPORT_METHOD;
 
@@ -101,7 +103,6 @@ class GzhiHandler
 
     public function handleGzhiTicket ( Ticket $ticket, GzhiApiProvider $gzhiProvider ) : int
     {
-
         $ticket->load( 'managements' );
 
         $ticket->load( 'customer' );
@@ -161,9 +162,14 @@ class GzhiHandler
 
         $managementGuid = $ticket->managements[ 0 ]->management->parent->gzhi_guid ?? $ticket->managements[ 0 ]->management->parent->guid ?? $ticket->managements[ 0 ]->management->gzhi_guid ?? $ticket->managements[ 0 ]->management->guid;
 
-        if ( ! isset( $ticket->managements[ 0 ]->management ) || ! $ticket->type->gzhi_code_type || ! $ticket->type->gzhi_code || $ticket->building->gzhi_address_guid == null || $ticket->vendors()
-                ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
-                ->count() || $ticket->type_id == null || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST ) || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E' || ! $ticket->status->gzhi_status_code )
+        if ( ! isset( $ticket->managements[ 0 ]->management )
+            || ! $ticket->type->gzhi_code_type
+            || ! $ticket->type->gzhi_code
+            || $ticket->building->gzhi_address_guid == null
+            || $ticket->type_id == null
+            || ! in_array( $ticket->status_code, GzhiRequest::GZHI_STATUSES_LIST )
+            || $managementGuid == '355D5C52-BB06-11E7-9583-B5CD11EEAB0E'
+            || ! $ticket->status->gzhi_status_code )
         {
             return 0;
         }
@@ -202,6 +208,44 @@ class GzhiHandler
             $fact = '';
         }
 
+        if ( $ticket->gzhi_appeal_number )
+        {
+            $appealNumber = "<eds:AppealNumber>{$ticket->gzhi_appeal_number}</eds:AppealNumber>";
+        } else
+        {
+            $appealNumber = "";
+        }
+
+        $initiatorFiles = '';
+//        foreach ( $ticket->comments as $comment )
+//        {
+//            foreach ( $comment->files()
+//                          ->get() as $file )
+//            {
+//
+//                $path = storage_path( 'app' ) . '/' . $file->path;
+//
+//                $fileHash = md5_file( $path );
+//                $fileGUID = Uuid::generate();
+//                $initiatorFiles .= "<eds:ProlongFile>
+//                     <eds:Name>{$file->name}</eds:Name>
+//                     <eds:FileName>{$file->name}</eds:FileName>
+//                     <eds:AttachmentGUID>$appealGuid</eds:AttachmentGUID>
+//                     <eds:AttachmentHASH>$fileHash</eds:AttachmentHASH>
+//                  </eds:ProlongFile>
+//               ";
+//            }
+//
+//        }
+
+        $executors = '';
+        if (  $ticket->managements[ 0 ]->management->executors()
+            ->first() )
+        {
+                $executors .= "<eds:WorkerFIO>{$ticket->managements[ 0 ]->management->executors()
+            ->first()->name}</eds:WorkerFIO>";
+        }
+
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
@@ -214,6 +258,7 @@ class GzhiHandler
          </eds:Header>
          <eds:Appeal>
             <eds:AppealGUID>$appealGuid</eds:AppealGUID>
+            $appealNumber
             <eds:TransportGUID>$transportGuid</eds:TransportGUID>
             <eds:AppealInformation>
                <eds:CreationDate>$packDate</eds:CreationDate>
@@ -231,9 +276,12 @@ class GzhiHandler
                <eds:NumberReg>$numberReg</eds:NumberReg>
                <eds:DateReg>$dateReg</eds:DateReg>
                <eds:DatePlan>$planDate</eds:DatePlan>
+               $executors
                <eds:Prolong>
                   <eds:ProlongReasons>$prolongReason</eds:ProlongReasons>
+                  $initiatorFiles
                </eds:Prolong>
+               $initiatorFiles
                $fact
             </eds:AppealInformation>
          </eds:Appeal>
@@ -298,20 +346,6 @@ SOAP;
             ] );
 
             $gzhiRequest->save();
-
-            if ( ! $ticket->vendors()
-                ->where( [ 'vendor_id' => GzhiRequest::GZHI_VENDOR_ID ] )
-                ->count() )
-            {
-
-                $ticket->vendors()
-                    ->attach( GzhiRequest::GZHI_VENDOR_ID, [
-                        'number' => $appealGuid,
-                        'datetime' => Carbon::now()
-                            ->toDateTimeString(),
-                    ] );
-
-            }
 
         }
 
@@ -596,7 +630,7 @@ SOAP;
 
         $soapAction = $this->soapGetStateAction;
 
-        $gzhiApiProvider = GzhiApiProvider::whereName( 'Жуковский' )
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Раменское' )
             ->first();
 
         $orgGuid = $gzhiApiProvider->org_guid;
@@ -619,7 +653,7 @@ SOAP;
                 <eds:PackGUID>$packGuid</eds:PackGUID>
                 <eds:PackDate>$packDate</eds:PackDate>
             </eds:Header>
-            <eds:PackGUID>68b4ab59-b1fd-11e9-8c02-ddd67477fd67</eds:PackGUID>
+            <eds:PackGUID>49b4ab89-b4fd-23e9-9c03-ddd67577fd67</eds:PackGUID>
         </eds:getStateDSRequest>
     </soapenv:Body>
 </soapenv:Envelope>
@@ -671,31 +705,67 @@ SOAP;
 
         $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses;
 
-        $buildings = Building::all();
 
         $i = 0;
 
-        foreach ( $buildings as &$building )
+
+        foreach ( $gzhiAddresses as $gzhiAddress )
         {
 
-            foreach ( $gzhiAddresses as $gzhiAddress )
+            $building = Building::where( 'gzhi_address_guid', $gzhiAddress->edsAddressGUID )
+                ->first();
+
+            if ( $building )
             {
 
-                $edsName = (String) $gzhiAddress->edsAddressName;
+                $building->fais_address_guid = $gzhiAddress->edsFIASAddressGUID ?? '';
 
-                if ( strpos( $building->name, $edsName ) )
-                {
-                    $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
+                $building->save();
 
-                    $building->save();
-
-                    $i ++;
-
-                    continue 2;
-                }
-
+                $i ++;
             }
         }
+
+
+//        foreach ( $buildings as &$building )
+//        {
+//
+//            foreach ( $gzhiAddresses as $gzhiAddress )
+//            {
+//
+//                $edsName = (String) $gzhiAddress->edsAddressName;
+//
+//                if ( strpos( $building->name, $edsName ) )
+//                {
+//                    $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
+//
+//                    $building->save();
+//
+//                    $i ++;
+//
+//                    continue 2;
+//                }
+//
+//            }
+//        }
+//
+//        foreach ( $gzhiAddresses as $gzhiAddress )
+//        {
+//
+//            $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsAddressGUID;
+//            $dataArray[ $i ][ 'edsFullName' ] = (string) $gzhiAddress->edsAddressName;
+//            $dataArray[ $i ][ 'edsName' ] = (string) $gzhiAddress->edsRegion;
+//            $dataArray[ $i ][ 'edsAddress' ] = (string) $gzhiAddress->edsArea;
+//            $dataArray[ $i ][ 'edsAddressJur' ] = (string) $gzhiAddress->edsPlace;
+//            $dataArray[ $i ][ 'edsHouseNum' ] = (string) $gzhiAddress->edsHouseNum;
+//
+//            $i ++;
+//
+//        }
+//
+//        $headersArray = array( 'edsOrgGUID', 'edsFullName', 'edsName', 'edsAddress', 'edsAddressJur', 'edsHouseNum' );
+//
+//        $this->generateCSV( $headersArray, $dataArray );
 
         echo "Обработано позиций: " . $i;
 
@@ -1063,15 +1133,12 @@ SOAP;
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
-                            ///////////
-                            $orgGUID = "3CFBB24C-BB06-11E7-9583-B5CD11EEAB0E";
-
                             $management = Management::where( 'gzhi_guid', $orgGUID )
                                 ->first();
 
                             if ( ! $management ) continue;
 
-                            $ticket = Ticket::where('gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber)
+                            $ticket = Ticket::where( 'gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber )
                                 ->first();
 
                             if ( ! $ticket )
@@ -1088,10 +1155,7 @@ SOAP;
 
                                 $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
 
-                                //////////////
-                                $addressGUID = 'FF64D598-BA52-11E7-B867-FE5F11EEAB0E';
-
-                                $building = Building::where( 'gzhi_address_guid', $addressGUID )
+                                $building = Building::where( 'fais_address_guid', $addressGUID )
                                     ->first();
 
                                 if ( ! $building ) continue;
@@ -1124,7 +1188,20 @@ SOAP;
 
                                 $ticket->place_id = 1;
 
-                                $ticket->text = (string) $gzhiTicketInformation->edsText;
+                                $customer = Customer::where( 'phone', $gzhiTicketInformation->edsInitiator->edsPhone )
+                                    ->first();
+
+                                if ( $customer )
+                                {
+                                    $phone = $gzhiTicketInformation->edsInitiator->edsPhone;
+                                } else
+                                {
+                                    $phone = '1111111111';
+                                }
+
+                                $ticket->phone = $phone;
+
+                                $ticket->text = (string) $gzhiTicketInformation->edsText . ( isset( $gzhiTicketInformation->edsAddressNote ) ? '. ' . (string) $gzhiTicketInformation->edsAddressNote : '' );
 
                                 $ticket->deadline_execution = Carbon::parse( (string) $gzhiTicketInformation->edsCreationDateedsDateNormative )
                                     ->format( 'Y-m-d H:i:s' );
@@ -1173,8 +1250,8 @@ SOAP;
                     }
                 }
 
-                //$gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
-                //$gzhiRequest->save();
+                $gzhiRequest->Status = GzhiRequest::GZHI_REQUEST_STATUS_COMPLETE;
+                $gzhiRequest->save();
             }
 
             $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";

@@ -131,6 +131,10 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
     {
 
         Route::get( 'test', 'HomeController@test' )->name( 'home.test' );
+        Route::get( 'test-export', 'HomeController@testExportGzhiTickets' );
+        Route::get( 'test-fill', 'HomeController@testFillExportedTickets' );
+        Route::get( 'test-send', 'HomeController@testSendGzhiInfo' );
+
         Route::post( 'support', 'ProfileController@support' )->name( 'support.store' );
 
         Route::get( 'logout', 'Auth\LoginController@logout' )->name( 'logout' );
