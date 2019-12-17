@@ -74,9 +74,9 @@ class Type extends BaseModel
 
     public function scopeMine ( $query, ... $flags )
     {
-		if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
-		{
-			$query
+        if ( ! in_array( self::IGNORE_PROVIDER, $flags ) )
+        {
+            $query
                 ->where( function ( $q )
                 {
                     return $q
@@ -86,10 +86,51 @@ class Type extends BaseModel
                             return $provider
                                 ->mine()
                                 ->current();
-                        });
-                });
-		}
-		return $query;
+                        } );
+                } );
+        }
+        return $query;
+    }
+
+    public function sortByUsersFavoriteTypes ( array $types ) : array
+    {
+        $user = auth()->user();
+
+        $favoriteTypesList = $user->favorite_types_list;
+
+        if ( $favoriteTypesList )
+        {
+            $favoriteTypesArray = json_decode( $favoriteTypesList );
+
+            $typesArray = [];
+
+            foreach ( $favoriteTypesArray as $item )
+            {
+                if ( array_key_exists( $item, $types ) )
+                {
+                    if ( isset( $types[ $item ] ) )
+                    {
+                        $typesArray[ $item ] = $types[ $item ];
+                        unset( $types[ $item ] );
+                    }
+                }
+            }
+
+            $result = [];
+
+            foreach ( $typesArray as $key => $value )
+            {
+                $result[ $key ] = $value;
+            }
+
+            foreach ( $types as $key => $value )
+            {
+                $result[ $key ] = $value;
+            }
+
+            $types = $result;
+        }
+        return $types;
     }
 
 }

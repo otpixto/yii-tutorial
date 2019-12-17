@@ -650,13 +650,15 @@ class TicketsController extends BaseController
         $user = Auth::user();
 
         if ( $user
-            ->can( 'tickets.all_types' ) )
+            ->can( 'tickets.all_types' ) || false )
         {
             $types = Type
                 ::mine()
+                ->orderByDesc( Type::$_table . '.tickets_using_times' )
                 ->orderBy( Type::$_table . '.name' )
                 ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
-                ->pluck( 'name', 'id' );
+                ->pluck( 'name', 'id' )
+                ->toArray();
         } else
         {
             $types = [];
@@ -675,6 +677,8 @@ class TicketsController extends BaseController
             }
             asort( $types );
         }
+
+        $types = (new Type())->sortByUsersFavoriteTypes($types);
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )

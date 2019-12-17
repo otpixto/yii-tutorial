@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Classes\CronHandler;
 use App\Classes\GzhiHandler;
 use App\Console\Commands\CreateSegments;
 use App\Console\Commands\CreateUser;
@@ -77,6 +78,12 @@ class Kernel extends ConsoleKernel
                 ( new GzhiHandler() )->sendGzhiInfo();
             } )
                 ->dailyAt( '3:00' );
+
+            $schedule->call( function ()
+            {
+                (new CronHandler())->handleFavoriteTypes();
+            } )
+                ->weeklyOn(1, '17:10');
         }
 
     }
