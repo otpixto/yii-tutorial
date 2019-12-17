@@ -93,7 +93,7 @@ class MosregClient
         {
             $mosregId = $rejectReason->mosreg_id;
         } else {
-            throw new MosregException( 'Некорректный ID ответа' );
+            $mosregId = $answer_id;
         }
 
         if ( ! isset( self::$answers[ $mosregId ] ) )
