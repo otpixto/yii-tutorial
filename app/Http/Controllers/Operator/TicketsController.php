@@ -1274,6 +1274,7 @@ class TicketsController extends BaseController
                     return $managements
                         ->mine();
                 } )
+                ->orderByDesc('created_at')
                 ->paginate( config( 'pagination.per_page' ) );
             $customerTicketsCount = $customerTickets->count();
         }
