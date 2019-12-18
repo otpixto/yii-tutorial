@@ -651,9 +651,16 @@
                                 <div class="note note-default">
                                     @foreach ( $_ticketManagement->files as $file )
                                         <div>
-                                            <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                            <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}"
+                                               target="_blank">
                                                 <i class="fa fa-file"></i>
                                                 {{ $file->name }}
+                                            </a>
+                                            @foreach($file->tags as $tag)
+                                                <span class="badge badge-default">{{ $tag->text }}</span>
+                                            @endforeach
+                                            <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                                                <i class="fa fa-download"></i>
                                             </a>
                                         </div>
                                     @endforeach
@@ -670,9 +677,16 @@
             <div class="note note-default">
                 @foreach ( $ticket->files as $file )
                     <div>
-                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                        <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}"
+                           target="_blank">
                             <i class="fa fa-file"></i>
                             {{ $file->name }}
+                        </a>
+                        @foreach($file->tags as $tag)
+                            <span class="badge badge-default">{{ $tag->text }}</span>
+                        @endforeach
+                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                            <i class="fa fa-download"></i>
                         </a>
                     </div>
                 @endforeach
