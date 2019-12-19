@@ -47,7 +47,7 @@ class FillPeriosExecutionColumnInTypesTable extends Migration
 
             if ($type){
 
-                $type->period_execution = (int)$one[ 7 ];
+                $type->period_execution = (int)$one[ 6 ];
 
                 $type->save();
             }
