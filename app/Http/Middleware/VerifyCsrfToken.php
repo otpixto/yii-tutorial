@@ -15,6 +15,7 @@ class VerifyCsrfToken extends BaseVerifier
         '/rest/*',
         '/devices/*',
         '/bot/*',
-        '/webhook/*'
+        '/webhook/*',
+        '/asterisk/missed_call',
     ];
 }
