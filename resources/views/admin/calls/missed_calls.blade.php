@@ -27,7 +27,10 @@
                                 Кто звонил
                             </th>
                             <th class="text-center">
-                                Дата звонка
+                                Счетчик
+                            </th>
+                            <th class="text-center">
+                                Дата последнего звонка
                             </th>
                             <th>
                                 Позвонить
@@ -41,9 +44,12 @@
                                     {!! $call->phone !!}
                                 </td>
                                 <td>
-                                    {!! $call->customer ? $call->customer->getName() . ' | ' : '' !!} {!! $call->customer ? $call->customer-> getActualAddress() : '' !!}
+                                    {!! $call->customer ? $call->customer->getName() . ' | ' : '' !!} {!! $call->customer ? $call->customer->getActualAddress() : '' !!}
                                 </td>
-                                <td>
+                                <td class="text-center">
+                                    {{ $call->calls_count }}
+                                </td>
+                                <td class="text-center">
                                     {{ \Carbon\Carbon::parse( $call->create_date )->format( 'd.m.Y H:i' ) }}
                                 </td>
                                 <td>
