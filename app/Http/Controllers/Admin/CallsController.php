@@ -205,6 +205,7 @@ class CallsController extends BaseController
         {
             $missedCall = MissedCall::find( $request->id );
             $missedCall->call_id = $request->call_id;
+            $missedCall->calls_count = 0;
             $missedCall->save();
         }
         return redirect()->back();
