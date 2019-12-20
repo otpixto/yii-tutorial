@@ -650,7 +650,7 @@ class TicketsController extends BaseController
         $user = Auth::user();
 
         if ( $user
-            ->can( 'tickets.all_types' ) || false )
+                ->can( 'tickets.all_types' ) || false )
         {
             $types = Type
                 ::mine()
@@ -678,7 +678,7 @@ class TicketsController extends BaseController
             asort( $types );
         }
 
-        $types = (new Type())->sortByUsersFavoriteTypes($types);
+        $types = ( new Type() )->sortByUsersFavoriteTypes( $types );
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
@@ -1278,7 +1278,7 @@ class TicketsController extends BaseController
                     return $managements
                         ->mine();
                 } )
-                ->orderByDesc('created_at')
+                ->orderByDesc( 'created_at' )
                 ->paginate( config( 'pagination.per_page' ) );
             $customerTicketsCount = $customerTickets->count();
         }
@@ -1687,8 +1687,7 @@ class TicketsController extends BaseController
                         if ( ! $responseData )
                         {
                             $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
-                        }
-                        else if ( isset( $responseData->error ) )
+                        } else if ( isset( $responseData->error ) )
                         {
                             $ticketManagement->addLog( $responseData->error );
                         }
@@ -1705,8 +1704,7 @@ class TicketsController extends BaseController
                         if ( ! $responseData )
                         {
                             $ticketManagement->addLog( 'Ответ от Мосрег-шлюза не получен' );
-                        }
-                        else if ( isset( $responseData->error ) )
+                        } else if ( isset( $responseData->error ) )
                         {
                             $ticketManagement->addLog( $responseData->error );
                         }
@@ -1721,11 +1719,15 @@ class TicketsController extends BaseController
 
             if ( ! empty( $request->get( 'reject_reason_id' ) ) )
             {
-                if ( ! empty( $request->get( 'reject_reason_comment' ) ) ) {
-                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name . ' | ' . $request->get( 'reject_reason_comment' );
+                if ( ! empty( $request->get( 'reject_reason_comment' ) ) )
+                {
+                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ) )
+                            ->first()->name . ' | ' . $request->get( 'reject_reason_comment' );
                     $ticket->reject_comment = $request->get( 'reject_reason_comment' );
-                } else {
-                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ))->first()->name;
+                } else
+                {
+                    $rejectComment = RejectReason::whereId( $request->get( 'reject_reason_id' ) )
+                        ->first()->name;
                 }
                 $ticket->reject_reason_id = $request->get( 'reject_reason_id' );
 
@@ -1746,7 +1748,7 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            Log::error($e->getMessage() . $e->getTraceAsString());
+            Log::error( $e->getMessage() . $e->getTraceAsString() );
             return redirect()
                 ->back()
                 ->withErrors( [ 'Внутренняя ошибка системы!' ] );
@@ -1788,9 +1790,20 @@ class TicketsController extends BaseController
         }
         $ticket->postponed_to = Carbon::parse( $request->get( 'postponed_to' ) )
             ->toDateString();
-        if ( ! empty( $request->get( 'postponed_comment' ) ) )
+
+        if ( ! empty( $request->get( 'postpone_reason_id' ) ) )
         {
-            $ticket->postponed_comment = $request->get( 'postponed_comment' );
+            if ( ! empty( $request->get( 'postponed_comment' ) ) )
+            {
+                $postponeComment = RejectReason::whereId( $request->get( 'postpone_reason_id' ) )
+                        ->first()->name . ' | ' . $request->get( 'postponed_comment' );
+            } else
+            {
+                $postponeComment = RejectReason::whereId( $request->get( 'postpone_reason_id' ) )
+                    ->first()->name;
+            }
+            $ticket->postponed_comment = $postponeComment;
+            $ticket->addComment( $postponeComment );
         }
         $ticket->save();
 
