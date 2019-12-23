@@ -174,7 +174,7 @@
                     Из Мосрега
                 </span>
             @endif
-            @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) )
+            @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) && \Illuminate\Support\Facades\Auth::user()->can('gzhi_status.show') )
                 <span class="badge badge-danger bold">
                <i class="icon-support"></i>
                 {{ $ticketManagement->ticket->status_name }}
