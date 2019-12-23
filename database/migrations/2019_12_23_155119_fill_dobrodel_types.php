@@ -41,14 +41,14 @@ class FillDobrodelTypes extends Migration
                 continue;
             }
 
-            $parentId = $one[ 0 ];
+            $parentId = $one[ 5 ];
 
             $type = new \App\Models\Type();
             $type->parent_id = $parentId;
-            $type->name = $one[ 1 ];
-            $type->period_acceptance = $one[ 2 ];
-            $type->period_execution = $one[ 3 ];
-            $type->need_act = (bool)$one[ 4 ];
+            $type->name = $one[ 6 ];
+            $type->period_acceptance = $one[ 7 ];
+            $type->period_execution = $one[ 8 ];
+            $type->need_act = (bool)$one[ 9 ];
             $type->save();
 
         }
