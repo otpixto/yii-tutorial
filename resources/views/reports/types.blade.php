@@ -150,7 +150,7 @@
                 <thead>
                 <tr>
                     <th>
-                        Тип проблемы \ Нименование УО
+                        Тип проблемы \ Наименование УО
                     </th>
                     @foreach ( $managements as $management )
                         <th class="text-center">
