@@ -1088,6 +1088,37 @@ class ReportsController extends BaseController
 
         $availableManagements = $res;
 
+//        if ( $request->get( 'export', 0 ) == 1 && \Auth::user()->can( 'reports.export' ) )
+//        {
+//            //dd($data);
+//            $export_data = [];
+//            foreach ( $data as $management_name => $row )
+//            {
+//                foreach ( $row[ 'groups' ] as $group_name => $count )
+//                {
+//                    $export_data[] = [
+//                        'УО'                        => $management_name,
+//                        'Вид работы'                => $group_name,
+//                        'Выполнено'                 => $count[ 'completed' ] ?: (string) $count[ 'completed' ],
+//                        'В работе'                  => $count[ 'in_process' ] ?: (string) $count[ 'in_process' ],
+//                        'Отложено'                  => $count[ 'waiting' ] ?: (string) $count[ 'waiting' ],
+//                        'Итого'                     => $count[ 'total' ] ?: (string) $count[ 'total' ],
+//                        'Процент выполнения'        => $count[ 'completed_percent' ] ?: (string) $count[ 'completed_percent' ],
+//                    ];
+//                }
+//            }
+//            $title = 'Статистика по категориям';
+//            $this->addLog( 'Выгрузил отчет "' . $title . '"' );
+//            \Excel::create( $title, function ( $excel ) use ( $export_data )
+//            {
+//                $excel->sheet( 'Отчет', function ( $sheet ) use ( $export_data )
+//                {
+//                    $sheet->fromArray( $export_data );
+//                } );
+//            } )
+//                ->export( 'xls' );
+//        }
+
         $this->addLog( 'Просмотрел отчет по категориям' );
 
         return view( 'reports.types' )

@@ -50,7 +50,8 @@
                     </div>
                     <div class="col-xs-6 text-right">
                         @if ( ! $type->parent )
-                            <a href="{{ route( 'types.index', [ 'parent_id' => $type->id ] ) }}" class="btn btn-default btn-circle">
+                            <a href="{{ route( 'types.index', [ 'parent_id' => $type->id ] ) }}"
+                               class="btn btn-default btn-circle">
                                 Состав
                                 <span class="badge">
                                     {{ $type->childs()->count() }}
@@ -135,6 +136,23 @@
                     </div>
 
                 </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-md-12 margin-bottom-15">
+                            {!! Form::label( 'provider_id', 'Провайдер', [ 'class' => 'control-label' ] ) !!}
+                            {!! Form::select( 'provider_id', \App\Models\Provider::pluck('name', 'id')->toArray(), \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Провайдер' ] ) !!}
+                            </div>
+                        </div>
+                        <div class="form-group hidden-print">
+                            <div class="col-xs-12">
+                                {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="col-md-6">
                 <div class="panel panel-default">
