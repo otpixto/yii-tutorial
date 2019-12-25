@@ -17,6 +17,7 @@ use App\Models\TypeGroup;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReportsController extends BaseController
 {
@@ -970,9 +971,20 @@ class ReportsController extends BaseController
             ->get()
             ->sortBy( 'name' );
 
+        $usersManagements = Auth::user()->managements;
+        $typesIdArray = [];
+        foreach ($usersManagements as $usersManagement)
+        {
+            foreach($usersManagement->types as $usersManagementType)
+            {
+                $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+            }
+        }
+
         $availableCategories = Type
             ::mine()
             ->whereNull( 'parent_id' )
+            ->whereIn( 'id', $typesIdArray)
             ->orderBy( 'name' )
             ->get();
 
