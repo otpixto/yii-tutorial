@@ -385,13 +385,13 @@
                                             Из ЛК
                                         </span>
                                     @endif
-                                    @if ( $ticketManagement->ticket->vendor_id == \App\Models\Vendor::EAIS_VENDOR_ID )
+                                    @if ( $ticket->vendor_id == \App\Models\Vendor::EAIS_VENDOR_ID )
                                         <span class="badge badge-danger bold">
                                             <i class="icon-check"></i>
                                             Из ЕИАС
                                         </span>
                                     @endif
-                                    @if ( $ticketManagement->ticket->checkIfFromGZHI() )
+                                    @if ( $ticket->checkIfFromGZHI() )
                                         <span class="badge badge-info bold">
                                             <i class="icon-key"></i>
                                             Из ГЖИ
@@ -416,7 +416,7 @@
                                             Требуется Акт выполненных работ
                                         </span>
                                     @endif
-                                    @if ( isset( $ticketManagement ) && in_array( $ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses ) && \Illuminate\Support\Facades\Auth::user()->can( 'gzhi_status.show' ) )
+                                    @if ( in_array( $ticket->status_code, \App\Models\Ticket::$gzhi_statuses ) && \Illuminate\Support\Facades\Auth::user()->can( 'gzhi_status.show' ) )
                                         <span class="badge badge-danger bold">
                                             <i class="icon-support"></i>
                                             {{ $ticket->status_name }}
