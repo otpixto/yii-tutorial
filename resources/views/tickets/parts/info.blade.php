@@ -412,11 +412,11 @@
                                     @endif
                                     @if ( $ticket->type && $ticket->type->need_act )
                                         <span class="badge bg-purple-plum bold">
-                                    <i class="glyphicon glyphicon-exclamation-sign"></i>
-                                    Требуется Акт выполненных работ
-                                </span>
+                                            <i class="glyphicon glyphicon-exclamation-sign"></i>
+                                            Требуется Акт выполненных работ
+                                        </span>
                                     @endif
-                                    @if ( in_array($ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses) && \Illuminate\Support\Facades\Auth::user()->can('gzhi_status.show') )
+                                    @if ( isset( $ticketManagement ) && in_array( $ticketManagement->ticket->status_code, \App\Models\Ticket::$gzhi_statuses ) && \Illuminate\Support\Facades\Auth::user()->can( 'gzhi_status.show' ) )
                                         <span class="badge badge-danger bold">
                                             <i class="icon-support"></i>
                                             {{ $ticket->status_name }}
