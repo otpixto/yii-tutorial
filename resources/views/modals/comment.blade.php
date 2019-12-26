@@ -7,7 +7,7 @@
         <button type="button" class="btn btn-default margin-bottom-5" id="microphone" data-state="off">
             <i class="fa fa-microphone-slash"></i>
         </button>
-        {!! Form::textarea( 'text', null, [ 'class' => 'form-control', 'required', 'autofocus' ] ) !!}
+        {!! Form::textarea( 'text', null, [ 'class' => 'form-control', 'id' => 'alCommentTextarea', 'required', 'autofocus' ] ) !!}
     </div>
 </div>
 @if ( isset( $with_file ) && $with_file && \Auth::user()->can( 'tickets.files' ) )

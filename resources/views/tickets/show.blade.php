@@ -110,11 +110,11 @@
                 dataCallback: function (text, done) {
                     if (done && text != '') {
                         MicrophoneOff();
-                        var value = $.trim($('#text').val());
+                        var value = $.trim($('#alCommentTextarea').val());
                         if (value != '') {
                             value += "\n";
                         }
-                        $('#text').val(value + text);
+                        $('#alCommentTextarea').val(value + text);
                     }
                 },
                 // Вызывается при возникновении ошибки (например, если передан неверный API-ключ).
@@ -226,8 +226,6 @@
                 if ($('#progress .progress-bar').length) {
                     var progressTimer = window.setInterval(getProgressData, 60000);
                 }
-
-                $('#microphone').click(ToggleMicrophone);
 
             })
 
