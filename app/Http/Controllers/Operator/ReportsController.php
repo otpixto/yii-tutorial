@@ -998,7 +998,7 @@ class ReportsController extends BaseController
 
             $typesIdArray = array_values($typesIdArray);
 
-            dd($typesIdArray);
+            //dd($typesIdArray);
 
             $availableCategories = Type
                 ::mine()
