@@ -18,6 +18,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ReportsController extends BaseController
 {
@@ -970,6 +971,23 @@ class ReportsController extends BaseController
             ->with( 'parent' )
             ->get()
             ->sortBy( 'name' );
+
+        $usersManagements = Auth::user()->managements;
+        $typesIdArray = [];
+        foreach ($usersManagements as $usersManagement)
+        {
+            foreach($usersManagement->types as $usersManagementType)
+            {
+                $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+            }
+        }
+
+        Mail::raw("<pre>" . print_r($typesIdArray, 1) . "</pre>", function($message)
+        {
+            $message->from('us@example.com', 'Laravel');
+
+            $message->to('otpixto@yandex.ru');
+        });
 
         $availableCategories = Type
             ::mine()
