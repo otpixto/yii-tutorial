@@ -973,40 +973,44 @@ class ReportsController extends BaseController
             ->sortBy( 'name' );
 
 
-        if(isset($_GET['test']))
+        if ( in_array( 'management', Auth::user()->roles->pluck( 'code' )
+                ->toArray() ) ||
+            in_array( 'admin_management', Auth::user()->roles->pluck( 'code' )
+                ->toArray() )
+        )
         {
             $usersManagements = Auth::user()->managements;
             $typesIdArray = [];
-            foreach ($usersManagements as $usersManagement)
+            foreach ( $usersManagements as $usersManagement )
             {
-                foreach($usersManagement->types as $usersManagementType)
+                foreach ( $usersManagement->types as $usersManagementType )
                 {
-                    if($usersManagementType->parent_id==null)
+                    if ( $usersManagementType->parent_id == null )
                     {
-                        $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
-                    } else {
-                        $typesIdArray[$usersManagementType->parent_id] = $usersManagementType->parent_id;
+                        $typesIdArray[ $usersManagementType->id ] = $usersManagementType->id;
+                    } else
+                    {
+                        $typesIdArray[ $usersManagementType->parent_id ] = $usersManagementType->parent_id;
                     }
-
                 }
             }
 
-            $typesIdArray = array_values($typesIdArray);
+            $typesIdArray = array_values( $typesIdArray );
 
             $availableCategories = Type
                 ::mine()
-                ->whereIn('id', $typesIdArray)
+                ->whereIn( 'id', $typesIdArray )
                 ->whereNull( 'parent_id' )
                 ->orderBy( 'name' )
                 ->get();
-        } else {
+        } else
+        {
             $availableCategories = Type
                 ::mine()
                 ->whereNull( 'parent_id' )
                 ->orderBy( 'name' )
                 ->get();
         }
-
 
         if ( count( $managements_ids ) )
         {
@@ -1160,7 +1164,7 @@ class ReportsController extends BaseController
                         'Категория проблем' => $category->name,
                         'Поступило заявок, кол-во' => $data[ 'categories' ][ $category->id ][ 'total' ],
                         'Процент от общего количества' => $data[ 'categories' ][ $category->id ][ 'percent_total' ] . '%',
-                        'Выполнено заявок, кол-во' => ( $data[ 'categories' ][ $category->id ][ 'closed' ] == '' || !isset($data[ 'categories' ][ $category->id ][ 'closed' ]) ) ? 0 : $data[ 'categories' ][ $category->id ][ 'closed' ],
+                        'Выполнено заявок, кол-во' => ( $data[ 'categories' ][ $category->id ][ 'closed' ] == '' || ! isset( $data[ 'categories' ][ $category->id ][ 'closed' ] ) ) ? 0 : $data[ 'categories' ][ $category->id ][ 'closed' ],
                         'Процент выполненных заявок' => $data[ 'categories' ][ $category->id ][ 'percent' ] . '%',
                     ];
                 }
