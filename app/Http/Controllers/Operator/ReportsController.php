@@ -971,29 +971,12 @@ class ReportsController extends BaseController
             ->get()
             ->sortBy( 'name' );
 
-        $usersManagements = Auth::user()->managements;
-        $typesIdArray = [];
-        foreach ($usersManagements as $usersManagement)
-        {
-            foreach($usersManagement->types as $usersManagementType)
-            {
-                $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
-            }
-        }
-
         $availableCategories = Type
             ::mine()
-            ->whereNull( 'parent_id' );
-
-        if( in_array('management', Auth::user()->roles->pluck('code')->toArray()) ||
-            in_array('admin_management', Auth::user()->roles->pluck('code')->toArray())
-        )
-        {
-            $availableCategories->whereIn( 'id', $typesIdArray);
-        }
-
-        $availableCategories->orderBy( 'name' )
+            ->whereNull( 'parent_id' )
+            ->orderBy( 'name' )
             ->get();
+
 
         if ( count( $managements_ids ) )
         {
