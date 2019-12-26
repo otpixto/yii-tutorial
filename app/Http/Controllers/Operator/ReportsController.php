@@ -981,7 +981,11 @@ class ReportsController extends BaseController
             {
                 foreach($usersManagement->types as $usersManagementType)
                 {
-                    $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+                    if($usersManagementType->parent_id==null)
+                    {
+                        $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+                    }
+
                 }
             }
 
@@ -994,7 +998,7 @@ class ReportsController extends BaseController
 
             $typesIdArray = array_values($typesIdArray);
 
-            //dd($typesIdArray);
+            dd($typesIdArray);
 
             $availableCategories = Type
                 ::mine()
