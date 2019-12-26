@@ -983,9 +983,16 @@ class ReportsController extends BaseController
 
         $availableCategories = Type
             ::mine()
-            ->whereNull( 'parent_id' )
-            ->whereIn( 'id', $typesIdArray)
-            ->orderBy( 'name' )
+            ->whereNull( 'parent_id' );
+
+        if( in_array('management', Auth::user()->roles->pluck('code')->toArray()) ||
+            in_array('admin_management', Auth::user()->roles->pluck('code')->toArray())
+        )
+        {
+            $availableCategories->whereIn( 'id', $typesIdArray);
+        }
+
+        $availableCategories->orderBy( 'name' )
             ->get();
 
         if ( count( $managements_ids ) )
