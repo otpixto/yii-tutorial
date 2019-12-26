@@ -979,26 +979,19 @@ class ReportsController extends BaseController
             $typesIdArray = [];
             foreach ($usersManagements as $usersManagement)
             {
-                foreach($usersManagement->types as $usersManagementType)
+                foreach($usersManagement->tickets as $ticketManagement)
                 {
-                    if($usersManagementType->parent_id==null)
-                    {
-                        $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
-                    }
+                    $typeId = $ticketManagement->ticket->type_id;
+
+                    $type = Type::find($typeId);
+                    $parentId = $type->parent_id;
+
+                    $typesIdArray[$parentId] = $parentId;
 
                 }
             }
 
-//            Mail::raw("<pre>" . print_r($typesIdArray, 1) . "</pre>", function($message)
-//            {
-//                $message->from('us@example.com', 'Laravel');
-//
-//                $message->to('otpixto@yandex.ru');
-//            });
-
             $typesIdArray = array_values($typesIdArray);
-
-            //dd($typesIdArray);
 
             $availableCategories = Type
                 ::mine()
