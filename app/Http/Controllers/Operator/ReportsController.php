@@ -972,28 +972,43 @@ class ReportsController extends BaseController
             ->get()
             ->sortBy( 'name' );
 
-        $usersManagements = Auth::user()->managements;
-        $typesIdArray = [];
-        foreach ($usersManagements as $usersManagement)
+
+        if(isset($_GET['test']))
         {
-            foreach($usersManagement->types as $usersManagementType)
+            $usersManagements = Auth::user()->managements;
+            $typesIdArray = [];
+            foreach ($usersManagements as $usersManagement)
             {
-                $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+                foreach($usersManagement->types as $usersManagementType)
+                {
+                    $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+                }
             }
+
+//            Mail::raw("<pre>" . print_r($typesIdArray, 1) . "</pre>", function($message)
+//            {
+//                $message->from('us@example.com', 'Laravel');
+//
+//                $message->to('otpixto@yandex.ru');
+//            });
+
+            $typesIdArray = array_values($typesIdArray);
+
+            dd($typesIdArray);
+
+            $availableCategories = Type
+                ::mine()
+                ->whereIn('id', $typesIdArray)
+                ->whereNull( 'parent_id' )
+                ->orderBy( 'name' )
+                ->get();
+        } else {
+            $availableCategories = Type
+                ::mine()
+                ->whereNull( 'parent_id' )
+                ->orderBy( 'name' )
+                ->get();
         }
-
-        Mail::raw("<pre>" . print_r($typesIdArray, 1) . "</pre>", function($message)
-        {
-            $message->from('us@example.com', 'Laravel');
-
-            $message->to('otpixto@yandex.ru');
-        });
-
-        $availableCategories = Type
-            ::mine()
-            ->whereNull( 'parent_id' )
-            ->orderBy( 'name' )
-            ->get();
 
 
         if ( count( $managements_ids ) )
