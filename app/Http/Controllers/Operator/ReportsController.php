@@ -979,14 +979,14 @@ class ReportsController extends BaseController
             $typesIdArray = [];
             foreach ($usersManagements as $usersManagement)
             {
-                foreach($usersManagement->tickets as $ticketManagement)
+                foreach($usersManagement->types as $usersManagementType)
                 {
-                    $typeId = $ticketManagement->ticket->type_id;
-
-                    $type = Type::find($typeId);
-                    $parentId = $type->parent_id;
-
-                    $typesIdArray[$parentId] = $parentId;
+                    if($usersManagementType->parent_id==null)
+                    {
+                        $typesIdArray[$usersManagementType->id] = $usersManagementType->id;
+                    } else {
+                        $typesIdArray[$usersManagementType->parent_id] = $usersManagementType->parent_id;
+                    }
 
                 }
             }
