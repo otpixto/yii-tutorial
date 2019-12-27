@@ -410,8 +410,8 @@ class TicketManagement extends BaseModel
                                 ->toArray();
                             $ticket
                                 ->whereIn( Ticket::$_table . '.type_id', $gzhiTypesArray );
-                        $ticket
-                            ->where( Ticket::$_table . '.author_id', 149800 );
+                            $ticket
+                                ->where( Ticket::$_table . '.author_id', 149800 );
                         }
 
                         if ( ! empty( $request->get( 'overdue_acceptance' ) ) )
@@ -935,6 +935,25 @@ class TicketManagement extends BaseModel
         {
 
             $status_name = Ticket::$statuses[ $status_code ];
+
+            if ( ! empty( Request::capture()
+                ->input( 'reject_reason_id' ) ) )
+            {
+                $rejectComment = RejectReason::whereId( Request::capture()
+                    ->input( 'reject_reason_id' ) )
+                    ->first()->name;
+                $status_name = $status_name . ": " . $rejectComment;
+            }
+
+            if ( ! empty( Request::capture()
+                ->input( 'postpone_reason_id' ) ) )
+            {
+                $postponeComment = PostponeReason::whereId( Request::capture()
+                    ->input( 'postpone_reason_id' ) )
+                    ->first()->name;
+                $status_name = $status_name . ": " . $postponeComment;
+            }
+
             $log = $this->addLog( 'Статус изменен с "' . $this->status_name . '" на "' . $status_name . '"' );
             if ( $log instanceof MessageBag )
             {
