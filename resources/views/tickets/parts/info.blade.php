@@ -54,7 +54,7 @@
                         {!! Form::close() !!}
                     @else
                         @foreach( $availableStatuses as $status_code => $availableStatus )
-                            @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $status_code == 'completed_without_act' ) )
+                            @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $ticketManagement->management->need_act && $status_code == 'completed_without_act' ) )
                                 @php
                                     continue;
                                 @endphp
