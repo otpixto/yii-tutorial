@@ -55,12 +55,12 @@
             <div class="col-xs-3">
                 {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
             </div>
-            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @endif">
+            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
                 <div class="input-group">
                     <span class="input-group-addon">№</span>
-                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave',  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
                     <span class="input-group-addon">от</span>
-                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
                 </div>
             </div>
         </div>
