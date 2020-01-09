@@ -598,7 +598,7 @@ class TicketsController extends BaseController
                 ->first();
             return view( 'parts.comments' )
                 ->with( 'origin', $ticket )
-                ->with( 'comments', $ticket->comments );
+                ->with( 'comments', $ticket->comments ?? null );
         } else if ( is_array( $request->get( 'ids' ) ) && count( $request->get( 'ids' ) ) )
         {
             $tickets = Ticket
