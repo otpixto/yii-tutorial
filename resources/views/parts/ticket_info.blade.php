@@ -100,7 +100,7 @@
             @endif
         @endif
 
-        @if ( $ticket->status_code == 'rejected' && $ticket->reject_reason_id )
+        @if ( $ticket->status_code == 'rejected' && $ticket->reject_reason_id && \App\Models\RejectReason::whereId( $ticket->reject_reason_id )->first() )
             <div class="note note-warning">
                 <dl>
                     <dt>Комментарий отклоненной заявки:</dt>
