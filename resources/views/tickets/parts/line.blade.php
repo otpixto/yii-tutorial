@@ -248,7 +248,7 @@
             @if ( $ticketManagement->ticket->status_code == 'rejected' && $ticketManagement->ticket->reject_reason_id )
                 <div class="note note-warning">
                     <span class="small text-muted">Комментарий к отклоненной заявке:</span>
-                    {{ \App\Models\RejectReason::whereId( $ticketManagement->ticket->reject_reason_id )->first()->name . '. ' . $ticketManagement->ticket->reject_comment }}
+{{--                    {{ \App\Models\RejectReason::whereId( $ticketManagement->ticket->reject_reason_id )->first()->name . '. ' . $ticketManagement->ticket->reject_comment }}--}}
                 </div>
             @endif
 
