@@ -633,7 +633,15 @@ SOAP;
 
         $soapAction = $this->soapGetStateAction;
 
-        $gzhiApiProvider = GzhiApiProvider::whereName( 'Раменское' )
+        $gzhiApiProvider0 = GzhiApiProvider::whereName( 'Раменское' )
+            ->first();
+        if($gzhiApiProvider0)
+        {
+            $gzhiApiProvider0->name = 'Раменск';
+            $gzhiApiProvider0->save();
+        }
+
+        $gzhiApiProvider = GzhiApiProvider::whereName( 'Раменск' )
             ->first();
 
         $orgGuid = $gzhiApiProvider->org_guid;
@@ -711,17 +719,17 @@ SOAP;
 
         $i = 0;
 
-
         foreach ( $gzhiAddresses as $gzhiAddress )
         {
 
-            $building = Building::where( 'gzhi_address_guid', $gzhiAddress->edsAddressGUID )
+            $building = Building::where( 'name', 'like', '%' . $gzhiAddress->edsAddressName . '%' )
                 ->first();
 
             if ( $building )
             {
-
                 $building->fais_address_guid = $gzhiAddress->edsFIASAddressGUID ?? '';
+
+                $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
 
                 $building->save();
 
@@ -729,7 +737,9 @@ SOAP;
             }
         }
 
-
+//        $buildings = Building::all();
+//
+//
 //        foreach ( $buildings as &$building )
 //        {
 //
@@ -756,6 +766,7 @@ SOAP;
 //        {
 //
 //            $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsAddressGUID;
+//            $dataArray[ $i ][ 'edsFIASAddressGUID' ] = (string) $gzhiAddress->edsFIASAddressGUID;
 //            $dataArray[ $i ][ 'edsFullName' ] = (string) $gzhiAddress->edsAddressName;
 //            $dataArray[ $i ][ 'edsName' ] = (string) $gzhiAddress->edsRegion;
 //            $dataArray[ $i ][ 'edsAddress' ] = (string) $gzhiAddress->edsArea;
