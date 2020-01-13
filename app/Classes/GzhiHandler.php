@@ -305,7 +305,7 @@ SOAP;
 
             $response = curl_exec( $curl );
 
-            dd($response);
+            dd($accessData, $data, $response);
 
             $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
