@@ -83,12 +83,12 @@ class GzhiHandler
                 )
                 ->get();
 
-            dd($tickets, $gzhiProvider);
-
             if ( ! count( $tickets ) ) continue;
 
             foreach ( $tickets as $ticket )
             {
+
+                dd($ticket, $gzhiProvider);
                 $oneTicketCount = $this->handleGzhiTicket( $ticket, $gzhiProvider );
                 $ticketsCount += $oneTicketCount;
             }
