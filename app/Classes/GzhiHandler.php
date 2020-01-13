@@ -87,8 +87,6 @@ class GzhiHandler
 
             foreach ( $tickets as $ticket )
             {
-
-                dd($ticket, $gzhiProvider);
                 $oneTicketCount = $this->handleGzhiTicket( $ticket, $gzhiProvider );
                 $ticketsCount += $oneTicketCount;
             }
@@ -306,8 +304,6 @@ SOAP;
             $curl = $curl = $this->proceedCurl( $accessData, $data, $this->soapAction );
 
             $response = curl_exec( $curl );
-
-            dd($accessData, $data, $response);
 
             $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
