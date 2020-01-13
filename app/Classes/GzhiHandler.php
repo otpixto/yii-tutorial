@@ -664,7 +664,7 @@ SOAP;
                 <eds:PackGUID>$packGuid</eds:PackGUID>
                 <eds:PackDate>$packDate</eds:PackDate>
             </eds:Header>
-            <eds:PackGUID>49b4ab89-b4fd-23e9-9c03-ddd67577fd67</eds:PackGUID>
+            <eds:PackGUID>49b5ab89-b4fd-23e9-9c03-ddd67577fd67</eds:PackGUID>
         </eds:getStateDSRequest>
     </soapenv:Body>
 </soapenv:Envelope>
@@ -691,7 +691,7 @@ SOAP;
 
         $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
 
-        dd($response);
+        dd($response, $data);
 
         $xml = new \SimpleXMLElement( $response );
 
