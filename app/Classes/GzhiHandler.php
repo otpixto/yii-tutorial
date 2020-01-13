@@ -691,6 +691,8 @@ SOAP;
 
         $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
 
+        dd($response);
+
         $xml = new \SimpleXMLElement( $response );
 
         if ( isset( $xml->faultstring ) )
