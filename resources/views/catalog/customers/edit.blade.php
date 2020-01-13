@@ -95,9 +95,9 @@
                 @else
                     <div class="alert alert-danger">
                         Не доступен
-                         <button class="btn btn-success" data-customer-lk="{{ $customer->id }}">
-                            Включить
-                        </button>
+{{--                         <button class="btn btn-success" data-customer-lk="{{ $customer->id }}">--}}
+{{--                            Включить--}}
+{{--                        </button>--}}
                     </div>
                 @endif
             </div>
