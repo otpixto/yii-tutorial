@@ -39,7 +39,7 @@ class HomeController extends Controller
 
     public function test ()
     {
-        (new GzhiHandler())->fillAddresses();
+        //(new GzhiHandler())->fillAddresses();
         //(new GzhiHandler())->curlGetFile();
         //( new GzhiHandler() )->fillExportedTickets();
         //( new GzhiHandler() )->sendGzhiInfo();
