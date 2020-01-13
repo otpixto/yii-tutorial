@@ -256,8 +256,9 @@ class CustomersController extends BaseController
         $calls = $customer->calls( 30 );
         $tickets = $customer
             ->tickets()
+            ->orderByDesc('id')
             ->whereHas( 'type' )
-            ->paginate( 30 );
+            ->paginate( 20 );
 
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
