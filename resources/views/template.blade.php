@@ -24,30 +24,18 @@
                     <!-- BEGIN LOGO -->
                     <a id="index" class="page-logo" href="/">
 
-                        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ \Config::get( 'app.name' ) }}" />
+                        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ config( 'app.name' ) }}" />
 
                         <span class="page-title">
                             @if ( \App\Models\Provider::getCurrent() )
                                 <span class="font-white">
-                                    {{ \App\Models\Provider::$current->name }}
+                                    {{ \App\Models\Provider::getCurrent()->name }}
                                 </span>
                             @endif
                         </span>
                     </a>
                     <!-- END LOGO -->
-                    
-                    {{--<!-- BEGIN TOPBAR ACTIONS -->
-                    <div class="topbar-actions">
 
-                        --}}{{--@include( 'parts.notification' )--}}{{--
-
-                        --}}{{--@include( 'parts.count' )--}}{{--
-
-                        @include( 'parts.phone' )
-                        @include( 'parts.user_profile' )
-
-                    </div>
-                    <!-- END TOPBAR ACTIONS -->--}}
                 </div>
 
                 @include( 'parts.header_menu' )
