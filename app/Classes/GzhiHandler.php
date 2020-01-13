@@ -83,6 +83,8 @@ class GzhiHandler
                 )
                 ->get();
 
+            dd($tickets, $gzhiProvider);
+
             if ( ! count( $tickets ) ) continue;
 
             foreach ( $tickets as $ticket )
