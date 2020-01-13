@@ -256,7 +256,8 @@ class CustomersController extends BaseController
         $calls = $customer->calls( 30 );
         $tickets = $customer
             ->tickets()
-            ->whereHas( 'type' );
+            ->whereHas( 'type' )
+            ->paginate( 30 );
 
         return view( 'catalog.customers.edit' )
             ->with( 'customer', $customer )
