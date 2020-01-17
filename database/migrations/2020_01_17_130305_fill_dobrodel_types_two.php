@@ -72,7 +72,7 @@ class FillDobrodelTypesTwo extends Migration
             {
                 $type2->parent_id = $parentId;
             }
-            $type2->parent_id = $one[ 2 ];
+
             $type2->name = $one[ 3 ];
             $type2->period_acceptance = $one[ 4 ];
             $type2->period_execution = $one[ 5 ];
