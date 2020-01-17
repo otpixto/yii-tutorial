@@ -628,18 +628,11 @@ SOAP;
 
     public function fillAddresses ()
     {
+        ini_set('max_execution_time', 1000);
 
-        $packGuid = Uuid::generate();
+        set_time_limit(0);
 
         $soapAction = $this->soapGetStateAction;
-
-        $gzhiApiProvider0 = GzhiApiProvider::whereName( 'Раменское' )
-            ->first();
-        if($gzhiApiProvider0)
-        {
-            $gzhiApiProvider0->name = 'Раменск';
-            $gzhiApiProvider0->save();
-        }
 
         $gzhiApiProvider = GzhiApiProvider::whereName( 'Раменск' )
             ->first();
@@ -654,6 +647,146 @@ SOAP;
 
         $packDate = date( 'Y-m-d\TH:i:s' );
 
+//        $packGuidArray = [];
+//
+//        for($j=295; $j<300; $j++)
+//        {
+//            $packGuid0 = Uuid::generate();
+//
+//            $data0 = <<<SOAP
+//<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+//   <soapenv:Header/>
+//   <soapenv:Body>
+//      <eds:getNsiDSRequest Id="?" eds:version="1.0.0.7">
+//         <!--Optional:-->
+//        <eds:Header>
+//            <!--You may enter the following 3 items in any order-->
+//            <eds:OrgGUID>A04C784E-EAF5-11E7-8A70-99D7D5FACC35</eds:OrgGUID>
+//            <eds:PackGUID>$packGuid0</eds:PackGUID>
+//            <eds:PackDate>2020-01-14T09:12:12</eds:PackDate>
+//         </eds:Header>
+//         <eds:Addresses>
+//            <eds:OrgManager>true</eds:OrgManager>
+//            <eds:AllTypes>true</eds:AllTypes>
+//         </eds:Addresses>
+//         <eds:Page>$j</eds:Page>
+//      </eds:getNsiDSRequest>
+//   </soapenv:Body>
+//</soapenv:Envelope>
+//SOAP;
+//
+//            $curl = $curl = $this->proceedCurl( $accessData, $data0, 'GetNsiDS' );
+//
+//            $response = curl_exec( $curl );
+//
+//            $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+//
+//            curl_close( $curl );
+//
+//            if ( $status_code != 200 )
+//            {
+//                $this->errorMessage .= "CURL status: $status_code; ";
+//                $log = \App\Models\Log::create( [
+//                    'text' => $this->errorMessage
+//                ] );
+//
+//                $log->save();
+//                return false;
+//            }
+//
+//            $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+//
+//            $xml = new \SimpleXMLElement( $response );
+//
+//            if ( isset( $xml->faultstring ) )
+//            {
+//                $this->errorMessage .= $xml->faultstring;
+//                $log = \App\Models\Log::create( [
+//                    'text' => $this->errorMessage
+//                ] );
+//
+//                $log->save();
+//            }
+//
+//            if ( ! isset( $xml->soapenvBody ) )
+//            {
+//                $this->errorMessage .= " SOAP structure error; ";
+//                $log = \App\Models\Log::create( [
+//                    'text' => $this->errorMessage
+//                ] );
+//
+//                $log->save();
+//                return false;
+//            }
+//
+//            if(!isset($xml->soapenvBody->Success->PackGUID)){
+//                continue;
+//            }
+//
+//            $packG = (string)$xml->soapenvBody->Success->PackGUID;
+//
+//            echo '"' . $packG . '",';
+//
+//            $packGuidArray[] = [$packG];
+//        }
+//
+//        $headersArray = array( 'edsAddressGUID'
+//        );
+//
+//        $this->generateCSV( $headersArray, $packGuidArray, $j );
+//
+//        exit();
+
+
+//        $packGuidArray = [
+////            "1cb508b0-37a4-11ea-9030-89d23c0ba670","1d073580-37a4-11ea-ba7b-570600e9c439","1d5d7fd0-37a4-11ea-b119-35fe0d6f9dad","1daedfc0-37a4-11ea-ac3b-93ed081bc6dc","1e0410d0-37a4-11ea-a7ba-6577c09b15ae","1e5cf5a0-37a4-11ea-bbb3-9b811cbbd2c7","1eb5cce0-37a4-11ea-a28d-cf93cdb8df47","1f085bf0-37a4-11ea-aaaf-91243c896918","1f5b2aa0-37a4-11ea-8245-69610bbcbf00","1fb8b6e0-37a4-11ea-a3af-57b28be78189","200c7ae0-37a4-11ea-8a49-1d0862b5644f","20692a10-37a4-11ea-8075-7d36104281a4","20bce8f0-37a4-11ea-8562-8347867c3d15","21158280-37a4-11ea-b12f-4b57559fbb5c","21695340-37a4-11ea-a99d-37d55c8371b7","21bbbdc0-37a4-11ea-89bf-a1f3fa9de6fd","220f1d20-37a4-11ea-b80e-f795b32df0d9","225fd390-37a4-11ea-b391-2352723e7bcf","22b30950-37a4-11ea-9dba-4d928b5822bb","23083220-37a4-11ea-936a-37ab306f7b55","236663c0-37a4-11ea-a5d4-5b23c8ce81f9",
+//
+////            "23c29370-37a4-11ea-b801-351bfb658c58","241a8060-37a4-11ea-8f14-a3e228f0a098","246f9c10-37a4-11ea-81a1-ff77f27862ec",
+//
+////            "24c709a0-37a4-11ea-a2de-3de5227568bb","251e9850-37a4-11ea-b454-6d766473844d","2579e520-37a4-11ea-86fd-b79328cbeb2c","25d2fb20-37a4-11ea-ae32-0795aa163971","262371b0-37a4-11ea-8bda-6590d8048762","2673ccb0-37a4-11ea-bd02-458817e1e267",
+//
+////            "26c583c0-37a4-11ea-8a31-d96f7bc7d2b1","271b9160-37a4-11ea-8dc2-2fc2487e5bed","277217c0-37a4-11ea-943a-23fda30e5806","27c4c020-37a4-11ea-ad22-eb7ad0c4ea7b","281821c0-37a4-11ea-aac3-e36a2749e983","286796b0-37a4-11ea-958c-3b47c261f35b",
+//
+////            "28c72380-37a4-11ea-ad2b-0bfb339736a5","291ec020-37a4-11ea-b170-675d0b7a2950","2970f3c0-37a4-11ea-b623-af6ca4c5bd29","29ccddc0-37a4-11ea-94b7-3bf48853b9c8","2a1f4dc0-37a4-11ea-ae3e-87843c6df1ed","2a6fc5f0-37a4-11ea-9121-c9fd97f4f3f8",
+////
+//"2ac20ad0-37a4-11ea-931c-5df4a7098e6f","2b141e30-37a4-11ea-8593-bb1e234744fa","2b65a440-37a4-11ea-a726-e1d9a0777889","2bbd4ec0-37a4-11ea-8b0c-7347942ea76a","2c1195b0-37a4-11ea-a745-593f96718c48","2c600180-37a4-11ea-9583-9fa52fa49156",
+//        ];
+
+        $l = 120;
+
+        $fileName = 'files/ram_addr_' . $l . '.csv';
+
+        $csvData = \Illuminate\Support\Facades\File::get( storage_path( $fileName ) );
+
+        $lines = explode( PHP_EOL, $csvData );
+
+        $array = array();
+
+        $i = 0;
+
+        foreach ( $lines as $line )
+        {
+            if ( $i > 0 )
+            {
+                $array[] = str_getcsv( $line );
+            }
+
+            $i ++;
+        }
+
+
+        $dataArray = [];
+
+        $i = 0;
+
+        $gArray = [];
+
+        foreach ($array as $addressPackGuid)
+        {
+
+            $addressPackGuid = $addressPackGuid[0];
+            $packGuid = Uuid::generate();
+
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
     <soapenv:Header/>
@@ -664,7 +797,7 @@ SOAP;
                 <eds:PackGUID>$packGuid</eds:PackGUID>
                 <eds:PackDate>$packDate</eds:PackDate>
             </eds:Header>
-            <eds:PackGUID>49b5ab89-b4fd-23e9-9c03-ddd67577fd67</eds:PackGUID>
+            <eds:PackGUID>$addressPackGuid</eds:PackGUID>
         </eds:getStateDSRequest>
     </soapenv:Body>
 </soapenv:Envelope>
@@ -714,29 +847,31 @@ SOAP;
             return false;
         }
 
+        if(!isset($xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses)){
+            continue;
+        }
+
         $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses;
 
 
-        $i = 0;
-
-        foreach ( $gzhiAddresses as $gzhiAddress )
-        {
-
-            $building = Building::where( 'name', 'like', '%' . $gzhiAddress->edsAddressName . '%' )
-                ->first();
-
-            if ( $building )
-            {
-                $building->fais_address_guid = $gzhiAddress->edsFIASAddressGUID ?? '';
-
-                $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
-
-                $building->save();
-
-                $i ++;
-            }
-        }
-
+//        foreach ( $gzhiAddresses as $gzhiAddress )
+//        {
+//
+//            $building = Building::where( 'name', 'like', '%' . $gzhiAddress->edsAddressName . '%' )
+//                ->first();
+//
+//            if ( $building )
+//            {
+//                $building->fais_address_guid = $gzhiAddress->edsFIASAddressGUID ?? '';
+//
+//                $building->gzhi_address_guid = $gzhiAddress->edsAddressGUID ?? '';
+//
+//                $building->save();
+//
+//                $i ++;
+//            }
+//        }
+//
 //        $buildings = Building::all();
 //
 //
@@ -761,27 +896,80 @@ SOAP;
 //
 //            }
 //        }
-//
-//        foreach ( $gzhiAddresses as $gzhiAddress )
-//        {
-//
-//            $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsAddressGUID;
-//            $dataArray[ $i ][ 'edsFIASAddressGUID' ] = (string) $gzhiAddress->edsFIASAddressGUID;
-//            $dataArray[ $i ][ 'edsFullName' ] = (string) $gzhiAddress->edsAddressName;
-//            $dataArray[ $i ][ 'edsName' ] = (string) $gzhiAddress->edsRegion;
-//            $dataArray[ $i ][ 'edsAddress' ] = (string) $gzhiAddress->edsArea;
-//            $dataArray[ $i ][ 'edsAddressJur' ] = (string) $gzhiAddress->edsPlace;
-//            $dataArray[ $i ][ 'edsHouseNum' ] = (string) $gzhiAddress->edsHouseNum;
-//
-//            $i ++;
-//
-//        }
-//
-//        $headersArray = array( 'edsOrgGUID', 'edsFullName', 'edsName', 'edsAddress', 'edsAddressJur', 'edsHouseNum' );
-//
-//        $this->generateCSV( $headersArray, $dataArray );
 
-        echo "Обработано позиций: " . $i;
+            foreach ( $gzhiAddresses as $gzhiAddress )
+            {
+                if(in_array($gzhiAddress->edsAddressGUID, $gArray)) continue;
+
+                $dataArray[ $i ][ 'edsAddressGUID' ] = (string) $gzhiAddress->edsAddressGUID ?? '';
+
+                $dataArray[ $i ][ 'edsFIASAddressGUID' ] = (string) $gzhiAddress->edsFIASAddressGUID ?? '';
+
+                $dataArray[ $i ][ 'edsAddressType' ] = (string) $gzhiAddress->edsAddressType ?? '';
+
+                $dataArray[ $i ][ 'edsOKTMO' ] = (string) $gzhiAddress->edsOKTMO ?? '';
+
+                $dataArray[ $i ][ 'edsAddressName' ] = (string) $gzhiAddress->edsAddressName ?? '';
+
+                $dataArray[ $i ][ 'edsRegion' ] = (string) $gzhiAddress->edsRegion ?? '';
+
+                $dataArray[ $i ][ 'edsArea' ] = (string) $gzhiAddress->edsArea ?? '';
+
+                $dataArray[ $i ][ 'edsCity' ] = (string) $gzhiAddress->edsCity ?? '';
+
+                $dataArray[ $i ][ 'edsStreet' ] = (string) $gzhiAddress->edsStreet ?? '';
+
+                $dataArray[ $i ][ 'edsEstStatus' ] = (string) $gzhiAddress->edsEstStatus ?? '';
+
+                $dataArray[ $i ][ 'edsHouseNum' ] = (string) $gzhiAddress->edsHouseNum ?? '';
+
+                $dataArray[ $i ][ 'edsHouseType' ] = (string) $gzhiAddress->edsHouseType ?? '';
+
+                if(isset($gzhiAddress->edsOrgManager))
+                {
+
+                    $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsOrgGUID ?? '';
+
+                    $dataArray[ $i ][ 'edsName' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsName ?? '';
+
+                    $dataArray[ $i ][ 'edsFullName' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsFullName ?? '';
+
+                    $dataArray[ $i ][ 'edsAddress' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsAddress ?? '';
+
+                    $dataArray[ $i ][ 'edsAddressJur' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsAddressJur ?? '';
+
+                    $dataArray[ $i ][ 'edsAddressDisp' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsAddressDisp ?? '';
+
+                    $dataArray[ $i ][ 'edsTypeOrg' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsTypeOrg ?? '';
+                }
+
+                $gArray[] = $gzhiAddress->edsAddressGUID;
+
+                $i ++;
+
+            }
+
+        }
+
+        $headersArray = array( 'edsAddressGUID', 'edsFIASAddressGUID', 'edsAddressType', 'edsOKTMO', 'edsAddressName', 'edsRegion'
+        , 'edsArea'
+        , 'edsCity'
+        , 'edsStreet'
+        , 'edsEstStatus'
+        , 'edsHouseNum'
+        , 'edsHouseType',
+            'edsOrgGUID',
+            'edsName',
+            'edsFullName',
+            'edsAddress',
+            'edsAddressJur',
+            'edsAddressDisp',
+            'edsTypeOrg'
+            );
+
+        $this->generateCSV( $headersArray, $dataArray, $l );
+
+        echo $i;
 
     }
 
@@ -892,14 +1080,11 @@ SOAP;
 
     }
 
-    private function generateCSV ( array $headersArray, array $dataArray )
+    private function generateCSV ( array $headersArray, array $dataArray, $index = 1 )
     {
-        $Filename = 'Level.csv';
-        header( 'Content-Type: text/csv; charset=utf-8' );
-        Header( 'Content-Type: application/force-download' );
-        header( 'Content-Disposition: attachment; filename=' . $Filename . '' );
+        $filename = 'ram_addr_' . $index . '.csv';
 
-        $output = fopen( 'php://output', 'w' );
+        $output = fopen( storage_path() . '/files/' . $filename, 'w' );
 
         fputcsv( $output, $headersArray );
 
