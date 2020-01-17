@@ -43,7 +43,8 @@ class FillDobrodelTypesTwo extends Migration
                 continue;
             }
 
-            $typeName = \App\Models\Type::whereName( $one[ 4 ] )->first();
+            $typeName = \App\Models\Type::whereName( $one[ 3 ] )->first();
+
 
             if($typeName) continue;
 
