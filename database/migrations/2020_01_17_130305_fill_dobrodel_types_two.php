@@ -33,6 +33,8 @@ class FillDobrodelTypesTwo extends Migration
             $i ++;
         }
 
+
+        $parentId = null;
         foreach ( $array as $one )
         {
 
@@ -51,16 +53,25 @@ class FillDobrodelTypesTwo extends Migration
             }
 
             $type->provider_id = 1;
-            $type->parent_id = $one[ 2 ];
+            if ( $one[ 2 ] > 0 )
+            {
+                $type->parent_id = $one[ 2 ];
+            }
+
             $type->name = $one[ 3 ];
             $type->period_acceptance = $one[ 4 ];
             $type->period_execution = $one[ 5 ];
             $type->need_act = $one[ 6 ];
             $type->save();
 
+
             $type2 = new  \App\Models\Type();
 
             $type2->provider_id = 9;
+            if ( $one[ 2 ] > 0 && $parentId )
+            {
+                $type2->parent_id = $parentId;
+            }
             $type2->parent_id = $one[ 2 ];
             $type2->name = $one[ 3 ];
             $type2->period_acceptance = $one[ 4 ];
@@ -68,6 +79,10 @@ class FillDobrodelTypesTwo extends Migration
             $type2->need_act = $one[ 6 ];
             $type2->save();
 
+            if(empty($one[ 2 ]))
+            {
+                $parentId = $type2->id;
+            }
 
         }
     }
