@@ -13,7 +13,7 @@ class MosregClient
 {
 
     const URL = 'https://mosreg.eds-region.ru';
-    const TIMEOUT = 10;
+    const TIMEOUT = 30;
 
     private $client = false;
 

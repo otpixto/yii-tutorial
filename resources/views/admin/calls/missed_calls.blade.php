@@ -33,7 +33,7 @@
                                 Дата последнего звонка
                             </th>
                             <th>
-                                Позвонить
+                                &nbsp;
                             </th>
                         </tr>
                         </thead>
@@ -54,7 +54,9 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.recall_missed_call', ['id' => $call->id, 'call_id' => 1]) }}"
-                                       class="btn btn-sm btn-danger">Позвонить</a>
+                                       class="btn btn-sm btn-success">
+                                        Перезвонили
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
