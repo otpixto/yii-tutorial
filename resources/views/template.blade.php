@@ -59,7 +59,7 @@
                             {{ $ticket->vendor->name }}
                             №
                             <b>
-                                @if($ticket->vendor_id == 2)
+                                @if($ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID)
                                     <a href="https://dobrodel.mosreg.ru/claims/{{ $ticket->vendor_number }}"
                                        target="_blank">
                                     {{ $ticket->vendor_number }}

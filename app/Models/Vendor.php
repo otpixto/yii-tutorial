@@ -5,6 +5,7 @@ namespace App\Models;
 class Vendor extends BaseModel
 {
     const GZHI_VENDOR_ID = 1;
+    const DOBRODEL_VENDOR_ID = 2;
     const EAIS_VENDOR_ID = 4;
 
     protected $table = 'vendors';
