@@ -11,7 +11,8 @@
                 <div class="page-nav">
 
                     <!-- Brand and toggle get grouped for better mobile display -->
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                            data-target=".navbar-responsive-collapse">
                         <span class="sr-only">Навигация</span>
                         <span class="toggle-icon">
                             <span class="icon-bar"></span>
@@ -24,7 +25,7 @@
                     <!-- BEGIN LOGO -->
                     <a id="index" class="page-logo" href="/">
 
-                        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ config( 'app.name' ) }}" />
+                        <img src="{{ \App\Models\Provider::getLogo() }}" alt="{{ config( 'app.name' ) }}"/>
 
                         <span class="page-title">
                             @if ( \App\Models\Provider::getCurrent() )
@@ -58,7 +59,14 @@
                             {{ $ticket->vendor->name }}
                             №
                             <b>
-                                {{ $ticket->vendor_number }}
+                                @if($ticket->vendor_id == 2)
+                                    <a href="https://dobrodel.mosreg.ru/claims/{{ $ticket->vendor_number }}"
+                                       target="_blank">
+                                    {{ $ticket->vendor_number }}
+                                    </a>
+                                @else
+                                    {{ $ticket->vendor_number }}
+                                @endif
                             </b>
                             @if ( $ticket->vendor_date )
                                 от
@@ -83,12 +91,12 @@
                 <div class="page-content-row">
                     <div class="page-content-col">
 
-                        @include( 'parts.errors' )
-                        @include( 'parts.success' )
+                    @include( 'parts.errors' )
+                    @include( 'parts.success' )
 
-                        <!-- BEGIN PAGE BASE CONTENT -->
-                        @yield( 'content' )
-                        <!-- END PAGE BASE CONTENT -->
+                    <!-- BEGIN PAGE BASE CONTENT -->
+                    @yield( 'content' )
+                    <!-- END PAGE BASE CONTENT -->
 
                     </div>
                 </div>
@@ -175,18 +183,21 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form action="{{ route( 'support.store' ) }}" method="post" id="form-support" class="submit-loading ajax">
-                    <input type="hidden" name="data" id="support-data" value="" />
+                <form action="{{ route( 'support.store' ) }}" method="post" id="form-support"
+                      class="submit-loading ajax">
+                    <input type="hidden" name="data" id="support-data" value=""/>
                     <div class="row">
                         <div class="col-xs-12">
                             <label for="push-title control-label">Тема</label>
-                            <input type="text" name="subject" id="support-subject" value="" class="form-control" required="required" />
+                            <input type="text" name="subject" id="support-subject" value="" class="form-control"
+                                   required="required"/>
                         </div>
                     </div>
                     <div class="row margin-top-15">
                         <div class="col-xs-12">
                             <label for="push-message control-label">Сообщение</label>
-                            <textarea name="body" id="support-body" class="form-control" rows="10" required="required"></textarea>
+                            <textarea name="body" id="support-body" class="form-control" rows="10"
+                                      required="required"></textarea>
                         </div>
                     </div>
                     <div class="row margin-top-15">
@@ -217,11 +228,10 @@
 
 @include( 'parts.js' )
 <script type="text/javascript">
-    $( document )
-        .on( 'click', '[data-action="push"]', function ( e )
-        {
+    $(document)
+        .on('click', '[data-action="push"]', function (e) {
             e.preventDefault();
-            $( '#modal-push' ).modal( 'show' );
+            $('#modal-push').modal('show');
         });
 </script>
 
