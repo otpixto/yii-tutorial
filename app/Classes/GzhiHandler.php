@@ -973,6 +973,38 @@ SOAP;
 
     }
 
+    public function handleAddresses()
+    {
+        $array = array();
+        for($i = 5; $i<=130; $i+=5)
+        {
+            $fileName = 'files/ram_addr_for_upload' . $i . '.csv';
+
+            $csvData = \Illuminate\Support\Facades\File::get( storage_path( $fileName ) );
+
+            $lines = explode( PHP_EOL, $csvData );
+
+            $j=0;
+            foreach ( $lines as $line )
+            {
+                if ( $j > 0 )
+                {
+                    $d = str_getcsv( $line );
+                    $array[$d[0]] = str_getcsv( $line );
+                }
+
+                $j ++;
+            }
+        }
+
+        dd(count($array));
+
+        foreach ($array as $one)
+        {
+
+        }
+    }
+
 
     public function getOrgList ()
     {
