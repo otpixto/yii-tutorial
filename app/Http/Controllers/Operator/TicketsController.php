@@ -727,6 +727,14 @@ class TicketsController extends BaseController
             'create_user' => 'nullable|boolean',
         ];
 
+        $managements = $request->get( 'managements', [] );
+        if ( ! count( $managements ) )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Для сохранения заявки нужно выбрать (отметить галочкой) нужную организацию' ] );
+        }
+
         $this->validate( $request, $rules );
 
         try
@@ -737,14 +745,6 @@ class TicketsController extends BaseController
                 return redirect()
                     ->back()
                     ->withErrors( [ 'Некорректное проблемное место' ] );
-            }
-
-            $managements = $request->get( 'managements', [] );
-            if ( ! count( $managements ) )
-            {
-                return redirect()
-                    ->back()
-                    ->withErrors( [ 'Необходимо выбрать УО' ] );
             }
 
             \DB::beginTransaction();
