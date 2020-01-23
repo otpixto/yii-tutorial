@@ -54,10 +54,17 @@
                         {!! Form::close() !!}
                     @else
                         @foreach( $availableStatuses as $status_code => $availableStatus )
-                            @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code || ( \App\Models\Provider::getCurrent() && \App\Models\Provider::$current->need_act && $ticket->type->need_act && $ticketManagement->management->need_act && $status_code == 'completed_without_act' ) )
-                                @php
-                                    continue;
-                                @endphp
+                            @if(isset($ticket->type) && isset($ticketManagement->management))
+                                @if ( ( $ticketManagement ?? $ticket )->status_code == $status_code
+                                || ( \App\Models\Provider::getCurrent()
+                                && \App\Models\Provider::$current->need_act
+                                && $ticket->type->need_act
+                                && $ticketManagement->management->need_act
+                                && $status_code == 'completed_without_act' ) )
+                                    @php
+                                        continue;
+                                    @endphp
+                                @endif
                             @endif
                             {!! Form::open( [ 'url' => $availableStatus[ 'url' ], 'data-status' => $status_code, 'data-id' => $availableStatus[ 'model_id' ], 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "' . $availableStatus[ 'status_name' ] . '"?' ] ) !!}
                             {!! Form::hidden( 'model_name', $availableStatus[ 'model_name' ] ) !!}
