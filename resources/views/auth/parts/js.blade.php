@@ -14,7 +14,7 @@
 <script src="/assets/global/scripts/app.min.js" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN PAGE LEVEL SCRIPTS -->
-<script src="/assets/global/scripts/common.js" type="text/javascript"></script>
+<script src="/assets/global/scripts/common.js?5" type="text/javascript"></script>
 <!-- END PAGE LEVEL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 @yield( 'js' )
