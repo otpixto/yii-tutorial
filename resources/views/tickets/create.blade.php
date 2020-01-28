@@ -15,8 +15,8 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
     <style>
         .mt-checkbox, .mt-radio {
             margin-bottom: 0;
@@ -29,18 +29,18 @@
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"
-            type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+	<script src="/assets/global/plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js" type="text/javascript"></script>
     <script src="https://webasr.yandex.net/jsapi/v1/webspeechkit.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         var streamer = new ya.speechkit.SpeechRecognition();
         var timers = {};
 
-        function MicrophoneOn() {
+        function MicrophoneOn ()
+        {
 
-            if ($('#microphone').attr('data-state') == 'on') return;
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'on' ) return;
 
             streamer.start({
 
@@ -48,32 +48,35 @@
 
                 // initCallback вызывается после успешной инициализации сессии.
                 initCallback: function () {
-                    $('#microphone')
-                        .attr('data-state', 'on')
-                        .removeClass('btn-default')
-                        .addClass('btn-success')
-                        .find('.fa')
-                        .removeClass('fa-microphone-slash')
-                        .addClass('fa-microphone');
+                    $( '#microphone' )
+                        .attr( 'data-state', 'on' )
+                        .removeClass( 'btn-default' )
+                        .addClass( 'btn-success' )
+                        .find( '.fa' )
+                        .removeClass( 'fa-microphone-slash' )
+                        .addClass( 'fa-microphone' );
                 },
                 // Данная функция вызывается многократно.
                 // Ей передаются промежуточные результаты распознавания.
                 // После остановки распознавания этой функции
                 // будет передан финальный результат.
-                dataCallback: function (text, done) {
-                    if (done && text != '') {
+                dataCallback: function ( text, done )
+                {
+                    if ( done && text != '' )
+                    {
                         MicrophoneOff();
-                        var value = $.trim($('#text').val());
-                        if (value != '') {
+                        var value = $.trim( $( '#text' ).val() );
+                        if ( value != '' )
+                        {
                             value += "\n";
                         }
-                        $('#text').val(value + text);
+                        $( '#text' ).val( value + text );
                     }
                 },
                 // Вызывается при возникновении ошибки (например, если передан неверный API-ключ).
                 errorCallback: function (err) {
                     //console.log("Возникла ошибка: " + err);
-                    alert("Возникла ошибка: " + err);
+                    alert( "Возникла ошибка: " + err );
                     MicrophoneOff();
                 },
                 // Содержит сведения о ходе процесса распознавания.
@@ -98,55 +101,66 @@
 
         };
 
-        function MicrophoneOff() {
+        function MicrophoneOff ()
+        {
 
-            if ($('#microphone').attr('data-state') == 'off') return;
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' ) return;
 
-            $('#microphone')
-                .attr('data-state', 'off')
-                .removeClass('btn-success')
-                .addClass('btn-default')
-                .find('.fa')
-                .removeClass('fa-microphone')
-                .addClass('fa-microphone-slash');
+            $( '#microphone' )
+                .attr( 'data-state', 'off' )
+                .removeClass( 'btn-success' )
+                .addClass( 'btn-default' )
+                .find( '.fa' )
+                .removeClass( 'fa-microphone' )
+                .addClass( 'fa-microphone-slash' );
 
             streamer.stop();
 
         };
 
-        function ToggleMicrophone() {
+        function ToggleMicrophone ()
+        {
 
-            if ($('#microphone').attr('data-state') == 'off') {
+            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' )
+            {
                 MicrophoneOn();
-            } else {
+            }
+            else
+            {
                 MicrophoneOff();
             }
 
         };
 
-        function GetTypeInfo() {
+        function GetTypeInfo ()
+        {
 
-            var type_id = $('#type_id').val();
-            if (!type_id || type_id == '0') {
+            var type_id = $( '#type_id' ).val();
+            if ( ! type_id || type_id == '0' )
+            {
                 return;
-            }
-            ;
-            $.post('{{ route( 'types.search' ) }}', {
+            };
+            $.post( '{{ route( 'types.search' ) }}', {
                 type_id: type_id
-            }, function (response) {
-                $('#period_acceptance').text(response.period_acceptance + ' ч.');
-                $('#period_execution').text(response.period_execution + ' ч.');
-                $('#season').text(response.season || '-');
-                $('#category').text(response.category_name);
-                if (response.emergency) {
-                    $('#emergency').prop('checked', 'checked').attr('disabled', 'disabled').trigger('change');
-                } else {
-                    $('#emergency').removeAttr('disabled');
+            }, function ( response )
+            {
+                $( '#period_acceptance' ).text( response.period_acceptance + ' ч.' );
+                $( '#period_execution' ).text( response.period_execution + ' ч.' );
+                $( '#season' ).text( response.season || '-' );
+                $( '#category' ).text( response.category_name );
+                if ( response.emergency )
+                {
+                    $( '#emergency' ).prop( 'checked', 'checked' ).attr( 'disabled', 'disabled' ).trigger( 'change' );
                 }
-                if (response.description) {
-                    $('#types-description')
-                        .removeClass('hidden')
-                        .html(response.description)
+                else
+                {
+                    $( '#emergency' ).removeAttr( 'disabled' );
+                }
+                if ( response.description )
+                {
+                    $( '#types-description' )
+                        .removeClass( 'hidden' )
+                        .html( response.description )
                         .pulsate({
                             repeat: 3,
                             speed: 500,
@@ -154,227 +168,231 @@
                             glow: true,
                             reach: 15
                         });
-                } else {
-                    $('#types-description').addClass('hidden').empty();
+                }
+                else
+                {
+                    $( '#types-description' ).addClass( 'hidden' ).empty();
                 }
             });
 
         };
 
-        function GetSelect() {
-            $('#select').loading();
-            if (timers['select']) {
-                window.clearTimeout(timers['select']);
+        function GetSelect ()
+        {
+            $( '#select' ).loading();
+            if ( timers[ 'select' ] )
+            {
+                window.clearTimeout( timers[ 'select' ] );
             }
-            timers['select'] = window.setTimeout(function () {
-                timers['select'] = null;
-                $.post('{{ route( 'tickets.select', $ticket->id ) }}', function (response) {
-                    $('#select').html(response);
-                });
-            }, 600);
-        };
-
-        function GetTypes(provider_id, isWithVendorID = false, isWithParentID = false) {
-            if (isWithVendorID) {
-                $('#type_parent_id')
-                    .empty()
-                    .append(
-                        $('<option>').val('0').text(' -- выберите из списка -- ')
-                    )
-                    .trigger('change');
-            } else {
-                $('#type_id')
-                    .empty()
-                    .append(
-                        $('<option>').val('0').text(' -- выберите из списка -- ')
-                    )
-                    .trigger('change');
-            }
-
-            $('#building_id').val('').trigger('change');
-            $.post('{{ route( 'types.json' ) }}',
+            timers[ 'select' ] = window.setTimeout( function ()
+            {
+                timers[ 'select' ] = null;
+                $.post( '{{ route( 'tickets.select', $ticket->id ) }}', function ( response )
                 {
-                    provider_id: provider_id || null,
-                    is_with_vendor_id: isWithVendorID,
-                    is_with_parent_id: isWithParentID,
-                }, function (response) {
-
-                    if (response.length > 0) {
-                        if (isWithVendorID) {
-                            $('#type_parent_id').select2('destroy');
-                            $('#type_parent_id').select2({
-                                'data': response
-                            });
-                        } else {
-                            $('#type_id').select2('destroy');
-                            $('#type_id').select2({
-                                'data': response
-                            });
-                        }
-                    }
-
+                    $( '#select' ).html( response );
                 });
+            }, 600 );
         };
 
-        $(document)
+        function GetTypes ( provider_id )
+        {
+            $( '#type_id' )
+                .empty()
+                .append(
+                    $( '<option>' ).val( '0' ).text( ' -- выберите из списка -- ' )
+                )
+                .trigger( 'change' );
+            $( '#building_id' ).val( '' ).trigger( 'change' );
+            $.post( '{{ route( 'types.json' ) }}',
+            {
+                provider_id: provider_id || null
+            }, function ( response )
+            {
+                if ( response.length )
+                {
+                    $( '#type_id' ).select2( 'destroy' );
+                    $( '#type_id' ).select2({
+                        'data': response
+                    });
+                }
+            });
+        };
 
-            .ready(function () {
+        $( document )
+
+            .ready( function ()
+            {
 
                 @if ( Request::get( 'cam_src' ) )
-                initIntercom('{{ Request::get( 'cam_src' ) }}');
+                    initIntercom( '{{ Request::get( 'cam_src' ) }}' );
                 @endif
 
-                $('.autosave').each(function () {
-                    var that = $(this);
-                    if (that.is('[type="checkbox"]')) {
-                        var value = that.is(':checked') ? 1 : 0;
-                    } else if (that.hasClass('mask_phone')) {
-                        var value = that.val().replace(/[^0-9]/gim, '').substr(-10);
-                    } else {
-                        var value = $.trim(that.val());
+                $( '.autosave' ).each( function ()
+                {
+                    var that = $( this );
+                    if ( that.is( '[type="checkbox"]' ) )
+                    {
+                        var value = that.is( ':checked' ) ? 1 : 0;
                     }
-                    $(this).attr('data-prev-value', value);
+                    else if ( that.hasClass( 'mask_phone' ) )
+                    {
+                        var value = that.val().replace( /[^0-9]/gim, '' ).substr( -10 );
+                    }
+                    else
+                    {
+                        var value = $.trim( that.val() );
+                    }
+                    $( this ).attr( 'data-prev-value', value );
                 });
 
-                $('.customer-autocomplete').autocomplete({
-                    source: function (request, response) {
+                $( '.customer-autocomplete' ).autocomplete({
+                    source: function ( request, response )
+                    {
                         var r = {};
                         r.param = this.element[0].name;
                         r.value = request.term;
-                        $.post('{{ route( 'customers.search' ) }}', r, function (data) {
-                            response(data);
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
+                        {
+                            response( data );
                         });
                     },
                     minLength: 2,
-                    select: function (event, ui) {
-                        $(this).trigger('change');
+                    select: function ( event, ui )
+                    {
+                        $( this ).trigger( 'change' );
                     }
                 });
 
-                $('#tags').on('itemAdded', function (e) {
+                $( '#tags' ).on( 'itemAdded', function ( e )
+                {
                     var tag = e.item;
-                    if (!tag) return;
-                    $.post('{{ route( 'tickets.tags.add', $ticket->id ) }}', {
+                    if ( ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.add', $ticket->id ) }}', {
                         tag: tag
                     });
                 });
 
-                $('#tags').on('itemRemoved', function (e) {
+                $( '#tags' ).on( 'itemRemoved', function ( e )
+                {
                     var tag = e.item;
-                    if (!tag) return;
-                    $.post('{{ route( 'tickets.tags.del', $ticket->id ) }}', {
+                    if ( ! tag ) return;
+                    $.post( '{{ route( 'tickets.tags.del', $ticket->id ) }}', {
                         tag: tag
                     });
                 });
 
-                $('.mask_phone').inputmask('mask', {
+                $( '.mask_phone' ).inputmask( 'mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
 
-                $('#microphone').click(ToggleMicrophone);
+                $( '#microphone' ).click( ToggleMicrophone );
 
                 GetTypeInfo();
                 GetSelect();
 
-                $('#phone').trigger('change');
+                $( '#phone' ).trigger( 'change' );
 
             })
 
-            .on('click', '[data-action="create_another"]', function () {
-                $('#create_another').val('1');
+            .on( 'click', '[data-action="create_another"]', function ()
+            {
+                $( '#create_another' ).val( '1' );
                 this.form.submit();
             })
 
-            .on('click', '.nav-tabs a', function (e) {
-                $(this).tab('show');
-                switch ($(this).attr('href')) {
+            .on ( 'click', '.nav-tabs a', function ( e )
+            {
+                $( this ).tab( 'show' );
+                switch ( $( this ).attr( 'href' ) )
+                {
 
                     case '#customer_tickets':
-                        $('#customer_tickets').loading();
-                        $.get('{{ route( 'tickets.customers', $ticket->id ) }}', function (response) {
-                            $('#customer_tickets').html(response);
+                        $( '#customer_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.customers', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#customer_tickets' ).html( response );
                         });
                         break;
 
                     case '#neighbors_tickets':
-                        $('#neighbors_tickets').loading();
-                        $.get('{{ route( 'tickets.neighbors', $ticket->id ) }}', function (response) {
-                            $('#neighbors_tickets').html(response);
+                        $( '#neighbors_tickets' ).loading();
+                        $.get( '{{ route( 'tickets.neighbors', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#neighbors_tickets' ).html( response );
                         });
                         break;
 
                     case '#works':
-                        $('#works').loading();
-                        $.get('{{ route( 'tickets.works', $ticket->id ) }}', function (response) {
-                            $('#works').html(response);
+                        $( '#works' ).loading();
+                        $.get( '{{ route( 'tickets.works', $ticket->id ) }}', function ( response )
+                        {
+                            $( '#works' ).html( response );
                         });
                         break;
 
                 }
             })
 
-            .on('change', '#provider_id', function (e) {
-                $('#building_id, #flat, #actual_building_id, #actual_flat').val('').trigger('change');
-                GetTypes($(this).val());
+            .on( 'change', '#provider_id', function ( e )
+            {
+                $( '#building_id, #flat, #actual_building_id, #actual_flat' ).val( '' ).trigger( 'change' );
+                GetTypes( $( this ).val() );
             })
 
-            .on('change', '#vendor_id', function (e) {
-                if ($(this).val()) {
-                    GetTypes($(this).val(), true);
-                    $('.vendor').removeClass('hidden');
-                } else {
-                    $('.vendor').addClass('hidden');
-                    $('#type_parent_id')
-                        .empty()
-                        .append(
-                            $('<option>').val('0').text(' -- выберите из списка -- ')
-                        )
-                        .trigger('change');
+            .on( 'change', '#vendor_id', function ( e )
+            {
+                if ( $( this ).val() )
+                {
+                    $( '.vendor' ).removeClass( 'hidden' );
+                }
+                else
+                {
+                    $( '.vendor' ).addClass( 'hidden' );
                 }
             })
 
-            .on('change', '#type_parent_id', function (e) {
-                if ($(this).val()) {
-                    GetTypes($(this).val(), false, true);
-                } else {
-                    $('#type_id')
-                        .empty()
-                        .append(
-                            $('<option>').val('0').text(' -- выберите из списка -- ')
-                        )
-                        .trigger('change');
+            .on( 'change', '.autosave', function ( e )
+            {
+                var that = $( this );
+                if ( timers[ that.attr( 'name' ) ] )
+                {
+                    window.clearTimeout( timers[ that.attr( 'name' ) ] );
                 }
-            })
-
-            .on('change', '.autosave', function (e) {
-                var that = $(this);
-                if (timers[that.attr('name')]) {
-                    window.clearTimeout(timers[that.attr('name')]);
-                }
-                timers[that.attr('name')] = window.setTimeout(function () {
-                    timers[that.attr('name')] = null;
-                    var field = that.attr('name');
-                    if (that.is('[type="checkbox"]')) {
-                        var value = that.is(':checked') ? 1 : 0;
-                    } else if (that.hasClass('mask_phone')) {
-                        var value = that.val().replace(/[^0-9]/gim, '').substr(-10);
-                    } else {
-                        var value = $.trim(that.val());
+                timers[ that.attr( 'name' ) ] = window.setTimeout( function ()
+                {
+                    timers[ that.attr( 'name' ) ] = null;
+                    var field = that.attr( 'name' );
+                    if ( that.is( '[type="checkbox"]' ) )
+                    {
+                        var value = that.is( ':checked' ) ? 1 : 0;
                     }
-                    if (that.attr('data-prev-value') == value) {
+                    else if ( that.hasClass( 'mask_phone' ) )
+                    {
+                        var value = that.val().replace( /[^0-9]/gim, '' ).substr( -10 );
+                    }
+                    else
+                    {
+                        var value = $.trim( that.val() );
+                    }
+                    if ( that.attr( 'data-prev-value' ) == value )
+                    {
                         return;
                     }
-                    that.attr('data-prev-value', value);
-                    $.post('{{ route( 'tickets.save', $ticket->id ) }}', {
+                    that.attr( 'data-prev-value', value );
+                    $.post( '{{ route( 'tickets.save', $ticket->id ) }}', {
                         field: field,
                         value: value
-                    }, function (response) {
-                        if (!response || !response.can_create_user) {
-                            $('#create_user_block').addClass('hidden');
-                            $('#create_user').prop('checked', false);
-                        } else if ($('#create_user_block').hasClass('hidden')) {
-                            $('#create_user_block')
-                                .removeClass('hidden')
+                    }, function ( response )
+                    {
+                        if ( ! response || ! response.can_create_user )
+                        {
+                            $( '#create_user_block' ).addClass( 'hidden' );
+                            $( '#create_user' ).prop( 'checked', false );
+                        }
+                        else if ( $( '#create_user_block' ).hasClass( 'hidden' ) )
+                        {
+                            $( '#create_user_block' )
+                                .removeClass( 'hidden' )
                                 .pulsate({
                                     repeat: 3,
                                     speed: 500,
@@ -384,56 +402,68 @@
                                 });
                         }
                     });
-                }, 500);
+                }, 500 );
             })
 
-            .on('keydown', function (e) {
-                if (e.ctrlKey && e.which == 32) {
+            .on( 'keydown', function ( e )
+            {
+                if ( e.ctrlKey && e.which == 32 )
+                {
                     ToggleMicrophone();
                 }
             })
 
-            .on('change', '#type_id', function (e) {
+            .on( 'change', '#type_id', function ( e )
+            {
                 GetTypeInfo();
             })
 
-            .on('change', '#building_id, #type_id', function (e) {
-                if ($('#type_id').val() && $('#building_id').val()) {
+            .on( 'change', '#building_id, #type_id', function ( e )
+            {
+                if ( $( '#type_id' ).val() && $( '#building_id' ).val() )
+                {
                     GetSelect();
                 }
             })
 
-            .on('change', '#phone', function (e) {
+            .on( 'change', '#phone', function ( e )
+            {
                 GetSelect();
             })
 
-            .on('change', '#fistname, #middlename, #lastname', function (e) {
+            .on( 'change', '#fistname, #middlename, #lastname', function ( e )
+            {
                 var param = 'phone_by_name';
-                if (timers[param]) {
-                    window.clearTimeout(timers[param]);
+                if ( timers[ param ] )
+                {
+                    window.clearTimeout( timers[ param ] );
                 }
-                timers[param] = window.setTimeout(function () {
-                    timers[param] = null;
-                    var firstname = $.trim($('#firstname').val());
-                    var middlename = $.trim($('#middlename').val());
-                    var lastname = $.trim($('#lastname').val());
-                    if (firstname != '' && middlename != '' && lastname != '') {
+                timers[ param ] = window.setTimeout( function ()
+                {
+                    timers[ param ] = null;
+                    var firstname = $.trim( $( '#firstname' ).val() );
+                    var middlename = $.trim( $( '#middlename' ).val() );
+                    var lastname = $.trim( $( '#lastname' ).val() );
+                    if ( firstname != '' && middlename != '' && lastname != '' )
+                    {
                         var r = {};
                         r.param = param;
                         r.firstname = firstname;
                         r.middlename = middlename;
                         r.lastname = lastname;
-                        $.post('{{ route( 'customers.search' ) }}', r, function (response) {
-                            if (!response) return;
-                            var phone = $.trim($('#phone').val().replace('/\D/', ''));
-                            var building_id = $('#building_id').val();
-                            var flat = $('#flat').val();
-                            var actual_building_id = $('#actual_building_id').val();
-                            var actual_flat = $('#actual_flat').val();
-                            if (!phone && response.phone) {
-                                $('#phone')
-                                    .val(response.phone)
-                                    .trigger('change')
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( response )
+                        {
+                            if ( ! response ) return;
+                            var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
+                            var building_id = $( '#building_id' ).val();
+                            var flat = $( '#flat' ).val();
+                            var actual_building_id = $( '#actual_building_id' ).val();
+                            var actual_flat = $( '#actual_flat' ).val();
+                            if ( ! phone && response.phone )
+                            {
+                                $( '#phone' )
+                                    .val( response.phone )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -442,15 +472,16 @@
                                         reach: 15
                                     });
                             }
-                            if (!building_id && response.actual_building_id) {
-                                $('#building_id')
+                            if ( ! building_id && response.actual_building_id )
+                            {
+                                $( '#building_id' )
                                     .append(
-                                        $('<option>')
-                                            .val(response.actual_building_id)
-                                            .text(response.actual_building.name)
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val(response.actual_building_id)
-                                    .trigger('change')
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -459,10 +490,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!flat && response.actual_flat) {
-                                $('#flat')
-                                    .val(response.actual_flat)
-                                    .trigger('change')
+                            if ( ! flat && response.actual_flat )
+                            {
+                                $( '#flat' )
+                                    .val( response.actual_flat )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -471,15 +503,16 @@
                                         reach: 15
                                     });
                             }
-                            if (!actual_building_id && response.actual_building_id) {
-                                $('#actual_building_id')
+                            if ( ! actual_building_id && response.actual_building_id )
+                            {
+                                $( '#actual_building_id' )
                                     .append(
-                                        $('<option>')
-                                            .val(response.actual_building_id)
-                                            .text(response.actual_building.name)
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val(response.actual_building_id)
-                                    .trigger('change')
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -488,10 +521,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!actual_flat && response.actual_flat) {
-                                $('#actual_flat')
-                                    .val(response.actual_flat)
-                                    .trigger('change')
+                            if ( ! actual_flat && response.actual_flat )
+                            {
+                                $( '#actual_flat' )
+                                    .val( response.actual_flat )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -502,34 +536,40 @@
                             }
                         });
                     }
-                }, 500);
+                }, 500 );
             })
 
-            .on('change', '#phone', function () {
+            .on( 'change', '#phone', function ()
+            {
                 var param = 'name_by_phone';
-                if (timers[param]) {
-                    window.clearTimeout(timers[param]);
+                if ( timers[ param ] )
+                {
+                    window.clearTimeout( timers[ param ] );
                 }
-                timers[param] = window.setTimeout(function () {
-                    timers[param] = null;
-                    var firstname = $.trim($('#firstname').val());
-                    var middlename = $.trim($('#middlename').val());
-                    var lastname = $.trim($('#lastname').val());
-                    var phone = $.trim($('#phone').val().replace('/\D/', ''));
-                    var building_id = $('#building_id').val();
-                    var flat = $('#flat').val();
-                    var actual_building_id = $('#actual_building_id').val();
-                    var actual_flat = $('#actual_flat').val();
-                    if (!firstname || !middlename || !lastname || !actual_building_id || !actual_flat) {
+                timers[ param ] = window.setTimeout( function ()
+                {
+                    timers[ param ] = null;
+                    var firstname = $.trim( $( '#firstname' ).val() );
+                    var middlename = $.trim( $( '#middlename' ).val() );
+                    var lastname = $.trim( $( '#lastname' ).val() );
+                    var phone = $.trim( $( '#phone' ).val().replace( '/\D/', '' ) );
+                    var building_id = $( '#building_id' ).val();
+                    var flat = $( '#flat' ).val();
+                    var actual_building_id = $( '#actual_building_id' ).val();
+                    var actual_flat = $( '#actual_flat' ).val();
+                    if ( ! firstname || ! middlename || ! lastname || ! actual_building_id || ! actual_flat )
+                    {
                         var r = {};
                         r.param = param;
                         r.phone = phone;
-                        $.post('{{ route( 'customers.search' ) }}', r, function (response) {
-                            if (!response) return;
-                            if (!firstname && response.firstname) {
-                                $('#firstname')
-                                    .val(response.firstname)
-                                    .trigger('change')
+                        $.post( '{{ route( 'customers.search' ) }}', r, function ( response )
+                        {
+                            if ( ! response ) return;
+                            if ( ! firstname && response.firstname )
+                            {
+                                $( '#firstname' )
+                                    .val( response.firstname )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -538,10 +578,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!middlename && response.middlename) {
-                                $('#middlename')
-                                    .val(response.middlename)
-                                    .trigger('change')
+                            if ( ! middlename && response.middlename )
+                            {
+                                $( '#middlename' )
+                                    .val( response.middlename )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -550,10 +591,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!lastname && response.lastname) {
-                                $('#lastname')
-                                    .val(response.lastname)
-                                    .trigger('change')
+                            if ( ! lastname && response.lastname )
+                            {
+                                $( '#lastname' )
+                                    .val( response.lastname )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -562,15 +604,16 @@
                                         reach: 15
                                     });
                             }
-                            if (!building_id && response.actual_building_id) {
-                                $('#building_id')
+                            if ( ! building_id && response.actual_building_id )
+                            {
+                                $( '#building_id' )
                                     .append(
-                                        $('<option>')
-                                            .val(response.actual_building_id)
-                                            .text(response.actual_building.name)
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val(response.actual_building_id)
-                                    .trigger('change')
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -579,10 +622,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!flat && response.actual_flat) {
-                                $('#flat')
-                                    .val(response.actual_flat)
-                                    .trigger('change')
+                            if ( ! flat && response.actual_flat )
+                            {
+                                $( '#flat' )
+                                    .val( response.actual_flat )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -591,15 +635,16 @@
                                         reach: 15
                                     });
                             }
-                            if (!actual_building_id && response.actual_building_id) {
-                                $('#actual_building_id')
+                            if ( ! actual_building_id && response.actual_building_id )
+                            {
+                                $( '#actual_building_id' )
                                     .append(
-                                        $('<option>')
-                                            .val(response.actual_building_id)
-                                            .text(response.actual_building.name)
+                                        $( '<option>' )
+                                            .val( response.actual_building_id )
+                                            .text( response.actual_building.name )
                                     )
-                                    .val(response.actual_building_id)
-                                    .trigger('change')
+                                    .val( response.actual_building_id )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -608,10 +653,11 @@
                                         reach: 15
                                     });
                             }
-                            if (!actual_flat && response.actual_flat) {
-                                $('#actual_flat')
-                                    .val(response.actual_flat)
-                                    .trigger('change')
+                            if ( ! actual_flat && response.actual_flat )
+                            {
+                                $( '#actual_flat' )
+                                    .val( response.actual_flat )
+                                    .trigger( 'change' )
                                     .pulsate({
                                         repeat: 3,
                                         speed: 500,
@@ -622,7 +668,7 @@
                             }
                         });
                     }
-                }, 500);
+                }, 500 );
             });
 
     </script>

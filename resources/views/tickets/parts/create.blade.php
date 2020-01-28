@@ -23,29 +23,6 @@
 
     <div class="col-lg-7">
 
-
-        <div class="form-group">
-            {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
-            <div class="col-xs-3">
-                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
-            </div>
-            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
-                <div class="input-group">
-                    <span class="input-group-addon">№</span>
-                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
-                    <span class="input-group-addon">от</span>
-                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            {!! Form::label( 'type_parent_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
-            <div class="col-xs-9">
-                {!! Form::select( 'type_parent_id', $typesCategories, \Input::old( 'type_parent_id', $ticket->type_parent_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
-            </div>
-        </div>
-
         <div class="form-group">
             {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
@@ -70,6 +47,21 @@
             {!! Form::label( 'place_id', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
                 {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $ticket->place_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-3">
+                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
+            </div>
+            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
+                <div class="input-group">
+                    <span class="input-group-addon">№</span>
+                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
+                    <span class="input-group-addon">от</span>
+                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+                </div>
             </div>
         </div>
 
