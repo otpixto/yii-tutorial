@@ -36,7 +36,7 @@ class TypesController extends BaseController
                 'parent_type.name AS parent_name'
             )
             ->leftJoin( 'types AS parent_type', 'parent_type.id', '=', 'types.parent_id' )
-            ->orderBy( Type::$_table .'.name' );
+            ->orderBy( Type::$_table . '.name' );
 
         if ( ! empty( $parent_id ) )
         {
@@ -46,7 +46,7 @@ class TypesController extends BaseController
                     return $q
                         ->where( Type::$_table . '.parent_id', '=', $parent_id )
                         ->orWhere( Type::$_table . '.id', '=', $parent_id );
-                });
+                } );
         }
 
         if ( ! empty( $search ) )
@@ -60,7 +60,7 @@ class TypesController extends BaseController
                         ->orWhere( Type::$_table . '.guid', 'like', $s )
                         ->orWhere( 'parent_type.name', 'like', $s )
                         ->orWhere( 'parent_type.guid', 'like', $s );
-                });
+                } );
         }
 
         if ( ! empty( $building_id ) )
@@ -70,7 +70,7 @@ class TypesController extends BaseController
                 {
                     return $buildings
                         ->where( Building::$_table . '.id', '=', $building_id );
-                });
+                } );
         }
 
         if ( ! empty( $management_id ) )
@@ -80,7 +80,7 @@ class TypesController extends BaseController
                 {
                     return $managements
                         ->where( Management::$_table . '.id', '=', $management_id );
-                });
+                } );
         }
 
         if ( ! empty( $provider_id ) )
@@ -122,18 +122,36 @@ class TypesController extends BaseController
 
         $provider_id = trim( $request->get( 'provider_id', '' ) );
 
+        $isWithVendorID = trim( $request->get( 'is_with_vendor_id', '' ) );
+
+        $isWithParentID = trim( $request->get( 'is_with_parent_id', '' ) );
+
         $types = Type
             ::mine()
             ->select(
-                'id',
+                Type::$_table . '.id as id',
                 'name as text'
             )
-            ->orderBy( Type::$_table .'.name' );
+            ->orderBy( Type::$_table . '.name' );
 
         if ( ! empty( $provider_id ) )
         {
-            $types
-                ->where( Type::$_table . '.provider_id', '=', $provider_id );
+            if ( $isWithVendorID == 'true' )
+            {
+                $types
+                    ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
+                    ->whereNull( Type::$_table . '.parent_id' )
+                    ->where( 'types_vendors.vendor_id', $provider_id );
+            } elseif ( $isWithParentID == 'true' )
+            {
+                $types
+                    ->where( Type::$_table . '.parent_id', '=', $provider_id );
+            } else
+            {
+                $types
+                    ->where( Type::$_table . '.provider_id', '=', $provider_id );
+            }
+
         }
 
         if ( $request->get( 'works' ) )
@@ -143,6 +161,8 @@ class TypesController extends BaseController
         }
 
         $types = $types->get();
+
+        //dd($types);
 
         return $types;
 
@@ -171,21 +191,21 @@ class TypesController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|string|max:255',
-            'parent_id'             => 'nullable|integer',
-            'period_acceptance'     => 'numeric',
-            'period_execution'      => 'numeric',
-            'need_act'              => 'boolean',
-            'is_pay'                => 'boolean',
-            'emergency'             => 'boolean',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|integer',
+            'period_acceptance' => 'numeric',
+            'period_execution' => 'numeric',
+            'need_act' => 'boolean',
+            'is_pay' => 'boolean',
+            'emergency' => 'boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -202,7 +222,7 @@ class TypesController extends BaseController
                         ->orWhere( 'guid', '=', $request->get( 'guid' ) );
                 }
                 return $q;
-            })
+            } )
             ->first();
         if ( $old )
         {
@@ -214,14 +234,16 @@ class TypesController extends BaseController
         $type = Type::create( $request->all() );
         if ( $type instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $type );
         }
         $type->save();
 
         self::clearCache();
 
-        return redirect()->route( 'types.edit', $type->id )
+        return redirect()
+            ->route( 'types.edit', $type->id )
             ->with( 'success', 'Классификатор успешно добавлен' );
 
     }
@@ -229,7 +251,7 @@ class TypesController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show ( $id )
@@ -240,7 +262,7 @@ class TypesController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( $id )
@@ -248,11 +270,13 @@ class TypesController extends BaseController
 
         Title::add( 'Редактировать Классификатор' );
 
-        $type = Type::mine()->find( $id );
+        $type = Type::mine()
+            ->find( $id );
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
@@ -277,8 +301,8 @@ class TypesController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
@@ -288,24 +312,25 @@ class TypesController extends BaseController
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
         $rules = [
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required_with:category_id|string|max:255',
-            'parent_id'             => 'nullable|integer',
-            'group_id'              => 'nullable|integer',
-            'period_acceptance'     => 'numeric',
-            'period_execution'      => 'numeric',
-            'price'                 => 'nullable|numeric',
-            'color'                 => 'nullable|regex:/\#(.*){6}/',
-            'need_act'              => 'boolean',
-            'is_pay'                => 'boolean',
-            'emergency'             => 'boolean',
-            'works'                 => 'boolean',
-            'lk'                    => 'boolean',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name' => 'required_with:category_id|string|max:255',
+            'parent_id' => 'nullable|integer',
+            'group_id' => 'nullable|integer',
+            'period_acceptance' => 'numeric',
+            'period_execution' => 'numeric',
+            'price' => 'nullable|numeric',
+            'color' => 'nullable|regex:/\#(.*){6}/',
+            'need_act' => 'boolean',
+            'is_pay' => 'boolean',
+            'emergency' => 'boolean',
+            'works' => 'boolean',
+            'lk' => 'boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -323,7 +348,7 @@ class TypesController extends BaseController
                         ->orWhere( 'guid', '=', $request->get( 'guid' ) );
                 }
                 return $q;
-            })
+            } )
             ->first();
         if ( $old )
         {
@@ -339,16 +364,33 @@ class TypesController extends BaseController
         $attributes[ 'works' ] = $request->get( 'works', 0 );
         $attributes[ 'lk' ] = $request->get( 'lk', 0 );
 
+        $vendors = $request->get( 'vendors', '' );
+
+        if ( count( $vendors ) )
+        {
+            $type->vendors()
+                ->detach();
+            foreach ( $vendors as $vendorID )
+            {
+                \Illuminate\Support\Facades\DB::table( 'types_vendors' )
+                    ->insert(
+                        [ 'type_id' => $type->id, 'vendor_id' => (int) $vendorID ]
+                    );
+            }
+        }
+
         $res = $type->edit( $attributes );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'types.edit', $type->id )
+        return redirect()
+            ->route( 'types.edit', $type->id )
             ->with( 'success', 'Классификатор успешно отредактирован' );
 
     }
@@ -356,7 +398,7 @@ class TypesController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy ( $id )
@@ -386,11 +428,13 @@ class TypesController extends BaseController
 
         Title::add( 'Привязка УО' );
 
-        $type = Type::mine()->find( $id );
+        $type = Type::mine()
+            ->find( $id );
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
@@ -412,7 +456,8 @@ class TypesController extends BaseController
 
         $availableManagements = Management
             ::mine()
-            ->whereNotIn( Management::$_table . '.id', $type->managements()->pluck( Management::$_table . '.id' ) )
+            ->whereNotIn( Management::$_table . '.id', $type->managements()
+                ->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
@@ -440,7 +485,8 @@ class TypesController extends BaseController
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
@@ -449,7 +495,8 @@ class TypesController extends BaseController
         $res = Management
             ::mine()
             ->where( Management::$_table . '.name', 'like', $s )
-            ->whereNotIn( Management::$_table . '.id', $type->managements()->pluck( Management::$_table . '.id' ) )
+            ->whereNotIn( Management::$_table . '.id', $type->managements()
+                ->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
@@ -462,8 +509,8 @@ class TypesController extends BaseController
                 $name = $r->parent->name . ' ' . $name;
             }
             $managements[] = [
-                'id'        => $r->id,
-                'text'      => $name
+                'id' => $r->id,
+                'text' => $name
             ];
         }
 
@@ -478,13 +525,16 @@ class TypesController extends BaseController
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $type->managements()->attach( $request->get( 'managements' ) );
+        $type->managements()
+            ->attach( $request->get( 'managements' ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'УО успешно привязаны' );
 
     }
@@ -493,7 +543,7 @@ class TypesController extends BaseController
     {
 
         $rules = [
-            'management_id'             => 'required|integer',
+            'management_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -502,11 +552,13 @@ class TypesController extends BaseController
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $type->managements()->detach( $request->get( 'management_id' ) );
+        $type->managements()
+            ->detach( $request->get( 'management_id' ) );
 
     }
 
@@ -517,20 +569,24 @@ class TypesController extends BaseController
 
         if ( ! $type )
         {
-            return redirect()->route( 'types.index' )
+            return redirect()
+                ->route( 'types.index' )
                 ->withErrors( [ 'Классификатор не найден' ] );
         }
 
-        $type->managements()->detach();
+        $type->managements()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
 
     public function fix ( Request $request )
     {
-        $types = Type::mine()->get();
+        $types = Type::mine()
+            ->get();
         foreach ( $types as $type )
         {
             if ( $type->category && ! $type->parent )
@@ -541,10 +597,10 @@ class TypesController extends BaseController
                     ->first();
                 if ( ! $newType )
                 {
-                    $newType = Type::create([
-                        'provider_id'       => $type->provider_id,
-                        'name'              => $type->category->name
-                    ]);
+                    $newType = Type::create( [
+                        'provider_id' => $type->provider_id,
+                        'name' => $type->category->name
+                    ] );
                     $newType->save();
                 }
                 $type->parent_id = $newType->id;

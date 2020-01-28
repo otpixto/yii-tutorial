@@ -140,9 +140,13 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="form-group">
-                            <div class="col-md-12 margin-bottom-15">
+                            <div class="col-md-12">
                             {!! Form::label( 'provider_id', 'Провайдер', [ 'class' => 'control-label' ] ) !!}
                             {!! Form::select( 'provider_id', \App\Models\Provider::pluck('name', 'id')->toArray(), \Input::old( 'provider_id' ), [ 'class' => 'form-control select2', 'placeholder' => 'Провайдер' ] ) !!}
+                            </div>
+                            <div class="col-md-12 margin-bottom-15">
+                                {!! Form::label( 'vendors', 'Вендоры', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::select( 'vendors[]', \App\Models\Vendor::where('is_selectable', true)->pluck('name', 'id')->toArray(), null, [ 'class' => 'form-control select2', 'multiple' ] ) !!}
                             </div>
                         </div>
                         <div class="form-group hidden-print">

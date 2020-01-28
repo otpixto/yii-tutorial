@@ -265,6 +265,7 @@ class Ticket extends BaseModel
         'call_phone',
         'call_id',
         'call_description',
+        'type_parent_id',
     ];
 
     public function managements ()
