@@ -1418,6 +1418,8 @@ SOAP;
 
                                 $ticket->place_id = 1;
 
+                                $ticket->provider_id = 1;
+
                                 $customer = Customer::where( 'phone', $gzhiTicketInformation->edsInitiator->edsPhone )
                                     ->first();
 
