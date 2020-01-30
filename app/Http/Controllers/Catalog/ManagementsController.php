@@ -165,6 +165,7 @@ class ManagementsController extends BaseController
                         'ОГРН' => $management->ogrn,
                         'GUID организации в мосрег' => $management->guid,
                         'GUID организации ЕИАС' => $management->gzhi_guid,
+                        'Пин-код' => $management->telegram_code,
                     ];
                 }
                 \Excel::create( 'УО', function ( $excel ) use ( $data )
