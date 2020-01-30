@@ -73,7 +73,7 @@
                     {{ $management->name }}
                 </td>
                 <td>
-                    {{ $management->mosreg_username }}
+                    {{ $management->inn }}
                 </td>
                 <td>
                     {{ $management->getAddress() }}

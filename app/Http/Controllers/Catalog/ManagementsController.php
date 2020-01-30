@@ -11,9 +11,11 @@ use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
+use App\Models\Tag;
 use App\Models\Type;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
 class ManagementsController extends BaseController
@@ -37,6 +39,7 @@ class ManagementsController extends BaseController
             $type_id = $request->get( 'type_id' );
             $segment_id = $request->get( 'segment_id' );
             $parent_id = $request->get( 'parent_id' );
+
 
             $managements = Management
                 ::mine()
@@ -115,6 +118,30 @@ class ManagementsController extends BaseController
                     } );
             }
 
+            if ( $request->get( 'tags' ) )
+            {
+                $tagsString = $request->get( 'tags' ) . ',';
+
+                $tagsArray = explode( ',', $tagsString );
+
+                if ( count( $tagsArray ) )
+                {
+                    foreach ( $tagsArray as $tagItem )
+                    {
+                        $tagItem = trim( $tagItem );
+
+                        if ( $tagItem == '' ) continue;
+
+                        $managements
+                            ->whereHas( 'tags', function ( $tags ) use ( $tagItem )
+                            {
+                                return $tags
+                                    ->where( Tag::$_table . '.text', '=', $tagItem );
+                            } );
+                    }
+                }
+            }
+
             if ( $request->get( 'export' ) == 1 )
             {
                 $managements = $managements->get();
@@ -125,13 +152,19 @@ class ManagementsController extends BaseController
                         'Категория' => $management->getCategory(),
                         'Услуги' => $management->services,
                         'Наименование' => $management->name,
-                        'ИНН' => $management->mosreg_username,
+                        'Логин мосрег' => $management->mosreg_username,
                         'Телефон(ы)' => $management->getPhones(),
-                        'Адрес' => $management->building->name ?? '',
+                        'Адрес фактический' => $management->building->name ?? '',
                         'График работы' => $management->schedule,
                         'ФИО руководителя' => $management->director,
                         'E-mail' => $management->email,
                         'Сайт' => $management->site,
+                        'Адрес юридический' => $management->legal_address,
+                        'ИНН' => $management->inn,
+                        'КПП' => $management->kpp,
+                        'ОГРН' => $management->ogrn,
+                        'GUID организации в мосрег' => $management->guid,
+                        'GUID организации ЕИАС' => $management->gzhi_guid,
                     ];
                 }
                 \Excel::create( 'УО', function ( $excel ) use ( $data )
@@ -311,11 +344,15 @@ class ManagementsController extends BaseController
 
         $rules = [
             'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'gzhi_guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
             'name' => 'nullable|string|max:255',
             'phone' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
             'email' => 'nullable|email',
             'site' => 'nullable|url',
+            'inn' => 'nullable|int',
+            'kpp' => 'nullable|int',
+            'ogrn' => 'nullable|int',
         ];
 
         $this->validate( $request, $rules );
@@ -362,6 +399,32 @@ class ManagementsController extends BaseController
                 return redirect()
                     ->back()
                     ->withErrors( [ 'УО уже существует' ] );
+            }
+        }
+
+        $management->tags()
+            ->delete();
+        if ( $request->get( 'tags' ) )
+        {
+            $tagsString = $request->get( 'tags' ) . ',';
+
+            $tagsArray = explode( ',', $tagsString );
+
+            if ( count( $tagsArray ) )
+            {
+                foreach ( $tagsArray as $tagItem )
+                {
+                    $tagItem = trim( $tagItem );
+
+                    if ( $tagItem == '' ) continue;
+
+                    $tag = new Tag();
+                    $tag->text = $tagItem;
+                    $tag->model_name = Management::class;
+                    $tag->model_id = $management->id;
+                    $tag->author_id = Auth::user()->id;
+                    $tag->save();
+                }
             }
         }
 
@@ -1201,30 +1264,30 @@ class ManagementsController extends BaseController
                 ->back()
                 ->withErrors( [ 'Не удалось установить webhook' ] );
         }
-		try
-		{
-			return ( new Management() )->handleWebhookToken( $management_id, $token );
-		}
-		catch ( \GuzzleHttp\Exception\RequestException $e )
-		{
-			return redirect()
-				->back()
-				->withErrors( [ $e->getMessage() ] );
-		}
+        try
+        {
+            return ( new Management() )->handleWebhookToken( $management_id, $token );
+        }
+        catch ( \GuzzleHttp\Exception\RequestException $e )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ $e->getMessage() ] );
+        }
     }
 
     public function resetWebhookToken ( $management_id )
     {
-		try
-		{
-			return ( new Management() )->handleWebhookToken( $management_id );
-		}
-		catch ( \GuzzleHttp\Exception\RequestException $e )
-		{
-			return redirect()
-				->back()
-				->withErrors( [ $e->getMessage() ] );
-		}
+        try
+        {
+            return ( new Management() )->handleWebhookToken( $management_id );
+        }
+        catch ( \GuzzleHttp\Exception\RequestException $e )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ $e->getMessage() ] );
+        }
     }
 
 }

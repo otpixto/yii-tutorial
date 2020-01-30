@@ -90,6 +90,11 @@ class Management extends BaseModel
         'mosreg_password',
         'mosreg_id',
         'need_act',
+        'inn',
+        'kpp',
+        'ogrn',
+        'legal_address',
+        'gzhi_guid',
     ];
 
     public function executors ()

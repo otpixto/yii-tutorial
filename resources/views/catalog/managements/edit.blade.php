@@ -28,8 +28,8 @@
                     </div>
 
                     <div class="col-md-8">
-                        {!! Form::label( 'building_id', 'Адрес', [ 'class' => 'control-label' ] ) !!}
-                        {!! Form::select( 'building_id', $management->building ? $management->building()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ) : [], \Input::old( 'building_id', $management->building_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес офиса', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес офиса' ] ) !!}
+                        {!! Form::label( 'building_id', 'Адрес фактический', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::select( 'building_id', $management->building ? $management->building()->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ) : [], \Input::old( 'building_id', $management->building_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес фактический', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес фактический' ] ) !!}
                     </div>
 
                 </div>
@@ -92,31 +92,67 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="col-md-6">
+                    <div class="col-md-1 margin-top-40">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
-                    <div class="col-md-6 text-right">
-                        <a href="{{ route( 'managements.buildings', $management->id ) }}"
-                           class="btn btn-default btn-circle">
-                            Адреса
-                            <span class="badge">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {!! Form::label( 'inn', 'ИНН', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'inn', \Input::old( 'inn', $management->inn ), [ 'class' => 'form-control', 'placeholder' => 'ИНН' ] ) !!}
+                            </div>
+                            <div class="col-md-4">
+                                {!! Form::label( 'kpp', 'КПП', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'kpp', \Input::old( 'kpp', $management->kpp ), [ 'class' => 'form-control', 'placeholder' => 'КПП' ] ) !!}
+                            </div>
+                            <div class="col-md-4">
+                                {!! Form::label( 'ogrn', 'ОГРН', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'ogrn', \Input::old( 'ogrn', $management->ogrn ), [ 'class' => 'form-control', 'placeholder' => 'ОГРН' ] ) !!}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {!! Form::label( 'legal_address', 'Адрес юридический', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'legal_address', \Input::old( 'legal_address', $management->legal_address ), [ 'class' => 'form-control', 'placeholder' => 'Адрес юридический' ] ) !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <div class="row margin-top-20">
+                            <div class="col-md-12">
+                                <a href="{{ route( 'managements.buildings', $management->id ) }}"
+                                   class="btn btn-default btn-circle">
+                                    Адреса
+                                    <span class="badge">
                                 {{ $management->buildings()->count() }}
                             </span>
-                        </a>
-                        <a href="{{ route( 'managements.types', $management->id ) }}"
-                           class="btn btn-default btn-circle">
-                            Классификатор
-                            <span class="badge">
+                                </a>
+                                <a href="{{ route( 'managements.types', $management->id ) }}"
+                                   class="btn btn-default btn-circle">
+                                    Классификатор
+                                    <span class="badge">
                                 {{ $management->types()->count() }}
                             </span>
-                        </a>
-                        <a href="{{ route( 'managements.executors', $management->id ) }}"
-                           class="btn btn-default btn-circle">
-                            Исполнители
-                            <span class="badge">
+                                </a>
+                                <a href="{{ route( 'managements.executors', $management->id ) }}"
+                                   class="btn btn-default btn-circle">
+                                    Исполнители
+                                    <span class="badge">
                                 {{ $management->executors()->count() }}
                             </span>
-                        </a>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top-10">
+                            <div class="col-md-12">
+                                    <div class="col-md-1" style="padding-left: 0;">
+                                        {!! Form::label( 'tags', 'Тэги', [ 'class' => 'control-label', 'style' => 'text-align: inherit !important;' ] ) !!}
+                                    </div>
+                                    {!! Form::text( 'tags', $management->tags->implode( 'text', ',' ), [ 'class' => 'form-control', 'placeholder' => 'Введите тэги через запятую' ] ) !!}
+
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -128,7 +164,7 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">АИС ГЖИ</h3>
+                <h3 class="panel-title">ЕДС МОСРЕГ</h3>
             </div>
             <div class="panel-body">
 
@@ -187,10 +223,45 @@
                     </div>
                 @endif
 
+                <div class="form-group hidden-print">
+                    <div class="col-xs-1">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                GUID организации в мосрег
+                            </span>
+                            {!! Form::text( 'guid', \Input::old( 'guid', $management->guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID организации' ] ) !!}
+                        </div>
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">ЕИАС</h3>
+            </div>
+            <div class="panel-body">
+
+                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
 
                 <div class="form-group hidden-print">
-                    <div class="col-xs-12">
+                    <div class="col-xs-1">
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                GUID организации ЕИАС
+                            </span>
+                            {!! Form::text( 'gzhi_guid', \Input::old( 'gzhi_guid', $management->gzhi_guid ), [ 'class' => 'form-control', 'placeholder' => 'GUID организации ЕИАС' ] ) !!}
+                        </div>
                     </div>
                 </div>
 
