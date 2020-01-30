@@ -73,7 +73,7 @@ class GzhiHandler
             } )
                 ->whereIn( 'status_code', GzhiRequest::GZHI_STATUSES_LIST )
                 ->where( 'updated_at', '>=', Carbon::now()
-                    ->subDay()
+                    ->subDay(3)
                     ->toDateTimeString() )
                 ->with(
                     'building',
@@ -249,8 +249,6 @@ class GzhiHandler
             ->first()->name}</eds:WorkerFIO>";
         }
 
-        $status_code = ($ticket->status->gzhi_status_code == 60) ? 55 : $ticket->status->gzhi_status_code;
-
         $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" encoding="utf-8" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
@@ -267,7 +265,7 @@ class GzhiHandler
             <eds:TransportGUID>$transportGuid</eds:TransportGUID>
             <eds:AppealInformation>
                <eds:CreationDate>$packDate</eds:CreationDate>
-               <eds:Status>{$status_code}</eds:Status>
+               <eds:Status>{$ticket->status->gzhi_status_code}</eds:Status>
                <eds:Initiator>
                   <eds:Name>$name</eds:Name>
                   <eds:Phone>{$ticket->phone}</eds:Phone>
