@@ -73,7 +73,7 @@ class GzhiHandler
             } )
                 ->whereIn( 'status_code', GzhiRequest::GZHI_STATUSES_LIST )
                 ->where( 'updated_at', '>=', Carbon::now()
-                    ->subDay(3)
+                    ->subDay()
                     ->toDateTimeString() )
                 ->with(
                     'building',
