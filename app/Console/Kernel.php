@@ -67,13 +67,13 @@ class Kernel extends ConsoleKernel
         {
             ( new GzhiHandler() )->sendGzhiInfo();
         } )
-            ->dailyAt( '15:08' );
+            ->dailyAt( '15:18' );
 
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
-            ->dailyAt( '15:14' );
+            ->dailyAt( '15:22' );
 
         $schedule->call( function ()
         {
