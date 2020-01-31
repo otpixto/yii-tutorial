@@ -83,11 +83,6 @@ class TicketsController extends BaseController
             $scheduledTicketManagements = new Collection();
         }
 
-        /*$counts = TicketManagement
-            ::mine()
-            ->whereIn( TicketManagement::$_table . '.status_code', [ 'created', 'rejected', 'moderate', 'conflict', 'confirmation_operator', 'confirmation_client' ] )
-            ->get();*/
-
         return view( 'tickets.index' )
             ->with( 'request', $request )
             ->with( 'scheduledTicketManagements', $scheduledTicketManagements );
@@ -153,7 +148,6 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Заявка не найдена' ] );
         }
 
-        //Title::add( 'Добавить заявку' );
         Title::add( 'Заявка #' . $ticket->id . ' от ' . $ticket->created_at->format( 'd.m.Y H:i' ) );
 
         $types = Type
@@ -2527,6 +2521,30 @@ class TicketsController extends BaseController
                 }
                 break;
             case 'type_id':
+                $res = $ticket->edit( [
+                    $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
+                ] );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+                break;
+            case 'vendor_number':
+                $vendorNumber = $request->get( 'value', 0 ) ?: null;
+
+                if ( $vendorNumber && $ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID && !$request->get( 'supress_value_number') )
+                {
+                    $dobrodelTicket = Ticket::where( 'vendor_number', $vendorNumber )->first();
+                    if ( $dobrodelTicket )
+                    {
+                        return [
+                            'vendor_number_array' => [
+                                'id' => $dobrodelTicket->id,
+                                'management_id' => $dobrodelTicket->managements[0]->id
+                            ]
+                        ];
+                    }
+                }
                 $res = $ticket->edit( [
                     $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
                 ] );

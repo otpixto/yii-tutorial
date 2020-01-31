@@ -586,11 +586,6 @@ class Ticket extends BaseModel
             $ticket->save();
         }
 
-        if ( $emergency )
-        {
-            //
-        }
-
         return $ticket;
 
     }

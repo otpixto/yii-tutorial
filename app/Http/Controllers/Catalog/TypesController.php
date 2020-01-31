@@ -283,7 +283,6 @@ class TypesController extends BaseController
      */
     public function update ( Request $request, $id )
     {
-
         $type = Type::find( $id );
 
         if ( ! $type )

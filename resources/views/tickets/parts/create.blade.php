@@ -136,7 +136,7 @@
 
     <div class="col-lg-5" id="info-block">
 
-        <hr class="visible-sm" />
+        <hr class="visible-sm"/>
 
         <div class="form-group">
             {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
@@ -180,7 +180,7 @@
 
 </div>
 
-<hr class="visible-sm" />
+<hr class="visible-sm"/>
 
 <div class="row">
 
@@ -197,6 +197,40 @@
 </div>
 
 <div class="row margin-top-10">
+    <div class="col-md-12">
+        <button class="btn btn-sm btn-primary" data-action="file"
+                data-model-name="{{ get_class( $ticket ) }}"
+                data-model-id="{{ $ticket->id }}"
+                data-title="Прикрепить файл" data-status="completed_with_act">
+            <i class="glyphicon glyphicon-upload"></i>
+            Прикрепить файл
+        </button>
+    </div>
+
+    @if ( $ticket->files->count() )
+        <div class="col-md-12 margin-top-10">
+            <div class="note note-default">
+                @foreach ( $ticket->files as $file )
+                    <div>
+                        <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}"
+                           target="_blank">
+                            <i class="fa fa-file"></i>
+                            {{ $file->name }}
+                        </a>
+                        @foreach($file->tags as $tag)
+                            <span class="badge badge-default">{{ $tag->text }}</span>
+                        @endforeach
+                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+</div>
+
+<div class="row margin-top-10">
 
     <div class="col-md-6">
 
@@ -207,7 +241,8 @@
 
     <div class="col-md-6 text-right">
         @if ( isset( $moderate ) )
-            <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите отклонить заявку?">
+            <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn red"
+               data-confirm="Вы уверены, что хотите отклонить заявку?">
                 <i class="fa fa-remove"></i>
                 Отклонить
             </a>
@@ -216,7 +251,8 @@
                 Принять
             </button>
         @else
-            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите очистить заявку?">
+            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red"
+               data-confirm="Вы уверены, что хотите очистить заявку?">
                 <i class="fa fa-remove"></i>
                 Очистить
             </a>

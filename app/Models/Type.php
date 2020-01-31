@@ -132,5 +132,4 @@ class Type extends BaseModel
         }
         return $types;
     }
-
 }

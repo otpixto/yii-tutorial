@@ -7,6 +7,7 @@ class Vendor extends BaseModel
     const GZHI_VENDOR_ID = 1;
     const DOBRODEL_VENDOR_ID = 2;
     const EAIS_VENDOR_ID = 4;
+    const DEFAULT_VENDOR_ID = 7;
 
     protected $table = 'vendors';
     public static $_table = 'vendors';
