@@ -226,7 +226,7 @@
                 supress_value_number: supressValueNumber
             }, function (response) {
 
-                if (response && response.vendor_number_array !== 'undefined')
+                if (response && typeof response.vendor_number_array !== 'undefined')
                 {
                     Swal.fire({
                         title: '',
