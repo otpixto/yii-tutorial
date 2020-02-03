@@ -200,7 +200,6 @@
                     is_with_parent_id: isWithParentID,
                 }, function (response) {
 
-                    console.log(response, isWithVendorID);
                     if (response.length > 0) {
                         if (isWithVendorID) {
                             $('#type_parent_id').select2('destroy');
@@ -208,6 +207,7 @@
                                 'data': response
                             });
                         } else {
+                            console.log(response, isWithVendorID);
                             $('#type_id').select2('destroy');
                             $('#type_id').select2({
                                 'data': response
