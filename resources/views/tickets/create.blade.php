@@ -218,7 +218,6 @@
         };
 
 
-
         function saveTicket(field, value, supressValueNumber = 0)
         {
             $.post('{{ route( 'tickets.save', $ticket->id ) }}', {
@@ -227,25 +226,23 @@
                 supress_value_number: supressValueNumber
             }, function (response) {
 
-                console.log(response.vendor_number_array.id);
-
                 if (response && response.vendor_number_array !== 'undefined')
                 {
                     Swal.fire({
                         title: '',
                         icon: 'info',
-                        html: '<h4>По данному обращению из Добродела зарегистрирована заявка № ' + response.vendor_number_array.id +
-                            '/' + response.vendor_number_array.management_id + '.  Продолжить оформление заявки ?</h4>'
+                        html: '<h3>По данному обращению из Добродела зарегистрирована заявка № ' + response.vendor_number_array.id +
+                            '/' + response.vendor_number_array.management_id + '.  Продолжить оформление заявки ?</h3>'
                             + '<a target="_blank" href="/tickets/'
-                                + response.vendor_number_array.id
-                                + '/' + response.vendor_number_array.management_id + '">Посмотреть заявку (в новом окне)</a>',
+                            + response.vendor_number_array.id
+                            + '/' + response.vendor_number_array.management_id + '"><b>Посмотреть заявку (в новом окне)</b></a>',
                         showCloseButton: true,
                         showCancelButton: true,
                         focusConfirm: false,
                         confirmButtonText:
-                            '<i class="fa fa-thumbs-up"></i> Продолжить оформление заявки',
+                            '<h6><b>Продолжить оформление заявки</b></h6>',
                         confirmButtonAriaLabel: 'Продолжить оформление заявки',
-                        cancelButtonText: 'Закончить и очистить данные',
+                        cancelButtonText: '<h6><b>Закончить и очистить данные</b></h6>',
                         cancelButtonAriaLabel: 'Thumbs down'
                     }).then((result) => {
 
@@ -274,6 +271,7 @@
                 }
             });
         }
+
 
         $(document)
 
@@ -383,12 +381,7 @@
                     $('.vendor').removeClass('hidden');
                 } else {
                     $('.vendor').addClass('hidden');
-                    $('#type_parent_id')
-                        .empty()
-                        .append(
-                            $('<option>').val('0').text(' -- выберите из списка -- ')
-                        )
-                        .trigger('change');
+                    GetTypes(null, true);
                 }
             })
 

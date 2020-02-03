@@ -627,7 +627,6 @@ class TicketsController extends BaseController
      */
     public function create ( Request $request )
     {
-
         $emergency = $request->get( 'emergency', 0 );
         $ticket = Ticket::create( [], $emergency );
 
@@ -638,48 +637,63 @@ class TicketsController extends BaseController
                 ->withErrors( $ticket );
         }
 
-        //Title::add( 'Добавить заявку' );
         Title::add( 'Заявка #' . $ticket->id );
 
-        $user = Auth::user();
+        if ( $ticket->vendor_id )
+        {
+            $vendorID = $ticket->vendor_id;
+        } else
+        {
+            $vendorID = Vendor::DEFAULT_VENDOR_ID;
+        }
 
-        if ( $user
-                ->can( 'tickets.all_types' ) || false )
+        $typesCategories = Type::mine()
+            ->orderBy( Type::$_table . '.name' )
+            ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
+            ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+            ->whereNull( Type::$_table . '.parent_id' )
+            ->where( 'types_vendors.vendor_id', $vendorID )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id as id' )
+            ->toArray();
+
+        if ( $ticket->type_parent_id )
         {
             $types = Type
                 ::mine()
                 ->orderByDesc( Type::$_table . '.tickets_using_times' )
                 ->orderBy( Type::$_table . '.name' )
                 ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+                ->where( Type::$_table . '.parent_id', '=', $ticket->type_parent_id )
                 ->pluck( 'name', 'id' )
                 ->toArray();
-        } else
-        {
-            $types = [];
-            if ( $user->managements->count() )
-            {
-                foreach ( $user->managements as $userManagement )
-                {
-                    foreach ( $userManagement->types as $type )
-                    {
-                        if ( ! isset( $types[ $type->id ] ) )
-                        {
-                            $types[ $type->id ] = $type->name;
-                        }
-                    }
-                }
-            }
-            asort( $types );
-        }
 
-        $types = ( new Type() )->sortByUsersFavoriteTypes( $types );
+        } else {
+            $defaultParentsIDs = Type::
+            leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
+                ->where( 'types_vendors.vendor_id', $vendorID )
+                ->pluck( Type::$_table . '.id as id' )
+                ->toArray();
+
+            $types = Type
+                ::mine()
+                ->orderByDesc( Type::$_table . '.tickets_using_times' )
+                ->orderBy( Type::$_table . '.name' )
+                ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+                ->whereIn( Type::$_table . '.parent_id', $defaultParentsIDs )
+                ->pluck( 'name', 'id' )
+                ->toArray();
+        }
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
+            ->where( 'is_selectable', true )
             ->pluck( Vendor::$_table . '.name', 'id' )
             ->toArray();
 
+        $types = ( new Type() )->sortByUsersFavoriteTypes( $types );
+
         return view( 'tickets.create' )
+            ->with( 'typesCategories', $typesCategories )
             ->with( 'types', $types )
             ->with( 'ticket', $ticket )
             ->with( 'vendors', $vendors )
@@ -2521,6 +2535,15 @@ class TicketsController extends BaseController
                 }
                 break;
             case 'type_id':
+                $res = $ticket->edit( [
+                    $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
+                ] );
+                if ( $res instanceof MessageBag )
+                {
+                    return $res;
+                }
+                break;
+            case 'type_parent_id':
                 $res = $ticket->edit( [
                     $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
                 ] );

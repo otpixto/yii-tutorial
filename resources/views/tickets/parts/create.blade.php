@@ -24,6 +24,28 @@
     <div class="col-lg-7">
 
         <div class="form-group">
+            {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-3">
+                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
+            </div>
+            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
+                <div class="input-group">
+                    <span class="input-group-addon">№</span>
+                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
+                    <span class="input-group-addon">от</span>
+                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            {!! Form::label( 'type_parent_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-9">
+                {!! Form::select( 'type_parent_id', $typesCategories, \Input::old( 'type_parent_id', $ticket->type_parent_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
+            </div>
+        </div>
+
+        <div class="form-group">
             {!! Form::label( 'type_id', 'Тип заявки', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
                 {!! Form::select( 'type_id', $types, \Input::old( 'type_id', $ticket->type_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
@@ -47,21 +69,6 @@
             {!! Form::label( 'place_id', 'Проблемное место', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
                 {!! Form::select( 'place_id', [ null => ' -- выберите из списка -- ' ] + $places, \Input::old( 'place_id', $ticket->place_id ?? null ), [ 'class' => 'form-control autosave', 'required', 'id' => 'place_id', 'autocomplete' => 'off' ] ) !!}
-            </div>
-        </div>
-
-        <div class="form-group">
-            {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
-            <div class="col-xs-3">
-                {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
-            </div>
-            <div class="col-xs-6 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
-                <div class="input-group">
-                    <span class="input-group-addon">№</span>
-                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
-                    <span class="input-group-addon">от</span>
-                    {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
-                </div>
             </div>
         </div>
 
@@ -136,7 +143,7 @@
 
     <div class="col-lg-5" id="info-block">
 
-        <hr class="visible-sm"/>
+        <hr class="visible-sm" />
 
         <div class="form-group">
             {!! Form::label( null, 'Категория', [ 'class' => 'control-label col-md-5 col-xs-6 text-muted' ] ) !!}
@@ -180,7 +187,7 @@
 
 </div>
 
-<hr class="visible-sm"/>
+<hr class="visible-sm" />
 
 <div class="row">
 
@@ -197,40 +204,6 @@
 </div>
 
 <div class="row margin-top-10">
-    <div class="col-md-12">
-        <button class="btn btn-sm btn-primary" data-action="file"
-                data-model-name="{{ get_class( $ticket ) }}"
-                data-model-id="{{ $ticket->id }}"
-                data-title="Прикрепить файл" data-status="completed_with_act">
-            <i class="glyphicon glyphicon-upload"></i>
-            Прикрепить файл
-        </button>
-    </div>
-
-    @if ( $ticket->files->count() )
-        <div class="col-md-12 margin-top-10">
-            <div class="note note-default">
-                @foreach ( $ticket->files as $file )
-                    <div>
-                        <a href="{{ route( 'files.view', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}"
-                           target="_blank">
-                            <i class="fa fa-file"></i>
-                            {{ $file->name }}
-                        </a>
-                        @foreach($file->tags as $tag)
-                            <span class="badge badge-default">{{ $tag->text }}</span>
-                        @endforeach
-                        <a href="{{ route( 'files.download', [ 'id' => $file->id, 'token' => $file->getToken() ] ) }}">
-                            <i class="fa fa-download"></i>
-                        </a>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-</div>
-
-<div class="row margin-top-10">
 
     <div class="col-md-6">
 
@@ -241,8 +214,7 @@
 
     <div class="col-md-6 text-right">
         @if ( isset( $moderate ) )
-            <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn red"
-               data-confirm="Вы уверены, что хотите отклонить заявку?">
+            <a href="{{ route( 'tickets.moderate.reject', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите отклонить заявку?">
                 <i class="fa fa-remove"></i>
                 Отклонить
             </a>
@@ -251,8 +223,7 @@
                 Принять
             </button>
         @else
-            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red"
-               data-confirm="Вы уверены, что хотите очистить заявку?">
+            <a href="{{ route( 'tickets.cancel', $ticket->id ) }}" class="btn red" data-confirm="Вы уверены, что хотите очистить заявку?">
                 <i class="fa fa-remove"></i>
                 Очистить
             </a>

@@ -558,7 +558,6 @@ class Ticket extends BaseModel
 
     public static function create ( array $attributes = [], $emergency = 0 )
     {
-
         $ticket = self::draft()
             ->first();
 

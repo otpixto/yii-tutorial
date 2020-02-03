@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
+
 class Type extends BaseModel
 {
 
@@ -89,6 +91,19 @@ class Type extends BaseModel
                         } );
                 } );
         }
+        if ( !Auth::user()
+            ->can( 'tickets.all_types' ) )
+        {
+            $query
+                ->whereHas( 'managements', function ( $managements )
+                {
+                    $managements->whereHas( 'users', function ( $users )
+                    {
+                        return $users->where('user_id', Auth::user()->id);
+                    });
+                    return $managements->mine();
+                } );
+        }
         return $query;
     }
 
@@ -132,4 +147,5 @@ class Type extends BaseModel
         }
         return $types;
     }
+
 }
