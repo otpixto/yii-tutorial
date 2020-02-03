@@ -191,7 +191,7 @@ class TypesController extends BaseController
                 ->where( Type::$_table . '.works', '=', 1 );
         }
 
-        $types = array_values($types->get()->toArray());
+        $types = $types->get()->values();
 
         return $types;
 
