@@ -206,7 +206,7 @@
                     is_with_vendor_id: isWithVendorID,
                     is_with_parent_id: isWithParentID,
                 }, function (response) {
-
+                    console.log(response);
                     if (response.length > 0) {
                         if (isForTypes) {
                             $('#type_parent_id').select2('destroy');
