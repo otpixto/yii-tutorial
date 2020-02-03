@@ -175,11 +175,13 @@
             }, 600);
         };
 
-        function GetTypes(provider_id, isWithVendorID, isWithParentID) {
+        function GetTypes(provider_id, isWithVendorID, isWithParentID, isForTypes) {
 
             var isWithVendorID = isWithVendorID || false;
 
             var isWithParentID = isWithParentID || false;
+
+            var isForTypesD = isForTypes || false;
 
             if (isWithVendorID) {
                 $('#type_parent_id')
@@ -206,13 +208,12 @@
                 }, function (response) {
 
                     if (response.length > 0) {
-                        if (isWithVendorID) {
+                        if (isForTypes) {
                             $('#type_parent_id').select2('destroy');
                             $('#type_parent_id').select2({
                                 'data': response
                             });
                         } else {
-                            console.log(response, isWithVendorID);
                             $('#type_id').select2('destroy');
                             $('#type_id').select2({
                                 'data': response
@@ -383,11 +384,11 @@
 
             .on('change', '#vendor_id', function (e) {
                 if ($(this).val()) {
-                    GetTypes($(this).val(), true);
+                    GetTypes($(this).val(), true, false, true);
                     $('.vendor').removeClass('hidden');
                 } else {
                     $('.vendor').addClass('hidden');
-                    GetTypes(null, true);
+                    GetTypes(null, true, false, true);
                 }
             })
 
