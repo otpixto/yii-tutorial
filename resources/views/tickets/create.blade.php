@@ -175,7 +175,7 @@
             }, 600);
         };
 
-        function GetTypes(provider_id, isWithVendorID = false, isWithParentID = false) {
+        function GetTypes(provider_id, isWithVendorID, isWithParentID) {
 
             var isWithVendorID = isWithVendorID || false;
 
