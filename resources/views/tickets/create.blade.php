@@ -176,6 +176,11 @@
         };
 
         function GetTypes(provider_id, isWithVendorID = false, isWithParentID = false) {
+
+            var isWithVendorID = isWithVendorID || false;
+
+            var isWithParentID = isWithParentID || false;
+
             if (isWithVendorID) {
                 $('#type_parent_id')
                     .empty()
