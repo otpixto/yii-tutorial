@@ -69,6 +69,15 @@ class Type extends BaseModel
         return $this->belongsToMany( TypeGroup::class, 'group_type', 'type_id', 'group_id' );
     }
 
+    public function vendors ()
+    {
+        return $this->belongsToMany( Vendor::class, 'types_vendors' )
+            ->withPivot(
+                'vendor_id',
+                'type_id'
+            );
+    }
+
     public function childs ()
     {
         return $this->hasMany( Type::class, 'parent_id', 'id' );
