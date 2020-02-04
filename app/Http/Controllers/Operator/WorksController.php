@@ -208,6 +208,7 @@ class WorksController extends BaseController
                 $works = $works
                     ->with(
                         'buildings',
+                        'buildings.buildingType',
                         'managements',
                         'managements.parent',
                         'category'
