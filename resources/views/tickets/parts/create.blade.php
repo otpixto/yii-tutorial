@@ -41,7 +41,7 @@
         <div class="form-group">
             {!! Form::label( 'type_parent_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
             <div class="col-xs-9">
-                {!! Form::select( 'type_parent_id', $typesCategories, \Input::old( 'type_parent_id', $ticket->type_parent_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'required', 'autocomplete' => 'off' ] ) !!}
+                {!! Form::select( 'type_parent_id', $typesCategories, \Input::old( 'type_parent_id', $ticket->type_parent_id ?? null ), [ 'class' => 'form-control select2 autosave', 'placeholder' => ' -- выберите из списка -- ', 'autocomplete' => 'off' ] ) !!}
             </div>
         </div>
 
