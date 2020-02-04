@@ -161,11 +161,28 @@ class TicketsController extends BaseController
             ->pluck( Vendor::$_table . '.name', 'id' )
             ->toArray();
 
+        if ( $ticket->vendor_id )
+        {
+            $vendorID = $ticket->vendor_id;
+        } else
+        {
+            $vendorID = Vendor::DEFAULT_VENDOR_ID;
+        }
+        $typesCategories = Type::mine()
+            ->orderBy( Type::$_table . '.name' )
+            ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
+            ->where( Type::$_table . '.provider_id', '=', $ticket->provider_id )
+            ->whereNull( Type::$_table . '.parent_id' )
+            ->where( 'types_vendors.vendor_id', $vendorID )
+            ->pluck( Type::$_table . '.name', Type::$_table . '.id as id' )
+            ->toArray();
+
         return view( 'tickets.create' )
             ->with( 'types', $types )
             ->with( 'ticket', $ticket )
             ->with( 'vendors', $vendors )
             ->with( 'places', Ticket::$places )
+            ->with( 'typesCategories', $typesCategories )
             ->with( 'moderate', 1 );
 
     }
