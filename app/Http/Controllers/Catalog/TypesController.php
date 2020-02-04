@@ -178,7 +178,7 @@ class TypesController extends BaseController
                     ->get()
                     ->toArray();
 
-                $types = ( new Type() )->sortByUsersFavoriteTypes( $types );
+                //$types = ( new Type() )->sortByUsersFavoriteTypes( $types );
 
                 return $types;
             }
