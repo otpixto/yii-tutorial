@@ -396,6 +396,7 @@
                 if ($(this).val()) {
                     GetTypes($(this).val(), false, true);
                 } else {
+                    GetTypes(null, false, true);
                     $('#type_id')
                         .empty()
                         .append(
