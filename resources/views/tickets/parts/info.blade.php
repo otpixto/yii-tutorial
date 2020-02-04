@@ -77,7 +77,11 @@
                 @endif
             </div>
         @endif
-
+        <div class="margin-top-10">
+            <a href="/" onclick="history.go(-1);return false;">
+                <button class="btn btn-info">Вернуться в предыдущее окно</button>
+            </a>
+        </div>
     </div>
 </div>
 
