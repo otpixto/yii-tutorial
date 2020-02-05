@@ -400,7 +400,7 @@ class TypesController extends BaseController
             $type->vendors()
                 ->detach();
 
-            if(is_iterable($vendors)) {
+            if(count($vendors)) {
                 foreach ( $vendors as $vendorID )
                 {
                     \Illuminate\Support\Facades\DB::table( 'types_vendors' )
