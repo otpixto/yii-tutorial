@@ -81,7 +81,7 @@
 
                 <div class="row margin-top-15 hidden-print" data-toggle="buttons">
                     <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
-                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle radio">
                             <input type="radio" class="toggle tickets-filter" name="vendor_id"
                                    value="{{ \App\Models\Vendor::GZHI_VENDOR_ID }}"
                                    @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::GZHI_VENDOR_ID ) checked @endif>
@@ -89,7 +89,7 @@
                         </label>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
-                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle radio">
                             <input type="radio" class="toggle tickets-filter" name="vendor_id"
                                    value="{{ \App\Models\Vendor::EAIS_VENDOR_ID }}"
                                    @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::EAIS_VENDOR_ID ) checked @endif>
@@ -97,7 +97,7 @@
                         </label>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
-                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle radio">
                             <input type="radio" class="toggle tickets-filter" name="vendor_id"
                                    value="{{ \App\Models\Vendor::ECUR_VENDOR_ID }}"
                                    @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::ECUR_VENDOR_ID ) checked @endif>
@@ -105,7 +105,7 @@
                         </label>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
-                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle radio">
                             <input type="radio" class="toggle tickets-filter" name="vendor_id"
                                    value="{{ \App\Models\Vendor::STATEMENT_VENDOR_ID }}"
                                    @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::STATEMENT_VENDOR_ID ) checked @endif>
