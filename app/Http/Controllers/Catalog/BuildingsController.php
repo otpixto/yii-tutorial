@@ -67,7 +67,7 @@ class BuildingsController extends BaseController
                 {
                     return $q
                         ->where( Management::$_table . '.id', '=', $management_id );
-                });
+                } );
         }
 
         $buildings = $buildings
@@ -137,7 +137,7 @@ class BuildingsController extends BaseController
                 {
                     return $q
                         ->where( Management::$_table . '.id', '=', $management_id );
-                });
+                } );
         }
 
         $buildings = $buildings->get();
@@ -147,11 +147,12 @@ class BuildingsController extends BaseController
         foreach ( $buildings as $building )
         {
             $data[ $i ] = [
-                'id дома'                    => $building->id,
-                'Наименование адреса'        => $building->name,
-                'Тип (дом/бизнес-центр)'     => $building->buildingType->name ?? '',
-                'Наименование сегмента'      => $building->getSegments()->implode( 'name', ', ' ) ?? '',
-                'GUID'                       => $building->guid,
+                'id дома' => $building->id,
+                'Наименование адреса' => $building->name,
+                'Тип (дом/бизнес-центр)' => $building->buildingType->name ?? '',
+                'Наименование сегмента' => $building->getSegments()
+                        ->implode( 'name', ', ' ) ?? '',
+                'GUID' => $building->guid,
             ];
             $i ++;
         }
@@ -163,8 +164,9 @@ class BuildingsController extends BaseController
             $excel->sheet( 'ЗДАНИЯ', function ( $sheet ) use ( $data )
             {
                 $sheet->fromArray( $data );
-            });
-        })->export( 'xls' );
+            } );
+        } )
+            ->export( 'xls' );
 
         die;
 
@@ -189,18 +191,18 @@ class BuildingsController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'segment_id'            => 'required|integer',
-            'building_type_id'      => 'required|integer',
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'required|max:255',
-            'number'                => 'required',
+            'segment_id' => 'required|integer',
+            'building_type_id' => 'required|integer',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name' => 'required|max:255',
+            'number' => 'required',
         ];
 
         $this->validate( $request, $rules );
@@ -209,7 +211,8 @@ class BuildingsController extends BaseController
 
         if ( $building instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withInput()
                 ->withErrors( $building );
         }
@@ -218,7 +221,8 @@ class BuildingsController extends BaseController
 
         self::clearCache();
 
-        return redirect()->route( 'buildings.index' )
+        return redirect()
+            ->route( 'buildings.index' )
             ->with( 'success', 'Здание успешно добавлено' );
 
     }
@@ -226,7 +230,7 @@ class BuildingsController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show ( $id )
@@ -237,7 +241,7 @@ class BuildingsController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( $id )
@@ -249,7 +253,8 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
@@ -270,41 +275,44 @@ class BuildingsController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function massEdit ( Request $request )
     {
-        exit();
+
+        $ids = $request->get( 'ids', '' );
+
+        if ( strpos( $ids, ',' ) )
+        {
+            $idsArray = explode( ',', $ids );
+        } else
+        {
+            $idsArray = [ $ids ];
+        }
+
         Title::add( 'Редактировать здания' );
 
-        $building = Building::whereIn('id', $request->get('id', []));
+        $buildings = Building::whereIn( 'id', $idsArray );
 
-        if ( ! $building )
+        if ( ! $buildings )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $segments = $building->getSegments();
-
-        $buildingTypes = BuildingType
-            ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
-
-        return view( 'catalog.buildings.edit' )
-            ->with( 'building', $building )
-            ->with( 'segments', $segments )
-            ->with( 'buildingTypes', $buildingTypes );
+        return view( 'catalog.buildings.mass-segment-edit' )
+            ->with( 'buildings', $buildings )
+            ->with( 'ids', $ids );
 
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
@@ -314,19 +322,20 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
-		
-		$rules = [
-            'building_type_id'      => 'nullable|integer',
-            'guid'                  => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'name'                  => 'nullable|max:255',
-            'date_of_construction'  => 'nullable|date',
-            'porches_count'         => 'nullable|integer',
-            'floor_count'           => 'nullable|integer',
-            'room_total_count'      => 'nullable|integer',
-            'first_floor_index'     => 'nullable|integer',
+
+        $rules = [
+            'building_type_id' => 'nullable|integer',
+            'guid' => 'nullable|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'name' => 'nullable|max:255',
+            'date_of_construction' => 'nullable|date',
+            'porches_count' => 'nullable|integer',
+            'floor_count' => 'nullable|integer',
+            'room_total_count' => 'nullable|integer',
+            'first_floor_index' => 'nullable|integer',
             'is_first_floor_living' => 'nullable|boolean',
         ];
 
@@ -335,15 +344,64 @@ class BuildingsController extends BaseController
         $res = $building->edit( $request->all(), true );
         if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withInput()
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'buildings.edit', $building->id )
+        return redirect()
+            ->route( 'buildings.edit', $building->id )
             ->with( 'success', 'Здание успешно отредактировано' );
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function massUpdate ( Request $request )
+    {
+
+        $ids = $request->get( 'ids', '' );
+
+        if ( strpos( $ids, ',' ) )
+        {
+            $idsArray = explode( ',', $ids );
+        } else
+        {
+            $idsArray = [ $ids ];
+        }
+
+        $buildings = Building::whereIn( 'id', $idsArray )
+            ->get();
+
+        $segmentID = $ids = $request->get( 'segment_id' );
+
+
+        if ( ! $buildings || ! $segmentID || empty( $segmentID ) )
+        {
+            return redirect()
+                ->route( 'buildings.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        foreach ( $buildings as $building )
+        {
+            $building->segment_id = $segmentID;
+            $building->save();
+        }
+
+        self::clearCache();
+
+        return redirect()
+            ->route( 'buildings.index' )
+            ->with( 'success', 'Здания успешно отредактированы' );
 
     }
 
@@ -354,7 +412,8 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
@@ -374,27 +433,27 @@ class BuildingsController extends BaseController
                     for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
                     {
                         ++ $room_number;
-                        $buildingRoom = $buildingRooms->where( 'number', $room_number )->first();
+                        $buildingRoom = $buildingRooms->where( 'number', $room_number )
+                            ->first();
                         if ( ! $buildingRoom )
                         {
                             $buildingRoom = BuildingRoom
-                                ::create([
-                                    'building_id'       => $building->id,
-                                    'floor'             => $floor,
-                                    'porch'             => $porch,
-                                    'number'            => $room_number,
-                                    'living_area'       => 0,
-                                    'total_area'        => 0,
-                                ]);
+                                ::create( [
+                                    'building_id' => $building->id,
+                                    'floor' => $floor,
+                                    'porch' => $porch,
+                                    'number' => $room_number,
+                                    'living_area' => 0,
+                                    'total_area' => 0,
+                                ] );
                             $buildingRoom->save();
-                        }
-                        else
+                        } else
                         {
-                            $buildingRoom->edit([
-                                'floor'             => $floor,
-                                'porch'             => $porch,
-                                'number'            => $room_number,
-                            ]);
+                            $buildingRoom->edit( [
+                                'floor' => $floor,
+                                'porch' => $porch,
+                                'number' => $room_number,
+                            ] );
                         }
                         if ( $room_number >= $building->room_total_count )
                         {
@@ -414,7 +473,8 @@ class BuildingsController extends BaseController
 
         }
 
-        return redirect()->route( 'buildings.edit', $building->id )
+        return redirect()
+            ->route( 'buildings.edit', $building->id )
             ->with( 'success', 'Комнаты успешно пересчитаны' );
 
     }
@@ -422,7 +482,7 @@ class BuildingsController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy ( $id )
@@ -432,13 +492,15 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
         $building->delete();
 
-        return redirect()->route( 'buildings.index' )
+        return redirect()
+            ->route( 'buildings.index' )
             ->with( 'success', 'Здание успешно удалено' );
 
     }
@@ -462,15 +524,15 @@ class BuildingsController extends BaseController
 
         $res = $res
             ->get();
-			
-		$buildings = [];
-		foreach ( $res as $r )
-		{
-			$buildings[] = [
-				'id' => $r->id,
-				'text' => $r->getAddress()
-			];
-		}
+
+        $buildings = [];
+        foreach ( $res as $r )
+        {
+            $buildings[] = [
+                'id' => $r->id,
+                'text' => $r->getAddress()
+            ];
+        }
 
         return $buildings;
 
@@ -486,7 +548,8 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
@@ -506,7 +569,8 @@ class BuildingsController extends BaseController
 
         $availableManagements = Management
             ::mine()
-            ->whereNotIn( Management::$_table . '.id', $building->managements()->pluck( Management::$_table . '.id' ) )
+            ->whereNotIn( Management::$_table . '.id', $building->managements()
+                ->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
@@ -534,7 +598,8 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
@@ -543,7 +608,8 @@ class BuildingsController extends BaseController
         $res = Management
             ::mine()
             ->where( Management::$_table . '.name', 'like', $s )
-            ->whereNotIn( Management::$_table . '.id', $building->managements()->pluck( Management::$_table . '.id' ) )
+            ->whereNotIn( Management::$_table . '.id', $building->managements()
+                ->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
@@ -556,8 +622,8 @@ class BuildingsController extends BaseController
                 $name = $r->parent->name . ' ' . $name;
             }
             $managements[] = [
-                'id'        => $r->id,
-                'text'      => $name
+                'id' => $r->id,
+                'text' => $name
             ];
         }
 
@@ -572,13 +638,16 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->managements()->attach( $request->get( 'managements' ) );
+        $building->managements()
+            ->attach( $request->get( 'managements' ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'УО успешно привязаны' );
 
     }
@@ -587,7 +656,7 @@ class BuildingsController extends BaseController
     {
 
         $rules = [
-            'management_id'             => 'required|integer',
+            'management_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -596,11 +665,13 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->managements()->detach( $request->get( 'management_id' ) );
+        $building->managements()
+            ->detach( $request->get( 'management_id' ) );
 
     }
 
@@ -611,13 +682,16 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->managements()->detach();
+        $building->managements()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
@@ -633,7 +707,8 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
@@ -653,7 +728,8 @@ class BuildingsController extends BaseController
 
         $providers = Provider
             ::mine()
-            ->whereNotIn( Provider::$_table . '.id', $building->providers()->pluck( Provider::$_table . '.id' ) )
+            ->whereNotIn( Provider::$_table . '.id', $building->providers()
+                ->pluck( Provider::$_table . '.id' ) )
             ->pluck( Provider::$_table . '.name', Provider::$_table . '.id' );
 
         return view( 'catalog.buildings.providers' )
@@ -671,13 +747,16 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->providers()->attach( $request->get( 'providers' ) );
+        $building->providers()
+            ->attach( $request->get( 'providers' ) );
 
-        return redirect()->route( 'buildings.providers', $building->id )
+        return redirect()
+            ->route( 'buildings.providers', $building->id )
             ->with( 'success', 'Привязка прошла успешно' );
 
     }
@@ -686,7 +765,7 @@ class BuildingsController extends BaseController
     {
 
         $rules = [
-            'provider_id'             => 'required|integer',
+            'provider_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -695,11 +774,13 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->providers()->detach( $request->get( 'provider_id' ) );
+        $building->providers()
+            ->detach( $request->get( 'provider_id' ) );
 
     }
 
@@ -710,13 +791,16 @@ class BuildingsController extends BaseController
 
         if ( ! $building )
         {
-            return redirect()->route( 'buildings.index' )
+            return redirect()
+                ->route( 'buildings.index' )
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        $building->providers()->detach();
+        $building->providers()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
