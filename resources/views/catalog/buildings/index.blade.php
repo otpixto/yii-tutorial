@@ -106,6 +106,8 @@
                                 <thead>
                                 <tr>
                                     <th>
+                                    </th>
+                                    <th>
                                         Наименование
                                     </th>
                                     <th>
@@ -128,6 +130,13 @@
                                 @foreach ( $buildings as $building )
                                     <tr>
                                         <td>
+                                            <label class="mt-checkbox mt-checkbox-outline">
+                                                {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
+                                                <input type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </td>
+                                        <td>
                                             {{ $building->name }}
                                         </td>
                                         <td>
@@ -135,7 +144,8 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'buildings.managements', $building->id ) }}" class="badge badge-{{ $building->managements->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'buildings.managements', $building->id ) }}"
+                                                   class="badge badge-{{ $building->managements->count() ? 'info' : 'default' }} bold">
                                                     {{ $building->managements->count() }}
                                                 </a>
                                             </td>
@@ -149,7 +159,8 @@
                                         </td>
                                         <td class="text-right">
                                             @if ( \Auth::user()->can( 'catalog.buildings.edit' ) )
-                                                <a href="{{ route( 'buildings.edit', $building->id ) }}" class="btn btn-info">
+                                                <a href="{{ route( 'buildings.edit', $building->id ) }}"
+                                                   class="btn btn-info">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                             @endif
@@ -160,6 +171,21 @@
                             </table>
 
                             {{ $buildings->render() }}
+                            <div class="row">
+                                <div class="col-md-2 center-align">
+                            {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
+                            {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                            <button type="submit" class="btn btn-default btn-lg">
+                                Изменить сегмент (<span id="ids-count">0</span>)
+                            </button>
+                            {!! Form::close(); !!}
+                                <div class="center-block center-align" style="margin-left: 80px;">
+                                    <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
+                                        отмена
+                                    </a>
+                                </div>
+                                </div>
+                            </div>
 
                         @else
                             @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
@@ -170,15 +196,61 @@
             </div>
             <!-- END CONTENT -->
         </div>
+@section( 'js' )
+    <script type="text/javascript">
 
-    @else
+        function checkTicketCheckbox() {
+            $('#form-checkbox').removeClass('hidden');
+            $('#cancel-checkbox').removeClass('hidden');
+            var ids = [];
+            let i = 0;
+            $('.ticket-checkbox:checked').each(function () {
+                ids.push($(this).val());
+                i++;
+            });
+            $('#ids-count').text(ids.length);
+            if (ids.length) {
+                $('#controls').fadeIn(300);
+                $('#ids').val(ids.join(','));
+            } else {
+                $('#controls').fadeOut(300);
+                $('#ids').val('');
+            }
+            if (i == 0) {
+                $('#form-checkbox').addClass('hidden');
+                $('#cancel-checkbox').addClass('hidden');
+            }
+        };
 
-        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+        function cancelCheckbox() {
+            $('.ticket-checkbox').removeAttr('checked');
+            checkTicketCheckbox();
+        };
 
-    @endif
+        $(document)
+
+            .on('click', '#cancel-checkbox', function (e) {
+                e.preventDefault();
+                cancelCheckbox();
+            })
+
+            .on('submit', '#form-checkbox', function (event) {
+                setTimeout(cancelCheckbox, 500);
+            })
+
+            .on('change', '.ticket-checkbox', checkTicketCheckbox);
+
+    </script>
+@endsection
+
+@else
+
+    @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+@endif
 
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css"/>
 @endsection

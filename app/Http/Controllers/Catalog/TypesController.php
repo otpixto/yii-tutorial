@@ -400,12 +400,14 @@ class TypesController extends BaseController
             $type->vendors()
                 ->detach();
 
-            foreach ( $vendors as $vendorID )
-            {
-                \Illuminate\Support\Facades\DB::table( 'types_vendors' )
-                    ->insert(
-                        [ 'type_id' => $type->id, 'vendor_id' => (int) $vendorID ]
-                    );
+            if(is_iterable($vendors)) {
+                foreach ( $vendors as $vendorID )
+                {
+                    \Illuminate\Support\Facades\DB::table( 'types_vendors' )
+                        ->insert(
+                            [ 'type_id' => $type->id, 'vendor_id' => (int) $vendorID ]
+                        );
+                }
             }
 
         }

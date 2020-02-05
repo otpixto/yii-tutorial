@@ -268,6 +268,39 @@ class BuildingsController extends BaseController
     }
 
     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function massEdit ( Request $request )
+    {
+        exit();
+        Title::add( 'Редактировать здания' );
+
+        $building = Building::whereIn('id', $request->get('id', []));
+
+        if ( ! $building )
+        {
+            return redirect()->route( 'buildings.index' )
+                ->withErrors( [ 'Здание не найдено' ] );
+        }
+
+        $segments = $building->getSegments();
+
+        $buildingTypes = BuildingType
+            ::mine()
+            ->orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        return view( 'catalog.buildings.edit' )
+            ->with( 'building', $building )
+            ->with( 'segments', $segments )
+            ->with( 'buildingTypes', $buildingTypes );
+
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
