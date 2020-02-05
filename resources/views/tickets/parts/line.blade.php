@@ -144,11 +144,20 @@
                     Аварийная
                 </span>
             @endif
-            @if ( $ticketManagement->ticket->dobrodel )
-                <span class="badge badge-danger bold">
-                    <i class="icon-heart"></i>
-                    Добродел
-                </span>
+            @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_number) )
+                <div class="breadcrumbs">
+                    <h1 class="title">
+                    <span class="small">
+                    ДОБРОДЕЛ №
+                        <b>
+                            <a href="https://dobrodel.mosreg.ru/claims/{{ $ticketManagement->ticket->vendor_number }}"
+                               target="_blank">
+                                {{ $ticketManagement->ticket->vendor_number }}
+                            </a>
+                        </b>
+                    </span>
+                    </h1>
+                </div>
             @endif
             @if ( $ticketManagement->ticket->from_lk )
                 <span class="badge badge-warning bold">
