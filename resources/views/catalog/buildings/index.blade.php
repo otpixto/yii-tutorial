@@ -170,20 +170,26 @@
                                 </tbody>
                             </table>
 
-                            {{ $buildings->render() }}
                             <div class="row">
-                                <div class="col-md-2 center-align">
-                            {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
-                            {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
-                            <button type="submit" class="btn btn-default btn-lg">
-                                Изменить сегмент (<span id="ids-count">0</span>)
-                            </button>
-                            {!! Form::close(); !!}
-                                <div class="center-block center-align" style="margin-left: 80px;">
-                                    <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
-                                        отмена
-                                    </a>
+                                <div class="col-md-6">
+                                    {{ $buildings->render() }}
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-2 center-align">
+                                            {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
+                                            {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                                            <button type="submit" class="btn btn-default btn-lg">
+                                                Изменить сегмент (<span id="ids-count">0</span>)
+                                            </button>
+                                            {!! Form::close(); !!}
+                                            <div class="center-block center-align" style="margin-left: 80px;">
+                                                <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
+                                                    отмена
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
