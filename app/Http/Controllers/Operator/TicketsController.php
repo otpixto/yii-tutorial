@@ -42,7 +42,6 @@ class TicketsController extends BaseController
 
         if ( $request->ajax() )
         {
-
             $ticketManagements = TicketManagement
                 ::mine()
                 ->search( $request )
@@ -59,6 +58,10 @@ class TicketsController extends BaseController
                 )
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
+
+            if($request->get('vendor_id')){
+                $ticketManagements->whereIn('vendor_id', $request->get('vendor_id', []));
+            }
 
             $this->addLog( 'Просмотрел список заявок (стр.' . $request->get( 'page', 1 ) . ')' );
 

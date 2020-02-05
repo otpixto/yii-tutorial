@@ -77,6 +77,39 @@
                         </label>
                     </div>
                 </div>
+
+
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
+                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::GZHI_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::GZHI_VENDOR_ID ) checked @endif>
+                            ГЖИ
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
+                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::EAIS_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::EAIS_VENDOR_ID ) checked @endif>
+                            ЕИАС
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
+                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::ECUR_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::ECUR_VENDOR_ID ) checked @endif>
+                            ЕЦУР
+                        </label>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
+                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
+                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::STATEMENT_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::STATEMENT_VENDOR_ID ) checked @endif>
+                            Заявление
+                        </label>
+                    </div>
+                </div>
+
             </div>
         </div>
 
