@@ -59,10 +59,6 @@ class TicketsController extends BaseController
                 ->paginate( config( 'pagination.per_page' ) )
                 ->appends( $request->all() );
 
-            if($request->get('vendor_id')){
-                $ticketManagements->whereIn('vendor_id', $request->get('vendor_id', []));
-            }
-
             $this->addLog( 'Просмотрел список заявок (стр.' . $request->get( 'page', 1 ) . ')' );
 
             return view( 'tickets.parts.list' )
@@ -687,7 +683,8 @@ class TicketsController extends BaseController
                 ->pluck( 'name', 'id' )
                 ->toArray();
 
-        } else {
+        } else
+        {
             $defaultParentsIDs = Type::
             leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
                 ->where( 'types_vendors.vendor_id', $vendorID )
@@ -2575,15 +2572,16 @@ class TicketsController extends BaseController
             case 'vendor_number':
                 $vendorNumber = $request->get( 'value', 0 ) ?: null;
 
-                if ( $vendorNumber && $ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID && !$request->get( 'supress_value_number') )
+                if ( $vendorNumber && $ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID && ! $request->get( 'supress_value_number' ) )
                 {
-                    $dobrodelTicket = Ticket::where( 'vendor_number', $vendorNumber )->first();
+                    $dobrodelTicket = Ticket::where( 'vendor_number', $vendorNumber )
+                        ->first();
                     if ( $dobrodelTicket )
                     {
                         return [
                             'vendor_number_array' => [
                                 'id' => $dobrodelTicket->id,
-                                'management_id' => $dobrodelTicket->managements[0]->id
+                                'management_id' => $dobrodelTicket->managements[ 0 ]->id
                             ]
                         ];
                     }

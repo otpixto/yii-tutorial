@@ -18,10 +18,11 @@
                         <i class="fa fa-info"></i>
                         Требуется действие
                     </div>
-                        <a href="javascript:;" class="btn btn-sm btn-danger pull-right alReloadButton" id="alReloadTickets" data-original-title="" title="Обновить">Обновить</a>
+                    <a href="javascript:;" class="btn btn-sm btn-danger pull-right alReloadButton" id="alReloadTickets"
+                       data-original-title="" title="Обновить">Обновить</a>
                     <div class="tools">
-                            <a href="javascript:;" class="collapse" data-original-title="" title="Скрыть/Показать"> </a>
-                            <a href="javascript:;" class="fullscreen" data-original-title="" title="Полный экран"> </a>
+                        <a href="javascript:;" class="collapse" data-original-title="" title="Скрыть/Показать"> </a>
+                        <a href="javascript:;" class="fullscreen" data-original-title="" title="Полный экран"> </a>
                     </div>
                 </div>
                 <div class="portlet-body" id="alPortletBody">
@@ -78,38 +79,40 @@
                     </div>
                 </div>
 
-
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
-                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
-                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::GZHI_VENDOR_ID }}"
-                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::GZHI_VENDOR_ID ) checked @endif>
+                <div class="row margin-top-15 hidden-print" data-toggle="buttons">
+                    <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
+                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                            <input type="radio" class="toggle tickets-filter" name="vendor_id"
+                                   value="{{ \App\Models\Vendor::GZHI_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::GZHI_VENDOR_ID ) checked @endif>
                             ГЖИ
                         </label>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
-                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
-                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::EAIS_VENDOR_ID }}"
-                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::EAIS_VENDOR_ID ) checked @endif>
+                    <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
+                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                            <input type="radio" class="toggle tickets-filter" name="vendor_id"
+                                   value="{{ \App\Models\Vendor::EAIS_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::EAIS_VENDOR_ID ) checked @endif>
                             ЕИАС
                         </label>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
-                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
-                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::ECUR_VENDOR_ID }}"
-                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::ECUR_VENDOR_ID ) checked @endif>
+                    <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
+                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                            <input type="radio" class="toggle tickets-filter" name="vendor_id"
+                                   value="{{ \App\Models\Vendor::ECUR_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::ECUR_VENDOR_ID ) checked @endif>
                             ЕЦУР
                         </label>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
-                        <label class="margin-top-10 btn btn-default btn-xs btn-block border-red-pink">
-                            <input type="checkbox" class="toggle tickets-filter" name="vendor_id[]" value="{{ \App\Models\Vendor::STATEMENT_VENDOR_ID }}"
-                                   @if ( $request->get( 'vendor_id[]' ) == \App\Models\Vendor::STATEMENT_VENDOR_ID ) checked @endif>
+                    <div class="col-lg-3 col-md-3 col-sm-6 btn-group">
+                        <label class="margin-top-10 btn btn-default btn-block border-red-pink radio">
+                            <input type="radio" class="toggle tickets-filter" name="vendor_id"
+                                   value="{{ \App\Models\Vendor::STATEMENT_VENDOR_ID }}"
+                                   @if ( $request->get( 'vendor_id' ) == \App\Models\Vendor::STATEMENT_VENDOR_ID ) checked @endif>
                             Заявление
                         </label>
                     </div>
                 </div>
-
             </div>
         </div>
 
