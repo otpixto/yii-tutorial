@@ -1133,7 +1133,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 10 )
+            ->subDays( 30 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
@@ -1326,7 +1326,7 @@ SOAP;
                                 || ! isset( $gzhiTicketInformation->edsActions->edsSource )
                                 || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
                             {
-                                $this->writeInLog('fillExportedTickets заявка не соответствует статусам');
+                                $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' не соответствует статусам');
                             }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
@@ -1484,7 +1484,9 @@ SOAP;
                 $gzhiRequest->save();
             }
 
-            $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount; \n $this->errorMessage \n";
+            $totalGzhiTicketsCount = count( $gzhiTickets );
+
+            $logText = "Заявок ЕАИС-экспорт обработано: $ticketsCount из $totalGzhiTicketsCount полученных; $this->errorMessage";
 
             echo $logText;
 
