@@ -51,17 +51,17 @@ class Kernel extends ConsoleKernel
     protected function schedule ( Schedule $schedule )
     {
 
-//        $schedule->call( function ()
-//        {
-//            ( new GzhiHandler() )->exportGzhiTickets();
-//        } )
-//            ->dailyAt( '4:45' );
-//
-//        $schedule->call( function ()
-//        {
-//            ( new GzhiHandler() )->fillExportedTickets();
-//        } )
-//            ->dailyAt( '4:50' );
+        $schedule->call( function ()
+        {
+            ( new GzhiHandler() )->exportGzhiTickets();
+        } )
+            ->dailyAt( '15:30' );
+
+        $schedule->call( function ()
+        {
+            ( new GzhiHandler() )->fillExportedTickets();
+        } )
+            ->dailyAt( '15:35' );
 
         $schedule->call( function ()
         {

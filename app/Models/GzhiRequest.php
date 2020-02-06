@@ -33,6 +33,8 @@ class GzhiRequest extends BaseModel
 
     const GZHI_VENDOR_ID = 4;
 
+    const ACCEPTED_VENDOR_IDS = [ 1, 3 ];
+
     const GZHI_STATUSES_LIST = [
         'transferred',
         'transferred_again',

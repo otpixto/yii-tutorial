@@ -1173,7 +1173,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 1 )
+            ->subDays( 2 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
@@ -1353,13 +1353,16 @@ SOAP;
 
                 if ( count( $gzhiTickets ) )
                 {
+
                     foreach ( $gzhiTickets as $gzhiTicket )
                     {
                         try
                         {
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
-                            if ( $gzhiTicketInformation->edsIsEDS == 'true' ) continue;
+                            if ( $gzhiTicketInformation->edsIsEDS == 'true'
+                                || !isset($gzhiTicketInformation->edsActions->edsSource)
+                                || !in_array((int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS) ) continue;
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
