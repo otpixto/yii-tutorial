@@ -20,65 +20,25 @@
         </div>
     @endif
 
+
     @if ( \Auth::user()->can( 'catalog.buildings.show' ) )
 
-        <div class="todo-ui">
-            <div class="todo-sidebar">
-                <div class="portlet light ">
+        <div class="row margin-top-15 hidden-print">
+            <div class="col-xs-12">
+                <div class="portlet box blue-hoki">
                     <div class="portlet-title">
-                        <div class="caption" data-toggle="collapse" data-target="#search">
-                            <span class="caption-subject font-green-sharp bold uppercase">ПОИСК</span>
-                        </div>
-                        <a href="{{ route( 'buildings.index' ) }}" class="btn btn-danger pull-right">сбросить</a>
+                        <a class="caption" data-load="search" data-toggle="#search">
+                            <i class="fa fa-search"></i>
+                            ПОИСК
+                        </a>
                     </div>
-                    <div class="portlet-body todo-project-list-content" id="search" style="height: auto;">
-                        <div class="todo-project-list">
-                            {!! Form::open( [ 'method' => 'get' ] ) !!}
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    {!! Form::text( 'search', \Input::get( 'search' ), [ 'class' => 'form-control' ] ) !!}
-                                </div>
-                            </div>
-                            <div class="row margin-top-10">
-                                <div class="col-xs-12">
-                                    {!! Form::submit( 'Найти', [ 'class' => 'btn btn-info btn-block' ] ) !!}
-                                </div>
-                            </div>
-                            {!! Form::hidden( 'provider_id', \Input::get( 'provider_id' ) ) !!}
-                            {!! Form::close() !!}
-                        </div>
-                    </div>
+                    <div class="portlet-body hidden" id="search"></div>
                 </div>
-
-                @if ( $buildingTypes->count() > 1 )
-                    <div class="portlet light ">
-                        <div class="portlet-title">
-                            <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                                <span class="caption-subject font-green-sharp bold uppercase">Типы</span>
-                                <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">нажмите, чтоб развернуть</span>
-                            </div>
-                        </div>
-                        <div class="portlet-body todo-project-list-content" style="height: auto;">
-                            <div class="todo-project-list">
-                                <ul class="nav nav-stacked">
-                                    @foreach ( $buildingTypes as $buildingType )
-                                        <li @if ( \Input::get( 'building_type_id' ) == $buildingType->id ) class="active" @endif>
-                                            <a href="?building_type_id={{ $buildingType->id }}">
-                                                {{ $buildingType->name }}
-                                                <span class="badge badge-info pull-right">
-                                                    {{ $buildingType->buildings()->mine( \App\Models\BaseModel::IGNORE_MANAGEMENT )->count() }}
-                                                </span>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
             </div>
-            <!-- END TODO SIDEBAR -->
+        </div>
+
+
+        <div class="todo-ui">
 
             <!-- BEGIN CONTENT -->
             <div class="todo-content">
@@ -111,6 +71,9 @@
                                         Наименование
                                     </th>
                                     <th>
+                                        Сегмент
+                                    </th>
+                                    <th>
                                         Тип
                                     </th>
                                     @if ( \Auth::user()->can( 'catalog.managements.show' ) )
@@ -138,6 +101,9 @@
                                         </td>
                                         <td>
                                             {{ $building->name }}
+                                        </td>
+                                        <td>
+                                            {{ $building->segment->name ?? '' }}
                                         </td>
                                         <td>
                                             {{ $building->buildingType->name ?? '-' }}
@@ -244,8 +210,53 @@
                 setTimeout(cancelCheckbox, 500);
             })
 
-            .on('change', '.ticket-checkbox', checkTicketCheckbox);
+            .on('change', '.ticket-checkbox', checkTicketCheckbox)
 
+
+            .on('click', '[data-load="search"]', function (e) {
+                e.preventDefault();
+                if ($('#search').text().trim() == '') {
+                    $('#search').loading();
+                    $.get('{{ route( 'buildings.search.form' ) }}', window.location.search, function (response) {
+                        $('#search').html(response);
+                        $('.select2').select2();
+                        $('.select2-ajax').select2({
+                            minimumInputLength: 3,
+                            minimumResultsForSearch: 30,
+                            ajax: {
+                                cache: true,
+                                type: 'post',
+                                delay: 450,
+                                data: function (term) {
+                                    var data = {
+                                        q: term.term,
+                                        provider_id: $('#provider_id').val()
+                                    };
+                                    var _data = $(this).closest('form').serializeArray();
+                                    for (var i = 0; i < _data.length; i++) {
+                                        if (_data[i].name != '_method') {
+                                            data[_data[i].name] = _data[i].value;
+                                        }
+                                    }
+                                    return data;
+                                },
+                                processResults: function (data, page) {
+                                    return {
+                                        results: data
+                                    };
+                                }
+                            }
+                        });
+
+                        $('.mask_phone').inputmask('mask', {
+                            'mask': '+7 (999) 999-99-99'
+                        });
+
+                        $('#segment_id').selectSegments();
+
+                    });
+                }
+            })
     </script>
 @endsection
 

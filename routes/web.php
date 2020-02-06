@@ -296,6 +296,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'buildings/export', 'Catalog\BuildingsController@export' )->name( 'buildings.export' );
             Route::get( 'buildings/mass-edit', 'Catalog\BuildingsController@massEdit' )->name( 'buildings.massEdit' );
             Route::get( 'buildings/mass-update', 'Catalog\BuildingsController@massUpdate' )->name( 'buildings.massUpdate' );
+            Route::get( 'buildings/search/form', 'Catalog\BuildingsController@searchForm' )->name( 'buildings.search.form' );
 
             Route::get( 'types/fix', 'Catalog\TypesController@fix' )->name( 'types.fix' );
             Route::post( 'types/json', 'Catalog\TypesController@json' )->name( 'types.json' );

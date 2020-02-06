@@ -8,6 +8,7 @@ use App\Models\BuildingRoom;
 use App\Models\BuildingType;
 use App\Models\Management;
 use App\Models\Provider;
+use App\Models\Segment;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -26,6 +27,7 @@ class BuildingsController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $provider_id = $request->get( 'provider_id' );
         $segment_id = $request->get( 'segment_id' );
+        $segment_name = $request->get( 'segment_name' );
         $building_type_id = $request->get( 'building_type_id' );
         $management_id = $request->get( 'management_id' );
 
@@ -33,13 +35,15 @@ class BuildingsController extends BaseController
             ::mine( Building::IGNORE_MANAGEMENT )
             ->orderBy( Building::$_table . '.name' );
 
-        if ( ! empty( $search ) )
+        if ( ! empty( $segment_name ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $buildings
-                ->where( Building::$_table . '.name', 'like', $s )
-                ->orWhere( Building::$_table . '.guid', 'like', $s )
-                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
+                ->whereHas( 'segment', function ( $q ) use ( $segment_name )
+                {
+                    $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
+                    return $q
+                        ->where( Segment::$_table . '.name', 'like', $s );
+                } );
         }
 
         if ( ! empty( $provider_id ) )
@@ -68,6 +72,15 @@ class BuildingsController extends BaseController
                     return $q
                         ->where( Management::$_table . '.id', '=', $management_id );
                 } );
+        }
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $buildings
+                ->where( Building::$_table . '.name', 'like', $s )
+                ->orWhere( Building::$_table . '.guid', 'like', $s )
+                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
         }
 
         $buildings = $buildings
@@ -96,6 +109,7 @@ class BuildingsController extends BaseController
         $search = trim( $request->get( 'search', '' ) );
         $provider_id = $request->get( 'provider_id' );
         $segment_id = $request->get( 'segment_id' );
+        $segment_name = $request->get( 'segment_name' );
         $building_type_id = $request->get( 'building_type_id' );
         $management_id = $request->get( 'management_id' );
 
@@ -103,13 +117,21 @@ class BuildingsController extends BaseController
             ::mine( Building::IGNORE_MANAGEMENT )
             ->orderBy( Building::$_table . '.name' );
 
-        if ( ! empty( $search ) )
+        if ( ! empty( $segment_name ) )
         {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $buildings
-                ->where( Building::$_table . '.name', 'like', $s )
-                ->orWhere( Building::$_table . '.guid', 'like', $s )
-                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
+                ->whereHas( 'segment', function ( $q ) use ( $segment_name )
+                {
+                    $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
+                    return $q
+                        ->where( Segment::$_table . '.name', 'like', $s );
+                } );
+        }
+
+        if ( ! empty( $building_type_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.building_type_id', '=', $building_type_id );
         }
 
         if ( ! empty( $provider_id ) )
@@ -124,12 +146,6 @@ class BuildingsController extends BaseController
                 ->where( Building::$_table . '.segment_id', '=', $segment_id );
         }
 
-        if ( ! empty( $building_type_id ) )
-        {
-            $buildings
-                ->where( Building::$_table . '.building_type_id', '=', $building_type_id );
-        }
-
         if ( ! empty( $management_id ) )
         {
             $buildings
@@ -138,6 +154,15 @@ class BuildingsController extends BaseController
                     return $q
                         ->where( Management::$_table . '.id', '=', $management_id );
                 } );
+        }
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $buildings
+                ->where( Building::$_table . '.name', 'like', $s )
+                ->orWhere( Building::$_table . '.guid', 'like', $s )
+                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
         }
 
         $buildings = $buildings->get();
@@ -402,6 +427,26 @@ class BuildingsController extends BaseController
         return redirect()
             ->route( 'buildings.index' )
             ->with( 'success', 'Здания успешно отредактированы' );
+
+    }
+
+    public function searchForm ( Request $request )
+    {
+
+        if ( ! \Auth::user()
+            ->can( 'catalog.managements.search' ) )
+        {
+            return view( 'parts.error' )
+                ->with( 'error', 'Доступ запрещен' );
+        }
+
+        $buildingTypes = BuildingType::
+        orderBy( 'name' )
+            ->pluck( 'name', 'id' );
+
+        return view( 'catalog.buildings.parts.search' )
+            ->with( 'buildingTypes', $buildingTypes )
+            ->with( 'request', $request );
 
     }
 
