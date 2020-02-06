@@ -1133,7 +1133,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 30 )
+            ->subDays( 1 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
