@@ -628,9 +628,9 @@ SOAP;
 
     public function fillAddresses ()
     {
-        ini_set('max_execution_time', 1000);
+        ini_set( 'max_execution_time', 1000 );
 
-        set_time_limit(0);
+        set_time_limit( 0 );
 
         $soapAction = $this->soapGetStateAction;
 
@@ -781,13 +781,13 @@ SOAP;
 
         $gArray = [];
 
-        foreach ($array as $addressPackGuid)
+        foreach ( $array as $addressPackGuid )
         {
 
-            $addressPackGuid = $addressPackGuid[0];
+            $addressPackGuid = $addressPackGuid[ 0 ];
             $packGuid = Uuid::generate();
 
-        $data = <<<SOAP
+            $data = <<<SOAP
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:eds="http://ais-gzhi.ru/schema/integration/eds/" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
     <soapenv:Header/>
     <soapenv:Body>
@@ -803,55 +803,56 @@ SOAP;
 </soapenv:Envelope>
 SOAP;
 
-        $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
+            $curl = $curl = $this->proceedCurl( $accessData, $data, $soapAction );
 
-        $response = curl_exec( $curl );
+            $response = curl_exec( $curl );
 
-        $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+            $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
-        curl_close( $curl );
+            curl_close( $curl );
 
-        if ( $status_code != 200 )
-        {
-            $this->errorMessage .= "CURL status: $status_code; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
+            if ( $status_code != 200 )
+            {
+                $this->errorMessage .= "CURL status: $status_code; ";
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
 
-            $log->save();
-            return false;
-        }
+                $log->save();
+                return false;
+            }
 
-        $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
+            $response = preg_replace( "/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $response );
 
-        $xml = new \SimpleXMLElement( $response );
+            $xml = new \SimpleXMLElement( $response );
 
-        if ( isset( $xml->faultstring ) )
-        {
-            $this->errorMessage .= $xml->faultstring;
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
+            if ( isset( $xml->faultstring ) )
+            {
+                $this->errorMessage .= $xml->faultstring;
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
 
-            $log->save();
-        }
+                $log->save();
+            }
 
-        if ( ! isset( $xml->soapenvBody ) )
-        {
-            $this->errorMessage .= " SOAP structure error; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
+            if ( ! isset( $xml->soapenvBody ) )
+            {
+                $this->errorMessage .= " SOAP structure error; ";
+                $log = \App\Models\Log::create( [
+                    'text' => $this->errorMessage
+                ] );
 
-            $log->save();
-            return false;
-        }
+                $log->save();
+                return false;
+            }
 
-        if(!isset($xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses)){
-            continue;
-        }
+            if ( ! isset( $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses ) )
+            {
+                continue;
+            }
 
-        $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses;
+            $gzhiAddresses = $xml->soapenvBody->edsgetStateDSResult->edsGetNsiResult->edsAddresses;
 
 
 //        foreach ( $gzhiAddresses as $gzhiAddress )
@@ -899,7 +900,7 @@ SOAP;
 
             foreach ( $gzhiAddresses as $gzhiAddress )
             {
-                if(in_array($gzhiAddress->edsAddressGUID, $gArray)) continue;
+                if ( in_array( $gzhiAddress->edsAddressGUID, $gArray ) ) continue;
 
                 $dataArray[ $i ][ 'edsAddressGUID' ] = (string) $gzhiAddress->edsAddressGUID ?? '';
 
@@ -925,7 +926,7 @@ SOAP;
 
                 $dataArray[ $i ][ 'edsHouseType' ] = (string) $gzhiAddress->edsHouseType ?? '';
 
-                if(isset($gzhiAddress->edsOrgManager))
+                if ( isset( $gzhiAddress->edsOrgManager ) )
                 {
 
                     $dataArray[ $i ][ 'edsOrgGUID' ] = (string) $gzhiAddress->edsOrgManager->edsOrg->edsOrgGUID ?? '';
@@ -965,7 +966,7 @@ SOAP;
             'edsAddressJur',
             'edsAddressDisp',
             'edsTypeOrg'
-            );
+        );
 
         $this->generateCSV( $headersArray, $dataArray, $l );
 
@@ -973,10 +974,10 @@ SOAP;
 
     }
 
-    public function handleAddresses()
+    public function handleAddresses ()
     {
         $array = array();
-        for($i = 5; $i<=130; $i+=5)
+        for ( $i = 5; $i <= 130; $i += 5 )
         {
             $fileName = 'files/ram_addr_for_upload' . $i . '.csv';
 
@@ -984,22 +985,22 @@ SOAP;
 
             $lines = explode( PHP_EOL, $csvData );
 
-            $j=0;
+            $j = 0;
             foreach ( $lines as $line )
             {
                 if ( $j > 0 )
                 {
                     $d = str_getcsv( $line );
-                    $array[$d[0]] = str_getcsv( $line );
+                    $array[ $d[ 0 ] ] = str_getcsv( $line );
                 }
 
                 $j ++;
             }
         }
 
-        dd(count($array));
+        dd( count( $array ) );
 
-        foreach ($array as $one)
+        foreach ( $array as $one )
         {
 
         }
@@ -1361,8 +1362,8 @@ SOAP;
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
                             if ( $gzhiTicketInformation->edsIsEDS == 'true'
-                                || !isset($gzhiTicketInformation->edsActions->edsSource)
-                                || !in_array((int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS) ) continue;
+                                || ! isset( $gzhiTicketInformation->edsActions->edsSource )
+                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) ) continue;
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
