@@ -92,15 +92,11 @@ class GzhiHandler
             }
         }
 
-        $logText = "Заявок обработано: $ticketsCount; \n $this->errorMessage \n";
+        $logText = "Заявок обработано sendGzhiInfo: $ticketsCount; \n $this->errorMessage \n";
 
         echo $logText;
 
-        $log = \App\Models\Log::create( [
-            'text' => $logText
-        ] );
-
-        $log->save();
+        $this->writeInLog($logText);
 
     }
 
@@ -293,11 +289,7 @@ class GzhiHandler
 </soapenv:Envelope>
 SOAP;
 
-        $log = \App\Models\Log::create( [
-            'text' => $data
-        ] );
-
-        $log->save();
+        $this->writeInLog($data);
 
         try
         {
@@ -503,20 +495,12 @@ SOAP;
 
             echo $logText;
 
-            $log = \App\Models\Log::create( [
-                'text' => $logText
-            ] );
-
-            $log->save();
+            $this->writeInLog($logText);
         }
         catch ( \Exception $e )
         {
 
-            $log = \App\Models\Log::create( [
-                'text' => $e->getMessage()
-            ] );
-
-            $log->save();
+            $this->writeInLog($e->getMessage());
 
         }
 
@@ -570,11 +554,9 @@ SOAP;
         if ( $status_code != 200 )
         {
             $this->errorMessage .= "CURL status: $status_code; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
-
-            $log->save();
+            
+            $this->writeInLog($this->errorMessage);
+            
             return false;
         }
 
@@ -585,21 +567,16 @@ SOAP;
         if ( isset( $xml->faultstring ) )
         {
             $this->errorMessage .= $xml->faultstring;
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
-
-            $log->save();
+            
+            $this->writeInLog($this->errorMessage);
         }
 
         if ( ! isset( $xml->soapenvBody ) )
         {
             $this->errorMessage .= " SOAP structure error; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
 
-            $log->save();
+            $this->writeInLog($this->errorMessage);
+            
             return false;
         }
 
@@ -814,11 +791,9 @@ SOAP;
             if ( $status_code != 200 )
             {
                 $this->errorMessage .= "CURL status: $status_code; ";
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
 
-                $log->save();
+                $this->writeInLog($this->errorMessage);
+                
                 return false;
             }
 
@@ -829,21 +804,16 @@ SOAP;
             if ( isset( $xml->faultstring ) )
             {
                 $this->errorMessage .= $xml->faultstring;
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
 
-                $log->save();
+                $this->writeInLog($this->errorMessage);
             }
 
             if ( ! isset( $xml->soapenvBody ) )
             {
                 $this->errorMessage .= " SOAP structure error; ";
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
 
-                $log->save();
+                $this->writeInLog($this->errorMessage);
+                
                 return false;
             }
 
@@ -1056,11 +1026,9 @@ SOAP;
         if ( $status_code != 200 )
         {
             $this->errorMessage .= "CURL status: $status_code; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
 
-            $log->save();
+            $this->writeInLog($this->errorMessage);
+            
             return false;
         }
 
@@ -1071,21 +1039,16 @@ SOAP;
         if ( isset( $xml->faultstring ) )
         {
             $this->errorMessage .= $xml->faultstring;
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
-
-            $log->save();
+;
+            $this->writeInLog($this->errorMessage);
         }
 
         if ( ! isset( $xml->soapenvBody ) )
         {
             $this->errorMessage .= " SOAP structure error; ";
-            $log = \App\Models\Log::create( [
-                'text' => $this->errorMessage
-            ] );
 
-            $log->save();
+            $this->writeInLog($this->errorMessage);
+            
             return false;
         }
 
@@ -1154,11 +1117,7 @@ SOAP;
         catch ( \Exception $e )
         {
 
-            $log = \App\Models\Log::create( [
-                'text' => $e->getMessage()
-            ] );
-
-            $log->save();
+            $this->writeInLog('proceedCurl error: ' . $e->getMessage());
 
         }
     }
@@ -1209,7 +1168,12 @@ SOAP;
 
             $response = curl_exec( $curl );
 
-            if ( $response == "" ) continue;
+            if ( $response == "" ) {
+
+                $this->writeInLog('exportGzhiTickets - пустой респонс');
+
+                continue;
+            }
 
             $status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
@@ -1217,12 +1181,10 @@ SOAP;
 
             if ( $status_code != 200 )
             {
-                $this->errorMessage .= "CURL status: $status_code; ";
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
+                $this->errorMessage .= "exportGzhiTickets - CURL status: $status_code; ";
 
-                $log->save();
+                $this->writeInLog($this->errorMessage);
+                
                 continue;
             }
 
@@ -1230,18 +1192,20 @@ SOAP;
 
             $xml = new \SimpleXMLElement( $response );
 
-            if ( ! isset( $xml->soapenvBody->Success->PackGUID ) ) continue;
+            if ( ! isset( $xml->soapenvBody->Success->PackGUID ) ) {
+
+                $this->writeInLog('exportGzhiTickets - пустой неправильная структура ответа');
+
+                continue;
+            }
 
             $sendingPackGUID = (string) $xml->soapenvBody->Success->PackGUID;
 
             if ( isset( $xml->faultstring ) )
             {
                 $this->errorMessage .= $xml->faultstring;
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
-
-                $log->save();
+  
+                $this->writeInLog($this->errorMessage);
             }
 
             $gzhiRequest = new GzhiRequest();
@@ -1261,15 +1225,11 @@ SOAP;
             $ticketsCount ++;
         }
 
-        $logText = "Заявок обработано: $ticketsCount; \n $this->errorMessage \n";
+        $logText = "exportGzhiTickets - Заявок обработано: $ticketsCount; \n $this->errorMessage \n";
 
         echo $logText;
 
-        $log = \App\Models\Log::create( [
-            'text' => $logText
-        ] );
-
-        $log->save();
+        $this->writeInLog($logText);
 
     }
 
@@ -1324,12 +1284,10 @@ SOAP;
 
                 if ( $status_code != 200 )
                 {
-                    $this->errorMessage .= "CURL status: $status_code; ";
-                    $log = \App\Models\Log::create( [
-                        'text' => $this->errorMessage
-                    ] );
-
-                    $log->save();
+                    $this->errorMessage .= "fillExportedTickets - CURL status: $status_code; ";
+                    
+                    $this->writeInLog($this->errorMessage);
+                    
                     continue;
                 }
 
@@ -1340,15 +1298,18 @@ SOAP;
                 if ( isset( $xml->faultstring ) )
                 {
                     $this->errorMessage .= $xml->faultstring;
-                    $log = \App\Models\Log::create( [
-                        'text' => $this->errorMessage
-                    ] );
 
-                    $log->save();
+                    $this->writeInLog('fillExportedTickets - ' . $this->errorMessage);
+                    
                     continue;
                 }
 
-                if ( ! isset( $xml->soapenvBody->edsgetStateDSResult->edsAppealResult ) ) continue;
+                if ( ! isset( $xml->soapenvBody->edsgetStateDSResult->edsAppealResult ) ) {
+
+                    $this->writeInLog('fillExportedTickets - неправильная структура xml');
+
+                    continue;
+                }
 
                 $gzhiTickets = $xml->soapenvBody->edsgetStateDSResult->edsAppealResult->edsAppeal;
 
@@ -1363,7 +1324,10 @@ SOAP;
 
                             if ( $gzhiTicketInformation->edsIsEDS == 'true'
                                 || ! isset( $gzhiTicketInformation->edsActions->edsSource )
-                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) ) continue;
+                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
+                            {
+                                $this->writeInLog('fillExportedTickets заявка не соответствует статусам');
+                            }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
@@ -1371,11 +1335,9 @@ SOAP;
                                 ->first();
 
                             if ( ! $management ) {
-                                $log = \App\Models\Log::create( [
-                                    'text' => 'ЕИАС: при экпорте не найдена организация с gzhi_guid ' . $orgGUID
-                                ] );
 
-                                $log->save();
+                                $this->writeInLog('fillExportedTickets - при экпорте не найдена организация с gzhi_guid ' . $orgGUID);
+                                
                                 continue;
                             }
 
@@ -1401,11 +1363,9 @@ SOAP;
 
                                 if ( ! $building )
                                 {
-                                    $log = \App\Models\Log::create( [
-                                        'text' => 'ЕИАС: при экпорте не найдено здание с fais_address_guid ' . $addressGUID
-                                    ] );
 
-                                    $log->save();
+                                    $this->writeInLog('fillExportedTickets - при экпорте не найдено здание с fais_address_guid ' . $addressGUID);
+                                    
                                     continue;
                                 }
 
@@ -1413,11 +1373,8 @@ SOAP;
                                     ->first();
 
                                 if ( ! $type ) {
-                                    $log = \App\Models\Log::create( [
-                                        'text' => 'ЕИАС: при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal
-                                    ] );
 
-                                    $log->save();
+                                    $this->writeInLog('fillExportedTickets - при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal);
 
                                     continue;
                                 }
@@ -1506,11 +1463,8 @@ SOAP;
 
                             } else
                             {
-                                $log = \App\Models\Log::create( [
-                                    'text' => 'ЕИАС: при экпорте заявка уже существует - id ' . $ticket->id
-                                ] );
 
-                                $log->save();
+                                $this->writeInLog('fillExportedTickets - при экпорте заявка уже существует - id ' . $ticket->id);
 
                                 continue;
                             }
@@ -1519,11 +1473,8 @@ SOAP;
                         catch ( \Exception $e )
                         {
                             $this->errorMessage .= $e->getTraceAsString();
-                            $log = \App\Models\Log::create( [
-                                'text' => $this->errorMessage
-                            ] );
 
-                            $log->save();
+                            $this->writeInLog($this->errorMessage);
                             continue;
                         }
                     }
@@ -1537,11 +1488,7 @@ SOAP;
 
             echo $logText;
 
-            $log = \App\Models\Log::create( [
-                'text' => $logText
-            ] );
-
-            $log->save();
+            $this->writeInLog($logText);
         }
 
     }
@@ -1578,12 +1525,7 @@ SOAP;
 
             if ( $status_code != 200 )
             {
-                $this->errorMessage .= "CURL status: $status_code; ";
-                $log = \App\Models\Log::create( [
-                    'text' => $this->errorMessage
-                ] );
-
-                $log->save();
+                $this->writeInLog($this->errorMessage);
                 return;
             }
 
@@ -1611,16 +1553,20 @@ SOAP;
         }
         catch ( \Exception $e )
         {
-
-            $log = \App\Models\Log::create( [
-                'text' => $e->getMessage()
-            ] );
-
-            $log->save();
+            $this->writeInLog($e->getMessage());
 
             dd( $e->getMessage() );
 
         }
+    }
+    
+    private function writeInLog(string $text){
+        
+        $log = \App\Models\Log::create( [
+            'text' => 'ЕИАС интеграция: ' . $text
+        ] );
+
+        $log->save();
     }
 
 }
