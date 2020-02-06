@@ -1174,7 +1174,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 2 )
+            ->subDays( 10 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
@@ -1370,7 +1370,14 @@ SOAP;
                             $management = Management::where( 'gzhi_guid', $orgGUID )
                                 ->first();
 
-                            if ( ! $management ) continue;
+                            if ( ! $management ) {
+                                $log = \App\Models\Log::create( [
+                                    'text' => 'ЕИАС: при экпорте не найдена организация с gzhi_guid ' . $orgGUID
+                                ] );
+
+                                $log->save();
+                                continue;
+                            }
 
                             $ticket = Ticket::where( 'gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber )
                                 ->first();
@@ -1392,12 +1399,28 @@ SOAP;
                                 $building = Building::where( 'fais_address_guid', $addressGUID )
                                     ->first();
 
-                                if ( ! $building ) continue;
+                                if ( ! $building )
+                                {
+                                    $log = \App\Models\Log::create( [
+                                        'text' => 'ЕИАС: при экпорте не найдено здание с fais_address_guid ' . $addressGUID
+                                    ] );
+
+                                    $log->save();
+                                    continue;
+                                }
 
                                 $type = Type::where( 'gzhi_code', (string) $gzhiTicketInformation->edsKindAppeal )
                                     ->first();
 
-                                if ( ! $type ) continue;
+                                if ( ! $type ) {
+                                    $log = \App\Models\Log::create( [
+                                        'text' => 'ЕИАС: при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal
+                                    ] );
+
+                                    $log->save();
+
+                                    continue;
+                                }
 
                                 $ticket = new Ticket();
 
@@ -1483,6 +1506,12 @@ SOAP;
 
                             } else
                             {
+                                $log = \App\Models\Log::create( [
+                                    'text' => 'ЕИАС: при экпорте заявка уже существует - id ' . $ticket->id
+                                ] );
+
+                                $log->save();
+
                                 continue;
                             }
 
