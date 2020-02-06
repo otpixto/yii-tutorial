@@ -78,9 +78,7 @@ class BuildingsController extends BaseController
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $buildings
-                ->where( Building::$_table . '.name', 'like', $s )
-                ->orWhere( Building::$_table . '.guid', 'like', $s )
-                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
+                ->where( Building::$_table . '.name', 'like', $s );
         }
 
         $buildings = $buildings
@@ -160,9 +158,7 @@ class BuildingsController extends BaseController
         {
             $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
             $buildings
-                ->where( Building::$_table . '.name', 'like', $s )
-                ->orWhere( Building::$_table . '.guid', 'like', $s )
-                ->orWhere( Building::$_table . '.hash', '=', Building::genHash( $search ) );
+                ->where( Building::$_table . '.name', 'like', $s );
         }
 
         $buildings = $buildings->get();
