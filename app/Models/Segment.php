@@ -23,22 +23,22 @@ class Segment extends BaseModel
 
     public function segmentType ()
     {
-        return $this->belongsTo(SegmentType::class );
+        return $this->belongsTo( SegmentType::class );
     }
 
     public function parent ()
     {
-        return $this->belongsTo(Segment::class );
+        return $this->belongsTo( Segment::class );
     }
 
     public function childs ()
     {
-        return $this->hasMany(Segment::class, 'parent_id' );
+        return $this->hasMany( Segment::class, 'parent_id' );
     }
 
     public function buildings ()
     {
-        return $this->hasMany(Building::class );
+        return $this->hasMany( Building::class );
     }
 
     public function path ()
@@ -71,9 +71,9 @@ class Segment extends BaseModel
     public function getName ( $withParent = false )
     {
         $name = '';
-        if ( $withParent && $this->parent )
+        if ( $withParent && isset( $this->parent ) )
         {
-            $name .= $this->parent->name . ', ';
+            $name .= $this->parent->getName() . ', ';
         }
         $name .= $this->name;
         return $name;

@@ -40,9 +40,25 @@ class BuildingsController extends BaseController
             $buildings
                 ->whereHas( 'segment', function ( $q ) use ( $segment_name )
                 {
+                    $segment_parent_name = $segment_name;
+                    if ( strpos( $segment_name, ',' ) )
+                    {
+                        $segmentsArray = explode( ',', $segment_name );
+                        if ( count( $segmentsArray ) == 2 )
+                        {
+                            $segment_name = $segmentsArray[ 1 ];
+                            $segment_parent_name = $segmentsArray[ 0 ];
+                        }
+                    }
                     $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
                     return $q
-                        ->where( Segment::$_table . '.name', 'like', $s );
+                        ->where( Segment::$_table . '.name', 'like', $s )
+                        ->orWhereHas( 'parent', function ( $q ) use ( $segment_parent_name )
+                        {
+                            $s = '%' . str_replace( ' ', '%', trim( $segment_parent_name ) ) . '%';
+                            return $q
+                                ->where( 'name', 'like', $s );
+                        } );
                 } );
         }
 
@@ -120,9 +136,25 @@ class BuildingsController extends BaseController
             $buildings
                 ->whereHas( 'segment', function ( $q ) use ( $segment_name )
                 {
+                    $segment_parent_name = $segment_name;
+                    if ( strpos( $segment_name, ',' ) )
+                    {
+                        $segmentsArray = explode( ',', $segment_name );
+                        if ( count( $segmentsArray ) == 2 )
+                        {
+                            $segment_name = $segmentsArray[ 1 ];
+                            $segment_parent_name = $segmentsArray[ 0 ];
+                        }
+                    }
                     $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
                     return $q
-                        ->where( Segment::$_table . '.name', 'like', $s );
+                        ->where( Segment::$_table . '.name', 'like', $s )
+                        ->orWhereHas( 'parent', function ( $q ) use ( $segment_parent_name )
+                        {
+                            $s = '%' . str_replace( ' ', '%', trim( $segment_parent_name ) ) . '%';
+                            return $q
+                                ->where( 'name', 'like', $s );
+                        } );
                 } );
         }
 

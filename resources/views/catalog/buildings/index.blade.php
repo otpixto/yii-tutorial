@@ -103,7 +103,7 @@
                                             {{ $building->name }}
                                         </td>
                                         <td>
-                                            {{ $building->segment->name ?? '' }}
+                                            {{ isset($building->segment) ? $building->segment->getName(true) : '' }}
                                         </td>
                                         <td>
                                             {{ $building->buildingType->name ?? '-' }}
