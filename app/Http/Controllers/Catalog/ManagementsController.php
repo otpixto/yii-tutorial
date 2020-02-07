@@ -740,7 +740,9 @@ class ManagementsController extends BaseController
                 ->where( Building::$_table . '.name', 'like', $s );
         }
 
-        $managementBuildingsListString = $managementBuildings->get()->pluck('id')->implode(',');
+        $managementBuildingsListString = $managementBuildings->get()
+            ->pluck( 'id' )
+            ->implode( ',' );
 
         $managementBuildings = $managementBuildings
             ->paginate( config( 'pagination.per_page' ) )

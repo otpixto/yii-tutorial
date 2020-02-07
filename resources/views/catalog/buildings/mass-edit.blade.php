@@ -24,7 +24,8 @@
                 <input type="hidden" name="management_id" value="{{ $management_id }}">
                 <div class="row">
                     <div class="col-md-12">
-                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left"
+                                id="managements" name="managements[]">
                             @foreach ( $availableManagements as $management => $arr )
                                 <optgroup label="{{ $management }}">
                                     @foreach ( $arr as $management_id => $management_name )
@@ -38,7 +39,7 @@
                     </div>
                 </div>
                 <div class="row margin-top-15">
-                    <div class="col-md-12">
+                    <div class="col-md-12 pull-right">
                         {!! Form::submit( 'Привязать', [ 'class' => 'btn btn-success' ] ) !!}
                     </div>
                 </div>
@@ -54,19 +55,20 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet"
+          type="text/css"/>
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js"
+            type="text/javascript"></script>
     <script type="text/javascript">
 
-        $( document )
+        $(document)
 
-            .ready( function ()
-            {
+            .ready(function () {
 
-                $( '.mt-multiselect' ).multiselect({
+                $('.mt-multiselect').multiselect({
                     disableIfEmpty: true,
                     enableFiltering: true,
                     includeSelectAllOption: true,

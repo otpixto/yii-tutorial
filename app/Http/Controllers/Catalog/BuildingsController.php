@@ -778,7 +778,8 @@ class BuildingsController extends BaseController
 
         $managementID = $request->get( 'management_id', null );
 
-        try {
+        try
+        {
 
             if ( is_array( $managements ) && count( $buildings ) )
             {
@@ -787,11 +788,11 @@ class BuildingsController extends BaseController
                     foreach ( $buildings as $building_id )
                     {
                         $managementsBuilding = \Illuminate\Support\Facades\DB::table( 'managements_buildings' )
-                            ->where('management_id', $management_id)
-                            ->where('building_id', $building_id)
+                            ->where( 'management_id', $management_id )
+                            ->where( 'building_id', $building_id )
                             ->first();
 
-                        if(!$managementsBuilding)
+                        if ( ! $managementsBuilding )
                         {
 
                             \Illuminate\Support\Facades\DB::table( 'managements_buildings' )
@@ -807,14 +808,15 @@ class BuildingsController extends BaseController
                 }
             }
 
-        } catch (\Exception $exception)
+        }
+        catch ( \Exception $exception )
         {
-            dd($exception->getMessage());
+            dd( $exception->getMessage() );
         }
 
 
         return redirect()
-            ->route('managements.buildings', ['management_id' => $managementID])
+            ->route( 'managements.buildings', [ 'management_id' => $managementID ] )
             ->with( 'success', 'Адреса успешно привязаны к выбранным УО' );
     }
 
