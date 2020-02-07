@@ -1350,7 +1350,7 @@ SOAP;
 
                                 if ($gzhiTicketInformation->edsStatus == 60)
                                 {
-                                    $status = Status::where( 'gzhi_status_code', 'closed_with_confirm' )
+                                    $status = Status::where( 'status_code', 'closed_with_confirm' )
                                         ->first();
                                 } else {
                                     $status = Status::where( 'gzhi_status_code', $gzhiTicketInformation->edsStatus )
