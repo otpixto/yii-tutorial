@@ -178,19 +178,7 @@
                     {!! Form::model( null, [ 'method' => 'post', 'route' => 'buildings.managements.massManagementsAdd', 'class' => 'submit-loading' ] ) !!}
                     <input type="hidden" name="buildings[]" value="{{ $managementBuildingsListString }}">
                     <div class="row">
-                        <div class="col-md-12">
-                            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
-                                @foreach ( $availableManagements as $management => $arr )
-                                    <optgroup label="{{ $management }}">
-                                        @foreach ( $arr as $management_id => $management_name )
-                                            <option value="{{ $management_id }}">
-                                                {{ $management_name }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
-                            </select>
-                        </div>
+
                     </div>
                     <div class="row margin-top-15">
                         <div class="col-md-12">
