@@ -1352,8 +1352,8 @@ SOAP;
 
                                 if ( ! $status )
                                 {
-                                    $status = Status::where( 'status_code', 'draft' )
-                                        ->first();
+                                    $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus );
+                                    continue;
                                 }
 
                                 $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
@@ -1474,7 +1474,8 @@ SOAP;
                         {
                             $this->errorMessage .= $e->getTraceAsString();
 
-                            $this->writeInLog($this->errorMessage);
+                            $this->writeInLog('fillExportedTickets ошибка в catch ' . $this->errorMessage );
+
                             continue;
                         }
                     }
