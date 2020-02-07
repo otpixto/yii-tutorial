@@ -41,10 +41,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-							{!! Form::label( 'type_id', 'Тип здания', [ 'class' => 'control-label col-md-4' ] ) !!}
-							<div class="col-md-4">
-								{!! Form::select( 'type_id', $buildingTypes, '', [ 'class' => 'form-control select2', 'id' => 'type_id', 'placeholder' => 'ВСЕ' ] ) !!}
-							</div>
+                            {!! Form::label( 'type_id', 'Тип здания', [ 'class' => 'control-label col-md-4' ] ) !!}
+                            <div class="col-md-4">
+                                {!! Form::select( 'type_id', $buildingTypes, '', [ 'class' => 'form-control select2', 'id' => 'type_id', 'placeholder' => 'ВСЕ' ] ) !!}
+                            </div>
                             <div class="col-md-4">
                                 {!! Form::submit( 'Добавить', [ 'class' => 'btn btn-success' ] ) !!}
                             </div>
@@ -127,7 +127,8 @@
 
                     @foreach ( $managementBuildings as $r )
                         <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger" data-delete="management-building" data-building="{{ $r->id }}">
+                            <button type="button" class="btn btn-xs btn-danger" data-delete="management-building"
+                                    data-building="{{ $r->id }}">
                                 <i class="fa fa-remove"></i>
                             </button>
                             <a href="{{ route( 'buildings.edit', $r->id ) }}">
@@ -142,14 +143,62 @@
                     @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
                 @endif
 
-                {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.buildings.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
-                <div class="form-group margin-top-15">
-                    <div class="col-md-12">
-                        {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                <div class="row">
+                    <div class="col-md-1">
+                        {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.buildings.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                        <div class="form-group margin-top-15">
+                            <div class="col-md-12">
+                                {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group margin-top-15">
+                            <button class="btn btn-info" id="alOtherOrganization">
+                                Привязать ВСЕ к другой организации
+                            </button>
+                        </div>
                     </div>
                 </div>
-                {!! Form::close() !!}
 
+
+            </div>
+        </div>
+
+
+        <div class="hidden" id="alManagementsListBlock">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Выбрать УО для привязки
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    {!! Form::model( null, [ 'method' => 'post', 'route' => 'buildings.managements.massManagementsAdd', 'class' => 'submit-loading' ] ) !!}
+                    <input type="hidden" name="buildings[]" value="{{ $managementBuildingsListString }}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">
+                                @foreach ( $availableManagements as $management => $arr )
+                                    <optgroup label="{{ $management }}">
+                                        @foreach ( $arr as $management_id => $management_name )
+                                            <option value="{{ $management_id }}">
+                                                {{ $management_name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row margin-top-15">
+                        <div class="col-md-12">
+                            {!! Form::submit( 'Привязать', [ 'class' => 'btn btn-success' ] ) !!}
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
             </div>
         </div>
 
@@ -161,25 +210,48 @@
 
 @endsection
 
+@section( 'css' )
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet"
+          type="text/css"/>
+@endsection
+
 @section( 'js' )
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js"
+            type="text/javascript"></script>
     <script type="text/javascript">
 
-        $( document )
+        $(document)
 
-            .ready( function ()
-            {
+            .ready(function () {
 
-                $( '#segment_id' ).selectSegments();
+                $('#segment_id').selectSegments();
+
+                $('.mt-multiselect').multiselect({
+                    disableIfEmpty: true,
+                    enableFiltering: true,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '100%',
+                    maxHeight: '300',
+                    buttonClass: 'mt-multiselect btn btn-default',
+                    numberDisplayed: 5,
+                    nonSelectedText: '-',
+                    nSelectedText: ' выбрано',
+                    allSelectedText: 'Все',
+                    selectAllText: 'Выбрать все',
+                    selectAllValue: ''
+                });
 
             })
 
-            .on( 'click', '[data-delete="management-building"]', function ( e )
-            {
+            .on('click', '[data-delete="management-building"]', function (e) {
 
                 e.preventDefault();
 
-                var building_id = $( this ).attr( 'data-building' );
-                var obj = $( this ).closest( 'div' );
+                var building_id = $(this).attr('data-building');
+                var obj = $(this).closest('div');
 
                 bootbox.confirm({
                     message: 'Удалить привязку?',
@@ -194,10 +266,8 @@
                             className: 'btn-danger'
                         }
                     },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
+                    callback: function (result) {
+                        if (result) {
 
                             obj.hide();
 
@@ -207,14 +277,12 @@
                                 data: {
                                     building_id: building_id
                                 },
-                                success: function ()
-                                {
+                                success: function () {
                                     obj.remove();
                                 },
-                                error: function ( e )
-                                {
+                                error: function (e) {
                                     obj.show();
-                                    alert( e.statusText );
+                                    alert(e.statusText);
                                 }
                             });
 
@@ -222,7 +290,53 @@
                     }
                 });
 
-            });
+            })
+
+            .on('click', '#alOtherOrganization', function () {
+                Swal.fire({
+                    title: '',
+                    icon: 'info',
+                    html: '<h6><b>Вы уверены?</b></h6>',
+                    showCloseButton: true,
+                    showCancelButton: true,
+                    focusConfirm: false,
+                    confirmButtonText:
+                        '<h6><b>ОК</b></h6>',
+                    confirmButtonAriaLabel: 'ОК',
+                    cancelButtonText: '<h6><b>Отмена</b></h6>',
+                    cancelButtonAriaLabel: 'Thumbs down'
+                }).then((result) => {
+
+                    if (result.value) {
+
+                        let form = $('#alManagementsListBlock').html();
+
+                        console.log(form);
+
+                        Swal.fire({
+                            title: 'Привязка адресов к УО',
+                            icon: 'info',
+                            html: form,
+                            showCloseButton: true,
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            focusConfirm: false,
+                            confirmButtonText:
+                                '',
+                            confirmButtonAriaLabel: 'Продолжить оформление заявки',
+                            cancelButtonText: '<h6><b>Отмена</b></h6>',
+                            cancelButtonAriaLabel: 'Thumbs down'
+                        }).then((result) => {
+
+                            if (result.value) {
+                                alert(111);
+                            }
+
+                        });
+                    }
+
+                });
+            })
 
     </script>
 @endsection

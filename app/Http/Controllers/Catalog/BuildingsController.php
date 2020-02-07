@@ -725,6 +725,12 @@ class BuildingsController extends BaseController
 
     }
 
+
+    public function massManagementsAdd (Request $request)
+    {
+        dd($request->all());
+    }
+
     public function managementsDel ( Request $request, $id )
     {
 

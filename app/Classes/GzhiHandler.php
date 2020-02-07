@@ -1327,6 +1327,9 @@ SOAP;
                                 || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
                             {
                                 $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' не соответствует статусам');
+
+
+                                continue;
                             }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
