@@ -1326,7 +1326,7 @@ SOAP;
                                 || ! isset( $gzhiTicketInformation->edsActions->edsSource )
                                 || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
                             {
-                                $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' не соответствует статусам');
+                                $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' и edsIsEDS равном ' . $gzhiTicketInformation->edsIsEDS . ' не соответствует статусам' . in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ));
 
                                 continue;
                             }
