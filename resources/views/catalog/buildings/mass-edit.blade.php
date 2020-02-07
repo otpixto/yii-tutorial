@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="row margin-top-15">
-                    <div class="col-md-12 pull-right">
+                    <div class="col-md-1 col-md-offset-11">
                         {!! Form::submit( 'Привязать', [ 'class' => 'btn btn-success' ] ) !!}
                     </div>
                 </div>
