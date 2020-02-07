@@ -1348,12 +1348,14 @@ SOAP;
                             if ( ! $ticket )
                             {
 
-                                $status = Status::where( 'gzhi_status_code', $gzhiTicketInformation->edsStatus )
+                                $edsStatus = ($gzhiTicketInformation->edsStatus == 60) ? 55 : $gzhiTicketInformation->edsStatus;
+
+                                $status = Status::where( 'gzhi_status_code', $edsStatus )
                                     ->first();
 
                                 if ( ! $status )
                                 {
-                                    $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus );
+                                    $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $edsStatus );
                                     continue;
                                 }
 
