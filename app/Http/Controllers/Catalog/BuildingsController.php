@@ -9,6 +9,7 @@ use App\Models\BuildingType;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
+use function GuzzleHttp\Psr7\str;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -770,16 +771,18 @@ class BuildingsController extends BaseController
 
     public function massManagementsAdd ( Request $request )
     {
-        $buildingsJSON = $request->get( 'buildings', '' );
-
-        $buildings = explode( ',', $buildingsJSON );
-
-        $managements = $request->get( 'managements', [] );
-
-        $managementID = $request->get( 'management_id', null );
 
         try
         {
+
+            $buildingsJSON = (string) $request->get( 'buildings', '' );
+
+            $buildings = explode( ',', $buildingsJSON );
+
+            $managements = $request->get( 'managements', [] );
+
+            $managementID = $request->get( 'management_id', null );
+
             if ( is_array( $managements ) && count( $buildings ) )
             {
                 foreach ( $managements as $management_id )
