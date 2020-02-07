@@ -178,7 +178,9 @@
                     {!! Form::model( null, [ 'method' => 'post', 'route' => 'buildings.managements.massManagementsAdd', 'class' => 'submit-loading' ] ) !!}
                     <input type="hidden" name="buildings[]" value="{{ $managementBuildingsListString }}">
                     <div class="row">
+                        <div class="col-md-12">
 
+                        </div>
                     </div>
                     <div class="row margin-top-15">
                         <div class="col-md-12">

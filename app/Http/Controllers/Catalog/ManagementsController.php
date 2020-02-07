@@ -758,6 +758,8 @@ class ManagementsController extends BaseController
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
+        //dd($availableManagements);
+
         return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )
             ->with( 'search', $search )
