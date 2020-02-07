@@ -94,6 +94,7 @@ class Management extends BaseModel
         'kpp',
         'ogrn',
         'legal_address',
+        'guid',
         'gzhi_guid',
     ];
 
