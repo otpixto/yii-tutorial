@@ -740,10 +740,6 @@ class ManagementsController extends BaseController
                 ->where( Building::$_table . '.name', 'like', $s );
         }
 
-        $managementBuildingsListString = $managementBuildings->get()
-            ->pluck( 'id' )
-            ->implode( ',' );
-
         $managementBuildings = $managementBuildings
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
@@ -755,29 +751,12 @@ class ManagementsController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
-        $availableManagements = Management
-            ::mine()
-            ->orderBy( Management::$_table . '.name' )
-            ->get();
-
-        $res = [];
-        foreach ( $availableManagements as $availableManagement )
-        {
-            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
-        }
-
-        ksort( $res );
-        $availableManagements = $res;
-
         return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )
             ->with( 'search', $search )
             ->with( 'segmentsTypes', $segmentsTypes )
             ->with( 'buildingTypes', $buildingTypes )
-            ->with( 'availableManagements', $availableManagements )
-            ->with( 'managementBuildingsListString', $managementBuildingsListString )
             ->with( 'managementBuildings', $managementBuildings );
-
     }
 
     public function buildingsExport ( Request $request, $id )

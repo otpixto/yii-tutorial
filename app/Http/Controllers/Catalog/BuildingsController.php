@@ -780,7 +780,6 @@ class BuildingsController extends BaseController
 
         try
         {
-
             if ( is_array( $managements ) && count( $buildings ) )
             {
                 foreach ( $managements as $management_id )
@@ -803,17 +802,16 @@ class BuildingsController extends BaseController
                                     ]
                                 );
                         }
-
                     }
                 }
             }
-
         }
         catch ( \Exception $exception )
         {
-            dd( $exception->getMessage() );
+            return redirect()
+                ->route( 'managements.buildings', [ 'management_id' => $managementID ] )
+                ->with( 'error', 'Ошибка привязки адресов к выбранным УО' );
         }
-
 
         return redirect()
             ->route( 'managements.buildings', [ 'management_id' => $managementID ] )
