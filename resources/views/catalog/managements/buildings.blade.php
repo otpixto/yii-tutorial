@@ -162,44 +162,6 @@
                     </div>
                 </div>
 
-
-            </div>
-        </div>
-
-
-        <div class="hidden" id="alManagementsListBlock">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        Выбрать УО для привязки
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    {!! Form::model( null, [ 'method' => 'post', 'route' => 'buildings.managements.massManagementsAdd', 'class' => 'submit-loading' ] ) !!}
-                    <input type="hidden" name="buildings[]" value="{{ $managementBuildingsListString }}">
-                    <div class="row">
-                        <div class="col-md-12">
-{{--                            <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="managements" name="managements[]">--}}
-{{--                                {{ dd($availableManagements) }}--}}
-{{--                                @foreach ( $availableManagements as $management => $arr )--}}
-{{--                                    <optgroup label="{{ $management }}">--}}
-{{--                                        @foreach ( $arr as $management_id => $management_name )--}}
-{{--                                            <option value="{{ $management_id }}">--}}
-{{--                                                {{ $management_name }}--}}
-{{--                                            </option>--}}
-{{--                                        @endforeach--}}
-{{--                                    </optgroup>--}}
-{{--                                @endforeach--}}
-{{--                            </select>--}}
-                        </div>
-                    </div>
-                    <div class="row margin-top-15">
-                        <div class="col-md-12">
-                            {!! Form::submit( 'Привязать', [ 'class' => 'btn btn-success' ] ) !!}
-                        </div>
-                    </div>
-                    {!! Form::close() !!}
-                </div>
             </div>
         </div>
 
@@ -309,31 +271,9 @@
                 }).then((result) => {
 
                     if (result.value) {
+                        window.location.href = '{{ route('buildings.managements.massManagementsEdit', [ 'management_id' => $management->id ]) }}';
 
-                        let form = $('#alManagementsListBlock').html();
-
-                        console.log(form);
-
-                        Swal.fire({
-                            title: 'Привязка адресов к УО',
-                            icon: 'info',
-                            html: form,
-                            showCloseButton: true,
-                            showCancelButton: false,
-                            showConfirmButton: false,
-                            focusConfirm: false,
-                            confirmButtonText:
-                                '',
-                            confirmButtonAriaLabel: 'Продолжить оформление заявки',
-                            cancelButtonText: '<h6><b>Отмена</b></h6>',
-                            cancelButtonAriaLabel: 'Thumbs down'
-                        }).then((result) => {
-
-                            if (result.value) {
-                                alert(111);
-                            }
-
-                        });
+                        return false;
                     }
 
                 });

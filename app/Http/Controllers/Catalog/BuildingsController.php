@@ -725,10 +725,97 @@ class BuildingsController extends BaseController
 
     }
 
-
-    public function massManagementsAdd (Request $request)
+    public function massManagementsEdit ( Request $request )
     {
-        dd($request->all());
+
+        Title::add( 'Привязка зданий к УО' );
+
+        $id = $request->get( 'management_id', null );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()
+                ->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementBuildings = $management->buildings()
+            ->orderBy( Building::$_table . '.name' );
+
+        $managementBuildingsListString = $managementBuildings->get()
+            ->pluck( 'id' )
+            ->implode( ',' );
+
+        $availableManagements = Management
+            ::mine()
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
+        return view( 'catalog.buildings.mass-edit' )
+            ->with( 'availableManagements', $availableManagements )
+            ->with( 'management_id', $id )
+            ->with( 'managementBuildingsListString', $managementBuildingsListString );
+    }
+
+    public function massManagementsAdd ( Request $request )
+    {
+        $buildingsJSON = $request->get( 'buildings', '' );
+
+        $buildings = explode( ',', $buildingsJSON );
+
+        $managements = $request->get( 'managements', [] );
+
+        $managementID = $request->get( 'management_id', null );
+
+        try {
+
+            if ( is_array( $managements ) && count( $buildings ) )
+            {
+                foreach ( $managements as $management_id )
+                {
+                    foreach ( $buildings as $building_id )
+                    {
+                        $managementsBuilding = \Illuminate\Support\Facades\DB::table( 'managements_buildings' )
+                            ->where('management_id', $management_id)
+                            ->where('building_id', $building_id)
+                            ->first();
+
+                        if(!$managementsBuilding)
+                        {
+
+                            \Illuminate\Support\Facades\DB::table( 'managements_buildings' )
+                                ->updateOrInsert(
+                                    [
+                                        'management_id' => $management_id,
+                                        'building_id' => $building_id
+                                    ]
+                                );
+                        }
+
+                    }
+                }
+            }
+
+        } catch (\Exception $exception)
+        {
+            dd($exception->getMessage());
+        }
+
+
+        return redirect()
+            ->route('managements.buildings', ['management_id' => $managementID])
+            ->with( 'success', 'Адреса успешно привязаны к выбранным УО' );
     }
 
     public function managementsDel ( Request $request, $id )

@@ -758,7 +758,14 @@ class ManagementsController extends BaseController
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
-        //dd($availableManagements);
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
 
         return view( 'catalog.managements.buildings' )
             ->with( 'management', $management )

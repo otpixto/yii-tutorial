@@ -50,31 +50,35 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule ( Schedule $schedule )
     {
-
+        //запрос на экпорт заявок из ЕИАС к нам
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->exportGzhiTickets();
         } )
-            ->dailyAt( '14:49' );
+            ->dailyAt( '2:40' );
 
+        //обработка и запись экспортированных заявок
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->fillExportedTickets();
         } )
-            ->dailyAt( '14:53' );
+            ->dailyAt( '2:50' );
 
+        //импорт заявок от нас в ЕИАС
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->sendGzhiInfo();
         } )
             ->dailyAt( '3:00' );
 
+        //получение статусов и запись о статусах ранее импортированных в ЕИАС заявок
         $schedule->call( function ()
         {
             ( new GzhiHandler() )->getGzhiRequestsStatus();
         } )
             ->dailyAt( '4:00' );
 
+        //обработка любимых типов пользователя
         $schedule->call( function ()
         {
             ( new CronHandler() )->handleFavoriteTypes();
