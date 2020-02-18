@@ -603,6 +603,9 @@ class UsersController extends BaseController
 
         \Cache::forget( 'user.' . $user->id );
 
+        return redirect()->route( 'users.types', $user->id )
+            ->with( 'success', 'Классификатор успешно отвязан' );
+
     }
 
     public function userLogs ( $id )
