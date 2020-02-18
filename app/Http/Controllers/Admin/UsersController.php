@@ -588,6 +588,23 @@ class UsersController extends BaseController
 
     }
 
+    public function typesEmpty ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->types()->detach();
+
+        \Cache::forget( 'user.' . $user->id );
+
+    }
+
     public function userLogs ( $id )
     {
 

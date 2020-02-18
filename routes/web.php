@@ -450,6 +450,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'users/{user_id}/types', 'Admin\UsersController@types' )->name( 'users.types' );
             Route::put( 'users/{user_id}/types/add', 'Admin\UsersController@typesAdd' )->name( 'users.types.add' );
             Route::delete( 'users/{user_id}/types/del', 'Admin\UsersController@typesDel' )->name( 'users.types.del' );
+            Route::delete( 'users/{user_id}/types/empty', 'Admin\UsersController@typesEmpty' )->name( 'users.types.empty' );
 
         });
 

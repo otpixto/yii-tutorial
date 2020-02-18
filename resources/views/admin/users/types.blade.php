@@ -82,6 +82,14 @@
 
             {{ $userTypes->render() }}
 
+            {!! Form::model( $user, [ 'method' => 'delete', 'route' => [ 'users.types.empty', $user->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+            <div class="form-group margin-top-15">
+                <div class="col-md-12">
+                    {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                </div>
+            </div>
+            {!! Form::close() !!}
+
         </div>
     </div>
 
