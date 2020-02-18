@@ -7,7 +7,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <i class="fa fa-plus"></i>
-                    Добавить УО
+                    Добавить Классификатор
                 </h3>
             </div>
             <div class="panel-body">
@@ -15,10 +15,14 @@
                 <div class="row">
                     <div class="col-md-12">
                         <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="types" name="types[]">
-                            @foreach ( $availableTypes as $type )
-                                <option value="{{ $type->id }}">
-                                    {{ $type->name }}
-                                </option>
+                            @foreach ( $availableTypes as $type => $arr )
+                                <optgroup label="{{ $type }}">
+                                    @foreach ( $arr as $type_id => $type_name )
+                                        <option value="{{ $type_id }}">
+                                            {{ $type_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
                     </div>

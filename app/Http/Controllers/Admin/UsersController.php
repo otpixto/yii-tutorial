@@ -500,6 +500,15 @@ class UsersController extends BaseController
             ->orderBy( Type::$_table . '.name' )
             ->get();
 
+        $res = [];
+        foreach ( $availableTypes as $availableType )
+        {
+            $res[ $availableType->parent->name ?? 'Без родителя' ][ $availableType->id ] = $availableType->name;
+        }
+
+        ksort( $res );
+        $availableTypes = $res;
+
         return view('admin.users.types' )
             ->with( 'user', $user )
             ->with( 'userTypes', $userTypes )
