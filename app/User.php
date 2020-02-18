@@ -90,6 +90,11 @@ class User extends BaseModel implements
         return $this->belongsToMany( 'App\Models\Management', 'users_managements' );
     }
 
+    public function types ()
+    {
+        return $this->belongsToMany( 'App\Models\Type', 'users_types' );
+    }
+
     public function providers ()
     {
         return $this->belongsToMany( 'App\Models\Provider', 'users_providers' );

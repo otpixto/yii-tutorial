@@ -6,6 +6,7 @@ use App\Classes\Title;
 use App\Models\Log;
 use App\Models\Management;
 use App\Models\Provider;
+use App\Models\Type;
 use App\User;
 use App\Models\Permission;
 use App\Models\Role;
@@ -460,6 +461,119 @@ class UsersController extends BaseController
         }
 
         $user->managements()->detach( $request->get( 'management_id' ) );
+
+        \Cache::forget( 'user.' . $user->id );
+
+    }
+
+    public function types ( Request $request, $id )
+    {
+
+        Title::add( 'Редактировать пользователя' );
+
+        $user = User::find( $id );
+        $search = trim( $request->get( 'search', '' ) );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $userTypes = $user->types()
+            ->orderBy( Type::$_table . '.name' );
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+            $userTypes
+                ->where( Type::$_table . '.name', 'like', $s );
+        }
+
+        $userTypes = $userTypes
+            ->paginate( config( 'pagination.per_page' ) )
+            ->appends( $request->all() );
+
+        $availableTypes = Type
+            ::mine()
+            ->whereNotIn( Type::$_table . '.id', $user->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( Type::$_table . '.name' )
+            ->get();
+
+        return view('admin.users.types' )
+            ->with( 'user', $user )
+            ->with( 'userTypes', $userTypes )
+            ->with( 'availableTypes', $availableTypes )
+            ->with( 'search', $search );
+
+    }
+
+    public function typesSearch ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+
+        $types = Type
+            ::mine()
+            ->select(
+                Type::$_table . '.id',
+                Type::$_table . '.name AS text'
+            )
+            ->where( Type::$_table . '.name', 'like', $s )
+            ->whereNotIn( Type::$_table . '.id', $user->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( Type::$_table . '.name' )
+            ->get();
+
+        return $types;
+
+    }
+
+    public function typesAdd ( Request $request, $id )
+    {
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->types()->attach( $request->get( 'types' ) );
+
+        \Cache::forget( 'user.' . $user->id );
+
+        return redirect()->route( 'users.types', $user->id )
+            ->with( 'success', 'Классификатор успешно привязан' );
+
+    }
+
+    public function typesDel ( Request $request, $id )
+    {
+
+        $rules = [
+            'type_id'             => 'required|integer',
+        ];
+
+        $this->validate( $request, $rules );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $user->types()->detach( $request->get( 'type_id' ) );
 
         \Cache::forget( 'user.' . $user->id );
 

@@ -450,6 +450,13 @@ class Ticket extends BaseModel
                 ->can( 'supervisor.all_managements' );
         $filter_statuses = ! in_array( self::IGNORE_STATUS, $flags ) && ! \Auth::user()
                 ->can( 'supervisor.all_statuses.show' );
+        $filter_types = ! in_array( self::IGNORE_TYPE, $flags ) && ! \Auth::user()
+                ->can( 'supervisor.all_types.show' );
+        if ( $filter_types && \Auth::user()->types->count() )
+        {
+            $query
+                ->whereIn( Ticket::$_table . '.type_id', \Auth::user()->types->pluck( 'id' ) );
+        }
         if ( $filter_managements || $filter_statuses )
         {
             $query

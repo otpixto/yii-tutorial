@@ -447,6 +447,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'users/{user_id}/managements/del', 'Admin\UsersController@managementsDel' )->name( 'users.managements.del' );
             Route::put( 'users/{user_id}/change-password', 'Admin\UsersController@changePassword' )->name( 'users.change_password' );
             Route::put( 'users/{user_id}/upload-photo', 'Admin\UsersController@uploadPhoto' )->name( 'users.upload_photo' );
+            Route::get( 'users/{user_id}/types', 'Admin\UsersController@types' )->name( 'users.types' );
+            Route::put( 'users/{user_id}/types/add', 'Admin\UsersController@typesAdd' )->name( 'users.types.add' );
+            Route::delete( 'users/{user_id}/types/del', 'Admin\UsersController@typesDel' )->name( 'users.types.del' );
 
         });
 

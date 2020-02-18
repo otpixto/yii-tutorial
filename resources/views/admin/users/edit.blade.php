@@ -197,6 +197,42 @@
         </div>
     </div>
 
+    @if ( \Auth::user()->can( 'admin.users.types' ) )
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-link"></i>
+                            <span class="caption-subject bold">
+                                Классификатор
+                            </span>
+                        </div>
+                        <div class="actions">
+                            <a href="{{ route( 'users.types', $user->id ) }}" class="btn btn-circle btn-default">
+                                <i class="fa fa-pencil"></i>
+                                Редактировать
+                            </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <ol>
+                            @forelse ( $user->types as $type )
+                                <li>
+                                    <a href="{{ route( 'types.edit', $type->id ) }}">
+                                        {{ $type->name }}
+                                    </a>
+                                </li>
+                            @empty
+                                @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
+                            @endforelse
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
 @endsection
 
 @section( 'users.css' )

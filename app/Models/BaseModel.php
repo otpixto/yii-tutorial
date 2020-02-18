@@ -26,6 +26,7 @@ class BaseModel extends Model
     const IGNORE_MANAGEMENT = 3;
     const IGNORE_STATUS = 4;
     const I_AM_OWNER = 5;
+    const IGNORE_TYPE = 6;
 
     const TAG_COMPLETED = 'Выполненные работы';
     const TAG_MOSREG = 'MOSREG';
