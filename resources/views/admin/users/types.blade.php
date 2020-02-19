@@ -13,17 +13,25 @@
             <div class="panel-body">
                 {!! Form::model( $user, [ 'method' => 'put', 'route' => [ 'users.types.add', $user->id ], 'class' => 'submit-loading' ] ) !!}
                 <div class="row">
-                    <div class="col-md-12">
-                        <select class="mt-multiselect form-control" multiple="multiple" data-label="left" id="types" name="types[]">
-                            @foreach ( $availableTypes as $type => $arr )
-                                <optgroup label="{{ $type }}">
-                                    @foreach ( $arr as $type_id => $type_name )
-                                        <option value="{{ $type_id }}">
-                                            {{ $type_name }}
-                                        </option>
-                                    @endforeach
-                                </optgroup>
+                    <div class="col-md-6">
+                        <select class="form-control" id="category_id" name="category_id">
+                            <option value="">
+                                -
+                            </option>
+                            @foreach ( $availableCategories as $category )
+                                <option value="{{ $category->id }}">
+                                    {{ $category->name }}
+                                </option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control hidden" multiple id="types" name="types[]">
+                            {{--@foreach ( $availableTypes as $type )
+                                <option value="{{ $type->id }}">
+                                    {{ $type->name }}
+                                </option>
+                            @endforeach--}}
                         </select>
                     </div>
                 </div>
@@ -108,22 +116,42 @@
             .ready( function ()
             {
 
-                $( '.mt-multiselect' ).multiselect({
-                    disableIfEmpty: true,
-                    enableFiltering: true,
-                    includeSelectAllOption: true,
-                    enableCaseInsensitiveFiltering: true,
-                    enableClickableOptGroups: true,
-                    buttonWidth: '100%',
-                    maxHeight: '300',
-                    buttonClass: 'mt-multiselect btn btn-default',
-                    numberDisplayed: 5,
-                    nonSelectedText: '-',
-                    nSelectedText: ' выбрано',
-                    allSelectedText: 'Все',
-                    selectAllText: 'Выбрать все',
-                    selectAllValue: ''
-                });
+                $( '#category_id' )
+                    .select2()
+                    .on( 'select2:select', function ( e )
+                    {
+                        var data = e.params.data;
+                        $.post( '{{ route( 'users.types', $user->id ) }}', {
+                            parent_id: data.id
+                        }, function ( response )
+                        {
+                            $( '#types' ).empty();
+                            $.each( response, function ( i, item )
+                            {
+                                $( '#types' ).append(
+                                    $( '<option>' ).val( item.id ).text( item.text )
+                                );
+                            });
+                            $( '#types' ).removeClass( 'hidden' );
+                            $( '#types' ).multiselect( 'destroy' );
+                            $( '#types' ).multiselect({
+                                disableIfEmpty: true,
+                                enableFiltering: true,
+                                includeSelectAllOption: true,
+                                enableCaseInsensitiveFiltering: true,
+                                enableClickableOptGroups: true,
+                                buttonWidth: '100%',
+                                maxHeight: '300',
+                                buttonClass: 'mt-multiselect btn btn-default',
+                                numberDisplayed: 5,
+                                nonSelectedText: '-',
+                                nSelectedText: ' выбрано',
+                                allSelectedText: 'Все',
+                                selectAllText: 'Выбрать все',
+                                selectAllValue: ''
+                            });
+                        });
+                    });
 
             })
 

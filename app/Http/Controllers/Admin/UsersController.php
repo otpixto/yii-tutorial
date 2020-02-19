@@ -494,27 +494,40 @@ class UsersController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $availableTypes = Type
+        $availableCategories = Type
             ::mine()
+            ->whereNull( 'parent_id' )
             ->whereNotIn( Type::$_table . '.id', $user->types()->pluck( Type::$_table . '.id' ) )
             ->orderBy( Type::$_table . '.name' )
             ->get();
 
-        $res = [];
-        foreach ( $availableTypes as $availableType )
-        {
-            $res[ $availableType->parent->name ?? 'Без родителя' ][ $availableType->id ] = $availableType->name;
-        }
-
-        ksort( $res );
-        $availableTypes = $res;
-
         return view('admin.users.types' )
             ->with( 'user', $user )
             ->with( 'userTypes', $userTypes )
-            ->with( 'availableTypes', $availableTypes )
+            ->with( 'availableCategories', $availableCategories )
             ->with( 'search', $search );
 
+    }
+
+    public function typesSelect ( Request $request, $id )
+    {
+        $user = User::find( $id );
+        if ( ! $user )
+        {
+            return redirect()->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+        $types = Type
+            ::mine()
+            ->select(
+                Type::$_table . '.id',
+                Type::$_table . '.name AS text'
+            )
+            ->where( Type::$_table . '.parent_id', '=', $request->get( 'parent_id' ) )
+            ->whereNotIn( Type::$_table . '.id', $user->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( Type::$_table . '.name' )
+            ->get();
+        return $types;
     }
 
     public function typesSearch ( Request $request, $id )
