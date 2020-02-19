@@ -316,6 +316,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'managements/{management_id}/telegram/on', 'Catalog\ManagementsController@telegramOn' )->name( 'managements.telegram.on' );
             Route::post( 'managements/{management_id}/telegram/off', 'Catalog\ManagementsController@telegramOff' )->name( 'managements.telegram.off' );
             Route::get( 'managements/{management_id}/types', 'Catalog\ManagementsController@types' )->name( 'managements.types' );
+            Route::post( 'managements/{management_id}/types', 'Catalog\ManagementsController@typesSelect' )->name( 'managements.types' );
             Route::put( 'managements/{management_id}/types/add', 'Catalog\ManagementsController@typesAdd' )->name( 'managements.types.add' );
             Route::delete( 'managements/{management_id}/types/del', 'Catalog\ManagementsController@typesDel' )->name( 'managements.types.del' );
             Route::delete( 'managements/{management_id}/types/empty', 'Catalog\ManagementsController@typesEmpty' )->name( 'managements.types.empty' );

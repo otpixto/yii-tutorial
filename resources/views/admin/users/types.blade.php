@@ -26,13 +26,7 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <select class="form-control hidden" multiple id="types" name="types[]">
-                            {{--@foreach ( $availableTypes as $type )
-                                <option value="{{ $type->id }}">
-                                    {{ $type->name }}
-                                </option>
-                            @endforeach--}}
-                        </select>
+                        <select class="form-control hidden" multiple id="types" name="types[]"></select>
                     </div>
                 </div>
                 <div class="row margin-top-15">

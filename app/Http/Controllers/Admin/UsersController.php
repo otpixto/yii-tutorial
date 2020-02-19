@@ -497,7 +497,6 @@ class UsersController extends BaseController
         $availableCategories = Type
             ::mine()
             ->whereNull( 'parent_id' )
-            ->whereNotIn( Type::$_table . '.id', $user->types()->pluck( Type::$_table . '.id' ) )
             ->orderBy( Type::$_table . '.name' )
             ->get();
 

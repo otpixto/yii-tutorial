@@ -1135,30 +1135,40 @@ class ManagementsController extends BaseController
             ->paginate( config( 'pagination.per_page' ) )
             ->appends( $request->all() );
 
-        $res = Type
+        $availableCategories = Type
             ::mine()
-            ->where( function ( $q ) use ( $management )
-            {
-                return $q
-                    ->whereNull( 'provider_id' )
-                    ->orWhere( 'provider_id', '=', $management->provider_id );
-            } )
-            ->whereNotIn( 'id', $management->types()
-                ->pluck( Type::$_table . '.id' ) )
-            ->get()
-            ->sortBy( 'name' );
-        $availableTypes = [];
-        foreach ( $res as $r )
-        {
-            $availableTypes[ $r->parent->name ?? 'Без родителя' ][ $r->id ] = $r->name;
-        }
+            ->whereNull( 'parent_id' )
+            ->orderBy( Type::$_table . '.name' )
+            ->get();
 
         return view( 'catalog.managements.types' )
             ->with( 'management', $management )
             ->with( 'search', $search )
             ->with( 'managementTypes', $managementTypes )
-            ->with( 'availableTypes', $availableTypes );
+            ->with( 'availableCategories', $availableCategories );
 
+    }
+
+    public function typesSelect ( Request $request, $id )
+    {
+        $management = Management::find( $id );
+        if ( ! $management )
+        {
+            return redirect()
+                ->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+        $types = Type
+            ::mine()
+            ->select(
+                Type::$_table . '.id',
+                Type::$_table . '.name AS text'
+            )
+            ->where( Type::$_table . '.parent_id', '=', $request->get( 'parent_id' ) )
+            ->whereNotIn( Type::$_table . '.id', $management->types()->pluck( Type::$_table . '.id' ) )
+            ->orderBy( Type::$_table . '.name' )
+            ->get();
+        return $types;
     }
 
     public function typesAdd ( Request $request, $id )
