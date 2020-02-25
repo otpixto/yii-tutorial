@@ -177,7 +177,7 @@
             $('#ticket-services [data-repeater-item]').each(function () {
                 var amount = (Number($(this).find('.amount').val().replace(',', '.')) || 0).toFixed(2);
                 var quantity = (Number($(this).find('.quantity').val().replace(',', '.')) || 1).toFixed(2);
-                $(this).find('.amount').val(amount || '');
+                $(this).find('.amount').val(amount || 0);
                 $(this).find('.quantity').val(quantity);
                 total += amount * quantity;
             });
@@ -363,7 +363,8 @@
                                 },
                                 defaultValues: {
                                     quantity: '1.00',
-                                    unit: 'шт'
+                                    unit: 'шт',
+                                    amount: 0
                                 }
                             });
                         });

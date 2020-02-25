@@ -26,7 +26,7 @@
                                         {!! Form::text( 'unit', $service->unit, [ 'class' => 'form-control', 'required' ] ) !!}
                                     </div>
                                     <div class="col-xs-2">
-                                        {!! Form::text( 'amount', $service->amount ?? null, [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
+                                        {!! Form::text( 'amount', $service->amount ?? 0, [ 'class' => 'form-control calc-totals amount text-right', 'required' ] ) !!}
                                     </div>
                                     <div class="col-xs-1 text-right hidden-print">
                                         <button type="button" data-repeater-delete="" class="btn btn-danger">
@@ -48,7 +48,7 @@
                                     {!! Form::text( 'unit', 'шт', [ 'class' => 'form-control', 'required' ] ) !!}
                                 </div>
                                 <div class="col-xs-2">
-                                    {!! Form::text( 'amount', '', [ 'class' => 'form-control calc-totals amount text-right', 'placeholder' => 'Стоимость', 'required' ] ) !!}
+                                    {!! Form::text( 'amount', 0, [ 'class' => 'form-control calc-totals amount text-right', 'required' ] ) !!}
                                 </div>
                                 <div class="col-xs-1 text-right hidden-print">
                                     <button type="button" data-repeater-delete="" class="btn btn-danger btn-block">
