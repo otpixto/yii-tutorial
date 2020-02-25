@@ -125,14 +125,15 @@
                         </div>
                     </div>
 
-                    @foreach ( $managementBuildings as $r )
+                    @foreach ( $managementBuildings as $managementBuilding )
                         <div class="margin-bottom-5">
-                            <button type="button" class="btn btn-xs btn-danger" data-delete="management-building"
-                                    data-building="{{ $r->id }}">
-                                <i class="fa fa-remove"></i>
-                            </button>
-                            <a href="{{ route( 'buildings.edit', $r->id ) }}">
-                                {{ $r->getAddress( true ) }}
+                            <label class="mt-checkbox mt-checkbox-outline">
+                                {!! Form::checkbox( 'ids[]', $managementBuilding->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
+                                <input type="checkbox">
+                                <span></span>
+                            </label>
+                            <a href="{{ route( 'buildings.edit', $managementBuilding->id ) }}">
+                                {{ $managementBuilding->getAddress( true ) }}
                             </a>
                         </div>
                     @endforeach
@@ -144,7 +145,7 @@
                 @endif
 
                 <div class="row">
-                    <div class="col-md-1">
+                    <div class="col-md-1 center-align">
                         {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.buildings.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
                         <div class="form-group margin-top-15">
                             <div class="col-md-12">
@@ -153,11 +154,49 @@
                         </div>
                         {!! Form::close() !!}
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3 center-align">
                         <div class="form-group margin-top-15">
                             <button class="btn btn-info" id="alOtherOrganization">
                                 Привязать ВСЕ к другой организации
                             </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
+                        {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                        <div class="form-group margin-top-15">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-default">
+                                    Изменить сегмент (<span id="ids-count">0</span>)
+                                </button>
+                            </div>
+                        </div>
+                        {!! Form::close(); !!}
+                        <div class="center-block center-align" style="margin-left: 80px;">
+                            <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
+                                отмена
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        {!! Form::open( [ 'route' => [ 'buildings.mass-buildings-delete', $management->id ], 'method' => 'get', 'class' => 'hidden', 'data-confirm' => 'Вы уверены?', 'id' => 'form-checkbox-delete' ] ) !!}
+
+                        {!! Form::hidden( 'ids', null, [ 'id' => 'ids-delete' ] ) !!}
+
+                        <div class="form-group margin-top-15">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-danger">
+                                    Удалить привязку (<span id="ids-count-delete">0</span>)
+                                </button>
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                        <div class="center-block center-align" style="margin-left: 80px;">
+                            <a href="javascript:;" class="text-default hidden" id="cancel-checkbox-delete">
+                                отмена
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -184,6 +223,45 @@
             type="text/javascript"></script>
     <script type="text/javascript">
 
+
+        function checkTicketCheckbox() {
+            $('#form-checkbox').removeClass('hidden');
+
+            $('#form-checkbox-delete').removeClass('hidden');
+
+            $('#cancel-checkbox').removeClass('hidden');
+
+            $('#cancel-checkbox-delete').removeClass('hidden');
+            var ids = [];
+            let i = 0;
+            $('.ticket-checkbox:checked').each(function () {
+                ids.push($(this).val());
+                i++;
+            });
+            $('#ids-count').text(ids.length);
+            $('#ids-count-delete').text(ids.length);
+            if (ids.length) {
+                $('#controls').fadeIn(300);
+                $('#ids').val(ids.join(','));
+                $('#ids-delete').val(ids.join(','))
+            } else {
+                $('#controls').fadeOut(300);
+                $('#ids').val('');
+                $('#ids-delete').val('');
+            }
+            if (i == 0) {
+                $('#form-checkbox').addClass('hidden');
+                $('#form-checkbox-delete').addClass('hidden');
+                $('#cancel-checkbox').addClass('hidden');
+                $('#cancel-checkbox-delete').addClass('hidden');
+            }
+        };
+
+        function cancelCheckbox() {
+            $('.ticket-checkbox').removeAttr('checked');
+            checkTicketCheckbox();
+        };
+
         $(document)
 
             .ready(function () {
@@ -208,6 +286,17 @@
                 });
 
             })
+
+            .on('click', '#cancel-checkbox, #cancel-checkbox-delete', function (e) {
+                e.preventDefault();
+                cancelCheckbox();
+            })
+
+            .on('submit', '#form-checkbox', function (event) {
+                setTimeout(cancelCheckbox, 500);
+            })
+
+            .on('change', '.ticket-checkbox', checkTicketCheckbox)
 
             .on('click', '[data-delete="management-building"]', function (e) {
 

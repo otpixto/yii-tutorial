@@ -1165,7 +1165,8 @@ class ManagementsController extends BaseController
                 Type::$_table . '.name AS text'
             )
             ->where( Type::$_table . '.parent_id', '=', $request->get( 'parent_id' ) )
-            ->whereNotIn( Type::$_table . '.id', $management->types()->pluck( Type::$_table . '.id' ) )
+            ->whereNotIn( Type::$_table . '.id', $management->types()
+                ->pluck( Type::$_table . '.id' ) )
             ->orderBy( Type::$_table . '.name' )
             ->get();
         return $types;
@@ -1298,6 +1299,30 @@ class ManagementsController extends BaseController
                 ->back()
                 ->withErrors( [ $e->getMessage() ] );
         }
+    }
+
+    public function massBuildingsDelete ( $management_id, Request $request )
+    {
+        $buildingsIDs = explode( ',', $request->get( 'ids', null ) );
+
+        if ( ! count( $buildingsIDs ) )
+        {
+            $buildingsIDs = [ $request->get( 'ids', null ) ];
+        }
+
+        if ( is_array( $buildingsIDs ) )
+        {
+            foreach ( $buildingsIDs as $buildingsID )
+            {
+                \Illuminate\Support\Facades\DB::table( 'managements_buildings' )
+                    ->where( [ 'management_id' => $management_id, 'building_id' => (int) $buildingsID ] )
+                    ->delete();
+            }
+        }
+
+        return redirect()
+            ->back()
+            ->with( 'success', 'Привязки успешно удалены' );
     }
 
 }

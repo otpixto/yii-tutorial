@@ -333,6 +333,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'managements/{management_id}/executors/del', 'Catalog\ManagementsController@executorsDel' )->name( 'managements.executors.del' );
             Route::delete( 'managements/{management_id}/executors/empty', 'Catalog\ManagementsController@executorsEmpty' )->name( 'managements.executors.empty' );
             Route::get( 'managements/{management_id}/act/{act_id}', 'Catalog\ManagementsController@act' )->name( 'managements.act' );
+            Route::get( 'managements/{management_id}/mass-buildings-delete', 'Catalog\ManagementsController@massBuildingsDelete' )->name( 'buildings.mass-buildings-delete' );
 
             Route::get( 'managements/executors/search', 'Catalog\ManagementsController@executorsSearch' )->name( 'managements.executors.search' );
             Route::get( 'managements/search/form', 'Catalog\ManagementsController@searchForm' )->name( 'managements.search.form' );
