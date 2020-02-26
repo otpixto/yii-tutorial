@@ -753,11 +753,35 @@ class TicketsController extends BaseController
         ];
 
         $managements = $request->get( 'managements', [] );
+
         if ( ! count( $managements ) )
         {
             return redirect()
                 ->back()
                 ->withErrors( [ 'Для сохранения заявки нужно выбрать (отметить галочкой) нужную организацию' ] );
+        }
+
+        $vendorID = $request->get( 'vendor_id', null );
+
+        if ( $vendorID && in_array( $vendorID, [ Vendor::DOBRODEL_VENDOR_ID, Vendor::STATEMENT_VENDOR_ID ] ) )
+        {
+            $vendorNumber = $request->get( 'vendor_number', null );
+
+            if ( ! $vendorNumber )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Укажите номер обращения' ] );
+            }
+
+            $vendorDate = $request->get( 'vendor_date', null );
+
+            if ( ! $vendorDate )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Укажите дату обращения' ] );
+            }
         }
 
         $this->validate( $request, $rules );
@@ -998,6 +1022,7 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
+            dd($e->getTraceAsString());
             return redirect()
                 ->back()
                 ->withErrors( [ 'Внутренняя ошибка системы!' ] );
