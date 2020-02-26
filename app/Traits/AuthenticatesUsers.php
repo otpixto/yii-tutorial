@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Classes\Title;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 trait AuthenticatesUsers
 {
@@ -41,6 +42,9 @@ trait AuthenticatesUsers
         }
 
         if ($this->attemptLogin($request)) {
+
+            $this->logoutOtherDevices($request->password);
+
             \Cache::tags( 'users' )->forget( 'user.availableStatuses.' . \Auth::user()->id );
             return $this->sendLoginResponse($request);
         }
@@ -51,6 +55,17 @@ trait AuthenticatesUsers
         $this->incrementLoginAttempts($request);
 
         return $this->sendFailedLoginResponse($request);
+    }
+
+    public function logoutOtherDevices($password, $attribute = 'password')
+    {
+        if (! Auth::user()) {
+            return;
+        }
+
+        return tap(Auth::user()->forceFill([
+            $attribute => Hash::make($password),
+        ]))->save();
     }
 
     /**
