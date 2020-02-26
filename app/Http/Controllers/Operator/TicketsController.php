@@ -1372,6 +1372,13 @@ class TicketsController extends BaseController
                     'author'
                 )
                 ->get();
+
+            $statuses = $ticketManagement
+                ->statusesHistory()
+                ->orderBy( 'id' )
+                ->with( 'author' )
+                ->get();
+
         } else
         {
             $logs = $ticket
@@ -1380,13 +1387,13 @@ class TicketsController extends BaseController
                     'author'
                 )
                 ->get();
-        }
 
-        $statuses = $ticket
-            ->statusesHistory()
-            ->orderBy( 'id' )
-            ->with( 'author' )
-            ->get();
+            $statuses = $ticket
+                ->statusesHistory()
+                ->orderBy( 'id' )
+                ->with( 'author' )
+                ->get();
+        }
 
         return view( 'tickets.tabs.history' )
             ->with( 'ticket', $ticket )
