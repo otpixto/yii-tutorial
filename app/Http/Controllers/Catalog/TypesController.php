@@ -161,8 +161,8 @@ class TypesController extends BaseController
                     ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
                     ->whereNull( Type::$_table . '.parent_id' )
                     ->where( 'types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID );
-            }
-            else {
+            } else
+            {
                 $defaultParentsIDs = Type::
                 leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
                     ->where( 'types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID )
@@ -171,7 +171,7 @@ class TypesController extends BaseController
 
                 $types = Type
                     ::mine()
-                    ->select('id', 'name as text')
+                    ->select( 'id', 'name as text' )
                     ->orderByDesc( Type::$_table . '.tickets_using_times' )
                     ->orderBy( Type::$_table . '.name' )
                     ->whereIn( Type::$_table . '.parent_id', $defaultParentsIDs )
@@ -191,7 +191,8 @@ class TypesController extends BaseController
                 ->where( Type::$_table . '.works', '=', 1 );
         }
 
-        $types = $types->get()->values();
+        $types = $types->get()
+            ->values();
 
         return $types;
 
@@ -400,7 +401,8 @@ class TypesController extends BaseController
             $type->vendors()
                 ->detach();
 
-            if(is_array($vendors)) {
+            if ( is_array( $vendors ) )
+            {
                 foreach ( $vendors as $vendorID )
                 {
                     \Illuminate\Support\Facades\DB::table( 'types_vendors' )
@@ -640,6 +642,102 @@ class TypesController extends BaseController
                 $type->save();
             }
         }
+    }
+
+    public function massManagementsEdit ( Request $request )
+    {
+
+        Title::add( 'Привязка классификаторов к УО' );
+
+        $id = $request->get( 'management_id', null );
+
+        $management = Management::find( $id );
+
+        if ( ! $management )
+        {
+            return redirect()
+                ->route( 'managements.index' )
+                ->withErrors( [ 'УО не найдена' ] );
+        }
+
+        $managementTypes = $management->types()
+            ->orderBy( Type::$_table . '.name' );
+
+        $managementTypesListString = $managementTypes->get()
+            ->pluck( 'id' )
+            ->implode( ',' );
+
+        $availableManagements = Management
+            ::mine()
+            ->orderBy( Management::$_table . '.name' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableManagements as $availableManagement )
+        {
+            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        }
+
+        ksort( $res );
+        $availableManagements = $res;
+
+        return view( 'catalog.types.mass-edit' )
+            ->with( 'availableManagements', $availableManagements )
+            ->with( 'management_id', $id )
+            ->with( 'managementTypesListString', $managementTypesListString );
+    }
+
+    public function massManagementsAdd ( Request $request )
+    {
+
+        $managementID = $request->get( 'management_id', null );
+
+        try
+        {
+
+            $typesJSON = (string) $request->get( 'types', '' );
+
+            $types = explode( ',', $typesJSON );
+
+            $managements = $request->get( 'managements', [] );
+
+            if ( is_array( $managements ) && count( $types ) )
+            {
+                foreach ( $managements as $management_id )
+                {
+                    foreach ( $types as $type_id )
+                    {
+                        $managementsType = \Illuminate\Support\Facades\DB::table( 'managements_types' )
+                            ->where( 'management_id', $management_id )
+                            ->where( 'type_id', $type_id )
+                            ->first();
+
+                        if ( ! $managementsType )
+                        {
+
+                            \Illuminate\Support\Facades\DB::table( 'managements_types' )
+                                ->insert(
+                                    [
+                                        'management_id' => $management_id,
+                                        'type_id' => $type_id
+                                    ]
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        catch ( \Exception $exception )
+        {
+            dd( $exception->getMessage() );
+            return redirect()
+                ->route( 'managements.types', [ 'management_id' => $managementID ] )
+                ->with( 'error', 'Ошибка привязки классификаторов к выбранным УО' );
+        }
+
+        return redirect()
+            ->route( 'managements.types', [ 'management_id' => $managementID ] )
+            ->with( 'success', 'Классификаторы успешно привязаны к выбранным УО' );
     }
 
 }

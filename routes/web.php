@@ -308,6 +308,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'types/{type_id}/managements/add', 'Catalog\TypesController@managementsAdd' )->name( 'types.managements.add' );
             Route::delete( 'types/{type_id}/managements/del', 'Catalog\TypesController@managementsDel' )->name( 'types.managements.del' );
             Route::delete( 'types/{type_id}/managements/empty', 'Catalog\TypesController@managementsEmpty' )->name( 'types.managements.empty' );
+            Route::get( 'types/managements/mass-edit', 'Catalog\TypesController@massManagementsEdit' )->name( 'types.managements.massManagementsEdit' );
+            Route::post( 'types/managements/mass-add', 'Catalog\TypesController@massManagementsAdd' )->name( 'types.managements.massManagementsAdd' );
 
             Route::post( 'managements/json', 'Catalog\ManagementsController@json' )->name( 'managements.json' );
             Route::post( 'managements/search', 'Catalog\ManagementsController@search' )->name( 'managements.search' );
