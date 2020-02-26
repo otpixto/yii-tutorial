@@ -27,6 +27,19 @@
 
 <div class="row margin-top-10">
     <h4 class="col-md-2">
+        Родительский сегмент
+    </h4>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="col-xs-12">
+                {!! Form::text( 'parent_segment_name', $request->get( 'parent_segment_name' ), [ 'class' => 'form-control' ] ) !!}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
         Тип здания
     </h4>
     <div class="col-md-10">

@@ -29,6 +29,7 @@ class BuildingsController extends BaseController
         $provider_id = $request->get( 'provider_id' );
         $segment_id = $request->get( 'segment_id' );
         $segment_name = $request->get( 'segment_name' );
+        $parent_segment_name = $request->get( 'parent_segment_name' );
         $building_type_id = $request->get( 'building_type_id' );
         $management_id = $request->get( 'management_id' );
 
@@ -57,6 +58,21 @@ class BuildingsController extends BaseController
                         ->orWhereHas( 'parent', function ( $q ) use ( $segment_parent_name )
                         {
                             $s = '%' . str_replace( ' ', '%', trim( $segment_parent_name ) ) . '%';
+                            return $q
+                                ->where( 'name', 'like', $s );
+                        } );
+                } );
+        }
+
+        if ( ! empty( $parent_segment_name ) )
+        {
+            $buildings
+                ->whereHas( 'segment', function ( $q ) use ( $parent_segment_name )
+                {
+                    return $q
+                        ->whereHas( 'parent', function ( $q ) use ( $parent_segment_name )
+                        {
+                            $s = '%' . str_replace( ' ', '%', trim( $parent_segment_name ) ) . '%';
                             return $q
                                 ->where( 'name', 'like', $s );
                         } );
