@@ -1374,6 +1374,15 @@ class TicketsController extends BaseController
                 )
                 ->get();
 
+            $ticketLogs = $ticket
+                ->logs()
+                ->with(
+                    'author'
+                )
+                ->get();
+
+            $logs = $logs->merge($ticketLogs);
+
             $statuses = $ticketManagement
                 ->statusesHistory()
                 ->orderBy( 'id' )
