@@ -19,7 +19,7 @@
             <div class="form-group">
                 {!! Form::label( 'type_id', 'Тип', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                    {!! Form::select( 'type_id', \App\Models\Work::$types, \Input::old( 'type_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'id' => 'type_id_select', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -30,7 +30,7 @@
                 </div>
             </div>
 
-                <div class="form-group @if ( ! count( \Input::old( 'managements', [] ) ) ) hidden @endif" id="executor">
+            <div class="form-group @if ( ! count( \Input::old( 'managements', [] ) ) ) hidden @endif" id="executor">
                 {!! Form::label( 'executors[]', 'Ответственный', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
                     {!! Form::select( 'executors[]', [], \Input::old( 'executors' ), [ 'class' => 'form-control select2', 'multiple', 'id' => 'executors' ] ) !!}
@@ -102,7 +102,7 @@
             <div class="form-group">
                 {!! Form::label( 'category_id', 'Категория', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-9">
-                    {!! Form::select( 'category_id', $availableCategories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'required' ] ) !!}
+                    {!! Form::select( 'category_id', $availableCategories, \Input::old( 'category_id' ), [ 'class' => 'form-control select2', 'placeholder' => ' -- выберите из списка -- ', 'id' => 'category_id_select', 'required' ] ) !!}
                 </div>
             </div>
 
@@ -117,7 +117,8 @@
                         </span>
                         {!! Form::select( 'buildings[]', $buildings->pluck( 'name', 'id' )->toArray(), $buildings->pluck( 'id' ), [ 'class' => 'form-control', 'id' => 'buildings', 'data-placeholder' => 'Адрес работ', 'required', 'multiple' ] ) !!}
                         <span class="input-group-btn">
-                            <button class="btn btn-default tooltips" title="Добавить адреса" data-group-buildings="#buildings">
+                            <button class="btn btn-default tooltips" title="Добавить адреса"
+                                    data-group-buildings="#buildings">
                                 +
                             </button>
                         </span>
@@ -173,9 +174,12 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"
+          type="text/css"/>
     <style>
         .mt-checkbox, .mt-radio {
             margin-bottom: 0;
@@ -184,23 +188,26 @@
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"
+            type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"
+            type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"
+            type="text/javascript"></script>
     <script src="/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-form-tools.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/autosize/autosize.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"
+            type="text/javascript"></script>
     <script src="//webasr.yandex.net/jsapi/v1/webspeechkit.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         var streamer = new ya.speechkit.SpeechRecognition();
 
-        function MicrophoneOn ()
-        {
+        function MicrophoneOn() {
 
-            if ( $( '#microphone' ).attr( 'data-state' ) == 'on' ) return;
+            if ($('#microphone').attr('data-state') == 'on') return;
 
             streamer.start({
 
@@ -208,35 +215,32 @@
 
                 // initCallback вызывается после успешной инициализации сессии.
                 initCallback: function () {
-                    $( '#microphone' )
-                        .attr( 'data-state', 'on' )
-                        .removeClass( 'btn-default' )
-                        .addClass( 'btn-success' )
-                        .find( '.fa' )
-                        .removeClass( 'fa-microphone-slash' )
-                        .addClass( 'fa-microphone' );
+                    $('#microphone')
+                        .attr('data-state', 'on')
+                        .removeClass('btn-default')
+                        .addClass('btn-success')
+                        .find('.fa')
+                        .removeClass('fa-microphone-slash')
+                        .addClass('fa-microphone');
                 },
                 // Данная функция вызывается многократно.
                 // Ей передаются промежуточные результаты распознавания.
                 // После остановки распознавания этой функции
                 // будет передан финальный результат.
-                dataCallback: function ( text, done )
-                {
-                    if ( done && text != '' )
-                    {
+                dataCallback: function (text, done) {
+                    if (done && text != '') {
                         MicrophoneOff();
-                        var value = $.trim( $( '#comment' ).val() );
-                        if ( value != '' )
-                        {
+                        var value = $.trim($('#comment').val());
+                        if (value != '') {
                             value += "\n";
                         }
-                        $( '#comment' ).val( value + text );
+                        $('#comment').val(value + text);
                     }
                 },
                 // Вызывается при возникновении ошибки (например, если передан неверный API-ключ).
                 errorCallback: function (err) {
                     //console.log("Возникла ошибка: " + err);
-                    alert( "Возникла ошибка: " + err );
+                    alert("Возникла ошибка: " + err);
                     MicrophoneOff();
                 },
                 // Содержит сведения о ходе процесса распознавания.
@@ -261,34 +265,29 @@
 
         };
 
-        function MicrophoneOff ()
-        {
+        function MicrophoneOff() {
 
-            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' ) return;
+            if ($('#microphone').attr('data-state') == 'off') return;
 
-            $( '#microphone' )
-                .attr( 'data-state', 'off' )
-                .removeClass( 'btn-success' )
-                .addClass( 'btn-default' )
-                .find( '.fa' )
-                .removeClass( 'fa-microphone' )
-                .addClass( 'fa-microphone-slash' );
+            $('#microphone')
+                .attr('data-state', 'off')
+                .removeClass('btn-success')
+                .addClass('btn-default')
+                .find('.fa')
+                .removeClass('fa-microphone')
+                .addClass('fa-microphone-slash');
 
             streamer.stop();
 
         };
 
-        function ToggleMicrophone ()
-        {
+        function ToggleMicrophone() {
 
-            if ( $( '#microphone' ).attr( 'data-state' ) == 'off' )
-            {
+            if ($('#microphone').attr('data-state') == 'off') {
 
                 MicrophoneOn();
 
-            }
-            else
-            {
+            } else {
 
                 MicrophoneOff();
 
@@ -296,101 +295,88 @@
 
         };
 
-        function getExecutors ( selected )
-        {
-            var managements = $( '#managements' ).val();
-            $( '#executors' ).empty();
-            $( '#buildings' ).val( '' ).trigger( 'change' );
-            if ( managements )
-            {
-                $( '#executor' ).removeClass( 'hidden' );
-                $.get( '{{ route( 'managements.executors.search' ) }}', {
+        function getExecutors(selected) {
+            var managements = $('#managements').val();
+            $('#executors').empty();
+            $('#buildings').val('').trigger('change');
+            if (managements) {
+                $('#executor').removeClass('hidden');
+                $.get('{{ route( 'managements.executors.search' ) }}', {
                     managements: managements
-                }, function ( response )
-                {
-                    $.each( response, function ( i, executor )
-                    {
-                        $( '#executors' ).append(
-                            $( '<option>' ).val( executor.id ).text( executor.name )
+                }, function (response) {
+                    $.each(response, function (i, executor) {
+                        $('#executors').append(
+                            $('<option>').val(executor.id).text(executor.name)
                         );
                     });
-                    if ( selected )
-                    {
-                        $( '#executors' ).val( selected ).trigger( 'change' );
+                    if (selected) {
+                        $('#executors').val(selected).trigger('change');
                     }
                 });
-            }
-            else
-            {
-                $( '#executor' ).addClass( 'hidden' );
+            } else {
+                $('#executor').addClass('hidden');
             }
         };
 
-        function GetTypes ( provider_id )
-        {
-            $( '#category_id' )
+        function GetTypes(provider_id) {
+            $('#category_id')
                 .empty()
                 .append(
-                    $( '<option>' ).val( '0' ).text( ' -- выберите из списка -- ' )
+                    $('<option>').val('0').text(' -- выберите из списка -- ')
                 )
-                .trigger( 'change' );
-            $.post( '{{ route( 'types.json' ) }}',
+                .trigger('change');
+            $.post('{{ route( 'types.json' ) }}',
                 {
                     provider_id: provider_id || null,
                     works: 1
-                }, function ( response )
-                {
-                    if ( response.length )
-                    {
-                        $( '#category_id' ).select2( 'destroy' );
-                        $( '#category_id' ).select2({
+                }, function (response) {
+                    if (response.length) {
+                        $('#category_id').select2('destroy');
+                        $('#category_id').select2({
                             'data': response
                         });
                     }
                 });
         };
 
-        function GetManagements ( provider_id )
-        {
-            $( '#managements' )
+        function GetManagements(provider_id, category_id) {
+            $('#managements')
                 .empty()
-                .trigger( 'change' );
-            $.post( '{{ route( 'managements.json' ) }}',
+                .trigger('change');
+            $.post('{{ route( 'managements.json' ) }}',
                 {
-                    provider_id: provider_id || null
-                }, function ( response )
-                {
-                    if ( response.length )
-                    {
-                        $( '#managements' ).select2( 'destroy' );
-                        $( '#managements' ).select2({
+                    provider_id: provider_id || null,
+                    category_id: category_id || null
+                }, function (response) {
+                    if (response.length) {
+                        $('#managements').select2('destroy');
+                        $('#managements').select2({
                             'data': response
                         });
                     }
                 });
         };
 
-        $( document )
+        $(document)
 
-            .ready( function ()
-            {
+            .ready(function () {
 
-                $( '#microphone' ).click( ToggleMicrophone );
+                $('#microphone').click(ToggleMicrophone);
 
-                $( '.mask_phone' ).inputmask( 'mask', {
+                $('.mask_phone').inputmask('mask', {
                     'mask': '+7 (999) 999-99-99'
                 });
 
-                $( '.datepicker' ).datepicker();
+                $('.datepicker').datepicker();
 
-                $( '.timepicker-24' ).timepicker({
+                $('.timepicker-24').timepicker({
                     autoclose: true,
                     minuteStep: 5,
                     showSeconds: false,
                     showMeridian: false
                 });
 
-                $( '#buildings' ).select2({
+                $('#buildings').select2({
                     minimumInputLength: 3,
                     minimumResultsForSearch: 30,
                     ajax: {
@@ -398,17 +384,15 @@
                         cache: true,
                         type: 'post',
                         delay: 450,
-                        data: function ( term )
-                        {
+                        data: function (term) {
                             var data = {
                                 q: term.term,
-                                provider_id: $( '#provider_id' ).val(),
-                                managements: $( '#managements' ).val()
+                                provider_id: $('#provider_id').val(),
+                                managements: $('#managements').val()
                             };
                             return data;
                         },
-                        processResults: function ( data, page )
-                        {
+                        processResults: function (data, page) {
                             return {
                                 results: data
                             };
@@ -416,26 +400,27 @@
                     }
                 });
 
-                getExecutors( '{{ implode( ',', \Input::old( 'executors', [] ) ) }}'.split( ',' ) );
+                getExecutors('{{ implode( ',', \Input::old( 'executors', [] ) ) }}'.split(','));
 
             })
 
-            .on( 'change', '#provider_id', function ( e )
-            {
-                GetTypes( $( this ).val() );
-                GetManagements( $( this ).val() );
-                $( '#buildings' ).val( '' ).trigger( 'change' );
+            .on('change', '#provider_id', function (e) {
+                GetTypes($(this).val());
+                GetManagements($(this).val());
+                $('#buildings').val('').trigger('change');
             })
 
-            .on( 'keydown', function ( e )
-            {
-                if ( e.ctrlKey && e.which == 32 )
-                {
+            .on('keydown', function (e) {
+                if (e.ctrlKey && e.which == 32) {
                     ToggleMicrophone();
                 }
             })
 
-            .on( 'change', '#managements', getExecutors );
+            .on('change', '#managements', getExecutors)
+
+            .on('change', '#category_id_select', function () {
+                GetManagements(null, $(this).val());
+            });
 
     </script>
 @endsection

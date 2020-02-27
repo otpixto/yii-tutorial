@@ -575,6 +575,19 @@ class ManagementsController extends BaseController
                 ->where( Management::$_table . '.provider_id', '=', $provider_id );
         }
 
+        $category_id = trim( $request->get( 'category_id', '' ) );
+
+        if ( ! empty( $category_id ) )
+        {
+            $managements
+                ->whereHas( 'types', function ( $types ) use ( $category_id )
+                {
+                    return $types
+                        ->mine()
+                        ->where( Type::$_table . '.id', $category_id );
+                } );
+        }
+
         $managements = $managements->get();
 
         return $managements;
