@@ -343,6 +343,7 @@ class TicketsController extends BaseController
 
         $vendors = Vendor
             ::orderBy( Vendor::$_table . '.name' )
+            ->where( 'id', '!=', Vendor::DEFAULT_VENDOR_ID )
             ->pluck( Vendor::$_table . '.name', Vendor::$_table . '.id' )
             ->toArray();
 
@@ -1022,7 +1023,7 @@ class TicketsController extends BaseController
         }
         catch ( \Exception $e )
         {
-            dd($e->getTraceAsString());
+            dd( $e->getTraceAsString() );
             return redirect()
                 ->back()
                 ->withErrors( [ 'Внутренняя ошибка системы!' ] );
