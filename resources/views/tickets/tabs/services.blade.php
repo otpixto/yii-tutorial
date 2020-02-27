@@ -3,10 +3,10 @@
         <div class="note note-info">
             <h4>Выполненные работы</h4>
             <div class="row margin-bottom-10">
-                <label class="col-xs-5 control-label text-muted">Наименование</label>
-                <label class="col-xs-2 control-label text-muted text-right">Кол-во</label>
-                <label class="col-xs-2 control-label text-muted">Е.И.</label>
-                <label class="col-xs-2 control-label text-muted text-right">Стоимость</label>
+                <label class="col-xs-8 control-label text-muted">Наименование</label>
+                <label class="col-xs-1 control-label text-muted text-right">Кол-во</label>
+                <label class="col-xs-1 control-label text-muted">Е.И.</label>
+                <label class="col-xs-1 control-label text-muted text-right">Стоимость</label>
             </div>
             @if ( \Auth::user()->can( 'tickets.services.edit' ) )
                 {!! Form::model( $ticketManagement, [ 'method' => 'put', 'route' => [ 'tickets.services.save', $ticketManagement->id ], 'class' => 'submit-loading' ] ) !!}
@@ -15,17 +15,17 @@
                         @if ( $ticketManagement->services->count() )
                             @foreach ( $ticketManagement->services as $service )
                                 <div data-repeater-item="" class="row margin-bottom-10">
-                                    <div class="col-xs-5">
+                                    <div class="col-xs-8">
                                         {!! Form::hidden( 'id', $service->id ) !!}
                                         {!! Form::text( 'name', $service->name, [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-1">
                                         {!! Form::text( 'quantity', $service->quantity, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-1">
                                         {!! Form::text( 'unit', $service->unit, [ 'class' => 'form-control', 'required' ] ) !!}
                                     </div>
-                                    <div class="col-xs-2">
+                                    <div class="col-xs-1">
                                         {!! Form::text( 'amount', $service->amount ?? 0, [ 'class' => 'form-control calc-totals amount text-right', 'required' ] ) !!}
                                     </div>
                                     <div class="col-xs-1 text-right hidden-print">
@@ -37,17 +37,17 @@
                             @endforeach
                         @else
                             <div data-repeater-item="" class="row margin-bottom-10 hidden-print">
-                                <div class="col-xs-5">
+                                <div class="col-xs-8">
                                     {!! Form::hidden( 'id', '' ) !!}
                                     {!! Form::text( 'name', '', [ 'class' => 'form-control', 'placeholder' => 'Наименование', 'required' ] ) !!}
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-1">
                                     {!! Form::text( 'quantity', 1, [ 'class' => 'form-control calc-totals quantity text-right', 'placeholder' => 'Кол-во', 'required' ] ) !!}
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-1">
                                     {!! Form::text( 'unit', 'шт', [ 'class' => 'form-control', 'required' ] ) !!}
                                 </div>
-                                <div class="col-xs-2">
+                                <div class="col-xs-1">
                                     {!! Form::text( 'amount', 0, [ 'class' => 'form-control calc-totals amount text-right', 'required' ] ) !!}
                                 </div>
                                 <div class="col-xs-1 text-right hidden-print">
