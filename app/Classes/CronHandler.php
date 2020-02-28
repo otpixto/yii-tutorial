@@ -6,6 +6,8 @@ namespace App\Classes;
 use App\Models\Ticket;
 use App\Models\Type;
 use App\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class CronHandler
 {
@@ -52,6 +54,26 @@ class CronHandler
 
                 $user->save();
             }
+
+            Cache::remember( 'types_list_for_ticket_edit' . $user->id, 60 * 60 * 24 * 7, function ()
+            {
+                $res = Type
+                    ::mine()
+                    ->where( function ( $q )
+                    {
+                        return $q
+                            ->whereNotNull( 'parent_id' );
+                    } )
+                    ->orderBy( 'name' )
+                    ->get();
+                $types = [];
+                foreach ( $res as $r )
+                {
+                    $types[ $r->parent->name ?? 'Текущий' ][ $r->id ] = $r->name;
+                }
+
+                return ( new Type() )->sortByUsersFavoriteTypes( $types );
+            } );
         }
     }
 
