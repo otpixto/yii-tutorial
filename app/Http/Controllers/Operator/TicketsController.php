@@ -1476,7 +1476,7 @@ class TicketsController extends BaseController
                             $types[ $r->parent->name ?? 'Текущий' ][ $r->id ] = $r->name;
                         }
 
-                        return $types;
+                        return ( new Type() )->sortByUsersFavoriteTypes( $types );
                     } );
 
                     return view( 'tickets.edit.type' )
