@@ -1381,7 +1381,7 @@ class TicketsController extends BaseController
                 );
 
             $logs = $logs->union( $ticketLogs )
-                ->orderBy( 'id' )
+                ->orderByDesc( 'id' )
                 ->get();
 
             $statuses = $ticketManagement

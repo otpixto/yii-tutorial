@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Log;
+use App\Models\Type;
 use Illuminate\Support\MessageBag;
 
 trait LogsTrait
@@ -18,17 +19,16 @@ trait LogsTrait
     {
         if ( isset( $this->id ) )
         {
-            $log = Log::create([
-                'model_id'      => $this->id,
-                'model_name'    => static::class,
-                'text'          => $text,
-            ]);
-        }
-        else
+            $log = Log::create( [
+                'model_id' => $this->id,
+                'model_name' => static::class,
+                'text' => $text,
+            ] );
+        } else
         {
-            $log = Log::create([
-                'text'          => $text,
-            ]);
+            $log = Log::create( [
+                'text' => $text,
+            ] );
         }
         if ( $log instanceof MessageBag )
         {
@@ -40,6 +40,15 @@ trait LogsTrait
 
     public function saveLog ( $field, $oldValue, $newValue )
     {
+        if ( $field == 'type_id' )
+        {
+            $oldValue = Type::where( 'id', $oldValue )
+                ->first()->name;
+
+            $newValue = Type::where( 'id', $newValue )
+                ->first()->name;
+        }
+
         $log = $this->addLog( '"' . $field . '" изменено с "' . $oldValue . '" на "' . $newValue . '"' );
         if ( $log instanceof MessageBag )
         {
