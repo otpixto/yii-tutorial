@@ -79,7 +79,7 @@
                     </span>
                     </td>
                     <td>
-                        {{ $log->text }}
+                        {{ strtr($log->text, \App\Models\Ticket::$fields_names) }}
                     </td>
                 </tr>
             @endforeach

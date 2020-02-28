@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
@@ -1371,17 +1372,17 @@ class TicketsController extends BaseController
                 ->logs()
                 ->with(
                     'author'
-                )
-                ->get();
+                );
 
             $ticketLogs = $ticket
                 ->logs()
                 ->with(
                     'author'
-                )
-                ->get();
+                );
 
-            $logs = $logs->merge($ticketLogs);
+            $logs = $logs->union( $ticketLogs )
+                ->orderBy( 'id' )
+                ->get();
 
             $statuses = $ticketManagement
                 ->statusesHistory()
@@ -1457,21 +1458,27 @@ class TicketsController extends BaseController
                 if ( \Auth::user()
                     ->can( 'tickets.edit' ) )
                 {
-                    $res = Type
-                        ::mine()
-                        ->where( function ( $q ) use ( $ticket )
-                        {
-                            return $q
-                                ->whereNotNull( 'parent_id' )
-                                ->orWhere( 'id', '=', $ticket->type_id );
-                        } )
-                        ->orderBy( 'name' )
-                        ->get();
-                    $types = [];
-                    foreach ( $res as $r )
+                    $types = Cache::remember( 'types_list_for_ticket_edit' . Auth::user()->id, 60 * 60 * 24 * 7, function () use ( $ticket )
                     {
-                        $types[ $r->parent->name ?? 'Текущий' ][ $r->id ] = $r->name;
-                    }
+                        $res = Type
+                            ::mine()
+                            ->where( function ( $q ) use ( $ticket )
+                            {
+                                return $q
+                                    ->whereNotNull( 'parent_id' )
+                                    ->orWhere( 'id', '=', $ticket->type_id );
+                            } )
+                            ->orderBy( 'name' )
+                            ->get();
+                        $types = [];
+                        foreach ( $res as $r )
+                        {
+                            $types[ $r->parent->name ?? 'Текущий' ][ $r->id ] = $r->name;
+                        }
+
+                        return $types;
+                    } );
+
                     return view( 'tickets.edit.type' )
                         ->with( 'ticket', $ticket )
                         ->with( 'types', $types )

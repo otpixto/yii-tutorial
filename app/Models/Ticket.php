@@ -148,6 +148,21 @@ class Ticket extends BaseModel
         ],
     ];
 
+    public static $fields_names = [
+        'type_id' => 'Классификатор',
+        'text' => 'Текст заявки',
+        'flat' => 'Кв. \ офис',
+        'place_id' => 'Проблемное место',
+        'building_id' => 'Адрес проблемы',
+        'lastname' => 'Фамилия',
+        'firstname' => 'Имя',
+        'middlename' => 'Отчество',
+        'actual_building_id' => 'Адрес проживания',
+        'actual_flat' => 'Кв. \ офис',
+        'phone' => 'Телефон',
+        'urgently' => 'Срочно',
+    ];
+
     public static $not_notify = [
         'draft',
         'created',
@@ -1479,7 +1494,7 @@ class Ticket extends BaseModel
     public function checkIfFromGZHI () : bool
     {
         $typeName = $this->type->name ?? '';
-        return (strpos( $typeName, '99.' ) !== false) && ($this->author_id == 149800);
+        return ( strpos( $typeName, '99.' ) !== false ) && ( $this->author_id == 149800 );
     }
 
 }
