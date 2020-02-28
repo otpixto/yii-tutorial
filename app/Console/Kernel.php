@@ -83,8 +83,7 @@ class Kernel extends ConsoleKernel
         {
             ( new CronHandler() )->handleFavoriteTypes();
         } )
-            ->dailyAt( '16:54' );
-            //->weeklyOn( 2, '4:10' );
+            ->weeklyOn( 2, '4:10' );
 
     }
 
