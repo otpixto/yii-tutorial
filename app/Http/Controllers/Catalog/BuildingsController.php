@@ -749,21 +749,27 @@ class BuildingsController extends BaseController
 
         $id = $request->get( 'management_id', null );
 
-        $management = Management::find( $id );
-
-        if ( ! $management )
+        if ( $id )
         {
-            return redirect()
-                ->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
+            $management = Management::find( $id );
+
+            if ( ! $management )
+            {
+                return redirect()
+                    ->route( 'managements.index' )
+                    ->withErrors( [ 'УО не найдена' ] );
+            }
+
+            $managementBuildings = $management->buildings()
+                ->orderBy( Building::$_table . '.name' );
+
+            $managementBuildingsListString = $managementBuildings->get()
+                ->pluck( 'id' )
+                ->implode( ',' );
+        } else
+        {
+            $managementBuildingsListString = $request->get( 'ids', null );
         }
-
-        $managementBuildings = $management->buildings()
-            ->orderBy( Building::$_table . '.name' );
-
-        $managementBuildingsListString = $managementBuildings->get()
-            ->pluck( 'id' )
-            ->implode( ',' );
 
         $availableManagements = Management
             ::mine()
@@ -788,16 +794,21 @@ class BuildingsController extends BaseController
     public function massManagementsAdd ( Request $request )
     {
 
+        $route = 'buildings.index';
         try
         {
+            $managementID = $request->get( 'management_id', null );
+
+            if ( $managementID )
+            {
+                $route = 'managements.buildings';
+            }
 
             $buildingsJSON = (string) $request->get( 'buildings', '' );
 
             $buildings = explode( ',', $buildingsJSON );
 
             $managements = $request->get( 'managements', [] );
-
-            $managementID = $request->get( 'management_id', null );
 
             if ( is_array( $managements ) && count( $buildings ) )
             {
@@ -828,12 +839,12 @@ class BuildingsController extends BaseController
         catch ( \Exception $exception )
         {
             return redirect()
-                ->route( 'managements.buildings', [ 'management_id' => $managementID ] )
+                ->route( $route, [ 'management_id' => $managementID ] )
                 ->with( 'error', 'Ошибка привязки адресов к выбранным УО' );
         }
 
         return redirect()
-            ->route( 'managements.buildings', [ 'management_id' => $managementID ] )
+            ->route( $route, [ 'management_id' => $managementID ] )
             ->with( 'success', 'Адреса успешно привязаны к выбранным УО' );
     }
 

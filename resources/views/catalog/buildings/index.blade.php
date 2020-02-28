@@ -140,7 +140,7 @@
                                 <div class="col-md-6">
                                     {{ $buildings->render() }}
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="row">
                                         <div class="col-md-2 center-align">
                                             {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
@@ -154,6 +154,23 @@
                                                     отмена
                                                 </a>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 center-align">
+                                    <div class="form-group">
+                                        {!! Form::open( [ 'url' => route('buildings.managements.massManagementsEdit', [ 'management_id' => null ]), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox-bind', 'class' => 'hidden' ] ) !!}
+                                        {!! Form::hidden( 'ids', null, [ 'id' => 'ids-bind' ] ) !!}
+                                        <button type="submit" class="btn btn-info btn-lg">
+                                            Привязать ВСЕ к другой организации
+                                        </button>
+                                        {!! Form::close(); !!}
+                                        <div class="center-block center-align" style="margin-left: 150px;">
+                                            <a href="javascript:;" class="text-default hidden"
+                                               id="cancel-checkbox-bind">
+                                                отмена
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -174,6 +191,10 @@
         function checkTicketCheckbox() {
             $('#form-checkbox').removeClass('hidden');
             $('#cancel-checkbox').removeClass('hidden');
+
+            $('#form-checkbox-bind').removeClass('hidden');
+            $('#cancel-checkbox-bind').removeClass('hidden');
+
             var ids = [];
             let i = 0;
             $('.ticket-checkbox:checked').each(function () {
@@ -184,13 +205,18 @@
             if (ids.length) {
                 $('#controls').fadeIn(300);
                 $('#ids').val(ids.join(','));
+                $('#ids-bind').val(ids.join(','));
             } else {
                 $('#controls').fadeOut(300);
                 $('#ids').val('');
+                $('#ids-bind').val('');
             }
             if (i == 0) {
                 $('#form-checkbox').addClass('hidden');
                 $('#cancel-checkbox').addClass('hidden');
+
+                $('#form-checkbox-bind').addClass('hidden');
+                $('#cancel-checkbox-bind').addClass('hidden');
             }
         };
 
@@ -201,12 +227,12 @@
 
         $(document)
 
-            .on('click', '#cancel-checkbox', function (e) {
+            .on('click', '#cancel-checkbox, #cancel-checkbox-bind', function (e) {
                 e.preventDefault();
                 cancelCheckbox();
             })
 
-            .on('submit', '#form-checkbox', function (event) {
+            .on('submit', '#form-checkbox, #form-checkbox-bind', function (event) {
                 setTimeout(cancelCheckbox, 500);
             })
 
