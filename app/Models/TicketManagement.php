@@ -6,6 +6,7 @@ use App\Classes\SegmentChilds;
 use App\Jobs\SendPush;
 use App\Jobs\SendStream;
 use App\Jobs\SendTelegramMessage;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -411,7 +412,7 @@ class TicketManagement extends BaseModel
                             $ticket
                                 ->whereIn( Ticket::$_table . '.type_id', $gzhiTypesArray );
                             $ticket
-                                ->where( Ticket::$_table . '.author_id', 149800 );
+                                ->where( Ticket::$_table . '.author_id', User::MOSREG_OPERATOR_ID );
                         }
 
                         if ( ! empty( $request->get( 'overdue_acceptance' ) ) )

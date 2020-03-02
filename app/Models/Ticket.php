@@ -479,6 +479,7 @@ class Ticket extends BaseModel
                 {
                     $q
                         ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                        ->orWhere( self::$_table . '.author_id', '=', User::MOSREG_OPERATOR_ID )
                         ->orWhere( function ( $q2 ) use ( $filter_statuses, $filter_managements )
                         {
                             if ( $filter_statuses )

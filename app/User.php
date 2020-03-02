@@ -36,6 +36,8 @@ class User extends BaseModel implements
 
     public static $name = 'Пользователь';
 
+    const MOSREG_OPERATOR_ID = 149800;
+
     protected $dates = [
         'created_at',
         'updated_at',

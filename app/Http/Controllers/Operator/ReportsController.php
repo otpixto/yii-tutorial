@@ -238,8 +238,8 @@ class ReportsController extends BaseController
         $reports = Report
             ::mineProvider()
             ->where( 'user_id', '=', \Auth::user()->id )
-            ->orderBy( 'date_from' )
-            ->orderBy( 'date_to' )
+            ->orderByDesc( 'date_from' )
+            ->orderByDesc( 'date_to' )
             ->get();
 
         $statuses = [
