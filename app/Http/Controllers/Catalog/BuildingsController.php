@@ -517,7 +517,7 @@ class BuildingsController extends BaseController
 
             for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
             {
-                for ( $floor = $building->first_floor_index; $floor <= $building->floor_count; $floor ++ )
+                for ( $floor = $building->first_floor_index ?? 1; $floor <= $building->floor_count; $floor ++ )
                 {
                     if ( $floor == $building->first_floor_index && ! $building->is_first_floor_living ) continue;
                     for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
