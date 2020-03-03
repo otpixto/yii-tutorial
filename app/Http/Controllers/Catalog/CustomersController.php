@@ -64,6 +64,17 @@ class CustomersController extends BaseController
                     ->where( Customer::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
             }
 
+
+            if ( ! empty( $request->get( 'segment_id' ) ) )
+            {
+                $segmentID = $request->get( 'segment_id' );
+                $customers
+                    ->whereHas( 'actualBuilding', function ( $q ) use ( $segmentID )
+                    {
+                        return $q->where('segment_id', $segmentID);
+                    });
+            }
+
             if ( ! empty( $request->get( 'actual_flat' ) ) )
             {
                 $customers
@@ -107,6 +118,8 @@ class CustomersController extends BaseController
                         return $tags;
                     });
             }
+
+            //dd($customers->getQuery()->toSql());
 
             $customers = $customers
                 ->with(

@@ -21,8 +21,8 @@
     <h4 class="col-md-2">
         Сегмент
     </h4>
-    <div class="col-md-10">
-        {!! Form::text( 'segment_id', 'Нажмите, чтобы выбрать', [ 'class' => 'form-control', 'id' => 'segment_id' ] ) !!}
+    <div class="col-xs-10">
+        {!! Form::select( 'segment_id', $segment, \Input::get( 'segment_id' ), [ 'id' => 'segment_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'segments.search' ), 'data-placeholder' => 'Сегмент' ] ) !!}
     </div>
 </div>
 <div class="row">
