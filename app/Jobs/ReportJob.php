@@ -58,7 +58,7 @@ class ReportJob implements ShouldQueue
             $date_from = $this->report->date_from;
             $date_to = $this->report->date_to;
 			
-			Log::info( 'Период', [ $date_from, $date_to ] );
+//			Log::info( 'Период', [ $date_from, $date_to ] );
 
             $diff_hours = $date_from->diffInHours( $date_to );
             $date_prev_from = ( clone $date_from )->subHours( $diff_hours );
@@ -97,8 +97,6 @@ class ReportJob implements ShouldQueue
                         } );
                 } )
                 ->get();
-
-            Log::info(json_encode($ticketManagements->toArray()));
 				
 			$ticketManagementStatuses = StatusHistory
                 ::where( 'model_name', '=', TicketManagement::class )
