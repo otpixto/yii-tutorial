@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Asterisk\Cdr;
 use App\Models\Report;
+use App\Models\Ticket;
 use App\Models\TicketManagement;
 use App\Models\StatusHistory;
 use App\Models\Work;
@@ -57,7 +58,7 @@ class ReportJob implements ShouldQueue
             $date_from = $this->report->date_from;
             $date_to = $this->report->date_to;
 			
-			//Log::info( 'Период', [ $date_from, $date_to ] );
+			Log::info( 'Период', [ $date_from, $date_to ] );
 
             $diff_hours = $date_from->diffInHours( $date_to );
             $date_prev_from = ( clone $date_from )->subHours( $diff_hours );
@@ -66,7 +67,38 @@ class ReportJob implements ShouldQueue
                 ::mine()
                 ->whereBetween( 'created_at', [ $date_prev_from, $date_to ] )
                 ->whereNotIn( 'status_code', [ 'draft', 'moderate', 'created', 'no_contract', 'rejected_operator' ] )
+                ->whereHas( 'ticket', function ( $q )
+                {
+                    $q
+                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                        ->orWhere( function ( $q2 )
+                        {
+
+                                $q2
+                                    ->whereIn( Ticket::$_table . '.status_code', \Auth::user()
+                                        ->getAvailableStatuses( 'show' ) );
+
+                                $q2
+                                    ->whereHas( 'managements', function ( $managements )
+                                    {
+
+                                            $managements
+                                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )
+                                                    ->toArray() );
+
+                                            $managements
+                                                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()
+                                                    ->getAvailableStatuses( 'show' ) );
+
+                                        return $managements;
+                                    } );
+
+                            return $q2;
+                        } );
+                } )
                 ->get();
+
+            Log::info(json_encode($ticketManagements->toArray()));
 				
 			$ticketManagementStatuses = StatusHistory
                 ::where( 'model_name', '=', TicketManagement::class )
