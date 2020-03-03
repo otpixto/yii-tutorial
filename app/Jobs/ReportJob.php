@@ -70,7 +70,7 @@ class ReportJob implements ShouldQueue
                 ->whereHas( 'ticket', function ( $q )
                 {
                     $q
-                        ->where( self::$_table . '.author_id', '=', \Auth::user()->id )
+                        ->where( Ticket::$_table . '.author_id', '=', \Auth::user()->id )
                         ->orWhere( function ( $q2 )
                         {
 
