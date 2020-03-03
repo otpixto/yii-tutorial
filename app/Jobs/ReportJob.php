@@ -67,35 +67,6 @@ class ReportJob implements ShouldQueue
                 ::mine()
                 ->whereBetween( 'created_at', [ $date_prev_from, $date_to ] )
                 ->whereNotIn( 'status_code', [ 'draft', 'moderate', 'created', 'no_contract', 'rejected_operator' ] )
-//                ->whereHas( 'ticket', function ( $q )
-//                {
-//                    $q
-//                        ->where( Ticket::$_table . '.author_id', '=', \Auth::user()->id )
-//                        ->orWhere( function ( $q2 )
-//                        {
-//
-//                                $q2
-//                                    ->whereIn( Ticket::$_table . '.status_code', \Auth::user()
-//                                        ->getAvailableStatuses( 'show' ) );
-//
-//                                $q2
-//                                    ->whereHas( 'managements', function ( $managements )
-//                                    {
-//
-//                                            $managements
-//                                                ->whereIn( TicketManagement::$_table . '.management_id', \Auth::user()->managements->pluck( 'id' )
-//                                                    ->toArray() );
-//
-//                                            $managements
-//                                                ->whereIn( TicketManagement::$_table . '.status_code', \Auth::user()
-//                                                    ->getAvailableStatuses( 'show' ) );
-//
-//                                        return $managements;
-//                                    } );
-//
-//                            return $q2;
-//                        } );
-//                } )
                 ->get();
 
             Log::info(json_encode($ticketManagements->toArray()));
