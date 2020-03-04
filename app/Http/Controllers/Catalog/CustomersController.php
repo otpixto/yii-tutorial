@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
@@ -103,6 +104,8 @@ class CustomersController extends BaseController
                         'Доп. Телефон' => $addressCustomer->phone2,
                         'E-mail' => $addressCustomer->email,
                         'Доступ в ЛК (есть / нет)' => ( isset( $addressCustomer->user ) && $addressCustomer->user->isActive() ) ? 'Есть' : 'Нет',
+                        'Номер заявления' => (isset($addressCustomer->tickets[0])) ? $addressCustomer->tickets[0]->vendor_number : '',
+                        'Дата заявления' => Carbon::parse($addressCustomer->created_at)->format('d.m.Y H:i'),
                         'Теги' => '',
                     ];
                     $i ++;
