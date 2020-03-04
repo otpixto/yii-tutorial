@@ -11,6 +11,7 @@ use App\Models\Provider;
 use App\Models\Segment;
 use function GuzzleHttp\Psr7\str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 
 class BuildingsController extends BaseController
@@ -508,60 +509,69 @@ class BuildingsController extends BaseController
                 ->withErrors( [ 'Здание не найдено' ] );
         }
 
-        if ( $building->room_total_count > 0 && $building->porches_count > 0 && $building->floor_count > 0 )
+        try
         {
 
-            $rooms_by_floor = ceil( abs( $building->room_total_count / ( $building->is_first_floor_living ? $building->floor_count : $building->floor_count - 1 ) / $building->porches_count ) );
-            $room_number = 0;
-
-            $buildingRooms = $building->rooms;
-
-            for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
+            if ( $building->room_total_count > 0 && $building->porches_count > 0 && $building->floor_count > 0 )
             {
-                for ( $floor = $building->first_floor_index ?? 1; $floor <= $building->floor_count; $floor ++ )
+
+                $rooms_by_floor = ceil( abs( $building->room_total_count / ( $building->is_first_floor_living ? $building->floor_count : $building->floor_count - 1 ) / $building->porches_count ) );
+                $room_number = 0;
+
+                $buildingRooms = $building->rooms;
+
+                for ( $porch = 1; $porch <= $building->porches_count; $porch ++ )
                 {
-                    if ( $floor == $building->first_floor_index && ! $building->is_first_floor_living ) continue;
-                    for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
+                    for ( $floor = $building->first_floor_index ?? 1; $floor <= $building->floor_count; $floor ++ )
                     {
-                        ++ $room_number;
-                        $buildingRoom = $buildingRooms->where( 'number', $room_number )
-                            ->first();
-                        if ( ! $buildingRoom )
+                        if ( $floor == $building->first_floor_index && ! $building->is_first_floor_living ) continue;
+                        for ( $i = 1; $i <= $rooms_by_floor; $i ++ )
                         {
-                            $buildingRoom = BuildingRoom
-                                ::create( [
-                                    'building_id' => $building->id,
+                            ++ $room_number;
+                            $buildingRoom = $buildingRooms->where( 'number', $room_number )
+                                ->first();
+                            if ( ! $buildingRoom )
+                            {
+                                $buildingRoom = BuildingRoom
+                                    ::create( [
+                                        'building_id' => $building->id,
+                                        'floor' => $floor,
+                                        'porch' => $porch,
+                                        'number' => $room_number,
+                                        'living_area' => 0,
+                                        'total_area' => 0,
+                                    ] );
+                                $buildingRoom->save();
+                            } else
+                            {
+                                $buildingRoom->edit( [
                                     'floor' => $floor,
                                     'porch' => $porch,
                                     'number' => $room_number,
-                                    'living_area' => 0,
-                                    'total_area' => 0,
                                 ] );
-                            $buildingRoom->save();
-                        } else
-                        {
-                            $buildingRoom->edit( [
-                                'floor' => $floor,
-                                'porch' => $porch,
-                                'number' => $room_number,
-                            ] );
-                        }
-                        if ( $room_number >= $building->room_total_count )
-                        {
-                            break 3;
+                            }
+                            if ( $room_number >= $building->room_total_count )
+                            {
+                                break 3;
+                            }
                         }
                     }
                 }
+
+                $building
+                    ->rooms()
+                    ->where( 'number', '>', $room_number )
+                    ->orWhere( 'floor', '<', $building->first_floor_index )
+                    ->orWhere( 'floor', '>', $building->floor_count )
+                    ->orWhere( 'porch', '>', $building->porches_count )
+                    ->delete();
+
             }
-
-            $building
-                ->rooms()
-                ->where( 'number', '>', $room_number )
-                ->orWhere( 'floor', '<', $building->first_floor_index )
-                ->orWhere( 'floor', '>', $building->floor_count )
-                ->orWhere( 'porch', '>', $building->porches_count )
-                ->delete();
-
+        }
+        catch ( \Exception $exception )
+        {
+            dd( $exception );
+            Log::error( $exception->getTraceAsString() );
         }
 
         return redirect()
