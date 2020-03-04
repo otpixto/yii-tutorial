@@ -498,6 +498,7 @@ class BuildingsController extends BaseController
     public function storeRooms ( Request $request, $id )
     {
 
+        $id = (int) $id;
         $building = Building::find( $id );
 
         if ( ! $building )
