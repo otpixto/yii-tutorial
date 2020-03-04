@@ -12,6 +12,10 @@
             {!! Form::text( 'ticket_management_id', \Input::get( 'ticket_management_id' ), [ 'class' => 'form-control', 'placeholder' => '' ] ) !!}
         </div>
     </div>
+    <div class="col-md-6">
+        {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
+        {!! Form::button( 'Сбросить фильтр', [ 'class' => 'btn btn-danger btn-lg', 'id' => 'filter-clear' ] ) !!}
+    </div>
 </div>
 <div class="row margin-top-10">
     <h4 class="col-md-2">
