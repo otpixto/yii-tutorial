@@ -560,10 +560,10 @@ class BuildingsController extends BaseController
 
                 $building
                     ->rooms()
-                    ->where( 'number', '>', $room_number )
-                    ->orWhere( 'floor', '<', $building->first_floor_index )
-                    ->orWhere( 'floor', '>', $building->floor_count )
-                    ->orWhere( 'porch', '>', $building->porches_count )
+                    ->where( 'number', '>', $room_number ?? 1 )
+                    ->orWhere( 'floor', '<', $building->first_floor_index ?? 1 )
+                    ->orWhere( 'floor', '>', $building->floor_count ?? 1 )
+                    ->orWhere( 'porch', '>', $building->porches_count ?? 1 )
                     ->delete();
 
             }
