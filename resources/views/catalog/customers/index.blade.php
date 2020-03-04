@@ -67,100 +67,90 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
 @endsection
 
 @section( 'js' )
 
     <script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/jquery-inputmask/jquery.inputmask.bundle.min.js"
+            type="text/javascript"></script>
     <script type="text/javascript">
 
-        function loadCustomers ( url )
-        {
-            $( '#customers' ).loading();
+        function loadCustomers(url) {
+            $('#customers').loading();
             $.ajax({
                 url: url || window.location.href,
                 method: 'get',
                 cache: false,
-                success: function ( response )
-                {
-                    $( '#customers' ).html( response );
+                success: function (response) {
+                    $('#customers').html(response);
                 }
             });
         };
 
-        $( document )
+        $(document)
 
-            .ready( function ()
-            {
+            .ready(function () {
 
                 loadCustomers();
 
             })
 
-            .on( 'submit', '#search-form', function ( e )
-            {
+            .on('submit', '#search-form', function (e) {
                 e.preventDefault();
-                $( '#customers' ).loading();
-                var button = $( this ).find( ':submit' );
-                button.attr( 'disabled', 'disabled' ).addClass( 'loading' );
+                $('#customers').loading();
+                var button = $(this).find(':submit');
+                button.attr('disabled', 'disabled').addClass('loading');
+                var data = $(this).serialize();
                 $.ajax({
-                    url: $( this ).attr( 'action' ),
-                    method: $( this ).attr( 'method' ),
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
                     cache: false,
-                    data: $( this ).serialize(),
-                    success: function ( response )
-                    {
-                        $( '#customers' ).html( response );
-                        button.removeAttr( 'disabled' ).removeClass( 'loading' );
+                    data: data,
+                    success: function (response) {
+                        $('#customers').html(response);
+                        $('#al-excel-download').attr('href', $('#al-excel-download').attr('href') + '?' + data);
+                        button.removeAttr('disabled').removeClass('loading');
                     }
                 });
             })
 
-            .on( 'click', '.pagination a', function ( e )
-            {
+            .on('click', '.pagination a', function (e) {
                 e.preventDefault();
-                var url = $( this ).attr( 'href' );
-                loadCustomers( url );
-                window.history.pushState( '', '', url );
+                var url = $(this).attr('href');
+                loadCustomers(url);
+                window.history.pushState('', '', url);
             })
 
-            .on( 'click', '[data-load="search"]', function ( e )
-            {
+            .on('click', '[data-load="search"]', function (e) {
                 e.preventDefault();
-                if ( $( '#search' ).text().trim() == '' )
-                {
-                    $( '#search' ).loading();
-                    $.get( '{{ route( 'customers.search.form' ) }}', window.location.search, function ( response )
-                    {
-                        $( '#search' ).html( response );
-                        $( '.select2' ).select2();
-                        $( '.select2-ajax' ).select2({
+                if ($('#search').text().trim() == '') {
+                    $('#search').loading();
+                    $.get('{{ route( 'customers.search.form' ) }}', window.location.search, function (response) {
+                        $('#search').html(response);
+                        $('.select2').select2();
+                        $('.select2-ajax').select2({
                             minimumInputLength: 3,
                             minimumResultsForSearch: 30,
                             ajax: {
                                 cache: true,
                                 type: 'post',
                                 delay: 450,
-                                data: function ( term )
-                                {
+                                data: function (term) {
                                     var data = {
                                         q: term.term,
-                                        provider_id: $( '#provider_id' ).val()
+                                        provider_id: $('#provider_id').val()
                                     };
-                                    var _data = $( this ).closest( 'form' ).serializeArray();
-                                    for( var i = 0; i < _data.length; i ++ )
-                                    {
-                                        if ( _data[ i ].name != '_method' )
-                                        {
-                                            data[ _data[ i ].name ] = _data[ i ].value;
+                                    var _data = $(this).closest('form').serializeArray();
+                                    for (var i = 0; i < _data.length; i++) {
+                                        if (_data[i].name != '_method') {
+                                            data[_data[i].name] = _data[i].value;
                                         }
                                     }
                                     return data;
                                 },
-                                processResults: function ( data, page )
-                                {
+                                processResults: function (data, page) {
                                     return {
                                         results: data
                                     };
@@ -168,29 +158,26 @@
                             }
                         });
 
-                        $( '.customer-autocomplete' ).autocomplete({
-                            source: function ( request, response )
-                            {
+                        $('.customer-autocomplete').autocomplete({
+                            source: function (request, response) {
                                 var r = {};
                                 r.param = this.element[0].name;
                                 r.value = request.term;
-                                $.post( '{{ route( 'customers.search' ) }}', r, function ( data )
-                                {
-                                    response( data );
+                                $.post('{{ route( 'customers.search' ) }}', r, function (data) {
+                                    response(data);
                                 });
                             },
                             minLength: 2,
-                            select: function ( event, ui )
-                            {
-                                $( this ).trigger( 'change' );
+                            select: function (event, ui) {
+                                $(this).trigger('change');
                             }
                         });
 
-                        $( '.mask_phone' ).inputmask( 'mask', {
+                        $('.mask_phone').inputmask('mask', {
                             'mask': '+7 (999) 999-99-99'
                         });
 
-                        $( '#segment_id' ).selectSegments();
+                        $('#segment_id').selectSegments();
 
                     });
                 }

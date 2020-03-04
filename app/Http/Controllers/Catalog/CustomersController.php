@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Customer;
+use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
 use Illuminate\Http\Request;
@@ -25,101 +26,7 @@ class CustomersController extends BaseController
         if ( $request->ajax() )
         {
 
-            $customers = Customer
-                ::mine()
-                ->orderBy( Customer::$_table . '.lastname' )
-                ->orderBy( Customer::$_table . '.firstname' )
-                ->orderBy( Customer::$_table . '.middlename' );
-
-            if ( ! empty( $request->get( 'lastname' ) ) )
-            {
-                $s = '%' . str_replace( ' ', '%', $request->get( 'lastname' ) ) . '%';
-                $customers
-                    ->where( Customer::$_table . '.lastname', 'like', $s );
-            }
-
-            if ( ! empty( $request->get( 'firstname' ) ) )
-            {
-                $s = '%' . str_replace( ' ', '%', $request->get( 'firstname' ) ) . '%';
-                $customers
-                    ->where( Customer::$_table . '.firstname', 'like', $s );
-            }
-
-            if ( ! empty( $request->get( 'middlename' ) ) )
-            {
-                $s = '%' . str_replace( ' ', '%', $request->get( 'middlename' ) ) . '%';
-                $customers
-                    ->where( Customer::$_table . '.middlename', 'like', $s );
-            }
-
-            if ( ! empty( $request->get( 'provider_id' ) ) )
-            {
-                $customers
-                    ->where( Customer::$_table . '.provider_id', '=', $request->get( 'provider_id' ) );
-            }
-
-            if ( ! empty( $request->get( 'actual_building_id' ) ) )
-            {
-                $customers
-                    ->where( Customer::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
-            }
-
-
-            if ( ! empty( $request->get( 'segment_id' ) ) )
-            {
-                $segmentID = $request->get( 'segment_id' );
-                $customers
-                    ->whereHas( 'actualBuilding', function ( $q ) use ( $segmentID )
-                    {
-                        return $q->where('segment_id', $segmentID);
-                    });
-            }
-
-            if ( ! empty( $request->get( 'actual_flat' ) ) )
-            {
-                $customers
-                    ->where( Customer::$_table . '.actual_flat', '=', $request->get( 'actual_flat' ) );
-            }
-
-            if ( ! empty( $request->get( 'phone' ) ) )
-            {
-                $p = str_replace( '+7', '', $request->get( 'phone' ) );
-                $p = preg_replace( '/[^0-9_]/', '', $p );
-                $p = '%' . mb_substr( $p, - 10 ) . '%';
-                $customers
-                    ->where( function ( $q ) use ( $p )
-                    {
-                        return $q
-                            ->where( Customer::$_table . '.phone', 'like', $p )
-                            ->orWhere( Customer::$_table . '.phone2', 'like', $p );
-                    });
-            }
-
-            if ( ! empty( $request->get( 'tags' ) ) )
-            {
-                $_tags = explode( ',', $request->get( 'tags' ) );
-                $customers
-                    ->whereHas( 'tags', function ( $tags ) use ( $_tags )
-                    {
-                        $i = 0;
-                        foreach ( $_tags as $tag )
-                        {
-                            $tag = trim( $tag );
-                            if ( empty( $tag ) ) continue;
-                            if ( $i ++ == 0 )
-                            {
-                                $tags->where( 'text', '=', $tag );
-                            }
-                            else
-                            {
-                                $tags->orWhere( 'text', '=', $tag );
-                            }
-                        }
-                        return $tags;
-                    });
-            }
-
-            //dd($customers->getQuery()->toSql());
+            $customers = Customer::search( $request );
 
             $customers = $customers
                 ->with(
@@ -139,34 +46,88 @@ class CustomersController extends BaseController
         return view( 'catalog.customers.index' )
             ->with( 'request', $request );
 
-        /*if ( \Input::get( 'export' ) == 1 )
+
+    }
+
+    public function export ( Request $request )
+    {
+
+        $customers = Customer::search( $request );
+
+        $addressCustomers = [];
+
+        $addressCustomers[ 'г. Жуковский' ] = clone $customers;
+
+        $addressCustomers[ 'г. Жуковский' ] = $addressCustomers[ 'г. Жуковский' ]
+            ->whereHas( 'actualBuilding', function ( $q )
+            {
+                return $q->where( Building::$_table . '.name', 'like', '%г. Жуковский%' );
+            } )
+            ->get();
+
+        $addressCustomers[ 'г. Раменское' ] = clone $customers;
+
+        $addressCustomers[ 'г. Раменское' ] = $addressCustomers[ 'г. Раменское' ]
+            ->whereHas( 'actualBuilding', function ( $q )
+            {
+                return $q->where( Building::$_table . '.name', 'like', '%г. Раменское%' );
+            } )
+            ->get();
+
+        $addressCustomers[ 'Раменский' ] = clone $customers;
+
+        $addressCustomers[ 'Раменский' ] = $addressCustomers[ 'Раменский' ]
+            ->whereHas( 'actualBuilding', function ( $q )
+            {
+                return $q
+                    ->where( Building::$_table . '.name', 'like', '%Раменский%' )
+                    ->where( Building::$_table . '.name', 'not like', '%г. Раменское%' );
+            } )
+            ->get();
+
+        $export = \Excel::create( 'Заявители', function ( $excel ) use ( $addressCustomers )
         {
-            $customers = $customers->get();
-            $data = [];
-            foreach ( $customers as $customer )
+            foreach ( $addressCustomers as $addressName => $addressCustomerCollection )
             {
-                $data[] = [
-                    'ФИО'                   => $customer->getName(),
-                    'Телефон(ы)'            => $customer->getPhones(),
-                    'Адрес проживания'      => $customer->getAddress(),
-                    'E-mail'                => $customer->email,
-                ];
-            }
-            \Excel::create( 'ЗАЯВИТЕЛИ', function ( $excel ) use ( $data )
-            {
-                $excel->sheet( 'ЗАЯВИТЕЛИ', function ( $sheet ) use ( $data )
+                $data = [];
+                $i = 0;
+                foreach ( $addressCustomerCollection as $addressCustomer )
+                {
+                    $data[ $i ] = [
+                        'Адрес проживания' => $addressCustomer->actualBuilding->name,
+                        'Квартира' => $addressCustomer->actual_flat,
+                        'Фамилия' => $addressCustomer->lastname,
+                        'Имя' => $addressCustomer->firstname,
+                        'Отчество' => $addressCustomer->middlename,
+                        'Телефон' => $addressCustomer->phone,
+                        'Доп. Телефон' => $addressCustomer->phone2,
+                        'E-mail' => $addressCustomer->email,
+                        'Доступ в ЛК (есть / нет)' => ( isset( $addressCustomer->user ) && $addressCustomer->user->isActive() ) ? 'Есть' : 'Нет',
+                        'Теги' => '',
+                    ];
+                    $i ++;
+                }
+
+                $excel->sheet( 'Заявители ' . $addressName, function ( $sheet ) use ( $data )
                 {
                     $sheet->fromArray( $data );
-                });
-            })->export( 'xls' );
-        }*/
+                } );
 
+            }
+        } );
+
+        $export->download( 'xls' );
+
+        $this->addLog( 'Выгрузил список зданий' );
+
+        die;
     }
 
     public function searchForm ( Request $request )
     {
 
-        if ( ! \Auth::user()->can( 'catalog.customers.search' ) )
+        if ( ! \Auth::user()
+            ->can( 'catalog.customers.search' ) )
         {
             return view( 'parts.error' )
                 ->with( 'error', 'Доступ запрещен' );
@@ -179,7 +140,8 @@ class CustomersController extends BaseController
 
         if ( ! empty( $request->get( 'actual_building_id' ) ) )
         {
-            $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )->pluck( 'name', 'id' );
+            $actual_building = Building::where( 'id', $request->get( 'actual_building_id' ) )
+                ->pluck( 'name', 'id' );
         }
 
         return view( 'catalog.customers.parts.search' )
@@ -202,21 +164,21 @@ class CustomersController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store ( Request $request )
     {
 
         $rules = [
-            'firstname'             => 'required|max:191',
-            'middlename'            => 'nullable|max:191',
-            'lastname'              => 'required|max:191',
-            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'actual_building_id'    => 'nullable|integer',
-            'actual_flat'           => 'nullable|string',
-            'email'                 => 'nullable|email',
+            'firstname' => 'required|max:191',
+            'middlename' => 'nullable|max:191',
+            'lastname' => 'required|max:191',
+            'phone' => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'actual_building_id' => 'nullable|integer',
+            'actual_flat' => 'nullable|string',
+            'email' => 'nullable|email',
         ];
 
         $this->validate( $request, $rules );
@@ -224,14 +186,16 @@ class CustomersController extends BaseController
         $customer = Customer::create( $request->all() );
         if ( $customer instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $customer );
         }
         $customer->save();
 
         self::clearCache();
 
-        return redirect()->route( 'customers.index' )
+        return redirect()
+            ->route( 'customers.index' )
             ->with( 'success', 'Заявитель успешно добавлен' );
 
     }
@@ -239,7 +203,7 @@ class CustomersController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show ( $id )
@@ -250,7 +214,7 @@ class CustomersController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit ( $id )
@@ -262,14 +226,15 @@ class CustomersController extends BaseController
 
         if ( ! $customer )
         {
-            return redirect()->route( 'customers.index' )
+            return redirect()
+                ->route( 'customers.index' )
                 ->withErrors( [ 'Заявитель не найден' ] );
         }
 
         $calls = $customer->calls( 30 );
         $tickets = $customer
             ->tickets()
-            ->orderByDesc('id')
+            ->orderByDesc( 'id' )
             ->whereHas( 'type' )
             ->paginate( 20 );
 
@@ -283,22 +248,22 @@ class CustomersController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update ( Request $request, $id )
     {
 
         $rules = [
-            'firstname'             => 'required|max:191',
-            'middlename'            => 'nullable|max:191',
-            'lastname'              => 'required|max:191',
-            'phone'                 => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'phone2'                => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
-            'actual_building_id'    => 'nullable|integer',
-            'actual_flat'           => 'nullable|string',
-            'email'                 => 'nullable|email',
+            'firstname' => 'required|max:191',
+            'middlename' => 'nullable|max:191',
+            'lastname' => 'required|max:191',
+            'phone' => 'required|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'phone2' => 'nullable|regex:/\+7 \(([0-9]{3})\) ([0-9]{3})\-([0-9]{2})\-([0-9]{2})/',
+            'actual_building_id' => 'nullable|integer',
+            'actual_flat' => 'nullable|string',
+            'email' => 'nullable|email',
         ];
 
         $this->validate( $request, $rules );
@@ -307,20 +272,23 @@ class CustomersController extends BaseController
 
         if ( ! $customer )
         {
-            return redirect()->route( 'customers.index' )
+            return redirect()
+                ->route( 'customers.index' )
                 ->withErrors( [ 'Заявитель не найден' ] );
         }
-		
-		$res = $customer->edit( $request->all() );
-		if ( $res instanceof MessageBag )
+
+        $res = $customer->edit( $request->all() );
+        if ( $res instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $res );
         }
 
         self::clearCache();
 
-        return redirect()->route( 'customers.edit', $customer->id )
+        return redirect()
+            ->route( 'customers.edit', $customer->id )
             ->with( 'success', 'Заявитель успешно отредактирован' );
 
     }
@@ -328,7 +296,7 @@ class CustomersController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy ( $id )
@@ -348,7 +316,7 @@ class CustomersController extends BaseController
             case 'phone':
             case 'phone2':
                 $value = str_replace( '+7', '', $value );
-                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
+                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), - 10 );
                 $union = Customer
                     ::mine()
                     ->select( 'phone2' . ' as label' )
@@ -388,8 +356,7 @@ class CustomersController extends BaseController
                 {
                     $customer = $customers->first();
                     $customer->actualBuilding;
-                }
-                else
+                } else
                 {
                     $customer = [];
                 }
@@ -397,7 +364,7 @@ class CustomersController extends BaseController
                 break;
             case 'name_by_phone':
                 $value = str_replace( '+7', '', $request->get( 'phone', '' ) );
-                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), -10 );
+                $value = mb_substr( preg_replace( '/[^0-9]/', '', $value ), - 10 );
                 $customer = Customer
                     ::mine()
                     ->where( 'phone', '=', $value )

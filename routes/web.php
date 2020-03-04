@@ -344,6 +344,7 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::post( 'customers/search', 'Catalog\CustomersController@search' )->name( 'customers.search' );
             Route::get( 'customers/names', 'Catalog\CustomersController@names' )->name( 'customers.names' );
             Route::get( 'customers/search/form', 'Catalog\CustomersController@searchForm' )->name( 'customers.search.form' );
+            Route::get( 'customers/export', 'Catalog\CustomersController@export' )->name( 'customers.export' );
 
             Route::get( 'rooms/{room_id}/info', 'Catalog\RoomsController@info' )->name( 'rooms.info' );
 

@@ -25,7 +25,7 @@
         {!! Form::select( 'segment_id', $segment, \Input::get( 'segment_id' ), [ 'id' => 'segment_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'segments.search' ), 'data-placeholder' => 'Сегмент' ] ) !!}
     </div>
 </div>
-<div class="row">
+<div class="row margin-top-10">
     <h4 class="col-md-2">
         ФИО заявителя
     </h4>
@@ -63,13 +63,19 @@
         </div>
     </div>
 </div>
-<hr />
+<hr/>
 <div class="row">
     <div class="col-xs-12">
         {!! Form::submit( 'Применить', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
-		<a href="{{ route( 'customers.index' ) }}" class="btn btn-danger btn-lg">
-			Сбросить фильтр
-		</a>
+        <a href="{{ route( 'customers.index' ) }}" class="btn btn-danger btn-lg">
+            Сбросить фильтр
+        </a>
+
+        <a href="{{ route( 'customers.export', Request::getQueryString() ) }}" class="btn btn-default btn-lg"
+           id="al-excel-download">
+            <i class="fa fa-download"></i>
+            Выгрузить в Excel
+        </a>
     </div>
 </div>
 {!! Form::close() !!}
