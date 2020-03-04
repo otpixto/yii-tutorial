@@ -571,6 +571,9 @@ class BuildingsController extends BaseController
         catch ( \Exception $exception )
         {
             Log::error( $exception->getTraceAsString() );
+            return redirect()
+                ->route( 'buildings.index' )
+                ->withErrors( [ 'Внутренняя ошибка' ] );
         }
 
         return redirect()
