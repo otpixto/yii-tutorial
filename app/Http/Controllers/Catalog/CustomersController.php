@@ -105,7 +105,8 @@ class CustomersController extends BaseController
                         'E-mail' => $addressCustomer->email,
                         'Доступ в ЛК (есть / нет)' => ( isset( $addressCustomer->user ) && $addressCustomer->user->isActive() ) ? 'Есть' : 'Нет',
                         'Номер заявления' => (isset($addressCustomer->tickets[0])) ? $addressCustomer->tickets[0]->vendor_number : '',
-                        'Дата заявления' => Carbon::parse($addressCustomer->created_at)->format('d.m.Y H:i'),
+                        'Дата заявления' => (isset($addressCustomer->tickets[0]) && !empty($addressCustomer->tickets[0]->vendor_date))
+                            ? Carbon::parse($addressCustomer->tickets[0]->vendor_date)->format('d.m.Y H:i') : '',
                         'Теги' => '',
                     ];
                     $i ++;
