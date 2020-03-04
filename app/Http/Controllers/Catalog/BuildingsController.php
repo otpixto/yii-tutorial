@@ -570,7 +570,6 @@ class BuildingsController extends BaseController
         }
         catch ( \Exception $exception )
         {
-            dd( $exception );
             Log::error( $exception->getTraceAsString() );
         }
 
