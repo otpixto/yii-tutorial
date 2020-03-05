@@ -25,6 +25,16 @@
         {!! Form::text( 'segment_name', \Input::get( 'segment_name' ), ['class' => 'form-control', 'placeholder' => 'Сегмент' ] ) !!}
     </div>
 </div>
+
+<div class="row margin-top-10">
+    <h4 class="col-md-2">
+        Родительский сегмент
+    </h4>
+    <div class="col-xs-10">
+        {!! Form::text( 'parent_segment_name', \Input::get( 'parent_segment_name' ), ['class' => 'form-control', 'placeholder' => 'Родительский сегмент' ] ) !!}
+    </div>
+</div>
+
 <div class="row margin-top-10">
     <h4 class="col-md-2">
         ФИО заявителя

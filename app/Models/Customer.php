@@ -286,8 +286,26 @@ class Customer extends BaseModel
                     return $q->whereHas( 'segment', function ( $q ) use ( $s )
                     {
                         return $q
-                            ->where( Segment::$_table . '.name', 'like', $s )
-                            ->orWhereHas( 'parent', function ( $q ) use ( $s )
+                            ->where( Segment::$_table . '.name', 'like', $s );
+                    } );
+                } );
+
+        }
+
+        $parent_segment_name = $request->get( 'parent_segment_name' );
+
+        if ( ! empty( $parent_segment_name ) )
+        {
+
+            $customers
+                ->whereHas( 'actualBuilding', function ( $q ) use ( $parent_segment_name )
+                {
+                    $s = '%' . str_replace( ' ', '%', trim( $parent_segment_name ) ) . '%';
+
+                    return $q->whereHas( 'segment', function ( $q ) use ( $s )
+                    {
+                        return $q
+                            ->whereHas( 'parent', function ( $q ) use ( $s )
                             {
                                 return $q
                                     ->where( 'name', 'like', $s );
