@@ -286,7 +286,12 @@ class Customer extends BaseModel
                     return $q->whereHas( 'segment', function ( $q ) use ( $s )
                     {
                         return $q
-                            ->where( Segment::$_table . '.name', 'like', $s );
+                            ->where( Segment::$_table . '.name', 'like', $s )
+                            ->orWhereHas( 'parent', function ( $q ) use ( $s )
+                            {
+                                return $q
+                                    ->where( Segment::$_table . '.name', 'like', $s );
+                            } );
                     } );
                 } );
 
