@@ -237,7 +237,7 @@
             </div>
             <div class="panel-footer">
                 {!! Form::open( [ 'url' => route( 'buildings.store.rooms', $building->id ) ] ) !!}
-                {!! Form::submit( 'Пересчитать комнаты', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
+                {!! Form::submit( 'Пересчитать помещения', [ 'class' => 'btn btn-success btn-lg' ] ) !!}
                 {!! Form::close() !!}
             </div>
         </div>
