@@ -22,7 +22,7 @@
         Сегмент
     </h4>
     <div class="col-xs-10">
-        {!! Form::text( 'segment_name', \Input::get( 'segment_name' ), ['class' => 'form-control', 'data-placeholder' => 'Сегмент' ] ) !!}
+        {!! Form::text( 'segment_name', \Input::get( 'segment_name' ), ['class' => 'form-control', 'placeholder' => 'Сегмент' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
