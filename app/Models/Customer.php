@@ -273,15 +273,23 @@ class Customer extends BaseModel
                 ->where( self::$_table . '.actual_building_id', '=', $request->get( 'actual_building_id' ) );
         }
 
+        $segment_name = $request->get( 'segment_name' );
 
-        if ( ! empty( $request->get( 'segment_id' ) ) )
+        if ( ! empty( $segment_name ) )
         {
-            $segmentID = $request->get( 'segment_id' );
+
             $customers
-                ->whereHas( 'actualBuilding', function ( $q ) use ( $segmentID )
+                ->whereHas( 'actualBuilding', function ( $q ) use ( $segment_name )
                 {
-                    return $q->where( 'segment_id', $segmentID );
+                    $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
+
+                    return $q->whereHas( 'segment', function ( $q ) use ( $s )
+                    {
+                        return $q
+                            ->where( Segment::$_table . '.name', 'like', $s );
+                    } );
                 } );
+
         }
 
         if ( ! empty( $request->get( 'actual_flat' ) ) )

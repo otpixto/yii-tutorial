@@ -22,7 +22,7 @@
         Сегмент
     </h4>
     <div class="col-xs-10">
-        {!! Form::select( 'segment_id', $segment, \Input::get( 'segment_id' ), [ 'id' => 'segment_id', 'class' => 'form-control select2-ajax', 'data-ajax--url' => route( 'segments.search' ), 'data-placeholder' => 'Сегмент' ] ) !!}
+        {!! Form::text( 'segment_name', \Input::get( 'segment_name' ), ['class' => 'form-control', 'data-placeholder' => 'Сегмент' ] ) !!}
     </div>
 </div>
 <div class="row margin-top-10">
