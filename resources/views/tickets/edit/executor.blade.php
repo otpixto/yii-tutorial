@@ -38,31 +38,60 @@
         </div>
     </div>
 @endif
-<hr />
-<div class="form-group">
-    {!! Form::label( 'scheduled_begin_date', 'Начало', [ 'class' => 'control-label col-xs-3' ] ) !!}
-    <div class="col-xs-5">
-        {!! Form::date( 'scheduled_begin_date', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+
+@if ( \Auth::user()->can( 'tickets.statuses.assigned.show_execution_date' ) )
+    <hr/>
+    <a href="#showDate" class="btn btn-default" data-toggle="collapse">Назначить сроки выполнения</a>
+    <div id="showDate" class="collapse margin-top-40">
+        <div class="form-group">
+            {!! Form::label( 'scheduled_begin_date', 'Начало', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-5">
+                {!! Form::date( 'scheduled_begin_date', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+            </div>
+            <div class="col-xs-4">
+                {!! Form::time( 'scheduled_begin_time', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+            </div>
+        </div>
+        <div class="form-group">
+            {!! Form::label( 'scheduled_end_date', 'Окончание', [ 'class' => 'control-label col-xs-3' ] ) !!}
+            <div class="col-xs-5">
+                {!! Form::date( 'scheduled_end_date', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+            </div>
+            <div class="col-xs-4">
+                {!! Form::time( 'scheduled_end_time', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+            </div>
+        </div>
     </div>
-    <div class="col-xs-4">
-        {!! Form::time( 'scheduled_begin_time', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+
+@else
+    <hr/>
+    <h4>Назначить сроки выполнения</h4>
+    <div class="form-group">
+        {!! Form::label( 'scheduled_begin_date', 'Начало', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-5">
+            {!! Form::date( 'scheduled_begin_date', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+        </div>
+        <div class="col-xs-4">
+            {!! Form::time( 'scheduled_begin_time', $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+        </div>
     </div>
-</div>
-<div class="form-group">
-    {!! Form::label( 'scheduled_end_date', 'Окончание', [ 'class' => 'control-label col-xs-3' ] ) !!}
-    <div class="col-xs-5">
-        {!! Form::date( 'scheduled_end_date', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+    <div class="form-group">
+        {!! Form::label( 'scheduled_end_date', 'Окончание', [ 'class' => 'control-label col-xs-3' ] ) !!}
+        <div class="col-xs-5">
+            {!! Form::date( 'scheduled_end_date', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'Y-m-d' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+        </div>
+        <div class="col-xs-4">
+            {!! Form::time( 'scheduled_end_time', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
+        </div>
     </div>
-    <div class="col-xs-4">
-        {!! Form::time( 'scheduled_end_time', $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'H:i' ) : '', [ 'class' => 'form-control', 'required' ] ) !!}
-    </div>
-</div>
+@endif
+
 {!! Form::close() !!}
 <div class="margin-top-15 alert alert-warning hidden" id="executor-notice">
     Выбранное время занято
 </div>
 <script type="text/javascript">
-    $( '.mask_phone' ).inputmask( 'mask', {
+    $('.mask_phone').inputmask('mask', {
         'mask': '+7 (999) 999-99-99'
     });
 </script>
