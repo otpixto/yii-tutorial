@@ -2273,7 +2273,7 @@ class TicketsController extends BaseController
             'scheduled_end' => $scheduled_end->toDateTimeString(),
         ];
         $ticketManagement->fill( $attributes );
-        $changed = $ticketManagement->isDirty();
+        $changed = true;
         if ( $changed )
         {
             $ticketManagement->save();

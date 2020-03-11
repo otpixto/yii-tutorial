@@ -482,7 +482,10 @@
                             title: 'Успешно',
                             //text: response.success,
                             type: 'success',
-                            allowOutsideClick: true
+                            allowOutsideClick: true,
+                            callback: function () {
+                                window.location.reload();
+                            }
                         });
                     });
                 };
@@ -516,20 +519,12 @@
                     .fail(function (err) {
                         let errorText = '';
                         $.each(err.responseJSON, function (field, error) {
-                            if (typeof error.scheduled_begin_date !== 'undefined') {
-                                errorText += 'Поле дата начала обязательно для заполнения\n';
-                            }
-
-                            if (typeof error.scheduled_end_date !== 'undefined') {
-                                errorText += 'Поле дата окончания обязательно для заполнения\n';
-                            }
-
-                            if (typeof error.scheduled_begin_time !== 'undefined') {
-                                errorText += 'Поле время начала обязательно для заполнения\n';
-                            }
-
-                            if (typeof error.scheduled_end_time !== 'undefined') {
-                                errorText += 'Поле время окончания обязательно для заполнения\n';
+                            if (typeof error.scheduled_begin_date !== 'undefined'
+                                || typeof error.scheduled_end_date !== 'undefined'
+                                || typeof error.scheduled_begin_time !== 'undefined'
+                                || typeof error.scheduled_end_time !== 'undefined'
+                            ) {
+                                errorText += 'Укажите сроки выполнения';
                             }
                         });
 
@@ -542,7 +537,6 @@
                             });
                         }, 100);
 
-                        //
                     });
 
             })
