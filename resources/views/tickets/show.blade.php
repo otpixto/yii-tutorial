@@ -478,14 +478,16 @@
                     }
                     $.post(form.attr('action'), data, function () {
                         Modal.hide('executor');
-                        swal({
-                            title: 'Успешно',
-                            //text: response.success,
-                            type: 'success',
-                            allowOutsideClick: true,
-                        });
 
-                        setTimeout(() => window.location.reload(), 2000);
+                        swal({
+                                title: 'Успешно',
+                                type: 'success',
+                                allowOutsideClick: true,
+                            },
+                            function () {
+                                window.location.reload();
+                            }
+                        )
                     });
                 };
 
