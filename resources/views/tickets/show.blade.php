@@ -483,10 +483,9 @@
                             //text: response.success,
                             type: 'success',
                             allowOutsideClick: true,
-                            callback: function () {
-                                window.location.reload();
-                            }
                         });
+
+                        setTimeout(() => window.location.reload(), 2000);
                     });
                 };
 
