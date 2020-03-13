@@ -100,10 +100,10 @@
                                 <thead>
                                 <tr>
                                     <th width="20%">
-                                        Родитель
+                                        Категория
                                     </th>
                                     <th>
-                                        Наименование
+                                        Подкатегория / Тип
                                     </th>
                                     @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                         <th class="text-center">
