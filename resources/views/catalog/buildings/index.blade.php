@@ -48,10 +48,23 @@
                         @if ( $buildings->count() )
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     {{ $buildings->render() }}
                                 </div>
-                                <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
+                                <div class="col-md-5 margin-top-15">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="checkbox" class="al-select-all-on-page">
+                                            <span>Выбрать все на этой странице</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                             <input type="checkbox" class="al-select-all">
+                                            <span>Выбрать все найденные</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2 text-right margin-top-10 margin-bottom-10">
                                     <span class="label label-info">
                                         Найдено: <b>{{ $buildings->total() }}</b>
                                     </span>
@@ -93,11 +106,7 @@
                                 @foreach ( $buildings as $building )
                                     <tr>
                                         <td>
-                                            <label class="mt-checkbox mt-checkbox-outline">
-                                                {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
-                                                <input type="checkbox">
-                                                <span></span>
-                                            </label>
+                                          {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox  form-control' ] ) !!}
                                         </td>
                                         <td>
                                             {{ $building->name }}
@@ -194,7 +203,6 @@
 
             $('#form-checkbox-bind').removeClass('hidden');
             $('#cancel-checkbox-bind').removeClass('hidden');
-
             var ids = [];
             let i = 0;
             $('.ticket-checkbox:checked').each(function () {
@@ -238,6 +246,19 @@
 
             .on('change', '.ticket-checkbox', checkTicketCheckbox)
 
+            .on('change', '.al-select-all-on-page', function () {
+                if($(this).prop('checked'))
+                {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = true;
+                    });
+                } else {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = false;
+                    });
+                }
+                checkTicketCheckbox();
+            })
 
             .on('click', '[data-load="search"]', function (e) {
                 e.preventDefault();
@@ -283,6 +304,8 @@
                     });
                 }
             })
+
+
     </script>
 @endsection
 
