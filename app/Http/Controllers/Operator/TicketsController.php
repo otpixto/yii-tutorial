@@ -1604,6 +1604,22 @@ class TicketsController extends BaseController
 
                 break;
 
+            case 'vendor_data':
+
+                if ( \Auth::user()
+                    ->can( 'tickets.vendor_data_edit' ) )
+                {
+                    return view( 'tickets.edit.vendor_data' )
+                        ->with( 'ticket', $ticket )
+                        ->with( 'param', $param );
+                } else
+                {
+                    return view( 'parts.error' )
+                        ->with( 'error', 'Ошибка доступа' );
+                }
+
+                break;
+
         }
 
     }

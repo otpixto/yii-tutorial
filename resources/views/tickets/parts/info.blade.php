@@ -296,7 +296,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-xs-6">
                         <div class="note">
                             <dl>
                                 <dt>
@@ -315,6 +315,28 @@
                                     @endif
                                 </dd>
                             </dl>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="note">
+                                @if ( $ticket->vendor_id && \Auth::user()->can( 'tickets.vendor_data_edit' ) )
+                                    <dl>
+                                        <dt>
+                                            @if ( $ticket->canEdit() )
+                                                <a href="javascript:;" class="hidden-print" data-edit="vendor_data">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                            @endif
+                                            Номер вендора:
+                                        </dt>
+                                        <dd>
+                                            {{ $ticket->vendor_number }} от {{ $ticket->vendor_date->format( 'd.m.Y' ) }}
+                                        </dd>
+                                    </dl>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
