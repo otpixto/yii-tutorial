@@ -18,6 +18,7 @@
                 {!! Form::model( $buildings, [ 'method' => 'get', 'route' => 'buildings.massUpdate', 'class' => 'form-horizontal submit-loading' ] ) !!}
 
                 <input type="hidden" name="ids" value="{{ $ids }}">
+                <input type="hidden" name="url_data" value="{{ $urlData  }}">
                 <div class="form-group">
 
                     <div class="col-md-1">

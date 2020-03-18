@@ -58,7 +58,7 @@
                                             <span>Выбрать все на этой странице</span>
                                         </div>
                                         <div class="col-md-6">
-                                             <input type="checkbox" class="al-select-all">
+                                            <input type="checkbox" class="al-select-all">
                                             <span>Выбрать все найденные</span>
                                         </div>
                                     </div>
@@ -106,7 +106,7 @@
                                 @foreach ( $buildings as $building )
                                     <tr>
                                         <td>
-                                          {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox  form-control' ] ) !!}
+                                            {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
                                         </td>
                                         <td>
                                             {{ $building->name }}
@@ -154,6 +154,7 @@
                                         <div class="col-md-2 center-align">
                                             {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
                                             {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                                            {!! Form::hidden( 'url_data', null, [ 'id' => 'al_url_data' ] ) !!}
                                             <button type="submit" class="btn btn-default btn-lg">
                                                 Изменить сегмент (<span id="ids-count">0</span>)
                                             </button>
@@ -171,6 +172,7 @@
                                     <div class="form-group">
                                         {!! Form::open( [ 'url' => route('buildings.managements.massManagementsEdit', [ 'management_id' => null ]), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox-bind', 'class' => 'hidden' ] ) !!}
                                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids-bind' ] ) !!}
+                                        {!! Form::hidden( 'url_data', null, [ 'id' => 'al_url_data_bind' ] ) !!}
                                         <button type="submit" class="btn btn-info btn-lg">
                                             Привязать ВСЕ к другой организации
                                         </button>
@@ -197,12 +199,26 @@
 @section( 'js' )
     <script type="text/javascript">
 
-        function checkTicketCheckbox() {
+        function checkTicketCheckbox(isAllData = false) {
             $('#form-checkbox').removeClass('hidden');
             $('#cancel-checkbox').removeClass('hidden');
 
             $('#form-checkbox-bind').removeClass('hidden');
             $('#cancel-checkbox-bind').removeClass('hidden');
+
+            if (isAllData) {
+                let href = window.location.href;
+
+                if(href.indexOf('?') > 0){
+                    let hrefArray = href.split('?')
+                    $('#al_url_data').attr('value', hrefArray[1] + '&get_all_data=1');
+                    $('#al_url_data_bind').attr('value', hrefArray[1] + '&get_all_data=1');
+                } else {
+                    $('#al_url_data').attr('value', 'get_all_data=1');
+                    $('#al_url_data_bind').attr('value', 'get_all_data=1');
+                }
+            }
+
             var ids = [];
             let i = 0;
             $('.ticket-checkbox:checked').each(function () {
@@ -226,6 +242,7 @@
                 $('#form-checkbox-bind').addClass('hidden');
                 $('#cancel-checkbox-bind').addClass('hidden');
             }
+
         };
 
         function cancelCheckbox() {
@@ -244,11 +261,12 @@
                 setTimeout(cancelCheckbox, 500);
             })
 
-            .on('change', '.ticket-checkbox', checkTicketCheckbox)
+            .on('change', '.ticket-checkbox', function (){
+                checkTicketCheckbox(false)
+            })
 
-            .on('change', '.al-select-all-on-page', function () {
-                if($(this).prop('checked'))
-                {
+            .on('change', '.al-select-all-on-page, .al-select-all', function () {
+                if ($(this).prop('checked')) {
                     $('.ticket-checkbox').each(function () {
                         $(this)[0].checked = true;
                     });
@@ -257,7 +275,13 @@
                         $(this)[0].checked = false;
                     });
                 }
-                checkTicketCheckbox();
+
+                if ($(this)[0].className == 'al-select-all') {
+                    checkTicketCheckbox(true);
+                } else {
+                    checkTicketCheckbox();
+                }
+
             })
 
             .on('click', '[data-load="search"]', function (e) {

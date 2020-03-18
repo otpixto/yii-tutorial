@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 
 class Building extends BaseModel
@@ -255,6 +256,100 @@ class Building extends BaseModel
         }
         return $query
             ->where( 'hash', '=', self::genHash( $name ) );
+    }
+
+    public function searchData(Request $request)
+    {
+        $search = trim( $request->get( 'search', '' ) );
+        $provider_id = $request->get( 'provider_id' );
+        $segment_id = $request->get( 'segment_id' );
+        $segment_name = $request->get( 'segment_name' );
+        $parent_segment_name = $request->get( 'parent_segment_name' );
+        $building_type_id = $request->get( 'building_type_id' );
+        $management_id = $request->get( 'management_id' );
+
+        $buildings = Building
+            ::mine( Building::IGNORE_MANAGEMENT )
+            ->orderBy( Building::$_table . '.name' );
+
+        if ( ! empty( $segment_name ) )
+        {
+            $buildings
+                ->whereHas( 'segment', function ( $q ) use ( $segment_name )
+                {
+                    $segment_parent_name = $segment_name;
+                    if ( strpos( $segment_name, ',' ) )
+                    {
+                        $segmentsArray = explode( ',', $segment_name );
+                        if ( count( $segmentsArray ) == 2 )
+                        {
+                            $segment_name = $segmentsArray[ 1 ];
+                            $segment_parent_name = $segmentsArray[ 0 ];
+                        }
+                    }
+                    $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
+                    return $q
+                        ->where( Segment::$_table . '.name', 'like', $s )
+                        ->orWhereHas( 'parent', function ( $q ) use ( $segment_parent_name )
+                        {
+                            $s = '%' . str_replace( ' ', '%', trim( $segment_parent_name ) ) . '%';
+                            return $q
+                                ->where( 'name', 'like', $s );
+                        } );
+                } );
+        }
+
+        if ( ! empty( $parent_segment_name ) )
+        {
+            $buildings
+                ->whereHas( 'segment', function ( $q ) use ( $parent_segment_name )
+                {
+                    return $q
+                        ->whereHas( 'parent', function ( $q ) use ( $parent_segment_name )
+                        {
+                            $s = '%' . str_replace( ' ', '%', trim( $parent_segment_name ) ) . '%';
+                            return $q
+                                ->where( 'name', 'like', $s );
+                        } );
+                } );
+        }
+
+        if ( ! empty( $provider_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.provider_id', '=', $provider_id );
+        }
+
+        if ( ! empty( $segment_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.segment_id', '=', $segment_id );
+        }
+
+        if ( ! empty( $building_type_id ) )
+        {
+            $buildings
+                ->where( Building::$_table . '.building_type_id', '=', $building_type_id );
+        }
+
+        if ( ! empty( $management_id ) )
+        {
+            $buildings
+                ->whereHas( 'managements', function ( $q ) use ( $management_id )
+                {
+                    return $q
+                        ->where( Management::$_table . '.id', '=', $management_id );
+                } );
+        }
+
+        if ( ! empty( $search ) )
+        {
+            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
+            $buildings
+                ->where( Building::$_table . '.name', 'like', $s );
+        }
+
+        return $buildings;
     }
 
 }
