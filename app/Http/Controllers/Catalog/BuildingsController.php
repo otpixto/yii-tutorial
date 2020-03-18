@@ -264,10 +264,11 @@ class BuildingsController extends BaseController
      */
     public function massEdit ( Request $request )
     {
-
         $ids = $request->get( 'ids', '' );
 
         $urlData = $request->get( 'url_data' );
+
+        $managementId = $request->get( 'management_id' );
 
         $idsArray = $this->handleBuildingIds($ids, $request);
 
@@ -285,6 +286,7 @@ class BuildingsController extends BaseController
         return view( 'catalog.buildings.mass-segment-edit' )
             ->with( 'buildings', $buildings )
             ->with( 'urlData', $urlData  )
+            ->with( 'managementId', $managementId  )
             ->with( 'ids', $ids );
 
     }
@@ -383,8 +385,7 @@ class BuildingsController extends BaseController
     {
         if ( $request->get( 'url_data' ) && strpos($request->get('url_data'), 'get_all_data=1'))
         {
-
-            $urlData = rawurldecode($request->get( 'url_data' ));
+            $urlData = str_replace('+', ' ', rawurldecode($request->get( 'url_data' )));
 
             $urlDataArray = explode( '&', $urlData );
 
@@ -405,6 +406,18 @@ class BuildingsController extends BaseController
             );
             $buildings = ( new Building() )->searchData( $falseRequest );
             $idsArray = $buildings->pluck('id')->toArray();
+        } elseif ($request->get( 'management_id' ))
+        {
+            $managementId = $request->get( 'management_id' );
+
+            $management = Management::where('id', $managementId)->first();
+
+            $idsArray = [];
+
+            foreach($management->buildings as $building)
+            {
+                $idsArray[] = $building->id;
+            }
         } else {
 
             if ( strpos( $ids, ',' ) )
@@ -766,7 +779,7 @@ class BuildingsController extends BaseController
 
             $buildings = explode( ',', $buildingsJSON );
 
-            if($request->get( 'url_data' ))
+            if($request->get( 'url_data' ) || $request->get( 'management_id' ))
             {
                 $buildings = $this->handleBuildingIds($buildings, $request);
             }

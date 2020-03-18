@@ -51,6 +51,7 @@
                                 <div class="col-md-5">
                                     {{ $buildings->render() }}
                                 </div>
+
                                 <div class="col-md-5 margin-top-15">
                                     <div class="row">
                                         <div class="col-md-6">
@@ -62,8 +63,8 @@
                                             <span>Выбрать все найденные</span>
                                         </div>
                                     </div>
-
                                 </div>
+
                                 <div class="col-md-2 text-right margin-top-10 margin-bottom-10">
                                     <span class="label label-info">
                                         Найдено: <b>{{ $buildings->total() }}</b>

@@ -112,6 +112,18 @@
 
                     <div class="row">
                         <div class="col-md-6">
+
+                            <div class="row text-right">
+                                <div class="col-md-6">
+                                    <input type="checkbox" class="al-select-all-on-page">
+                                    <span>Выбрать все на этой странице</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="checkbox" class="al-select-all">
+                                    <span>Выбрать все найденные</span>
+                                </div>
+                            </div>
+
                             {{ $managementBuildings->render() }}
                         </div>
                         <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
@@ -145,8 +157,9 @@
                 @endif
 
                 <div class="row">
-                    <div class="col-md-1 center-align">
+                    <div class="col-md-2 center-align">
                         {!! Form::model( $management, [ 'method' => 'delete', 'route' => [ 'managements.buildings.empty', $management->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                        {!! Form::hidden( 'management_id', null, [ 'id' => 'al_url_data_bind' ] ) !!}
                         <div class="form-group margin-top-15">
                             <div class="col-md-12">
                                 {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
@@ -165,6 +178,7 @@
                     <div class="col-md-2">
                         {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                        {!! Form::hidden( 'management_id', null, [ 'id' => 'al_url_data' ] ) !!}
                         <div class="form-group margin-top-15">
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-default">
@@ -224,7 +238,7 @@
     <script type="text/javascript">
 
 
-        function checkTicketCheckbox() {
+        function checkTicketCheckbox(isAllData = false) {
             $('#form-checkbox').removeClass('hidden');
 
             $('#form-checkbox-delete').removeClass('hidden');
@@ -232,6 +246,13 @@
             $('#cancel-checkbox').removeClass('hidden');
 
             $('#cancel-checkbox-delete').removeClass('hidden');
+
+            if (isAllData) {
+                let managementId = '{{ $management->id }}';
+                $('#al_url_data').attr('value', managementId);
+                $('#al_url_data_bind').attr('value', managementId);
+            }
+
             var ids = [];
             let i = 0;
             $('.ticket-checkbox:checked').each(function () {
@@ -297,6 +318,26 @@
             })
 
             .on('change', '.ticket-checkbox', checkTicketCheckbox)
+
+
+            .on('change', '.al-select-all-on-page, .al-select-all', function () {
+                if ($(this).prop('checked')) {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = true;
+                    });
+                } else {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = false;
+                    });
+                }
+
+                if ($(this)[0].className == 'al-select-all') {
+                    checkTicketCheckbox(true);
+                } else {
+                    checkTicketCheckbox();
+                }
+
+            })
 
             .on('click', '[data-delete="management-building"]', function (e) {
 
