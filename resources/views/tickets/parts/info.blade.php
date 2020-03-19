@@ -329,7 +329,7 @@
                                                     <i class="fa fa-pencil"></i>
                                                 </a>
                                             @endif
-                                            Номер вендора:
+                                            Номер поставщика:
                                         </dt>
                                         <dd>
                                             {{ $ticket->vendor_number }} от {{ $ticket->vendor_date ? $ticket->vendor_date->format( 'd.m.Y' ) : '' }}
