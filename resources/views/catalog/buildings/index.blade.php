@@ -226,7 +226,13 @@
                 ids.push($(this).val());
                 i++;
             });
-            $('#ids-count').text(ids.length);
+            if (isAllData) {
+                let countText = '{{ $buildings->total() }}';
+                $('#ids-count').text(countText);
+            } else {
+                $('#ids-count').text(ids.length);
+            }
+
             if (ids.length) {
                 $('#controls').fadeIn(300);
                 $('#ids').val(ids.join(','));

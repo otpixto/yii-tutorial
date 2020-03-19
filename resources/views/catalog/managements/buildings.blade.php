@@ -241,11 +241,13 @@
         function checkTicketCheckbox(isAllData = false) {
             $('#form-checkbox').removeClass('hidden');
 
-            $('#form-checkbox-delete').removeClass('hidden');
-
             $('#cancel-checkbox').removeClass('hidden');
 
-            $('#cancel-checkbox-delete').removeClass('hidden');
+            if(!isAllData) {
+                $('#form-checkbox-delete').removeClass('hidden');
+
+                $('#cancel-checkbox-delete').removeClass('hidden');
+            }
 
             if (isAllData) {
                 let managementId = '{{ $management->id }}';
@@ -259,8 +261,15 @@
                 ids.push($(this).val());
                 i++;
             });
-            $('#ids-count').text(ids.length);
-            $('#ids-count-delete').text(ids.length);
+
+            if (isAllData) {
+                let countText = '{{ $managementBuildings->total() }}';
+                $('#ids-count').text(countText);
+            } else {
+                $('#ids-count').text(ids.length);
+                $('#ids-count-delete').text(ids.length);
+            }
+
             if (ids.length) {
                 $('#controls').fadeIn(300);
                 $('#ids').val(ids.join(','));
