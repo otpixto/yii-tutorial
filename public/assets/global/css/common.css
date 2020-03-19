@@ -305,3 +305,7 @@ body {
 #tickets .progress{
     background-color: #FAEBD7;
 }
+
+.al-group-span{
+    padding: 6px 4px;
+}

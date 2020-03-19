@@ -1133,7 +1133,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 1 )
+            ->subDays( 17 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
@@ -1322,12 +1322,18 @@ SOAP;
                         {
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
-                            if ( ! isset( $gzhiTicketInformation->edsActions->edsSource )
-                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
+                            $skip = true;
+
+                            if($gzhiTicket->edsAppealNumber == "387643"){
+                                $skip = false;
+                            }
+
+                            if ( (! isset( $gzhiTicketInformation->edsActions->edsSource )
+                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS )) )
                             {
                                 $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' и edsIsEDS равном ' . $gzhiTicketInformation->edsIsEDS . ' не соответствует статусам');
 
-                                continue;
+                                if($skip)continue;
                             }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
@@ -1338,8 +1344,8 @@ SOAP;
                             if ( ! $management ) {
 
                                 $this->writeInLog('fillExportedTickets - при экпорте не найдена организация с gzhi_guid ' . $orgGUID);
-                                
-                                continue;
+
+                                if($skip)continue;
                             }
 
                             $ticket = Ticket::where( 'gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber )
@@ -1360,7 +1366,7 @@ SOAP;
                                 if ( ! $status )
                                 {
                                     $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus );
-                                    continue;
+                                    if($skip)continue;
                                 }
 
                                 $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
@@ -1372,8 +1378,8 @@ SOAP;
                                 {
 
                                     $this->writeInLog('fillExportedTickets - при экпорте не найдено здание с fais_address_guid ' . $addressGUID);
-                                    
-                                    continue;
+
+                                    if($skip)continue;
                                 }
 
                                 $type = Type::where( 'gzhi_code', (string) $gzhiTicketInformation->edsKindAppeal )
@@ -1383,7 +1389,7 @@ SOAP;
 
                                     $this->writeInLog('fillExportedTickets - при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal);
 
-                                    continue;
+                                    if($skip)continue;
                                 }
 
                                 $ticket = new Ticket();

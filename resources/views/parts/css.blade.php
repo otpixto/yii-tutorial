@@ -19,7 +19,7 @@
 <!-- BEGIN THEME LAYOUT STYLES -->
 <link href="/assets/layouts/layout5/css/layout.css?v2" rel="stylesheet" type="text/css" />
 <link href="/assets/layouts/layout5/css/custom.css?v2" rel="stylesheet" type="text/css" />
-<link href="/assets/global/css/common.css?v11" rel="stylesheet" type="text/css" />
+<link href="/assets/global/css/common.css?v12" rel="stylesheet" type="text/css" />
 <link href="/assets/global/css/print.css?v4" rel="stylesheet" type="text/css" media="print" />
 <!-- END THEME LAYOUT STYLES -->
 @yield( 'css' )

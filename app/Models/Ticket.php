@@ -253,6 +253,7 @@ class Ticket extends BaseModel
         'provider_id',
         'vendor_id',
         'vendor_date',
+        'vendor_decision_date',
         'vendor_number',
         'type_id',
         'building_id',

@@ -28,8 +28,10 @@
         <div class="input-group">
             <span class="input-group-addon">№</span>
             {!! Form::text( 'vendor_number', \Input::old( 'vendor_number' ), [ 'class' => 'form-control', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
-            <span class="input-group-addon">от</span>
-            {!! Form::date( 'vendor_date', \Input::old( 'vendor_date' ), [ 'class' => 'form-control', 'placeholder' => 'от', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+            <span class="input-group-addon">Дата поступл.</span>
+            {!! Form::date( 'vendor_date', \Input::old( 'vendor_date' ), [ 'class' => 'form-control', 'placeholder' => 'Дата поступл.', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
+            <span class="input-group-addon">Срок решения</span>
+            {!! Form::date( 'vendor_decision_date', \Input::old( 'vendor_date' ), [ 'class' => 'form-control', 'placeholder' => 'Срок решения', 'id' => 'vendor_decision_date', 'autocomplete' => 'off' ] ) !!}
         </div>
     </div>
 </div>

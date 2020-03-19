@@ -732,6 +732,7 @@ class TicketsController extends BaseController
         $rules = [
             'vendor_id' => 'nullable|integer',
             'vendor_date' => 'nullable|date',
+            'vendor_decision_date' => 'nullable|date',
             'type_id' => 'required|integer',
             'ticket_id' => 'required|integer',
             'building_id' => 'required|integer',
@@ -782,7 +783,16 @@ class TicketsController extends BaseController
             {
                 return redirect()
                     ->back()
-                    ->withErrors( [ 'Укажите дату обращения' ] );
+                    ->withErrors( [ 'Укажите дату поступления' ] );
+            }
+
+            $vendorDecisionDate = $request->get( 'vendor_decision_date', null );
+
+            if ( ! $vendorDecisionDate )
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors( [ 'Укажите срок решения' ] );
             }
         }
 
