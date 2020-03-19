@@ -175,7 +175,7 @@
                                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids-bind' ] ) !!}
                                         {!! Form::hidden( 'url_data', null, [ 'id' => 'al_url_data_bind' ] ) !!}
                                         <button type="submit" class="btn btn-info btn-lg">
-                                            Привязать ВСЕ к другой организации
+                                            Привязать ВСЕ к другой организации (<span id="ids-count-bind">0</span>)
                                         </button>
                                         {!! Form::close(); !!}
                                         <div class="center-block center-align" style="margin-left: 150px;">
@@ -229,8 +229,10 @@
             if (isAllData) {
                 let countText = '{{ $buildings->total() }}';
                 $('#ids-count').text(countText);
+                $('#ids-count-bind').text(countText);
             } else {
                 $('#ids-count').text(ids.length);
+                $('#ids-count-bind').text(ids.length);
             }
 
             if (ids.length) {

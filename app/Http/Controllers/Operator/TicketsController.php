@@ -1047,9 +1047,15 @@ class TicketsController extends BaseController
 
         if ( ! $ticket )
         {
+            if(Ticket::find($ticket_id))
+            {
+                $errorText = 'У Вас не достаточно прав на просмотр этой заявки.';
+            } else{
+                $errorText = 'Заявка не найдена';
+            }
             return redirect()
                 ->route( 'tickets.index' )
-                ->withErrors( [ 'Заявка не найдена' ] );
+                ->withErrors( [ $errorText ] );
         }
 
         if ( $ticket->status_code == 'draft' )
