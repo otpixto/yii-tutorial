@@ -332,7 +332,7 @@
                                             Номер вендора:
                                         </dt>
                                         <dd>
-                                            {{ $ticket->vendor_number }} от {{ $ticket->vendor_date->format( 'd.m.Y' ) }}
+                                            {{ $ticket->vendor_number }} от {{ $ticket->vendor_date ? $ticket->vendor_date->format( 'd.m.Y' ) : '' }}
                                         </dd>
                                     </dl>
                                 @endif
@@ -528,9 +528,9 @@
                     </td>
                     <td>
                         @if ( $ticketManagement->scheduled_begin && $ticketManagement->scheduled_end )
-                            {{ $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) }}
+                            {{ $ticketManagement->scheduled_begin ? $ticketManagement->scheduled_begin->format( 'd.m.Y H:i' ) : '' }}
                             -
-                            {{ $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) }}
+                            {{ $ticketManagement->scheduled_end ? $ticketManagement->scheduled_end->format( 'd.m.Y H:i' ) : '' }}
                         @else
                             <span class="text-danger">
                                 Не запланировано
@@ -782,7 +782,7 @@
                     <div class="note">
                         <dl>
                             <dt>Заявка передана в УО:</dt>
-                            <dd>{{ $ticket->transferred_at->format( 'd.m.Y H:i' ) }}</dd>
+                            <dd>{{ $ticket->transferred_at ? $ticket->transferred_at->format( 'd.m.Y H:i' ) : '' }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -808,7 +808,7 @@
                                 <dl>
                                     <dt>Принять до:</dt>
                                     <dd>
-                                        {{ $ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
+                                        {{ $ticket->deadline_acceptance ? $ticket->deadline_acceptance->format( 'd.m.Y H:i' ) : '' }}
                                     </dd>
                                 </dl>
                             </div>
@@ -817,7 +817,7 @@
                                     <dl>
                                         <dt>Принято:</dt>
                                         <dd>
-                                            {{ $ticket->accepted_at->format( 'd.m.Y H:i' ) }}
+                                            {{ $ticket->accepted_at ? $ticket->accepted_at->format( 'd.m.Y H:i' ) : '' }}
                                         </dd>
                                     </dl>
                                 </div>
@@ -842,7 +842,7 @@
                                 <dl>
                                     <dt>Выполнить до:</dt>
                                     <dd>
-                                        {{ $ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
+                                        {{ $ticket->deadline_execution ? $ticket->deadline_execution->format( 'd.m.Y H:i' ) : '' }}
                                     </dd>
                                 </dl>
                             </div>
@@ -851,7 +851,7 @@
                                     <dl>
                                         <dt>Выполнено:</dt>
                                         <dd>
-                                            {{ $ticket->completed_at->format( 'd.m.Y H:i' ) }}
+                                            {{ $ticket->completed_at ? $ticket->completed_at->format( 'd.m.Y H:i' ) : '' }}
                                         </dd>
                                     </dl>
                                 </div>
@@ -927,7 +927,7 @@
                                             <i class="fa fa-chevron-circle-up text-danger"></i>
                                             Исходящий вызов
                                             <span class="text-muted small">
-                                        {{ $ticketCall->created_at->format( 'd.m.Y H:i' ) }}
+                                        {{ $ticketCall->created_at ? $ticketCall->created_at->format( 'd.m.Y H:i' ) : '' }}
                                     </span>
                                         </a>
                                     </div>
