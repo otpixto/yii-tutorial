@@ -41,8 +41,8 @@ class HomeController extends Controller
     {
         //(new GzhiHandler())->handleAddresses();
         //(new GzhiHandler())->curlGetFile();
-        //( new GzhiHandler() )->exportGzhiTickets();
-        ( new GzhiHandler() )->fillExportedTickets();
+        ( new GzhiHandler() )->exportGzhiTickets();
+        //( new GzhiHandler() )->fillExportedTickets();
         //( new GzhiHandler() )->sendGzhiInfo();
         $data = getrusage();
         dd( $data );
