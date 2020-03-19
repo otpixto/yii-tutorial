@@ -554,9 +554,9 @@ SOAP;
         if ( $status_code != 200 )
         {
             $this->errorMessage .= "CURL status: $status_code; ";
-            
+
             $this->writeInLog($this->errorMessage);
-            
+
             return false;
         }
 
@@ -567,7 +567,7 @@ SOAP;
         if ( isset( $xml->faultstring ) )
         {
             $this->errorMessage .= $xml->faultstring;
-            
+
             $this->writeInLog($this->errorMessage);
         }
 
@@ -576,7 +576,7 @@ SOAP;
             $this->errorMessage .= " SOAP structure error; ";
 
             $this->writeInLog($this->errorMessage);
-            
+
             return false;
         }
 
@@ -793,7 +793,7 @@ SOAP;
                 $this->errorMessage .= "CURL status: $status_code; ";
 
                 $this->writeInLog($this->errorMessage);
-                
+
                 return false;
             }
 
@@ -813,7 +813,7 @@ SOAP;
                 $this->errorMessage .= " SOAP structure error; ";
 
                 $this->writeInLog($this->errorMessage);
-                
+
                 return false;
             }
 
@@ -1028,7 +1028,7 @@ SOAP;
             $this->errorMessage .= "CURL status: $status_code; ";
 
             $this->writeInLog($this->errorMessage);
-            
+
             return false;
         }
 
@@ -1039,7 +1039,7 @@ SOAP;
         if ( isset( $xml->faultstring ) )
         {
             $this->errorMessage .= $xml->faultstring;
-;
+            ;
             $this->writeInLog($this->errorMessage);
         }
 
@@ -1048,7 +1048,7 @@ SOAP;
             $this->errorMessage .= " SOAP structure error; ";
 
             $this->writeInLog($this->errorMessage);
-            
+
             return false;
         }
 
@@ -1133,7 +1133,7 @@ SOAP;
             ->format( 'Y-m-d\TH:i:s' );
 
         $changeFromDate = Carbon::now()
-            ->subDays( 17 )
+            ->subDays( 1 )
             ->format( 'Y-m-d\TH:i:s' );
 
         foreach ( $gzhiProviders as $gzhiProvider )
@@ -1184,7 +1184,7 @@ SOAP;
                 $this->errorMessage .= "exportGzhiTickets - CURL status: $status_code; ";
 
                 $this->writeInLog($this->errorMessage);
-                
+
                 continue;
             }
 
@@ -1204,7 +1204,7 @@ SOAP;
             if ( isset( $xml->faultstring ) )
             {
                 $this->errorMessage .= $xml->faultstring;
-  
+
                 $this->writeInLog($this->errorMessage);
             }
 
@@ -1285,9 +1285,9 @@ SOAP;
                 if ( $status_code != 200 )
                 {
                     $this->errorMessage .= "fillExportedTickets - CURL status: $status_code; ";
-                    
+
                     $this->writeInLog($this->errorMessage);
-                    
+
                     continue;
                 }
 
@@ -1300,7 +1300,7 @@ SOAP;
                     $this->errorMessage .= $xml->faultstring;
 
                     $this->writeInLog('fillExportedTickets - ' . $this->errorMessage);
-                    
+
                     continue;
                 }
 
@@ -1322,18 +1322,12 @@ SOAP;
                         {
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
-                            $skip = true;
-
-                            if($gzhiTicket->edsAppealNumber == "387643"){
-                                $skip = false;
-                            }
-
-                            if ( (! isset( $gzhiTicketInformation->edsActions->edsSource )
-                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS )) )
+                            if ( ! isset( $gzhiTicketInformation->edsActions->edsSource )
+                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
                             {
                                 $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' и edsIsEDS равном ' . $gzhiTicketInformation->edsIsEDS . ' не соответствует статусам');
 
-                                if($skip)continue;
+                                continue;
                             }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
@@ -1345,7 +1339,7 @@ SOAP;
 
                                 $this->writeInLog('fillExportedTickets - при экпорте не найдена организация с gzhi_guid ' . $orgGUID);
 
-                                if($skip)continue;
+                                continue;
                             }
 
                             $ticket = Ticket::where( 'gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber )
@@ -1366,7 +1360,7 @@ SOAP;
                                 if ( ! $status )
                                 {
                                     $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus );
-                                    if($skip)continue;
+                                    continue;
                                 }
 
                                 $addressGUID = (string) $gzhiTicketInformation->edsAddressGUID;
@@ -1379,7 +1373,7 @@ SOAP;
 
                                     $this->writeInLog('fillExportedTickets - при экпорте не найдено здание с fais_address_guid ' . $addressGUID);
 
-                                    if($skip)continue;
+                                    continue;
                                 }
 
                                 $type = Type::where( 'gzhi_code', (string) $gzhiTicketInformation->edsKindAppeal )
@@ -1389,7 +1383,7 @@ SOAP;
 
                                     $this->writeInLog('fillExportedTickets - при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal);
 
-                                    if($skip)continue;
+                                    continue;
                                 }
 
                                 $ticket = new Ticket();
@@ -1575,9 +1569,9 @@ SOAP;
 
         }
     }
-    
+
     private function writeInLog(string $text){
-        
+
         $log = \App\Models\Log::create( [
             'text' => 'ЕИАС интеграция: ' . $text
         ] );
