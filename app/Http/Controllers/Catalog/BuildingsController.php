@@ -26,94 +26,7 @@ class BuildingsController extends BaseController
     public function index ( Request $request )
     {
 
-        $search = trim( $request->get( 'search', '' ) );
-        $provider_id = $request->get( 'provider_id' );
-        $segment_id = $request->get( 'segment_id' );
-        $segment_name = $request->get( 'segment_name' );
-        $parent_segment_name = $request->get( 'parent_segment_name' );
-        $building_type_id = $request->get( 'building_type_id' );
-        $management_id = $request->get( 'management_id' );
-
-        $buildings = Building
-            ::mine( Building::IGNORE_MANAGEMENT )
-            ->orderBy( Building::$_table . '.name' );
-
-        if ( ! empty( $segment_name ) )
-        {
-            $buildings
-                ->whereHas( 'segment', function ( $q ) use ( $segment_name )
-                {
-                    $segment_parent_name = $segment_name;
-                    if ( strpos( $segment_name, ',' ) )
-                    {
-                        $segmentsArray = explode( ',', $segment_name );
-                        if ( count( $segmentsArray ) == 2 )
-                        {
-                            $segment_name = $segmentsArray[ 1 ];
-                            $segment_parent_name = $segmentsArray[ 0 ];
-                        }
-                    }
-                    $s = '%' . str_replace( ' ', '%', trim( $segment_name ) ) . '%';
-                    return $q
-                        ->where( Segment::$_table . '.name', 'like', $s )
-                        ->orWhereHas( 'parent', function ( $q ) use ( $segment_parent_name )
-                        {
-                            $s = '%' . str_replace( ' ', '%', trim( $segment_parent_name ) ) . '%';
-                            return $q
-                                ->where( 'name', 'like', $s );
-                        } );
-                } );
-        }
-
-        if ( ! empty( $parent_segment_name ) )
-        {
-            $buildings
-                ->whereHas( 'segment', function ( $q ) use ( $parent_segment_name )
-                {
-                    return $q
-                        ->whereHas( 'parent', function ( $q ) use ( $parent_segment_name )
-                        {
-                            $s = '%' . str_replace( ' ', '%', trim( $parent_segment_name ) ) . '%';
-                            return $q
-                                ->where( 'name', 'like', $s );
-                        } );
-                } );
-        }
-
-        if ( ! empty( $provider_id ) )
-        {
-            $buildings
-                ->where( Building::$_table . '.provider_id', '=', $provider_id );
-        }
-
-        if ( ! empty( $segment_id ) )
-        {
-            $buildings
-                ->where( Building::$_table . '.segment_id', '=', $segment_id );
-        }
-
-        if ( ! empty( $building_type_id ) )
-        {
-            $buildings
-                ->where( Building::$_table . '.building_type_id', '=', $building_type_id );
-        }
-
-        if ( ! empty( $management_id ) )
-        {
-            $buildings
-                ->whereHas( 'managements', function ( $q ) use ( $management_id )
-                {
-                    return $q
-                        ->where( Management::$_table . '.id', '=', $management_id );
-                } );
-        }
-
-        if ( ! empty( $search ) )
-        {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-            $buildings
-                ->where( Building::$_table . '.name', 'like', $s );
-        }
+        $buildings = ( new Building() )->searchData( $request );
 
         $buildings = $buildings
             ->with(
@@ -351,16 +264,13 @@ class BuildingsController extends BaseController
      */
     public function massEdit ( Request $request )
     {
-
         $ids = $request->get( 'ids', '' );
 
-        if ( strpos( $ids, ',' ) )
-        {
-            $idsArray = explode( ',', $ids );
-        } else
-        {
-            $idsArray = [ $ids ];
-        }
+        $urlData = $request->get( 'url_data' );
+
+        $managementId = $request->get( 'management_id' );
+
+        $idsArray = $this->handleBuildingIds($ids, $request);
 
         Title::add( 'Редактировать здания' );
 
@@ -375,6 +285,8 @@ class BuildingsController extends BaseController
 
         return view( 'catalog.buildings.mass-segment-edit' )
             ->with( 'buildings', $buildings )
+            ->with( 'urlData', $urlData  )
+            ->with( 'managementId', $managementId  )
             ->with( 'ids', $ids );
 
     }
@@ -438,16 +350,9 @@ class BuildingsController extends BaseController
      */
     public function massUpdate ( Request $request )
     {
-
         $ids = $request->get( 'ids', '' );
 
-        if ( strpos( $ids, ',' ) )
-        {
-            $idsArray = explode( ',', $ids );
-        } else
-        {
-            $idsArray = [ $ids ];
-        }
+        $idsArray = $this->handleBuildingIds($ids, $request);
 
         $buildings = Building::whereIn( 'id', $idsArray )
             ->get();
@@ -474,6 +379,57 @@ class BuildingsController extends BaseController
             ->route( 'buildings.index' )
             ->with( 'success', 'Здания успешно отредактированы' );
 
+    }
+
+    private function handleBuildingIds ($ids, $request)
+    {
+        if ( $request->get( 'url_data' ) && strpos($request->get('url_data'), 'get_all_data=1'))
+        {
+            $urlData = str_replace('+', ' ', rawurldecode($request->get( 'url_data' )));
+
+            $urlDataArray = explode( '&', $urlData );
+
+            $requestArray = [];
+            foreach ( $urlDataArray as $urlDataItem )
+            {
+                $urlDataItemArray = explode( '=', $urlDataItem );
+
+                if ( isset( $urlDataItemArray[ 1 ] ) && ! empty( $urlDataItemArray[ 1 ] ) )
+                {
+                    $requestArray[$urlDataItemArray[ 0 ]] = $urlDataItemArray[ 1 ];
+                }
+            }
+            $falseRequest = Request::create(
+                '',
+                'POST',
+                $requestArray
+            );
+            $buildings = ( new Building() )->searchData( $falseRequest );
+            $idsArray = $buildings->pluck('id')->toArray();
+        } elseif ($request->get( 'management_id' ))
+        {
+            $managementId = $request->get( 'management_id' );
+
+            $management = Management::where('id', $managementId)->first();
+
+            $idsArray = [];
+
+            foreach($management->buildings as $building)
+            {
+                $idsArray[] = $building->id;
+            }
+        } else {
+
+            if ( strpos( $ids, ',' ) )
+            {
+                $idsArray = explode( ',', $ids );
+            } else
+            {
+                $idsArray = [ $ids ];
+            }
+        }
+
+        return $idsArray;
     }
 
     public function searchForm ( Request $request )
@@ -757,10 +713,10 @@ class BuildingsController extends BaseController
 
     public function massManagementsEdit ( Request $request )
     {
-
         Title::add( 'Привязка зданий к УО' );
 
         $id = $request->get( 'management_id', null );
+        $urlData = $request->get( 'url_data', null );
 
         if ( $id )
         {
@@ -801,7 +757,8 @@ class BuildingsController extends BaseController
         return view( 'catalog.buildings.mass-edit' )
             ->with( 'availableManagements', $availableManagements )
             ->with( 'management_id', $id )
-            ->with( 'managementBuildingsListString', $managementBuildingsListString );
+            ->with( 'managementBuildingsListString', $managementBuildingsListString )
+            ->with( 'urlData', $urlData );
     }
 
     public function massManagementsAdd ( Request $request )
@@ -817,9 +774,15 @@ class BuildingsController extends BaseController
                 $route = 'managements.buildings';
             }
 
+
             $buildingsJSON = (string) $request->get( 'buildings', '' );
 
             $buildings = explode( ',', $buildingsJSON );
+
+            if($request->get( 'url_data' ) || $request->get( 'management_id' ))
+            {
+                $buildings = $this->handleBuildingIds($buildings, $request);
+            }
 
             $managements = $request->get( 'managements', [] );
 

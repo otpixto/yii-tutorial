@@ -21,6 +21,7 @@
             <div class="panel-body">
                 {!! Form::model( null, [ 'method' => 'post', 'route' => 'buildings.managements.massManagementsAdd', 'class' => 'submit-loading' ] ) !!}
                 <input type="hidden" name="buildings" value="{{ $managementBuildingsListString }}">
+                <input type="hidden" name="url_data" value="{{ $urlData }}">
                 <input type="hidden" name="management_id" value="{{ $management_id }}">
                 <div class="row">
                     <div class="col-md-12">

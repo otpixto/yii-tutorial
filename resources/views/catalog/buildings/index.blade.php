@@ -48,10 +48,24 @@
                         @if ( $buildings->count() )
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-5">
                                     {{ $buildings->render() }}
                                 </div>
-                                <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
+
+                                <div class="col-md-5 margin-top-15">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="checkbox" class="al-select-all-on-page">
+                                            <span>Выбрать все на этой странице</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="checkbox" class="al-select-all">
+                                            <span>Выбрать все найденные</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 text-right margin-top-10 margin-bottom-10">
                                     <span class="label label-info">
                                         Найдено: <b>{{ $buildings->total() }}</b>
                                     </span>
@@ -93,11 +107,7 @@
                                 @foreach ( $buildings as $building )
                                     <tr>
                                         <td>
-                                            <label class="mt-checkbox mt-checkbox-outline">
-                                                {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
-                                                <input type="checkbox">
-                                                <span></span>
-                                            </label>
+                                            {!! Form::checkbox( 'ids[]', $building->id, false, [ 'class' => 'ticket-checkbox' ] ) !!}
                                         </td>
                                         <td>
                                             {{ $building->name }}
@@ -145,6 +155,7 @@
                                         <div class="col-md-2 center-align">
                                             {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
                                             {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+                                            {!! Form::hidden( 'url_data', null, [ 'id' => 'al_url_data' ] ) !!}
                                             <button type="submit" class="btn btn-default btn-lg">
                                                 Изменить сегмент (<span id="ids-count">0</span>)
                                             </button>
@@ -162,8 +173,9 @@
                                     <div class="form-group">
                                         {!! Form::open( [ 'url' => route('buildings.managements.massManagementsEdit', [ 'management_id' => null ]), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox-bind', 'class' => 'hidden' ] ) !!}
                                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids-bind' ] ) !!}
+                                        {!! Form::hidden( 'url_data', null, [ 'id' => 'al_url_data_bind' ] ) !!}
                                         <button type="submit" class="btn btn-info btn-lg">
-                                            Привязать ВСЕ к другой организации
+                                            Привязать ВСЕ к другой организации (<span id="ids-count-bind">0</span>)
                                         </button>
                                         {!! Form::close(); !!}
                                         <div class="center-block center-align" style="margin-left: 150px;">
@@ -188,12 +200,25 @@
 @section( 'js' )
     <script type="text/javascript">
 
-        function checkTicketCheckbox() {
+        function checkTicketCheckbox(isAllData = false) {
             $('#form-checkbox').removeClass('hidden');
             $('#cancel-checkbox').removeClass('hidden');
 
             $('#form-checkbox-bind').removeClass('hidden');
             $('#cancel-checkbox-bind').removeClass('hidden');
+
+            if (isAllData) {
+                let href = window.location.href;
+
+                if(href.indexOf('?') > 0){
+                    let hrefArray = href.split('?')
+                    $('#al_url_data').attr('value', hrefArray[1] + '&get_all_data=1');
+                    $('#al_url_data_bind').attr('value', hrefArray[1] + '&get_all_data=1');
+                } else {
+                    $('#al_url_data').attr('value', 'get_all_data=1');
+                    $('#al_url_data_bind').attr('value', 'get_all_data=1');
+                }
+            }
 
             var ids = [];
             let i = 0;
@@ -201,7 +226,15 @@
                 ids.push($(this).val());
                 i++;
             });
-            $('#ids-count').text(ids.length);
+            if (isAllData) {
+                let countText = '{{ $buildings->total() }}';
+                $('#ids-count').text(countText);
+                $('#ids-count-bind').text(countText);
+            } else {
+                $('#ids-count').text(ids.length);
+                $('#ids-count-bind').text(ids.length);
+            }
+
             if (ids.length) {
                 $('#controls').fadeIn(300);
                 $('#ids').val(ids.join(','));
@@ -218,6 +251,7 @@
                 $('#form-checkbox-bind').addClass('hidden');
                 $('#cancel-checkbox-bind').addClass('hidden');
             }
+
         };
 
         function cancelCheckbox() {
@@ -236,8 +270,28 @@
                 setTimeout(cancelCheckbox, 500);
             })
 
-            .on('change', '.ticket-checkbox', checkTicketCheckbox)
+            .on('change', '.ticket-checkbox', function (){
+                checkTicketCheckbox(false)
+            })
 
+            .on('change', '.al-select-all-on-page, .al-select-all', function () {
+                if ($(this).prop('checked')) {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = true;
+                    });
+                } else {
+                    $('.ticket-checkbox').each(function () {
+                        $(this)[0].checked = false;
+                    });
+                }
+
+                if ($(this)[0].className == 'al-select-all') {
+                    checkTicketCheckbox(true);
+                } else {
+                    checkTicketCheckbox();
+                }
+
+            })
 
             .on('click', '[data-load="search"]', function (e) {
                 e.preventDefault();
@@ -283,6 +337,8 @@
                     });
                 }
             })
+
+
     </script>
 @endsection
 
