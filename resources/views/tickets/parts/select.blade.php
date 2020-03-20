@@ -78,7 +78,10 @@
                     <tr>
                         <td class="text-right md-checkbox-inline">
                             <div class="md-checkbox">
-                                {!! Form::checkbox( 'managements[]', $management->id, false, [ 'class' => 'md-check', 'id' => 'management-' . $management->id ] ) !!}
+                                {!! Form::checkbox( 'managements[]', $management->id, false, [ 'class' => 'md-check al-add_to_tag', 'id' => 'management-' . $management->id ] ) !!}
+                                @if ( $management->category_id == \App\Models\Management::OMSU_MANAGEMENT_CATEGORY_ID )
+                                    <input type="hidden" id="al_add_tag_{{ $management->id }}" value="{{ $management->name }}">
+                                @endif
                                 <label for="management-{{ $management->id }}">
                                     <span class="inc"></span>
                                     <span class="check"></span>

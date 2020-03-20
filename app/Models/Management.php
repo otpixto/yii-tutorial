@@ -14,6 +14,8 @@ class Management extends BaseModel
 
     public static $name = 'ЭО';
 
+    const OMSU_MANAGEMENT_CATEGORY_ID = 5;
+
     protected $dates = [
         'created_at',
         'updated_at',

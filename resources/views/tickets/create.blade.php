@@ -225,16 +225,14 @@
         };
 
 
-        function saveTicket(field, value, supressValueNumber = 0)
-        {
+        function saveTicket(field, value, supressValueNumber = 0) {
             $.post('{{ route( 'tickets.save', $ticket->id ) }}', {
                 field: field,
                 value: value,
                 supress_value_number: supressValueNumber
             }, function (response) {
 
-                if (response && typeof response.vendor_number_array !== 'undefined')
-                {
+                if (response && typeof response.vendor_number_array !== 'undefined') {
                     Swal.fire({
                         title: '',
                         icon: 'info',
@@ -380,6 +378,14 @@
             .on('change', '#provider_id', function (e) {
                 $('#building_id, #flat, #actual_building_id, #actual_flat').val('').trigger('change');
                 GetTypes($(this).val());
+            })
+
+            .on('change', '.al-add_to_tag', function (e) {
+                let managementId = $(this).prop('value');
+                let managementName = $('#al_add_tag_' + managementId).prop('value');
+                if (typeof managementName !== "undefined") {
+                    $('.bootstrap-tagsinput').find('input').prop('value', managementName);
+                }
             })
 
             .on('change', '#vendor_id', function (e) {
