@@ -51,7 +51,7 @@ class ProvidersController extends BaseController
                 {
                     return $q
                         ->where( Building::$_table . '.id', '=', $building_id );
-                });
+                } );
         }
 
         $providers = $providers
@@ -60,7 +60,7 @@ class ProvidersController extends BaseController
 
         $this->addLog( 'Просмотрел список провайдеров (стр.' . $request->get( 'page', 1 ) . ')' );
 
-        return view('admin.providers.index' )
+        return view( 'admin.providers.index' )
             ->with( 'providers', $providers );
 
     }
@@ -79,11 +79,12 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        return view('admin.providers.edit' )
+        return view( 'admin.providers.edit' )
             ->with( 'provider', $provider );
 
     }
@@ -94,10 +95,11 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        return view('admin.providers.create_phone' )
+        return view( 'admin.providers.create_phone' )
             ->with( 'provider', $provider );
     }
 
@@ -106,23 +108,26 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
         $rules = [
-            'phone'                 => 'required|max:10',
-            'name'                  => 'required|max:100',
-            'description'           => 'nullable',
+            'phone' => 'required|max:10',
+            'name' => 'required|max:100',
+            'description' => 'nullable',
         ];
         $this->validate( $request, $rules );
         $phone = $provider->addPhone( $request->all() );
         if ( $phone instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withInput()
                 ->withErrors( $phone );
         }
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Номер успешно добавлен' );
 
     }
@@ -133,16 +138,19 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        $phone = $provider->phones()->find( $phone_id );
+        $phone = $provider->phones()
+            ->find( $phone_id );
         if ( ! $phone )
         {
-            return redirect()->route( 'providers.edit', $provider->id )
+            return redirect()
+                ->route( 'providers.edit', $provider->id )
                 ->withErrors( [ 'Телефон не найден' ] );
         }
-        return view('admin.providers.edit_phone' )
+        return view( 'admin.providers.edit_phone' )
             ->with( 'provider', $provider )
             ->with( 'phone', $phone );
     }
@@ -152,23 +160,27 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        $phone = $provider->phones()->find( $phone_id );
+        $phone = $provider->phones()
+            ->find( $phone_id );
         if ( ! $phone )
         {
-            return redirect()->route( 'providers.edit', $provider->id )
+            return redirect()
+                ->route( 'providers.edit', $provider->id )
                 ->withErrors( [ 'Телефон не найден' ] );
         }
         $rules = [
-            'phone'                 => 'required|unique:providers_phones,phone,' . $phone->id . ',id',
-            'name'                  => 'required',
-            'description'           => 'nullable',
+            'phone' => 'required|unique:providers_phones,phone,' . $phone->id . ',id',
+            'name' => 'required',
+            'description' => 'nullable',
         ];
         $this->validate( $request, $rules );
         $phone->edit( $request->all() );
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Номер успешно отредактирован' );
 
     }
@@ -177,7 +189,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'phone_id'                 => 'required|integer',
+            'phone_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -186,11 +198,14 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->phones()->find( $request->get( 'phone_id' ) )->delete();
+        $provider->phones()
+            ->find( $request->get( 'phone_id' ) )
+            ->delete();
 
     }
 
@@ -200,10 +215,11 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        return view('admin.providers.create_key' )
+        return view( 'admin.providers.create_key' )
             ->with( 'provider', $provider );
     }
 
@@ -212,26 +228,29 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
         $rules = [
-            'description'           => 'nullable',
-            'ip'                    => 'nullable',
-            'referer'               => 'nullable',
-            'token_life'            => 'integer|min:1',
-            'maxAttempts'           => 'integer|min:0',
-            'decayMinutes'          => 'integer|min:0',
+            'description' => 'nullable',
+            'ip' => 'nullable',
+            'referer' => 'nullable',
+            'token_life' => 'integer|min:1',
+            'maxAttempts' => 'integer|min:0',
+            'decayMinutes' => 'integer|min:0',
         ];
         $this->validate( $request, $rules );
         $providerKey = $provider->addKey( $request->all() );
         if ( $providerKey instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withInput()
                 ->withErrors( $providerKey );
         }
-        return redirect()->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
+        return redirect()
+            ->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
             ->with( 'success', 'Ключ успешно создан' );
 
     }
@@ -242,16 +261,19 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        $providerKey = $provider->providerKeys()->find( $key_id );
+        $providerKey = $provider->providerKeys()
+            ->find( $key_id );
         if ( ! $providerKey )
         {
-            return redirect()->route( 'providers.edit', $provider->id )
+            return redirect()
+                ->route( 'providers.edit', $provider->id )
                 ->withErrors( [ 'Ключ не найден' ] );
         }
-        return view('admin.providers.edit_key' )
+        return view( 'admin.providers.edit_key' )
             ->with( 'provider', $provider )
             ->with( 'providerKey', $providerKey );
     }
@@ -261,25 +283,29 @@ class ProvidersController extends BaseController
         $provider = Provider::find( $provider_id );
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
-        $providerKey = $provider->providerKeys()->find( $key_id );
+        $providerKey = $provider->providerKeys()
+            ->find( $key_id );
         if ( ! $providerKey )
         {
-            return redirect()->route( 'providers.edit', $provider->id )
+            return redirect()
+                ->route( 'providers.edit', $provider->id )
                 ->withErrors( [ 'Ключ не найден' ] );
         }
         $rules = [
-            'description'           => 'nullable',
-            'ip'                    => 'nullable',
-            'token_life'            => 'integer|min:1',
-            'maxAttempts'           => 'integer|min:0',
-            'decayMinutes'          => 'integer|min:0',
+            'description' => 'nullable',
+            'ip' => 'nullable',
+            'token_life' => 'integer|min:1',
+            'maxAttempts' => 'integer|min:0',
+            'decayMinutes' => 'integer|min:0',
         ];
         $this->validate( $request, $rules );
         $providerKey->edit( $request->all() );
-        return redirect()->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
+        return redirect()
+            ->route( 'providers.keys.edit', [ $provider->id, $providerKey->id ] )
             ->with( 'success', 'Ключ успешно отредактирован' );
 
     }
@@ -288,7 +314,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'key_id'                 => 'required|integer',
+            'key_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -297,11 +323,14 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->providerKeys()->find( $request->get( 'key_id' ) )->delete();
+        $provider->providerKeys()
+            ->find( $request->get( 'key_id' ) )
+            ->delete();
 
     }
 
@@ -309,7 +338,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'token_id'                 => 'required|integer',
+            'token_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -318,11 +347,14 @@ class ProvidersController extends BaseController
 
         if ( ! $providerKey )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Ключ не найден' ] );
         }
 
-        $providerKey->providerTokens()->find( $request->get( 'token_id' ) )->delete();
+        $providerKey->providerTokens()
+            ->find( $request->get( 'token_id' ) )
+            ->delete();
 
     }
 
@@ -335,7 +367,8 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
@@ -356,7 +389,8 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
@@ -368,7 +402,8 @@ class ProvidersController extends BaseController
                 Building::$_table . '.name AS text'
             )
             ->where( Building::$_table . '.name', 'like', $s )
-            ->whereNotIn( Building::$_table . '.id', $provider->buildings()->pluck( Building::$_table . '.id' ) )
+            ->whereNotIn( Building::$_table . '.id', $provider->buildings()
+                ->pluck( Building::$_table . '.id' ) )
             ->orderBy( Building::$_table . '.name' )
             ->get();
 
@@ -383,13 +418,16 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->buildings()->attach( $request->get( 'buildings', [] ) );
+        $provider->buildings()
+            ->attach( $request->get( 'buildings', [] ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Адреса успешно назначены' );
 
     }
@@ -398,7 +436,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'building_id'             => 'required|integer',
+            'building_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -407,11 +445,13 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->buildings()->detach( $request->get( 'building_id' ) );
+        $provider->buildings()
+            ->detach( $request->get( 'building_id' ) );
 
     }
 
@@ -424,7 +464,8 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
@@ -445,7 +486,8 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
@@ -453,7 +495,8 @@ class ProvidersController extends BaseController
 
         $res = Management
             ::where( Management::$_table . '.name', 'like', $s )
-            ->whereNotIn( Management::$_table . '.id', $provider->managements()->pluck( Management::$_table . '.id' ) )
+            ->whereNotIn( Management::$_table . '.id', $provider->managements()
+                ->pluck( Management::$_table . '.id' ) )
             ->orderBy( Management::$_table . '.name' )
             ->get();
 
@@ -466,8 +509,8 @@ class ProvidersController extends BaseController
                 $name = $r->parent->name . ' ' . $name;
             }
             $managements[] = [
-                'id'        => $r->id,
-                'text'      => $name
+                'id' => $r->id,
+                'text' => $name
             ];
         }
 
@@ -482,13 +525,16 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->managements()->attach( $request->get( 'managements' ) );
+        $provider->managements()
+            ->attach( $request->get( 'managements' ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'УО успешно привязаны' );
 
     }
@@ -497,7 +543,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'management_id'             => 'required|integer',
+            'management_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -506,11 +552,13 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->managements()->detach( $request->get( 'management_id' ) );
+        $provider->managements()
+            ->detach( $request->get( 'management_id' ) );
 
     }
 
@@ -521,11 +569,13 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->managements()->detach();
+        $provider->managements()
+            ->detach();
 
     }
 
@@ -539,12 +589,14 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
         $types = Type
-            ::whereNotIn( 'id', $provider->types()->pluck( Type::$_table . '.id' ) )
+            ::whereNotIn( 'id', $provider->types()
+                ->pluck( Type::$_table . '.id' ) )
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
@@ -577,13 +629,16 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->types()->attach( $request->get( 'types' ) );
+        $provider->types()
+            ->attach( $request->get( 'types' ) );
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Классификатор успешно привязан' );
 
     }
@@ -592,7 +647,7 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'type_id'             => 'required|integer',
+            'type_id' => 'required|integer',
         ];
 
         $this->validate( $request, $rules );
@@ -601,11 +656,13 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->types()->detach( $request->get( 'type_id' ) );
+        $provider->types()
+            ->detach( $request->get( 'type_id' ) );
 
     }
 
@@ -616,13 +673,16 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
-        $provider->types()->detach();
+        $provider->types()
+            ->detach();
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with( 'success', 'Привязки успешно удалены' );
 
     }
@@ -632,7 +692,7 @@ class ProvidersController extends BaseController
 
         Title::add( 'Создать регион' );
 
-        return view('admin.providers.create' );
+        return view( 'admin.providers.create' );
 
     }
 
@@ -643,26 +703,27 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
         $rules = [
-            'guid'                  => 'nullable|unique:providers,guid,' . $provider->id . ',id|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'username'              => 'nullable|string|max:50',
-            'password'              => 'nullable|string|max:50',
-            'need_act'              => 'boolean',
-            'sms_auth'              => 'boolean',
-            'asterisk_ip'           => 'nullable|ip',
-            'asterisk_external_ip'  => 'nullable|ip',
-            'telegram_id'           => 'nullable|integer',
+            'guid' => 'nullable|unique:providers,guid,' . $provider->id . ',id|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username' => 'nullable|string|max:50',
+            'password' => 'nullable|string|max:50',
+            'need_act' => 'boolean',
+            'sms_auth' => 'boolean',
+            'asterisk_ip' => 'nullable|ip',
+            'asterisk_external_ip' => 'nullable|ip',
+            'telegram_id' => 'nullable|integer',
         ];
 
         if ( $request->has( 'name' ) || $request->has( 'domain' ) )
         {
             $rules += [
-                'name'                  => 'required|string|max:255',
-                'domain'                => 'required|string|max:100',
+                'name' => 'required|string|max:255',
+                'domain' => 'required|string|max:100',
             ];
         }
 
@@ -672,13 +733,13 @@ class ProvidersController extends BaseController
         {
             try
             {
-                $response = \Telegram::sendMessage([
-                    'chat_id'                   => $request->get( 'telegram_id' ),
-                    'text'                      => 'Проверка связи',
-                    'parse_mode'                => 'html',
-                    'disable_web_page_preview'  => true,
-                    'reply_markup'              => \Telegram::replyKeyboardHide()
-                ]);
+                $response = \Telegram::sendMessage( [
+                    'chat_id' => $request->get( 'telegram_id' ),
+                    'text' => 'Проверка связи',
+                    'parse_mode' => 'html',
+                    'disable_web_page_preview' => true,
+                    'reply_markup' => \Telegram::replyKeyboardHide()
+                ] );
                 if ( ! $response->getMessageId() )
                 {
                     return redirect()
@@ -698,7 +759,8 @@ class ProvidersController extends BaseController
 
         $provider->edit( $request->all() );
 
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Поставщик успешно отредактирован' );
 
     }
@@ -707,13 +769,13 @@ class ProvidersController extends BaseController
     {
 
         $rules = [
-            'guid'                  => 'nullable|unique:providers,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
-            'username'              => 'nullable|string|max:50',
-            'password'              => 'nullable|string|max:50',
-            'name'                  => 'required|string|max:255',
-            'domain'                => 'required|string|max:100',
-            'need_act'              => 'boolean',
-            'sms_auth'              => 'boolean',
+            'guid' => 'nullable|unique:providers,guid|regex:/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i',
+            'username' => 'nullable|string|max:50',
+            'password' => 'nullable|string|max:50',
+            'name' => 'required|string|max:255',
+            'domain' => 'required|string|max:100',
+            'need_act' => 'boolean',
+            'sms_auth' => 'boolean',
         ];
 
         $this->validate( $request, $rules );
@@ -722,13 +784,15 @@ class ProvidersController extends BaseController
 
         if ( $provider instanceof MessageBag )
         {
-            return redirect()->back()
+            return redirect()
+                ->back()
                 ->withErrors( $provider );
         }
 
         $provider->save();
 
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Поставщик успешно создан' );
 
     }
@@ -740,22 +804,25 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
         $rules = [
-            'file'                  => 'required|image|mimes:png',
+            'file' => 'required|image|mimes:png',
         ];
 
         $this->validate( $request, $rules );
 
-        $path = Storage::disk( 'public' )->putFile( 'logo', $request->file( 'file' ) );
+        $path = Storage::disk( 'public' )
+            ->putFile( 'logo', $request->file( 'file' ) );
 
         $provider->logo = $path;
         $provider->save();
 
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Логотип успешно загружен' );
 
     }
@@ -767,7 +834,8 @@ class ProvidersController extends BaseController
 
         if ( ! $provider )
         {
-            return redirect()->route( 'providers.index' )
+            return redirect()
+                ->route( 'providers.index' )
                 ->withErrors( [ 'Поставщик не найден' ] );
         }
 
@@ -776,7 +844,8 @@ class ProvidersController extends BaseController
         $provider->logo = null;
         $provider->save();
 
-        return redirect()->route( 'providers.edit', $provider->id )
+        return redirect()
+            ->route( 'providers.edit', $provider->id )
             ->with( 'success', 'Логотип успешно загружен' );
 
     }
@@ -811,12 +880,18 @@ class ProvidersController extends BaseController
                 {
                     $exp = explode( ',', $building_name );
                     $number = trim( str_replace( 'д.', '', end( $exp ) ) );
-                    $building = Building::create([
+                    $building = Building::create( [
                         'provider_id' => $provider_id,
                         'name' => $building_name,
                         'number' => $number,
                         'building_type_id' => 1,
-                    ]);
+                    ] );
+
+                    if ( $building instanceof MessageBag )
+                    {
+                        throw new \Exception( ( $building->messages() )[ 0 ][ 0 ] );
+                    }
+
                 }
                 $parent_id = null;
                 foreach ( $arr as $i => $cell )
@@ -833,12 +908,12 @@ class ProvidersController extends BaseController
                             ->first();
                         if ( ! $segment )
                         {
-                            $segment = Segment::create([
-                                'name'                  => trim( $cell[ 1 ] ),
-                                'parent_id'             => $parent_id,
-                                'provider_id'           => $provider_id,
-                                'segment_type_id'       => $segmentType->id,
-                            ]);
+                            $segment = Segment::create( [
+                                'name' => trim( $cell[ 1 ] ),
+                                'parent_id' => $parent_id,
+                                'provider_id' => $provider_id,
+                                'segment_type_id' => $segmentType->id,
+                            ] );
                             $segment->save();
                         }
                         $parent_id = $segment->id;
