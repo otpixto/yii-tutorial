@@ -1490,7 +1490,7 @@ SOAP;
                             } else
                             {
 
-                                $this->writeInLog('fillExportedTickets - при экпорте заявка уже существует - id ' . $ticket->id) . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber;
+                                $this->writeInLog('fillExportedTickets - при экпорте заявка уже существует - id ' . $ticket->id . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                 continue;
                             }
