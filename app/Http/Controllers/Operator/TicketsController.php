@@ -243,7 +243,7 @@ class TicketsController extends BaseController
                 '#' => $ticket->id,
                 'Дата и время' => $ticket->created_at->format( 'd.m.y H:i' ),
                 'Текущий статус' => $ticket->status_name,
-                'Здание' => $ticket->building->name,
+                'Здание' => $ticket->building->name ?? '',
                 'Квартира' => $ticket->flat,
                 'Проблемное место' => $ticket->getPlace(),
                 'Классификатор' => $ticket->type->name,
