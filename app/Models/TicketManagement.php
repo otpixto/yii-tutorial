@@ -560,6 +560,12 @@ class TicketManagement extends BaseModel
                             ->where( Ticket::$_table . '.vendor_date', '=', $request->get( 'vendor_date' ) );
                     }
 
+                    if ( ! empty( $request->get( 'vendor_decision_date' ) ) )
+                    {
+                        $ticket
+                            ->where( Ticket::$_table . '.vendor_decision_date', '=', $request->get( 'vendor_decision_date' ) );
+                    }
+
                     if ( ! empty( $request->get( 'vendor_number' ) ) )
                     {
                         $ticket
