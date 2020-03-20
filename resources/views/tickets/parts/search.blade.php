@@ -21,10 +21,10 @@
     <h4 class="col-md-2">
         Поступило из
     </h4>
-    <div class="col-md-4">
+    <div class="col-md-2">
         {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::get( 'vendor_id' ), [ 'class' => 'form-control select2', 'id' => 'vendor_id' ] ) !!}
     </div>
-    <div class="col-md-6 vendor hidden">
+    <div class="col-md-8 vendor hidden">
         <div class="input-group">
             <span class="input-group-addon">№</span>
             {!! Form::text( 'vendor_number', \Input::old( 'vendor_number' ), [ 'class' => 'form-control', 'placeholder' => '№', 'id' => 'vendor_number', 'autocomplete' => 'off' ] ) !!}
