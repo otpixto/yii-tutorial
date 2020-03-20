@@ -1322,13 +1322,20 @@ SOAP;
                         {
                             $gzhiTicketInformation = $gzhiTicket->edsAppealInformation;
 
-                            if ( ! isset( $gzhiTicketInformation->edsActions->edsSource )
-                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
-                            {
-                                $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' и edsIsEDS равном ' . $gzhiTicketInformation->edsIsEDS . ' не соответствует статусам');
+
+                            if(isset($gzhiTicketInformation->edsIsEDS) && $gzhiTicketInformation->edsIsEDS == 'true'){
+                                $this->writeInLog('fillExportedTickets - при экпорте присутствует edsIsEDS. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                 continue;
                             }
+
+//                            if ( ! isset( $gzhiTicketInformation->edsActions->edsSource )
+//                                || ! in_array( (int) $gzhiTicketInformation->edsActions->edsSource, GzhiRequest::ACCEPTED_VENDOR_IDS ) )
+//                            {
+//                                $this->writeInLog('fillExportedTickets заявка с edsAppealNumber ' . $gzhiTicket->edsAppealNumber . ' со статусом ' .(int) $gzhiTicketInformation->edsActions->edsSource . ' и edsIsEDS равном ' . $gzhiTicketInformation->edsIsEDS . ' не соответствует статусам');
+//
+//                                continue;
+//                            }
 
                             $orgGUID = (string) $gzhiTicketInformation->edsOrgGUID;
 
@@ -1337,13 +1344,23 @@ SOAP;
 
                             if ( ! $management ) {
 
-                                $this->writeInLog('fillExportedTickets - при экпорте не найдена организация с gzhi_guid ' . $orgGUID);
+                                $this->writeInLog('fillExportedTickets - при экпорте не найдена организация с gzhi_guid ' . $orgGUID . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                 continue;
                             }
 
                             $ticket = Ticket::where( 'gzhi_appeal_number', (string) $gzhiTicket->edsAppealNumber )
                                 ->first();
+
+                            if ( ! $ticket && isset($gzhiTicket->edsAppealGUID) )
+                            {
+                                $gzhiRequestTicket = GzhiRequest::where('appeal_guid', (string) $gzhiTicket->edsAppealGUID)->first();
+
+                                if($gzhiRequestTicket && !empty($gzhiRequestTicket->ticket_id))
+                                {
+                                    $ticket = Ticket::find($gzhiRequestTicket->ticket_id);
+                                }
+                            }
 
                             if ( ! $ticket )
                             {
@@ -1359,7 +1376,7 @@ SOAP;
 
                                 if ( ! $status )
                                 {
-                                    $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus );
+                                    $this->writeInLog('fillExportedTickets - не найден статус с gzhi_status_code ' . $gzhiTicketInformation->edsStatus . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber );
                                     continue;
                                 }
 
@@ -1371,7 +1388,7 @@ SOAP;
                                 if ( ! $building )
                                 {
 
-                                    $this->writeInLog('fillExportedTickets - при экпорте не найдено здание с fais_address_guid ' . $addressGUID);
+                                    $this->writeInLog('fillExportedTickets - при экпорте не найдено здание с fais_address_guid ' . $addressGUID . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                     continue;
                                 }
@@ -1381,7 +1398,7 @@ SOAP;
 
                                 if ( ! $type ) {
 
-                                    $this->writeInLog('fillExportedTickets - при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal);
+                                    $this->writeInLog('fillExportedTickets - при экпорте не найден тип с gzhi_code ' . $gzhiTicketInformation->edsKindAppeal . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                     continue;
                                 }
@@ -1433,7 +1450,9 @@ SOAP;
 
                                 $ticket->vendor_id = Vendor::EAIS_VENDOR_ID;
 
-                                $ticket->save();
+                                $this->writeInLog('fillExportedTickets - при экпорте создан тикет. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
+
+                                //$ticket->save();
 
                                 if ( isset( $gzhiTicketInformation->edsInitiatorFiles )
                                     && count( $gzhiTicketInformation->edsInitiatorFiles )
@@ -1449,29 +1468,29 @@ SOAP;
                                     }
                                 }
 
-                                if ( $management )
-                                {
-
-                                    $ticketManagement = new TicketManagement();
-
-                                    $ticketManagement->ticket_id = $ticket->id;
-
-                                    $ticketManagement->management_id = $management->id;
-
-                                    $ticketManagement->status_code = $status->status_code ?? '';
-
-                                    $ticketManagement->status_name = $status->status_name ?? '';
-
-                                    $ticketManagement->save();
-
-                                }
+//                                if ( $management )
+//                                {
+//
+//                                    $ticketManagement = new TicketManagement();
+//
+//                                    $ticketManagement->ticket_id = $ticket->id;
+//
+//                                    $ticketManagement->management_id = $management->id;
+//
+//                                    $ticketManagement->status_code = $status->status_code ?? '';
+//
+//                                    $ticketManagement->status_name = $status->status_name ?? '';
+//
+//                                    $ticketManagement->save();
+//
+//                                }
 
                                 $ticketsCount ++;
 
                             } else
                             {
 
-                                $this->writeInLog('fillExportedTickets - при экпорте заявка уже существует - id ' . $ticket->id);
+                                $this->writeInLog('fillExportedTickets - при экпорте заявка уже существует - id ' . $ticket->id) . '. AppealNumber: ' . $gzhiTicket->edsAppealNumber;
 
                                 continue;
                             }
