@@ -24,11 +24,9 @@
     <div class="col-lg-7">
 
         <div class="form-group">
-
                     {!! Form::label( 'vendor_id', 'Поступило из', [ 'class' => 'control-label col-xs-3' ] ) !!}
                 <div class="col-xs-4">
                     {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
-
                 </div>
 
                 <div class="col-xs-9 col-md-9 col-md-offset-3 margin-top-10 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
@@ -41,7 +39,6 @@
                         {!! Form::date( 'vendor_decision_date', \Input::old( 'vendor_decision_date', $ticket->vendor_decision_date ), [ 'class' => 'form-control autosave al-group-span', $required, 'oninvalid' => 'this.setCustomValidity("Укажите срок решения")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'Срок решения', 'id' => 'vendor_decision_date', 'autocomplete' => 'off' ] ) !!}
                     </div>
                 </div>
-
         </div>
 
         <div class="form-group">
