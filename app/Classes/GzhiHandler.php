@@ -1450,9 +1450,9 @@ SOAP;
 
                                 $ticket->vendor_id = Vendor::EAIS_VENDOR_ID;
 
-                                $this->writeInLog('fillExportedTickets - при экпорте создан тикет. AppealNumber: ' . $gzhiTicket->edsAppealNumber);
+                                $ticket->save();
 
-                                //$ticket->save();
+                                $this->writeInLog('fillExportedTickets - при экпорте создан тикет. TicketID: ' . $ticket->id . ' AppealNumber: ' . $gzhiTicket->edsAppealNumber);
 
                                 if ( isset( $gzhiTicketInformation->edsInitiatorFiles )
                                     && count( $gzhiTicketInformation->edsInitiatorFiles )
@@ -1468,22 +1468,22 @@ SOAP;
                                     }
                                 }
 
-//                                if ( $management )
-//                                {
-//
-//                                    $ticketManagement = new TicketManagement();
-//
-//                                    $ticketManagement->ticket_id = $ticket->id;
-//
-//                                    $ticketManagement->management_id = $management->id;
-//
-//                                    $ticketManagement->status_code = $status->status_code ?? '';
-//
-//                                    $ticketManagement->status_name = $status->status_name ?? '';
-//
-//                                    $ticketManagement->save();
-//
-//                                }
+                                if ( $management )
+                                {
+
+                                    $ticketManagement = new TicketManagement();
+
+                                    $ticketManagement->ticket_id = $ticket->id;
+
+                                    $ticketManagement->management_id = $management->id;
+
+                                    $ticketManagement->status_code = $status->status_code ?? '';
+
+                                    $ticketManagement->status_name = $status->status_name ?? '';
+
+                                    $ticketManagement->save();
+
+                                }
 
                                 $ticketsCount ++;
 
