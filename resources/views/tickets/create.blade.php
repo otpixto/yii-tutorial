@@ -385,6 +385,7 @@
                 let managementName = $('#al_add_tag_' + managementId).prop('value');
                 if (typeof managementName !== "undefined") {
                     $('.bootstrap-tagsinput').find('input').prop('value', managementName);
+                    saveTicket('tags', managementName);
                 }
             })
 
