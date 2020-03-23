@@ -764,6 +764,13 @@ class TicketsController extends BaseController
                 ->withErrors( [ 'Для сохранения заявки нужно выбрать (отметить галочкой) нужную организацию' ] );
         }
 
+        if ( ! $request->get( 'place_id' ) )
+        {
+            return redirect()
+                ->back()
+                ->withErrors( [ 'Укажите проблемное место' ] );
+        }
+
         $vendorID = $request->get( 'vendor_id', null );
 
         if ( $vendorID && in_array( $vendorID, [ Vendor::DOBRODEL_VENDOR_ID, Vendor::STATEMENT_VENDOR_ID ] ) )
