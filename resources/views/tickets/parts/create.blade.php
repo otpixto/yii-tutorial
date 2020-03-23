@@ -29,10 +29,15 @@
                     {!! Form::select( 'vendor_id', [ null => ' -- выберите из списка -- ' ] + $vendors, \Input::old( 'vendor_id', $ticket->vendor_id ?? null ), [ 'class' => 'form-control autosave', 'id' => 'vendor_id', 'autocomplete' => 'off' ] ) !!}
                 </div>
 
+            <div class="col-xs-5 col-md-5 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
+                <div class="input-group">
+                    <span class="input-group-addon al-group-span">№</span>
+                    {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave al-group-span', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер обращения")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'style' => 'min-width: 150px;', 'autocomplete' => 'off' ] ) !!}
+                </div>
+            </div>
+
                 <div class="col-xs-9 col-md-9 col-md-offset-3 margin-top-10 vendor @if ( ! $ticket->vendor_id ) hidden @php $required = ''; @endphp @else @php $required = 'required'; @endphp @endif">
                     <div class="input-group">
-                        <span class="input-group-addon al-group-span">№</span>
-                        {!! Form::text( 'vendor_number', \Input::old( 'vendor_number', $ticket->vendor_number ), [ 'class' => 'form-control autosave al-group-span', $required,  'oninvalid' => 'this.setCustomValidity("Укажите номер обращения")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => '№', 'id' => 'vendor_number', 'style' => 'min-width: 150px;', 'autocomplete' => 'off' ] ) !!}
                         <span class="input-group-addon al-group-span">Дата поступл.</span>
                         {!! Form::date( 'vendor_date', \Input::old( 'vendor_date', $ticket->vendor_date ), [ 'class' => 'form-control autosave al-group-span', $required, 'oninvalid' => 'this.setCustomValidity("Укажите дату обращения")', 'oninput' => 'this.setCustomValidity("")', 'placeholder' => 'Дата поступл.', 'id' => 'vendor_date', 'autocomplete' => 'off' ] ) !!}
                         <span class="input-group-addon al-group-span">Срок решения</span>
