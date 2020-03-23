@@ -251,6 +251,10 @@
                 });
             })
 
+            .on('click', '.sa-confirm-button-container', function () {
+                window.location.reload();
+            })
+
             .on('itemRemoved', '#tags', function (e) {
                 var tag = e.item;
                 if (!tag) return;
