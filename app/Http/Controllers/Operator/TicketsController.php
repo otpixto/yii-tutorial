@@ -2642,7 +2642,13 @@ class TicketsController extends BaseController
         switch ( $request->get( 'field' ) )
         {
             case 'tags':
-                $tags = explode( ',', $request->get( 'value' ) );
+                if( strpos($request->get( 'value' ), '«') || strpos($request->get( 'value' ), '" ') )
+                {
+                    $tags = [$request->get( 'value' )];
+                } else {
+                    $tags = explode( ',', $request->get( 'value' ) );
+                }
+
                 foreach ( $tags as $tag )
                 {
                     $tag = trim( $tag );
