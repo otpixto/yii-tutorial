@@ -61,17 +61,17 @@
 
             <table class="table table-hover table-striped table-condensed">
                 <thead>
-                    <tr>
-                        <th>
+                <tr>
+                    <th>
 
-                        </th>
-                        <th>
-                            УО
-                        </th>
-                        <th>
-                            Контакты
-                        </th>
-                    </tr>
+                    </th>
+                    <th>
+                        УО
+                    </th>
+                    <th>
+                        Контакты
+                    </th>
+                </tr>
                 </thead>
                 <tbody>
                 @foreach ( $managements as $management )
@@ -80,7 +80,16 @@
                             <div class="md-checkbox">
                                 {!! Form::checkbox( 'managements[]', $management->id, false, [ 'class' => 'md-check al-add_to_tag', 'id' => 'management-' . $management->id ] ) !!}
                                 @if ( $management->category_id == \App\Models\Management::OMSU_MANAGEMENT_CATEGORY_ID )
-                                    <input type="hidden" id="al_add_tag_{{ $management->id }}" value="{{ $management->name }}">
+                                    <input type="hidden" id="al_add_tag_{{ $management->id }}"
+                                           value="{{ $management->name }}">
+                                @endif
+                                @if ( \Auth::user()->can( 'tickets.insert_managements_applicants_data' ) )
+
+                                    @foreach(\App\Models\Management::MANAGEMENTS_APPLICANTS_DATA as $applicantsFieldName => $usersFieldName)
+                                        @if( ! empty($management->{$applicantsFieldName}) )
+                                            <input type="hidden" class="al-applicant_data_{{ $management->id }}" user-field-name="{{ $usersFieldName }}" value="{{ $management->{$applicantsFieldName} }}" @if( $usersFieldName == 'actual_building_id' ) address-name = "{{ \App\Models\Building::find($management->applicants_building_id) ? \App\Models\Building::find($management->applicants_building_id)->name : '' }}" @endif>
+                                        @endif
+                                    @endforeach
                                 @endif
                                 <label for="management-{{ $management->id }}">
                                     <span class="inc"></span>

@@ -383,6 +383,22 @@
             .on('change', '.al-add_to_tag', function (e) {
                 let managementId = $(this).prop('value');
                 let managementName = $('#al_add_tag_' + managementId).prop('value');
+
+                $('.al-applicant_data_' + managementId).each(function () {
+                    let fieldsValue = $(this).prop('value');
+                    if(fieldsValue != '') {
+                        let userField = $(this).attr('user-field-name');
+                        $('#' + userField).prop('value', fieldsValue);
+                        if(userField == 'actual_building_id') {
+                            let addressText = $(this).attr('address-name');
+                            $('#select2-actual_building_id-container').text(addressText);
+                            $('#select2-actual_building_id-container').attr('title', addressText);
+                            $('#actual_building_id').attr('value', fieldsValue);
+                        }
+                        saveTicket(userField, fieldsValue);
+                    }
+                })
+
                 if (typeof managementName !== "undefined") {
                     $('.bootstrap-tagsinput').find('input').prop('value', managementName);
                     saveTicket('tags', managementName);

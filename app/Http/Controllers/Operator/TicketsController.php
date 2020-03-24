@@ -2665,16 +2665,7 @@ class TicketsController extends BaseController
                     $ticket->addTag( $tag );
                 }
                 break;
-            case 'type_id':
-                $res = $ticket->edit( [
-                    $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
-                ] );
-                if ( $res instanceof MessageBag )
-                {
-                    return $res;
-                }
-                break;
-            case 'type_parent_id':
+            case 'type_id' || 'type_parent_id':
                 $res = $ticket->edit( [
                     $request->get( 'field' ) => $request->get( 'value', 0 ) ?: null
                 ] );

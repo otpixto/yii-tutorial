@@ -418,6 +418,78 @@
 
         @endif
 
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Заявитель от УО</h3>
+            </div>
+            <div class="panel-body">
+
+                {!! Form::model( $management, [ 'method' => 'put', 'route' => [ 'managements.update', $management->id ], 'class' => 'form-horizontal submit-loading' ] ) !!}
+
+                <div class="form-group">
+
+                    <div class="col-md-4">
+                        {!! Form::label( 'applicants_lastname', 'Фамилия', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'applicants_lastname', \Input::old( 'applicants_lastname', $management->applicants_lastname ), [ 'class' => 'form-control', 'placeholder' => 'Фамилия' ] ) !!}
+                    </div>
+
+                    <div class="col-md-4">
+                        {!! Form::label( 'applicants_name', 'Имя', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'applicants_name', \Input::old( 'applicants_name', $management->applicants_name ), [ 'class' => 'form-control', 'placeholder' => 'Имя' ] ) !!}
+                    </div>
+
+                    <div class="col-md-4">
+                        {!! Form::label( 'applicants_middlename', 'Отчество', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'applicants_middlename', \Input::old( 'applicants_middlename', $management->applicants_middlename ), [ 'class' => 'form-control', 'placeholder' => 'Отчество' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-md-3">
+                        {!! Form::label( 'applicants_phone', 'Телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'applicants_phone', \Input::old( 'applicants_phone', $management->applicants_phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
+                    </div>
+
+                    <div class="col-md-3">
+                        {!! Form::label( 'applicants_extra_phone', 'Доп. телефон', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::text( 'applicants_extra_phone', \Input::old( 'applicants_extra_phone', $management->applicants_extra_phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Доп. телефон' ] ) !!}
+                    </div>
+
+                    <div class="col-md-6">
+                        {!! Form::label( 'applicants_email', 'E-mail', [ 'class' => 'control-label' ] ) !!}
+                        {!! Form::email( 'applicants_email', \Input::old( 'applicants_email', $management->applicants_email ), [ 'class' => 'form-control', 'placeholder' => 'E-mail' ] ) !!}
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-2 margin-top-30">
+                        {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row">
+
+                            <div class="col-md-10">
+                                {!! Form::label( 'applicants_building_id', 'Адрес нахождения', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::select( 'applicants_building_id', $management->applicants_building_id ? \App\Models\Building::find($management->applicants_building_id)->pluck( \App\Models\Building::$_table . '.name', \App\Models\Building::$_table . '.id' ) : [], \Input::old( 'applicants_building_id', $management->applicants_building_id ), [ 'class' => 'form-control select2-ajax', 'placeholder' => 'Адрес нахождения', 'data-ajax--url' => route( 'buildings.search' ), 'data-placeholder' => 'Адрес нахождения' ] ) !!}
+                            </div>
+
+                            <div class="col-md-2">
+                                {!! Form::label( 'applicants_actual_flat', 'Помещение', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::text( 'applicants_actual_flat', \Input::old( 'applicants_actual_flat', $management->applicants_actual_flat ), [ 'class' => 'form-control', 'placeholder' => 'Помещение' ] ) !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {!! Form::close() !!}
+
+            </div>
+
+        </div>
+
         @if ( \Auth::user()->can( 'catalog.managements.users' ) )
 
             <div class="panel panel-default">
