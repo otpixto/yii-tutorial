@@ -1,5 +1,4 @@
 {!! Form::open( [ 'url' => route( 'tickets.postponed.update', $ticket->id ), 'id' => 'postpone-form', 'class' => 'submit-loading form-horizontal ajax' ] ) !!}
-@if ( \Auth::user()->can( 'tickets.edit' ) )
     <div class="form-group">
         <div class="col-xs-12">
             {!! Form::label( 'postponed_to', 'Дата', [ 'class' => 'control-label' ] ) !!} <span class="form-element-required">*</span>
@@ -18,5 +17,4 @@
             {!! Form::textarea( 'postponed_comment', null, [ 'class' => 'form-control' ] ) !!}
         </div>
     </div>
-@endif
 {!! Form::close() !!}
