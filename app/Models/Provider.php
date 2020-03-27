@@ -71,6 +71,11 @@ class Provider extends BaseModel
     {
         return $this->hasMany( ProviderContext::class );
     }
+	
+	public function domains ()
+    {
+        return $this->hasMany( ProviderDomain::class );
+    }
 
     public function providerKeys ()
     {
@@ -142,7 +147,12 @@ class Provider extends BaseModel
     public function scopeCurrent ( $query )
     {
         return $query
-            ->where( 'domain', '=', self::$current ? self::$current->domain : \Request::getHost() );
+            ->where( 'providers.domain', '=', self::$current ? self::$current->domain : \Request::getHttpHost() )
+			->orWhereHas( 'domains', function ( $domains )
+			{
+				return $domains
+					->where( 'providers_domains.domain', '=', self::$current ? self::$current->domain : \Request::getHttpHost() );
+			});
     }
 
     public static function create ( array $attributes = [] )
@@ -214,7 +224,7 @@ class Provider extends BaseModel
 
     public static function getSubDomain ()
     {
-        $exp = explode( '.', \Request::getHost() );
+        $exp = explode( '.', \Request::getHttpHost() );
         if ( count( $exp ) < 3 ) return null;
         return $exp[ 0 ];
     }
@@ -236,7 +246,7 @@ class Provider extends BaseModel
     {
         if ( ! self::$current )
         {
-            $host = \Request::getHost();
+            $host = \Request::getHttpHost();
             if ( \Cache::has( 'provider.' . $host ) )
             {
                 $provider = \Cache::get( 'provider.' . $host );
