@@ -309,3 +309,11 @@ body {
 .al-group-span{
     padding: 6px 4px;
 }
+
+.al-building-id-select .select2-selection--single{
+    height: 55px;
+}
+
+#select2-building_id-container{
+    white-space: normal !important;
+}
