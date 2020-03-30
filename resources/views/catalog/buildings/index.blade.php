@@ -48,11 +48,11 @@
                         @if ( $buildings->count() )
 
                             <div class="row">
-                                <div class="col-md-5">
+                                <div class="col-md-7">
                                     {{ $buildings->render() }}
                                 </div>
 
-                                <div class="col-md-5 margin-top-15">
+                                <div class="col-md-3 margin-top-15">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <input type="checkbox" class="al-select-all-on-page">
@@ -147,10 +147,10 @@
                             </table>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     {{ $buildings->render() }}
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="row">
                                         <div class="col-md-2 center-align">
                                             {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
@@ -169,7 +169,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3 center-align">
+                                <div class="col-md-2 center-align">
                                     <div class="form-group">
                                         {!! Form::open( [ 'url' => route('buildings.managements.massManagementsEdit', [ 'management_id' => null ]), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox-bind', 'class' => 'hidden' ] ) !!}
                                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids-bind' ] ) !!}
