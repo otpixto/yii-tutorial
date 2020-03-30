@@ -2780,6 +2780,10 @@ class TicketsController extends BaseController
             'middlename' => null,
             'call_phone' => null,
             'call_description' => null,
+            'vendor_id' => null,
+            'vendor_number' => null,
+            'vendor_date' => null,
+            'vendor_decision_date' => null
         ] );
         $ticket->emergency = 0;
         $ticket->urgently = 0;
