@@ -2783,11 +2783,13 @@ class TicketsController extends BaseController
             'vendor_id' => null,
             'vendor_number' => null,
             'vendor_date' => null,
-            'vendor_decision_date' => null
+            'vendor_decision_date' => null,
+            'type_parent_id' => null
         ] );
         $ticket->emergency = 0;
         $ticket->urgently = 0;
         $ticket->dobrodel = 0;
+        $ticket->tags()->delete();
         $ticket->save();
         return redirect()
             ->back()
