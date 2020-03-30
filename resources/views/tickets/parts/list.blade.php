@@ -1,8 +1,8 @@
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
         {{ $ticketManagements->render() }}
     </div>
-    <div class="col-md-6 text-right margin-top-10 margin-bottom-10">
+    <div class="col-md-4 text-right margin-top-10 margin-bottom-10">
         <span class="label label-info">
             Найдено: <b>{{ $ticketManagements->total() }}</b>
         </span>
