@@ -1215,6 +1215,8 @@ class TicketsController extends BaseController
             $need_act = $ticket->needAct();
         }
 
+        $transferredAgainStatusCount = $ticket->statusesHistory()->where('status_code', 'like', 'transferred_again')->count();
+
         return view( $request->ajax() ? 'tickets.parts.info' : 'tickets.show' )
             ->with( 'ticket', $ticket )
             ->with( 'ticketManagement', $ticketManagement ?? null )
@@ -1227,6 +1229,7 @@ class TicketsController extends BaseController
             ->with( 'neighborsTicketsCount', $neighborsTicketsCount )
             ->with( 'addressTicketsCount', $addressTicketsCount )
             ->with( 'customerTicketsCount', $customerTicketsCount ?? 0 )
+            ->with( 'transferredAgainStatusCount', $transferredAgainStatusCount ?? 0 )
             ->with( 'need_act', $need_act );
 
     }

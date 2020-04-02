@@ -24,6 +24,13 @@
             <div id="status-title">
                 {{ $progressData[ 'title' ] }}
             </div>
+            @if($transferredAgainStatusCount)
+                <div class="col-md-6 margin-top-10" style="border: 1px solid red;">
+                    <span style="color: red;">
+                        Возвраты на доработку: {{ $transferredAgainStatusCount }}
+                    </span>
+                </div>
+            @endif
         </div>
     </div>
     <div class="col-lg-6 hidden-print">
@@ -332,7 +339,8 @@
                                             Номер поставщика:
                                         </dt>
                                         <dd>
-                                            {{ $ticket->vendor_number }} от {{ $ticket->vendor_date ? $ticket->vendor_date->format( 'd.m.Y' ) : '' }}
+                                            {{ $ticket->vendor_number }}
+                                            от {{ $ticket->vendor_date ? $ticket->vendor_date->format( 'd.m.Y' ) : '' }}
                                         </dd>
                                     </dl>
                                 @endif
