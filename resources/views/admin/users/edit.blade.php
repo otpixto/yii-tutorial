@@ -64,6 +64,12 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        {!! Form::label( 'email', 'Email', [ 'class' => 'control-label col-md-3' ] ) !!}
+                        <div class="col-md-6">
+                            {!! Form::email( 'email', \Input::old( 'email', $user->email ), [ 'class' => 'form-control', 'placeholder' => 'Email' ] ) !!}
+                        </div>
+                    </div>
+                    <div class="form-group">
                         {!! Form::label( 'phone', 'Телефон', [ 'class' => 'control-label col-md-3' ] ) !!}
                         <div class="col-md-6">
                             {!! Form::text( 'phone', \Input::old( 'phone', $user->phone ), [ 'class' => 'form-control mask_phone', 'placeholder' => 'Телефон' ] ) !!}
