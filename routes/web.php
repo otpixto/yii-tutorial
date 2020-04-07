@@ -457,7 +457,9 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::put( 'users/{user_id}/types/add', 'Admin\UsersController@typesAdd' )->name( 'users.types.add' );
             Route::delete( 'users/{user_id}/types/del', 'Admin\UsersController@typesDel' )->name( 'users.types.del' );
             Route::delete( 'users/{user_id}/types/empty', 'Admin\UsersController@typesEmpty' )->name( 'users.types.empty' );
-
+            Route::delete( 'users/{user_id}/managements/empty', 'Admin\UsersController@managementsEmpty' )->name( 'managements.types.empty' );
+            Route::get( 'users/managements/mass-edit', 'Admin\UsersController@massManagementsEdit' )->name( 'users.managements.massManagementsEdit' );
+            Route::post( 'users/managements/mass-add', 'Admin\UsersController@massManagementsAdd' )->name( 'users.managements.massManagementsAdd' );
         });
 
     });

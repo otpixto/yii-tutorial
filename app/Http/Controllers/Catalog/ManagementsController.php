@@ -13,6 +13,7 @@ use App\Models\Segment;
 use App\Models\SegmentType;
 use App\Models\Tag;
 use App\Models\Type;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
