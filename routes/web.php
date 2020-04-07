@@ -460,6 +460,8 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::delete( 'users/{user_id}/managements/empty', 'Admin\UsersController@managementsEmpty' )->name( 'managements.types.empty' );
             Route::get( 'users/managements/mass-edit', 'Admin\UsersController@massManagementsEdit' )->name( 'users.managements.massManagementsEdit' );
             Route::post( 'users/managements/mass-add', 'Admin\UsersController@massManagementsAdd' )->name( 'users.managements.massManagementsAdd' );
+            Route::get( 'users/types/mass-edit', 'Admin\UsersController@massTypesEdit' )->name( 'users.managements.massTypesEdit' );
+            Route::post( 'users/type/mass-add', 'Admin\UsersController@massTypesAdd' )->name( 'users.types.massTypesAdd' );
         });
 
     });

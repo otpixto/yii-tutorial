@@ -70,7 +70,8 @@
             @forelse ( $userTypes as $r )
                 <div class="margin-bottom-5">
                     @if ( \Auth::user()->can( 'admin.users.types' ) )
-                        <button type="button" class="btn btn-xs btn-danger" data-delete="user-type" data-type="{{ $r->id }}">
+                        <button type="button" class="btn btn-xs btn-danger" data-delete="user-type"
+                                data-type="{{ $r->id }}">
                             <i class="fa fa-remove"></i>
                         </button>
                     @endif
@@ -84,13 +85,26 @@
 
             {{ $userTypes->render() }}
 
-            {!! Form::model( $user, [ 'method' => 'delete', 'route' => [ 'users.types.empty', $user->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
-            <div class="form-group margin-top-15">
-                <div class="col-md-12">
-                    {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+
+            <div class="row">
+                <div class="col-md-2 center-align">
+                    {!! Form::model( $user, [ 'method' => 'delete', 'route' => [ 'users.types.empty', $user->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                    <div class="form-group margin-top-15">
+                        <div class="col-md-12">
+                            {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+
+                <div class="col-md-4 center-align">
+                    <div class="form-group margin-top-15">
+                        <button class="btn btn-info" id="alOtherUser">
+                            Привязать ВСЕ к другому пользователю
+                        </button>
+                    </div>
                 </div>
             </div>
-            {!! Form::close() !!}
 
         </div>
     </div>
@@ -98,37 +112,36 @@
 @endsection
 
 @section( 'css' )
-    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet"
+          type="text/css"/>
 @endsection
 
 @section( 'js' )
-    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js"
+            type="text/javascript"></script>
     <script type="text/javascript">
 
-        $( document )
+        $(document)
 
-            .ready( function ()
-            {
+            .ready(function () {
 
-                $( '#category_id' )
+                $('#category_id')
                     .select2()
-                    .on( 'select2:select', function ( e )
-                    {
+                    .on('select2:select', function (e) {
                         var data = e.params.data;
-                        $.post( '{{ route( 'users.types', $user->id ) }}', {
+                        $.post('{{ route( 'users.types', $user->id ) }}', {
                             parent_id: data.id
-                        }, function ( response )
-                        {
-                            $( '#types' ).empty();
-                            $.each( response, function ( i, item )
-                            {
-                                $( '#types' ).append(
-                                    $( '<option>' ).val( item.id ).text( item.text )
+                        }, function (response) {
+                            $('#types').empty();
+                            $.each(response, function (i, item) {
+                                $('#types').append(
+                                    $('<option>').val(item.id).text(item.text)
                                 );
                             });
-                            $( '#types' ).removeClass( 'hidden' );
-                            $( '#types' ).multiselect( 'destroy' );
-                            $( '#types' ).multiselect({
+                            $('#types').removeClass('hidden');
+                            $('#types').multiselect('destroy');
+                            $('#types').multiselect({
                                 disableIfEmpty: true,
                                 enableFiltering: true,
                                 includeSelectAllOption: true,
@@ -149,13 +162,12 @@
 
             })
 
-            .on( 'click', '[data-delete="user-type"]', function ( e )
-            {
+            .on('click', '[data-delete="user-type"]', function (e) {
 
                 e.preventDefault();
 
-                var type_id = $( this ).attr( 'data-type' );
-                var obj = $( this ).closest( 'div' );
+                var type_id = $(this).attr('data-type');
+                var obj = $(this).closest('div');
 
                 bootbox.confirm({
                     message: 'Удалить привязку?',
@@ -170,10 +182,8 @@
                             className: 'btn-danger'
                         }
                     },
-                    callback: function ( result )
-                    {
-                        if ( result )
-                        {
+                    callback: function (result) {
+                        if (result) {
 
                             obj.hide();
 
@@ -183,14 +193,12 @@
                                 data: {
                                     type_id: type_id
                                 },
-                                success: function ()
-                                {
+                                success: function () {
                                     obj.remove();
                                 },
-                                error: function ( e )
-                                {
+                                error: function (e) {
                                     obj.show();
-                                    alert( e.statusText );
+                                    alert(e.statusText);
                                 }
                             });
 
@@ -198,7 +206,30 @@
                     }
                 });
 
-            });
+            })
+            .on('click', '#alOtherUser', function () {
+                Swal.fire({
+                    title: '',
+                    icon: 'info',
+                    html: '<h6><b>Вы уверены?</b></h6>',
+                    showCloseButton: true,
+                    showCancelButton: true,
+                    focusConfirm: false,
+                    confirmButtonText:
+                        '<h6><b>ОК</b></h6>',
+                    confirmButtonAriaLabel: 'ОК',
+                    cancelButtonText: '<h6><b>Отмена</b></h6>',
+                    cancelButtonAriaLabel: 'Thumbs down'
+                }).then((result) => {
+
+                    if (result.value) {
+                        window.location.href = '{{ route('users.managements.massTypesEdit', [ 'user_id' => $user->id ]) }}';
+
+                        return false;
+                    }
+
+                })
+            })
 
     </script>
 @endsection

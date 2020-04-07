@@ -640,7 +640,6 @@ class UsersController extends BaseController
 
     }
 
-
     public function massManagementsEdit ( Request $request )
     {
 
@@ -733,6 +732,99 @@ class UsersController extends BaseController
         return redirect()
             ->route( 'users.managements', [ 'user_id' => $userID ] )
             ->with( 'success', 'Пользователи успешно привязаны к выбранным УО' );
+    }
+
+    public function massTypesEdit ( Request $request )
+    {
+
+        Title::add( 'Привязка УО к пользователю' );
+
+        $id = $request->get( 'user_id', null );
+
+        $user = User::find( $id );
+
+        if ( ! $user )
+        {
+            return redirect()
+                ->route( 'users.index' )
+                ->withErrors( [ 'Пользователь не найден' ] );
+        }
+
+        $managementTypes = $user->types()
+            ->orderBy( Type::$_table . '.name' );
+
+        $usersTypesListString = $managementTypes->get()
+            ->pluck( 'id' )
+            ->implode( ',' );
+
+        $availableUsers = User
+            ::mine()
+            ->orderBy( User::$_table . '.firstname' )
+            ->get();
+
+        $res = [];
+        foreach ( $availableUsers as $availableUser )
+        {
+            $res[ $availableUser->id ] = $availableUser->lastname . ' ' . $availableUser->firstname . ' ' .  $availableUser->middlename;
+        }
+        ksort( $res );
+        $availableUsers = $res;
+
+        return view( 'admin.users.types-mass-edit' )
+            ->with( 'availableUsers', $availableUsers )
+            ->with( 'user_id', $id )
+            ->with( 'usersTypesListString', $usersTypesListString );
+    }
+
+    public function massTypesAdd ( Request $request )
+    {
+        $userID = $request->get( 'user_id', null );
+        try
+        {
+
+            $managementsJSON = (string) $request->get( 'types', '' );
+
+            $types = explode( ',', $managementsJSON );
+
+            $users = $request->get( 'users', [] );
+
+            if ( is_array( $users ) && count( $types ) )
+            {
+                foreach ( $users as $user_id )
+                {
+                    foreach ( $types as $type_id )
+                    {
+                        $managementsUser = \Illuminate\Support\Facades\DB::table( 'users_types' )
+                            ->where( 'type_id', $type_id )
+                            ->where( 'user_id', $user_id )
+                            ->first();
+
+                        if ( ! $managementsUser )
+                        {
+
+                            \Illuminate\Support\Facades\DB::table( 'users_types' )
+                                ->insert(
+                                    [
+                                        'type_id' => $type_id,
+                                        'user_id' => $user_id
+                                    ]
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        catch ( \Exception $exception )
+        {
+            dd( $exception->getMessage() );
+            return redirect()
+                ->route( 'users.types', [ 'user_id' => $userID ] )
+                ->with( 'error', 'Ошибка привязки классификаторов к выбранным типам' );
+        }
+
+        return redirect()
+            ->route( 'users.types', [ 'user_id' => $userID ] )
+            ->with( 'success', 'Пользователи успешно привязаны к выбранным типам' );
     }
 
     public function userLogs ( $id )
