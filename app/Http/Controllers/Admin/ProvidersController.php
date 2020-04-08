@@ -12,6 +12,7 @@ use App\Models\Segment;
 use App\Models\SegmentType;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Storage;
 
@@ -790,6 +791,8 @@ class ProvidersController extends BaseController
         }
 
         $provider->save();
+
+        $provider->users()->attach( Auth::user()->id );
 
         return redirect()
             ->route( 'providers.edit', $provider->id )
