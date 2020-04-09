@@ -204,8 +204,12 @@ class Building extends BaseModel
             {
                 $url .= '&apikey=' . $this->provider->yandex_key;
             }
-            $yandex = json_decode( file_get_contents( $url ) );
-            if ( isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
+            try {
+                $yandex = json_decode( file_get_contents( $url ) );
+            } catch (\Exception $exception) {
+                \Illuminate\Support\Facades\Log::error( $exception->getTraceAsString() );
+            }
+            if ( $yandex && isset( $yandex->response->GeoObjectCollection->featureMember[ 0 ] ) )
             {
                 $pos = explode( ' ', $yandex->response->GeoObjectCollection->featureMember[ 0 ]->GeoObject->Point->pos );
                 $this->lon = $pos[ 0 ];
