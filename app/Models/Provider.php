@@ -136,6 +136,9 @@ class Provider extends BaseModel
             $query
                 ->where( function ( $q ) use ( $user )
                 {
+                    if ($user->admin) {
+                        return $q;
+                    }
                     return $q
                         ->where( self::getTable() . '.id', '=', $user->provider_id )
                         ->orWhereIn( self::getTable() . '.id', $user->providers()->pluck( self::getTable() . '.id' ) );

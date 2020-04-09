@@ -18,8 +18,11 @@ class AsteriskController extends BaseController
 
     public function __construct ()
     {
-        $this->asterisk = Provider::getCurrent()
-            ->getAsterisk();
+        if (Provider::getCurrent()) {
+            $this->asterisk = Provider::getCurrent()
+                ->getAsterisk();
+        }
+
         parent::__construct();
     }
 
