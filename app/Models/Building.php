@@ -204,6 +204,7 @@ class Building extends BaseModel
             {
                 $url .= '&apikey=' . $this->provider->yandex_key;
             }
+            $yandex = null;
             try {
                 $yandex = json_decode( file_get_contents( $url ) );
             } catch (\Exception $exception) {
