@@ -9,6 +9,7 @@ use App\Models\Provider;
 use App\Models\Segment;
 use App\Models\SegmentType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 
 class SegmentsController extends BaseController
@@ -103,6 +104,8 @@ class SegmentsController extends BaseController
                 ->withInput()
                 ->withErrors( $segment );
         }
+
+        $segment->provider_id = Auth::user()->provider_id;
 
         $segment->save();
 

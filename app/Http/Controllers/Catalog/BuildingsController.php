@@ -9,6 +9,7 @@ use App\Models\BuildingType;
 use App\Models\Management;
 use App\Models\Provider;
 use App\Models\Segment;
+use Illuminate\Support\Facades\Auth;
 use function GuzzleHttp\Psr7\str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -200,6 +201,8 @@ class BuildingsController extends BaseController
                 ->withInput()
                 ->withErrors( $building );
         }
+
+        $building->provider_id = Auth::user()->provider_id;
 
         $building->save();
 
