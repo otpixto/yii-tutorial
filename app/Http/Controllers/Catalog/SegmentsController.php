@@ -105,8 +105,6 @@ class SegmentsController extends BaseController
                 ->withErrors( $segment );
         }
 
-        $segment->provider_id = Auth::user()->provider_id;
-
         $segment->save();
 
         self::clearCache();

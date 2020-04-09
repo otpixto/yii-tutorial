@@ -202,8 +202,6 @@ class BuildingsController extends BaseController
                 ->withErrors( $building );
         }
 
-        $building->provider_id = Auth::user()->provider_id;
-
         $building->save();
 
         self::clearCache();
