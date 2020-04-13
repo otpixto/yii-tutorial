@@ -3,7 +3,7 @@
         <tr>
             <td>
                 <div class="row">
-                    <div class="col-xs-6">
+                    <div class="col-xs-8">
                         <div class="row">
                             <div class="col-md-2">
                                 <a href="{{ route( 'tickets.show', $ticketManagement->getTicketNumber() ) }}">
@@ -15,14 +15,15 @@
                                     </span>
                                 </a>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="bold">
                                     {{ $ticketManagement->ticket->getAddress() }}
                                 </div>
                                 {{ $ticketManagement->ticket->type->name }}
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="bold">
+                                    {{ $ticketManagement->management->name }} |
                                     @if ( $ticketManagement->executor )
                                         {{ $ticketManagement->executor->getName() }}
                                     @else
@@ -35,7 +36,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-6 text-right">
+                    <div class="col-xs-4 text-right">
                         {!! Form::open( [ 'url' => route( 'tickets.status', $ticketManagement->getTicketNumber() ), 'data-status' => 'in_process', 'data-id' => $ticketManagement->id, 'class' => 'd-inline submit-loading form-horizontal', 'data-confirm' => 'Вы уверены, что хотите сменить статус на "В работе"?' ] ) !!}
                         {!! Form::hidden( 'model_name', get_class( $ticketManagement ) ) !!}
                         {!! Form::hidden( 'model_id', $ticketManagement->id ) !!}
