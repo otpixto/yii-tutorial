@@ -256,7 +256,7 @@ class Provider extends BaseModel
             }
             else
             {
-                $provider = self::current()->first();
+                $provider = self::first();
                 \Cache::put( 'provider.' . $host, $provider, 1440 );
             }
             self::setCurrent( $provider );
