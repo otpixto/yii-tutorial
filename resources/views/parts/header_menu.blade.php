@@ -353,7 +353,6 @@
                             </a>
                         </li>
                     @endif
-
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
                         <li aria-haspopup="true">
                             <a href="{{ route( 'admin.missed_calls' ) }}" class="nav-link">
