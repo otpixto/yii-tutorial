@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\External;
 
-use App\Models\Asterisk\MissedCall;
 use App\Models\PhoneSession;
 use App\Models\Provider;
 use App\Models\Ticket;
@@ -94,23 +93,4 @@ class AsteriskController extends BaseController
             dd( $this->asterisk->last_result );
         }
     }
-
-    public function missedCall ( Request $request )
-    {
-        if ( ! $request->get( 'phone', '' ) ) return;
-
-        $phoneNumber = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), - 10 );
-
-        if ( strlen( $phoneNumber ) == 10 )
-        {
-            $missedCall = MissedCall::firstOrNew( [ 'phone' => $phoneNumber ] );
-            $missedCall->calls_count = ++ $missedCall->calls_count;
-            $missedCall->phone = $phoneNumber;
-            $missedCall->create_date = Carbon::now()
-                ->toDateTimeString();
-            $missedCall->call_id = null;
-            $missedCall->save();
-        }
-    }
-
 }

@@ -191,10 +191,11 @@ class CallsController extends BaseController
     {
         Title::add( 'Пропущенные телефонные звонки' );
 
-        $missedCalls = MissedCall::whereNull( 'call_id' )
+        $missedCalls = MissedCall
+			::mineProvider()
+			->whereNull( 'call_id' )
             ->with( 'customer' )
             ->get();
-
         return view( 'admin.calls.missed_calls' )
             ->with( 'missedCalls', $missedCalls );
     }

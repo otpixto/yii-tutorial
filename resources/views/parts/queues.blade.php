@@ -3,7 +3,7 @@
             Перезвонить
         </a>
         <span>&nbsp;</span>
-        <span class="badge badge-danger left bold mr-5">{{ \App\Models\Asterisk\MissedCall::whereNull( 'call_id' )->count() }}</span>
+        <span class="badge badge-danger left bold mr-5">{{ \App\Models\Asterisk\MissedCall::mineProvider()->whereNull( 'call_id' )->count() }}</span>
     <span> &nbsp; &nbsp; &nbsp; </span>
 @endif
 

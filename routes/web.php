@@ -34,6 +34,8 @@ Route::group( [ 'middleware' => 'rest' ], function ()
         Route::any( 'ticket-call', 'RestController@ticketCall' );
 
         Route::any( 'phone-auth', 'RestController@phoneAuth' );
+		
+		Route::any( 'missed_call', 'RestController@missedCall' )->name( 'rest.missed_call' );
 
         Route::prefix( 'external' )->group( function ()
         {
@@ -100,7 +102,6 @@ Route::group( [ 'middleware' => 'rest' ], function ()
         Route::get( 'add/{exten}', 'External\AsteriskController@add' )->name( 'asterisk.add' );
         Route::get( 'remove/{exten}', 'External\AsteriskController@remove' )->name( 'asterisk.remove' );
         Route::post( 'call', 'External\AsteriskController@call' )->name( 'asterisk.call' );
-        Route::post( 'missed_call', 'External\AsteriskController@missedCall' )->name( 'asterisk.missed_call' );
     });
 
 });

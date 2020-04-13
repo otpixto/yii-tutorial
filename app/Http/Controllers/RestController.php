@@ -9,11 +9,13 @@ use App\Models\ProviderPhone;
 use App\Models\Ticket;
 use App\Models\TicketCall;
 use App\Models\UserPhoneAuth;
+use App\Models\Asterisk\MissedCall;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Carbon\Carbon;
 
 class RestController extends Controller
 {
@@ -321,6 +323,32 @@ class RestController extends Controller
             $ticketCall->save();
         }
 
+    }
+	
+	public function missedCall ( Request $request )
+    {
+		$request->validate([
+			'phone' => 'required',
+			'phone_office' => 'required',
+		]);
+        $phone = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone', '' ) ), - 10 );
+        $phone_office = mb_substr( preg_replace( '/\D/', '', $request->get( 'phone_office', '' ) ), - 10 );
+        if ( mb_strlen( $phone ) == 10 && mb_strlen( $phone_office ) == 10 )
+        {
+			$providerPhone = ProviderPhone::where( 'phone', '=', $phone_office )->first();
+			if ( $providerPhone )
+			{
+				$missedCall = MissedCall::firstOrNew( [ 
+					'provider_id' => $providerPhone->provider_id,
+					'phone' => $phone,
+				] );
+				$missedCall->calls_count = ++ $missedCall->calls_count;
+				$missedCall->create_date = Carbon::now()
+					->toDateTimeString();
+				$missedCall->call_id = null;
+				$missedCall->save();
+			}
+        }
     }
 
     private function error ( $code = null )
