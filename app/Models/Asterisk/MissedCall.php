@@ -5,7 +5,7 @@ namespace App\Models\Asterisk;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Model;
 
-class MissedCall extends \App\Models\BaseModel
+class MissedCall extends Model
 {
 
     protected $table = 'missed_calls';
