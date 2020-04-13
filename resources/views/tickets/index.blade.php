@@ -32,7 +32,7 @@
         @endif
 
         <div class="row hidden-print">
-            <div class="col-lg-2 col-md-3 col-sm-6">
+            <div class="col-lg-2 col-md-3 col-sm-6" style="position: absolute; left: 180px; top: -80px;">
                 @if( \Auth::user()->can( 'tickets.create' ) )
                     <a href="{{ route( 'tickets.create' ) }}"
                        class="btn btn-success btn-block btn-lg tooltips margin-top-10" title="Добавить заявку">
@@ -41,13 +41,19 @@
                     </a>
                 @endif
             </div>
-            <div class="col-lg-2 col-md-3 col-sm-6">
+            <div class="col-lg-3 col-md-3 col-sm-6">
                 <div class="input-group margin-top-10">
                     <span class="input-group-addon">#</span>
-                    {!! Form::text( 'ticket_id', '', [ 'class' => 'form-control input-lg', 'placeholder' => '', 'id' => 'ticket_id' ] ) !!}
+                    {!! Form::text( 'vendor_number', '', [ 'class' => 'form-control input-lg', 'placeholder' => '№ поставщика', 'id' => 'vendor_number' ] ) !!}
                 </div>
             </div>
-            <div class="col-lg-8 col-md-12 col-sm-12">
+            <div class="col-lg-3 col-md-3 col-sm-6">
+                <div class="input-group margin-top-10">
+                    <span class="input-group-addon">#</span>
+                    {!! Form::text( 'ticket_id', '', [ 'class' => 'form-control input-lg', 'placeholder' => '№ заявки в АИС', 'id' => 'ticket_id' ] ) !!}
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12 col-sm-12">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 btn-group" data-toggle="buttons">
                         <label class="margin-top-10 btn btn-default btn-xs btn-block border-green-jungle">
@@ -518,6 +524,15 @@
                     window.location.href = url;
                     //clearFilter();
                     //loadTickets( url );
+                }
+            })
+
+            .on('keypress', '#vendor_number', function (e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    $(this).attr('disabled', 'disabled').addClass('loading');
+                    var url = '/tickets?vendor_number=' + $(this).val();
+                    window.location.href = url;
                 }
             })
 
