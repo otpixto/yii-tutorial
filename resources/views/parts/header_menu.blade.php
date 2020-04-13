@@ -353,11 +353,12 @@
                             </a>
                         </li>
                     @endif
+
                     @if ( \Auth::user()->admin || \Auth::user()->can( 'admin.calls.show' ) )
                         <li aria-haspopup="true">
                             <a href="{{ route( 'admin.missed_calls' ) }}" class="nav-link">
                                 Перезвонить
-                                <span class="badge badge-danger left bold" style="right: 60px;">{{ \App\Models\Asterisk\MissedCall::whereNull( 'call_id' )->count() }}</span>
+                                <span class="badge badge-danger left bold" style="right: 60px;">{{ \App\Models\Asterisk\MissedCall::mineProvider()->whereNull( 'call_id' )->count() }}</span>
                             </a>
                         </li>
                     @endif
