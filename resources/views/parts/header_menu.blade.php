@@ -357,7 +357,7 @@
                         <li aria-haspopup="true">
                             <a href="{{ route( 'admin.missed_calls' ) }}" class="nav-link">
                                 Перезвонить
-                                <span class="badge badge-danger left bold" style="right: 60px;">{{ \App\Models\Asterisk\MissedCall::whereNull( 'call_id' )->count() }}</span>
+                                <span class="badge badge-danger left bold" style="right: 60px;">{{ \App\Models\Asterisk\MissedCall::whereNull( 'call_id' )->with( 'customer' )->count() }}</span>
                             </a>
                         </li>
                     @endif
