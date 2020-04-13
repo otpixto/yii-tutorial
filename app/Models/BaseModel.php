@@ -142,6 +142,10 @@ class BaseModel extends Model
 
     public function scopeMineProvider ( $query )
     {
+	if ( \Auth::user()->admin )
+	{
+		return $query;
+	}
         return $query
 			->where( function ( $q )
 			{

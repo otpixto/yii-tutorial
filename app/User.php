@@ -391,7 +391,7 @@ class User extends BaseModel implements
                     ->orWhereHas( 'providers', function ( $providers )
                     {
                         return $providers
-                            ->mine()
+                            #->mine()
                             ->current();
                     } );
             } );

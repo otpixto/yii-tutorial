@@ -86,12 +86,16 @@ class PhoneSession extends BaseModel
     public function scopeMine ( $query )
     {
         return $query
-            ->mineProvider()
-            ->whereHas( 'user', function ( $user )
+            ->whereHas( 'provider', function ( $provider )
+		{
+			return $provider
+				->current();
+		});
+            /*->whereHas( 'user', function ( $user )
             {
                 return $user
                     ->mine();
-            } );
+            } )*/;
     }
 
     public function close ()
