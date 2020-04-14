@@ -15,7 +15,6 @@ class FillJukAddressesForHotLine extends Migration
     {
 
 
-
     }
 
     /**
