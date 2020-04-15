@@ -146,7 +146,7 @@
                             </div>
                             <div class="col-md-12 margin-bottom-15">
                                 {!! Form::label( 'vendors', 'Вендоры', [ 'class' => 'control-label' ] ) !!}
-                                {!! Form::select( 'vendors[]', \App\Models\Vendor::pluck('name', 'id')->toArray(), null, [ 'class' => 'form-control select2', 'multiple' ] ) !!}
+                                {!! Form::select( 'vendors[]', $vendors, null, [ 'class' => 'form-control select2', 'multiple' ] ) !!}
                             </div>
                         </div>
                         <div class="form-group hidden-print">

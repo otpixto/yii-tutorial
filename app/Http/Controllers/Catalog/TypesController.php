@@ -322,9 +322,12 @@ class TypesController extends BaseController
             ->orderBy( 'name' )
             ->pluck( 'name', 'id' );
 
+        $vendors = Vendor::where('name', '!=', "ГЖИ")->orderByDesc('id')->pluck('name', 'id')->toArray();
+
         return view( 'catalog.types.edit' )
             ->with( 'type', $type )
             ->with( 'parents', $parents )
+            ->with( 'vendors', $vendors )
             ->with( 'groups', $groups );
     }
 
