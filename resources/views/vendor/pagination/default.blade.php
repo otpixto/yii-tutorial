@@ -47,7 +47,9 @@
                 <div class="form-group mx-sm-1 mb-1">
                     @foreach(request()->all() as $key => $value)
                         @if( $key == 'page' ) @continue @endif
-                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @if (is_string($value))
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endif
                     @endforeach
                     <input type="text" class="form-control margin-top-10" style="width: 60px;" name="page"
                            placeholder="Стр.">
