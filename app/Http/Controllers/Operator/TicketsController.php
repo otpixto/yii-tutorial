@@ -240,17 +240,23 @@ class TicketsController extends BaseController
             $ticket = $ticketManagement->ticket;
             if ( ! $ticket || $ticket->status_code == 'draft' ) continue;
             $data[ $i ] = [
-                '#' => $ticket->id,
+                'Номер в АИС' => $ticket->id,
                 'Дата и время' => $ticket->created_at->format( 'd.m.y H:i' ),
-                'Текущий статус' => $ticket->status_name,
-                'Здание' => $ticket->building->name ?? '',
-                'Квартира' => $ticket->flat,
+                '№ в Добродел' => ($ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID) ? $ticket->vendor_number : null,
+                'Дата поступл. ДД' => ($ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID) ? $ticket->vendor_date : null,
+                'Адрес' => $ticket->building->name ?? '',
+                'Помещение' => $ticket->flat,
                 'Проблемное место' => $ticket->getPlace(),
                 'Классификатор' => $ticket->type->name,
                 'Текст обращения' => $ticket->text,
                 'ФИО заявителя' => $ticket->getName(),
                 'Телефон(ы) заявителя' => $ticket->getPhones(),
-                'Выполнить до' => $ticket->deadline_execution ? $ticket->deadline_execution->format( 'd.m.Y H:i' ) : null
+                'Выполнить до' => $ticket->deadline_execution ? $ticket->deadline_execution->format( 'd.m.Y H:i' ) : null,
+                'Срок решения ДД' => ($ticket->vendor_id == Vendor::DOBRODEL_VENDOR_ID) ? $ticket->vendor_decision_date : null,
+                'Текущий статус' => $ticket->status_name,
+                '№ ГЖИ' => ($ticket->vendor_id == Vendor::GZHI_VENDOR_ID) ? $ticket->vendor_number : null,
+                'Дата ГЖИ' => ($ticket->vendor_id == Vendor::GZHI_VENDOR_ID) ? $ticket->vendor_date : null,
+                '№ ЕИАС' => $ticket->gzhi_appeal_number,
             ];
             if ( \Auth::user()
                 ->can( 'tickets.field_opeator' ) )
@@ -260,7 +266,7 @@ class TicketsController extends BaseController
             if ( \Auth::user()
                 ->can( 'tickets.field_management' ) )
             {
-                $data[ $i ][ 'Служба эксплуатации' ] = $ticketManagement->management->name;
+                $data[ $i ][ 'Организация (Служба эксплуатации)' ] = $ticketManagement->management->name;
                 if ( $ticketManagement->executor )
                 {
                     $data[ $i ][ 'Исполнитель' ] = $ticketManagement->executor->name;
@@ -271,9 +277,13 @@ class TicketsController extends BaseController
 
         $this->addLog( 'Выгрузил список заявок' );
 
-        \Excel::create( 'ЗАЯВКИ', function ( $excel ) use ( $data )
+        $nowDate = Carbon::now()->format('d_m_Y_H_i_s');
+
+        $title = 'ЗАЯВКИ_' . $nowDate;
+
+        \Excel::create( $title, function ( $excel ) use ( $data, $title )
         {
-            $excel->sheet( 'ЗАЯВКИ', function ( $sheet ) use ( $data )
+            $excel->sheet( $title, function ( $sheet ) use ( $data )
             {
                 $sheet->fromArray( $data );
             } );
