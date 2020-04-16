@@ -267,10 +267,10 @@ class TicketsController extends BaseController
                 ->can( 'tickets.field_management' ) )
             {
                 $data[ $i ][ 'Организация (Служба эксплуатации)' ] = $ticketManagement->management->name;
-                if ( $ticketManagement->executor )
-                {
-                    $data[ $i ][ 'Исполнитель' ] = $ticketManagement->executor->name;
-                }
+//                if ( $ticketManagement->executor )
+//                {
+//                    $data[ $i ][ 'Исполнитель' ] = $ticketManagement->executor->name;
+//                }
             }
             $i ++;
         }
