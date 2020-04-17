@@ -1494,7 +1494,7 @@ class TicketsController extends BaseController
                 if ( \Auth::user()
                     ->can( 'tickets.edit' ) )
                 {
-                    $types = Cache::remember( 'types_list_for_ticket_edit' . Auth::user()->id, 60 * 60 * 24 * 7, function () use ( $ticket )
+                    $types = Cache::remember( 'types_list_for_ticket_edit' . Auth::user()->id . \Request::getHttpHost(), 60 * 60 * 24 * 7, function () use ( $ticket )
                     {
                         $res = Type
                             ::mine()
