@@ -91,7 +91,7 @@
 
             <div class="row">
                 <div class="col-md-2 center-align">
-                    {!! Form::model( $user, [ 'method' => 'delete', 'route' => [ 'managements.types.empty', $user->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
+                    {!! Form::model( $user, [ 'method' => 'delete', 'route' => [ 'users.managements.empty', $user->id ], 'class' => 'form-horizontal submit-loading', 'data-confirm' => 'Вы уверены?' ] ) !!}
                     <div class="form-group margin-top-15">
                         <div class="col-md-12">
                             {!! Form::submit( 'Удалить все', [ 'class' => 'btn btn-danger' ] ) !!}
