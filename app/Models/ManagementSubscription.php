@@ -59,6 +59,7 @@ class ManagementSubscription extends BaseModel
     {
         if ( ! $message ) return;
         $this->dispatch( new SendTelegram( $this, $message ) );
+        return true;
     }
 
     public function scopeMine ( $query )
