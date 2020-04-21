@@ -175,26 +175,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
-                        {!! Form::open( [ 'url' => route( 'buildings.massEdit' ), 'method' => 'get', 'target' => '_blank', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
-                        {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
-                        {!! Form::hidden( 'management_id', null, [ 'id' => 'al_url_data' ] ) !!}
-                        <div class="form-group margin-top-15">
-                            <div class="col-md-12">
-                                <button type="submit" class="btn btn-default">
-                                    Изменить сегмент (<span id="ids-count">0</span>)
-                                </button>
-                            </div>
-                        </div>
-                        {!! Form::close(); !!}
-                        <div class="center-block center-align" style="margin-left: 80px;">
-                            <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
-                                отмена
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         {!! Form::open( [ 'route' => [ 'buildings.mass-buildings-delete', $management->id ], 'method' => 'get', 'class' => 'hidden', 'data-confirm' => 'Вы уверены?', 'id' => 'form-checkbox-delete' ] ) !!}
 
                         {!! Form::hidden( 'ids', null, [ 'id' => 'ids-delete' ] ) !!}
@@ -239,15 +220,14 @@
 
 
         function checkTicketCheckbox(isAllData = false) {
+
             $('#form-checkbox').removeClass('hidden');
 
             $('#cancel-checkbox').removeClass('hidden');
 
-            if(!isAllData) {
-                $('#form-checkbox-delete').removeClass('hidden');
+            $('#form-checkbox-delete').removeClass('hidden');
 
-                $('#cancel-checkbox-delete').removeClass('hidden');
-            }
+            $('#cancel-checkbox-delete').removeClass('hidden');
 
             if (isAllData) {
                 let managementId = '{{ $management->id }}';
@@ -265,9 +245,10 @@
             if (isAllData) {
                 let countText = '{{ $managementBuildings->total() }}';
                 $('#ids-count').text(countText);
+                $('#ids-count-delete').text(String(i))
             } else {
                 $('#ids-count').text(ids.length);
-                $('#ids-count-delete').text(ids.length);
+                $('#ids-count-delete').text(String(i));
             }
 
             if (ids.length) {
