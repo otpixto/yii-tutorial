@@ -82,6 +82,39 @@
 
         {!! Form::close() !!}
 
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Загрузить классификатор из файла</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        {!! Form::open( [ 'url' => route( 'types.upload' ), 'class' => 'form-horizontal submit-loading', 'files' => true ] ) !!}
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                {!! Form::label( 'file', 'Файл', [ 'class' => 'control-label' ] ) !!}
+                                {!! Form::file( 'file', [ 'class' => 'form-control' ] ) !!}
+                            </div>
+                        </div>
+
+                        <div class="form-group hidden-print">
+                            <div class="col-md-12">
+                                {!! Form::submit( 'Загрузить', [ 'class' => 'btn green' ] ) !!}
+                            </div>
+                        </div>
+
+                        {!! Form::close() !!}
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
     @else
 
         @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )

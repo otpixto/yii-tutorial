@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use Illuminate\Http\Request;
+
 class ModelHelper
 {
 
@@ -28,6 +30,24 @@ class ModelHelper
             }
         }
         return $out;
+    }
+
+    public static function getFalseRequestFromQueryString(string $queryString): Request {
+        $urlDataArray = explode('&', $queryString);
+        $requestArray = [];
+        foreach ($urlDataArray as $urlDataItem) {
+            $urlDataItemArray = explode('=', $urlDataItem);
+
+            if (isset($urlDataItemArray[1]) && !empty($urlDataItemArray[1])) {
+                $requestArray[$urlDataItemArray[0]] = $urlDataItemArray[1];
+            }
+        }
+
+        return Request::create(
+            '',
+            'POST',
+            $requestArray
+        );
     }
 
 }

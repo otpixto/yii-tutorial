@@ -2,130 +2,61 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\ModelHelper;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\Management;
+use App\Models\Provider;
 use App\Models\Type;
 use App\Models\TypeGroup;
 use App\Models\Vendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\MessageBag;
 
 class TypesController extends BaseController
 {
 
-    public function __construct ()
+    public function __construct()
     {
         parent::__construct();
-        Title::add( 'Классификатор' );
+        Title::add('Классификатор');
     }
 
-    public function index ( Request $request )
+    public function index(Request $request)
     {
 
-        $search = trim( $request->get( 'search', '' ) );
-        $parent_id = trim( $request->get( 'parent_id', '' ) );
-        $building_id = trim( $request->get( 'building_id', '' ) );
-        $management_id = trim( $request->get( 'management_id', '' ) );
-        $provider_id = trim( $request->get( 'provider_id', '' ) );
-        $group_id = trim( $request->get( 'group_id', '' ) );
-
-        $types = Type
-            ::mine()
-            ->select(
-                'types.*',
-                'parent_type.name AS parent_name'
-            )
-            ->leftJoin( 'types AS parent_type', 'parent_type.id', '=', 'types.parent_id' )
-            ->orderBy( Type::$_table . '.name' );
-
-        if ( ! empty( $parent_id ) )
-        {
-            $types
-                ->where( function ( $q ) use ( $parent_id )
-                {
-                    return $q
-                        ->where( Type::$_table . '.parent_id', '=', $parent_id )
-                        ->orWhere( Type::$_table . '.id', '=', $parent_id );
-                } );
-        }
-
-        if ( ! empty( $search ) )
-        {
-            $s = '%' . str_replace( ' ', '%', trim( $search ) ) . '%';
-            $types
-                ->where( function ( $q ) use ( $s )
-                {
-                    return $q
-                        ->where( Type::$_table . '.name', 'like', $s )
-                        ->orWhere( Type::$_table . '.guid', 'like', $s )
-                        ->orWhere( 'parent_type.name', 'like', $s )
-                        ->orWhere( 'parent_type.guid', 'like', $s );
-                } );
-        }
-
-        if ( ! empty( $building_id ) )
-        {
-            $types
-                ->whereHas( 'buildings', function ( $buildings ) use ( $building_id )
-                {
-                    return $buildings
-                        ->where( Building::$_table . '.id', '=', $building_id );
-                } );
-        }
-
-        if ( ! empty( $management_id ) )
-        {
-            $types
-                ->whereHas( 'managements', function ( $managements ) use ( $management_id )
-                {
-                    return $managements
-                        ->where( Management::$_table . '.id', '=', $management_id );
-                } );
-        }
-
-        if ( ! empty( $provider_id ) )
-        {
-            $types
-                ->where( Type::$_table . '.provider_id', '=', $provider_id );
-        }
-
-        if ( ! empty( $group_id ) )
-        {
-            $types
-                ->where( Type::$_table . '.group_id', '=', $group_id );
-        }
-
-        $types = $types
-            ->with(
-                'parent',
-                'managements'
-            )
-            ->paginate( config( 'pagination.per_page' ) )
-            ->appends( $request->all() );
+        $types = ( new Type() )->searchData( $request )
+            ->paginate(config('pagination.per_page'))
+            ->appends($request->all());
 
         $parents = Type
             ::mine()
-            ->whereNull( 'parent_id' )
-            ->orderBy( 'name' )
+            ->whereNull('parent_id')
+            ->orderBy('name')
             ->get();
 
-        $this->addLog( 'Просмотрел классификатор (стр.' . $request->get( 'page', 1 ) . ')' );
+        $this->addLog('Просмотрел классификатор (стр.' . $request->get('page', 1) . ')');
 
-        return view( 'catalog.types.index' )
-            ->with( 'types', $types )
-            ->with( 'parents', $parents );
+        $queryString = $request->getQueryString();
+
+        return view('catalog.types.index')
+            ->with('types', $types)
+            ->with('queryString', $queryString)
+            ->with('parents', $parents);
 
     }
 
-    public function json ( Request $request )
+    public function json(Request $request)
     {
 
-        $provider_id = trim( $request->get( 'provider_id', '' ) );
+        $provider_id = trim($request->get('provider_id', ''));
 
-        $isWithVendorID = trim( $request->get( 'is_with_vendor_id', '' ) );
+        $isWithVendorID = trim($request->get('is_with_vendor_id', ''));
 
-        $isWithParentID = trim( $request->get( 'is_with_parent_id', '' ) );
+        $isWithParentID = trim($request->get('is_with_parent_id', ''));
 
         $types = Type
             ::mine()
@@ -133,48 +64,41 @@ class TypesController extends BaseController
                 Type::$_table . '.id as id',
                 'name as text'
             )
-            ->orderBy( Type::$_table . '.name' );
+            ->orderBy(Type::$_table . '.name');
 
-        if ( ! empty( $provider_id ) )
-        {
-            if ( $isWithVendorID == 'true' )
-            {
+        if (!empty($provider_id)) {
+            if ($isWithVendorID == 'true') {
                 $types
-                    ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
-                    ->whereNull( Type::$_table . '.parent_id' )
-                    ->where( 'types_vendors.vendor_id', $provider_id );
-            } elseif ( $isWithParentID == 'true' )
-            {
+                    ->leftJoin('types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id')
+                    ->whereNull(Type::$_table . '.parent_id')
+                    ->where('types_vendors.vendor_id', $provider_id);
+            } elseif ($isWithParentID == 'true') {
                 $types
-                    ->where( Type::$_table . '.parent_id', '=', $provider_id );
-            } else
-            {
+                    ->where(Type::$_table . '.parent_id', '=', $provider_id);
+            } else {
                 $types
-                    ->where( Type::$_table . '.provider_id', '=', $provider_id );
+                    ->where(Type::$_table . '.provider_id', '=', $provider_id);
             }
 
-        } else
-        {
-            if ( $isWithVendorID == 'true' )
-            {
+        } else {
+            if ($isWithVendorID == 'true') {
                 $types
-                    ->leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
-                    ->whereNull( Type::$_table . '.parent_id' )
-                    ->where( 'types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID );
-            } else
-            {
+                    ->leftJoin('types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id')
+                    ->whereNull(Type::$_table . '.parent_id')
+                    ->where('types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID);
+            } else {
                 $defaultParentsIDs = Type::
-                leftJoin( 'types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id' )
-                    ->where( 'types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID )
-                    ->pluck( Type::$_table . '.id as id' )
+                leftJoin('types_vendors', Type::$_table . '.id', '=', 'types_vendors.type_id')
+                    ->where('types_vendors.vendor_id', Vendor::DEFAULT_VENDOR_ID)
+                    ->pluck(Type::$_table . '.id as id')
                     ->toArray();
 
                 $types = Type
                     ::mine()
-                    ->select( 'id', 'name as text' )
-                    ->orderByDesc( Type::$_table . '.tickets_using_times' )
-                    ->orderBy( Type::$_table . '.name' )
-                    ->whereIn( Type::$_table . '.parent_id', $defaultParentsIDs )
+                    ->select('id', 'name as text')
+                    ->orderByDesc(Type::$_table . '.tickets_using_times')
+                    ->orderBy(Type::$_table . '.name')
+                    ->whereIn(Type::$_table . '.parent_id', $defaultParentsIDs)
                     ->get()
                     ->toArray();
 
@@ -185,10 +109,9 @@ class TypesController extends BaseController
 
         }
 
-        if ( $request->get( 'works' ) )
-        {
+        if ($request->get('works')) {
             $types
-                ->where( Type::$_table . '.works', '=', 1 );
+                ->where(Type::$_table . '.works', '=', 1);
         }
 
         $types = $types->get()
@@ -203,19 +126,19 @@ class TypesController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create ()
+    public function create()
     {
 
-        Title::add( 'Добавить Классификатор' );
+        Title::add('Добавить Классификатор');
 
         $parents = Type
             ::mine()
-            ->whereNull( 'parent_id' )
-            ->orderBy( Type::$_table . '.name' )
-            ->pluck( Type::$_table . '.name', Type::$_table . '.id' );
+            ->whereNull('parent_id')
+            ->orderBy(Type::$_table . '.name')
+            ->pluck(Type::$_table . '.name', Type::$_table . '.id');
 
-        return view( 'catalog.types.create' )
-            ->with( 'parents', $parents );
+        return view('catalog.types.create')
+            ->with('parents', $parents);
     }
 
     /**
@@ -224,7 +147,7 @@ class TypesController extends BaseController
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store ( Request $request )
+    public function store(Request $request)
     {
 
         $rules = [
@@ -238,43 +161,39 @@ class TypesController extends BaseController
             'emergency' => 'boolean',
         ];
 
-        $this->validate( $request, $rules );
+        $this->validate($request, $rules);
 
         $old = Type
             ::mine()
-            ->where( function ( $q ) use ( $request )
-            {
+            ->where(function ($q) use ($request) {
                 $q
-                    ->where( 'name', '=', $request->get( 'name' ) );
-                if ( ! empty( $request->get( 'guid' ) ) )
-                {
+                    ->where('name', '=', $request->get('name'));
+                if (!empty($request->get('guid'))) {
                     $q
-                        ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+                        ->orWhere('guid', '=', $request->get('guid'));
                 }
                 return $q;
-            } )
+            })
             ->first();
-        if ( $old )
-        {
+        if ($old) {
             return redirect()
                 ->back()
-                ->withErrors( [ 'Классификатор уже существует' ] );
+                ->withErrors(['Классификатор уже существует']);
         }
 
-        $type = Type::create( $request->all() );
-        if ( $type instanceof MessageBag )
-        {
+        $type = Type::create($request->all());
+        if ($type instanceof MessageBag) {
             return redirect()
                 ->back()
-                ->withErrors( $type );
+                ->withErrors($type);
         }
         $type->save();
 
         self::clearCache();
 
         return redirect()
-            ->route( 'types.edit', $type->id )
-            ->with( 'success', 'Классификатор успешно добавлен' );
+            ->route('types.edit', $type->id)
+            ->with('success', 'Классификатор успешно добавлен');
 
     }
 
@@ -284,7 +203,7 @@ class TypesController extends BaseController
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show ( $id )
+    public function show($id)
     {
         //
     }
@@ -295,40 +214,39 @@ class TypesController extends BaseController
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit ( $id )
+    public function edit($id)
     {
 
-        Title::add( 'Редактировать Классификатор' );
+        Title::add('Редактировать Классификатор');
 
         $type = Type::mine()
-            ->find( $id );
+            ->find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
         $parents = Type
             ::mine()
-            ->whereNull( 'parent_id' )
-            ->where( 'id', '!=', $type->id )
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
+            ->whereNull('parent_id')
+            ->where('id', '!=', $type->id)
+            ->orderBy('name')
+            ->pluck('name', 'id');
 
         $groups = TypeGroup
             ::mine()
-            ->orderBy( 'name' )
-            ->pluck( 'name', 'id' );
+            ->orderBy('name')
+            ->pluck('name', 'id');
 
         $vendors = Vendor::where('name', '!=', "ГЖИ")->orderByDesc('id')->pluck('name', 'id')->toArray();
 
-        return view( 'catalog.types.edit' )
-            ->with( 'type', $type )
-            ->with( 'parents', $parents )
-            ->with( 'vendors', $vendors )
-            ->with( 'groups', $groups );
+        return view('catalog.types.edit')
+            ->with('type', $type)
+            ->with('parents', $parents)
+            ->with('vendors', $vendors)
+            ->with('groups', $groups);
     }
 
     /**
@@ -338,16 +256,15 @@ class TypesController extends BaseController
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update ( Request $request, $id )
+    public function update(Request $request, $id)
     {
 
-        $type = Type::find( $id );
+        $type = Type::find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
         $rules = [
@@ -366,70 +283,63 @@ class TypesController extends BaseController
             'lk' => 'boolean',
         ];
 
-        $this->validate( $request, $rules );
+        $this->validate($request, $rules);
 
         $old = Type
             ::mine()
-            ->where( 'id', '!=', $type->id )
-            ->where( function ( $q ) use ( $request )
-            {
+            ->where('id', '!=', $type->id)
+            ->where(function ($q) use ($request) {
                 $q
-                    ->where( 'name', '=', $request->get( 'name' ) );
-                if ( ! empty( $request->get( 'guid' ) ) )
-                {
+                    ->where('name', '=', $request->get('name'));
+                if (!empty($request->get('guid'))) {
                     $q
-                        ->orWhere( 'guid', '=', $request->get( 'guid' ) );
+                        ->orWhere('guid', '=', $request->get('guid'));
                 }
                 return $q;
-            } )
+            })
             ->first();
-        if ( $old )
-        {
+        if ($old) {
             return redirect()
                 ->back()
-                ->withErrors( [ 'Классификатор уже существует' ] );
+                ->withErrors(['Классификатор уже существует']);
         }
 
         $attributes = $request->all();
-        $attributes[ 'need_act' ] = $request->get( 'need_act', 0 );
-        $attributes[ 'emergency' ] = $request->get( 'emergency', 0 );
-        $attributes[ 'is_pay' ] = $request->get( 'is_pay', 0 );
-        $attributes[ 'works' ] = $request->get( 'works', 0 );
-        $attributes[ 'lk' ] = $request->get( 'lk', 0 );
+        $attributes['need_act'] = $request->get('need_act', 0);
+        $attributes['emergency'] = $request->get('emergency', 0);
+        $attributes['is_pay'] = $request->get('is_pay', 0);
+        $attributes['works'] = $request->get('works', 0);
+        $attributes['lk'] = $request->get('lk', 0);
 
-        $vendors = $request->get( 'vendors', '' );
+        $vendors = $request->get('vendors', '');
 
-        if ( count( $vendors ) )
-        {
+        if (count($vendors)) {
             $type->vendors()
                 ->detach();
 
-            if ( is_array( $vendors ) )
-            {
-                foreach ( $vendors as $vendorID )
-                {
-                    \Illuminate\Support\Facades\DB::table( 'types_vendors' )
+            if (is_array($vendors)) {
+                foreach ($vendors as $vendorID) {
+                    \Illuminate\Support\Facades\DB::table('types_vendors')
                         ->insert(
-                            [ 'type_id' => $type->id, 'vendor_id' => (int) $vendorID ]
+                            ['type_id' => $type->id, 'vendor_id' => (int)$vendorID]
                         );
                 }
             }
 
         }
 
-        $res = $type->edit( $attributes );
-        if ( $res instanceof MessageBag )
-        {
+        $res = $type->edit($attributes);
+        if ($res instanceof MessageBag) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( $res );
+                ->route('types.index')
+                ->withErrors($res);
         }
 
         self::clearCache();
 
         return redirect()
-            ->route( 'types.edit', $type->id )
-            ->with( 'success', 'Классификатор успешно отредактирован' );
+            ->route('types.edit', $type->id)
+            ->with('success', 'Классификатор успешно отредактирован');
 
     }
 
@@ -439,111 +349,104 @@ class TypesController extends BaseController
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy ( $id )
+    public function destroy($id)
     {
         //
     }
 
-    public function search ( Request $request )
+    public function search(Request $request)
     {
 
         $type = Type
             ::mine()
-            ->find( $request->get( 'type_id' ) );
+            ->find($request->get('type_id'));
 
         $type->category_name = $type->parent->name ?? $type->name;
-        if ( $type->description )
-        {
-            $type->description = nl2br( $type->description );
+        if ($type->description) {
+            $type->description = nl2br($type->description);
         }
 
         return $type;
 
     }
 
-    public function managements ( Request $request, $id )
+    public function managements(Request $request, $id)
     {
 
-        Title::add( 'Привязка УО' );
+        Title::add('Привязка УО');
 
         $type = Type::mine()
-            ->find( $id );
+            ->find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
-        $search = trim( $request->get( 'search', '' ) );
+        $search = trim($request->get('search', ''));
 
         $typeManagements = $type->managements()
-            ->orderBy( Management::$_table . '.name' );
+            ->orderBy(Management::$_table . '.name');
 
-        if ( ! empty( $search ) )
-        {
-            $s = '%' . str_replace( ' ', '%', $search ) . '%';
+        if (!empty($search)) {
+            $s = '%' . str_replace(' ', '%', $search) . '%';
             $typeManagements
-                ->where( Management::$_table . '.name', 'like', $s );
+                ->where(Management::$_table . '.name', 'like', $s);
         }
 
         $typeManagements = $typeManagements
-            ->paginate( config( 'pagination.per_page' ) )
-            ->appends( $request->all() );
+            ->paginate(config('pagination.per_page'))
+            ->appends($request->all());
 
         $availableManagements = Management
             ::mine()
-            ->whereNotIn( Management::$_table . '.id', $type->managements()
-                ->pluck( Management::$_table . '.id' ) )
-            ->orderBy( Management::$_table . '.name' )
+            ->whereNotIn(Management::$_table . '.id', $type->managements()
+                ->pluck(Management::$_table . '.id'))
+            ->orderBy(Management::$_table . '.name')
             ->get();
 
         $res = [];
-        foreach ( $availableManagements as $availableManagement )
-        {
-            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        foreach ($availableManagements as $availableManagement) {
+            $res[$availableManagement->parent->name ?? 'Без родителя'][$availableManagement->id] = $availableManagement->name;
         }
 
-        ksort( $res );
+        ksort($res);
         $availableManagements = $res;
 
-        return view( 'catalog.types.managements' )
-            ->with( 'type', $type )
-            ->with( 'search', $search )
-            ->with( 'typeManagements', $typeManagements )
-            ->with( 'availableManagements', $availableManagements );
+        return view('catalog.types.managements')
+            ->with('type', $type)
+            ->with('search', $search)
+            ->with('typeManagements', $typeManagements)
+            ->with('availableManagements', $availableManagements);
 
     }
 
-    public function managementsSearch ( Request $request, $id )
+    public function managementsSearch(Request $request, $id)
     {
 
-        $type = Type::find( $id );
+        $type = Type::find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
-        $s = '%' . str_replace( ' ', '%', trim( $request->get( 'q' ) ) ) . '%';
+        $s = '%' . str_replace(' ', '%', trim($request->get('q'))) . '%';
 
         $res = Management
             ::mine()
-            ->where( Management::$_table . '.name', 'like', $s )
-            ->whereNotIn( Management::$_table . '.id', $type->managements()
-                ->pluck( Management::$_table . '.id' ) )
-            ->orderBy( Management::$_table . '.name' )
+            ->where(Management::$_table . '.name', 'like', $s)
+            ->whereNotIn(Management::$_table . '.id', $type->managements()
+                ->pluck(Management::$_table . '.id'))
+            ->orderBy(Management::$_table . '.name')
             ->get();
 
         $managements = [];
-        foreach ( $res as $r )
-        {
+        foreach ($res as $r) {
             $name = $r->name;
-            if ( $r->parent )
-            {
+            if ($r->parent) {
                 $name = $r->parent->name . ' ' . $name;
             }
             $managements[] = [
@@ -556,60 +459,57 @@ class TypesController extends BaseController
 
     }
 
-    public function managementsAdd ( Request $request, $id )
+    public function managementsAdd(Request $request, $id)
     {
 
-        $type = Type::find( $id );
+        $type = Type::find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
         $type->managements()
-            ->attach( $request->get( 'managements' ) );
+            ->attach($request->get('managements'));
 
         return redirect()
             ->back()
-            ->with( 'success', 'УО успешно привязаны' );
+            ->with('success', 'УО успешно привязаны');
 
     }
 
-    public function managementsDel ( Request $request, $id )
+    public function managementsDel(Request $request, $id)
     {
 
         $rules = [
             'management_id' => 'required|integer',
         ];
 
-        $this->validate( $request, $rules );
+        $this->validate($request, $rules);
 
-        $type = Type::find( $id );
+        $type = Type::find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
         $type->managements()
-            ->detach( $request->get( 'management_id' ) );
+            ->detach($request->get('management_id'));
 
     }
 
-    public function managementsEmpty ( Request $request, $id )
+    public function managementsEmpty(Request $request, $id)
     {
 
-        $type = Type::find( $id );
+        $type = Type::find($id);
 
-        if ( ! $type )
-        {
+        if (!$type) {
             return redirect()
-                ->route( 'types.index' )
-                ->withErrors( [ 'Классификатор не найден' ] );
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
         }
 
         $type->managements()
@@ -617,28 +517,25 @@ class TypesController extends BaseController
 
         return redirect()
             ->back()
-            ->with( 'success', 'Привязки успешно удалены' );
+            ->with('success', 'Привязки успешно удалены');
 
     }
 
-    public function fix ( Request $request )
+    public function fix(Request $request)
     {
         $types = Type::mine()
             ->get();
-        foreach ( $types as $type )
-        {
-            if ( $type->category && ! $type->parent )
-            {
+        foreach ($types as $type) {
+            if ($type->category && !$type->parent) {
                 $newType = Type
                     ::mine()
-                    ->where( 'name', '=', $type->category->name )
+                    ->where('name', '=', $type->category->name)
                     ->first();
-                if ( ! $newType )
-                {
-                    $newType = Type::create( [
+                if (!$newType) {
+                    $newType = Type::create([
                         'provider_id' => $type->provider_id,
                         'name' => $type->category->name
-                    ] );
+                    ]);
                     $newType->save();
                 }
                 $type->parent_id = $newType->id;
@@ -647,78 +544,71 @@ class TypesController extends BaseController
         }
     }
 
-    public function massManagementsEdit ( Request $request )
+    public function massManagementsEdit(Request $request)
     {
 
-        Title::add( 'Привязка классификаторов к УО' );
+        Title::add('Привязка классификаторов к УО');
 
-        $id = $request->get( 'management_id', null );
+        $id = $request->get('management_id', null);
 
-        $management = Management::find( $id );
+        $management = Management::find($id);
 
-        if ( ! $management )
-        {
+        if (!$management) {
             return redirect()
-                ->route( 'managements.index' )
-                ->withErrors( [ 'УО не найдена' ] );
+                ->route('managements.index')
+                ->withErrors(['УО не найдена']);
         }
 
         $managementTypes = $management->types()
-            ->orderBy( Type::$_table . '.name' );
+            ->orderBy(Type::$_table . '.name');
 
         $managementTypesListString = $managementTypes->get()
-            ->pluck( 'id' )
-            ->implode( ',' );
+            ->pluck('id')
+            ->implode(',');
 
         $availableManagements = Management
             ::mine()
-            ->orderBy( Management::$_table . '.name' )
+            ->orderBy(Management::$_table . '.name')
             ->get();
 
         $res = [];
-        foreach ( $availableManagements as $availableManagement )
-        {
-            $res[ $availableManagement->parent->name ?? 'Без родителя' ][ $availableManagement->id ] = $availableManagement->name;
+        foreach ($availableManagements as $availableManagement) {
+            $res[$availableManagement->parent->name ?? 'Без родителя'][$availableManagement->id] = $availableManagement->name;
         }
 
-        ksort( $res );
+        ksort($res);
         $availableManagements = $res;
 
-        return view( 'catalog.types.mass-edit' )
-            ->with( 'availableManagements', $availableManagements )
-            ->with( 'management_id', $id )
-            ->with( 'managementTypesListString', $managementTypesListString );
+        return view('catalog.types.mass-edit')
+            ->with('availableManagements', $availableManagements)
+            ->with('management_id', $id)
+            ->with('managementTypesListString', $managementTypesListString);
     }
 
-    public function massManagementsAdd ( Request $request )
+    public function massManagementsAdd(Request $request)
     {
 
-        $managementID = $request->get( 'management_id', null );
+        $managementID = $request->get('management_id', null);
 
-        try
-        {
+        try {
 
-            $typesJSON = (string) $request->get( 'types', '' );
+            $typesJSON = (string)$request->get('types', '');
 
-            $types = explode( ',', $typesJSON );
+            $types = explode(',', $typesJSON);
 
-            $managements = $request->get( 'managements', [] );
+            $managements = $request->get('managements', []);
 
-            if ( is_array( $managements ) && count( $types ) )
-            {
-                foreach ( $managements as $management_id )
-                {
-                    foreach ( $types as $type_id )
-                    {
-                        $managementsType = \Illuminate\Support\Facades\DB::table( 'managements_types' )
-                            ->where( 'management_id', $management_id )
-                            ->where( 'type_id', $type_id )
+            if (is_array($managements) && count($types)) {
+                foreach ($managements as $management_id) {
+                    foreach ($types as $type_id) {
+                        $managementsType = \Illuminate\Support\Facades\DB::table('managements_types')
+                            ->where('management_id', $management_id)
+                            ->where('type_id', $type_id)
                             ->first();
 
-                        if ( ! $managementsType )
-                        {
+                        if (!$managementsType) {
 
-                            \Illuminate\Support\Facades\DB::table( 'managements_types' )
+                            \Illuminate\Support\Facades\DB::table('managements_types')
                                 ->insert(
                                     [
                                         'management_id' => $management_id,
@@ -729,18 +619,196 @@ class TypesController extends BaseController
                     }
                 }
             }
-        }
-        catch ( \Exception $exception )
-        {
-            dd( $exception->getMessage() );
+        } catch (\Exception $exception) {
             return redirect()
-                ->route( 'managements.types', [ 'management_id' => $managementID ] )
-                ->with( 'error', 'Ошибка привязки классификаторов к выбранным УО' );
+                ->route('managements.types', ['management_id' => $managementID])
+                ->with('error', 'Ошибка привязки классификаторов к выбранным УО');
         }
 
         return redirect()
-            ->route( 'managements.types', [ 'management_id' => $managementID ] )
-            ->with( 'success', 'Классификаторы успешно привязаны к выбранным УО' );
+            ->route('managements.types', ['management_id' => $managementID])
+            ->with('success', 'Классификаторы успешно привязаны к выбранным УО');
+    }
+
+    public function export(Request $request)
+    {
+
+        $idsString = trim($request->get('ids', null));
+
+        $queryString = trim($request->get('query_string', null));
+
+        $data = [];
+
+        if ($idsString) {
+            $idsArray = explode(',', $idsString);
+
+            if (count($idsArray)) {
+
+                $i = 0;
+                foreach ($idsArray as $id) {
+                    $type = Type::find($id);
+
+                    if ($type) {
+                        $data[$i] = $type->getTypeDataArrayForExcel();
+                        $i++;
+                    }
+
+                }
+            }
+        }
+
+        if ($queryString) {
+
+            $queryString = rawurldecode($queryString);
+
+            $falseRequest = ModelHelper::getFalseRequestFromQueryString($queryString);
+
+            $types = ( new Type() )->searchData( $falseRequest )->get();
+
+            $i = 0;
+            foreach ($types as $type) {
+                $data[$i] = $type->getTypeDataArrayForExcel();
+                $i++;
+            }
+
+        }
+
+        $this->addLog('Выгрузил список классификаторов');
+
+        $nowDate = Carbon::now()->format('d_m_y_H_i_s');
+
+        $fileName = 'ТИПЫ_' . $nowDate;
+
+        Config::set('excel.csv.delimiter', ';');
+
+        \Excel::create($fileName, function ($excel) use ($data, $fileName) {
+            $excel->sheet($fileName, function ($sheet) use ($data) {
+                $sheet->fromArray($data);
+            });
+        })
+            ->export('csv');
+
+        die;
+
+    }
+
+    public function exportDirectory(Request $request) {
+
+        if ( \Auth::user()->can( 'catalog.types.export_directory' ) ) {
+
+            $providers = Provider::select('id as provider id', 'name as Значение')->get()->toArray();
+
+            $vendors = Vendor::select('id as vendor id', 'name as Значение')->get()->toArray();
+
+            $groups = TypeGroup::select('id as group id', 'name as Значение')->get()->toArray();
+
+            $fileNameDirectory = 'СПРАВОЧНИК';
+
+            \Excel::create($fileNameDirectory, function ($excel) use ($providers, $vendors, $groups, $fileNameDirectory) {
+                $excel->sheet('Провайдеры', function ($sheet) use ($providers) {
+                    $sheet->fromArray($providers);
+                });
+                $excel->sheet('Вендоры', function ($sheet) use ($vendors) {
+                    $sheet->fromArray($vendors);
+                });
+                $excel->sheet('Группы', function ($sheet) use ($groups) {
+                    $sheet->fromArray($groups);
+                });
+            })
+                ->export('xlsx');
+
+        }
+
+        die;
+    }
+
+    public function upload(Request $request)
+    {
+        try {
+            set_time_limit(0);
+            ini_set('memory_limit', '256M');
+            $handle = fopen($request->file('file'), 'r');
+
+            $firstIgnore = false;
+            $i = 0;
+            while ($row = fgetcsv($handle, 1000, ';')) {
+                $i++;
+
+                if (count($row) != 15) {
+                    throw new \Exception("Неправильное число столбцов(строка $i)");
+                }
+
+                if (!$firstIgnore) {
+                    $firstIgnore = true;
+                    continue;
+                }
+
+                \DB::beginTransaction();
+
+                $typeId = $row[0];
+
+                if ($typeId) {
+                    $type = Type::find($typeId);
+
+                    if (!$type) {
+                        throw new \Exception("Тип с id $typeId не найден(строка $i)");
+                    }
+
+                } else {
+                    $type = new Type();
+                }
+
+                if (!empty($row[10])){
+
+                    $vendorsString = $row[10];
+                    if(strpos($vendorsString, '|')){
+
+                        $vendorsArray = explode('|', $vendorsString);
+                        $type->vendors()->detach();
+
+                        if (is_array($vendorsArray)) {
+                            foreach ($vendorsArray as $vendorID) {
+                                \Illuminate\Support\Facades\DB::table('types_vendors')
+                                    ->insert(
+                                        ['type_id' => $type->id, 'vendor_id' => (int)$vendorID]
+                                    );
+                            }
+                        }
+                    } else {
+                        \Illuminate\Support\Facades\DB::table('types_vendors')
+                            ->insert(
+                                ['type_id' => $type->id, 'vendor_id' => (int)$vendorsString]
+                            );
+                    }
+                }
+
+                $type->provider_id = $row[1];
+                $type->parent_id = ($row[2] < 1) ? null : $row[2];
+                $type->name = $row[4];
+                $type->period_acceptance = $row[5];
+                $type->period_execution = $row[6];
+                $type->need_act = $row[7];
+                $type->emergency = $row[8];
+                $type->is_pay = $row[9];
+                $type->guid = $row[10];
+                $type->mosreg_id = $row[11];
+                $type->group_id = $row[12];
+                $type->season = $row[13];
+                $type->description = $row[14];
+
+                $type->save();
+
+                \DB::commit();
+            }
+            return redirect()
+                ->back()
+                ->with('success', 'Данные успешно загружены');
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return redirect()
+                ->back()
+                ->withErrors([$e->getMessage()]);
+        }
     }
 
 }

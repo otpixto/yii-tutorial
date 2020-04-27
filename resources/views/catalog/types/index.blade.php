@@ -11,12 +11,45 @@
 
     @if ( \Auth::user()->can( 'catalog.types.create' ) )
         <div class="row margin-bottom-15">
-            <div class="col-xs-12">
+            <div class="col-xs-12 col-md-8">
                 <a href="{{ route( 'types.create' ) }}" class="btn btn-success btn-lg">
                     <i class="fa fa-plus"></i>
                     Добавить классификатор
                 </a>
             </div>
+
+            @if ( \Auth::user()->can( 'catalog.types.export_all_found' ) && !empty($queryString) )
+            <div class="col-xs-12 col-md-2">
+                <div class="row margin-top-15">
+                    <div class="center-align">
+                        {!! Form::open( [ 'url' => route( 'types.export' ), 'method' => 'get', ] ) !!}
+
+                        {!! Form::hidden( 'query_string', $queryString ) !!}
+
+                        <button type="submit" class="btn btn-file btn-sm">
+                            выгрузить все найденные
+                        </button>
+                        {!! Form::close(); !!}
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            @if ( \Auth::user()->can( 'catalog.types.export_directory' ) && !empty($queryString) )
+                <div class="col-xs-12 col-md-2">
+                    <div class="row margin-top-15">
+                        <div class="center-align">
+
+                            <a href="{{ route('types.export.directory') }}">
+                            <button type="submit" class="btn btn-default btn-sm">
+                                выгрузить справочники
+                            </button>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     @endif
 
@@ -99,6 +132,10 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                 <tr>
+                                    @if ( \Auth::user()->can( 'catalog.types.export' ) )
+                                        <th>
+                                        </th>
+                                    @endif
                                     <th width="20%">
                                         Категория
                                     </th>
@@ -136,6 +173,11 @@
                                 <tbody>
                                 @foreach ( $types as $type )
                                     <tr>
+                                        @if ( \Auth::user()->can( 'catalog.types.export' ) )
+                                            <td>
+                                                {!! Form::checkbox( 'ids[]', $type->id, false, [ 'class' => 'type-checkbox' ] ) !!}
+                                            </td>
+                                        @endif
                                         <td>
                                             {{ $type->parent_name ?: '-' }}
                                         </td>
@@ -144,7 +186,8 @@
                                         </td>
                                         @if ( \Auth::user()->can( 'catalog.managements.show' ) )
                                             <td class="text-center">
-                                                <a href="{{ route( 'types.managements', $type->id ) }}" class="badge badge-{{ $type->managements->count() ? 'info' : 'default' }} bold">
+                                                <a href="{{ route( 'types.managements', $type->id ) }}"
+                                                   class="badge badge-{{ $type->managements->count() ? 'info' : 'default' }} bold">
                                                     {{ $type->managements->count() }}
                                                 </a>
                                             </td>
@@ -203,7 +246,30 @@
                                 </tbody>
                             </table>
 
-                            {{ $types->render() }}
+                            <div class="row">
+                                <div class="col-md-9">
+                                    {{ $types->render() }}
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="row margin-top-15">
+                                        <div class="center-align">
+                                            {!! Form::open( [ 'url' => route( 'types.export' ), 'method' => 'get', 'id' => 'form-checkbox', 'class' => 'hidden' ] ) !!}
+                                            {!! Form::hidden( 'ids', null, [ 'id' => 'ids' ] ) !!}
+
+                                            <button type="submit" class="btn btn-default btn-sm">
+                                                Выгрузить в эксель (<span id="ids-count">0</span>)
+                                            </button>
+                                            {!! Form::close(); !!}
+                                            <div class="center-block center-align" style="margin-left: 50px;">
+                                                <a href="javascript:;" class="text-default hidden" id="cancel-checkbox">
+                                                    отмена
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                         @else
                             @include( 'parts.error', [ 'error' => 'Ничего не найдено' ] )
@@ -215,14 +281,61 @@
             <!-- END TODO CONTENT -->
         </div>
 
-    @else
+@section( 'js' )
+    <script type="text/javascript">
 
-        @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+        function checkTicketCheckbox(isAllData = false) {
+            $('#form-checkbox').removeClass('hidden');
+            $('#cancel-checkbox').removeClass('hidden');
 
-    @endif
+            var ids = [];
+            let i = 0;
+            $('.type-checkbox:checked').each(function () {
+                ids.push($(this).val());
+                i++;
+            });
+
+            $('#ids-count').text(ids.length);
+
+            if (ids.length) {
+                $('#ids').val(ids.join(','));
+            } else {
+                $('#ids').val('');
+            }
+            if (i == 0) {
+                $('#form-checkbox').addClass('hidden');
+                $('#cancel-checkbox').addClass('hidden');
+            }
+
+        }
+
+        function cancelCheckbox() {
+            $('.type-checkbox').removeAttr('checked');
+            checkTicketCheckbox();
+        };
+
+        $(document)
+
+            .on('click', '#cancel-checkbox', function (e) {
+                e.preventDefault();
+                cancelCheckbox();
+            })
+
+            .on('change', '.type-checkbox', function () {
+                checkTicketCheckbox(false)
+            })
+
+    </script>
+@endsection
+
+@else
+
+    @include( 'parts.error', [ 'error' => 'Доступ запрещен' ] )
+
+@endif
 
 @endsection
 
 @section( 'css' )
-    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/apps/css/todo-2.css" rel="stylesheet" type="text/css"/>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Catalog;
 
+use App\Classes\ModelHelper;
 use App\Classes\Title;
 use App\Models\Building;
 use App\Models\BuildingRoom;
@@ -388,24 +389,10 @@ class BuildingsController extends BaseController
         {
             $urlData = str_replace('+', ' ', rawurldecode($request->get( 'url_data' )));
 
-            $urlDataArray = explode( '&', $urlData );
+            $falseRequest = ModelHelper::getFalseRequestFromQueryString($urlData);
 
-            $requestArray = [];
-            foreach ( $urlDataArray as $urlDataItem )
-            {
-                $urlDataItemArray = explode( '=', $urlDataItem );
-
-                if ( isset( $urlDataItemArray[ 1 ] ) && ! empty( $urlDataItemArray[ 1 ] ) )
-                {
-                    $requestArray[$urlDataItemArray[ 0 ]] = $urlDataItemArray[ 1 ];
-                }
-            }
-            $falseRequest = Request::create(
-                '',
-                'POST',
-                $requestArray
-            );
             $buildings = ( new Building() )->searchData( $falseRequest );
+
             $idsArray = $buildings->pluck('id')->toArray();
         } elseif ($request->get( 'management_id' ))
         {

@@ -256,7 +256,12 @@ class Provider extends BaseModel
             }
             else
             {
-                $provider = self::current()->first();
+                if ( $host == 'dev.eds-juk.ru' ){
+                    $provider = self::first();
+                } else {
+                    $provider = self::current()->first();
+                }
+
                 \Cache::put( 'provider.' . $host, $provider, 1440 );
             }
             self::setCurrent( $provider );
