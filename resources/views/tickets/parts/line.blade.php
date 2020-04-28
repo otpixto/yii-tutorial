@@ -101,16 +101,16 @@
         @if ( \Auth::user()->can( 'tickets.field_management' ) )
             @if ( $ticketManagement->management->parent )
                 <div class="text-muted">
-                    {{ $ticketManagement->management->parent->name }}
+                    <b>{{ $ticketManagement->management->parent->name }}</b>
                 </div>
             @endif
             <div class="small">
-                {{ $ticketManagement->management->name }}
+                <b>{{ $ticketManagement->management->name }}</b>
             </div>
         @endif
         @if ( $ticketManagement->executor )
             <div class="small text-info">
-                {{ $ticketManagement->executor->name }}
+                <b>{{ $ticketManagement->executor->name }}</b>
             </div>
         @endif
         <br>
