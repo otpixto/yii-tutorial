@@ -77,8 +77,8 @@ class WebhookController extends Controller
                 ->first();
 
             if (!$ticketManagement) {
-                $ticketManagement = $management->tickets()
-                    ->where('vendor_number', '=', $data->mosreg_number)
+                $ticketManagement = TicketManagement::
+                    where('mosreg_id', '=', $mosreg_id)
                     ->first();
             }
 
