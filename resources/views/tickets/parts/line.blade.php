@@ -97,7 +97,7 @@
                 {{ $ticketManagement->ticket->getProgressData()[ 'title' ] }}
             @endif
         </div>
-            @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_number) )
+            @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_decision_date) )
                 <div class="breadcrumbs margin-top-20">
                     <h1 class="title">
                     <span class="small">
