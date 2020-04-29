@@ -53,50 +53,22 @@
                 {{ $ticketManagement->ticket->author->getName() }}
             </div>
         @endif
-    </td>
-    {{--<td>
-        <div class="small">
-            <span class="text-muted">
-                Создано
-            </span>
-            <b>{{ $ticketManagement->ticket->created_at->format( 'd.m.Y H:i' ) }}</b>
-        </div>
-        <div class="small">
-            <span class="text-muted">
-                Принять до
-            </span>
-            <span class="bold {{ $ticketManagement->ticket->overdueDeadlineAcceptance() ? 'text-danger' : 'text-success' }}">
-                @if ( $ticketManagement->ticket->deadline_acceptance )
-                    {{ $ticketManagement->ticket->deadline_acceptance->format( 'd.m.Y H:i' ) }}
-                @else
-                    -
-                @endif
-            </span>
-        </div>
-        <div class="small">
-            <span class="text-muted">
-                Выполнить до
-            </span>
-            <span class="bold {{ $ticketManagement->ticket->overdueDeadlineExecution() ? 'text-danger' : 'text-success' }}">
-                @if ( $ticketManagement->ticket->deadline_execution )
-                    {{ $ticketManagement->ticket->deadline_execution->format( 'd.m.Y H:i' ) }}
-                @else
-                    -
-                @endif
-            </span>
-        </div>
-        @if ( $ticketManagement->ticket->postponed_to )
-            <div class="small">
-                <span class="text-muted">
-                    Отложено до
-                </span>
-                <span class="bold {{ $ticketManagement->ticket->overdueDeadlinePostponed() ? 'text-danger' : 'text-success' }}">
-                {{ $ticketManagement->ticket->postponed_to->format( 'd.m.Y H:i' ) }}
-            </span>
+        @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_number) )
+            <div class="breadcrumbs margin-top-20">
+                <h1 class="title">
+                    <span class="small">
+                    ДОБРОДЕЛ №
+                        <b>
+                            <a href="https://dobrodel.mosreg.ru/claims/{{ $ticketManagement->ticket->vendor_number }}"
+                               target="_blank">
+                                {{ $ticketManagement->ticket->vendor_number }}
+                            </a>
+                        </b>
+                    </span>
+                </h1>
             </div>
         @endif
-    </td>--}}
-
+    </td>
     <td>
         @if ( \Auth::user()->can( 'tickets.field_management' ) )
             @if ( $ticketManagement->management->parent )
@@ -125,6 +97,19 @@
                 {{ $ticketManagement->ticket->getProgressData()[ 'title' ] }}
             @endif
         </div>
+            @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_number) )
+                <div class="breadcrumbs margin-top-20">
+                    <h1 class="title">
+                    <span class="small">
+                    СРОК РЕШЕНИЯ ДО
+                        <b>
+                                {{ \Illuminate\Support\Carbon::parse($ticketManagement->ticket->vendor_decision_date)->format('d.m.Y') }}
+
+                        </b>
+                    </span>
+                    </h1>
+                </div>
+            @endif
     </td>
     <td>
         @if ( $ticketManagement->ticket->type )
@@ -144,21 +129,7 @@
                     Аварийная
                 </span>
             @endif
-            @if ( $ticketManagement->ticket->dobrodel || $ticketManagement->ticket->vendor_id == \App\Models\Vendor::DOBRODEL_VENDOR_ID && !empty($ticketManagement->ticket->vendor_number) )
-                <div class="breadcrumbs">
-                    <h1 class="title">
-                    <span class="small">
-                    ДОБРОДЕЛ №
-                        <b>
-                            <a href="https://dobrodel.mosreg.ru/claims/{{ $ticketManagement->ticket->vendor_number }}"
-                               target="_blank">
-                                {{ $ticketManagement->ticket->vendor_number }}
-                            </a>
-                        </b>
-                    </span>
-                    </h1>
-                </div>
-            @endif
+
             @if ( $ticketManagement->ticket->from_lk )
                 <span class="badge badge-warning bold">
                     <i class="icon-user-follow"></i>
