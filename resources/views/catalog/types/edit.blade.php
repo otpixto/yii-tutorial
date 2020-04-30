@@ -49,6 +49,12 @@
                         {!! Form::submit( 'Сохранить', [ 'class' => 'btn green' ] ) !!}
                     </div>
                     <div class="col-xs-6 text-right">
+                        <a href="{{ route( 'types.users', $type->id ) }}" class="btn btn-default btn-circle">
+                            Пользователи
+                            <span class="badge">
+                                {{ $type->users()->count() }}
+                            </span>
+                        </a>
                         @if ( ! $type->parent )
                             <a href="{{ route( 'types.index', [ 'parent_id' => $type->id ] ) }}"
                                class="btn btn-default btn-circle">

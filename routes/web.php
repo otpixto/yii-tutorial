@@ -304,11 +304,15 @@ Route::group( [ 'middleware' => [ 'web', 'srm' ] ], function ()
             Route::get( 'types/fix', 'Catalog\TypesController@fix' )->name( 'types.fix' );
             Route::post( 'types/json', 'Catalog\TypesController@json' )->name( 'types.json' );
             Route::post( 'types/search', 'Catalog\TypesController@search' )->name( 'types.search' );
+            Route::get( 'types/{type_id}/users', 'Catalog\TypesController@users' )->name( 'types.users' );
             Route::get( 'types/{type_id}/managements', 'Catalog\TypesController@managements' )->name( 'types.managements' );
             Route::post( 'types/{type_id}/managements/search', 'Catalog\TypesController@managementsSearch' )->name( 'types.managements.search' );
             Route::put( 'types/{type_id}/managements/add', 'Catalog\TypesController@managementsAdd' )->name( 'types.managements.add' );
+            Route::put( 'types/{type_id}/users/add', 'Catalog\TypesController@usersAdd' )->name( 'types.users.add' );
             Route::delete( 'types/{type_id}/managements/del', 'Catalog\TypesController@managementsDel' )->name( 'types.managements.del' );
+            Route::delete( 'types/{type_id}/users/del', 'Catalog\TypesController@usersDel' )->name( 'types.users.del' );
             Route::delete( 'types/{type_id}/managements/empty', 'Catalog\TypesController@managementsEmpty' )->name( 'types.managements.empty' );
+            Route::delete( 'types/{type_id}/users/empty', 'Catalog\TypesController@usersEmpty' )->name( 'types.users.empty' );
             Route::get( 'types/managements/mass-edit', 'Catalog\TypesController@massManagementsEdit' )->name( 'types.managements.massManagementsEdit' );
             Route::post( 'types/managements/mass-add', 'Catalog\TypesController@massManagementsAdd' )->name( 'types.managements.massManagementsAdd' );
 

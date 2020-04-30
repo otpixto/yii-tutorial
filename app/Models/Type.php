@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\User;
 use Illuminate\Support\Facades\Auth;
 
 class Type extends BaseModel
@@ -74,6 +75,15 @@ class Type extends BaseModel
         return $this->belongsToMany(Vendor::class, 'types_vendors')
             ->withPivot(
                 'vendor_id',
+                'type_id'
+            );
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'users_types')
+            ->withPivot(
+                'user_id',
                 'type_id'
             );
     }

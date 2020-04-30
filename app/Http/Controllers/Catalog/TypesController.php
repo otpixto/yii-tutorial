@@ -10,6 +10,7 @@ use App\Models\Provider;
 use App\Models\Type;
 use App\Models\TypeGroup;
 use App\Models\Vendor;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -370,6 +371,58 @@ class TypesController extends BaseController
 
     }
 
+    public function users(Request $request, $id)
+    {
+
+        Title::add('Привязка пользователя');
+
+        $type = Type::mine()
+            ->find($id);
+
+        if (!$type) {
+            return redirect()
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
+        }
+
+        $search = trim($request->get('search', ''));
+
+        $typeUsers = $type->users()
+            ->orderBy(User::$_table . '.lastname');
+
+        if (!empty($search)) {
+            $s = '%' . str_replace(' ', '%', $search) . '%';
+            $typeUsers
+                ->where(User::$_table . '.lastname', 'like', $s);
+        }
+
+            $typeUsers = $typeUsers
+            ->paginate(config('pagination.per_page'))
+            ->appends($request->all());
+
+        $availableUsers = User
+            ::mine()
+            ->whereNotIn(User::$_table . '.id', $type->users()
+                ->pluck(User::$_table . '.id'))
+            ->orderBy(User::$_table . '.lastname')
+            ->get();
+
+        $res = [];
+        foreach ($availableUsers as $availableUser) {
+            $res[$availableUser->id] = $availableUser->getName();
+        }
+
+        ksort($res);
+        $availableUsers = $res;
+
+        return view('catalog.types.users')
+            ->with('type', $type)
+            ->with('search', $search)
+            ->with('typeUsers', $typeUsers)
+            ->with('availableUsers', $availableUsers);
+
+    }
+
     public function managements(Request $request, $id)
     {
 
@@ -419,6 +472,68 @@ class TypesController extends BaseController
             ->with('search', $search)
             ->with('typeManagements', $typeManagements)
             ->with('availableManagements', $availableManagements);
+
+    }
+
+    public function usersAdd(Request $request, $id)
+    {
+
+        $type = Type::find($id);
+
+        if (!$type) {
+            return redirect()
+                ->route('types.index')
+                ->withErrors(['Классификатор не найден']);
+        }
+
+        $type->users()
+            ->attach($request->get('users'));
+
+        return redirect()
+            ->back()
+            ->with('success', 'Пользователи успешно привязаны');
+
+    }
+
+    public function usersDel(Request $request, $id)
+    {
+
+        $rules = [
+            'user_id' => 'required|integer',
+        ];
+
+        $this->validate($request, $rules);
+
+        $type = Type::find($id);
+
+        if (!$type) {
+            return redirect()
+                ->route('types.index')
+                ->withErrors(['Пользователь не найден']);
+        }
+
+        $type->users()
+            ->detach($request->get('user_id'));
+
+    }
+
+    public function usersEmpty(Request $request, $id)
+    {
+
+        $type = Type::find($id);
+
+        if (!$type) {
+            return redirect()
+                ->route('types.index')
+                ->withErrors(['Пользователь не найден']);
+        }
+
+        $type->users()
+            ->detach();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Привязки успешно удалены');
 
     }
 
