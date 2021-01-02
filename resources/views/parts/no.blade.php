@@ -1,1 +1,0 @@
-<i class="glyphicon glyphicon-remove text-danger"></i>
