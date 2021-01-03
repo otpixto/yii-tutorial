@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\EntryForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\Request;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -124,5 +126,22 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionHello(string $message = 'Hello')
+    {
+        return $this->render('hello', compact('message'));
+    }
+
+    public function actionEntry(Request $request)
+    {
+        $model = new EntryForm();
+
+        if($model->load($request->post()) && $model->validate())
+        {
+            return $this->render('entry-confirm', compact('model'));
+        } else {
+            return $this->render('entry', compact('model'));
+        }
     }
 }
